@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -41,16 +41,20 @@ public:
 
    @param ptObj
       Pointer to the object that was not finalized.
-   @param pObj
-      Pointer to the object that was not finalized.
-   @param pti
-      Pointer to the type of *pObj.
    */
    template <typename T>
    void init(T const * ptObj) {
-      init(ptObj, &typeid(*ptObj));
+      init(ptObj, typeid(*ptObj));
    }
-   void init(void const * pObj, std::type_info const * pti);
+
+   /*! See abc::exception::init().
+
+   @param pObj
+      Pointer to the object that was not finalized.
+   @param pti
+      Type of *pObj.
+   */
+   void init(void const * pObj, std::type_info const & pti);
 
 protected:
    //! See abc::exception::write_extended_info().

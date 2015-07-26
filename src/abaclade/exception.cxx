@@ -398,10 +398,10 @@ destructing_unfinalized_object::destructing_unfinalized_object() {
 /*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() {
 }
 
-void destructing_unfinalized_object::init(void const * pObj, std::type_info const * pti) {
+void destructing_unfinalized_object::init(void const * pObj, std::type_info const & ti) {
    // TODO: enable this for Win32.
 #if !ABC_HOST_API_WIN32
-   m_sWhat = istr(ABC_SL("object being destructed: {} @ {}")).format(*pti, pObj);
+   m_sWhat = istr(ABC_SL("object being destructed: {} @ {}")).format(ti, pObj);
    m_pszWhat = m_sWhat.c_str();
 #endif
 }
