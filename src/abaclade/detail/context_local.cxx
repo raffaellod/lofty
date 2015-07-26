@@ -65,7 +65,9 @@ context_local_storage_impl::~context_local_storage_impl() {
 void * context_local_storage_impl::get_storage(context_local_storage_node_impl const & clsni) {
    void * pb = &m_pb[clsni.m_ibStorageOffset];
    if (!m_pbConstructed[clsni.m_iStorageIndex]) {
-      clsni.construct(pb);
+      if (clsni.construct) {
+         clsni.construct(pb);
+      }
       m_pbConstructed[clsni.m_iStorageIndex] = true;
    }
    return pb;
@@ -78,9 +80,13 @@ bool context_local_storage_impl::destruct_vars(context_local_storage_registrar_i
    for (auto it(clsri.rbegin()), itEnd(clsri.rend()); it != itEnd; ++it) {
       auto & clsni = static_cast<context_local_storage_node_impl &>(*it);
       if (m_pbConstructed[--i]) {
-         clsni.destruct(&m_pb[clsni.m_ibStorageOffset]);
+         if (clsni.destruct) {
+            clsni.destruct(&m_pb[clsni.m_ibStorageOffset]);
+            /* Only set bAnyDestructed if we executed a destructor: if we didn’t, it can’t have
+            re-constructed any other variables. */
+            bAnyDestructed = true;
+         }
          m_pbConstructed[i] = false;
-         bAnyDestructed = true;
       }
    }
    return bAnyDestructed;

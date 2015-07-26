@@ -245,8 +245,50 @@ protected:
 namespace abc { namespace detail {
 
 //! Implementation of abc::thread_local_value and abc::coroutine_local_value.
+template <typename T, typename TStorage, bool t_bTrivial = std::is_trivial<T>::value>
+class context_local_value;
+
+// Partial specialization for trivial types.
 template <typename T, typename TStorage>
-class context_local_value :
+class context_local_value<T, TStorage, true> :
+   public context_local_var_impl<T, TStorage>,
+   public support_explicit_operator_bool<context_local_value<T, TStorage, true>> {
+public:
+   //! Constructor.
+   context_local_value() {
+      this->construct = nullptr;
+      this->destruct  = nullptr;
+   }
+
+   /*! Assignment operator.
+
+   @param t
+      Source object.
+   @return
+      *this.
+   */
+   context_local_value & operator=(T const & t) {
+      *this->get_ptr() = t;
+      return *this;
+   }
+   context_local_value & operator=(T && t) {
+      *this->get_ptr() = std::move(t);
+      return *this;
+   }
+
+   /*! Returns true if the object’s value evaluates to true.
+
+   @return
+      Result of the evaluation of the object’s value in a boolean context.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return *this->get_ptr() ? true : false;
+   }
+};
+
+// Partial specialization for non-trivial types.
+template <typename T, typename TStorage>
+class context_local_value<T, TStorage, false> :
    public context_local_var_impl<T, TStorage>,
    public support_explicit_operator_bool<context_local_value<T, TStorage>> {
 public:
@@ -293,14 +335,14 @@ private:
    }
 };
 
-// Specialization for bool, which does not need operator bool().
+// Specialization for bool: doesn’t need explicit operator bool() since it has it non-explicit.
 template <typename TStorage>
-class context_local_value<bool, TStorage> : public context_local_var_impl<bool, TStorage> {
+class context_local_value<bool, TStorage, true> : public context_local_var_impl<bool, TStorage> {
 public:
    //! Constructor.
    context_local_value() {
-      this->construct = &construct_impl;
-      this->destruct  = &destruct_impl;
+      this->construct = nullptr;
+      this->destruct  = nullptr;
    }
 
    /*! Assignment operator.
@@ -314,24 +356,13 @@ public:
       *this->get_ptr() = b;
       return *this;
    }
-
-private:
-   //! Implementation of context_local_var_impl::construct().
-   static void construct_impl(void * p) {
-      new(p) bool();
-   }
-
-   //! Implementation of context_local_var_impl::destruct().
-   static void destruct_impl(void * p) {
-      ABC_UNUSED_ARG(p);
-   }
 };
 
 // Specialization for std::shared_ptr, which offers a few additional methods.
 template <typename T, typename TStorage>
-class context_local_value<std::shared_ptr<T>, TStorage> :
+class context_local_value<std::shared_ptr<T>, TStorage, false> :
    public context_local_var_impl<std::shared_ptr<T>, TStorage>,
-   public support_explicit_operator_bool<context_local_value<std::shared_ptr<T>, TStorage>> {
+   public support_explicit_operator_bool<context_local_value<std::shared_ptr<T>, TStorage, false>> {
 public:
    //! Constructor.
    context_local_value() {
@@ -445,7 +476,8 @@ private:
 public:
    //! Constructor.
    context_local_ptr() {
-      this->construct = &construct_impl;
+      // No constructor: we’d only set bConstructed to false, which is already its value (0).
+      this->construct = nullptr;
       this->destruct  = &destruct_impl;
    }
 
@@ -516,13 +548,6 @@ public:
    }
 
 private:
-   //! Implementation of context_local_var_impl::construct().
-   static void construct_impl(void * p) {
-      value_t<T> * pValue = static_cast<value_t<T> *>(p);
-      pValue->bConstructed = false;
-      // Note that pValue.t is left uninitialized.
-   }
-
    //! Implementation of context_local_var_impl::destruct().
    static void destruct_impl(void * p) {
       value_t<T> * pValue = static_cast<value_t<T> *>(p);
