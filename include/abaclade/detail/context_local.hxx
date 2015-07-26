@@ -462,7 +462,7 @@ namespace abc { namespace detail {
 
 //! Contains a T and a bool to track whether the T has been constructed.
 template <typename T>
-struct value_t {
+struct context_local_ptr_value {
    T t;
    bool bConstructed;
 };
@@ -470,7 +470,7 @@ struct value_t {
 //! Implementation of abc::thread_local_ptr and abc::coroutine_local_ptr.
 template <typename T, typename TStorage>
 class context_local_ptr :
-   public context_local_var_impl<value_t<T>, TStorage>,
+   public context_local_var_impl<context_local_ptr_value<T>, TStorage>,
    public support_explicit_operator_bool<context_local_ptr<T, TStorage>> {
 private:
 public:
@@ -514,8 +514,8 @@ public:
       Internal pointer.
    */
    T * get() const {
-      value_t<T> * pValue = this->get_ptr();
-      return pValue->bConstructed ? &pValue->t : nullptr;
+      auto pvalue = this->get_ptr();
+      return pvalue->bConstructed ? &pvalue->t : nullptr;
    }
 
    /*! Deletes the object currently pointed to, if any, resetting the pointer to nullptr.
@@ -524,10 +524,10 @@ public:
       Pointer to a new object to take ownership of.
    */
    void reset() {
-      value_t<T> * pValue = this->get_ptr();
-      if (pValue->bConstructed) {
-         pValue->t.~T();
-         pValue->bConstructed = false;
+      auto pvalue = this->get_ptr();
+      if (pvalue->bConstructed) {
+         pvalue->t.~T();
+         pvalue->bConstructed = false;
       }
    }
 
@@ -540,19 +540,19 @@ public:
    */
    T * reset_new(T tSrc = T()) {
       reset();
-      value_t<T> * pValue = this->get_ptr();
+      auto pvalue = this->get_ptr();
       // The constructor invoked is T::T(T &&), which should not throw.
-      new(&pValue->t) T(std::move(tSrc));
-      pValue->bConstructed = true;
-      return &pValue->t;
+      new(&pvalue->t) T(std::move(tSrc));
+      pvalue->bConstructed = true;
+      return &pvalue->t;
    }
 
 private:
    //! Implementation of context_local_var_impl::destruct().
    static void destruct_impl(void * p) {
-      value_t<T> * pValue = static_cast<value_t<T> *>(p);
-      if (pValue->bConstructed) {
-         pValue->t.~T();
+      auto pvalue = static_cast<context_local_ptr_value<T> *>(p);
+      if (pvalue->bConstructed) {
+         pvalue->t.~T();
       }
    }
 };
