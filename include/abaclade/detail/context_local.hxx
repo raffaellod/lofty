@@ -522,11 +522,7 @@ public:
       return pvalue->bConstructed ? &pvalue->t : nullptr;
    }
 
-   /*! Deletes the object currently pointed to, if any, resetting the pointer to nullptr.
-
-   @param pt
-      Pointer to a new object to take ownership of.
-   */
+   //! Deletes the object currently pointed to, if any, resetting the pointer to nullptr.
    void reset() {
       auto pvalue = this->get_ptr();
       if (pvalue->bConstructed) {
