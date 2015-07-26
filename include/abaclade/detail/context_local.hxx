@@ -332,6 +332,10 @@ private:
    //! Implementation of context_local_var_impl::destruct().
    static void destruct_impl(void * p) {
       static_cast<T *>(p)->~T();
+#if ABC_HOST_CXX_MSC
+   // MSC18 BUG: it somehow thinks that p is not referenced, so it warns about it.
+   #pragma warning(suppress: 4100)
+#endif
    }
 };
 
