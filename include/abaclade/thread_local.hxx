@@ -108,16 +108,16 @@ private:
    static void destruct(void * pThis = &instance());
 #endif
 
-   //! Deallocates the TLS slot for the process.
-   // TODO: call free_slot() in the POSIX Threads case using reference counting in destruct().
-   static void free_slot();
-
 private:
    /*! Storage for the active coroutine. If a coroutine::scheduler is running on a thread, this is
    replaced on each change of coroutine::scheduler::sm_pcoroctxActive. */
    coroutine_local_storage m_crls;
    //! Normally a pointer to m_crls, but replaced while a coroutine is being actively executed.
    coroutine_local_storage * m_pcrls;
+#if ABC_HOST_API_POSIX
+   //! Counts how many storage instances exist, so that there’s a way to release the TLS slot.
+   static std::atomic<unsigned> sm_cInstances;
+#endif
 };
 
 

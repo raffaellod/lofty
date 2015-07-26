@@ -38,6 +38,7 @@ thread_local_storage_registrar::data_members thread_local_storage_registrar::sm_
 namespace abc { namespace detail {
 
 #if ABC_HOST_API_POSIX
+   std::atomic<unsigned> thread_local_storage::sm_cInstances(0);
    //! One-time initializer for g_pthkey.
    static pthread_once_t g_pthonce = PTHREAD_ONCE_INIT;
    //! TLS key.
@@ -53,6 +54,7 @@ thread_local_storage::thread_local_storage() :
 
 #if ABC_HOST_API_POSIX
    pthread_setspecific(g_pthkey, this);
+   ++sm_cInstances;
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, this);
 #endif
@@ -71,6 +73,9 @@ thread_local_storage::~thread_local_storage() {
 
 #if ABC_HOST_API_POSIX
    pthread_setspecific(g_pthkey, nullptr);
+   if (--sm_cInstances == 0) {
+      pthread_key_delete(g_pthkey);
+   }
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, nullptr);
 #endif
@@ -108,21 +113,13 @@ thread_local_storage::~thread_local_storage() {
       which case nothing will happen. */
       delete &instance(false);
       if (iReason == DLL_PROCESS_DETACH) {
-         free_slot();
+         ::TlsFree(g_iTls);
       }
    }
    // TODO: handle errors and return false in case.
    return true;
 }
 #endif //if ABC_HOST_API_WIN32
-
-/*static*/ void thread_local_storage::free_slot() {
-#if ABC_HOST_API_POSIX
-   pthread_key_delete(g_pthkey);
-#elif ABC_HOST_API_WIN32
-   ::TlsFree(g_iTls);
-#endif
-}
 
 /*static*/ thread_local_storage & thread_local_storage::instance(bool bCreateNewIfNull /*= true*/) {
    void * pThis;
