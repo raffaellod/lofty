@@ -97,6 +97,10 @@ thread_local_storage::~thread_local_storage() {
 
 #if ABC_HOST_API_POSIX
 /*static*/ void thread_local_storage::destruct(void * pThis /*= &instance()*/) {
+   /* This is necessary (at least under Linux/glibc) to prevent creating a duplicate (which will be
+   leaked) due to re-entrant calls to instance() in the destructor. The destructor ensures that this
+   pointer is eventually cleared. */
+   pthread_setspecific(g_pthkey, pThis);
    delete static_cast<thread_local_storage *>(pThis);
 }
 #endif
