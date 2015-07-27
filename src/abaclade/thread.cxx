@@ -526,7 +526,7 @@ namespace abc {
 
 thread::~thread() {
    if (joinable()) {
-      std::terminate();
+      std::abort();
    }
 }
 
