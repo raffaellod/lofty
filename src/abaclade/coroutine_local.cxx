@@ -33,6 +33,10 @@ coroutine_local_storage_registrar::data_members coroutine_local_storage_registra
 
 namespace abc { namespace detail {
 
+coroutine_local_storage::coroutine_local_storage() :
+   context_local_storage_impl(&coroutine_local_storage_registrar::instance()) {
+}
+
 coroutine_local_storage::~coroutine_local_storage() {
    unsigned iRemainingAttempts = 10;
    bool bAnyDestructed;

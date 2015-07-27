@@ -62,10 +62,8 @@ public:
    typedef coroutine_local_storage_registrar registrar;
 
 public:
-   //! Constructor.
-   coroutine_local_storage() :
-      context_local_storage_impl(&coroutine_local_storage_registrar::instance()) {
-   }
+   //! Default constructor.
+   coroutine_local_storage();
 
    //! Destructor.
    ~coroutine_local_storage();
