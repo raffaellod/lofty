@@ -567,16 +567,9 @@ void thread::join() {
       // TODO: use a better exception class.
       ABC_THROW(argument_error, ());
    }
-   auto deferred1(defer_to_scope_end([this] () {
-      /* Release the impl instance; this will also make joinable() return false.
-      If *this was interrupted, it might cause the current thread to be interrupted as well; make
-      sure that m_pimpl is released in any case. Under POSIX, pthread_join() will not return EINTR,
-      meaning that we can rely on the fact that *this really terminated, so releasing the pointer is
-      correct; under Win32, TODO: validate. */
-      m_pimpl.reset();
-   }));
-   m_pimpl->join();
-   // deferred1 will release m_pimpl.
+   // Empty m_pimpl; this will also make joinable() return false.
+   auto pimpl(std::move(m_pimpl));
+   pimpl->join();
 }
 
 thread::native_handle_type thread::native_handle() const {
