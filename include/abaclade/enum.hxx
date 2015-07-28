@@ -22,10 +22,10 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 /*! @file
-Facilities to create smart enumerations, as described in @ref enumeration_classes
+Facilities to create smart enumerations, as described in @ref enumeration-classes
 */
 
-/*! @page enumeration_classes Enumeration classes
+/*! @page enumeration-classes Enumeration classes
 Support for advanced enumeration classes. These are the features that set them apart from C++11
 “enum class” enumerations:
 
@@ -135,7 +135,7 @@ namespace abc {
 
 //! @endcond
 
-/*! Defines an enumeration class as a specialization of abc::enum_impl. See @ref enumeration_classes
+/*! Defines an enumeration class as a specialization of abc::enum_impl. See @ref enumeration-classes
 for more information.
 
 TODO: support for bit-field enumerations? Allow logical operation, smart conversion to/from string,
@@ -157,7 +157,7 @@ etc.
       public: \
    )
 
-/*! Defines an enumeration class as a specialization of abc::enum_impl. See @ref enumeration_classes
+/*! Defines an enumeration class as a specialization of abc::enum_impl. See @ref enumeration-classes
 for more information. Similar to ABC_ENUM(), except the members are listed individually and their
 values cannot be explicitly specified; for example:
 

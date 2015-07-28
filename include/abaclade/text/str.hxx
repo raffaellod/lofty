@@ -122,7 +122,7 @@ namespace abc { namespace text { namespace detail {
 /*! Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
 trailing NUL character.
 
-See @ref vextr_design for implementation details for this and derived classes, such as
+See @ref vextr-design for implementation details for this and derived classes, such as
 abc::text::istr. */
 class ABACLADE_SYM str_base :
    protected collections::detail::raw_trivial_vextr_impl,

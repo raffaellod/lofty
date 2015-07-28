@@ -415,7 +415,7 @@ public:
    requirement for explicit specification of the argument types (such as %d, %s), much like Python’s
    str.format().
 
-   Because of its type-safety, print() is also the core of @ref stack_tracing, as it allows to print
+   Because of its type-safety, print() is also the core of @ref stack-tracing, as it allows to print
    a variable by automatically deducing its type.
 
    The format string passed as first argument to abc::io::text::writer::print() can contain

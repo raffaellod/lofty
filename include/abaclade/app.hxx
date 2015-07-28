@@ -128,7 +128,7 @@ private:
 This defines the actual entry point of the program, using whatever protocol is supported by the host
 (e.g. int main(…) on POSIX, BOOL WinMain(…) on Windows GUI). This is a very thin wrapper around
 static methods in abc::app which take care of setting up the outermost try/catch block to intercept
-uncaught exceptions (see @ref stack_tracing), as well as instantiating the application-defined
+uncaught exceptions (see @ref stack-tracing), as well as instantiating the application-defined
 abc::app-derived class, invoking its overridden main() method, and returning.
 
 @param cls

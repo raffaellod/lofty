@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with Aba
 Globals in the abc::text namespace.
 */
 
-/*! @page unicode_support Unicode support
+/*! @page unicode-support Unicode support
 Specification of the level of support for Unicode and UTF encodings.
 
 Abaclade comes with full built-in support for Unicode. The C++11 char32_t type (typedef-ined by

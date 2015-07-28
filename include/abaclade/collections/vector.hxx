@@ -376,7 +376,7 @@ class dmvector;
 
 namespace abc { namespace collections { namespace detail {
 
-/*! Base class for vectors. See @ref vextr_design for implementation details for this and derived
+/*! Base class for vectors. See @ref vextr-design for implementation details for this and derived
 classes, such as abc::collections::mvector. */
 template <typename T, bool t_bCopyConstructible = std::is_copy_constructible<T>::value>
 class vector_base;

@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade/type_void_adapter.hxx>
 
-/*! @page vextr_design High-efficiency strings and vectors
+/*! @page vextr-design High-efficiency strings and vectors
 Design of abc::text::istr, abc::collections::mvector, and related classes.
 
 Abaclade’s string and vector classes are intelligent wrappers around C arrays; they are able to
@@ -248,7 +248,7 @@ Key:
 namespace abc { namespace collections { namespace detail {
 
 /*! Stores an item array and its capacity. Used as a real template by classes with embedded item
-array in the “upper level” hierarchy (see @ref vextr_design), and used with template capacity == 1
+array in the “upper level” hierarchy (see @ref vextr-design), and used with template capacity == 1
 for all non-template-driven manipulations in non-template code in the “lower-level” hierarchy, which
 relies on m_cbCapacity instead. */
 template <typename T, std::size_t t_ciEmbeddedCapacity>
@@ -819,7 +819,7 @@ public:
    }
 
    /*! Moves the source’s item array to *this. This must be called with rtvi being in control of a
-   non-prefixed item array, or a dynamic prefixed item array; see @ref vextr_design to see how *str
+   non-prefixed item array, or a dynamic prefixed item array; see @ref vextr-design to see how *str
    and *vector ensure this.
 
    @param rtvi

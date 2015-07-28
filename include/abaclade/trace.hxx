@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with Aba
 Stack tracing infrastructure.
 */
 
-/*! @page stack_tracing Stack tracing
+/*! @page stack-tracing Stack tracing
 Automatic generation of stack traces whenever an exception occurs.
 
 Any function that is not of negligible size and is not an hotspot should invoke, as its first line,
