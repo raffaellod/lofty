@@ -115,7 +115,7 @@ public:
    }
 #endif
 
-   /*! Injects the requested type of exception in the thread.
+   /*! Injects the requested type of exception in the coroutine.
 
    @param pimplThis
       Shared pointer to *this.
@@ -123,7 +123,7 @@ public:
       Type of exception to inject.
    */
    void inject_exception(std::shared_ptr<impl> const & pimplThis, exception::common_type xct) {
-      ABC_TRACE_FUNC(this);
+      ABC_TRACE_FUNC(this, pimplThis, xct);
 
       /* Avoid interrupting the coroutine if there’s already a pending interruption (xctExpected !=
       none).
