@@ -100,6 +100,7 @@ private:
    friend id_type thread::id() const;
    friend native_handle_type thread::native_handle() const;
    friend impl * this_thread::get_impl();
+   friend void this_thread::interruption_point();
    friend void tracker::main_thread_terminated(exception::common_type xct);
 
 public:
@@ -207,6 +208,9 @@ private:
    /*! Pointer to an event used by the new thread to report to its parent that it has started. Only
    non-nullptr during the execution of start(). */
    detail::simple_event * m_pseStarted;
+   /*! Every time the thread returns from an interruption point, this is checked for pending
+   exceptions to be injected. */
+   std::atomic<exception::common_type::enum_type> m_xctPending;
    /*! true if the thread is terminating, i.e. running Abaclade threading code, or false if it’s
    still running application code. */
    std::atomic<bool> m_bTerminating;

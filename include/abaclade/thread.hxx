@@ -43,8 +43,8 @@ Asynchronous code execution via OS-provided preemptive multithreading.
 
 Abaclade provides augmented alternatives to std::thread and std::this_thread: abc::thread and
 abc::this_thread, respectively. In addition to every feature offered by std::thread and
-std::this_thread, Abaclade’s classes provide integration with coroutines (see @ref coroutines) and
-a more predictable interruption/termination model.
+std::this_thread, Abaclade’s classes provide integration with coroutines (see @ref coroutines) and a
+predictable interruption/termination model.
 
 In programs based on Abaclade, the POSIX signals SIGINT and SIGTERM are always only delivered to the
 main thread, and converted into C++ exceptions; if the main thread does not block them and the
@@ -52,8 +52,9 @@ exceptions escape abc::app::main(), Abaclade will proceed to cleanly terminate a
 the process by interrupting them with an appropriate exception type.
 
 If a non-main thread throws an exception and does not catch it, an exception will be thrown in the
-main thread, leading to a behavior similar to what happens upon receiving a SIGTERM in the main
-thread.
+main thread as soon as that thread reaches an interruption point (see
+abc::this_thread::interruption_point()), leading to a behavior similar to what happens upon
+receiving a SIGTERM in the main thread.
 */
 
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with
@@ -230,6 +231,9 @@ ABACLADE_SYM void detach_coroutine_scheduler();
    Unique ID representing the current thread.
 */
 ABACLADE_SYM thread::id_type id();
+
+//! Allows the calling thread to act on any pending interruptions.
+ABACLADE_SYM void interruption_point();
 
 /*! Begins running scheduled coroutines on the current thread. Only returns after every coroutine
 scheduled on the same thread or scheduler returns. */

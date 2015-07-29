@@ -46,12 +46,13 @@ public:
    ~tracker();
 
 #if ABC_HOST_API_POSIX
-   /*! Returns the signal number to be used to inject an exception in a thread.
+   /*! Returns the signal number to be used to interrupt a thread so that it can process any pending
+   exceptions.
 
    @param return
       Signal number.
    */
-   int exception_injection_signal_number() const {
+   int interruption_signal_number() const {
       return mc_iInterruptionSignal;
    }
 #endif

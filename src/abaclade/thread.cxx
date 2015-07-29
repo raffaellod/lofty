@@ -134,6 +134,7 @@ thread::impl::impl(std::function<void ()> fnMain) :
    #error "TODO: HOST_API"
 #endif
    m_pseStarted(nullptr),
+   m_xctPending(exception::common_type::none),
    m_bTerminating(false),
    m_fnInnerMain(std::move(fnMain)) {
 #if ABC_HOST_API_WIN32
@@ -158,6 +159,7 @@ thread::impl::impl(std::nullptr_t) :
    #error "TODO: HOST_API"
 #endif
    m_pseStarted(nullptr),
+   m_xctPending(exception::common_type::none),
    m_bTerminating(false) {
 #if ABC_HOST_API_WIN32
    if (!m_hInterruptionEvent) {
@@ -185,99 +187,26 @@ thread::impl::~impl() {
 void thread::impl::inject_exception(exception::common_type xct) {
    ABC_TRACE_FUNC(this, xct);
 
+   /* Avoid interrupting the thread if there’s already a pending interruption (xctExpected != none).
+   This is not meant to prevent multiple concurrent interruptions, with a second interruption
+   occurring after a first one has been thrown. */
+   auto xctExpected = exception::common_type::none;
+   if (m_xctPending.compare_exchange_strong(xctExpected, xct.base())) {
 #if ABC_HOST_API_POSIX
-   int iSignal;
-   switch (xct.base()) {
-      case exception::common_type::app_execution_interruption:
-         // TODO: different signal number.
-         iSignal = tracker::instance()->exception_injection_signal_number();
-         break;
-      case exception::common_type::app_exit_interruption:
-         // TODO: different signal number.
-         iSignal = tracker::instance()->exception_injection_signal_number();
-         break;
-      case exception::common_type::execution_interruption:
-         iSignal = tracker::instance()->exception_injection_signal_number();
-         break;
-      case exception::common_type::user_forced_interruption:
-         // TODO: different signal number.
-         iSignal = tracker::instance()->exception_injection_signal_number();
-         break;
-      default:
-         ABC_THROW(domain_error, ());
-   }
-   if (int iErr = ::pthread_kill(m_h, iSignal)) {
-      exception::throw_os_error(iErr);
-   }
+      // Ensure that the thread is not blocked in a syscall.
+      if (int iErr = ::pthread_kill(m_h, tracker::instance()->interruption_signal_number())) {
+         exception::throw_os_error(iErr);
+      }
 #elif ABC_HOST_API_WIN32
-   if (::SuspendThread(m_h) == ::DWORD(-1)) {
-      exception::throw_os_error();
-   }
-   auto deferred1(defer_to_scope_end([this] () {
-      ::ResumeThread(m_h);
-   }));
-   /* As an attempt to avoid bugs like <http://stackoverflow.com/questions/3444190/windows-
-   suspendthread-doesnt-getthreadcontext-fails>, repeatedly yield and get the thread context until
-   that reveals that the thread has really stopped, which wouldn’t be otherwise guaranteed on a
-   multi-processor system.
-
-   It’s still possible that the thread might be executing kernel code, which would not cause it to
-   stop even on an uniprocessor system; yielding could also avoid that, by giving the OS a chance to
-   run the thread (priority changes can void this assumption), changing its context and making the
-   non-suspension detectable.
-
-   See <http://www.dcl.hpi.uni-potsdam.de/research/WRK/2009/01/what-does-suspendthread-really-do/>
-   for the two race conditions mentioned above. */
-   ::CONTEXT ctx;
-   std::uintptr_t iLastPC = 0;
-   for (;;) {
-      ctx.ContextFlags = CONTEXT_ALL;
-      if (!::GetThreadContext(m_h, &ctx)) {
-         exception::throw_os_error();
-      }
-      std::uintptr_t iCurrPC =
-#if ABC_HOST_ARCH_ARM
-         ctx.Pc;
-#elif ABC_HOST_ARCH_I386
-         ctx.Eip;
-#elif ABC_HOST_ARCH_X86_64
-         ctx.Rip;
-#else
-   #error "TODO: HOST_ARCH"
-#endif
-      if (iCurrPC == iLastPC) {
-         /* Assume that the thread has stopped. This condition is prone to false positives; the thread
-         might be executing a loop, or a recursive function call, or who knows what. Still, this is
-         better than not making an effort to wait for the thread to stop. */
-         break;
-      }
-      ::Sleep(0);
-      iLastPC = iCurrPC;
-   }
-
-   /* Now that the thread is really suspended, inject the exception and resume it, unless the thread
-   is already terminating, in which case we’ll avoid throwing an exception. This check is safe
-   because m_bTerminating can only be written to by the thread we just suspended. */
-   if (!m_bTerminating.load()) {
-   #if ABC_HOST_ARCH_X86_64
-      m_intargs.xct = xct.base();
-      m_intargs.iArg0 = 0;
-      m_intargs.iArg1 = 0;
-      exception::inject_in_context(&ctx);
-   #else
-      exception::inject_in_context(xct, 0, 0, &ctx);
-   #endif
       /* If the thread is in a wait function entered by Abaclade, this ensures that the thread will
-      be able to stop waiting. Otherwise there’s no way to interrupt the wait syscall. */
-      ::SetEvent(m_hInterruptionEvent);
-      if (!::SetThreadContext(m_h, &ctx)) {
+      be able to stop waiting. Otherwise there’s no way to interrupt a syscall. */
+      if (!::SetEvent(m_hInterruptionEvent)) {
          exception::throw_os_error();
       }
-   }
-   // deferred1 will resume the thread.
 #else
    #error "TODO: HOST_API"
 #endif
+   }
 }
 
 #if ABC_HOST_API_POSIX
@@ -286,17 +215,18 @@ void thread::impl::inject_exception(exception::common_type xct) {
 ) {
    ABC_UNUSED_ARG(psi);
 
+   if (iSignal == tracker::instance()->interruption_signal_number()) {
+      /* Can happen in any thread; all this really does is allow to break out of a syscall with
+      EINTR, so the code following the interrupted call can check m_xctPending. */
+      return;
+   }
+
    exception::common_type::enum_type xct;
    if (iSignal == SIGINT) {
       // Can only happen in the main thread.
       xct = exception::common_type::user_forced_interruption;
    } else if (iSignal == SIGTERM) {
       // Can only happen in the main thread.
-      xct = exception::common_type::execution_interruption;
-   } else if (iSignal == tracker::instance()->exception_injection_signal_number()) {
-      // Can happen in any thread.
-      /* TODO: determine the exception type by accessing a mutex-guarded member variable, set by the
-      thread that raised the signal. */
       xct = exception::common_type::execution_interruption;
    } else {
       // Should never happen.
@@ -570,6 +500,9 @@ void thread::join() {
    // Empty m_pimpl; this will also make joinable() return false.
    auto pimpl(std::move(m_pimpl));
    pimpl->join();
+
+   // Check for pending interruptions.
+   this_thread::interruption_point();
 }
 
 thread::native_handle_type thread::native_handle() const {
@@ -678,6 +611,18 @@ thread::id_type id() {
 #endif
 }
 
+void interruption_point() {
+   /* This load/store is multithread-safe: the “if” condition being true means that
+   thread::interrupt() is preventing other threads from changing m_xctPending until we reset it to
+   none. */
+   auto const & pimpl = get_impl();
+   auto xct = pimpl->m_xctPending.load();
+   if (xct != exception::common_type::none) {
+      pimpl->m_xctPending.store(exception::common_type::none, std::memory_order_relaxed);
+      exception::throw_common_type(xct, 0, 0);
+   }
+}
+
 void run_coroutines() {
    if (auto & pcorosched = coroutine_scheduler()) {
       pcorosched->run();
@@ -705,8 +650,10 @@ void sleep_for_ms(unsigned iMillisecs) {
 #else
    #error "TODO: HOST_API"
 #endif
-}
 
+   // Check for pending interruptions.
+   interruption_point();
+}
 
 void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
 #if ABC_HOST_API_POSIX
@@ -744,6 +691,9 @@ void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
 #else
    #error "TODO: HOST_API"
 #endif
+
+   // Check for pending interruptions.
+   interruption_point();
 }
 
 }} //namespace abc::this_thread
