@@ -144,11 +144,9 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    m_bInFlight = true;
 }
 
+#if ABC_HOST_API_MACH || ABC_HOST_API_POSIX
 /*static*/ void exception::inject_in_context(
-#if !ABC_HOST_API_WIN32
-   common_type xct, std::intptr_t iArg0, std::intptr_t iArg1,
-#endif
-   void * pvctx
+   common_type xct, std::intptr_t iArg0, std::intptr_t iArg1, void * pvctx
 ) {
    /* Abstract away the differences in the context structures across different OSes and
    architectures by defining references to each register needed below. */
@@ -187,19 +185,6 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          reg_t & rdi = mctx.mc_rdi, & rsi = mctx.mc_rsi, & rdx = mctx.mc_rdx;
       #endif
    #endif
-#elif ABC_HOST_API_WIN32
-   ::CONTEXT * pctx = static_cast< ::CONTEXT *>(pvctx);
-   #if ABC_HOST_ARCH_ARM
-      typedef ::DWORD reg_t;
-      reg_t & iCodePtr = pctx->Pc, & iStackPtr = pctx->Sp;
-      reg_t & lr = pctx->Lr, & r0 = pctx->R0, & r1 = pctx->R1, & r2 = pctx->R2;
-   #elif ABC_HOST_ARCH_I386
-      typedef ::DWORD reg_t;
-      reg_t & iCodePtr = pctx->Eip, & iStackPtr = pctx->Esp;
-   #elif ABC_HOST_ARCH_X86_64
-      typedef ::DWORD64 reg_t;
-      reg_t & iCodePtr = pctx->Rip, & iStackPtr = pctx->Rsp;
-   #endif
 #else
    #error "TODO: HOST_API"
 #endif
@@ -227,38 +212,23 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    }
    /* Load the arguments into rdi/rsi/rdx (Mach, POSIX), push the address of the current
    instruction. */
-   #if ABC_HOST_API_MACH || ABC_HOST_API_POSIX
-      rdi = static_cast<reg_t>(xct.base());
-      rsi = static_cast<reg_t>(iArg0);
-      rdx = static_cast<reg_t>(iArg1);
-   #endif
+   rdi = static_cast<reg_t>(xct.base());
+   rsi = static_cast<reg_t>(iArg0);
+   rdx = static_cast<reg_t>(iArg1);
    *--pStack = iCodePtr;
    // Stack alignment to 16 bytes is done by the callee with push rbp.
 #else
    #error "TODO: HOST_ARCH"
 #endif
-#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_X86_64
-   // Jump to the start of throw_common_type_noargs().
-   iCodePtr = reinterpret_cast<reg_t>(&throw_common_type_noargs);
-#else
    // Jump to the start of throw_common_type().
    iCodePtr = reinterpret_cast<reg_t>(&throw_common_type);
-#endif
    iStackPtr = reinterpret_cast<reg_t>(pStack);
 }
+#endif //if ABC_HOST_API_MACH || ABC_HOST_API_POSIX
 
-#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_X86_64
-/*static*/ void exception::throw_common_type_noargs() {
-   interruption_args const & ia = this_thread::get_impl()->interruption_arguments();
-   throw_common_type(ia.xct, ia.iArg0, ia.iArg1);
-}
-#endif
-
-/*static*/ void
-#if ABC_HOST_API_WIN32 && ABC_HOST_ARCH_I386
-   __stdcall
-#endif
-exception::throw_common_type(common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1) {
+/*static*/ void exception::throw_common_type(
+   common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
+) {
    source_location srcloc(ABC_SL("source_not_available"), 0);
    static char_t const sc_szInternal[] = ABC_SL("<internal>");
    static char_t const sc_szOS[] = ABC_SL("<OS error reporting>");
