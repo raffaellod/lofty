@@ -66,7 +66,13 @@ public:
    typedef thread_local_storage_registrar registrar;
 
 public:
-#if ABC_HOST_API_WIN32
+   //! Allocates the TLS slot for the process.
+   static void alloc_slot();
+
+#if ABC_HOST_API_POSIX
+   //! Destructs the storage instance for main (last) thread, then releases the TLS slot.
+   static void destruct_last_and_free_slot();
+#elif ABC_HOST_API_WIN32
    /*! Hook invoked by DllMain() in abaclade.dll.
 
    @param iReason
@@ -95,9 +101,6 @@ private:
    //! Destructor.
    ~thread_local_storage();
 
-   //! Allocates the TLS slot for the process.
-   static void alloc_slot();
-
 #if ABC_HOST_API_POSIX
    /*! Destructs the storage instance for the current thread. Invoked by pthread_key_create() when a
    thread terminates.
@@ -105,7 +108,7 @@ private:
    @param pThis
       Pointer to the TLS for the current thread.
    */
-   static void destruct(void * pThis = &instance());
+   static void destruct(void * pThis);
 #endif
 
 private:
@@ -114,10 +117,6 @@ private:
    coroutine_local_storage m_crls;
    //! Normally a pointer to m_crls, but replaced while a coroutine is being actively executed.
    coroutine_local_storage * m_pcrls;
-#if ABC_HOST_API_POSIX
-   //! Counts how many storage instances exist, so that there’s a way to release the TLS slot.
-   static std::atomic<unsigned> sm_cInstances;
-#endif
 };
 
 

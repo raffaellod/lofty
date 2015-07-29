@@ -38,9 +38,6 @@ thread_local_storage_registrar::data_members thread_local_storage_registrar::sm_
 namespace abc { namespace detail {
 
 #if ABC_HOST_API_POSIX
-   std::atomic<unsigned> thread_local_storage::sm_cInstances(0);
-   //! One-time initializer for g_pthkey.
-   static pthread_once_t g_pthonce = PTHREAD_ONCE_INIT;
    //! TLS key.
    static pthread_key_t g_pthkey;
 #elif ABC_HOST_API_WIN32
@@ -54,7 +51,6 @@ thread_local_storage::thread_local_storage() :
 
 #if ABC_HOST_API_POSIX
    pthread_setspecific(g_pthkey, this);
-   ++sm_cInstances;
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, this);
 #endif
@@ -73,9 +69,6 @@ thread_local_storage::~thread_local_storage() {
 
 #if ABC_HOST_API_POSIX
    pthread_setspecific(g_pthkey, nullptr);
-   if (--sm_cInstances == 0) {
-      pthread_key_delete(g_pthkey);
-   }
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, nullptr);
 #endif
@@ -96,12 +89,19 @@ thread_local_storage::~thread_local_storage() {
 }
 
 #if ABC_HOST_API_POSIX
-/*static*/ void thread_local_storage::destruct(void * pThis /*= &instance()*/) {
+/*static*/ void thread_local_storage::destruct(void * pThis) {
    /* This is necessary (at least under Linux/glibc) to prevent creating a duplicate (which will be
    leaked) due to re-entrant calls to instance() in the destructor. The destructor ensures that this
    pointer is eventually cleared. */
    pthread_setspecific(g_pthkey, pThis);
    delete static_cast<thread_local_storage *>(pThis);
+}
+
+/*static*/ void thread_local_storage::destruct_last_and_free_slot() {
+   /* Allow instance() to return nullptr if the TLS slot was not initialized for this thread, in
+   which case nothing will happen. */
+   delete &instance(false);
+   pthread_key_delete(g_pthkey);
 }
 #endif
 
@@ -126,14 +126,13 @@ thread_local_storage::~thread_local_storage() {
 #endif //if ABC_HOST_API_WIN32
 
 /*static*/ thread_local_storage & thread_local_storage::instance(bool bCreateNewIfNull /*= true*/) {
-   void * pThis;
+   void * pThis =
 #if ABC_HOST_API_POSIX
-   // With POSIX Threads we need a one-time call to alloc_slot().
-   pthread_once(&g_pthonce, &alloc_slot);
-   pThis = pthread_getspecific(g_pthkey);
+      // alloc_slot() is called by app::run().
+      pthread_getspecific(g_pthkey);
 #elif ABC_HOST_API_WIN32
-   // Under Win32, alloc_slot() has already been called by dllmain_hook().
-   pThis = ::TlsGetValue(g_iTls);
+      // alloc_slot() is called by dllmain_hook().
+      ::TlsGetValue(g_iTls);
 #endif
    if (pThis || !bCreateNewIfNull) {
       return *static_cast<thread_local_storage *>(pThis);

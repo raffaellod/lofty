@@ -154,6 +154,8 @@ app::app() {
 /*static*/ int app::run(int (* pfnInstantiateAppAndCallMain)(_args_t *), _args_t * pargs) {
    // Establish this as early as possible.
    exception::fault_converter xfc;
+   // This is also needed immediately.
+   detail::thread_local_storage::alloc_slot();
    int iRet;
    if (initialize_stdio()) {
       thread::tracker thrtrk;
@@ -187,6 +189,7 @@ app::app() {
    } else {
       iRet = 122;
    }
+   detail::thread_local_storage::destruct_last_and_free_slot();
    return iRet;
 }
 
