@@ -75,7 +75,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
 
 namespace abc { namespace test {
 
-#if !ABC_HOST_API_FREEBSD && !ABC_HOST_API_MACH
+#if !ABC_HOST_API_FREEBSD
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
    ABC_TRACE_FUNC(this);
 
@@ -120,7 +120,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
    ABC_TESTING_ASSERT_TRUE (abWorkersCompleted  [4].load());
    ABC_TESTING_ASSERT_FALSE(abWorkersInterrupted[4].load());
 }
-#endif //if !ABC_HOST_API_FREEBSD && !ABC_HOST_API_MACH
+#endif //if !ABC_HOST_API_FREEBSD
 
 }} //namespace abc::test
 
@@ -128,7 +128,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
 
 namespace abc { namespace test {
 
-#if !ABC_HOST_API_FREEBSD && !ABC_HOST_API_MACH
+#if !ABC_HOST_API_FREEBSD
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
    ABC_TRACE_FUNC(this);
 
@@ -171,7 +171,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }
-#endif //if !ABC_HOST_API_FREEBSD && !ABC_HOST_API_MACH
+#endif //if !ABC_HOST_API_FREEBSD
 
 }} //namespace abc::test
 
@@ -179,7 +179,7 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
 
 namespace abc { namespace test {
 
-#if !ABC_HOST_API_FREEBSD && !ABC_HOST_API_MACH
+#if !ABC_HOST_API_FREEBSD
 ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation") {
    ABC_TRACE_FUNC(this);
 
@@ -227,6 +227,6 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation")
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }
-#endif //if !ABC_HOST_API_FREEBSD && !ABC_HOST_API_MACH
+#endif //if !ABC_HOST_API_FREEBSD
 
 }} //namespace abc::test
