@@ -40,19 +40,23 @@ public:
 
    @param pch
       Pointer to the character array.
-   @param p
-      Source object.
    @param bOwn
       If true, the pointer will own the character array; if false, it won’t try to deallocate it.
    */
    c_str_ptr(char_t const * pch, bool bOwn) :
       m_p(pch, pointer::deleter_type(bOwn)) {
    }
+
+   /*! Move constructor.
+
+   @param p
+      Source object.
+   */
    c_str_ptr(c_str_ptr && p) :
       m_p(std::move(p.m_p)) {
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param p
       Source object.
@@ -242,6 +246,8 @@ public:
    char_t * chars_begin() {
       return collections::detail::raw_trivial_vextr_impl::begin<char_t>();
    }
+
+   //! See collections::detail::raw_trivial_vextr_impl::begin().
    char_t const * chars_begin() const {
       return collections::detail::raw_trivial_vextr_impl::begin<char_t>();
    }
@@ -250,6 +256,8 @@ public:
    char_t * chars_end() {
       return collections::detail::raw_trivial_vextr_impl::end<char_t>();
    }
+
+   //! See collections::detail::raw_trivial_vextr_impl::end().
    char_t const * chars_end() const {
       return collections::detail::raw_trivial_vextr_impl::end<char_t>();
    }
@@ -498,6 +506,16 @@ public:
    */
    bool starts_with(istr const & s) const;
 
+   /*! Returns a portion of the string from the specified index to the end of the string.
+
+   @param ichBegin
+      Index of the first character of the substring. See str_base::translate_range() for allowed
+      begin index values.
+   @return
+      Substring of *this.
+   */
+   dmstr substr(std::ptrdiff_t ichBegin) const;
+
    /*! Returns a portion of the string.
 
    @param ichBegin
@@ -506,6 +524,22 @@ public:
    @param ichEnd
       Index of the last character of the substring, exclusive. See str_base::translate_range() for
       allowed end index values.
+   @return
+      Substring of *this.
+   */
+   dmstr substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const;
+
+   /*! Returns a portion of the string from the specified iterator to the end of the string.
+
+   @param itBegin
+      Iterator to the first character of the substring.
+   @return
+      Substring of *this.
+   */
+   dmstr substr(const_iterator itBegin) const;
+
+   /*! Returns a portion of the string.
+
    @param itBegin
       Iterator to the first character of the substring.
    @param itEnd
@@ -513,16 +547,20 @@ public:
    @return
       Substring of *this.
    */
-   dmstr substr(std::ptrdiff_t ichBegin) const;
-   dmstr substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const;
-   dmstr substr(const_iterator itBegin) const;
    dmstr substr(const_iterator itBegin, const_iterator itEnd) const;
 
 protected:
-   /*! Constructor.
+   /*! Constructor to be used by subclasses.
 
    @param cbEmbeddedCapacity
       Size of the embedded character array, in bytes, or 0 if no embedded array is present.
+   */
+   str_base(std::size_t cbEmbeddedCapacity) :
+      collections::detail::raw_trivial_vextr_impl(cbEmbeddedCapacity) {
+   }
+
+   /*! Constructor from string literals.
+
    @param pchConstSrc
       Pointer to a string that will be adopted by the str_base as read-only.
    @param cchSrc
@@ -530,9 +568,6 @@ protected:
    @param bNulT
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
-   str_base(std::size_t cbEmbeddedCapacity) :
-      collections::detail::raw_trivial_vextr_impl(cbEmbeddedCapacity) {
-   }
    str_base(char_t const * pchConstSrc, std::size_t cchSrc, bool bNulT) :
       collections::detail::raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
    }
@@ -676,59 +711,95 @@ class mstr;
 means that it shouldn’t be used in code performing intensive string manipulations. */
 class ABACLADE_SYM istr : public detail::str_base {
 public:
-   /*! Constructor.
-
-   @param s
-      Source string.
-   @param ach
-      Source NUL-terminated string literal.
-   @param pchBegin
-      Pointer to the beginning of the source stirng.
-   @param pchEnd
-      Pointer to the end of the source stirng.
-   @param psz
-      Pointer to the source NUL-terminated string literal.
-   @param cch
-      Count of characters in the array pointed to be psz.
-   */
+   //! Default constructor.
    istr() :
       detail::str_base(0) {
    }
+
+   /*! Copy constructor.
+
+   @param s
+      Source object.
+   */
    istr(istr const & s) :
       detail::str_base(0) {
       assign_share_raw_or_copy_desc(s);
    }
+
+   /*! Move constructor.
+
+   @param s
+      Source object.
+   */
    istr(istr && s) :
       detail::str_base(0) {
       // Non-const, so it can’t be anything but a real istr, so it owns its character array.
       assign_move(std::move(s));
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the istr && overload.
+
+   /*! Move constructor from mutable strings. May create a copy of the source if it’s using an
+   embedded item array.
+
+   @param s
+      Source object.
+   */
    istr(mstr && s);
+
+   /*! Move constructor from dynamic mutable strings.
+
+   @param s
+      Source object.
+   */
    istr(dmstr && s);
+
+   /*! Constructor from string literals.
+
+   @param ach
+      Source NUL-terminated string literal.
+   */
    template <std::size_t t_cch>
    istr(char_t const (& ach)[t_cch]) :
       detail::str_base(
          ach, t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'), ach[t_cch - 1 /*NUL*/] == '\0'
       ) {
    }
+
+   /*! Constructor that will copy the specified character buffer.
+
+   @param pchBegin
+      Pointer to the beginning of the source stirng.
+   @param pchEnd
+      Pointer to the end of the source stirng.
+   */
    istr(char_t const * pchBegin, char_t const * pchEnd) :
       detail::str_base(0) {
       assign_copy(pchBegin, pchEnd);
    }
+
+   /*! Constructor that will make the string refer to the specified character buffer.
+
+   @param psz
+      Pointer to the source NUL-terminated string literal.
+   */
    istr(external_buffer_t const &, char_t const * psz) :
       detail::str_base(psz, text::size_in_chars(psz), true) {
    }
+
+   /*! Constructor that will make the string refer to the specified character buffer.
+
+   @param psz
+      Pointer to the source string.
+   @param cch
+      Count of characters in the array pointed to be psz.
+   */
    istr(external_buffer_t const &, char_t const * psz, std::size_t cch) :
       detail::str_base(psz, cch, false) {
    }
 
-   /*! Assignment operator.
+   /*! Copy-assignment operator.
 
    @param s
-      Source string.
-   @param ach
-      Source NUL-terminated string literal.
+      Source object.
    @return
       *this.
    */
@@ -736,14 +807,46 @@ public:
       assign_share_raw_or_copy_desc(s);
       return *this;
    }
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    istr & operator=(istr && s) {
       // Non-const, so it can’t be anything but a real istr, so it owns its character array.
       assign_move(std::move(s));
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the istr && overload.
+
+   /*! Move-assignment operator from mutable strings. May create a copy of the source if it’s using
+   an embedded item array.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    istr & operator=(mstr && s);
+
+   /*! Move-assignment operator from mutable dynamic string.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    istr & operator=(dmstr && s);
+
+   /*! Assignment operator from string literal.
+
+   @param ach
+      Source NUL-terminated string literal.
+   @return
+      *this.
+   */
    template <std::size_t t_cch>
    istr & operator=(char_t const (& ach)[t_cch]) {
       // This order is safe, because the constructor invoked on the next line won’t throw.

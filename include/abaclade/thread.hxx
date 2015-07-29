@@ -49,12 +49,12 @@ predictable interruption/termination model.
 In programs based on Abaclade, the POSIX signals SIGINT and SIGTERM are always only delivered to the
 main thread, and converted into C++ exceptions; if the main thread does not block them and the
 exceptions escape abc::app::main(), Abaclade will proceed to cleanly terminate all other threads in
-the process by interrupting them with an appropriate exception type.
+the process by interrupting them with an appropriate exception type on their earliest interruption
+point (see abc::this_thread::interruption_point()).
 
 If a non-main thread throws an exception and does not catch it, an exception will be thrown in the
-main thread as soon as that thread reaches an interruption point (see
-abc::this_thread::interruption_point()), leading to a behavior similar to what happens upon
-receiving a SIGTERM in the main thread.
+main thread as soon as the main thread reaches an interruption point, leading to a behavior similar
+to what happens upon receiving a SIGTERM in the main thread.
 */
 
 /*! Thread of program execution. Replacement for std::thread supporting cooperation with
@@ -232,7 +232,17 @@ ABACLADE_SYM void detach_coroutine_scheduler();
 */
 ABACLADE_SYM thread::id_type id();
 
-//! Allows the calling thread to act on any pending interruptions.
+/*! Declares an interruption point, allowing the calling thread to act on any pending interruptions.
+
+Interruption points enable Abaclade’s thread interruption infrastructure, providing a uniform way of
+cooperatively interrupting a thread from another thread.
+
+The following functions and methods implicitly define an interruption point:
+•  abc::this_thread::sleep_for_ms() / abc::this_coroutine::sleep_for_ms();
+•  abc::this_thread::sleep_until_fd_ready() / abc::this_coroutine::sleep_until_fd_ready();
+•  All I/O operations performed on abc::io file-based I/O classes;
+•  All I/O operations in abc::net classes.
+*/
 ABACLADE_SYM void interruption_point();
 
 /*! Begins running scheduled coroutines on the current thread. Only returns after every coroutine

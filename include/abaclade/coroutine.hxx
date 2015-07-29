@@ -53,8 +53,8 @@ application’s responsibility to give control to the scheduler by invoking
 abc::this_thread::run_coroutines() on at least one of the threads attached to that scheduler.
 
 If an exception escapes from a coroutine, the scheduler that was running it will terminate any other
-coroutines associated to it, and will then proceed to throw a similar exception the exception in the
-containing thread, possibly leading to the termination of the entire process (see @ref threads).
+coroutines associated to it, and will then proceed to throw a similar exception in the containing
+thread, possibly leading to the termination of the entire process (see @ref threads).
 
 If a thread is interrupted by an exception while executing abc::coroutine::scheduler code, the
 scheduler will terminate every coroutine associated to it, and then throw a similar exception to the

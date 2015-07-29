@@ -76,18 +76,14 @@ public:
    );
 
    /*! Returns a pointer to the first occurrence of a character in a string, or pchHaystackEnd if no
-   matches are found. The overload taking a char_t pointer allows to search for the encoded
-   representation of any code point.
+   matches are found.
 
    @param pchHaystackBegin
       Pointer to the first character of the string to be searched.
    @param pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
    @param chNeedle
-      Code point to search for.
-   @param pchNeedle
-      Pointer to the encoded code point (UTF character sequence) to search for; its length is
-      deduced automatically.
+      Character to search for.
    @return
       Pointer to the beginning of the first match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
@@ -104,9 +100,38 @@ public:
       }
       return pchHaystackEnd;
    }
+
+   /*! Returns a pointer to the first occurrence of a code point in a string, or pchHaystackEnd if
+   no matches are found.
+
+   @param pchHaystackBegin
+      Pointer to the first character of the string to be searched.
+   @param pchHaystackEnd
+      Pointer to beyond the last character of the string to be searched.
+   @param chNeedle
+      Code point to search for.
+   @return
+      Pointer to the beginning of the first match, in the string to be searched, of the code point
+      to search for, or nullptr if no matches are found.
+   */
    static char_t const * find_char(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
    );
+
+   /*! Returns a pointer to the first occurrence of a char_t-encoded code point in a string, or
+   pchHaystackEnd if no matches are found.
+
+   @param pchHaystackBegin
+      Pointer to the first character of the string to be searched.
+   @param pchHaystackEnd
+      Pointer to beyond the last character of the string to be searched.
+   @param pchNeedle
+      Pointer to the encoded code point (UTF character sequence) to search for; its length is
+      deduced automatically.
+   @return
+      Pointer to the beginning of the first match, in the string to be searched, of the code point
+      to search for, or nullptr if no matches are found.
+   */
    static char_t const * find_char(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t const * pchNeedle
    );
@@ -119,10 +144,10 @@ public:
    @param pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
    @param chNeedle
-      Code point to search for.
+      Character to search for.
    @return
-      Pointer to the beginning of the last match, in the string to be searched, of the code point
-      to search for, or nullptr if no matches are found.
+      Pointer to the beginning of the last match, in the string to be searched, of the character to
+      search for, or nullptr if no matches are found.
    */
    static char_t const * find_char_last(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char_t chNeedle
@@ -136,6 +161,20 @@ public:
       }
       return pchHaystackBegin;
    }
+
+   /*! Returns a pointer to the last occurrence of a code point in a string, or pchHaystackBegin if
+   no matches are found.
+
+   @param pchHaystackBegin
+      Pointer to the first character of the string to be searched.
+   @param pchHaystackEnd
+      Pointer to beyond the last character of the string to be searched.
+   @param chNeedle
+      Code point to search for.
+   @return
+      Pointer to the beginning of the last match, in the string to be searched, of the code point
+      to search for, or nullptr if no matches are found.
+   */
    static char_t const * find_char_last(
       char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
    );
