@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/thread.hxx>
 #include "thread-impl.hxx"
 
-#include <cstdlib> // std::abort() std::terminate()
+#include <cstdlib> // std::abort()
 #if ABC_HOST_API_POSIX
    #include <errno.h> // E* errno
    #if ABC_HOST_API_MACH
