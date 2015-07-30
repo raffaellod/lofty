@@ -157,7 +157,7 @@ bool reader_read_helper::replenish_peek_buffer() {
    consume_used_chars();
    std::tie(m_pchSrc, m_cchSrc) = m_ptbbr->m_pbbr->peek<char_t>(1);
    // Reset m_pchSrcBegin now to avoid subtracting two unrelated pointers after the two loops.
-   m_pchSrc = m_pchSrcBegin;
+   m_pchSrcBegin = m_pchSrc;
    if (m_cchSrc) {
       recalc_src_dst();
       return true;
