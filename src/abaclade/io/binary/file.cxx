@@ -310,37 +310,19 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 /*virtual*/ std::size_t console_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
-   /* Note: ::WriteConsole() expects character counts in place of byte counts, so everything must be
-   divided by sizeof(char_t). */
-   std::size_t cchMax = cbMax / sizeof(char_t);
+   // Note: ::ReadConsole() expects and returns character counts in place of byte counts.
 
-   std::int8_t * pb = static_cast<std::int8_t *>(p);
-   /* ::ReadConsole() is invoked at least once, so we give it a chance to report any errors, instead
-   of masking them by skipping the call (e.g. due to cbMax == 0 on input). */
-   do {
-      /* This will be repeated at least once, and as long as we still have some bytes to read, and
-      reading them does not fail. */
-      ::DWORD cchLastRead;
-      if (!::ReadConsole(
-         m_fd.get(), pb,
-         static_cast< ::DWORD>(std::min<std::size_t>(cchMax, numeric::max< ::DWORD>::value)),
-         &cchLastRead, nullptr
-      )) {
-         ::DWORD iErr = ::GetLastError();
-         if (iErr == ERROR_HANDLE_EOF) {
-            break;
-         }
+   ::DWORD cchRead, cchToRead = static_cast< ::DWORD>(
+      std::min<std::size_t>(cbMax, numeric::max< ::DWORD>::value)
+   ) / sizeof(char_t);
+   if (!::ReadConsole(m_fd.get(), p, cchToRead, &cchRead, nullptr)) {
+      ::DWORD iErr = ::GetLastError();
+      if (iErr != ERROR_HANDLE_EOF) {
          exception::throw_os_error(iErr);
       }
-      if (cchLastRead == 0) {
-         break;
-      }
-      // Some bytes were read; prepare for the next attempt.
-      pb += cchLastRead * sizeof(char_t);
-      cchMax -= static_cast<std::size_t>(cchLastRead);
-   } while (cchMax);
+   }
 
-   return static_cast<std::size_t>(pb - static_cast<std::int8_t *>(p));
+   return cchRead * sizeof(char_t);
 }
 #endif //if ABC_HOST_API_WIN32
 
