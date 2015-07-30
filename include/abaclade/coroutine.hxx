@@ -200,14 +200,6 @@ ABACLADE_SYM void sleep_until_fd_ready(
    , ::HANDLE * phCurrentIocp
 #endif
 );
-inline void sleep_until_fd_ready(
-   io::filedesc const & fd, bool bWrite
-#if ABC_HOST_API_WIN32
-   , ::HANDLE * phCurrentIocp
-#endif
-) {
-   sleep_until_fd_ready(fd.get(), bWrite, phCurrentIocp);
-}
 
 }} //namespace abc::this_coroutine
 

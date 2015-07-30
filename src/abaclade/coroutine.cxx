@@ -942,7 +942,12 @@ void sleep_until_fd_ready(
 #endif
 ) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active_until_fd_ready(fd, bWrite, phCurrentIocp);
+      pcorosched->block_active_until_fd_ready(
+         fd, bWrite
+#if ABC_HOST_API_WIN32
+         , phCurrentIocp
+#endif
+      );
    } else {
       // TODO: validate that *phCurrentIocp == nullptr.
       this_thread::sleep_until_fd_ready(fd, bWrite);
