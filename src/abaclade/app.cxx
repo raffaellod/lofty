@@ -154,8 +154,10 @@ app::app() {
 /*static*/ int app::run(int (* pfnInstantiateAppAndCallMain)(_args_t *), _args_t * pargs) {
    // Establish this as early as possible.
    exception::fault_converter xfc;
+#if ABC_HOST_API_POSIX
    // This is also needed immediately.
    detail::thread_local_storage::alloc_slot();
+#endif
    int iRet;
    if (initialize_stdio()) {
       thread::tracker thrtrk;
@@ -189,7 +191,9 @@ app::app() {
    } else {
       iRet = 122;
    }
+#if ABC_HOST_API_POSIX
    detail::thread_local_storage::destruct_last_and_free_slot();
+#endif
    return iRet;
 }
 
