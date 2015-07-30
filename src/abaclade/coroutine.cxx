@@ -732,10 +732,19 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       ::DWORD cbTransferred;
       ::ULONG_PTR iCompletionKey;
       ::OVERLAPPED * povl;
+      /* Distinguish between IOCP failures and I/O failures by also checking whether an OVERLAPPED
+      was returned. */
       if (!::GetQueuedCompletionStatus(
          m_fdIocp.get(), &cbTransferred, &iCompletionKey, &povl, INFINITE
       )) {
-         exception::throw_os_error();
+         if (!povl) {
+            exception::throw_os_error();
+         }
+         // Translate povl->Internal from an NTSTATUS to a Win32 error.
+         // cbTransferred is already in *povl, so here we’ll throw it away.
+         ::DWORD cbTransferred;
+         ::GetOverlappedResult(nullptr, povl, &cbTransferred, false);
+         povl->Internal = ::GetLastError();
       }
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       ::HANDLE hFile = reinterpret_cast< ::HANDLE>(iCompletionKey);

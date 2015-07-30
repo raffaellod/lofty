@@ -95,9 +95,8 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    );
    ::OVERLAPPED ovl;
    ovl.hEvent = nullptr;
-   /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if m_fd
-   is not a seekable file, ::ReadFile() will ignore Offset* anyway. */
    {
+      // Obtain the current file offset and set m_ovl to start there.
       long ibOffsetHigh = 0;
       ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
       if (ovl.Offset != INVALID_SET_FILE_POINTER || ::GetLastError() == ERROR_SUCCESS) {
@@ -113,7 +112,8 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       this_coroutine::sleep_until_fd_ready(m_fd.get(), false, &m_hIocp);
       // cbRead is now available in ovl.
       cbRead = static_cast< ::DWORD>(ovl.InternalHigh);
-      iErr = ERROR_SUCCESS;
+      // ovl.Internal was translated from an NTSTATUS to a Win32 error by the coroutine scheduler.
+      iErr = static_cast< ::DWORD>(ovl.Internal);
    }
    return check_if_eof_or_throw_os_error(cbRead, iErr) ? 0 : cbRead;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -229,21 +229,30 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       );
       ::OVERLAPPED ovl;
       ovl.hEvent = nullptr;
-      /* Obtain the current file offset and set m_ovl to start there. Ignore errors, since if m_fd
-      is not a seekable file, ::WriteFile() will ignore Offset* anyway. */
       {
+         // Obtain the current file offset and set m_ovl to start there.
          long ibOffsetHigh = 0;
          ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
-         ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
+         if (ovl.Offset != INVALID_SET_FILE_POINTER || ::GetLastError() == ERROR_SUCCESS) {
+            ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
+         } else {
+            ovl.Offset = 0;
+            ovl.OffsetHigh = 0;
+         }
       }
       if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, &ovl)) {
          ::DWORD iErr = ::GetLastError();
-         if (iErr != ERROR_IO_PENDING) {
+         if (iErr == ERROR_IO_PENDING) {
+            this_coroutine::sleep_until_fd_ready(m_fd.get(), true, &m_hIocp);
+            // cbWritten is now available in ovl.
+            cbWritten = static_cast< ::DWORD>(ovl.InternalHigh);
+            /* ovl.Internal was translated from an NTSTATUS to a Win32 error by the coroutine
+            scheduler. */
+            iErr = static_cast< ::DWORD>(ovl.Internal);
+         }
+         if (iErr != ERROR_SUCCESS) {
             exception::throw_os_error(iErr);
          }
-         this_coroutine::sleep_until_fd_ready(m_fd.get(), true, &m_hIocp);
-         // cbWritten is now available in ovl.
-         cbWritten = static_cast< ::DWORD>(ovl.InternalHigh);
       }
       pb += cbWritten;
       cb -= cbWritten;
