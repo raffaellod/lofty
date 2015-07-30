@@ -37,6 +37,9 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace io { namespace binary {
 
 file_base::file_base(detail::file_init_data * pfid) :
+#if ABC_HOST_API_WIN32
+   m_hIocp(nullptr),
+#endif
    m_fd(std::move(pfid->fd)) {
 }
 
@@ -107,7 +110,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    ::BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
    ::DWORD iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
    if (iErr == ERROR_IO_PENDING) {
-      this_coroutine::sleep_until_fd_ready(m_fd, false);
+      this_coroutine::sleep_until_fd_ready(m_fd, false, &m_hIocp);
       // cbRead is now available in ovl.
       cbRead = static_cast< ::DWORD>(ovl.InternalHigh);
       iErr = ERROR_SUCCESS;
@@ -238,7 +241,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          if (iErr != ERROR_IO_PENDING) {
             exception::throw_os_error(iErr);
          }
-         this_coroutine::sleep_until_fd_ready(m_fd, true);
+         this_coroutine::sleep_until_fd_ready(m_fd, true, &m_hIocp);
          // cbWritten is now available in ovl.
          cbWritten = static_cast< ::DWORD>(ovl.InternalHigh);
       }

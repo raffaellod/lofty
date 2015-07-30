@@ -217,15 +217,21 @@ std::shared_ptr<connection> tcp_server::accept() {
    #if EWOULDBLOCK != EAGAIN
          case EWOULDBLOCK:
    #endif
+            // Wait for m_fdSocket. Accepting a connection is considered a read event.
+            this_coroutine::sleep_until_fd_ready(m_fdSocket, false);
 #elif ABC_HOST_API_WIN32
       int iErr = ::WSAGetLastError();
       switch (iErr) {
          case WSAEWOULDBLOCK:
+            {
+               // Wait for m_fdSocket. Accepting a connection is considered a read event.
+               // TODO: track hIocp.
+               ::HANDLE hIocp = nullptr;
+               this_coroutine::sleep_until_fd_ready(m_fdSocket, false, &hIocp);
+            }
 #else
    #error "TODO: HOST_API"
 #endif
-            // Wait for m_fdSocket. Accepting a connection is considered a read event.
-            this_coroutine::sleep_until_fd_ready(m_fdSocket, false);
             break;
          default:
             exception::throw_os_error(static_cast<errint_t>(iErr));

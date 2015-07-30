@@ -512,8 +512,17 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
 #endif
 }
 
-void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool bWrite) {
+void coroutine::scheduler::block_active_until_fd_ready(
+   io::filedesc_t fd, bool bWrite
+#if ABC_HOST_API_WIN32
+   , ::HANDLE * phCurrentIocp
+#endif
+) {
+#if ABC_HOST_API_WIN32
+   ABC_TRACE_FUNC(this, fd, bWrite, phCurrentIocp);
+#else
    ABC_TRACE_FUNC(this, fd, bWrite);
+#endif
 
    // Add fd as a new event source.
 #if ABC_HOST_API_BSD
@@ -542,8 +551,15 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
       ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
    }));
 #elif ABC_HOST_API_WIN32
-   if (!::CreateIoCompletionPort(fd, m_fdIocp.get(), reinterpret_cast< ::ULONG_PTR>(fd), 0)) {
-      exception::throw_os_error();
+   if (*phCurrentIocp) {
+      // TODO: validate that *phCurrentIocp == m_fdIocp.get().
+   } else {
+      // First time this fd is being used with a scheduler; associate it to the IOCP.
+      if (!::CreateIoCompletionPort(fd, m_fdIocp.get(), reinterpret_cast< ::ULONG_PTR>(fd), 0)) {
+         exception::throw_os_error();
+      }
+      // Now associate the IOCP to the fd’s owner.
+      *phCurrentIocp = m_fdIocp.get();
    }
 #else
    #error "TODO: HOST_API"
@@ -919,10 +935,16 @@ void sleep_for_ms(unsigned iMillisecs) {
    }
 }
 
-void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
+void sleep_until_fd_ready(
+   io::filedesc_t fd, bool bWrite
+#if ABC_HOST_API_WIN32
+   , ::HANDLE * phCurrentIocp
+#endif
+) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active_until_fd_ready(fd, bWrite);
+      pcorosched->block_active_until_fd_ready(fd, bWrite, phCurrentIocp);
    } else {
+      // TODO: validate that *phCurrentIocp == nullptr.
       this_thread::sleep_until_fd_ready(fd, bWrite);
    }
 }
