@@ -97,7 +97,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    {
       long ibOffsetHigh = 0;
       ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
-      if (ovl.Offset != INVALID_SET_FILE_POINTER || ::GetLastError() != ERROR_SUCCESS) {
+      if (ovl.Offset != INVALID_SET_FILE_POINTER || ::GetLastError() == ERROR_SUCCESS) {
          ovl.OffsetHigh = static_cast< ::DWORD>(ibOffsetHigh);
       } else {
          ovl.Offset = 0;
