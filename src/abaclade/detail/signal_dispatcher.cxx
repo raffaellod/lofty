@@ -266,6 +266,8 @@ signal_dispatcher::signal_dispatcher() :
    }
    sa.sa_sigaction = &thread_interruption_signal_handler;
    ::sigaction(mc_iThreadInterruptionSignal, &sa, nullptr);
+#elif ABC_HOST_API_WIN32
+   ::SetConsoleCtrlHandler(&console_ctrl_event_translator, true);
 #endif
 }
 
@@ -440,18 +442,22 @@ signal_dispatcher::~signal_dispatcher() {
 #elif ABC_HOST_API_WIN32
 
    /*static*/ ::BOOL WINAPI signal_dispatcher::console_ctrl_event_translator(::DWORD iCtrlEvent) {
+      exception::common_type::enum_type xct;
       switch (iCtrlEvent) {
          case CTRL_C_EVENT:
-            break;
          case CTRL_BREAK_EVENT:
+         case CTRL_LOGOFF_EVENT:
+         case CTRL_SHUTDOWN_EVENT:
+            xct = exception::common_type::user_forced_interruption;
             break;
          case CTRL_CLOSE_EVENT:
+            // Clicking on the X is considered a normal way of terminating a program.
+            xct = exception::common_type::app_exit_interruption;
             break;
-         case CTRL_LOGOFF_EVENT:
-            break;
-         case CTRL_SHUTDOWN_EVENT:
-            break;
+         default:
+            return false;
       }
+      sm_psd->m_pthrimplMain->inject_exception(xct);
       return true;
    }
 
