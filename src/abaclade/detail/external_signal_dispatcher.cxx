@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include "external_signal_dispatcher.hxx"
+#include "../thread-impl.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,10 +209,24 @@ int const external_signal_dispatcher::smc_aiHandledSignals[] = {
    SIGSEGV  // Invalid memory reference (POSIX.1-1990).
 };
 #endif
+external_signal_dispatcher * external_signal_dispatcher::sm_pInst = nullptr;
 
-external_signal_dispatcher::external_signal_dispatcher()
+external_signal_dispatcher::external_signal_dispatcher() :
+#if ABC_HOST_API_POSIX
+   mc_iInterruptionSignal(
+   #if ABC_HOST_API_DARWIN
+      // SIGRT* not available.
+      SIGUSR1
+   #else
+      SIGRTMIN + 1
+   #endif
+   ) {
+#elif ABC_HOST_API_WIN32
+   // Install the translator of Win32 structured exceptions into C++ exceptions.
+   m_setfDefault(::_set_se_translator(&fault_se_translator)) {
+#endif
+   sm_pInst = this;
 #if ABC_HOST_API_MACH
-   {
    ::mach_port_t mpThisProc = ::mach_task_self();
    // Allocate a right-less port to listen for exceptions.
    if (::mach_port_allocate(mpThisProc, MACH_PORT_RIGHT_RECEIVE, &m_mpExceptions) == KERN_SUCCESS) {
@@ -232,19 +247,19 @@ external_signal_dispatcher::external_signal_dispatcher()
       }
    }
 #elif ABC_HOST_API_POSIX
-   {
-   // Setup handlers for the signals in smc_aiHandledSignals.
    struct ::sigaction sa;
-   sa.sa_sigaction = &fault_signal_handler;
    sigemptyset(&sa.sa_mask);
    sa.sa_flags = SA_SIGINFO;
+   // Setup interruption signal handlers.
+   sa.sa_sigaction = &thread::impl::interruption_signal_handler;
+   ::sigaction(mc_iInterruptionSignal, &sa, nullptr);
+   ::sigaction(SIGINT,                 &sa, nullptr);
+   ::sigaction(SIGTERM,                &sa, nullptr);
+   // Setup fault signal handlers.
+   sa.sa_sigaction = &fault_signal_handler;
    ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
       ::sigaction(iSignal, &sa, nullptr);
    }
-#elif ABC_HOST_API_WIN32
-   :
-   // Install the translator of Win32 structured exceptions into C++ exceptions.
-   m_setfDefault(::_set_se_translator(&fault_se_translator)) {
 #endif
 }
 
@@ -256,9 +271,13 @@ external_signal_dispatcher::~external_signal_dispatcher() {
    ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
       ::signal(iSignal, SIG_DFL);
    }
+   ::signal(SIGINT,                 SIG_DFL);
+   ::signal(SIGTERM,                SIG_DFL);
+   ::signal(mc_iInterruptionSignal, SIG_DFL);
 #elif ABC_HOST_API_WIN32
    ::_set_se_translator(m_setfDefault);
 #endif
+   sm_pInst = nullptr;
 }
 
 #if ABC_HOST_API_MACH
@@ -502,4 +521,62 @@ external_signal_dispatcher::~external_signal_dispatcher() {
 #else
    #error "TODO: HOST_API"
 #endif
+
+void external_signal_dispatcher::main_thread_started() {
+   m_pthrimplMain = std::make_shared<thread::impl>(nullptr);
+}
+
+void external_signal_dispatcher::main_thread_terminated(exception::common_type xct) {
+   /* Note: at this point, a correct program should have no other threads running. As a courtesy,
+   Abaclade will prevent the process from terminating while threads are still running, by ensuring
+   that all Abaclade-managed threads are joined before termination; however, app::main() returning
+   when m_hmThreads.size() > 0 should be considered an exception (and a bug) rather than the
+   rule. */
+
+   // Make this thread uninterruptible by other threads.
+   m_pthrimplMain->m_bTerminating.store(true);
+
+   std::unique_lock<std::mutex> lock(m_mtxThreads);
+   // Signal every other thread to terminate.
+   ABC_FOR_EACH(auto kv, m_hmThreads) {
+      kv.value->inject_exception(xct);
+   }
+   /* Wait for all threads to terminate; as they do, they’ll invoke nonmain_thread_terminated() and
+   have themselves removed from m_hmThreads. We can’t join() them here, since they might be joining
+   amongst themselves in some application-defined order, and we can’t join the same thread more than
+   once (at least in POSIX). */
+   while (!m_hmThreads.empty()) {
+      lock.unlock();
+      // Yes, we just sleep. Remember, this should not really happen (see the note above).
+      this_thread::sleep_for_ms(1);
+      // Re-lock the mutex and check again.
+      lock.lock();
+   }
+}
+
+void external_signal_dispatcher::nonmain_thread_started(
+   std::shared_ptr<thread::impl> const & pthrimpl
+) {
+   std::lock_guard<std::mutex> lock(m_mtxThreads);
+   m_hmThreads.add_or_assign(pthrimpl.get(), pthrimpl);
+}
+
+void external_signal_dispatcher::nonmain_thread_terminated(
+   thread::impl * pthrimpl, bool bUncaughtException
+) {
+   // Remove the thread from the bookkeeping list.
+   {
+      std::lock_guard<std::mutex> lock(m_mtxThreads);
+      m_hmThreads.remove(pthrimpl);
+   }
+   /* If the thread was terminated by an exception making it all the way out of the thread function,
+   all other threads must terminate as well. Achieve this by “forwarding” the exception to the main
+   thread, so that its termination will in turn cause the termination of all other threads. */
+   if (bUncaughtException) {
+      /* TODO: use a more specific exception subclass of execution_interruption, such as
+      “other_thread_execution_interrupted”. */
+      m_pthrimplMain->inject_exception(exception::common_type::execution_interruption);
+   }
+}
+
 }} //namespace abc::detail

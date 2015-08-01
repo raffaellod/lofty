@@ -61,9 +61,6 @@ to what happens upon receiving a SIGTERM in the main thread.
 abc::coroutine. */
 class ABACLADE_SYM thread : public noncopyable {
 public:
-   //! Singleton instantiated by the abc::app class to keep track of threads managed by Abaclade.
-   class tracker;
-
    //! OS-dependent type for unique thread IDs.
 #if ABC_HOST_API_DARWIN
    typedef std::uint64_t id_type;

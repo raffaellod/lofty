@@ -27,6 +27,11 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <abaclade/collections/hash_map.hxx>
+#include <abaclade/thread.hxx>
+
+#include <mutex>
+
 #if ABC_HOST_API_MACH
    // Mach reference: <http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/>.
    #include <mach/mach.h> // mach_port_t
@@ -41,8 +46,12 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace detail {
 
 /*! Establishes, and restores upon destruction, special-case handlers to convert non-C++ synchronous
-error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions. Instantiated by
-abc::app. */
+error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
+
+Also keeps track of threads managed by Abaclade to distribute signals among them and verify that
+they all terminate at the end of a program.
+
+This class is a singleton instantiated by abc::app. */
 class external_signal_dispatcher {
 public:
    //! Constructor.
@@ -56,6 +65,54 @@ public:
    this. */
    static void init_for_current_thread();
 #endif
+
+   /*! Returns a pointer to the singleton instance.
+
+   @return
+      Pointer to the only instance of this class.
+   */
+   static external_signal_dispatcher & instance() {
+      return *sm_pInst;
+   }
+
+#if ABC_HOST_API_POSIX
+   /*! Returns the signal number to be used to interrupt a thread so that it can process any pending
+   exceptions.
+
+   @param return
+      Signal number.
+   */
+   int interruption_signal_number() const {
+      return mc_iInterruptionSignal;
+   }
+#endif
+
+   //! Initializes internal data for the main thread.
+   void main_thread_started();
+
+   /*! Registers the termination of the program’s abc::app::main() overload.
+
+   @param xct
+      Type of exception that escaped the program’s main(), or exception::common_type::none if main()
+      returned normally.
+   */
+   void main_thread_terminated(exception::common_type xct);
+
+   /*! Registers a new thread as running.
+
+   @param pthrimpl
+      Pointer to the abc::thread::impl instance running the thread.
+   */
+   void nonmain_thread_started(std::shared_ptr<thread::impl> const & pthrimpl);
+
+   /*! Registers a non-main thread as no longer running.
+
+   @param pthrimpl
+      Pointer to the abc::thread::impl instance running the thread.
+   @param bUncaughtException
+      true if an exception escaped the thread’s function and was only blocked by abc::thread::impl.
+   */
+   void nonmain_thread_terminated(thread::impl * pthrimpl, bool bUncaughtException);
 
 private:
 #if ABC_HOST_API_MACH
@@ -99,6 +156,10 @@ private:
 #endif
 
 private:
+#if ABC_HOST_API_POSIX
+   //! Signal number to be used to interrupt threads.
+   int const mc_iInterruptionSignal;
+#endif
 #if ABC_HOST_API_MACH
    //! Port through which we ask the kernel to communicate exceptions to this process.
    ::mach_port_t m_mpExceptions;
@@ -111,6 +172,17 @@ private:
    //! Structured Exception translator on program startup.
    ::_se_translator_function m_setfDefault;
 #endif
+   /*! Pointer to an incomplete abc::thread::impl instance that’s used to control the main (default)
+   thread of the process. */
+   // TODO: instantiate this lazily, only if needed.
+   std::shared_ptr<thread::impl> m_pthrimplMain;
+   //! Governs access to m_hmThreads.
+   std::mutex m_mtxThreads;
+   //! Tracks all threads running in the process except *m_pthrimplMain.
+   // TODO: make this a hash_set instead of a hash_map.
+   collections::hash_map<thread::impl *, std::shared_ptr<thread::impl>> m_hmThreads;
+   //! Pointer to the singleton instance.
+   static external_signal_dispatcher * sm_pInst;
 };
 
 }} //namespace abc::detail

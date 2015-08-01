@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #include <abaclade/thread.hxx>
-#include "thread-tracker.hxx"
+#include "detail/external_signal_dispatcher.hxx"
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINTR errno
@@ -101,7 +101,9 @@ private:
    friend native_handle_type thread::native_handle() const;
    friend impl * this_thread::get_impl();
    friend void this_thread::interruption_point();
-   friend void tracker::main_thread_terminated(exception::common_type xct);
+   friend void detail::external_signal_dispatcher::main_thread_terminated(
+      exception::common_type xct
+   );
 
 public:
    /*! Constructor.

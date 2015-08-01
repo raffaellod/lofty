@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/thread.hxx>
 #include "coroutine-scheduler.hxx"
 #include "detail/external_signal_dispatcher.hxx"
-#include "thread-tracker.hxx"
 #include "thread-impl.hxx"
 
 #include <cstdlib> // std::abort()
@@ -194,7 +193,9 @@ void thread::impl::inject_exception(exception::common_type xct) {
    if (m_xctPending.compare_exchange_strong(xctExpected, xct.base())) {
 #if ABC_HOST_API_POSIX
       // Ensure that the thread is not blocked in a syscall.
-      if (int iErr = ::pthread_kill(m_h, tracker::instance().interruption_signal_number())) {
+      if (int iErr = ::pthread_kill(
+         m_h, detail::external_signal_dispatcher::instance().interruption_signal_number())
+      ) {
          exception::throw_os_error(iErr);
       }
 #elif ABC_HOST_API_WIN32
@@ -215,7 +216,7 @@ void thread::impl::inject_exception(exception::common_type xct) {
 ) {
    ABC_UNUSED_ARG(psi);
 
-   if (iSignal == tracker::instance().interruption_signal_number()) {
+   if (iSignal == detail::external_signal_dispatcher::instance().interruption_signal_number()) {
       /* Can happen in any thread; all this really does is allow to break out of a syscall with
       EINTR, so the code following the interrupted call can check m_xctPending. */
       return;
@@ -280,7 +281,7 @@ void thread::impl::join() {
 
    bool bUncaughtException = false;
    try {
-      tracker::instance().nonmain_thread_started(pimplThis);
+      detail::external_signal_dispatcher::instance().nonmain_thread_started(pimplThis);
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
       auto deferred1(defer_to_scope_end([&pimplThis] () {
@@ -298,7 +299,9 @@ void thread::impl::join() {
       exception::write_with_scope_trace();
       bUncaughtException = true;
    }
-   tracker::instance().nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
+   detail::external_signal_dispatcher::instance().nonmain_thread_terminated(
+      pimplThis.get(), bUncaughtException
+   );
 
 #if ABC_HOST_API_POSIX
    return nullptr;
@@ -345,103 +348,6 @@ void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
    // Block until the new thread is finished updating *this.
    seStarted.wait();
    // deferred1 will reset m_pseStarted to nullptr.
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-thread::tracker * thread::tracker::sm_pInst = nullptr;
-
-thread::tracker::tracker()
-#if ABC_HOST_API_POSIX
-   : mc_iInterruptionSignal(
-   #if ABC_HOST_API_DARWIN
-      // SIGRT* not available.
-      SIGUSR1
-   #else
-      SIGRTMIN + 1
-   #endif
-   ) {
-#else
-   {
-#endif
-   sm_pInst = this;
-#if ABC_HOST_API_POSIX
-   // Setup signal handlers.
-   struct ::sigaction sa;
-   sa.sa_sigaction = &impl::interruption_signal_handler;
-   sigemptyset(&sa.sa_mask);
-   sa.sa_flags = SA_SIGINFO;
-   ::sigaction(mc_iInterruptionSignal, &sa, nullptr);
-   ::sigaction(SIGINT,                 &sa, nullptr);
-   ::sigaction(SIGTERM,                &sa, nullptr);
-#endif
-}
-
-thread::tracker::~tracker() {
-#if ABC_HOST_API_POSIX
-   // Restore the default signal handlers.
-   ::signal(SIGINT,                 SIG_DFL);
-   ::signal(SIGTERM,                SIG_DFL);
-   ::signal(mc_iInterruptionSignal, SIG_DFL);
-#endif
-   sm_pInst = nullptr;
-}
-
-void thread::tracker::main_thread_started() {
-   m_pimplMainThread = std::make_shared<impl>(nullptr);
-}
-
-void thread::tracker::main_thread_terminated(exception::common_type xct) {
-   /* Note: at this point, a correct program should have no other threads running. As a courtesy,
-   Abaclade will prevent the process from terminating while threads are still running, by ensuring
-   that all Abaclade-managed threads are joined before termination; however, app::main() returning
-   when m_hmThreads.size() > 0 should be considered an exception (and a bug) rather than the
-   rule. */
-
-   // Make this thread uninterruptible by other threads.
-   m_pimplMainThread->m_bTerminating.store(true);
-
-   std::unique_lock<std::mutex> lock(m_mtxThreads);
-   // Signal every other thread to terminate.
-   ABC_FOR_EACH(auto kv, m_hmThreads) {
-      kv.value->inject_exception(xct);
-   }
-   /* Wait for all threads to terminate; as they do, they’ll invoke nonmain_thread_terminated() and
-   have themselves removed from m_hmThreads. We can’t join() them here, since they might be joining
-   amongst themselves in some application-defined order, and we can’t join the same thread more than
-   once (at least in POSIX). */
-   while (!m_hmThreads.empty()) {
-      lock.unlock();
-      // Yes, we just sleep. Remember, this should not really happen (see the note above).
-      this_thread::sleep_for_ms(1);
-      // Re-lock the mutex and check again.
-      lock.lock();
-   }
-}
-
-void thread::tracker::nonmain_thread_started(std::shared_ptr<impl> const & pimpl) {
-   std::lock_guard<std::mutex> lock(m_mtxThreads);
-   m_hmThreads.add_or_assign(pimpl.get(), pimpl);
-}
-
-void thread::tracker::nonmain_thread_terminated(impl * pimpl, bool bUncaughtException) {
-   // Remove the thread from the bookkeeping list.
-   {
-      std::lock_guard<std::mutex> lock(m_mtxThreads);
-      m_hmThreads.remove(pimpl);
-   }
-   /* If the thread was terminated by an exception making it all the way out of the thread function,
-   all other threads must terminate as well. Achieve this by “forwarding” the exception to the main
-   thread, so that its termination will in turn cause the termination of all other threads. */
-   if (bUncaughtException) {
-      /* TODO: use a more specific exception subclass of execution_interruption, such as
-      “other_thread_execution_interrupted”. */
-      m_pimplMainThread->inject_exception(exception::common_type::execution_interruption);
-   }
 }
 
 } //namespace abc

@@ -20,7 +20,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
 #include "detail/external_signal_dispatcher.hxx"
-#include "thread-tracker.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,12 +158,11 @@ app::app() {
 
    int iRet;
    if (initialize_stdio()) {
-      thread::tracker thrtrk;
       /* Assume for now that main() will return without exceptions, in which case
       abc::app_exit_interruption will be thrown in any coroutine/thread still running. */
       exception::common_type xct = exception::common_type::app_exit_interruption;
       try {
-         thrtrk.main_thread_started();
+         esd.main_thread_started();
          iRet = pfnInstantiateAppAndCallMain(pargs);
       } catch (std::exception const & x) {
          try {
@@ -183,7 +181,7 @@ app::app() {
          iRet = 123;
          xct = exception::execution_interruption_to_common_type();
       }
-      thrtrk.main_thread_terminated(xct);
+      esd.main_thread_terminated(xct);
       if (!deinitialize_stdio()) {
          iRet = 124;
       }
