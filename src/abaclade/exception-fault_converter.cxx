@@ -390,6 +390,24 @@ You should have received a copy of the GNU General Public License along with Aba
       ::_set_se_translator(m_setfDefault);
    }
 
+   /*static*/ ::BOOL WINAPI exception::fault_converter::console_ctrl_event_translator(
+      ::DWORD iCtrlEvent
+   ) {
+      switch (iCtrlEvent) {
+         case CTRL_C_EVENT:
+            break;
+         case CTRL_BREAK_EVENT:
+            break;
+         case CTRL_CLOSE_EVENT:
+            break;
+         case CTRL_LOGOFF_EVENT:
+            break;
+         case CTRL_SHUTDOWN_EVENT:
+            break;
+      }
+      return true;
+   }
+
    /*static*/ void ABC_STL_CALLCONV exception::fault_converter::fault_se_translator(
       unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo
    ) {
