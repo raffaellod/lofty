@@ -62,8 +62,8 @@ public:
    @return
       Pointer to the only instance of this class.
    */
-   static tracker * instance() {
-      return sm_pInst;
+   static tracker & instance() {
+      return *sm_pInst;
    }
 
    //! Initializes internal data for the main thread.

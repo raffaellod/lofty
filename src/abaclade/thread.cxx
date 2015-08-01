@@ -194,7 +194,7 @@ void thread::impl::inject_exception(exception::common_type xct) {
    if (m_xctPending.compare_exchange_strong(xctExpected, xct.base())) {
 #if ABC_HOST_API_POSIX
       // Ensure that the thread is not blocked in a syscall.
-      if (int iErr = ::pthread_kill(m_h, tracker::instance()->interruption_signal_number())) {
+      if (int iErr = ::pthread_kill(m_h, tracker::instance().interruption_signal_number())) {
          exception::throw_os_error(iErr);
       }
 #elif ABC_HOST_API_WIN32
@@ -215,7 +215,7 @@ void thread::impl::inject_exception(exception::common_type xct) {
 ) {
    ABC_UNUSED_ARG(psi);
 
-   if (iSignal == tracker::instance()->interruption_signal_number()) {
+   if (iSignal == tracker::instance().interruption_signal_number()) {
       /* Can happen in any thread; all this really does is allow to break out of a syscall with
       EINTR, so the code following the interrupted call can check m_xctPending. */
       return;
@@ -280,7 +280,7 @@ void thread::impl::join() {
 
    bool bUncaughtException = false;
    try {
-      tracker::instance()->nonmain_thread_started(pimplThis);
+      tracker::instance().nonmain_thread_started(pimplThis);
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
       auto deferred1(defer_to_scope_end([&pimplThis] () {
@@ -298,7 +298,7 @@ void thread::impl::join() {
       exception::write_with_scope_trace();
       bUncaughtException = true;
    }
-   tracker::instance()->nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
+   tracker::instance().nonmain_thread_terminated(pimplThis.get(), bUncaughtException);
 
 #if ABC_HOST_API_POSIX
    return nullptr;
