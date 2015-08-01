@@ -201,6 +201,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
+signal_dispatcher * signal_dispatcher::sm_psd = nullptr;
 #if ABC_HOST_API_POSIX
 int const signal_dispatcher::smc_aiFaultSignals[] = {
    SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
@@ -214,7 +215,6 @@ int const signal_dispatcher::smc_aiInterruptionSignals[] = {
    SIGTERM  // Termination signal (POSIX.1-1990).
 };
 #endif
-signal_dispatcher * signal_dispatcher::sm_psd = nullptr;
 
 signal_dispatcher::signal_dispatcher() :
 #if ABC_HOST_API_POSIX

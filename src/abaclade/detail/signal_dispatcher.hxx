@@ -194,11 +194,6 @@ private:
    ::mach_port_t m_mpExceptions;
    //! Thread in charge of handling exceptions for all the other threads.
    ::pthread_t m_thrExcHandler;
-#elif ABC_HOST_API_POSIX
-   //! Fault signals that we can translate into C++ exceptions.
-   static int const smc_aiFaultSignals[];
-   //! Interruption signals that we can translate into C++ exceptions.
-   static int const smc_aiInterruptionSignals[];
 #elif ABC_HOST_API_WIN32
    //! Structured Exception translator on program startup.
    ::_se_translator_function m_setfDefault;
@@ -212,8 +207,15 @@ private:
    //! Tracks all threads running in the process except *m_pthrimplMain.
    // TODO: make this a hash_set instead of a hash_map.
    collections::hash_map<thread::impl *, std::shared_ptr<thread::impl>> m_hmThreads;
+
    //! Pointer to the singleton instance.
    static signal_dispatcher * sm_psd;
+#if ABC_HOST_API_POSIX
+   //! Fault signals that we can translate into C++ exceptions.
+   static int const smc_aiFaultSignals[];
+   //! Interruption signals that we can translate into C++ exceptions.
+   static int const smc_aiInterruptionSignals[];
+#endif
 };
 
 }} //namespace abc::detail
