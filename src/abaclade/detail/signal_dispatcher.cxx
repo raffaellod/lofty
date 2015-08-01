@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include "external_signal_dispatcher.hxx"
+#include "signal_dispatcher.hxx"
 #include "../thread-impl.hxx"
 
 
@@ -202,16 +202,16 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace detail {
 
 #if ABC_HOST_API_POSIX
-int const external_signal_dispatcher::smc_aiHandledSignals[] = {
+int const signal_dispatcher::smc_aiHandledSignals[] = {
    SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
    SIGFPE,  // Floating point exception (POSIX.1-1990).
 // SIGILL,  // Illegal Instruction (POSIX.1-1990).
    SIGSEGV  // Invalid memory reference (POSIX.1-1990).
 };
 #endif
-external_signal_dispatcher * external_signal_dispatcher::sm_pInst = nullptr;
+signal_dispatcher * signal_dispatcher::sm_pInst = nullptr;
 
-external_signal_dispatcher::external_signal_dispatcher() :
+signal_dispatcher::signal_dispatcher() :
 #if ABC_HOST_API_POSIX
    mc_iInterruptionSignal(
    #if ABC_HOST_API_DARWIN
@@ -263,7 +263,7 @@ external_signal_dispatcher::external_signal_dispatcher() :
 #endif
 }
 
-external_signal_dispatcher::~external_signal_dispatcher() {
+signal_dispatcher::~signal_dispatcher() {
 #if ABC_HOST_API_MACH
    // TODO: stop m_thrExcHandler.
 #elif ABC_HOST_API_POSIX
@@ -282,8 +282,8 @@ external_signal_dispatcher::~external_signal_dispatcher() {
 
 #if ABC_HOST_API_MACH
 
-   /*static*/ void * external_signal_dispatcher::exception_handler_thread(void * p) {
-      external_signal_dispatcher * pesdThis = static_cast<external_signal_dispatcher *>(p);
+   /*static*/ void * signal_dispatcher::exception_handler_thread(void * p) {
+      signal_dispatcher * pesdThis = static_cast<signal_dispatcher *>(p);
       for (;;) {
          /* The exact definition of these structs is in the kernel’s sources; thankfully all we need
          to do with them is pass them around, so just define them as BLOBs and hope that they’re
@@ -321,7 +321,7 @@ external_signal_dispatcher::~external_signal_dispatcher() {
 
 #elif ABC_HOST_API_POSIX
 
-   /*static*/ void external_signal_dispatcher::fault_signal_handler(
+   /*static*/ void signal_dispatcher::fault_signal_handler(
       int iSignal, ::siginfo_t * psi, void * pctx
    ) {
       /* Don’t let external programs mess with us: if the source is not the kernel, ignore the
@@ -402,9 +402,7 @@ external_signal_dispatcher::~external_signal_dispatcher() {
 
 #elif ABC_HOST_API_WIN32
 
-   /*static*/ ::BOOL WINAPI external_signal_dispatcher::console_ctrl_event_translator(
-      ::DWORD iCtrlEvent
-   ) {
+   /*static*/ ::BOOL WINAPI signal_dispatcher::console_ctrl_event_translator(::DWORD iCtrlEvent) {
       switch (iCtrlEvent) {
          case CTRL_C_EVENT:
             break;
@@ -420,7 +418,7 @@ external_signal_dispatcher::~external_signal_dispatcher() {
       return true;
    }
 
-   /*static*/ void ABC_STL_CALLCONV external_signal_dispatcher::fault_se_translator(
+   /*static*/ void ABC_STL_CALLCONV signal_dispatcher::fault_se_translator(
       unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo
    ) {
       switch (iCode) {
@@ -513,7 +511,7 @@ external_signal_dispatcher::~external_signal_dispatcher() {
       }
    }
 
-   /*static*/ void external_signal_dispatcher::init_for_current_thread() {
+   /*static*/ void signal_dispatcher::init_for_current_thread() {
       // Install the SEH translator, without saving the original.
       ::_set_se_translator(&fault_se_translator);
    }
@@ -522,11 +520,11 @@ external_signal_dispatcher::~external_signal_dispatcher() {
    #error "TODO: HOST_API"
 #endif
 
-void external_signal_dispatcher::main_thread_started() {
+void signal_dispatcher::main_thread_started() {
    m_pthrimplMain = std::make_shared<thread::impl>(nullptr);
 }
 
-void external_signal_dispatcher::main_thread_terminated(exception::common_type xct) {
+void signal_dispatcher::main_thread_terminated(exception::common_type xct) {
    /* Note: at this point, a correct program should have no other threads running. As a courtesy,
    Abaclade will prevent the process from terminating while threads are still running, by ensuring
    that all Abaclade-managed threads are joined before termination; however, app::main() returning
@@ -554,14 +552,12 @@ void external_signal_dispatcher::main_thread_terminated(exception::common_type x
    }
 }
 
-void external_signal_dispatcher::nonmain_thread_started(
-   std::shared_ptr<thread::impl> const & pthrimpl
-) {
+void signal_dispatcher::nonmain_thread_started(std::shared_ptr<thread::impl> const & pthrimpl) {
    std::lock_guard<std::mutex> lock(m_mtxThreads);
    m_hmThreads.add_or_assign(pthrimpl.get(), pthrimpl);
 }
 
-void external_signal_dispatcher::nonmain_thread_terminated(
+void signal_dispatcher::nonmain_thread_terminated(
    thread::impl * pthrimpl, bool bUncaughtException
 ) {
    // Remove the thread from the bookkeeping list.

@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_DETAIL_EXTERNAL_SIGNAL_DISPATCHER_HXX
-#define _ABACLADE_DETAIL_EXTERNAL_SIGNAL_DISPATCHER_HXX
+#ifndef _ABACLADE_DETAIL_SIGNAL_DISPATCHER_HXX
+#define _ABACLADE_DETAIL_SIGNAL_DISPATCHER_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -52,13 +52,13 @@ Also keeps track of threads managed by Abaclade to distribute signals among them
 they all terminate at the end of a program.
 
 This class is a singleton instantiated by abc::app. */
-class external_signal_dispatcher {
+class signal_dispatcher {
 public:
    //! Constructor.
-   external_signal_dispatcher();
+   signal_dispatcher();
 
    //! Destructor.
-   ~external_signal_dispatcher();
+   ~signal_dispatcher();
 
 #if ABC_HOST_API_WIN32
    /*! Initializes the fault converter for the current thread. Every thread but the first calls
@@ -71,7 +71,7 @@ public:
    @return
       Pointer to the only instance of this class.
    */
-   static external_signal_dispatcher & instance() {
+   static signal_dispatcher & instance() {
       return *sm_pInst;
    }
 
@@ -182,11 +182,11 @@ private:
    // TODO: make this a hash_set instead of a hash_map.
    collections::hash_map<thread::impl *, std::shared_ptr<thread::impl>> m_hmThreads;
    //! Pointer to the singleton instance.
-   static external_signal_dispatcher * sm_pInst;
+   static signal_dispatcher * sm_pInst;
 };
 
 }} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_DETAIL_EXTERNAL_SIGNAL_DISPATCHER_HXX
+#endif //ifndef _ABACLADE_DETAIL_SIGNAL_DISPATCHER_HXX

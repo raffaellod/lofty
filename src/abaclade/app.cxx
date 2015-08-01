@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
-#include "detail/external_signal_dispatcher.hxx"
+#include "detail/signal_dispatcher.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +152,7 @@ app::app() {
 
 /*static*/ int app::run(int (* pfnInstantiateAppAndCallMain)(_args_t *), _args_t * pargs) {
    // Establish these as early as possible.
-   detail::external_signal_dispatcher esd;
+   detail::signal_dispatcher sd;
    // Under POSIX, this also creates the TLS slot.
    detail::thread_local_storage tls;
 
@@ -162,7 +162,7 @@ app::app() {
       abc::app_exit_interruption will be thrown in any coroutine/thread still running. */
       exception::common_type xct = exception::common_type::app_exit_interruption;
       try {
-         esd.main_thread_started();
+         sd.main_thread_started();
          iRet = pfnInstantiateAppAndCallMain(pargs);
       } catch (std::exception const & x) {
          try {
@@ -181,7 +181,7 @@ app::app() {
          iRet = 123;
          xct = exception::execution_interruption_to_common_type();
       }
-      esd.main_thread_terminated(xct);
+      sd.main_thread_terminated(xct);
       if (!deinitialize_stdio()) {
          iRet = 124;
       }
