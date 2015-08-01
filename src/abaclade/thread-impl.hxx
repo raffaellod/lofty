@@ -124,19 +124,7 @@ public:
    */
    void inject_exception(exception::common_type xct);
 
-#if ABC_HOST_API_POSIX
-   /*! Handles SIGINT and SIGTERM for the main thread, as well as the Abaclade-defined signal used
-   to interrupt any thread, injecting an appropriate exception type in the thread’s context.
-
-   @param iSignal
-      Signal number for which the function is being called.
-   @param psi
-      Additional information on the signal.
-   @param pctx
-      Thread context. This is used to manipulate the stack of the thread to inject a call frame.
-   */
-   static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
-#elif ABC_HOST_API_WIN32
+#if ABC_HOST_API_WIN32
    /*! Returns the handle used to interrupt wait functions.
 
    @return

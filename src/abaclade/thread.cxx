@@ -210,34 +210,6 @@ void thread::impl::inject_exception(exception::common_type xct) {
    }
 }
 
-#if ABC_HOST_API_POSIX
-/*static*/ void thread::impl::interruption_signal_handler(
-   int iSignal, ::siginfo_t * psi, void * pctx
-) {
-   ABC_UNUSED_ARG(psi);
-
-   if (iSignal == detail::signal_dispatcher::instance().thread_interruption_signal()) {
-      /* Can happen in any thread; all this really does is allow to break out of a syscall with
-      EINTR, so the code following the interrupted call can check m_xctPending. */
-      return;
-   }
-
-   exception::common_type::enum_type xct;
-   if (iSignal == SIGINT) {
-      // Can only happen in the main thread.
-      xct = exception::common_type::user_forced_interruption;
-   } else if (iSignal == SIGTERM) {
-      // Can only happen in the main thread.
-      xct = exception::common_type::execution_interruption;
-   } else {
-      // Should never happen.
-      std::abort();
-   }
-   // This will skip injecting the exception if the thread is terminating.
-   exception::inject_in_context(xct, 0, 0, pctx);
-}
-#endif
-
 void thread::impl::join() {
    ABC_TRACE_FUNC(this);
 

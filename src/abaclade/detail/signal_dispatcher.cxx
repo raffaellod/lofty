@@ -256,15 +256,16 @@ signal_dispatcher::signal_dispatcher() :
    sigemptyset(&sa.sa_mask);
    sa.sa_flags = SA_SIGINFO;
    // Setup fault and interruption signal handlers.
-   sa.sa_sigaction = &thread::impl::interruption_signal_handler;
+   sa.sa_sigaction = &interruption_signal_handler;
    ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
       ::sigaction(iSignal, &sa, nullptr);
    }
-   ::sigaction(mc_iThreadInterruptionSignal, &sa, nullptr);
    sa.sa_sigaction = &fault_signal_handler;
    ABC_FOR_EACH(int iSignal, smc_aiFaultSignals) {
       ::sigaction(iSignal, &sa, nullptr);
    }
+   sa.sa_sigaction = &thread_interruption_signal_handler;
+   ::sigaction(mc_iThreadInterruptionSignal, &sa, nullptr);
 #endif
 }
 
@@ -273,10 +274,10 @@ signal_dispatcher::~signal_dispatcher() {
    // TODO: stop m_thrExcHandler.
 #elif ABC_HOST_API_POSIX
    // Restore the default signal handlers.
+   ::signal(mc_iThreadInterruptionSignal, SIG_DFL);
    ABC_FOR_EACH(int iSignal, smc_aiFaultSignals) {
       ::signal(iSignal, SIG_DFL);
    }
-   ::signal(mc_iThreadInterruptionSignal, SIG_DFL);
    ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
       ::signal(iSignal, SIG_DFL);
    }
@@ -286,6 +287,16 @@ signal_dispatcher::~signal_dispatcher() {
    sm_psd = nullptr;
 }
 
+#if ABC_HOST_API_POSIX
+   /*static*/ void signal_dispatcher::thread_interruption_signal_handler(
+      int iSignal, ::siginfo_t * psi, void * pctx
+   ) {
+      ABC_UNUSED_ARG(iSignal);
+      ABC_UNUSED_ARG(psi);
+      ABC_UNUSED_ARG(pctx);
+      // Nothing to do here.
+   }
+#endif
 #if ABC_HOST_API_MACH
 
    /*static*/ void * signal_dispatcher::exception_handler_thread(void * p) {
@@ -404,6 +415,26 @@ signal_dispatcher::~signal_dispatcher() {
          // Deal with cases not covered above.
          std::abort();
       }
+   }
+
+   /*static*/ void signal_dispatcher::interruption_signal_handler(
+      int iSignal, ::siginfo_t * psi, void * pctx
+   ) {
+      ABC_UNUSED_ARG(psi);
+
+      exception::common_type::enum_type xct;
+      if (iSignal == SIGINT) {
+         // Can only happen in the main thread.
+         xct = exception::common_type::user_forced_interruption;
+      } else if (iSignal == SIGTERM) {
+         // Can only happen in the main thread.
+         xct = exception::common_type::execution_interruption;
+      } else {
+         // Should never happen.
+         std::abort();
+      }
+      // This will skip injecting the exception if the thread is terminating.
+      exception::inject_in_context(xct, 0, 0, pctx);
    }
 
 #elif ABC_HOST_API_WIN32

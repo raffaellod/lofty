@@ -117,6 +117,21 @@ public:
    void nonmain_thread_terminated(thread::impl * pthrimpl, bool bUncaughtException);
 
 private:
+#if ABC_HOST_API_POSIX
+   /*! Handles the Abaclade-defined signal used to interrupt any thread, by doing nothing. This
+   allows to break out of a syscall with EINTR, so the code following the interrupted call can check
+   abc::thread::impl::m_xctPending.
+
+   @param iSignal
+      Signal number for which the function is being called.
+   @param psi
+      Additional information on the signal.
+   @param pctx
+      Thread context.
+   */
+   static void thread_interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
+#endif
+
 #if ABC_HOST_API_MACH
    //! Handles exceptions for every thread. Runs in its own thread.
    static void * exception_handler_thread(void *);
@@ -135,6 +150,18 @@ private:
       Thread context. This is used to manipulate the stack of the thread to inject a call frame.
    */
    static void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
+
+   /*! Handles SIGINT and SIGTERM for the main thread, injecting an appropriate exception type in
+   the thread’s context.
+
+   @param iSignal
+      Signal number for which the function is being called.
+   @param psi
+      Additional information on the signal.
+   @param pctx
+      Thread context. Used to manipulate the stack of the thread to inject a function call.
+   */
+   static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
 #elif ABC_HOST_API_WIN32
    /*! Translates Win32 console eventstructured exceptions into C++ exceptions.
 
