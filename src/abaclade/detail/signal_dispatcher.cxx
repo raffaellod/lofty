@@ -458,8 +458,10 @@ signal_dispatcher::~signal_dispatcher() {
    /*static*/ void ABC_STL_CALLCONV signal_dispatcher::fault_se_translator(
       unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo
    ) {
+      exception::common_type::enum_type xct = exception::common_type::none;
+      std::intptr_t iArg0 = 0, iArg1 = 0;
       switch (iCode) {
-         case EXCEPTION_ACCESS_VIOLATION: {
+         case EXCEPTION_ACCESS_VIOLATION:
             /* Attempt to read from or write to an inaccessible address.
             ExceptionInformation[0] contains a read-write flag that indicates the type of operation
             that caused the access violation. If this value is zero, the thread attempted to read
@@ -467,18 +469,15 @@ signal_dispatcher::~signal_dispatcher() {
             inaccessible address. If this value is 8, the thread caused a user-mode data execution
             prevention (DEP) violation.
             ExceptionInformation[1] specifies the virtual address of the inaccessible data. */
-            void const * pAddr = reinterpret_cast<void const *>(
+            if (void const * pAddr = reinterpret_cast<void const *>(
                pxpInfo->ExceptionRecord->ExceptionInformation[1]
-            );
-            if (pAddr == nullptr) {
-               exception::throw_common_type(exception::common_type::null_pointer_error, 0, 0);
+            )) {
+               xct = exception::common_type::memory_address_error;
+               iArg0 = reinterpret_cast<std::intptr_t>(pAddr);
             } else {
-               exception::throw_common_type(
-                  exception::common_type::memory_address_error,
-                  reinterpret_cast<std::intptr_t>(pAddr), 0
-               );
+               xct = exception::common_type::null_pointer_error;
             }
-         }
+            break;
 
 //       case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
             /* Attempt to access an array element that is out of bounds, and the underlying hardware
@@ -487,10 +486,9 @@ signal_dispatcher::~signal_dispatcher() {
 
          case EXCEPTION_DATATYPE_MISALIGNMENT:
             // Attempt to read or write data that is misaligned on hardware that requires alignment.
-            exception::throw_common_type(
-               exception::common_type::memory_access_error,
-               reinterpret_cast<std::intptr_t>(nullptr), 0
-            );
+            xct = exception::common_type::memory_access_error;
+            iArg0 = reinterpret_cast<std::intptr_t>(nullptr);
+            break;
 
          case EXCEPTION_FLT_DENORMAL_OPERAND:
             /* An operand in a floating-point operation is too small to represent as a standard
@@ -516,7 +514,8 @@ signal_dispatcher::~signal_dispatcher() {
          case EXCEPTION_FLT_UNDERFLOW:
             /* The exponent of a floating-point operation is less than the magnitude allowed by the
             corresponding type. */
-            exception::throw_common_type(exception::common_type::floating_point_error, 0, 0);
+            xct = exception::common_type::floating_point_error;
+            break;
 
          case EXCEPTION_ILLEGAL_INSTRUCTION:
             // Attempt to execute an invalid instruction.
@@ -530,12 +529,14 @@ signal_dispatcher::~signal_dispatcher() {
 
          case EXCEPTION_INT_DIVIDE_BY_ZERO:
             // The thread attempted to divide an integer value by an integer divisor of zero.
-            exception::throw_common_type(exception::common_type::division_by_zero_error, 0, 0);
+            xct = exception::common_type::division_by_zero_error;
+            break;
 
          case EXCEPTION_INT_OVERFLOW:
             /* The result of an integer operation caused a carry out of the most significant bit of
             the result. */
-            exception::throw_common_type(exception::common_type::overflow_error, 0, 0);
+            xct = exception::common_type::overflow_error;
+            break;
 
          case EXCEPTION_PRIV_INSTRUCTION:
             /* Attempt to execute an instruction whose operation is not allowed in the current
@@ -545,6 +546,9 @@ signal_dispatcher::~signal_dispatcher() {
          case EXCEPTION_STACK_OVERFLOW:
             // The thread used up its stack.
             break;
+      }
+      if (xct != exception::common_type::none) {
+         exception::throw_common_type(xct, iArg0, iArg1);
       }
    }
 
