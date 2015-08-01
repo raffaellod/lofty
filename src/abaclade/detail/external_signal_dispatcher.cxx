@@ -193,36 +193,75 @@ You should have received a copy of the GNU General Public License along with Aba
       }
       return KERN_SUCCESS;
    }
+#elif ABC_HOST_API_POSIX
+   #include <cstdlib> // std::abort()
+   #include <ucontext.h> // ucontext_t
+#endif
 
-   namespace abc { namespace detail {
+namespace abc { namespace detail {
 
-   external_signal_dispatcher::external_signal_dispatcher() {
-      ::mach_port_t mpThisProc = ::mach_task_self();
-      // Allocate a right-less port to listen for exceptions.
-      if (::mach_port_allocate(
-         mpThisProc, MACH_PORT_RIGHT_RECEIVE, &m_mpExceptions) == KERN_SUCCESS
-      ) {
-         // Assign rights to the port.
-         if (::mach_port_insert_right(
-            mpThisProc, m_mpExceptions, m_mpExceptions, MACH_MSG_TYPE_MAKE_SEND
-         ) == KERN_SUCCESS) {
-            // Start the thread that will catch exceptions from all the others.
-            if (::pthread_create(&m_thrExcHandler, nullptr, exception_handler_thread, this) == 0) {
-               // Now that the handler thread is running, set the process-wide exception port.
-               if (::task_set_exception_ports(
-                  mpThisProc,
-                  EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
-                  m_mpExceptions, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
-               ) == KERN_SUCCESS) {
-                  // All good.
-               }
+#if ABC_HOST_API_POSIX
+int const external_signal_dispatcher::smc_aiHandledSignals[] = {
+   SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
+   SIGFPE,  // Floating point exception (POSIX.1-1990).
+// SIGILL,  // Illegal Instruction (POSIX.1-1990).
+   SIGSEGV  // Invalid memory reference (POSIX.1-1990).
+};
+#endif
+
+external_signal_dispatcher::external_signal_dispatcher()
+#if ABC_HOST_API_MACH
+   {
+   ::mach_port_t mpThisProc = ::mach_task_self();
+   // Allocate a right-less port to listen for exceptions.
+   if (::mach_port_allocate(mpThisProc, MACH_PORT_RIGHT_RECEIVE, &m_mpExceptions) == KERN_SUCCESS) {
+      // Assign rights to the port.
+      if (::mach_port_insert_right(
+         mpThisProc, m_mpExceptions, m_mpExceptions, MACH_MSG_TYPE_MAKE_SEND
+      ) == KERN_SUCCESS) {
+         // Start the thread that will catch exceptions from all the others.
+         if (::pthread_create(&m_thrExcHandler, nullptr, exception_handler_thread, this) == 0) {
+            // Now that the handler thread is running, set the process-wide exception port.
+            if (::task_set_exception_ports(
+               mpThisProc, EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
+               m_mpExceptions, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
+            ) == KERN_SUCCESS) {
+               // All good.
             }
          }
       }
    }
-
-   external_signal_dispatcher::~external_signal_dispatcher() {
+#elif ABC_HOST_API_POSIX
+   {
+   // Setup handlers for the signals in smc_aiHandledSignals.
+   struct ::sigaction sa;
+   sa.sa_sigaction = &fault_signal_handler;
+   sigemptyset(&sa.sa_mask);
+   sa.sa_flags = SA_SIGINFO;
+   ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
+      ::sigaction(iSignal, &sa, nullptr);
    }
+#elif ABC_HOST_API_WIN32
+   :
+   // Install the translator of Win32 structured exceptions into C++ exceptions.
+   m_setfDefault(::_set_se_translator(&fault_se_translator)) {
+#endif
+}
+
+external_signal_dispatcher::~external_signal_dispatcher() {
+#if ABC_HOST_API_MACH
+   // TODO: stop m_thrExcHandler.
+#elif ABC_HOST_API_POSIX
+   // Restore the default signal handlers.
+   ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
+      ::signal(iSignal, SIG_DFL);
+   }
+#elif ABC_HOST_API_WIN32
+   ::_set_se_translator(m_setfDefault);
+#endif
+}
+
+#if ABC_HOST_API_MACH
 
    /*static*/ void * external_signal_dispatcher::exception_handler_thread(void * p) {
       external_signal_dispatcher * pesdThis = static_cast<external_signal_dispatcher *>(p);
@@ -261,40 +300,7 @@ You should have received a copy of the GNU General Public License along with Aba
       }
    }
 
-   }} //namespace abc::detail
-
 #elif ABC_HOST_API_POSIX
-   #include <cstdlib> // std::abort()
-
-   #include <ucontext.h> // ucontext_t
-
-
-   namespace abc { namespace detail {
-
-   int const external_signal_dispatcher::smc_aiHandledSignals[] = {
-      SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
-      SIGFPE,  // Floating point exception (POSIX.1-1990).
-//    SIGILL,  // Illegal Instruction (POSIX.1-1990).
-      SIGSEGV  // Invalid memory reference (POSIX.1-1990).
-   };
-
-   external_signal_dispatcher::external_signal_dispatcher() {
-      // Setup handlers for the signals in smc_aiHandledSignals.
-      struct ::sigaction sa;
-      sa.sa_sigaction = &fault_signal_handler;
-      sigemptyset(&sa.sa_mask);
-      sa.sa_flags = SA_SIGINFO;
-      ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
-         ::sigaction(iSignal, &sa, nullptr);
-      }
-   }
-
-   external_signal_dispatcher::~external_signal_dispatcher() {
-      // Restore the default signal handlers.
-      ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
-         ::signal(iSignal, SIG_DFL);
-      }
-   }
 
    /*static*/ void external_signal_dispatcher::fault_signal_handler(
       int iSignal, ::siginfo_t * psi, void * pctx
@@ -375,20 +381,7 @@ You should have received a copy of the GNU General Public License along with Aba
       }
    }
 
-   }} //namespace abc::detail
-
 #elif ABC_HOST_API_WIN32
-
-   namespace abc { namespace detail {
-
-   external_signal_dispatcher::external_signal_dispatcher() :
-      // Install the translator of Win32 structured exceptions into C++ exceptions.
-      m_setfDefault(::_set_se_translator(&fault_se_translator)) {
-   }
-
-   external_signal_dispatcher::~external_signal_dispatcher() {
-      ::_set_se_translator(m_setfDefault);
-   }
 
    /*static*/ ::BOOL WINAPI external_signal_dispatcher::console_ctrl_event_translator(
       ::DWORD iCtrlEvent
@@ -506,8 +499,7 @@ You should have received a copy of the GNU General Public License along with Aba
       ::_set_se_translator(&fault_se_translator);
    }
 
-   }} //namespace abc::detail
-
 #else
    #error "TODO: HOST_API"
 #endif
+}} //namespace abc::detail
