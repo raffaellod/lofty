@@ -66,13 +66,14 @@ public:
    typedef thread_local_storage_registrar registrar;
 
 public:
-   //! Allocates the TLS slot for the process.
-   static void alloc_slot();
+   /*! Default constructor. Publicly accessible so that under POSIX, abc::thread::impl and
+   abc::app::run() can instantiate this class instead of using the lazy initialization. */
+   thread_local_storage();
 
-#if ABC_HOST_API_POSIX
-   //! Destructs the storage instance for main (last) thread, then releases the TLS slot.
-   static void destruct_last_and_free_slot();
-#elif ABC_HOST_API_WIN32
+   //! Destructor.
+   ~thread_local_storage();
+
+#if ABC_HOST_API_WIN32
    /*! Hook invoked by DllMain() in abaclade.dll.
 
    @param iReason
@@ -95,12 +96,6 @@ public:
    static thread_local_storage & instance(bool bCreateNewIfNull = true);
 
 private:
-   //! Constructor.
-   thread_local_storage();
-
-   //! Destructor.
-   ~thread_local_storage();
-
 #if ABC_HOST_API_POSIX
    /*! Destructs the storage instance for the current thread. Invoked by pthread_key_create() when a
    thread terminates.
@@ -117,6 +112,10 @@ private:
    coroutine_local_storage m_crls;
    //! Normally a pointer to m_crls, but replaced while a coroutine is being actively executed.
    coroutine_local_storage * m_pcrls;
+#if ABC_HOST_API_POSIX
+   //! Count of instances.
+   static std::atomic<unsigned> sm_cInstances;
+#endif
 };
 
 

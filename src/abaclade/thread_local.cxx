@@ -40,6 +40,7 @@ namespace abc { namespace detail {
 #if ABC_HOST_API_POSIX
    //! TLS key.
    static pthread_key_t g_pthkey;
+   std::atomic<unsigned> thread_local_storage::sm_cInstances(0);
 #elif ABC_HOST_API_WIN32
    //! TLS index.
    static ::DWORD g_iTls = TLS_OUT_OF_INDEXES;
@@ -50,6 +51,12 @@ thread_local_storage::thread_local_storage() :
    m_pcrls(&m_crls) {
 
 #if ABC_HOST_API_POSIX
+   if (sm_cInstances++ == 0) {
+      if (int iErr = pthread_key_create(&g_pthkey, &destruct)) {
+         ABC_UNUSED_ARG(iErr);
+         // throw an exception (iErr).
+      }
+   }
    pthread_setspecific(g_pthkey, this);
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, this);
@@ -69,22 +76,11 @@ thread_local_storage::~thread_local_storage() {
 
 #if ABC_HOST_API_POSIX
    pthread_setspecific(g_pthkey, nullptr);
+   if (--sm_cInstances == 0) {
+      pthread_key_delete(g_pthkey);
+   }
 #elif ABC_HOST_API_WIN32
    ::TlsSetValue(g_iTls, nullptr);
-#endif
-}
-
-/*static*/ void thread_local_storage::alloc_slot() {
-#if ABC_HOST_API_POSIX
-   if (int iErr = pthread_key_create(&g_pthkey, &destruct)) {
-      ABC_UNUSED_ARG(iErr);
-      // throw an exception (iErr).
-   }
-#elif ABC_HOST_API_WIN32
-   g_iTls = ::TlsAlloc();
-   if (g_iTls == TLS_OUT_OF_INDEXES) {
-      // throw an exception (::GetLastError()).
-   }
 #endif
 }
 
@@ -96,22 +92,15 @@ thread_local_storage::~thread_local_storage() {
    pthread_setspecific(g_pthkey, pThis);
    delete static_cast<thread_local_storage *>(pThis);
 }
-
-/*static*/ void thread_local_storage::destruct_last_and_free_slot() {
-   /* Allow instance() to return nullptr if the TLS slot was not initialized for this thread, in
-   which case nothing will happen. */
-   delete &instance(false);
-   pthread_key_delete(g_pthkey);
-}
 #endif
 
 #if ABC_HOST_API_WIN32
 /*static*/ bool thread_local_storage::dllmain_hook(unsigned iReason) {
-   if (iReason == DLL_PROCESS_ATTACH || iReason == DLL_THREAD_ATTACH) {
-      if (iReason == DLL_PROCESS_ATTACH) {
-         alloc_slot();
+   if (iReason == DLL_PROCESS_ATTACH) {
+      g_iTls = ::TlsAlloc();
+      if (g_iTls == TLS_OUT_OF_INDEXES) {
+         // throw an exception (::GetLastError()).
       }
-      // Not calling construct() since initialization of TLS is lazy.
    } else if (iReason == DLL_THREAD_DETACH || iReason == DLL_PROCESS_DETACH) {
       /* Allow instance() to return nullptr if the TLS slot was not initialized for this thread, in
       which case nothing will happen. */
@@ -128,10 +117,8 @@ thread_local_storage::~thread_local_storage() {
 /*static*/ thread_local_storage & thread_local_storage::instance(bool bCreateNewIfNull /*= true*/) {
    void * pThis =
 #if ABC_HOST_API_POSIX
-      // alloc_slot() is called by app::run().
       pthread_getspecific(g_pthkey);
 #elif ABC_HOST_API_WIN32
-      // alloc_slot() is called by dllmain_hook().
       ::TlsGetValue(g_iTls);
 #endif
    if (pThis || !bCreateNewIfNull) {

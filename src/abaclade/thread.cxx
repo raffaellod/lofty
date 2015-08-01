@@ -258,9 +258,14 @@ void thread::impl::join() {
 /*static*/ void * thread::impl::outer_main(void * p) {
 #elif ABC_HOST_API_WIN32
 /*static*/ ::DWORD WINAPI thread::impl::outer_main(void * p) {
+   // Establish this as early as possible.
+   exception::fault_converter::init_for_current_thread();
 #else
    #error "TODO: HOST_API"
 #endif
+   // Not really necessary since TLS will be lazily allocated, but this avoids a heap allocation.
+   detail::thread_local_storage tls;
+
    /* Get a copy of the shared_ptr owning *this, so that members will be guaranteed to be accessible
    even after start() returns, in the creating thread.
    Dereferencing p is safe because the creating thread, which owns *p, is blocked, waiting for this
@@ -269,12 +274,10 @@ void thread::impl::join() {
    /* Store pimplThis in TLS. No need to clear it before returning, since it can only be accessed by
    this thread, which will terminate upon returning. */
    sm_pimplThis = pimplThis.get();
-
 #if ABC_HOST_API_POSIX
    pimplThis->m_id = this_thread::id();
-#elif ABC_HOST_API_WIN32
-   exception::fault_converter::init_for_current_thread();
 #endif
+
    bool bUncaughtException = false;
    try {
       tracker::instance()->nonmain_thread_started(pimplThis);
