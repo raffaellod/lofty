@@ -104,14 +104,15 @@ private:
    friend void tracker::main_thread_terminated(exception::common_type xct);
 
 public:
-   /*! Constructor
+   /*! Constructor.
 
    @param fnMain
       Initial value for m_fnInnerMain.
    */
-   impl(std::function<void ()> fnMain);
-   // This overload is used to instantiate an impl for the main thread.
-   impl(std::nullptr_t);
+   explicit impl(std::function<void ()> fnMain);
+
+   //! Constructor used to instantiate an impl for the main thread.
+   explicit impl(std::nullptr_t);
 
    //! Destructor.
    ~impl();

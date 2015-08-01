@@ -122,7 +122,7 @@ namespace abc {
 
 thread_local_value<thread::impl *> thread::impl::sm_pimplThis /*= nullptr*/;
 
-thread::impl::impl(std::function<void ()> fnMain) :
+/*explicit*/ thread::impl::impl(std::function<void ()> fnMain) :
 #if ABC_HOST_API_POSIX
    m_id(0),
 #elif ABC_HOST_API_WIN32
@@ -143,8 +143,8 @@ thread::impl::impl(std::function<void ()> fnMain) :
    }
 #endif
 }
-// This overload is used to instantiate an impl for the main thread.
-thread::impl::impl(std::nullptr_t) :
+
+/*explicit*/ thread::impl::impl(std::nullptr_t) :
 #if ABC_HOST_API_POSIX
    m_h(::pthread_self()),
    m_id(this_thread::id()),
