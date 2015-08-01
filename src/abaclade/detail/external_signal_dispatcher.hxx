@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_EXCEPTION_FAULT_CONVERTER_HXX
-#define _ABACLADE_EXCEPTION_FAULT_CONVERTER_HXX
+#ifndef _ABACLADE_DETAIL_EXTERNAL_SIGNAL_DISPATCHER_HXX
+#define _ABACLADE_DETAIL_EXTERNAL_SIGNAL_DISPATCHER_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -38,15 +38,18 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
+namespace abc { namespace detail {
 
-class exception::fault_converter : public noncopyable {
+/*! Establishes, and restores upon destruction, special-case handlers to convert non-C++ synchronous
+error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions. Instantiated by
+abc::app. */
+class external_signal_dispatcher {
 public:
    //! Constructor.
-   fault_converter();
+   external_signal_dispatcher();
 
    //! Destructor.
-   ~fault_converter();
+   ~external_signal_dispatcher();
 
 #if ABC_HOST_API_WIN32
    /*! Initializes the fault converter for the current thread. Every thread but the first calls
@@ -110,8 +113,8 @@ private:
 #endif
 };
 
-} //namespace abc
+}} //namespace abc::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_EXCEPTION_FAULT_CONVERTER_HXX
+#endif //ifndef _ABACLADE_DETAIL_EXTERNAL_SIGNAL_DISPATCHER_HXX

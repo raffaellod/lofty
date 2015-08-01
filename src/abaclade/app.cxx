@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
-#include "exception-fault_converter.hxx"
+#include "detail/external_signal_dispatcher.hxx"
 #include "thread-tracker.hxx"
 
 
@@ -153,7 +153,7 @@ app::app() {
 
 /*static*/ int app::run(int (* pfnInstantiateAppAndCallMain)(_args_t *), _args_t * pargs) {
    // Establish these as early as possible.
-   exception::fault_converter xfc;
+   detail::external_signal_dispatcher esd;
    // Under POSIX, this also creates the TLS slot.
    detail::thread_local_storage tls;
 

@@ -362,11 +362,6 @@ Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/
 exceptions.html>. */
 class ABACLADE_SYM exception {
 public:
-   /*! Establishes, and restores upon destruction, special-case handlers to convert non-C++
-   synchronous error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
-   Instantiated by abc::app. */
-   class fault_converter;
-
    //! List of common exception types, used by several static methods.
    ABC_ENUM_AUTO_VALUES(common_type,
       none,

@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include "exception-fault_converter.hxx"
+#include "external_signal_dispatcher.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
    /*! Called by exc_server() when the latter is passed an exception message, giving the process a
    way to do something about it. What we do is change the next instruction in the faulting thread to
-   throw_common_type().
+   exception::throw_common_type().
 
    @param mpExceptions
       ?
@@ -170,7 +170,7 @@ You should have received a copy of the GNU General Public License along with Aba
       }
 
       /* Change the address at which mpThread is executing: manipulate the thread state to emulate a
-      function call to throw_common_type(). */
+      function call to exception::throw_common_type(). */
 
       // Obtain the faulting thread’s state.
       arch_thread_state_t thrst;
@@ -182,7 +182,7 @@ You should have received a copy of the GNU General Public License along with Aba
          return KERN_FAILURE;
       }
 
-      // Manipulate the thread state to emulate a call to throw_common_type().
+      // Manipulate the thread state to emulate a call to exception::throw_common_type().
       abc::exception::inject_in_context(xct, iArg0, iArg1, &thrst);
 
       // Update the faulting thread’s state.
@@ -194,9 +194,9 @@ You should have received a copy of the GNU General Public License along with Aba
       return KERN_SUCCESS;
    }
 
-   namespace abc {
+   namespace abc { namespace detail {
 
-   exception::fault_converter::fault_converter() {
+   external_signal_dispatcher::external_signal_dispatcher() {
       ::mach_port_t mpThisProc = ::mach_task_self();
       // Allocate a right-less port to listen for exceptions.
       if (::mach_port_allocate(
@@ -221,11 +221,11 @@ You should have received a copy of the GNU General Public License along with Aba
       }
    }
 
-   exception::fault_converter::~fault_converter() {
+   external_signal_dispatcher::~external_signal_dispatcher() {
    }
 
-   /*static*/ void * exception::fault_converter::exception_handler_thread(void * p) {
-      fault_converter * pxfcThis = static_cast<fault_converter *>(p);
+   /*static*/ void * external_signal_dispatcher::exception_handler_thread(void * p) {
+      external_signal_dispatcher * pesdThis = static_cast<external_signal_dispatcher *>(p);
       for (;;) {
          /* The exact definition of these structs is in the kernel’s sources; thankfully all we need
          to do with them is pass them around, so just define them as BLOBs and hope that they’re
@@ -242,7 +242,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
          // Block to read from the exception port.
          if (::mach_msg(
-            &msg.msgh, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof msg, pxfcThis->m_mpExceptions,
+            &msg.msgh, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof msg, pesdThis->m_mpExceptions,
             MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
          ) != MACH_MSG_SUCCESS) {
             std::abort();
@@ -261,7 +261,7 @@ You should have received a copy of the GNU General Public License along with Aba
       }
    }
 
-   } //namespace abc
+   }} //namespace abc::detail
 
 #elif ABC_HOST_API_POSIX
    #include <cstdlib> // std::abort()
@@ -269,16 +269,16 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <ucontext.h> // ucontext_t
 
 
-   namespace abc {
+   namespace abc { namespace detail {
 
-   int const exception::fault_converter::smc_aiHandledSignals[] = {
+   int const external_signal_dispatcher::smc_aiHandledSignals[] = {
       SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
       SIGFPE,  // Floating point exception (POSIX.1-1990).
 //    SIGILL,  // Illegal Instruction (POSIX.1-1990).
       SIGSEGV  // Invalid memory reference (POSIX.1-1990).
    };
 
-   exception::fault_converter::fault_converter() {
+   external_signal_dispatcher::external_signal_dispatcher() {
       // Setup handlers for the signals in smc_aiHandledSignals.
       struct ::sigaction sa;
       sa.sa_sigaction = &fault_signal_handler;
@@ -289,14 +289,14 @@ You should have received a copy of the GNU General Public License along with Aba
       }
    }
 
-   exception::fault_converter::~fault_converter() {
+   external_signal_dispatcher::~external_signal_dispatcher() {
       // Restore the default signal handlers.
       ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
          ::signal(iSignal, SIG_DFL);
       }
    }
 
-   /*static*/ void exception::fault_converter::fault_signal_handler(
+   /*static*/ void external_signal_dispatcher::fault_signal_handler(
       int iSignal, ::siginfo_t * psi, void * pctx
    ) {
       /* Don’t let external programs mess with us: if the source is not the kernel, ignore the
@@ -318,7 +318,7 @@ You should have received a copy of the GNU General Public License along with Aba
          return;
       }
 
-      common_type::enum_type xct = common_type::none;
+      exception::common_type::enum_type xct = exception::common_type::none;
       std::intptr_t iArg0 = 0, iArg1 = 0;
       switch (iSignal) {
          case SIGBUS:
@@ -327,7 +327,7 @@ You should have received a copy of the GNU General Public License along with Aba
             keep on going – even the code to throw an exception could be compromised. */
             switch (psi->si_code) {
                case BUS_ADRALN: // Invalid address alignment.
-                  xct = common_type::memory_access_error;
+                  xct = exception::common_type::memory_access_error;
                   iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
                   break;
             }
@@ -336,10 +336,10 @@ You should have received a copy of the GNU General Public License along with Aba
          case SIGFPE:
             switch (psi->si_code) {
                case FPE_INTDIV: // Integer divide by zero.
-                  xct = common_type::division_by_zero_error;
+                  xct = exception::common_type::division_by_zero_error;
                   break;
                case FPE_INTOVF: // Integer overflow.
-                  xct = common_type::overflow_error;
+                  xct = exception::common_type::overflow_error;
                   break;
                case FPE_FLTDIV: // Floating-point divide by zero.
                case FPE_FLTOVF: // Floating-point overflow.
@@ -347,50 +347,50 @@ You should have received a copy of the GNU General Public License along with Aba
                case FPE_FLTRES: // Floating-point inexact result.
                case FPE_FLTINV: // Floating-point invalid operation.
                case FPE_FLTSUB: // Subscript out of range.
-                  xct = common_type::floating_point_error;
+                  xct = exception::common_type::floating_point_error;
                   break;
                default:
                   /* At the time of writing, the above case labels don’t leave out any values, but
                   that’s not necessarily going to be true in 5 years, so… */
-                  xct = common_type::arithmetic_error;
+                  xct = exception::common_type::arithmetic_error;
                   break;
             }
             break;
 
          case SIGSEGV:
             if (psi->si_addr == nullptr) {
-               xct = common_type::null_pointer_error;
+               xct = exception::common_type::null_pointer_error;
             } else {
-               xct = common_type::memory_address_error;
+               xct = exception::common_type::memory_address_error;
                iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
             }
             break;
       }
-      if (xct != common_type::none) {
+      if (xct != exception::common_type::none) {
          // Inject the selected exception type in the faulting thread.
-         inject_in_context(xct, iArg0, iArg1, pctx);
+         exception::inject_in_context(xct, iArg0, iArg1, pctx);
       } else {
          // Deal with cases not covered above.
          std::abort();
       }
    }
 
-   } //namespace abc
+   }} //namespace abc::detail
 
 #elif ABC_HOST_API_WIN32
 
-   namespace abc {
+   namespace abc { namespace detail {
 
-   exception::fault_converter::fault_converter() :
+   external_signal_dispatcher::external_signal_dispatcher() :
       // Install the translator of Win32 structured exceptions into C++ exceptions.
       m_setfDefault(::_set_se_translator(&fault_se_translator)) {
    }
 
-   exception::fault_converter::~fault_converter() {
+   external_signal_dispatcher::~external_signal_dispatcher() {
       ::_set_se_translator(m_setfDefault);
    }
 
-   /*static*/ ::BOOL WINAPI exception::fault_converter::console_ctrl_event_translator(
+   /*static*/ ::BOOL WINAPI external_signal_dispatcher::console_ctrl_event_translator(
       ::DWORD iCtrlEvent
    ) {
       switch (iCtrlEvent) {
@@ -408,7 +408,7 @@ You should have received a copy of the GNU General Public License along with Aba
       return true;
    }
 
-   /*static*/ void ABC_STL_CALLCONV exception::fault_converter::fault_se_translator(
+   /*static*/ void ABC_STL_CALLCONV external_signal_dispatcher::fault_se_translator(
       unsigned iCode, ::_EXCEPTION_POINTERS * pxpInfo
    ) {
       switch (iCode) {
@@ -424,10 +424,11 @@ You should have received a copy of the GNU General Public License along with Aba
                pxpInfo->ExceptionRecord->ExceptionInformation[1]
             );
             if (pAddr == nullptr) {
-               throw_common_type(common_type::null_pointer_error, 0, 0);
+               exception::throw_common_type(exception::common_type::null_pointer_error, 0, 0);
             } else {
-               throw_common_type(
-                  common_type::memory_address_error, reinterpret_cast<std::intptr_t>(pAddr), 0
+               exception::throw_common_type(
+                  exception::common_type::memory_address_error,
+                  reinterpret_cast<std::intptr_t>(pAddr), 0
                );
             }
          }
@@ -439,8 +440,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_DATATYPE_MISALIGNMENT:
             // Attempt to read or write data that is misaligned on hardware that requires alignment.
-            throw_common_type(
-               common_type::memory_access_error, reinterpret_cast<std::intptr_t>(nullptr), 0
+            exception::throw_common_type(
+               exception::common_type::memory_access_error,
+               reinterpret_cast<std::intptr_t>(nullptr), 0
             );
 
          case EXCEPTION_FLT_DENORMAL_OPERAND:
@@ -467,7 +469,7 @@ You should have received a copy of the GNU General Public License along with Aba
          case EXCEPTION_FLT_UNDERFLOW:
             /* The exponent of a floating-point operation is less than the magnitude allowed by the
             corresponding type. */
-            throw_common_type(common_type::floating_point_error, 0, 0);
+            exception::throw_common_type(exception::common_type::floating_point_error, 0, 0);
 
          case EXCEPTION_ILLEGAL_INSTRUCTION:
             // Attempt to execute an invalid instruction.
@@ -481,12 +483,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
          case EXCEPTION_INT_DIVIDE_BY_ZERO:
             // The thread attempted to divide an integer value by an integer divisor of zero.
-            throw_common_type(common_type::division_by_zero_error, 0, 0);
+            exception::throw_common_type(exception::common_type::division_by_zero_error, 0, 0);
 
          case EXCEPTION_INT_OVERFLOW:
             /* The result of an integer operation caused a carry out of the most significant bit of
             the result. */
-            throw_common_type(common_type::overflow_error, 0, 0);
+            exception::throw_common_type(exception::common_type::overflow_error, 0, 0);
 
          case EXCEPTION_PRIV_INSTRUCTION:
             /* Attempt to execute an instruction whose operation is not allowed in the current
@@ -499,12 +501,12 @@ You should have received a copy of the GNU General Public License along with Aba
       }
    }
 
-   /*static*/ void exception::fault_converter::init_for_current_thread() {
+   /*static*/ void external_signal_dispatcher::init_for_current_thread() {
       // Install the SEH translator, without saving the original.
       ::_set_se_translator(&fault_se_translator);
    }
 
-   } //namespace abc
+   }} //namespace abc::detail
 
 #else
    #error "TODO: HOST_API"

@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/thread.hxx>
 #include "coroutine-scheduler.hxx"
-#include "exception-fault_converter.hxx"
+#include "detail/external_signal_dispatcher.hxx"
 #include "thread-tracker.hxx"
 #include "thread-impl.hxx"
 
@@ -259,7 +259,7 @@ void thread::impl::join() {
 #elif ABC_HOST_API_WIN32
 /*static*/ ::DWORD WINAPI thread::impl::outer_main(void * p) {
    // Establish this as early as possible.
-   exception::fault_converter::init_for_current_thread();
+   detail::external_signal_dispatcher::init_for_current_thread();
 #else
    #error "TODO: HOST_API"
 #endif
