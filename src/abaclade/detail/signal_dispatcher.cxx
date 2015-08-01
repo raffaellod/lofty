@@ -202,18 +202,23 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace detail {
 
 #if ABC_HOST_API_POSIX
-int const signal_dispatcher::smc_aiHandledSignals[] = {
+int const signal_dispatcher::smc_aiFaultSignals[] = {
    SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
    SIGFPE,  // Floating point exception (POSIX.1-1990).
 // SIGILL,  // Illegal Instruction (POSIX.1-1990).
    SIGSEGV  // Invalid memory reference (POSIX.1-1990).
 };
+int const signal_dispatcher::smc_aiInterruptionSignals[] = {
+   SIGINT,  // Interrupt from keyboard (POSIX.1-1990).
+// SIGQUIT, // Quit from keyboard (POSIX.1-1990).
+   SIGTERM  // Termination signal (POSIX.1-1990).
+};
 #endif
-signal_dispatcher * signal_dispatcher::sm_pInst = nullptr;
+signal_dispatcher * signal_dispatcher::sm_psd = nullptr;
 
 signal_dispatcher::signal_dispatcher() :
 #if ABC_HOST_API_POSIX
-   mc_iInterruptionSignal(
+   mc_iThreadInterruptionSignal(
    #if ABC_HOST_API_DARWIN
       // SIGRT* not available.
       SIGUSR1
@@ -225,7 +230,7 @@ signal_dispatcher::signal_dispatcher() :
    // Install the translator of Win32 structured exceptions into C++ exceptions.
    m_setfDefault(::_set_se_translator(&fault_se_translator)) {
 #endif
-   sm_pInst = this;
+   sm_psd = this;
 #if ABC_HOST_API_MACH
    ::mach_port_t mpThisProc = ::mach_task_self();
    // Allocate a right-less port to listen for exceptions.
@@ -250,14 +255,14 @@ signal_dispatcher::signal_dispatcher() :
    struct ::sigaction sa;
    sigemptyset(&sa.sa_mask);
    sa.sa_flags = SA_SIGINFO;
-   // Setup interruption signal handlers.
+   // Setup fault and interruption signal handlers.
    sa.sa_sigaction = &thread::impl::interruption_signal_handler;
-   ::sigaction(mc_iInterruptionSignal, &sa, nullptr);
-   ::sigaction(SIGINT,                 &sa, nullptr);
-   ::sigaction(SIGTERM,                &sa, nullptr);
-   // Setup fault signal handlers.
+   ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
+      ::sigaction(iSignal, &sa, nullptr);
+   }
+   ::sigaction(mc_iThreadInterruptionSignal, &sa, nullptr);
    sa.sa_sigaction = &fault_signal_handler;
-   ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
+   ABC_FOR_EACH(int iSignal, smc_aiFaultSignals) {
       ::sigaction(iSignal, &sa, nullptr);
    }
 #endif
@@ -268,16 +273,17 @@ signal_dispatcher::~signal_dispatcher() {
    // TODO: stop m_thrExcHandler.
 #elif ABC_HOST_API_POSIX
    // Restore the default signal handlers.
-   ABC_FOR_EACH(int iSignal, smc_aiHandledSignals) {
+   ABC_FOR_EACH(int iSignal, smc_aiFaultSignals) {
       ::signal(iSignal, SIG_DFL);
    }
-   ::signal(SIGINT,                 SIG_DFL);
-   ::signal(SIGTERM,                SIG_DFL);
-   ::signal(mc_iInterruptionSignal, SIG_DFL);
+   ::signal(mc_iThreadInterruptionSignal, SIG_DFL);
+   ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
+      ::signal(iSignal, SIG_DFL);
+   }
 #elif ABC_HOST_API_WIN32
    ::_set_se_translator(m_setfDefault);
 #endif
-   sm_pInst = nullptr;
+   sm_psd = nullptr;
 }
 
 #if ABC_HOST_API_MACH

@@ -194,7 +194,7 @@ void thread::impl::inject_exception(exception::common_type xct) {
 #if ABC_HOST_API_POSIX
       // Ensure that the thread is not blocked in a syscall.
       if (int iErr = ::pthread_kill(
-         m_h, detail::signal_dispatcher::instance().interruption_signal_number())
+         m_h, detail::signal_dispatcher::instance().thread_interruption_signal())
       ) {
          exception::throw_os_error(iErr);
       }
@@ -216,7 +216,7 @@ void thread::impl::inject_exception(exception::common_type xct) {
 ) {
    ABC_UNUSED_ARG(psi);
 
-   if (iSignal == detail::signal_dispatcher::instance().interruption_signal_number()) {
+   if (iSignal == detail::signal_dispatcher::instance().thread_interruption_signal()) {
       /* Can happen in any thread; all this really does is allow to break out of a syscall with
       EINTR, so the code following the interrupted call can check m_xctPending. */
       return;

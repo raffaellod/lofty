@@ -45,16 +45,18 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace detail {
 
-/*! Establishes, and restores upon destruction, special-case handlers to convert non-C++ synchronous
-error events (POSIX signals, Win32 Structured Exceptions) into C++ exceptions.
+/*! Dispatches non-C++ signals to the process’ threads. It establishes, and restores upon
+destruction, special-case handlers to convert non-C++ synchronous error events (Mach exceptions,
+POSIX signals, Win32 Structured Exceptions) and termination signals (more POSIX signals, Win32
+CTRL_*_EVENTs) into C++ exceptions.
 
-Also keeps track of threads managed by Abaclade to distribute signals among them and verify that
-they all terminate at the end of a program.
+This class keeps track of all threads managed by Abaclade to distribute signals among them and
+verify that they all terminate at the end of a program.
 
 This class is a singleton instantiated by abc::app. */
 class signal_dispatcher {
 public:
-   //! Constructor.
+   //! Default constructor.
    signal_dispatcher();
 
    //! Destructor.
@@ -72,7 +74,7 @@ public:
       Pointer to the only instance of this class.
    */
    static signal_dispatcher & instance() {
-      return *sm_pInst;
+      return *sm_psd;
    }
 
 #if ABC_HOST_API_POSIX
@@ -82,8 +84,8 @@ public:
    @param return
       Signal number.
    */
-   int interruption_signal_number() const {
-      return mc_iInterruptionSignal;
+   int thread_interruption_signal() const {
+      return mc_iThreadInterruptionSignal;
    }
 #endif
 
@@ -158,7 +160,7 @@ private:
 private:
 #if ABC_HOST_API_POSIX
    //! Signal number to be used to interrupt threads.
-   int const mc_iInterruptionSignal;
+   int const mc_iThreadInterruptionSignal;
 #endif
 #if ABC_HOST_API_MACH
    //! Port through which we ask the kernel to communicate exceptions to this process.
@@ -166,8 +168,10 @@ private:
    //! Thread in charge of handling exceptions for all the other threads.
    ::pthread_t m_thrExcHandler;
 #elif ABC_HOST_API_POSIX
-   //! Signals that we can translate into C++ exceptions.
-   static int const smc_aiHandledSignals[];
+   //! Fault signals that we can translate into C++ exceptions.
+   static int const smc_aiFaultSignals[];
+   //! Interruption signals that we can translate into C++ exceptions.
+   static int const smc_aiInterruptionSignals[];
 #elif ABC_HOST_API_WIN32
    //! Structured Exception translator on program startup.
    ::_se_translator_function m_setfDefault;
@@ -182,7 +186,7 @@ private:
    // TODO: make this a hash_set instead of a hash_map.
    collections::hash_map<thread::impl *, std::shared_ptr<thread::impl>> m_hmThreads;
    //! Pointer to the singleton instance.
-   static signal_dispatcher * sm_pInst;
+   static signal_dispatcher * sm_psd;
 };
 
 }} //namespace abc::detail
