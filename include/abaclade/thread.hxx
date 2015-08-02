@@ -87,16 +87,22 @@ public:
 #endif
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   thread() {
+   }
+
+   /*! Constructor that immediately runs a function as a new thread.
 
    @param fnMain
       Function that will act as the entry point for a new thread to be started immediately.
+   */
+   explicit thread(std::function<void ()> fnMain);
+
+   /*! Move constructor.
+
    @param thr
       Source object.
    */
-   thread() {
-   }
-   explicit thread(std::function<void ()> fnMain);
    thread(thread && thr) :
       m_pimpl(std::move(thr.m_pimpl)) {
    }
@@ -104,7 +110,7 @@ public:
    //! Destructor.
    ~thread();
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param thr
       Source object.

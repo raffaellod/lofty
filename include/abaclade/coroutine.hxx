@@ -93,15 +93,21 @@ public:
    class scheduler;
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   coroutine();
+
+   /*! Constructor that immediately schedules a function to be executed as a coroutine.
 
    @param fnMain
       Function to invoke once the coroutine is first scheduled.
+   */
+   explicit coroutine(std::function<void ()> fnMain);
+
+   /*! Move constructor.
+
    @param coro
       Source object.
    */
-   coroutine();
-   explicit coroutine(std::function<void ()> fnMain);
    coroutine(coroutine && coro) :
       m_pimpl(std::move(coro.m_pimpl)) {
    }
@@ -109,7 +115,7 @@ public:
    //! Destructor.
    ~coroutine();
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param coro
       Source object.

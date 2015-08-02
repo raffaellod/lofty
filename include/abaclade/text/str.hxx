@@ -892,10 +892,10 @@ private:
    friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char32_t ch);
 
 public:
-   /*! Assignment operator.
+   /*! Copy-assignment operator.
 
    @param s
-      Source string.
+      Source object.
    @return
       *this.
    */
@@ -903,23 +903,44 @@ public:
       assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
+
+   /*! Copy-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    mstr & operator=(istr const & s) {
       assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the mstr && overload.
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    mstr & operator=(istr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    mstr & operator=(dmstr && s);
 
    /*! Concatenation-assignment operator.
 
    @param ch
       Character to append.
-   @param s
-      String to append.
    @return
       *this.
    */
@@ -927,16 +948,40 @@ public:
       append(&ch, 1);
       return *this;
    }
+
 #if ABC_HOST_UTF > 8
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      ASCII character to append.
+   @return
+      *this.
+   */
    mstr & operator+=(char ch) {
       return operator+=(host_char(ch));
    }
 #endif
+
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      Code point to append.
+   @return
+      *this.
+   */
    mstr & operator+=(char32_t ch) {
       char_t ach[host_char_traits::max_codepoint_length];
       append(ach, static_cast<std::size_t>(host_char_traits::codepoint_to_chars(ch, ach) - ach));
       return *this;
    }
+
+   /*! Concatenation-assignment operator.
+
+   @param s
+      String to append.
+   @return
+      *this.
+   */
    mstr & operator+=(istr const & s) {
       append(s.chars_begin(), s.size_in_chars());
       return *this;
@@ -978,27 +1023,37 @@ public:
    }
    using detail::str_base::end;
 
-   /*! Inserts characters into the string at a specific character (not code point) offset.
+   /*! Inserts a character into the string at a specific character (not code point) offset.
 
    @param ichOffset
-      0-based offset at which to insert the characters.
+      0-based offset at which to insert the character.
    @param ch
       Character to insert.
-   @param s
-      String to insert.
-   @param pchInsert
-      Pointer to an array of characters to insert.
-   @param cchInsert
-      Count of characters in the array pointed to by pchInsert.
    */
    void insert(std::size_t ichOffset, char_t ch) {
       insert(ichOffset, &ch, 1);
    }
+
 #if ABC_HOST_UTF > 8
+   /*! Inserts an ASCII character into the string at a specific character (not code point) offset.
+
+   @param ichOffset
+      0-based offset at which to insert the character.
+   @param ch
+      ASCII character to insert.
+   */
    void insert(std::size_t ichOffset, char ch) {
       insert(ichOffset, host_char(ch));
    }
 #endif
+
+   /*! Inserts a code point into the string at a specific character (not code point) offset.
+
+   @param ichOffset
+      0-based offset at which to insert the character.
+   @param ch
+      Code point to insert.
+   */
    void insert(std::size_t ichOffset, char32_t ch) {
       char_t ach[host_char_traits::max_codepoint_length];
       insert(
@@ -1006,9 +1061,28 @@ public:
          static_cast<std::size_t>(host_char_traits::codepoint_to_chars(ch, ach) - ach)
       );
    }
+
+   /*! Inserts characters from a string into the string at a specific character (not code point)
+   offset.
+
+   @param ichOffset
+      0-based offset at which to insert the characters.
+   @param s
+      String to insert.
+   */
    void insert(std::size_t ichOffset, istr const & s) {
       insert(ichOffset, s.chars_begin(), s.size_in_chars());
    }
+
+   /*! Inserts characters into the string at a specific character (not code point) offset.
+
+   @param ichOffset
+      0-based offset at which to insert the characters.
+   @param pchInsert
+      Pointer to an array of characters to insert.
+   @param cchInsert
+      Count of characters in the array pointed to by pchInsert.
+   */
    void insert(std::size_t ichOffset, char_t const * pchInsert, std::size_t cchInsert) {
       collections::detail::raw_trivial_vextr_impl::insert_remove(
          sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert, 0
@@ -1035,11 +1109,27 @@ public:
       Character to replace chSearch with.
    */
    void replace(char_t chSearch, char_t chReplacement);
+
 #if ABC_HOST_UTF > 8
+   /*! Replaces all occurrences of an ASCII character with another ASCII character.
+
+   @param chSearch
+      Character to search for.
+   @param chReplacement
+      Character to replace chSearch with.
+   */
    void replace(char chSearch, char chReplacement) {
       replace(host_char(chSearch), host_char(chReplacement));
    }
 #endif
+
+   /*! Replaces all occurrences of a code point with another code point.
+
+   @param chSearch
+      Code point to search for.
+   @param chReplacement
+      Code point to replace chSearch with.
+   */
    void replace(char32_t chSearch, char32_t chReplacement);
 
    /*! See collections::detail::raw_trivial_vextr_impl::set_capacity().
@@ -1098,19 +1188,35 @@ protected:
       detail::str_base(cbEmbeddedCapacity) {
    }
 
-   /*! Replaces a single code point with another single code point.
+   /*! Replaces a single character with another character.
 
    @param pch
       Pointer to the start of the code point to replace.
    @param chNew
-      Character or code point that will be written at *pch.
+      Character that will be written at *pch.
    */
    void _replace_codepoint(char_t * pch, char_t chNew);
+
 #if ABC_HOST_UTF > 8
+   /*! Replaces a single ASCII character with another ASCII character.
+
+   @param pch
+      Pointer to the start of the code point to replace.
+   @param chNew
+      Character that will be written at *pch.
+   */
    void _replace_codepoint(char_t * pch, char chNew) {
       _replace_codepoint(pch, host_char(chNew));
    }
 #endif
+
+   /*! Replaces a single code point with another code point.
+
+   @param pch
+      Pointer to the start of the code point to replace.
+   @param chNew
+      Code point that will be encoded starting at at *pch.
+   */
    void _replace_codepoint(char_t * pch, char32_t chNew);
 };
 
@@ -1144,16 +1250,96 @@ namespace abc { namespace text {
 unknown at design time. */
 class dmstr : public mstr {
 public:
-   /*! Constructor.
+   //! Default constructor.
+   dmstr() :
+      mstr(0) {
+   }
+
+   /*! Copy constructor.
 
    @param s
-      Source string.
+      Source object.
+   */
+   dmstr(dmstr const & s) :
+      mstr(0) {
+      assign_copy(s.chars_begin(), s.chars_end());
+   }
+
+   /*! Move constructor.
+
+   @param s
+      Source object.
+   */
+   dmstr(dmstr && s) :
+      mstr(0) {
+      assign_move(std::move(s));
+   }
+
+   /*! Copy constructor.
+
+   @param s
+      Source object.
+   */
+   dmstr(istr const & s) :
+      mstr(0) {
+      assign_copy(s.chars_begin(), s.chars_end());
+   }
+
+   /*! Move constructor.
+
+   @param s
+      Source object.
+   */
+   dmstr(istr && s) :
+      mstr(0) {
+      assign_move_dynamic_or_move_items(std::move(s));
+   }
+
+   /*! Copy constructor.
+
+   @param s
+      Source object.
+   */
+   dmstr(mstr const & s) :
+      mstr(0) {
+      assign_copy(s.chars_begin(), s.chars_end());
+   }
+
+   /*! Move constructor.
+
+   @param s
+      Source object.
+   */
+   dmstr(mstr && s) :
+      mstr(0) {
+      assign_move_dynamic_or_move_items(std::move(s));
+   }
+
+   /*! Constructor that copies a string literal.
+
    @param ach
       Source NUL-terminated string literal.
+   */
+   template <std::size_t t_cch>
+   dmstr(char_t const (& ach)[t_cch]) :
+      mstr(0) {
+      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
+   }
+
+   /*! Constructor that copies the contents of a character buffer.
+
    @param pchBegin
       Pointer to the beginning of the source stirng.
    @param pchEnd
       Pointer to the end of the source stirng.
+   */
+   dmstr(char_t const * pchBegin, char_t const * pchEnd) :
+      mstr(0) {
+      assign_copy(pchBegin, pchEnd);
+   }
+
+   /*! Constructor that creates a new string from two character buffers.
+
    @param pch1Begin
       Pointer to the beginning of the left source stirng to concatenate.
    @param pch1End
@@ -1163,44 +1349,6 @@ public:
    @param pch2End
       Pointer to the end of the right source stirng.
    */
-   dmstr() :
-      mstr(0) {
-   }
-   dmstr(dmstr const & s) :
-      mstr(0) {
-      assign_copy(s.chars_begin(), s.chars_end());
-   }
-   dmstr(dmstr && s) :
-      mstr(0) {
-      assign_move(std::move(s));
-   }
-   dmstr(istr const & s) :
-      mstr(0) {
-      assign_copy(s.chars_begin(), s.chars_end());
-   }
-   // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
-   dmstr(istr && s) :
-      mstr(0) {
-      assign_move_dynamic_or_move_items(std::move(s));
-   }
-   dmstr(mstr const & s) :
-      mstr(0) {
-      assign_copy(s.chars_begin(), s.chars_end());
-   }
-   // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
-   dmstr(mstr && s) :
-      mstr(0) {
-      assign_move_dynamic_or_move_items(std::move(s));
-   }
-   template <std::size_t t_cch>
-   dmstr(char_t const (& ach)[t_cch]) :
-      mstr(0) {
-      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
-   }
-   dmstr(char_t const * pchBegin, char_t const * pchEnd) :
-      mstr(0) {
-      assign_copy(pchBegin, pchEnd);
-   }
    dmstr(
       char_t const * pch1Begin, char_t const * pch1End,
       char_t const * pch2Begin, char_t const * pch2End
@@ -1209,12 +1357,10 @@ public:
       assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
    }
 
-   /*! Assignment operator.
+   /*! Copy-assignment operator.
 
    @param s
       Source string.
-   @param ach
-      Source NUL-terminated string literal.
    @return
       *this.
    */
@@ -1222,28 +1368,74 @@ public:
       assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    dmstr & operator=(dmstr && s) {
       assign_move(std::move(s));
       return *this;
    }
+
+   /*! Copy-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    dmstr & operator=(istr const & s) {
       assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    dmstr & operator=(istr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
+
+   /*! Copy-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    dmstr & operator=(mstr const & s) {
       assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the dmstr && overload.
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    dmstr & operator=(mstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
+
+   /*! Assignment operator.
+
+   @param ach
+      Source NUL-terminated string literal.
+   @return
+      *this.
+   */
    template <std::size_t t_cch>
    dmstr & operator=(char_t const (& ach)[t_cch]) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
@@ -1451,57 +1643,88 @@ private:
    >::smc_cbEmbeddedCapacity;
 
 public:
-   /*! Constructor.
-
-   @param s
-      Source string.
-   @param ach
-      Source NUL-terminated string literal.
-   */
+   //! Default constructor.
    smstr() :
       mstr(smc_cbEmbeddedCapacity) {
    }
+
+   /*! Copy constructor.
+
+   @param s
+      Source object.
+   */
    smstr(smstr const & s) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_copy(s.chars_begin(), s.chars_end());
    }
-   /* If the source is using its embedded character array, it will be copied without allocating a
-   dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
+
+   /*! Move constructor. If the source is using its embedded character array, it will be copied
+   without allocating a dynamic one; if the source is dynamic, it will be moved. Either way, this
+   won’t throw.
+
+   @param s
+      Source object.
+   */
    smstr(smstr && s) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
+
+   /*! Copy constructor.
+
+   @param s
+      Source object.
+   */
    smstr(istr const & s) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_copy(s.chars_begin(), s.chars_end());
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
+
+   /*! Move constructor.
+
+   @param s
+      Source object.
+   */
    smstr(istr && s) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
-   /* This can throw exceptions, but it’s allowed to since it’s not the smstr && overload. This also
-   covers smstr of different template arguments. */
+
+   /*! Move constructor. This also covers smstr of different template arguments.
+
+   @param s
+      Source object.
+   */
    smstr(mstr && s) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_move_dynamic_or_move_items(std::move(s));
    }
+
+   /*! Move constructor.
+
+   @param s
+      Source object.
+   */
    smstr(dmstr && s) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_move(std::move(s));
    }
+
+   /*! Constructor that will copy the source string literal.
+
+   @param ach
+      Source NUL-terminated string literal.
+   */
    template <std::size_t t_cch>
    smstr(char_t const (& ach)[t_cch]) :
       mstr(smc_cbEmbeddedCapacity) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
    }
 
-   /*! Assignment operator.
+   /*! Copy-assignment operator.
 
    @param s
       Source string.
-   @param ach
-      Source NUL-terminated string literal.
    @return
       *this.
    */
@@ -1509,31 +1732,76 @@ public:
       assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
-   /* If the source is using its embedded character array, it will be copied without allocating a
-   dynamic one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
+
+   /*! Move-assignment operator. If the source is using its embedded character array, it will be
+   copied without allocating a dynamic one; if the source is dynamic, it will be moved. Either way,
+   this won’t throw.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    smstr & operator=(smstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
+
+   /*! Copy-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    smstr & operator=(istr const & s) {
       assign_copy(s.chars_begin(), s.chars_end());
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the smstr && overload.
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    smstr & operator=(istr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
-   /* This can throw exceptions, but it’s allowed to since it’s not the smstr && overload. This also
-   covers smstr of different template arguments. */
+
+   /*! Move-assignment operator. This also covers smstr of different template arguments.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    smstr & operator=(mstr && s) {
       assign_move_dynamic_or_move_items(std::move(s));
       return *this;
    }
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
    smstr & operator=(dmstr && s) {
       assign_move(std::move(s));
       return *this;
    }
+
+   /*! Assignment operator.
+
+   @param ach
+      Source NUL-terminated string literal.
+   @return
+      *this.
+   */
    template <std::size_t t_cch>
    smstr & operator=(char_t const (& ach)[t_cch]) {
       assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
