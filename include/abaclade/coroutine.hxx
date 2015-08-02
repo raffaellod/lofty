@@ -61,9 +61,28 @@ scheduler will terminate every coroutine associated to it, and then throw a simi
 caller of abc::this_thread::run_coroutines(), eventually leading to the effect described above.
 */
 
-/*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most abc::io
-classes. See @ref coroutines for more information.
+/*! @page interruption-points Interruption points
+
+@ref coroutines and @ref threads in Abaclade are safely interruptible using a built-in mechanism.
+
+Calling abc::coroutine::interrupt() or abc::thread::interrupt() will cause the object on which
+they’re called to receive an exception of type abc::execution_interruption, which will be thrown at
+the earliest time the coroutine or thread calls abc::this_coroutine::interruption_point() or
+abc::this_thread::interruption_point(), respectively.
+
+Interruption points are used to dispatch other kinds of exceptions, such as those originating from
+external inputs, such as Ctrl+C. The thrown exception in these cases will be of a subclass of
+abc::execution_interruption.
+
+The following functions and methods implicitly define an interruption point:
+•  abc::this_thread::sleep_for_ms() / abc::this_coroutine::sleep_for_ms();
+•  abc::this_thread::sleep_until_fd_ready() / abc::this_coroutine::sleep_until_fd_ready();
+•  All I/O operations performed on abc::io file-based I/O classes;
+•  All I/O operations in abc::net classes.
 */
+
+/*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most abc::io
+classes. See @ref coroutines for more information. */
 class ABACLADE_SYM coroutine : public noncopyable {
 public:
    //! Type of the unique coroutine IDs.
@@ -178,17 +197,7 @@ namespace abc { namespace this_coroutine {
 ABACLADE_SYM coroutine::id_type id();
 
 /*! Declares an interruption point, allowing the calling thread or coroutine to act on any pending
-interruptions.
-
-Interruption points enable Abaclade’s thread/coroutine interruption infrastructure, providing a
-uniform way of cooperatively interrupting a thread/coroutine from another one.
-
-The following functions and methods implicitly define an interruption point:
-•  abc::this_thread::sleep_for_ms() / abc::this_coroutine::sleep_for_ms();
-•  abc::this_thread::sleep_until_fd_ready() / abc::this_coroutine::sleep_until_fd_ready();
-•  All I/O operations performed on abc::io file-based I/O classes;
-•  All I/O operations in abc::net classes.
-*/
+interruptions. See @ref interruption-points for more information. */
 ABACLADE_SYM void interruption_point();
 
 /*! Suspends execution of the current coroutine for at least the specified duration.
