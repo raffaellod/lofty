@@ -36,7 +36,7 @@ namespace abc { namespace collections {
 
 /*! Key/value multimap using a trie.
 
-Specializations are defined only for scalar and string key types.
+Specializations are defined only for scalar key types.
 
 This implementation focuses on insertion and removal speed, providing O(1) insertion, O(1)
 extraction of the first element, and O(1) extraction of any other element given an iterator to it.
@@ -50,31 +50,31 @@ one bit, populated with the following data:
    ┌────────┬───────┐
    │ Key    │ Value │
    ├────────┼───────┤
-   │ 0b0001 │ a     │
-   │ 0b0101 │ b     │
-   │ 0b0101 │ c     │
+   │ 0b1000 │ a     │
+   │ 0b1010 │ b     │
+   │ 0b1010 │ c     │
    └────────┴───────┘
    @endverbatim
 
 The internal data representation of the above would be:
 
    @verbatim
-    ⎧ ┌───────┬───────┐
+    ⎧ ┌0──────┬1──────┐
     ⎪ │nullptr│0xptr  │
     ⎪ └───────┴───────┘
     ⎪          │
     ⎪          ▼
-    ⎪          ┌───────┬───────┐
+    ⎪          ┌0──────┬1──────┐
     ⎪          │0xptr  │nullptr│
     ⎪          └───────┴───────┘
     ⎪           │
    1⎨           ▼
-    ⎪           ┌───────┬───────┐
+    ⎪           ┌0──────┬1──────┐
     ⎪           │0xptr  │0xptr  │
     ⎪           └───────┴───────┘
     ⎪    ┌───────┘       └──────────────────────┐
     ⎪    ▼                                      ▼
-    ⎪  ⎧ ┌───────┬───────╥───────┬───────┐      ┌───────┬───────╥───────┬───────┐
+    ⎪  ⎧ ┌F0─────┬F1─────╥L0─────┬L1─────┐      ┌F0─────┬F1─────╥L0─────┬L1─────┐
     ⎪ 2⎨ │0xptr  │nullptr║0xptr  │nullptr│      │0xptr  │nullptr║0xptr  │nullptr│
     ⎩  ⎩ └───────┴───────╨───────┴───────┘      └───────┴───────╨───────┴───────┘
           ├───────────────┘                      │               └─────┐
@@ -88,7 +88,7 @@ The internal data representation of the above would be:
    @endverbatim
 
 In the graph above, 1 is the prefix tree, where each node contains pointers to its children; 2 is
-the leaf level, where each node also contains pointers the last nodes of each list of identically-
+the anchor level, where each node also contains pointers the last nodes of each list of identically-
 keyed values; 3 is the value level, containing doubly-linked lists of identically-keyed values. */
 template <typename TKey, typename TValue, unsigned t_iImplType = (
    std::is_scalar<TKey>::value ? 1 : 0
