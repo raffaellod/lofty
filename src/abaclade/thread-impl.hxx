@@ -101,11 +101,6 @@ private:
    friend native_handle_type thread::native_handle() const;
    friend impl * this_thread::get_impl();
    friend void this_thread::interruption_point();
-#if !ABC_HOST_API_MACH && ABC_HOST_API_POSIX
-   friend void detail::signal_dispatcher::interruption_signal_handler(
-      int iSignal, ::siginfo_t * psi, void * pctx
-   );
-#endif
    friend void detail::signal_dispatcher::main_thread_terminated(exception::common_type xct);
 
 public:
@@ -126,8 +121,16 @@ public:
 
    @param xct
       Type of exception to inject.
+   @param bSendSignal
+      (POSIX only) If true (default), a signal will be raised to ensure that the thread is unblocked
+      from any syscalls; if false, no signal will be raised.
    */
-   void inject_exception(exception::common_type xct);
+   void inject_exception(
+      exception::common_type xct
+#if ABC_HOST_API_POSIX
+      , bool bSendSignal = true
+#endif
+   );
 
 #if ABC_HOST_API_WIN32
    /*! Returns the handle used to interrupt wait functions.

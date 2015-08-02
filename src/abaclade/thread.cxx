@@ -184,8 +184,17 @@ thread::impl::~impl() {
 #endif
 }
 
-void thread::impl::inject_exception(exception::common_type xct) {
+void thread::impl::inject_exception(
+   exception::common_type xct
+#if ABC_HOST_API_POSIX
+   , bool bSendSignal /*= true*/
+#endif
+) {
+#if ABC_HOST_API_POSIX
+   ABC_TRACE_FUNC(this, xct, bSendSignal);
+#else
    ABC_TRACE_FUNC(this, xct);
+#endif
 
    /* Avoid interrupting the thread if there’s already a pending interruption (xctExpected != none).
    This is not meant to prevent multiple concurrent interruptions, with a second interruption
@@ -193,11 +202,13 @@ void thread::impl::inject_exception(exception::common_type xct) {
    auto xctExpected = exception::common_type::none;
    if (m_xctPending.compare_exchange_strong(xctExpected, xct.base())) {
 #if ABC_HOST_API_POSIX
-      // Ensure that the thread is not blocked in a syscall.
-      if (int iErr = ::pthread_kill(
-         m_h, detail::signal_dispatcher::instance().thread_interruption_signal())
-      ) {
-         exception::throw_os_error(iErr);
+      if (bSendSignal) {
+         // Ensure that the thread is not blocked in a syscall.
+         if (int iErr = ::pthread_kill(
+            m_h, detail::signal_dispatcher::instance().thread_interruption_signal())
+         ) {
+            exception::throw_os_error(iErr);
+         }
       }
 #elif ABC_HOST_API_WIN32
       /* If the thread is in a wait function entered by Abaclade, this ensures that the thread will

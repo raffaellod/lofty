@@ -434,15 +434,7 @@ signal_dispatcher::~signal_dispatcher() {
          // Should never happen.
          std::abort();
       }
-
-      /* This is the beginning of thread::impl::inject_exception(). We only to this part of it
-      because it would then continue with raising a signal to force the interruption, but we don’t
-      need that here: a signal has already been received.
-      Avoid interrupting the thread if there’s already a pending interruption (xctExpected != none).
-      This is not meant to prevent multiple concurrent interruptions, with a second interruption
-      occurring after a first one has been thrown. */
-      auto xctExpected = exception::common_type::none;
-      sm_psd->m_pthrimplMain->m_xctPending.compare_exchange_strong(xctExpected, xct);
+      sm_psd->m_pthrimplMain->inject_exception(xct, false);
    }
 
 #elif ABC_HOST_API_WIN32
