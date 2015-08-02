@@ -101,6 +101,11 @@ private:
    friend native_handle_type thread::native_handle() const;
    friend impl * this_thread::get_impl();
    friend void this_thread::interruption_point();
+#if !ABC_HOST_API_MACH && ABC_HOST_API_POSIX
+   friend void detail::signal_dispatcher::interruption_signal_handler(
+      int iSignal, ::siginfo_t * psi, void * pctx
+   );
+#endif
    friend void detail::signal_dispatcher::main_thread_terminated(exception::common_type xct);
 
 public:

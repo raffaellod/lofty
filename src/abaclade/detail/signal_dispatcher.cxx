@@ -423,20 +423,26 @@ signal_dispatcher::~signal_dispatcher() {
       int iSignal, ::siginfo_t * psi, void * pctx
    ) {
       ABC_UNUSED_ARG(psi);
+      ABC_UNUSED_ARG(pctx);
 
       exception::common_type::enum_type xct;
       if (iSignal == SIGINT) {
-         // Can only happen in the main thread.
          xct = exception::common_type::user_forced_interruption;
       } else if (iSignal == SIGTERM) {
-         // Can only happen in the main thread.
          xct = exception::common_type::execution_interruption;
       } else {
          // Should never happen.
          std::abort();
       }
-      // This will skip injecting the exception if the thread is terminating.
-      exception::inject_in_context(xct, 0, 0, pctx);
+
+      /* This is the beginning of thread::impl::inject_exception(). We only to this part of it
+      because it would then continue with raising a signal to force the interruption, but we don’t
+      need that here: a signal has already been received.
+      Avoid interrupting the thread if there’s already a pending interruption (xctExpected != none).
+      This is not meant to prevent multiple concurrent interruptions, with a second interruption
+      occurring after a first one has been thrown. */
+      auto xctExpected = exception::common_type::none;
+      sm_psd->m_pthrimplMain->m_xctPending.compare_exchange_strong(xctExpected, xct);
    }
 
 #elif ABC_HOST_API_WIN32

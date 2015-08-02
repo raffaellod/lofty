@@ -78,6 +78,18 @@ public:
    }
 
 #if ABC_HOST_API_POSIX
+   /*! Handles SIGINT and SIGTERM for the main thread, injecting an appropriate exception type in
+   the thread’s context.
+
+   @param iSignal
+      Signal number for which the function is being called.
+   @param psi
+      Additional information on the signal.
+   @param pctx
+      Thread context. Used to manipulate the stack of the thread to inject a function call.
+   */
+   static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
+
    /*! Returns the signal number to be used to interrupt a thread so that it can process any pending
    exceptions.
 
@@ -151,17 +163,6 @@ private:
    */
    static void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
 
-   /*! Handles SIGINT and SIGTERM for the main thread, injecting an appropriate exception type in
-   the thread’s context.
-
-   @param iSignal
-      Signal number for which the function is being called.
-   @param psi
-      Additional information on the signal.
-   @param pctx
-      Thread context. Used to manipulate the stack of the thread to inject a function call.
-   */
-   static void interruption_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
 #elif ABC_HOST_API_WIN32
    /*! Translates Win32 console eventstructured exceptions into C++ exceptions.
 
