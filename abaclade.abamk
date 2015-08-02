@@ -86,6 +86,7 @@ You should have received a copy of the GNU General Public License along with Aba
          <source path="test/abaclade/coroutine.cxx"/>
          <source path="test/abaclade/coroutine_local.cxx"/>
          <source path="test/abaclade/defer_to_scope_end.cxx"/>
+         <source path="test/abaclade/detail/signal_dispatcher.cxx"/>
          <source path="test/abaclade/enum.cxx"/>
          <source path="test/abaclade/exception.cxx"/>
          <source path="test/abaclade/io/binary/pipe.cxx"/>
