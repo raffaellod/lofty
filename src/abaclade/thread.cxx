@@ -495,6 +495,16 @@ thread::id_type id() {
 #endif
 }
 
+#if ABC_HOST_API_WIN32
+void interruptible_wait_for_single_object(::HANDLE h) {
+   ::HANDLE ah[] = { h, get_impl()->interruption_event_handle() };
+   ::DWORD iRet = ::WaitForMultipleObjects(ABC_COUNTOF(ah), ah, false, INFINITE);
+   if (/*iRet < WAIT_OBJECT_0 ||*/ iRet >= WAIT_OBJECT_0 + ABC_COUNTOF(ah)) {
+      exception::throw_os_error();
+   }
+}
+#endif
+
 void interruption_point() {
    /* This load/store is multithread-safe: the “if” condition being true means that
    thread::interrupt() is preventing other threads from changing m_xctPending until we reset it to

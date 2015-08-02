@@ -229,6 +229,15 @@ ABACLADE_SYM void detach_coroutine_scheduler();
 */
 ABACLADE_SYM thread::id_type id();
 
+#if ABC_HOST_API_WIN32
+/*! Performs a ::WaitForSingleObject() while being interruptible by abc::thread::interrupt().
+
+@param h
+   Handle to wait for.
+*/
+ABACLADE_SYM void interruptible_wait_for_single_object(::HANDLE h);
+#endif
+
 /*! Declares an interruption point, allowing the calling thread to act on any pending interruptions.
 
 Interruption points enable Abaclade’s thread interruption infrastructure, providing a uniform way of
