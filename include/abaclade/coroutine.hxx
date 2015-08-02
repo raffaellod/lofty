@@ -177,6 +177,20 @@ namespace abc { namespace this_coroutine {
 */
 ABACLADE_SYM coroutine::id_type id();
 
+/*! Declares an interruption point, allowing the calling thread or coroutine to act on any pending
+interruptions.
+
+Interruption points enable Abaclade’s thread/coroutine interruption infrastructure, providing a
+uniform way of cooperatively interrupting a thread/coroutine from another one.
+
+The following functions and methods implicitly define an interruption point:
+•  abc::this_thread::sleep_for_ms() / abc::this_coroutine::sleep_for_ms();
+•  abc::this_thread::sleep_until_fd_ready() / abc::this_coroutine::sleep_until_fd_ready();
+•  All I/O operations performed on abc::io file-based I/O classes;
+•  All I/O operations in abc::net classes.
+*/
+ABACLADE_SYM void interruption_point();
+
 /*! Suspends execution of the current coroutine for at least the specified duration.
 
 @param iMillisecs

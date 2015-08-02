@@ -142,19 +142,10 @@ public:
       }
    }
 
-   /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
-
-   @return
-      Pointer to the coroutine’s m_crls member.
-   */
-   detail::coroutine_local_storage * local_storage_ptr() {
-      return &m_crls;
-   }
-
-   /*! Called right after each time the coroutine resumes execution, this will throw an exception of
-   the type specified by m_xctPending. This kind of exceptions are injected by other coroutines or
-   other Abaclade implementation code. */
-   void throw_if_any_pending_exception() {
+   /*! Called right after each time the coroutine resumes execution and on each interruption point
+   defined by this_coroutine::interruption_point(), this will throw an exception of the type
+   specified by m_xctPending. */
+   void interruption_point() {
       /* This load/store is multithread-safe: the coroutine can only be executing on one thread at a
       time, and the “if” condition being true means that coroutine::interrupt() is preventing other
       threads from changing m_xctPending until we reset it to none. */
@@ -163,6 +154,15 @@ public:
          m_xctPending.store(exception::common_type::none, std::memory_order_relaxed);
          exception::throw_common_type(xct, 0, 0);
       }
+   }
+
+   /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
+
+   @return
+      Pointer to the coroutine’s m_crls member.
+   */
+   detail::coroutine_local_storage * local_storage_ptr() {
+      return &m_crls;
    }
 
 #if ABC_HOST_API_POSIX
@@ -204,7 +204,8 @@ private:
    //! Identifier assigned by Valgrind to this coroutine’s stack.
    unsigned m_iValgrindStackId;
 #endif
-   //! Every time the coroutine is scheduled, this is checked for pending exceptions to be injected.
+   /*! Every time the coroutine is scheduled or returns from an interruption point, this is checked
+   for pending exceptions to be injected. */
    std::atomic<exception::common_type::enum_type> m_xctPending;
    //! Function to be executed in the coroutine.
    std::function<void ()> m_fnInnerMain;
@@ -882,8 +883,8 @@ void coroutine::scheduler::switch_to_scheduler(impl * pcoroimplLastActive) {
 #else
    #error "TODO: HOST_API"
 #endif
-   // Now that we’re back to the coroutine, check for any resume exceptions.
-   pcoroimplLastActive->throw_if_any_pending_exception();
+   // Now that we’re back to the coroutine, check for any pending interruptions.
+   pcoroimplLastActive->interruption_point();
 }
 
 #if ABC_HOST_API_WIN32
@@ -934,6 +935,16 @@ namespace abc { namespace this_coroutine {
 
 coroutine::id_type id() {
    return reinterpret_cast<coroutine::id_type>(coroutine::scheduler::sm_pcoroimplActive.get());
+}
+
+void interruption_point() {
+   if (
+      std::shared_ptr<coroutine::impl> const & pcoroimplActive =
+         coroutine::scheduler::sm_pcoroimplActive
+   ) {
+      pcoroimplActive->interruption_point();
+   }
+   this_thread::interruption_point();
 }
 
 void sleep_for_ms(unsigned iMillisecs) {
