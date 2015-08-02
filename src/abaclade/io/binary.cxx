@@ -262,7 +262,7 @@ std::shared_ptr<file_base> open(
       switch (iErr) {
          case EINTR:
             // Check for pending interruptions.
-            this_thread::interruption_point();
+            this_coroutine::interruption_point();
             break;
          case ENODEV: // No such device (POSIX.1-2001)
          case ENOENT: // No such file or directory (POSIX.1-2001)
@@ -333,7 +333,7 @@ std::shared_ptr<file_base> open(
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
    fid.am = am;
    fid.bBypassCache = bBypassCache;
    return _construct(&fid);
@@ -353,7 +353,7 @@ pipe_ends pipe() {
          exception::throw_os_error(iErr);
       }
       // Check for pending interruptions.
-      this_thread::interruption_point();
+      this_coroutine::interruption_point();
    }
    // Set the .fd members immediately, so they’ll get closed automatically in case of exceptions.
    fidReader.fd = filedesc(fds[0]);
@@ -377,7 +377,7 @@ pipe_ends pipe() {
          exception::throw_os_error(iErr);
       }
       // Check for pending interruptions.
-      this_thread::interruption_point();
+      this_coroutine::interruption_point();
    }
    fidReader.fd = filedesc(fds[0]);
    fidWriter.fd = filedesc(fds[1]);
@@ -423,7 +423,7 @@ pipe_ends pipe() {
    #error "TODO: HOST_API"
 #endif
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
    fidReader.am = access_mode::read;
    fidWriter.am = access_mode::write;
    fidReader.bBypassCache = fidWriter.bBypassCache = false;

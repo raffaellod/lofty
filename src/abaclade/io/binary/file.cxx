@@ -74,14 +74,14 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       );
       if (cbRead >= 0) {
          // Check for pending interruptions.
-         this_thread::interruption_point();
+         this_coroutine::interruption_point();
          return static_cast<std::size_t>(cbRead);
       }
       int iErr = errno;
       switch (iErr) {
          case EINTR:
             // Check for pending interruptions.
-            this_thread::interruption_point();
+            this_coroutine::interruption_point();
             break;
          case EAGAIN:
    #if EWOULDBLOCK != EAGAIN
@@ -120,7 +120,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       iErr = static_cast< ::DWORD>(ovl.Internal);
    }
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
    return check_if_eof_or_throw_os_error(cbRead, iErr) ? 0 : cbRead;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
@@ -175,7 +175,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       int iErr = errno;
       if (iErr == EINTR) {
          // Check for pending interruptions.
-         this_thread::interruption_point();
+         this_coroutine::interruption_point();
       } else if (
    #if ABC_HOST_API_DARWIN
          iErr == ENOTSUP
@@ -197,7 +197,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    #error "TODO: HOST_API"
 #endif
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
 }
 
 /*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
@@ -220,7 +220,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          switch (iErr) {
             case EINTR:
                // Check for pending interruptions.
-               this_thread::interruption_point();
+               this_coroutine::interruption_point();
                break;
             case EAGAIN:
    #if EWOULDBLOCK != EAGAIN
@@ -234,7 +234,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       }
    }
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    do {
       ::DWORD cbWritten, cbToWrite = static_cast< ::DWORD>(
@@ -268,7 +268,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          }
       }
       // Check for pending interruptions.
-      this_thread::interruption_point();
+      this_coroutine::interruption_point();
       pb += cbWritten;
       cb -= cbWritten;
    } while (cb);

@@ -105,7 +105,7 @@ void simple_event::wait() {
    we just keep on retrying. */
    while (::sem_wait(&m_sem)) {
       // Check for pending interruptions.
-      this_thread::interruption_point();
+      this_coroutine::interruption_point();
    }
 #elif ABC_HOST_API_WIN32
    this_thread::interruptible_wait_for_single_object(m_hEvent);
@@ -224,7 +224,7 @@ void thread::impl::join() {
    #error "TODO: HOST_API"
 #endif
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
 }
 
 #if ABC_HOST_API_POSIX
@@ -383,7 +383,7 @@ void thread::join() {
    pimpl->join();
 
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
 }
 
 thread::native_handle_type thread::native_handle() const {

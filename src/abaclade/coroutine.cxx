@@ -686,6 +686,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
             && !m_tommCorosBlockedByTimer
 #endif
          ) {
+            this_thread::interruption_point();
             return nullptr;
          }
       }
@@ -698,6 +699,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       if (::kevent(m_fdKqueue.get(), nullptr, 0, &ke, 1, nullptr) < 0) {
          int iErr = errno;
          if (iErr == EINTR) {
+            this_thread::interruption_point();
             continue;
          }
          exception::throw_os_error(iErr);
@@ -720,6 +722,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       if (::epoll_wait(m_fdEpoll.get(), &ee, 1, -1) < 0) {
          int iErr = errno;
          if (iErr == EINTR) {
+            this_thread::interruption_point();
             continue;
          }
          exception::throw_os_error(iErr);
