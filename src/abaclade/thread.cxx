@@ -104,7 +104,8 @@ void simple_event::wait() {
    /* Block until the new thread is finished updating *this. The only possible failure is EINTR, so
    we just keep on retrying. */
    while (::sem_wait(&m_sem)) {
-      ;
+      // Check for pending interruptions.
+      this_thread::interruption_point();
    }
 #elif ABC_HOST_API_WIN32
    ::WaitForSingleObject(m_hEvent, INFINITE);
@@ -225,6 +226,8 @@ void thread::impl::join() {
 #else
    #error "TODO: HOST_API"
 #endif
+   // Check for pending interruptions.
+   this_thread::interruption_point();
 }
 
 #if ABC_HOST_API_POSIX
@@ -520,6 +523,8 @@ void sleep_for_ms(unsigned iMillisecs) {
    /* This loop will only repeat in case of EINTR. Technically ::nanosleep() may fail with EINVAL,
    but the calculation above makes that impossible. */
    while (::nanosleep(&tsRequested, &tsRemaining) < 0) {
+      // Check for pending interruptions.
+      interruption_point();
       // Set the new requested time to whatever we didn’t get to sleep in the last nanosleep() call.
       tsRequested = tsRemaining;
    }
@@ -544,6 +549,8 @@ void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    while (::poll(&pfd, 1, -1) < 0) {
       int iErr = errno;
       if (iErr == EINTR) {
+         // Check for pending interruptions.
+         interruption_point();
          break;
       }
       exception::throw_os_error(iErr);

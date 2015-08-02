@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/process.hxx>
+#include <abaclade/thread.hxx>
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINVAL errno
@@ -114,7 +115,11 @@ int process::join() {
       if (iErr != EINTR) {
          exception::throw_os_error(iErr);
       }
+      // Check for pending interruptions.
+      this_thread::interruption_point();
    }
+   // Check for pending interruptions.
+   this_thread::interruption_point();
    if (WIFEXITED(iStatus)) {
       return WEXITSTATUS(iStatus);
    } else if (WIFSIGNALED(iStatus)) {
@@ -127,6 +132,8 @@ int process::join() {
    if (::WaitForSingleObject(m_h, INFINITE) == WAIT_FAILED) {
       exception::throw_os_error();
    }
+   // Check for pending interruptions.
+   this_thread::interruption_point();
    ::DWORD iExitCode;
    if (!::GetExitCodeProcess(m_h, &iExitCode)) {
       exception::throw_os_error();

@@ -212,6 +212,8 @@ std::shared_ptr<connection> tcp_server::accept() {
       int iErr = errno;
       switch (iErr) {
          case EINTR:
+            // Check for pending interruptions.
+            this_thread::interruption_point();
             break;
          case EAGAIN:
    #if EWOULDBLOCK != EAGAIN
@@ -237,6 +239,8 @@ std::shared_ptr<connection> tcp_server::accept() {
             exception::throw_os_error(static_cast<errint_t>(iErr));
       }
    }
+   // Check for pending interruptions.
+   this_thread::interruption_point();
 
    ip_address ipaddrClient;
    port_t portClient;
