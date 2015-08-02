@@ -108,7 +108,7 @@ void simple_event::wait() {
       this_thread::interruption_point();
    }
 #elif ABC_HOST_API_WIN32
-   ::WaitForSingleObject(m_hEvent, INFINITE);
+   this_thread::interruptible_wait_for_single_object(m_hEvent);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -219,10 +219,7 @@ void thread::impl::join() {
       exception::throw_os_error(iErr);
    }
 #elif ABC_HOST_API_WIN32
-   ::DWORD iRet = ::WaitForSingleObject(m_h, INFINITE);
-   if (iRet == WAIT_FAILED) {
-      exception::throw_os_error();
-   }
+   this_thread::interruptible_wait_for_single_object(m_h);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -581,11 +578,7 @@ void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    }
 #elif ABC_HOST_API_WIN32
    ABC_UNUSED_ARG(bWrite);
-   ::HANDLE ah[] = { fd, get_impl()->interruption_event_handle() };
-   ::DWORD iRet = ::WaitForMultipleObjects(ABC_COUNTOF(ah), ah, false, INFINITE);
-   if (/*iRet < WAIT_OBJECT_0 ||*/ iRet >= WAIT_OBJECT_0 + ABC_COUNTOF(ah)) {
-      exception::throw_os_error();
-   }
+   interruptible_wait_for_single_object(fd);
 #else
    #error "TODO: HOST_API"
 #endif
