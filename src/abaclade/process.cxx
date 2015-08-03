@@ -116,10 +116,10 @@ int process::join() {
          exception::throw_os_error(iErr);
       }
       // Check for pending interruptions.
-      this_thread::interruption_point();
+      this_coroutine::interruption_point();
    }
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
    if (WIFEXITED(iStatus)) {
       return WEXITSTATUS(iStatus);
    } else if (WIFSIGNALED(iStatus)) {
@@ -129,9 +129,10 @@ int process::join() {
       return -1;
    }
 #elif ABC_HOST_API_WIN32
+   // TODO: wait using this_thread::coroutine_scheduler(), if possible.
    this_thread::interruptible_wait_for_single_object(m_h);
    // Check for pending interruptions.
-   this_thread::interruption_point();
+   this_coroutine::interruption_point();
    ::DWORD iExitCode;
    if (!::GetExitCodeProcess(m_h, &iExitCode)) {
       exception::throw_os_error();
