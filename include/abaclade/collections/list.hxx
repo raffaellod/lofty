@@ -182,13 +182,15 @@ public:
    typedef const_bidi_iterator<false> const_reverse_iterator;
 
 public:
+   //! Default constructor.
+   list() {
+   }
+
    /*! Constructor.
 
    @param l
       Source object.
    */
-   list() {
-   }
    list(list && l) :
       detail::doubly_linked_list_impl(std::move(l)) {
    }
@@ -198,10 +200,12 @@ public:
       clear();
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param l
       Source object.
+   @return
+      *this.
    */
    list & operator=(list && l) {
       list lOld(std::move(*this));

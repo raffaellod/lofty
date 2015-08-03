@@ -39,13 +39,15 @@ element. */
 template <typename T>
 class queue : public detail::singly_linked_list_impl {
 public:
+   //! Default constructor.
+   queue() {
+   }
+
    /*! Constructor.
 
    @param q
       Source object.
    */
-   queue() {
-   }
    queue(queue && q) :
       detail::singly_linked_list_impl(std::move(q)) {
    }
@@ -58,10 +60,12 @@ public:
       destruct_list(type, m_pnFirst);
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param q
       Source object.
+   @return
+      *this.
    */
    queue & operator=(queue && q) {
       node * pnFirst = m_pnFirst;

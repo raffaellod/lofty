@@ -116,7 +116,7 @@ public:
       typedef value_type & reference;
 
    public:
-      //! Constructor.
+      //! Default constructor.
       const_iterator() {
       }
 
@@ -260,13 +260,15 @@ public:
    typedef typename const_iterator::value_type const_value_type;
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   hash_map() {
+   }
+
+   /*! Move constructor.
 
    @param hm
       Source object.
    */
-   hash_map() {
-   }
    hash_map(hash_map && hm) :
       detail::hash_map_impl(std::move(hm)) {
    }
@@ -276,10 +278,12 @@ public:
       clear();
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param hm
       Source object.
+   @return
+      *this.
    */
    hash_map & operator=(hash_map && hm) {
       detail::hash_map_impl::operator=(std::move(hm));

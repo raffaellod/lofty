@@ -30,20 +30,25 @@ namespace abc { namespace collections {
 template <typename TCont, typename TVal>
 class pointer_iterator : public std::iterator<std::random_access_iterator_tag, TVal> {
 public:
+   //! Default constructor.
+   /*constexpr*/ pointer_iterator() :
+      m_ptval(nullptr) {
+   }
+
    /*! Constructor.
 
    @param pt
       Pointer to set the iterator to.
-   @param it
-      Source iterator.
    */
-   /*constexpr*/ pointer_iterator() :
-      m_ptval(nullptr) {
-   }
    explicit pointer_iterator(TVal * pt) :
       m_ptval(pt) {
    }
-   // Allows to convert between non-const to const TVals.
+
+   /*! Copy constructor that also allows to convert between non-const to const TVals.
+
+   @param it
+      Source object.
+   */
    template <typename TVal2>
    pointer_iterator(pointer_iterator<TCont, TVal2> const & it) :
       m_ptval(it.base()) {

@@ -308,14 +308,16 @@ public:
    };
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   trie_ordered_multimap() :
+      detail::bitwise_trie_ordered_multimap_impl(sizeof(TKey)) {
+   }
+
+   /*! Move constructor.
 
    @param tomm
       Source object.
    */
-   trie_ordered_multimap() :
-      detail::bitwise_trie_ordered_multimap_impl(sizeof(TKey)) {
-   }
    trie_ordered_multimap(trie_ordered_multimap && tomm) :
       detail::bitwise_trie_ordered_multimap_impl(std::move(tomm)) {
    }
@@ -325,7 +327,7 @@ public:
       clear();
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param tomm
       Source object.

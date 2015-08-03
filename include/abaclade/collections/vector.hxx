@@ -156,6 +156,8 @@ protected:
    raw_vector(std::size_t cbEmbeddedCapacity) :
       raw_complex_vextr_impl(cbEmbeddedCapacity) {
    }
+
+   //! See raw_complex_vextr_impl::raw_complex_vextr_impl().
    raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
       raw_complex_vextr_impl(ptConstSrc, ciSrc) {
    }
@@ -220,6 +222,8 @@ protected:
    raw_vector(std::size_t cbEmbeddedCapacity) :
       raw_vector<T, false, false>(cbEmbeddedCapacity) {
    }
+
+   //! See raw_vector<T, false, false>::raw_vector<T, false, false>().
    raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
       raw_vector<T, false, false>(ptConstSrc, ciSrc) {
    }
@@ -355,6 +359,8 @@ protected:
    raw_vector(std::size_t cbEmbeddedCapacity) :
       raw_trivial_vextr_impl(cbEmbeddedCapacity) {
    }
+
+   //! See raw_trivial_vextr_impl::raw_trivial_vextr_impl().
    raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
       raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
    }
@@ -563,19 +569,22 @@ public:
    }
 
 protected:
-   /*! Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
-   nullptr or an empty string; the overload with pt constructs the object assigning an item array.
+   /*! Constructor that makes the object empty, setting m_p to nullptr or an empty vector.
 
    @param ciEmbedded
       Count of slots in the embedded item array, or 0 if no embedded item array is present.
+   */
+   vector_base(std::size_t ciEmbedded) :
+      raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
+   }
+
+   /*! Constructor that assigns an item array.
+
    @param pt
       Pointer to an array that will be adopted by the vector as read-only.
    @param ci
       Count of items in the array pointed to by pt.
    */
-   vector_base(std::size_t ciEmbedded) :
-      raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
-   }
    vector_base(T const * pt, std::size_t ci) :
       raw_vector<T, smc_bCopyConstructible>(pt, ci) {
    }
@@ -649,6 +658,16 @@ protected:
 template <typename T>
 class vector_base<T, true> : public vector_base<T, false> {
 public:
+   /*! Returns a slice of the vector from iBegin to the end of the vector.
+
+   @param iBegin
+      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
+      begin index values.
+   */
+   dmvector<T, true> slice(std::ptrdiff_t iBegin) const {
+      return slice(iBegin, this->size());
+   }
+
    /*! Returns a slice of the vector.
 
    @param iBegin
@@ -658,28 +677,28 @@ public:
       Index of the last element, exclusive. See abc::collections::vector_base::translate_range() for
       allowed end index values.
    */
-   dmvector<T, true> slice(std::ptrdiff_t iBegin) const {
-      return slice(iBegin, this->size());
-   }
    dmvector<T, true> slice(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) const {
       auto range(this->translate_range(iBegin, iEnd));
       return dmvector<T, true>(range.first, range.second);
    }
 
 protected:
-   /*! Constructor. The overload with ciEmbedded constructs the object as empty, setting m_p to
-   nullptr or an empty string; the overload with pt constructs the object assigning an item array.
+   /*! Constructor that makes the object empty, setting m_p to nullptr or an empty vector.
 
    @param ciEmbedded
       Count of slots in the embedded item array, or 0 if no embedded item array is present.
+   */
+   vector_base(std::size_t ciEmbedded) :
+      vector_base<T, false>(ciEmbedded) {
+   }
+
+   /*! Constructor that assigns an item array.
+
    @param pt
       Pointer to an array that will be adopted by the vector as read-only.
    @param ci
       Count of items in the array pointed to by pt.
    */
-   vector_base(std::size_t ciEmbedded) :
-      vector_base<T, false>(ciEmbedded) {
-   }
    vector_base(T const * pt, std::size_t ci) :
       vector_base<T, false>(pt, ci) {
    }
@@ -784,14 +803,20 @@ public:
    @param iOffset
       Index at which the element should be inserted. See detail::vector_base::translate_index() for
       allowed index values.
-   @param itOffset
-      Iterator at which the element should be inserted.
    @param t
       Element to insert.
    */
    void insert(std::ptrdiff_t iOffset, typename std::remove_const<T>::type && t) {
       this->insert_move(this->translate_index(iOffset), &t, 1);
    }
+
+   /*! Inserts elements at a specific position in the vector.
+
+   @param itOffset
+      Iterator at which the element should be inserted.
+   @param t
+      Element to insert.
+   */
    void insert(const_iterator itOffset, typename std::remove_const<T>::type && t) {
       this->validate_pointer(itOffset.base());
       this->insert_move(itOffset.base(), &t, 1);
@@ -808,13 +833,17 @@ public:
    @param i
       Index of the element to remove. See detail::vector_base::translate_index() for allowed index
       values.
-   @param it
-      Iterator to the element to remove.
    */
    void remove_at(std::ptrdiff_t i) {
       T const * pt = this->translate_index(i);
       this->remove(pt, pt + 1);
    }
+
+   /*! Removes a single element from the vector.
+
+   @param it
+      Iterator to the element to remove.
+   */
    void remove_at(const_iterator it) {
       this->validate_pointer_noend(it.base());
       this->remove(it.base(), (it + 1).base());
