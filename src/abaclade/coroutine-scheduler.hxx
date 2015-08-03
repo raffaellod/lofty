@@ -209,7 +209,7 @@ private:
    #error "TODO: HOST_API"
 #endif
 #if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
-   //! Map of timeouts, in milliseconds, and their associated corotuines.
+   //! Map of timeouts, in milliseconds, and their associated coroutines.
    collections::trie_ordered_multimap<
       time_point_t, std::shared_ptr<impl>
    > m_tommCorosBlockedByTimer;
@@ -228,6 +228,7 @@ private:
    these events happens, every thread running the scheduler will start interrupting coroutines with
    this type of exception. */
    std::atomic<exception::common_type::enum_type> m_xctInterruptionReason;
+
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
    static thread_local_value<std::shared_ptr<impl>> sm_pcoroimplActive;
    //! Pointer to the coroutine scheduler for the current thread.

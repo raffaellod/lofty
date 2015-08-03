@@ -203,6 +203,7 @@ private:
    std::atomic<bool> m_bTerminating;
    //! Function to be executed in the thread.
    std::function<void ()> m_fnInnerMain;
+
    //! Allows a thread to access its impl instance.
    static thread_local_value<impl *> sm_pimplThis;
 };

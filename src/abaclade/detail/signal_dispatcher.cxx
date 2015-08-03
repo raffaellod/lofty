@@ -442,8 +442,8 @@ signal_dispatcher::~signal_dispatcher() {
    /*static*/ ::BOOL WINAPI signal_dispatcher::console_ctrl_event_translator(::DWORD iCtrlEvent) {
       exception::common_type::enum_type xct;
       switch (iCtrlEvent) {
-         case CTRL_C_EVENT:
          case CTRL_BREAK_EVENT:
+         case CTRL_C_EVENT:
          case CTRL_LOGOFF_EVENT:
          case CTRL_SHUTDOWN_EVENT:
             xct = exception::common_type::user_forced_interruption;

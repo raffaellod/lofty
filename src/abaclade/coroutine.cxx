@@ -552,8 +552,12 @@ void coroutine::scheduler::block_active_until_fd_ready(
       ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
    }));
 #elif ABC_HOST_API_WIN32
-   if (*phCurrentIocp) {
-      // TODO: validate that *phCurrentIocp == m_fdIocp.get().
+   // Make sure fd has not been used on a different IOCP.
+   if (::HANDLE hCurrentIocp = *phCurrentIocp) {
+      if (hCurrentIocp != m_fdIocp.get()) {
+         // TODO: use a better exception class.
+         ABC_THROW(argument_error, ());
+      }
    } else {
       // First time this fd is being used with a scheduler; associate it to the IOCP.
       if (!::CreateIoCompletionPort(fd, m_fdIocp.get(), reinterpret_cast< ::ULONG_PTR>(fd), 0)) {
@@ -972,7 +976,13 @@ void sleep_until_fd_ready(
 #endif
       );
    } else {
-      // TODO: validate that *phCurrentIocp == nullptr.
+#if ABC_HOST_API_WIN32
+      // Make sure that fd has never been used with an IOCP.
+      if (*phCurrentIocp) {
+         // TODO: use a better exception class.
+         ABC_THROW(argument_error, ());
+      }
+#endif
       this_thread::sleep_until_fd_ready(fd, bWrite);
    }
 }
