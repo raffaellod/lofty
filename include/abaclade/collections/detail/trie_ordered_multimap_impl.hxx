@@ -283,14 +283,14 @@ public:
    @return
       Pointer to the to the first matching list node, or nullptr if the key could not be found.
    */
-   list_node * find(std::uintmax_t iKey);
+   list_node * find(std::uintmax_t iKey) const;
 
    /*! Returns a pointer to the first value in the map.
 
    @return
       Pointer to the first value in the map.
    */
-   key_value_ptr front();
+   key_value_ptr front() const;
 
    /*! Returns the count of values in the map. Note that this may be higher than the count of keys
    in the map.

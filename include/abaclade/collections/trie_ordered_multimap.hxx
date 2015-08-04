@@ -225,7 +225,7 @@ public:
          m_pln(nullptr) {
       }
 
-   private:
+   protected:
       /*! Constructor.
 
       @param key
@@ -238,6 +238,7 @@ public:
          m_pln(pln) {
       }
 
+   private:
       /*! Dereferencing operator.
 
       @return
@@ -257,7 +258,9 @@ public:
       }
 
    protected:
+      //! Key the iterator is at.
       TKey m_key;
+      //! Pointer to the current value’s node.
       list_node * m_pln;
    };
 

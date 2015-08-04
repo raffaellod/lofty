@@ -131,7 +131,7 @@ void bitwise_trie_ordered_multimap_impl::destruct_tree_node(
 
 bitwise_trie_ordered_multimap_impl::list_node * bitwise_trie_ordered_multimap_impl::find(
    std::uintmax_t iKey
-) {
+) const {
    ABC_TRACE_FUNC(this, iKey);
 
    if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
@@ -165,7 +165,8 @@ bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) c
 
 }
 
-bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_impl::front() {
+bitwise_trie_ordered_multimap_impl::key_value_ptr
+bitwise_trie_ordered_multimap_impl::front() const {
    ABC_TRACE_FUNC(this);
 
    tree_or_list_node_ptr pnChild;
