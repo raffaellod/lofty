@@ -1051,39 +1051,47 @@ class dmvector;
 template <typename T>
 class dmvector<T, false> : public mvector<T, false> {
 public:
-   /*! Constructor. The individual items or the entire source item array will be moved to *this.
-
-   @param v
-      Source vector.
-   @param v1
-      First source vector.
-   @param v2
-      Second source vector.
-   @param ci
-      Count of items in the array pointed to by pt.
-   */
+   //! Default constructor.
    dmvector() :
       mvector<T, false>(0) {
    }
+
+   /*! Move constructor.
+
+   @param v
+      Source object.
+   */
    dmvector(dmvector && v) :
       mvector<T, false>(0) {
       this->assign_move(std::move(v));
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
+
+   /*! Move constructor.
+
+   @param v
+      Source object.
+   */
    dmvector(mvector<T, false> && v) :
       mvector<T, false>(0) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
+
+   /*! Constructor that concatenates two arrays by moving elements out of them.
+
+   @param v1
+      First source vector.
+   @param v2
+      Second source vector.
+   */
    dmvector(mvector<T, false> && v1, mvector<T, false> && v2) :
       mvector<T, false>(0) {
       this->assign_concat_move(v1.begin().base(), v1.size(), v2.begin().base(), v2.size());
    }
 
-   /*! Assignment operator. The individual items or the entire source item array will be moved to
-   *this.
+   /*! Move-assignment operator.
 
    @param v
-      Source vector.
+      Source object.
    @return
       *this.
    */
@@ -1091,7 +1099,14 @@ public:
       this->assign_move(std::move(v));
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
+
+   /*! Move-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
    dmvector & operator=(mvector<T, false> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
@@ -1102,93 +1117,152 @@ public:
 template <typename T>
 class dmvector<T, true> : public mvector<T, true> {
 public:
-   /*! Constructor. R-value-reference arguments (v, v1, v2) will have their contents transferred to
-   *this.
-
-   @param v
-      Source vector.
-   @param v1
-      First source vector.
-   @param v2
-      Second source vector.
-   @param at
-      Source array whose elements should be copied.
-   @param pt
-      Pointer to an array whose elements should be copied.
-   @param ci
-      Count of items in the array pointed to by pt.
-   @param p1Begin
-      Pointer to the start of the first source array, whose elements should be copied.
-   @param p1End
-      Pointer to the end of the first source array.
-   @param p2Begin
-      Pointer to the start of the second source array, whose elements should be copied.
-   @param p2End
-      Pointer to the end of the second source array.
-   */
+   //! Default constructor.
    dmvector() :
       mvector<T, true>(0) {
    }
+
+   /*! Copy constructor.
+
+   @param v
+      Source object.
+   */
    dmvector(dmvector const & v) :
       mvector<T, true>(0) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
+
+   /*! Move constructor.
+
+   @param v
+      Source object.
+   */
    dmvector(dmvector && v) :
       mvector<T, true>(0) {
       this->assign_move(std::move(v));
    }
+
+   /*! Copy constructor.
+
+   @param v
+      Source object.
+   */
    dmvector(mvector<T, true> const & v) :
       mvector<T, true>(0) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
+
+   /*! Move constructor.
+
+   @param v
+      Source object.
+   */
    dmvector(mvector<T, true> && v) :
       mvector<T, true>(0) {
       this->assign_move_dynamic_or_move_items(std::move(v));
    }
+
+   /*! Constructor that concatenates two vectors, copying elements from both.
+
+   @param v1
+      First source vector.
+   @param v2
+      Second source vector.
+   */
    dmvector(mvector<T, true> const & v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
       this->assign_concat(
          v1.cbegin().base(), v1.cend().base(), v2.cbegin().base(), v2.cend().base(), 0
       );
    }
+
+   /*! Constructor that concatenates two vectors, moving elements from one and copying elements from
+   another one.
+
+   @param v1
+      First source vector.
+   @param v2
+      Second source vector.
+   */
    dmvector(mvector<T, true> && v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
       this->assign_concat(
          v1.begin().base(), v1.end().base(), v2.cbegin().base(), v2.cend().base(), 1
       );
    }
+
+   /*! Constructor that concatenates two vectors, copying elements from one and moving elements from
+   another one.
+
+   @param v1
+      First source vector.
+   @param v2
+      Second source vector.
+   */
    dmvector(mvector<T, true> const & v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
       this->assign_concat(
          v1.cbegin().base(), v1.cend().base(), v2.begin().base(), v2.end().base(), 2
       );
    }
+
+   /*! Constructor that concatenates two vectors, moving elements from both.
+
+   @param v1
+      First source vector.
+   @param v2
+      Second source vector.
+   */
    dmvector(mvector<T, true> && v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
       this->assign_concat_move(
          v1.begin().base(), v1.end().base(), v2.begin().base(), v2.end().base()
       );
    }
+
+   /*! Constructor that copies elements from a static array.
+
+   @param at
+      Source array whose elements should be copied.
+   */
    template <std::size_t t_ci>
    explicit dmvector(T const (& at)[t_ci]) :
       mvector<T, true>(0) {
       this->assign_copy(at, at + t_ci);
    }
+
+   /*! Constructor that copies elements from an array.
+
+   @param ptBegin
+      Pointer to the beginning of the source array.
+   @param ptEnd
+      Pointer to the end of the source array.
+   */
    dmvector(T const * ptBegin, T const * ptEnd) :
       mvector<T, true>(0) {
       this->assign_copy(ptBegin, ptEnd);
    }
+
+   /*! Constructor that concatenates two arrays, copying elements from both.
+
+   @param p1Begin
+      Pointer to the start of the first source array.
+   @param p1End
+      Pointer to the end of the first source array.
+   @param p2Begin
+      Pointer to the start of the second source array.
+   @param p2End
+      Pointer to the end of the second source array.
+   */
    dmvector(T const * pt1Begin, T const * pt1End, T const * pt2Begin, T const * pt2End) :
       mvector<T, true>(0) {
       this->assign_concat(pt1Begin, pt1End, pt2Begin, pt2End, 0);
    }
 
-   /*! Assignment operator. R-value-reference arguments will have their contents transferred to
-   *this.
+   /*! Copy-assignment operator.
 
    @param v
-      Source vector.
+      Source object.
    @return
       *this.
    */
@@ -1196,15 +1270,38 @@ public:
       this->assign_copy(v.cbegin().base(), v.cend().base());
       return *this;
    }
+
+   /*! Move-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
    dmvector & operator=(dmvector && v) {
       this->assign_move(std::move(v));
       return *this;
    }
+
+   /*! Copy-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
    dmvector & operator=(mvector<T, true> const & v) {
       this->assign_copy(v.cbegin().base(), v.cend().base());
       return *this;
    }
-   // This can throw exceptions, but it’s allowed to since it’s not the dmvector && overload.
+
+   /*! Move-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
    dmvector & operator=(mvector<T, true> && v) {
       this->assign_move_dynamic_or_move_items(std::move(v));
       return *this;
