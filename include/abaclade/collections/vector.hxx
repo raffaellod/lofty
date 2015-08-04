@@ -822,6 +822,12 @@ public:
       this->insert_move(itOffset.base(), &t, 1);
    }
 
+   //! Removes the last element from the vector.
+   void pop_back() {
+      T * ptEnd = this->end().base();
+      this->remove(ptEnd - 1, ptEnd);
+   }
+
    //! See detail::vector_base::rbegin(). Here also available in non-const overload.
    reverse_iterator rbegin() {
       return reverse_iterator(iterator(detail::raw_vextr_impl_base::end<T>()));
