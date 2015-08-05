@@ -425,7 +425,7 @@ public:
    iterator_error exception will be thrown.
 
    @return
-      *this after it’s moved to the value following the one currently pointed to by.
+      *this after it’s moved to the value following the one currently pointed to.
    */
    codepoint_iterator & operator++() {
       this->m_pch = this->advance(1, false);
@@ -448,7 +448,7 @@ public:
    iterator_error exception will be thrown.
 
    @return
-      *this after it’s moved to the value preceding the one currently pointed to by.
+      *this after it’s moved to the value preceding the one currently pointed to.
    */
    codepoint_iterator & operator--() {
       this->m_pch = this->advance(-1, false);

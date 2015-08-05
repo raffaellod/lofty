@@ -139,7 +139,7 @@ public:
    /*! Preincrement operator.
 
    @return
-      *this after it’s moved to the value following the one currently pointed to by.
+      *this after it’s moved to the value following the one currently pointed to.
    */
    pointer_iterator & operator++() {
       ++m_ptval;
@@ -158,7 +158,7 @@ public:
    /*! Predecrement operator.
 
    @return
-      *this after it’s moved to the value preceding the one currently pointed to by.
+      *this after it’s moved to the value preceding the one currently pointed to.
    */
    pointer_iterator & operator--() {
       --m_ptval;
