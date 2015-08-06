@@ -226,23 +226,6 @@ public:
          m_pln(nullptr) {
       }
 
-   protected:
-      /*! Constructor.
-
-      @param ptomm
-         Trie containing the current value.
-      @param key
-         Key associated to the value referred to by the iterator.
-      @param pln
-         Pointer to the value referred to by the iterator, or nullptr to create an “end” iterator.
-      */
-      const_iterator(trie_ordered_multimap const * ptomm, TKey key, list_node * pln) :
-         m_ptomm(ptomm),
-         m_key(key),
-         m_pln(pln) {
-      }
-
-   private:
       /*! Dereferencing operator.
 
       @return
@@ -282,6 +265,22 @@ public:
          const_iterator itPrev(*this);
          operator++();
          return std::move(itPrev);
+      }
+
+   protected:
+      /*! Constructor.
+
+      @param ptomm
+         Trie containing the current value.
+      @param key
+         Key associated to the value referred to by the iterator.
+      @param pln
+         Pointer to the value referred to by the iterator, or nullptr to create an “end” iterator.
+      */
+      const_iterator(trie_ordered_multimap const * ptomm, TKey key, list_node * pln) :
+         m_ptomm(ptomm),
+         m_key(key),
+         m_pln(pln) {
       }
 
    protected:
