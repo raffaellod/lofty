@@ -352,6 +352,12 @@ public:
       it.increment();
       return std::move(it);
    }
+
+   /*! Returns a const forward iterator set to the first key/value pair.
+
+   @return
+      Const forward iterator to the first key/value pair.
+   */
    const_iterator begin() const {
       return cbegin();
    }
@@ -396,6 +402,12 @@ public:
    iterator end() {
       return iterator(this, smc_iNullIndex);
    }
+
+   /*! Returns a const forward iterator set beyond the last key/value pair.
+
+   @return
+      Const forward iterator to the last key/value pair.
+   */
    const_iterator end() const {
       return cend();
    }
@@ -415,12 +427,10 @@ public:
       return iterator(this, iBucket);
    }
 
-   /*! Removes and returns a value given an iterator or a key, which must be in the map.
+   /*! Removes and returns a value given an iterator to it.
 
    @param it
       Iterator to the key/value to extract.
-   @param key
-      Key associated to the value to extract.
    */
    TValue pop(const_iterator it) {
       ABC_TRACE_FUNC(this/*, it*/);
@@ -435,6 +445,12 @@ public:
       empty_bucket(typeKey, typeValue, it.m_iBucket);
       return std::move(value);
    }
+
+   /*! Removes and returns a value given a key, which must be in the map.
+
+   @param key
+      Key associated to the value to extract.
+   */
    TValue pop(TKey const & key) {
       ABC_TRACE_FUNC(this/*, key*/);
 
@@ -453,12 +469,10 @@ public:
       return std::move(value);
    }
 
-   /*! Removes a value given an iterator or a key, which must be in the map.
+   /*! Removes a value given an iterator to it.
 
    @param it
       Iterator to the key/value to remove.
-   @param key
-      Key associated to the value to remove.
    */
    void remove(const_iterator it) {
       ABC_TRACE_FUNC(this/*, it*/);
@@ -470,6 +484,12 @@ public:
       typeValue.set_size<TValue>();
       empty_bucket(typeKey, typeValue, it);
    }
+
+   /*! Removes a value given a key, which must be in the map.
+
+   @param key
+      Key associated to the value to remove.
+   */
    void remove(TKey const & key) {
       if (!remove_if_found(key)) {
          // TODO: provide more information in the exception.
