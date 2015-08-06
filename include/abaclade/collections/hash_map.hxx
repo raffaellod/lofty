@@ -376,7 +376,7 @@ public:
    @return
       Const iterator set to beyond the last key/value pair.
    */
-   iterator cend() {
+   const_iterator cend() {
       return const_cast<hash_map *>(this)->end();
    }
 
