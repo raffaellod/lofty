@@ -73,10 +73,74 @@ protected:
    class tree_node {
    private:
       friend class bitwise_trie_ordered_multimap_impl;
+      friend class tree_node_slot;
 
    private:
       //! Child node pointers; one for each permutation of the bits mapped to this node.
       tree_or_list_node_ptr m_apnChildren[smc_cBitPermutationsPerLevel];
+   };
+
+   //! Enables access to a single child slot in an anchor_node instance.
+   class tree_node_slot : public support_explicit_operator_bool<tree_node_slot> {
+   public:
+      /*! Constructor.
+
+      @param ptn
+         Pointer to the tree_node that *this will wrap.
+      @param iChild
+         Child index.
+      */
+      tree_node_slot(tree_node * ptn, unsigned iChild) :
+         m_ptn(ptn),
+         m_iChild(iChild) {
+      }
+
+      /*! Returns true if the object is usable.
+
+      @return
+         true if *this is usable, or false otherwise.
+      */
+      ABC_EXPLICIT_OPERATOR_BOOL() const {
+         return m_ptn != nullptr;
+      }
+
+      /*! Returns a pointer to the selected child in the children list.
+
+      @return
+         Pointer to the first child.
+      */
+      tree_or_list_node_ptr child() const {
+         return m_ptn->m_apnChildren[m_iChild];
+      }
+
+      /*! Returns the first non-nullptr child under the selected child.
+
+      @return
+         First non-nullptr (in-use) child.
+      */
+      tree_node_slot first_used_child() const;
+
+      /*! Returns the child index.
+
+      @return
+         Child index.
+      */
+      unsigned index() const {
+         return m_iChild;
+      }
+
+      /*! Finds the next non-nullptr child of the same tree node.
+
+      @return
+         Next non-nullptr (in-use) sibling.
+      */
+      tree_node_slot next_used_sibling() const;
+
+   private:
+      //! Pointer to the wrapped tree_node instance.
+      tree_node * m_ptn;
+      //! Child index.
+      unsigned m_iChild;
    };
 
    //! Anchors value lists to the tree, mapping the last bits of the key.
@@ -303,6 +367,17 @@ public:
    }
 
 protected:
+   /*! Finds an anchor node slot (values list pointers) with a key minimally greater than the
+   specified key, if any.
+
+   @param iKey
+      Key to search the next of.
+   @return
+      Pointer to the first matching “next” value, or a nullptr value if no “next” key could be not
+      found in the map.
+   */
+   key_value_ptr find_next_key(std::uintmax_t iPrevKey) const;
+
    /*! Removes a value from the map. If the corresponding key if unique, the key is completely
    removed from the map.
 

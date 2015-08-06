@@ -26,6 +26,25 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections { namespace detail {
 
+bitwise_trie_ordered_multimap_impl::tree_node_slot
+bitwise_trie_ordered_multimap_impl::tree_node_slot::first_used_child() const {
+   /* Create a fictional tree_node_slot on the selected child, with index -1, and have it find its
+   next used sibling which, due to starting from -1, is really the first used sibling. */
+   return tree_node_slot(m_ptn->m_apnChildren[m_iChild].tn, unsigned(-1)).next_used_sibling();
+}
+
+bitwise_trie_ordered_multimap_impl::tree_node_slot
+bitwise_trie_ordered_multimap_impl::tree_node_slot::next_used_sibling() const {
+   unsigned i = m_iChild;
+   while (++i < ABC_COUNTOF(m_ptn->m_apnChildren)) {
+      if (m_ptn->m_apnChildren[i].tn) {
+         return tree_node_slot(m_ptn->m_apnChildren[i].tn, i);
+      }
+   }
+   return tree_node_slot(nullptr, 0);
+}
+
+
 bitwise_trie_ordered_multimap_impl::bitwise_trie_ordered_multimap_impl(
    bitwise_trie_ordered_multimap_impl && bwtommi
 ) :
@@ -134,7 +153,7 @@ bitwise_trie_ordered_multimap_impl::list_node * bitwise_trie_ordered_multimap_im
 ) const {
    ABC_TRACE_FUNC(this, iKey);
 
-   if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
+   if (auto ans = find_anchor_node_slot(iKey)) {
       return ans.first_child();
    } else {
       return nullptr;
@@ -162,7 +181,60 @@ bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) c
       ptnParent = ptnParent->m_apnChildren[iBitsPermutation].tn;
       ++iLevel;
    }
+}
 
+bitwise_trie_ordered_multimap_impl::key_value_ptr
+bitwise_trie_ordered_multimap_impl::find_next_key(std::uintmax_t iPrevKey) const {
+   ABC_TRACE_FUNC(this, iPrevKey);
+
+   smvector<tree_node_slot, 64 /*>= mc_iTreeAnchorsLevel*/> vtnsPath;
+
+   tree_node * ptnParent = m_pnRoot.tn;
+   std::uintmax_t iKey = 0, iPrevKeyRemaining = iPrevKey << mc_iKeyPadding;
+   unsigned iLevel = 0;
+   for (;;) {
+      iPrevKeyRemaining = bitmanip::rotate_l(iPrevKeyRemaining, smc_cBitsPerLevel);
+      unsigned iBitsPermutation = static_cast<unsigned>(
+         iPrevKeyRemaining & (smc_cBitPermutationsPerLevel - 1)
+      );
+      if (!ptnParent) {
+         break;
+      }
+      vtnsPath.push_back(tree_node_slot(ptnParent, iBitsPermutation));
+      // Copy the bits permutation from iPrevKey to iKey.
+      iKey <<= smc_cBitsPerLevel;
+      iKey |= static_cast<std::uintmax_t>(iBitsPermutation);
+      if (iLevel == mc_iTreeAnchorsLevel) {
+         break;
+      }
+      ptnParent = ptnParent->m_apnChildren[iBitsPermutation].tn;
+      ++iLevel;
+   }
+
+   // This loop might pop levels from vtnsPath if they have no next sibling.
+   while (vtnsPath) {
+      // TODO: vector::back()
+      if (auto tnsNextSibling = vtnsPath.rend()->next_used_sibling()) {
+         // Replace the sibling and its bits permutation.
+         iKey &= static_cast<std::uintmax_t>(smc_cBitPermutationsPerLevel - 1);
+         iKey |= static_cast<std::uintmax_t>(tnsNextSibling.index());
+         // If the path is not deep enough, descend the “first nexts” till the anchors level.
+         for (
+            iLevel = static_cast<unsigned>(vtnsPath.size()); iLevel < mc_iTreeAnchorsLevel; ++iLevel
+         ) {
+            tnsNextSibling = tnsNextSibling.first_used_child();
+            iKey <<= smc_cBitsPerLevel;
+            iKey |= static_cast<std::uintmax_t>(tnsNextSibling.index());
+         }
+         return key_value_ptr(iKey, tnsNextSibling.child().ln);
+      }
+      // This path level has no siblings to offer, try with the level above it.
+      vtnsPath.pop_back();
+      // Shift out the bits for the level we just dropped.
+      iKey >>= smc_cBitsPerLevel;
+   }
+   // No next value to return.
+   return key_value_ptr(0, nullptr);
 }
 
 bitwise_trie_ordered_multimap_impl::key_value_ptr

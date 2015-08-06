@@ -221,6 +221,7 @@ public:
    public:
       //! Default constructor.
       const_iterator() :
+         m_ptomm(nullptr),
          m_key(),
          m_pln(nullptr) {
       }
@@ -228,12 +229,15 @@ public:
    protected:
       /*! Constructor.
 
+      @param ptomm
+         Trie containing the current value.
       @param key
          Key associated to the value referred to by the iterator.
       @param pln
          Pointer to the value referred to by the iterator, or nullptr to create an “end” iterator.
       */
-      const_iterator(TKey key, list_node * pln) :
+      const_iterator(trie_ordered_multimap const * ptomm, TKey key, list_node * pln) :
+         m_ptomm(ptomm),
          m_key(key),
          m_pln(pln) {
       }
@@ -257,7 +261,32 @@ public:
          return pair_ptr<value_type>(m_key, m_pln->value_ptr<TValue>());
       }
 
+      /*! Preincrement operator.
+
+      @return
+         *this after it’s moved to the key/value pair following the one currently referred to.
+      */
+      const_iterator & operator++() {
+         auto kvp(m_ptomm->find_next_key(m_key));
+         m_key = kvp.iKey;
+         m_pln = kvp.pln;
+         return *this;
+      }
+
+      /*! Postincrement operator.
+
+      @return
+         Iterator referring to the key/value pair following the one referring to by this iterator.
+      */
+      const_iterator operator++(int) {
+         const_iterator itPrev(*this);
+         operator++();
+         return std::move(itPrev);
+      }
+
    protected:
+      //! Trie containing the current value.
+      trie_ordered_multimap const * m_ptomm;
       //! Key the iterator is at.
       TKey m_key;
       //! Pointer to the current value’s node.
@@ -300,13 +329,15 @@ public:
    private:
       /*! Constructor.
 
+      @param ptomm
+         Trie containing the current value.
       @param key
          Key associated to the value referred to by the iterator.
       @param pln
          Pointer to the value referred to by the iterator, or nullptr to create an “end” iterator.
       */
-      iterator(TKey key, list_node * pln) :
-         const_iterator(key, pln) {
+      iterator(trie_ordered_multimap const * ptomm, TKey key, list_node * pln) :
+         const_iterator(ptomm, key, pln) {
       }
    };
 
@@ -358,7 +389,7 @@ public:
       typeValue.set_align<TValue>();
       typeValue.set_move_construct<TValue>();
       typeValue.set_size<TValue>();
-      return iterator(key, detail::bitwise_trie_ordered_multimap_impl::add(
+      return iterator(this, key, detail::bitwise_trie_ordered_multimap_impl::add(
          typeValue, key_to_int(key), &value, true
       ));
    }
@@ -380,7 +411,7 @@ public:
       Iterator to the first matching key/value, or cend() if the key could not be found.
    */
    iterator find(TKey key) {
-      return iterator(key, detail::bitwise_trie_ordered_multimap_impl::find(key_to_int(key)));
+      return iterator(this, key, detail::bitwise_trie_ordered_multimap_impl::find(key_to_int(key)));
    }
    const_iterator find(TKey key) const {
       return const_cast<trie_ordered_multimap *>(this)->find(key);
