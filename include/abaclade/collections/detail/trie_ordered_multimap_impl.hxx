@@ -349,13 +349,6 @@ public:
    */
    list_node * find(std::uintmax_t iKey) const;
 
-   /*! Returns a pointer to the first value in the map.
-
-   @return
-      Pointer to the first value in the map.
-   */
-   key_value_ptr front() const;
-
    /*! Returns the count of values in the map. Note that this may be higher than the count of keys
    in the map.
 
@@ -367,14 +360,21 @@ public:
    }
 
 protected:
-   /*! Finds an anchor node slot (values list pointers) with a key minimally greater than the
-   specified key, if any.
+   /*! Finds the first key in the map, returning a pointer to the first corresponding value.
+
+   @return
+      Pointer to the first key/value pair in the map, or a nullptr value if the map is empty.
+   */
+   key_value_ptr find_first_key() const;
+
+   /*! Finds the next key minimally greater than the specified one, returning a pointer to the first
+   corresponding value.
 
    @param iKey
       Key to search the next of.
    @return
-      Pointer to the first matching “next” value, or a nullptr value if no “next” key could be not
-      found in the map.
+      Pointer to the first matching “next” key/value pair, or a nullptr value if no “next” key could
+      be found in the map.
    */
    key_value_ptr find_next_key(std::uintmax_t iPrevKey) const;
 

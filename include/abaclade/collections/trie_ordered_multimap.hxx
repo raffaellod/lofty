@@ -425,7 +425,7 @@ public:
    reference front() {
       ABC_TRACE_FUNC(this);
 
-      auto kvp(detail::bitwise_trie_ordered_multimap_impl::front());
+      auto kvp(find_first_key());
       return reference(int_to_key(kvp.iKey), kvp.pln->template value_ptr<TValue>());
    }
    const_reference front() const {
@@ -463,7 +463,7 @@ public:
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
-      auto kvp(detail::bitwise_trie_ordered_multimap_impl::front());
+      auto kvp(find_first_key());
       value_type vRet(
          int_to_key(kvp.iKey), std::move(*static_cast<TValue *>(kvp.pln->value_ptr(typeValue)))
       );
