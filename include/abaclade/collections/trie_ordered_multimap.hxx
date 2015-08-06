@@ -268,7 +268,7 @@ public:
       */
       const_iterator & operator++() {
          auto kvp(m_ptomm->find_next_key(m_key));
-         m_key = kvp.iKey;
+         m_key = int_to_key(kvp.iKey);
          m_pln = kvp.pln;
          return *this;
       }
@@ -394,12 +394,69 @@ public:
       ));
    }
 
+   /*! Returns an iterator set to the first key/value pair in the map.
+
+   @return
+      Reference to the first key/value in the map.
+   */
+   iterator begin() {
+      auto kvp(find_first_key());
+      return iterator(this, int_to_key(kvp.iKey), kvp.pln);
+   }
+
+   /*! Returns a const reference to the first key/value pair in the map.
+
+   @return
+      Const reference to the first key/value in the map.
+   */
+   const_iterator begin() const {
+      return const_cast<trie_ordered_multimap *>(this)->begin();
+   }
+
+   /*! Returns a const reference to the first key/value pair in the map.
+
+   @return
+      Const reference to the first key/value in the map.
+   */
+   const_iterator cbegin() const {
+      return const_cast<trie_ordered_multimap *>(this)->begin();
+   }
+
+   /*! Returns a const iterator set beyond the last key/value pair in the map.
+
+   @return
+      Const iterator set to beyond the last key/value pair.
+   */
+   const_iterator cend() {
+      return const_cast<trie_ordered_multimap *>(this)->end();
+   }
+
    //! Removes all elements from the map.
    void clear() {
+      ABC_TRACE_FUNC(this);
+
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
       return detail::bitwise_trie_ordered_multimap_impl::clear(typeValue);
+   }
+
+   /*! Returns an iterator set beyond the last key/value pair in the map.
+
+   @return
+      Iterator set to beyond the last key/value pair.
+   */
+   iterator end() {
+      return iterator(this, 0, nullptr);
+   }
+
+   /*! Returns a const iterator set beyond the last key/value pair in the map.
+
+   @return
+      Const iterator set to beyond the last key/value pair.
+   */
+   const_iterator end() const {
+      return const_cast<trie_ordered_multimap *>(this)->begin();
    }
 
    /*! Searches the map for a specific key, returning an iterator to the first corresponding key/
@@ -428,6 +485,12 @@ public:
       auto kvp(find_first_key());
       return reference(int_to_key(kvp.iKey), kvp.pln->template value_ptr<TValue>());
    }
+
+   /*! Returns a const reference to the first key/value pair in the map.
+
+   @return
+      Const reference to the first key/value in the map.
+   */
    const_reference front() const {
       return const_cast<trie_ordered_multimap *>(this)->front();
    }
