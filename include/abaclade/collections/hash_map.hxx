@@ -359,7 +359,7 @@ public:
       Const forward iterator to the first key/value pair.
    */
    const_iterator begin() const {
-      return cbegin();
+      return const_cast<hash_map *>(this)->begin();
    }
 
    /*! Returns a const forward iterator set to the first key/value pair.
@@ -368,9 +368,7 @@ public:
       Forward iterator to the first key/value pair.
    */
    const_iterator cbegin() const {
-      const_iterator it(this, smc_iNullIndex);
-      it.increment();
-      return std::move(it);
+      return const_cast<hash_map *>(this)->begin();
    }
 
    /*! Returns a const forward iterator set beyond the last key/value pair.
@@ -379,7 +377,7 @@ public:
       Forward iterator to the last key/value pair.
    */
    iterator cend() {
-      return const_iterator(this, smc_iNullIndex);
+      return const_cast<hash_map *>(this)->end();
    }
 
    //! Removes all elements from the map.
@@ -409,7 +407,7 @@ public:
       Const forward iterator to the last key/value pair.
    */
    const_iterator end() const {
-      return cend();
+      return const_cast<hash_map *>(this)->begin();
    }
 
    /*! Searches the map for a specific key, returning an iterator to the corresponding key/value
