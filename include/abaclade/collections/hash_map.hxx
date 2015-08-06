@@ -342,10 +342,10 @@ public:
       return std::make_pair(iterator(this, iBucket), bNew);
    }
 
-   /*! Returns a forward iterator set to the first key/value pair.
+   /*! Returns an iterator set to the first key/value pair in the map.
 
    @return
-      Forward iterator to the first key/value pair.
+      Iterator to the first key/value pair.
    */
    iterator begin() {
       iterator it(this, smc_iNullIndex);
@@ -353,28 +353,28 @@ public:
       return std::move(it);
    }
 
-   /*! Returns a const forward iterator set to the first key/value pair.
+   /*! Returns a const iterator set to the first key/value pair in the map.
 
    @return
-      Const forward iterator to the first key/value pair.
+      Const iterator to the first key/value pair.
    */
    const_iterator begin() const {
       return const_cast<hash_map *>(this)->begin();
    }
 
-   /*! Returns a const forward iterator set to the first key/value pair.
+   /*! Returns a const iterator set to the first key/value pair in the map.
 
    @return
-      Forward iterator to the first key/value pair.
+      Const iterator to the first key/value pair.
    */
    const_iterator cbegin() const {
       return const_cast<hash_map *>(this)->begin();
    }
 
-   /*! Returns a const forward iterator set beyond the last key/value pair.
+   /*! Returns a const iterator set beyond the last key/value pair in the map.
 
    @return
-      Forward iterator to the last key/value pair.
+      Const iterator set to beyond the last key/value pair.
    */
    iterator cend() {
       return const_cast<hash_map *>(this)->end();
@@ -392,19 +392,19 @@ public:
       hash_map_impl::clear(typeKey, typeValue);
    }
 
-   /*! Returns a forward iterator set beyond the last key/value pair.
+   /*! Returns an iterator set beyond the last key/value pair in the map.
 
    @return
-      Forward iterator to the last key/value pair.
+      Iterator set to beyond the last key/value pair.
    */
    iterator end() {
       return iterator(this, smc_iNullIndex);
    }
 
-   /*! Returns a const forward iterator set beyond the last key/value pair.
+   /*! Returns a const iterator set beyond the last key/value pair in the map.
 
    @return
-      Const forward iterator to the last key/value pair.
+      Const iterator set to beyond the last key/value pair.
    */
    const_iterator end() const {
       return const_cast<hash_map *>(this)->begin();
