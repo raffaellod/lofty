@@ -21,6 +21,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/bitmanip.hxx>
 #include <abaclade/collections/detail/trie_ordered_multimap_impl.hxx>
 
+#include <climits> // CHAR_BIT
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +51,11 @@ bitwise_trie_ordered_multimap_impl::tree_node_slot::next_used_sibling() const {
 }
 
 
+bitwise_trie_ordered_multimap_impl::bitwise_trie_ordered_multimap_impl(std::size_t cbKey) :
+   m_cValues(0),
+   mc_iKeyPadding(static_cast<std::uint8_t>((sizeof(std::uintmax_t) - cbKey) * CHAR_BIT)),
+   mc_iTreeAnchorsLevel(static_cast<std::uint8_t>(cbKey * CHAR_BIT / smc_cBitsPerLevel - 1)) {
+}
 bitwise_trie_ordered_multimap_impl::bitwise_trie_ordered_multimap_impl(
    bitwise_trie_ordered_multimap_impl && bwtommi
 ) :
@@ -223,7 +230,7 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr
 bitwise_trie_ordered_multimap_impl::find_next_key(std::uintmax_t iPrevKey) const {
    ABC_TRACE_FUNC(this, iPrevKey);
 
-   smvector<tree_node_slot, 32 /*>= mc_iTreeAnchorsLevel*/> vtnsPath;
+   smvector<tree_node_slot, sizeof(std::uintmax_t) * CHAR_BIT / smc_cBitsPerLevel> vtnsPath;
 
    tree_node * ptnParent = m_pnRoot.tn;
    std::uintmax_t iKey = 0, iPrevKeyRemaining = iPrevKey << mc_iKeyPadding;

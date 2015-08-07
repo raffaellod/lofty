@@ -28,10 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #include <abaclade/collections/detail/doubly_linked_list_impl.hxx>
-#include <abaclade/numeric.hxx>
 #include <abaclade/type_void_adapter.hxx>
-
-#include <climits> // CHAR_BIT
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,11 +270,7 @@ public:
    @param cbKey
       Size of a key, as returned by sizeof.
    */
-   bitwise_trie_ordered_multimap_impl(std::size_t cbKey) :
-      m_cValues(0),
-      mc_iKeyPadding(static_cast<std::uint8_t>((sizeof(std::uintmax_t) - cbKey) * CHAR_BIT)),
-      mc_iTreeAnchorsLevel(static_cast<std::uint8_t>(cbKey * CHAR_BIT / smc_cBitsPerLevel - 1)) {
-   }
+   bitwise_trie_ordered_multimap_impl(std::size_t cbKey);
 
    /*! Move constructor.
 
