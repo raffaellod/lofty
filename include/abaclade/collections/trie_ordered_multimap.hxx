@@ -267,6 +267,28 @@ public:
          return std::move(itPrev);
       }
 
+      /*! Equality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this is an iterator to the same key/value pair as it, or false otherwise.
+      */
+      bool operator==(const_iterator const & it) const {
+         return m_pln == it.m_pln;
+      }
+
+      /*! Inequality relational operator.
+
+      @param it
+         Object to compare to *this.
+      @return
+         true if *this has a different key/value pair than it, or false otherwise.
+      */
+      bool operator!=(const_iterator const & it) const {
+         return !operator==(it);
+      }
+
    protected:
       /*! Constructor.
 
