@@ -42,7 +42,7 @@ bitwise_trie_ordered_multimap_impl::tree_node_slot::next_used_sibling() const {
    unsigned i = m_iChild;
    while (++i < ABC_COUNTOF(m_ptn->m_apnChildren)) {
       if (m_ptn->m_apnChildren[i].tn) {
-         return tree_node_slot(m_ptn->m_apnChildren[i].tn, i);
+         return tree_node_slot(m_ptn, i);
       }
    }
    return tree_node_slot(nullptr, 0);
