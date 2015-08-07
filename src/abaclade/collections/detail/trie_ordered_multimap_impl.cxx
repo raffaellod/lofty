@@ -223,7 +223,7 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr
 bitwise_trie_ordered_multimap_impl::find_next_key(std::uintmax_t iPrevKey) const {
    ABC_TRACE_FUNC(this, iPrevKey);
 
-   smvector<tree_node_slot, 64 /*>= mc_iTreeAnchorsLevel*/> vtnsPath;
+   smvector<tree_node_slot, 32 /*>= mc_iTreeAnchorsLevel*/> vtnsPath;
 
    tree_node * ptnParent = m_pnRoot.tn;
    std::uintmax_t iKey = 0, iPrevKeyRemaining = iPrevKey << mc_iKeyPadding;
@@ -249,17 +249,13 @@ bitwise_trie_ordered_multimap_impl::find_next_key(std::uintmax_t iPrevKey) const
 
    // This loop might pop levels from vtnsPath if they have no next sibling.
    while (vtnsPath) {
-      ABC_TRACE_FUNC(this, iPrevKey, vtnsPath.size());
-
       // TODO: vector::back()
       if (auto tnsNextSibling = vtnsPath.rbegin()->next_used_sibling()) {
          // Replace the sibling and its bits permutation.
-         iKey &= static_cast<std::uintmax_t>(smc_cBitPermutationsPerLevel - 1);
+         iKey &= ~static_cast<std::uintmax_t>(smc_cBitPermutationsPerLevel - 1);
          iKey |= static_cast<std::uintmax_t>(tnsNextSibling.index());
          // If the path is not deep enough, descend the “first nexts” till the anchors level.
-         for (
-            iLevel = static_cast<unsigned>(vtnsPath.size()); iLevel < mc_iTreeAnchorsLevel; ++iLevel
-         ) {
+         for (; iLevel < mc_iTreeAnchorsLevel; ++iLevel) {
             tnsNextSibling = tnsNextSibling.first_used_child();
             iKey <<= smc_cBitsPerLevel;
             iKey |= static_cast<std::uintmax_t>(tnsNextSibling.index());
@@ -268,6 +264,7 @@ bitwise_trie_ordered_multimap_impl::find_next_key(std::uintmax_t iPrevKey) const
       }
       // This path level has no siblings to offer, try with the level above it.
       vtnsPath.pop_back();
+      --iLevel;
       // Shift out the bits for the level we just dropped.
       iKey >>= smc_cBitsPerLevel;
    }
