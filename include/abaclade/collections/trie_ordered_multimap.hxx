@@ -250,7 +250,7 @@ public:
          *this after it’s moved to the key/value pair following the one currently referred to.
       */
       const_iterator & operator++() {
-         auto kvp(m_ptomm->find_next_key(m_key));
+         auto kvp(m_ptomm->find_next_key(m_ptomm->key_to_int(m_key)));
          m_key = int_to_key(kvp.iKey);
          m_pln = kvp.pln;
          return *this;
