@@ -28,6 +28,8 @@ namespace abc { namespace collections { namespace detail {
 
 bitwise_trie_ordered_multimap_impl::tree_node_slot
 bitwise_trie_ordered_multimap_impl::tree_node_slot::first_used_child() const {
+   ABC_TRACE_FUNC(this);
+
    /* Create a fictional tree_node_slot on the selected child, with index -1, and have it find its
    next used sibling which, due to starting from -1, is really the first used sibling. */
    return tree_node_slot(m_ptn->m_apnChildren[m_iChild].tn, unsigned(-1)).next_used_sibling();
@@ -35,6 +37,8 @@ bitwise_trie_ordered_multimap_impl::tree_node_slot::first_used_child() const {
 
 bitwise_trie_ordered_multimap_impl::tree_node_slot
 bitwise_trie_ordered_multimap_impl::tree_node_slot::next_used_sibling() const {
+   ABC_TRACE_FUNC(this);
+
    unsigned i = m_iChild;
    while (++i < ABC_COUNTOF(m_ptn->m_apnChildren)) {
       if (m_ptn->m_apnChildren[i].tn) {
@@ -245,8 +249,10 @@ bitwise_trie_ordered_multimap_impl::find_next_key(std::uintmax_t iPrevKey) const
 
    // This loop might pop levels from vtnsPath if they have no next sibling.
    while (vtnsPath) {
+      ABC_TRACE_FUNC(this, iPrevKey, vtnsPath.size());
+
       // TODO: vector::back()
-      if (auto tnsNextSibling = vtnsPath.rend()->next_used_sibling()) {
+      if (auto tnsNextSibling = vtnsPath.rbegin()->next_used_sibling()) {
          // Replace the sibling and its bits permutation.
          iKey &= static_cast<std::uintmax_t>(smc_cBitPermutationsPerLevel - 1);
          iKey |= static_cast<std::uintmax_t>(tnsNextSibling.index());
