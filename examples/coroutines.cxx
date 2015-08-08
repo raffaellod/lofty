@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/range.hxx>
 #include <abaclade/thread.hxx>
 
@@ -45,6 +46,11 @@ public:
       /* Open a pipe. Since this thread now has a coroutine scheduler, the pipe will take advantage
       of it to avoid blocking on reads and writes. */
       auto pe(io::binary::pipe());
+      /* Ensure that the pipe’s writing end is finalized (closed) even in case of exceptions. In a
+      real application, we would check for exceptions when doing so. */
+      auto deferred1(defer_to_scope_end([&pe] () {
+         pe.writer->finalize();
+      }));
 
       // Schedule the reader.
       coroutine([this, &pe] () {
