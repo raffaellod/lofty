@@ -26,6 +26,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
+   detail_signal_dispatcher_os_errors_to_cxx_exceptions,
    "abc::detail::signal_dispatcher – conversion of synchronous OS errors into C++ exceptions"
 ) {
    ABC_TRACE_FUNC(this);

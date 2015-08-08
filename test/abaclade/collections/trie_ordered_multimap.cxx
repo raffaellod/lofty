@@ -27,6 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
+   collections_trie_ordered_multimap_bitwise_basic,
    "abc::collections::trie_ordered_multimap (bitwise) – basic operations"
 ) {
    ABC_TRACE_FUNC(this);

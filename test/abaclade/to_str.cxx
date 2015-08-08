@@ -25,7 +25,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::to_str – int") {
+ABC_TESTING_TEST_CASE_FUNC(
+   to_str_int,
+   "abc::to_str – int"
+) {
    ABC_TRACE_FUNC(this);
 
    // Test zero, decimal base.
@@ -58,7 +61,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – int") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::to_str – int8_t") {
+ABC_TESTING_TEST_CASE_FUNC(
+   to_str_std_int8_t,
+   "abc::to_str – std::int8_t"
+) {
    ABC_TRACE_FUNC(this);
 
    // Test zero, hexadecimal base.
@@ -91,7 +97,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – int8_t") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::to_str – raw pointers") {
+ABC_TESTING_TEST_CASE_FUNC(
+   to_str_raw_ptr,
+   "abc::to_str – raw pointers"
+) {
    ABC_TRACE_FUNC(this);
 
    std::uintptr_t iBad = 0xbad;
@@ -125,7 +134,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – raw pointers") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::to_str – smart pointers") {
+ABC_TESTING_TEST_CASE_FUNC(
+   to_str_smart_ptr,
+   "abc::to_str – smart pointers"
+) {
    ABC_TRACE_FUNC(this);
 
    int * pi = new int;
@@ -166,7 +178,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::to_str – smart pointers") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::to_str – STL tuple types") {
+ABC_TESTING_TEST_CASE_FUNC(
+   to_str_tuple,
+   "abc::to_str – STL tuple types"
+) {
    ABC_TRACE_FUNC(this);
 
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -203,7 +218,10 @@ class class_type {
    char ch;
 };
 
-ABC_TESTING_TEST_CASE_FUNC("abc::to_str – std::type_info") {
+ABC_TESTING_TEST_CASE_FUNC(
+   to_str_std_type_info,
+   "abc::to_str – std::type_info"
+) {
    ABC_TRACE_FUNC(this);
 
    // Test std::type_info.

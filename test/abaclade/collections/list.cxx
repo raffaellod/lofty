@@ -29,7 +29,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC(
+   collections_list_basic,
+   "abc::collections::list – basic operations"
+) {
    ABC_TRACE_FUNC(this);
 
    collections::list<int> l;
@@ -108,7 +111,10 @@ static collections::list<testing::utility::instances_counter> return_list() {
    return std::move(l);
 }
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – nodes movement") {
+ABC_TESTING_TEST_CASE_FUNC(
+   collections_list_nodes_movement,
+   "abc::collections::list – nodes movement"
+) {
    ABC_TRACE_FUNC(this);
 
    typedef testing::utility::instances_counter instances_counter;
@@ -138,7 +144,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – nodes movement") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::list – operations with iterators") {
+ABC_TESTING_TEST_CASE_FUNC(
+   collections_list_iterators,
+   "abc::collections::list – operations with iterators"
+) {
    ABC_TRACE_FUNC(this);
 
    collections::list<int> l;

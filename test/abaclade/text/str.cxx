@@ -48,7 +48,10 @@ istr get_acabaabca() {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_str_basic,
+   "abc::text::*str classes – basic operations"
+) {
    ABC_TRACE_FUNC(this);
 
    dmstr s;
@@ -192,7 +195,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – basic operations") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – iterator-based character access") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_str_iterators,
+   "abc::text::*str classes – iterator-based character access"
+) {
    ABC_TRACE_FUNC(this);
 
    dmstr s;
@@ -219,7 +225,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – iterator-based character
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – conversion to different encodings") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_str_transcoding,
+   "abc::text::*str classes – conversion to different encodings"
+) {
    ABC_TRACE_FUNC(this);
 
    smstr<32> s;
@@ -290,7 +299,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – conversion to different 
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character replacement") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_str_char_replacement,
+   "abc::text::*str classes – character replacement"
+) {
    ABC_TRACE_FUNC(this);
 
    smstr<8> s;
@@ -320,7 +332,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character replacement") 
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – range() permutations") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_str_range_permutations,
+   "abc::text::*str classes – range() permutations"
+) {
    ABC_TRACE_FUNC(this);
 
    istr sAB(ABC_SL("äb"));
@@ -381,7 +396,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – range() permutations") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::istr – C string extraction") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_istr_c_str,
+   "abc::text::istr – C string extraction"
+) {
    ABC_TRACE_FUNC(this);
 
    istr s;
@@ -419,7 +437,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::istr – C string extraction") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::mstr – C string extraction") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_mstr_c_str,
+   "abc::text::mstr – C string extraction"
+) {
    ABC_TRACE_FUNC(this);
 
    dmstr s;
@@ -463,7 +484,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::mstr – C string extraction") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character and substring search") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_str_find,
+   "abc::text::*str classes – character and substring search"
+) {
    ABC_TRACE_FUNC(this);
 
    // Special characters.
@@ -499,7 +523,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – character and substring 
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – initial matching") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_str_starts_with,
+   "abc::text::*str classes – initial matching"
+) {
    ABC_TRACE_FUNC(this);
 
    // Special characters.
@@ -525,7 +552,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – initial matching") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::text::*str classes – final matching") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_str_ends_with,
+   "abc::text::*str classes – final matching"
+) {
    ABC_TRACE_FUNC(this);
 
    // Special characters.

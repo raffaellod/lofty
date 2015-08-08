@@ -26,7 +26,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC(
+   collections_hash_map_basic,
+   "abc::collections::hash_map – basic operations"
+) {
    ABC_TRACE_FUNC(this);
 
    collections::hash_map<int, int> hm;
@@ -140,7 +143,10 @@ struct poor_hash {
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – stress test with 100% collisions") {
+ABC_TESTING_TEST_CASE_FUNC(
+   collections_hash_map_collisions_stress,
+   "abc::collections::hash_map – stress test with 100% collisions"
+) {
    ABC_TRACE_FUNC(this);
 
    static int const sc_iMax = 1000;
@@ -173,7 +179,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – stress test with 100%
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::hash_map – operations with iterators") {
+ABC_TESTING_TEST_CASE_FUNC(
+   collections_hash_map_iterators,
+   "abc::collections::hash_map – operations with iterators"
+) {
    ABC_TRACE_FUNC(this);
 
    collections::hash_map<int, int> hm;

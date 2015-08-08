@@ -27,7 +27,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
+ABC_TESTING_TEST_CASE_FUNC(
+   coroutine_concurrency,
+   "abc::coroutine – concurrent operation"
+) {
    ABC_TRACE_FUNC(this);
 
    bool bCoro1Completed = false, bCoro2Completed = false;
@@ -66,7 +69,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – concurrent operation") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
+ABC_TESTING_TEST_CASE_FUNC(
+   coroutine_exception_containment,
+   "abc::coroutine – exception containment"
+) {
    ABC_TRACE_FUNC(this);
 
    bool bCoro1Completed = false;
@@ -102,7 +108,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – exception containment") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
+ABC_TESTING_TEST_CASE_FUNC(
+   coroutine_interruption,
+   "abc::coroutine – interruption"
+) {
    ABC_TRACE_FUNC(this);
 
    static std::size_t const sc_cWorkers = 5;
@@ -163,7 +172,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – interruption") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
+ABC_TESTING_TEST_CASE_FUNC(
+   coroutine_sleep,
+   "abc::coroutine – sleep"
+) {
    ABC_TRACE_FUNC(this);
 
    static std::size_t const sc_cWorkers = 5;
@@ -201,7 +213,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – sleep") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::coroutine – on non-main thread") {
+ABC_TESTING_TEST_CASE_FUNC(
+   coroutine_on_secondary_thread,
+   "abc::coroutine – on non-main thread"
+) {
    ABC_TRACE_FUNC(this);
 
    thread thr1([this] () {

@@ -27,7 +27,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
+ABC_TESTING_TEST_CASE_FUNC(
+   thread_concurrency,
+   "abc::thread – concurrent operation"
+) {
    ABC_TRACE_FUNC(this);
 
    std::atomic<bool> bThr1Completed(false), bThr2Completed(false);
@@ -75,7 +78,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – concurrent operation") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
+ABC_TESTING_TEST_CASE_FUNC(
+   thread_interruption,
+   "abc::thread – interruption"
+) {
    ABC_TRACE_FUNC(this);
 
    static std::size_t const sc_cWorkers = 5;
@@ -126,7 +132,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
+ABC_TESTING_TEST_CASE_FUNC(
+   thread_exception_propagation,
+   "abc::thread – exception propagation"
+) {
    ABC_TRACE_FUNC(this);
 
    bool bExceptionCaught = false;
@@ -175,7 +184,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::thread – exception propagation") {
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::thread – interruption exception propagation") {
+ABC_TESTING_TEST_CASE_FUNC(
+   thread_interruption_exception_propagation,
+   "abc::thread – interruption exception propagation"
+) {
    ABC_TRACE_FUNC(this);
 
    bool bExceptionCaught = false;

@@ -25,7 +25,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::to_str – abc::text::char_ptr_to_str_adapter") {
+ABC_TESTING_TEST_CASE_FUNC(
+   text_char_ptr_to_str_adapter,
+   "abc::to_str – abc::text::char_ptr_to_str_adapter"
+) {
    ABC_TRACE_FUNC(this);
 
    ABC_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter(nullptr)), ABC_SL("<nullptr>"));

@@ -26,7 +26,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::defer_to_scope_end – basic operation") {
+ABC_TESTING_TEST_CASE_FUNC(
+   defer_to_scope_end_basic,
+   "abc::defer_to_scope_end – basic operation"
+) {
    ABC_TRACE_FUNC(this);
 
    unsigned cDeferredInvocations = 0;

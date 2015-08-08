@@ -31,7 +31,10 @@ however this test case wants to find out if the variable is accidentally shared 
 threads, and making the value not atomic could hide the problem. So atomic it is. */
 static thread_local_value<std::atomic<int>> g_iThreadLocal /*= 0*/;
 
-ABC_TESTING_TEST_CASE_FUNC("abc::thread_local_* – basic functionality") {
+ABC_TESTING_TEST_CASE_FUNC(
+   thread_local_basic,
+   "abc::thread_local_* – basic functionality"
+) {
    ABC_TRACE_FUNC(this);
 
    g_iThreadLocal.get().store(10);

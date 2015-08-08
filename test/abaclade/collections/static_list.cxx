@@ -79,7 +79,10 @@ private:
 
 } //namespace
 
-ABC_TESTING_TEST_CASE_FUNC("abc::collections::static_list – basic operations") {
+ABC_TESTING_TEST_CASE_FUNC(
+   collections_static_list_basic,
+   "abc::collections::static_list – basic operations"
+) {
    ABC_TRACE_FUNC(this);
 
    auto & sl = static_list_test::instance();

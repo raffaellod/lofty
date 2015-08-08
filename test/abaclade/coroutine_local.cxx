@@ -33,7 +33,10 @@ among multipliple threads or coroutines, and making the value not atomic could h
 atomic it is. */
 static coroutine_local_value<std::atomic<int>> g_iCoroutineLocal /*= 0*/;
 
-ABC_TESTING_TEST_CASE_FUNC("abc::coroutine_local_* – basic functionality") {
+ABC_TESTING_TEST_CASE_FUNC(
+   coroutine_local_basic,
+   "abc::coroutine_local_* – basic functionality"
+) {
    ABC_TRACE_FUNC(this);
 
    g_iCoroutineLocal.get().store(10);

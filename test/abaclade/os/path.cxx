@@ -25,7 +25,10 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::os::path – normalization of relative and absolute paths") {
+ABC_TESTING_TEST_CASE_FUNC(
+   os_path_relative_and_absolute_normalization,
+   "abc::os::path – normalization of relative and absolute paths"
+) {
    ABC_TRACE_FUNC(this);
 
    /* Note that under Win32, paths that start with “/” are still relative to the current volume;
@@ -140,7 +143,10 @@ ABC_TESTING_TEST_CASE_FUNC("abc::os::path – normalization of relative and abso
 
 namespace abc { namespace test {
 
-ABC_TESTING_TEST_CASE_FUNC("abc::os::path – normalization of joined paths") {
+ABC_TESTING_TEST_CASE_FUNC(
+   os_path_joined_normalization,
+   "abc::os::path – normalization of joined paths"
+) {
    ABC_TRACE_FUNC(this);
 
    os::path op(os::path::current_dir());
