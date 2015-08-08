@@ -226,6 +226,12 @@ signal_dispatcher::signal_dispatcher() :
       SIGRTMIN + 1
    #endif
    ) {
+#elif ABC_HOST_API_WIN32
+   // Install the translator of Win32 structured exceptions into C++ exceptions.
+   m_setfDefault(::_set_se_translator(&fault_se_translator)) {
+#endif
+   sm_psd = this;
+#if ABC_HOST_API_POSIX
    struct ::sigaction sa;
    sigemptyset(&sa.sa_mask);
    sa.sa_flags = SA_SIGINFO;
@@ -236,11 +242,7 @@ signal_dispatcher::signal_dispatcher() :
    }
    sa.sa_sigaction = &thread_interruption_signal_handler;
    ::sigaction(mc_iThreadInterruptionSignal, &sa, nullptr);
-#elif ABC_HOST_API_WIN32
-   // Install the translator of Win32 structured exceptions into C++ exceptions.
-   m_setfDefault(::_set_se_translator(&fault_se_translator)) {
 #endif
-   sm_psd = this;
 #if ABC_HOST_API_MACH
    ::mach_port_t mpThisProc = ::mach_task_self();
    // Allocate a right-less port to listen for exceptions.
