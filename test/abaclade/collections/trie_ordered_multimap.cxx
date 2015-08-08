@@ -86,8 +86,8 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 200);
    {
-      static int const sc_aiExpectedKeys  [] = {  20,  20,  30,  30,  40,  50 };
-      static int const sc_aiExpectedValues[] = { 200, 201, 300, 301, 400, 500 };
+      static int const sc_aiExpectedKeys  [] = {  20,  20,  30,  30,  40,  50, -1 };
+      static int const sc_aiExpectedValues[] = { 200, 201, 300, 301, 400, 500, -1 };
       int const * piExpectedKey = &sc_aiExpectedKeys[0];
       int const * piExpectedValue = &sc_aiExpectedValues[0];
       ABC_FOR_EACH(auto kv, tomm) {
