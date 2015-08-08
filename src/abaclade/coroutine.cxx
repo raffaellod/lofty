@@ -789,10 +789,9 @@ void coroutine::scheduler::interrupt_all() {
          kv.value->inject_exception(kv.value, xctInterruptionReason);
       }
 #elif ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
-      /* TODO: trie_ordered_multimap::iterator
       ABC_FOR_EACH(auto kv, m_tommCorosBlockedByTimer) {
          kv.value->inject_exception(kv.value, xctInterruptionReason);
-      }*/
+      }
 #endif
       /* TODO: coroutines currently running on other threads associated to this scheduler won’t have
       been interrupted by the above loops; they need to be stopped by interrupting the threads that
