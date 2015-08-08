@@ -7,6 +7,6 @@
 {
    intentional nullptr dereference
    Memcheck:Addr4
-   fun:*exception_hard_errors*pointer_errors*
+   fun:*detail_signal_dispatcher_os_errors_to_cxx_exceptions*
    ...
 }
