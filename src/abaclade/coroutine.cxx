@@ -731,20 +731,16 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          }
          exception::throw_os_error(iErr);
       }
-//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      if (ee.data.fd != m_fdTimer.get()) {
-         // Remove and return the coroutine that was waiting for this file descriptor.
-         return m_hmCorosBlockedByFD.pop(ee.data.fd);
-      }
+      io::filedesc_t fd = ee.data.fd;
    #elif ABC_HOST_API_WIN32
       ::DWORD cbTransferred;
       ::ULONG_PTR iCompletionKey;
       ::OVERLAPPED * povl;
-      /* Distinguish between IOCP failures and I/O failures by also checking whether an OVERLAPPED
-      was returned. */
       if (!::GetQueuedCompletionStatus(
          m_fdIocp.get(), &cbTransferred, &iCompletionKey, &povl, INFINITE
       )) {
+         /* Distinguish between IOCP failures and I/O failures by also checking whether an
+         OVERLAPPED pointer was returned. */
          if (!povl) {
             exception::throw_os_error();
          }
@@ -754,20 +750,20 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          ::GetOverlappedResult(nullptr, povl, &cbTransferred, false);
          povl->Internal = ::GetLastError();
       }
-//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
-      ::HANDLE hFile = reinterpret_cast< ::HANDLE>(iCompletionKey);
-      if (hFile != m_fdTimer.get()) {
-         // Remove and return the coroutine that was waiting for this handle.
-         return m_hmCorosBlockedByFD.pop(hFile);
-      }
+      io::filedesc_t fd = reinterpret_cast< ::HANDLE>(iCompletionKey);
    #endif
-      // Pop the coroutine that should run now, and rearm the timer if necessary.
-      auto kv(m_tommCorosBlockedByTimer.pop_front());
-      if (m_tommCorosBlockedByTimer) {
-         arm_timer_for_next_sleep_end();
+//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+      if (fd == m_fdTimer.get()) {
+         // Pop the coroutine that should run now, and rearm the timer if necessary.
+         auto kv(m_tommCorosBlockedByTimer.pop_front());
+         if (m_tommCorosBlockedByTimer) {
+            arm_timer_for_next_sleep_end();
+         }
+         // Return the coroutine that was waiting for the timer.
+         return std::move(kv.value);
       }
-      // Return the coroutine that was waiting for the timer.
-      return std::move(kv.value);
+      // Remove and return the coroutine that was waiting for this file descriptor.
+      return m_hmCorosBlockedByFD.pop(fd);
 #else
    #error "TODO: HOST_API"
 #endif
