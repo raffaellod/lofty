@@ -226,6 +226,16 @@ signal_dispatcher::signal_dispatcher() :
       SIGRTMIN + 1
    #endif
    ) {
+   struct ::sigaction sa;
+   sigemptyset(&sa.sa_mask);
+   sa.sa_flags = SA_SIGINFO;
+   // Setup fault and interruption signal handlers.
+   sa.sa_sigaction = &interruption_signal_handler;
+   ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
+      ::sigaction(iSignal, &sa, nullptr);
+   }
+   sa.sa_sigaction = &thread_interruption_signal_handler;
+   ::sigaction(mc_iThreadInterruptionSignal, &sa, nullptr);
 #elif ABC_HOST_API_WIN32
    // Install the translator of Win32 structured exceptions into C++ exceptions.
    m_setfDefault(::_set_se_translator(&fault_se_translator)) {
@@ -252,35 +262,28 @@ signal_dispatcher::signal_dispatcher() :
       }
    }
 #elif ABC_HOST_API_POSIX
-   struct ::sigaction sa;
-   sigemptyset(&sa.sa_mask);
-   sa.sa_flags = SA_SIGINFO;
-   // Setup fault and interruption signal handlers.
-   sa.sa_sigaction = &interruption_signal_handler;
-   ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
-      ::sigaction(iSignal, &sa, nullptr);
-   }
    sa.sa_sigaction = &fault_signal_handler;
    ABC_FOR_EACH(int iSignal, smc_aiFaultSignals) {
       ::sigaction(iSignal, &sa, nullptr);
    }
-   sa.sa_sigaction = &thread_interruption_signal_handler;
-   ::sigaction(mc_iThreadInterruptionSignal, &sa, nullptr);
 #elif ABC_HOST_API_WIN32
    ::SetConsoleCtrlHandler(&console_ctrl_event_translator, true);
 #endif
 }
 
 signal_dispatcher::~signal_dispatcher() {
+#if ABC_HOST_API_POSIX
+   // Restore the default signal handlers.
+   ::signal(mc_iThreadInterruptionSignal, SIG_DFL);
+   ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
+      ::signal(iSignal, SIG_DFL);
+   }
+#endif
 #if ABC_HOST_API_MACH
    // TODO: stop m_thrExcHandler.
 #elif ABC_HOST_API_POSIX
-   // Restore the default signal handlers.
-   ::signal(mc_iThreadInterruptionSignal, SIG_DFL);
+   // Restore more signal handlers.
    ABC_FOR_EACH(int iSignal, smc_aiFaultSignals) {
-      ::signal(iSignal, SIG_DFL);
-   }
-   ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
       ::signal(iSignal, SIG_DFL);
    }
 #elif ABC_HOST_API_WIN32
@@ -290,6 +293,24 @@ signal_dispatcher::~signal_dispatcher() {
 }
 
 #if ABC_HOST_API_POSIX
+   /*static*/ void signal_dispatcher::interruption_signal_handler(
+      int iSignal, ::siginfo_t * psi, void * pctx
+   ) {
+      ABC_UNUSED_ARG(psi);
+      ABC_UNUSED_ARG(pctx);
+
+      exception::common_type::enum_type xct;
+      if (iSignal == SIGINT) {
+         xct = exception::common_type::user_forced_interruption;
+      } else if (iSignal == SIGTERM) {
+         xct = exception::common_type::execution_interruption;
+      } else {
+         // Should never happen.
+         std::abort();
+      }
+      sm_psd->m_pthrimplMain->inject_exception(xct, false);
+   }
+
    /*static*/ void signal_dispatcher::thread_interruption_signal_handler(
       int iSignal, ::siginfo_t * psi, void * pctx
    ) {
@@ -299,8 +320,8 @@ signal_dispatcher::~signal_dispatcher() {
       // Nothing to do here.
    }
 #endif
-#if ABC_HOST_API_MACH
 
+#if ABC_HOST_API_MACH
    /*static*/ void * signal_dispatcher::exception_handler_thread(void * p) {
       signal_dispatcher * pesdThis = static_cast<signal_dispatcher *>(p);
       for (;;) {
@@ -337,9 +358,7 @@ signal_dispatcher::~signal_dispatcher() {
          }
       }
    }
-
 #elif ABC_HOST_API_POSIX
-
    /*static*/ void signal_dispatcher::fault_signal_handler(
       int iSignal, ::siginfo_t * psi, void * pctx
    ) {
@@ -418,27 +437,7 @@ signal_dispatcher::~signal_dispatcher() {
          std::abort();
       }
    }
-
-   /*static*/ void signal_dispatcher::interruption_signal_handler(
-      int iSignal, ::siginfo_t * psi, void * pctx
-   ) {
-      ABC_UNUSED_ARG(psi);
-      ABC_UNUSED_ARG(pctx);
-
-      exception::common_type::enum_type xct;
-      if (iSignal == SIGINT) {
-         xct = exception::common_type::user_forced_interruption;
-      } else if (iSignal == SIGTERM) {
-         xct = exception::common_type::execution_interruption;
-      } else {
-         // Should never happen.
-         std::abort();
-      }
-      sm_psd->m_pthrimplMain->inject_exception(xct, false);
-   }
-
 #elif ABC_HOST_API_WIN32
-
    /*static*/ ::BOOL WINAPI signal_dispatcher::console_ctrl_event_translator(::DWORD iCtrlEvent) {
       exception::common_type::enum_type xct;
       switch (iCtrlEvent) {
@@ -560,7 +559,6 @@ signal_dispatcher::~signal_dispatcher() {
       // Install the SEH translator, without saving the original.
       ::_set_se_translator(&fault_se_translator);
    }
-
 #else
    #error "TODO: HOST_API"
 #endif
