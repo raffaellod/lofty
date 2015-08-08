@@ -34,6 +34,8 @@ ABC_TESTING_TEST_CASE_FUNC(
    collections::trie_ordered_multimap<int, int> tomm;
 
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
+   ABC_TESTING_ASSERT_TRUE(tomm.begin() == tomm.cend());
+   ABC_TESTING_ASSERT_TRUE(tomm.cbegin() == tomm.end());
 
    auto it400(tomm.add(40, 400));
    // {40: 400}
@@ -82,11 +84,21 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 6u);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().key, 20);
    ABC_TESTING_ASSERT_EQUAL(tomm.front().value, 200);
+   {
+      static int const sc_aiExpectedKeys  [] = {  20,  20,  30,  30,  40,  50 };
+      static int const sc_aiExpectedValues[] = { 200, 201, 300, 301, 400, 500 };
+      int const * piExpectedKey = &sc_aiExpectedKeys[0];
+      int const * piExpectedValue = &sc_aiExpectedValues[0];
+      ABC_FOR_EACH(auto kv, tomm) {
+         ABC_TESTING_ASSERT_EQUAL(kv.key, *piExpectedKey++);
+         ABC_TESTING_ASSERT_EQUAL(kv.value, *piExpectedValue++);
+      }
+   }
 
    auto it300Found(tomm.find(30));
    ABC_TESTING_ASSERT_EQUAL(it300Found->key, 30);
    ABC_TESTING_ASSERT_EQUAL(it300Found->value, 300);
-//   ABC_TESTING_ASSERT_EQUAL(it300Found, it300);
+   ABC_TESTING_ASSERT_TRUE(it300Found == it300);
 
    auto kvp200(tomm.pop_front());
    // {20: 201}, {30: 300, 301}, {40: 400}, {50: 500}
