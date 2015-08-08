@@ -336,7 +336,8 @@ console_reader::console_reader(detail::file_init_data * pfid) :
          exception::throw_os_error(iErr);
       }
    }
-
+   // Check for pending interruptions.
+   this_coroutine::interruption_point();
    return cchRead * sizeof(char_t);
 }
 #endif //if ABC_HOST_API_WIN32
@@ -541,6 +542,8 @@ bool console_writer::processing_enabled() const {
    if (pchLastWritten < pchEnd) {
       write_range(pchLastWritten, pchEnd);
    }
+   // Check for pending interruptions.
+   this_coroutine::interruption_point();
    return cb;
 }
 
