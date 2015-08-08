@@ -152,9 +152,8 @@ app::app() {
 
 /*static*/ int app::run(int (* pfnInstantiateAppAndCallMain)(_args_t *), _args_t * pargs) {
    // Establish these as early as possible.
-   detail::signal_dispatcher sd;
-   // Under POSIX, this also creates the TLS slot.
    detail::thread_local_storage tls;
+   detail::signal_dispatcher sd;
 
    int iRet;
    if (initialize_stdio()) {
