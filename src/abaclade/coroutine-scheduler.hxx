@@ -152,7 +152,7 @@ private:
       If true, the loop won’t check for changes to m_xctInterruptionReason, assuming that it was
       already != none when the method was called.
    */
-   void coroutine_scheduling_loop(bool bInterruptingAll = true);
+   void coroutine_scheduling_loop(bool bInterruptingAll = false);
 
    //! Interrupts with m_xctInterruptionReason any coroutines associated to the scheduler.
    void interrupt_all();
