@@ -36,8 +36,9 @@ You should have received a copy of the GNU General Public License along with Aba
    // Mach reference: <http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/>.
    #include <mach/mach.h> // mach_port_t
    #include <pthread.h>
-#elif ABC_HOST_API_POSIX
-   #include <signal.h> // sigaction sig*()
+#endif
+#if ABC_HOST_API_POSIX
+   #include <signal.h> // sigaction siginfo_t sig*()
 #endif
 
 
