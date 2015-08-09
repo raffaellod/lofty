@@ -100,6 +100,17 @@ public:
 #endif
    );
 
+#if ABC_HOST_API_WIN32
+   /*! Returns the internal IOCP.
+
+   @return
+   File descriptor of the internal IOCP.
+   */
+   io::filedesc_t iocp() const {
+      return m_fdIocp.get();
+   }
+#endif
+
    /*! Switches context to the current thread’s own context.
 
    @param xct

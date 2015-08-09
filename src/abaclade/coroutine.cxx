@@ -301,8 +301,6 @@ coroutine::scheduler::scheduler() :
    m_bTimerThreadEnd(false),
 #endif
    m_xctInterruptionReason(exception::common_type::none) {
-   ABC_TRACE_FUNC(this);
-
 #if ABC_HOST_API_BSD
    if (!m_fdKqueue) {
       exception::throw_os_error();
@@ -701,6 +699,8 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       struct ::kevent ke;
       if (::kevent(m_fdKqueue.get(), nullptr, 0, &ke, 1, nullptr) < 0) {
          int iErr = errno;
+         /* TODO: EINTR is not a reliable way to interrupt a thread’s ::kevent() call when multiple
+         threads share the same coroutine::scheduler. */
          if (iErr == EINTR) {
             this_thread::interruption_point();
             continue;
@@ -724,6 +724,8 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       ::epoll_event ee;
       if (::epoll_wait(m_fdEpoll.get(), &ee, 1, -1) < 0) {
          int iErr = errno;
+         /* TODO: EINTR is not a reliable way to interrupt a thread’s ::epoll_wait() call when
+         multiple threads share the same coroutine::scheduler. */
          if (iErr == EINTR) {
             this_thread::interruption_point();
             continue;
@@ -750,6 +752,13 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          povl->Internal = ::GetLastError();
       }
       io::filedesc_t fd = reinterpret_cast< ::HANDLE>(iCompletionKey);
+      // A completion reported on the IOCP itself is used by Abaclade to emulate EINTR.
+      /* TODO: this is not a reliable way to interrupt a thread’s ::GetQueuedCompletionStatus() call
+      when multiple threads share the same coroutine::scheduler. */
+      if (fd == m_fdIocp.get()) {
+         this_thread::interruption_point();
+         continue;
+      }
    #endif
 //      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
       if (fd == m_fdTimer.get()) {

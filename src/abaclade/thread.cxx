@@ -210,10 +210,20 @@ void thread::impl::inject_exception(
          }
       }
 #elif ABC_HOST_API_WIN32
-      /* If the thread is in a wait function entered by Abaclade, this ensures that the thread will
-      be able to stop waiting. Otherwise there’s no way to interrupt a syscall. */
+      /* In Win32 there’s no way to interrupt a syscall; however we can break out of the two wait-
+      like syscalls used by Abaclade:
+      •  ::WaitFor*() calls made by Abaclade include m_hInterruptionEvent, which can be raised to
+         break the wait;
+      •  ::GetQueuedCompletionStatus() can be made return by posting something to it; posting the
+         IOCP’s own handle is be a cue to coroutine::scheduler::find_coroutine_to_activate() to
+         check for pending exceptions. */
       if (!::SetEvent(m_hInterruptionEvent)) {
          exception::throw_os_error();
+      }
+      if (m_pcorosched) {
+         ::PostQueuedCompletionStatus(
+            m_pcorosched->iocp(), 0, reinterpret_cast< ::ULONG_PTR>(m_pcorosched->iocp()), nullptr
+         );
       }
 #else
    #error "TODO: HOST_API"
