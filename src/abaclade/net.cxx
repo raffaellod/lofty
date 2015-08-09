@@ -156,30 +156,22 @@ std::shared_ptr<connection> tcp_server::accept() {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
-   typedef ::sockaddr sockaddr_type;
-   typedef ::socklen_t socklen_type;
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-#elif ABC_HOST_API_WIN32
-   typedef ::SOCKADDR sockaddr_type;
-   typedef int socklen_type;
-#else
-   #error "TODO: HOST_API"
-#endif
    io::filedesc fd;
-   sockaddr_type * psaClient;
-   socklen_type cbClient;
+   ::sockaddr * psaClient;
+   ::socklen_t cbClient;
    ::sockaddr_in saClient4;
    ::sockaddr_in6 saClient6;
    if (m_iIPVersion == 4) {
-      psaClient = reinterpret_cast<sockaddr_type *>(&saClient4);
+      psaClient = reinterpret_cast< ::sockaddr *>(&saClient4);
       cbClient = sizeof saClient4;
    } else {
-      psaClient = reinterpret_cast<sockaddr_type *>(&saClient6);
+      psaClient = reinterpret_cast< ::sockaddr *>(&saClient6);
       cbClient = sizeof saClient6;
    }
    for (;;) {
-      socklen_type cb = cbClient;
-#if ABC_HOST_API_DARWIN
+      ::socklen_t cb = cbClient;
+   #if ABC_HOST_API_DARWIN
       // accept4() is not available, so emulate it with accept() + fcntl().
       fd = io::filedesc(::accept(m_fdSocket.get(), psaClient, &cb));
       if (fd) {
@@ -190,25 +182,18 @@ std::shared_ptr<connection> tcp_server::accept() {
             fd.set_nonblocking(true);
          }
       }
-#elif ABC_HOST_API_POSIX
+   #else
       int iFlags = SOCK_CLOEXEC;
       if (bAsync) {
          // Using coroutines, so make the client socket non-blocking.
          iFlags |= SOCK_NONBLOCK;
       }
       fd = io::filedesc(::accept4(m_fdSocket.get(), psaClient, &cb, iFlags));
-#elif ABC_HOST_API_WIN32
-      fd = io::filedesc(reinterpret_cast<io::filedesc_t>(::WSAAccept(
-         reinterpret_cast< ::SOCKET>(m_fdSocket.get()), psaClient, &cb, nullptr, 0
-      )));
-#else
-   #error "TODO: HOST_API"
-#endif
+   #endif
       if (fd) {
          cbClient = cb;
          break;
       }
-#if ABC_HOST_API_POSIX
       int iErr = errno;
       switch (iErr) {
          case EINTR:
@@ -221,7 +206,33 @@ std::shared_ptr<connection> tcp_server::accept() {
    #endif
             // Wait for m_fdSocket. Accepting a connection is considered a read event.
             this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false);
+            break;
+         default:
+            exception::throw_os_error(static_cast<errint_t>(iErr));
+      }
+   }
 #elif ABC_HOST_API_WIN32
+   io::filedesc fd;
+   ::SOCKADDR * psaClient;
+   int cbClient;
+   ::sockaddr_in saClient4;
+   ::sockaddr_in6 saClient6;
+   if (m_iIPVersion == 4) {
+      psaClient = reinterpret_cast< ::SOCKADDR *>(&saClient4);
+      cbClient = sizeof saClient4;
+   } else {
+      psaClient = reinterpret_cast< ::SOCKADDR *>(&saClient6);
+      cbClient = sizeof saClient6;
+   }
+   for (;;) {
+      int cb = cbClient;
+      fd = io::filedesc(reinterpret_cast<io::filedesc_t>(::WSAAccept(
+         reinterpret_cast< ::SOCKET>(m_fdSocket.get()), psaClient, &cb, nullptr, 0
+      )));
+      if (fd) {
+         cbClient = cb;
+         break;
+      }
       int iErr = ::WSAGetLastError();
       switch (iErr) {
          case WSAEWOULDBLOCK:
@@ -231,14 +242,14 @@ std::shared_ptr<connection> tcp_server::accept() {
                ::HANDLE hIocp = nullptr;
                this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false, &hIocp);
             }
-#else
-   #error "TODO: HOST_API"
-#endif
             break;
          default:
             exception::throw_os_error(static_cast<errint_t>(iErr));
       }
    }
+#else
+   #error "TODO: HOST_API"
+#endif
    // Check for pending interruptions.
    this_coroutine::interruption_point();
 
