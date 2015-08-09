@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/coroutine.hxx>
 #include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/thread.hxx>
 #include "coroutine-scheduler.hxx"
@@ -450,7 +449,7 @@ std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
 ) {
    ABC_TRACE_FUNC(pcorosched);
 
-   std::shared_ptr<coroutine::scheduler> & pcoroschedCurr = coroutine::scheduler::sm_pcorosched;
+   std::shared_ptr<coroutine::scheduler> & pcoroschedCurr = get_impl()->coroutine_scheduler();
    if (pcorosched) {
       if (pcoroschedCurr) {
          // The current thread already has a coroutine scheduler.
@@ -468,11 +467,11 @@ std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
 }
 
 std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler() {
-   return coroutine::scheduler::sm_pcorosched;
+   return get_impl()->coroutine_scheduler();
 }
 
 void detach_coroutine_scheduler() {
-   coroutine::scheduler::sm_pcorosched.reset();
+   get_impl()->coroutine_scheduler().reset();
 }
 
 thread::impl * get_impl() {

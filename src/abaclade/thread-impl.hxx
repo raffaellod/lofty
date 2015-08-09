@@ -27,6 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <abaclade/coroutine.hxx>
 #include <abaclade/thread.hxx>
 #include "detail/signal_dispatcher.hxx"
 
@@ -117,6 +118,15 @@ public:
    //! Destructor.
    ~impl();
 
+   /*! Returns a pointer to the coroutine scheduler associated to the thread, if any.
+
+   @return
+      Pointer to the thread’s coroutine scheduler.
+   */
+   std::shared_ptr<coroutine::scheduler> & coroutine_scheduler() {
+      return m_pcorosched;
+   }
+
    /*! Injects the requested type of exception in the thread.
 
    @param xct
@@ -188,7 +198,7 @@ private:
    //! OS-dependent ID for use with OS-specific API (pthread_*_np() functions and other native API).
    id_type m_id;
 #elif ABC_HOST_API_WIN32
-   /*! Handle that all ::WaitFor*() function call must include to achieve something simlar to POSIX
+   /*! Handle that all ::WaitFor*() function calls must include to achieve something simlar to POSIX
    asynchronous signal delivery (when signals interrupt syscalls, making them return EINTR). */
    ::HANDLE m_hInterruptionEvent;
 #endif
@@ -203,6 +213,8 @@ private:
    std::atomic<bool> m_bTerminating;
    //! Function to be executed in the thread.
    std::function<void ()> m_fnInnerMain;
+   //! Pointer to the thread’s coroutine scheduler, if any.
+   std::shared_ptr<coroutine::scheduler> m_pcorosched;
 
    //! Allows a thread to access its impl instance.
    static thread_local_value<impl *> sm_pimplThis;

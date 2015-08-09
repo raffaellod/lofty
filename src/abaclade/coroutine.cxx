@@ -284,7 +284,6 @@ void to_str_backend<coroutine>::write(coroutine const & coro, io::text::writer *
 namespace abc {
 
 thread_local_value<std::shared_ptr<coroutine::impl>> coroutine::scheduler::sm_pcoroimplActive;
-thread_local_value<std::shared_ptr<coroutine::scheduler>> coroutine::scheduler::sm_pcorosched;
 #if ABC_HOST_API_POSIX
 thread_local_value< ::ucontext_t *> coroutine::scheduler::sm_puctxReturn /*= nullptr*/;
 #elif ABC_HOST_API_WIN32
