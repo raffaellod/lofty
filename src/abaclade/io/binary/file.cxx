@@ -100,7 +100,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    ::OVERLAPPED ovl;
    ovl.hEvent = nullptr;
    {
-      // Obtain the current file offset and set m_ovl to start there.
+      // Obtain the current file offset and set ovl to start there.
       long ibOffsetHigh = 0;
       ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
       if (ovl.Offset != INVALID_SET_FILE_POINTER || ::GetLastError() == ERROR_SUCCESS) {
@@ -243,7 +243,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       ::OVERLAPPED ovl;
       ovl.hEvent = nullptr;
       {
-         // Obtain the current file offset and set m_ovl to start there.
+         // Obtain the current file offset and set ovl to start there.
          long ibOffsetHigh = 0;
          ovl.Offset = ::SetFilePointer(m_fd.get(), 0, &ibOffsetHigh, FILE_CURRENT);
          if (ovl.Offset != INVALID_SET_FILE_POINTER || ::GetLastError() == ERROR_SUCCESS) {

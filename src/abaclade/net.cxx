@@ -32,6 +32,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #endif
 #elif ABC_HOST_API_WIN32
    #include <winsock2.h>
+   #include <mswsock.h> // AcceptEx() GetAcceptExSockaddrs()
    #if ABC_HOST_CXX_MSC
       // Silence warnings from system header files.
       #pragma warning(push)
@@ -87,6 +88,9 @@ connection::~connection() {
 namespace abc { namespace net {
 
 tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog /*= 5*/) :
+#if ABC_HOST_API_WIN32
+   m_hIocp(nullptr),
+#endif
    m_fdSocket(create_socket(ipaddr.version())),
    m_iIPVersion(ipaddr.version()) {
    ABC_TRACE_FUNC(this/*, ipaddr*/, port, cBacklog);
@@ -155,9 +159,9 @@ tcp_server::~tcp_server() {
 std::shared_ptr<connection> tcp_server::accept() {
    ABC_TRACE_FUNC(this);
 
+   io::filedesc fdConnection;
 #if ABC_HOST_API_POSIX
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-   io::filedesc fd;
    ::sockaddr * psaClient;
    ::socklen_t cbClient;
    ::sockaddr_in saClient4;
@@ -173,13 +177,13 @@ std::shared_ptr<connection> tcp_server::accept() {
       ::socklen_t cb = cbClient;
    #if ABC_HOST_API_DARWIN
       // accept4() is not available, so emulate it with accept() + fcntl().
-      fd = io::filedesc(::accept(m_fdSocket.get(), psaClient, &cb));
-      if (fd) {
+      fdConnection = io::filedesc(::accept(m_fdSocket.get(), psaClient, &cb));
+      if (fdConnection) {
          /* Note that at this point there’s no hack that will ensure a fork()/exec() from another
          thread won’t leak the file descriptor. That’s the whole point of accept4(). */
-         fd.set_close_on_exec(true);
+         fdConnection.set_close_on_exec(true);
          if (bAsync) {
-            fd.set_nonblocking(true);
+            fdConnection.set_nonblocking(true);
          }
       }
    #else
@@ -188,9 +192,9 @@ std::shared_ptr<connection> tcp_server::accept() {
          // Using coroutines, so make the client socket non-blocking.
          iFlags |= SOCK_NONBLOCK;
       }
-      fd = io::filedesc(::accept4(m_fdSocket.get(), psaClient, &cb, iFlags));
+      fdConnection = io::filedesc(::accept4(m_fdSocket.get(), psaClient, &cb, iFlags));
    #endif
-      if (fd) {
+      if (fdConnection) {
          cbClient = cb;
          break;
       }
@@ -212,41 +216,56 @@ std::shared_ptr<connection> tcp_server::accept() {
       }
    }
 #elif ABC_HOST_API_WIN32
-   io::filedesc fd;
-   ::SOCKADDR * psaClient;
-   int cbClient;
-   ::sockaddr_in saClient4;
-   ::sockaddr_in6 saClient6;
-   if (m_iIPVersion == 4) {
-      psaClient = reinterpret_cast< ::SOCKADDR *>(&saClient4);
-      cbClient = sizeof saClient4;
-   } else {
-      psaClient = reinterpret_cast< ::SOCKADDR *>(&saClient6);
-      cbClient = sizeof saClient6;
-   }
-   for (;;) {
-      int cb = cbClient;
-      fd = io::filedesc(reinterpret_cast<io::filedesc_t>(::WSAAccept(
-         reinterpret_cast< ::SOCKET>(m_fdSocket.get()), psaClient, &cb, nullptr, 0
-      )));
-      if (fd) {
-         cbClient = cb;
-         break;
+   union sockaddr_any {
+      ::sockaddr_in sa4;
+      ::sockaddr_in6 sa6;
+   };
+   // This weird structure is what ::AcceptEx() expects.
+   struct AcceptEx_buffer_t {
+      /* This is not present, since we’re not going to wait for data to be received when a new
+      connection is established. */
+      // std::int8_t abData[0];
+      sockaddr_any saaLocal;
+      std::int8_t abLocalPadding[16];
+      sockaddr_any saaRemote;
+      std::int8_t abRemotePadding[16];
+   } aebuf;
+   static ::DWORD const cbLocalBuf  = sizeof aebuf.saaLocal  + sizeof aebuf.abLocalPadding;
+   static ::DWORD const cbRemoteBuf = sizeof aebuf.saaRemote + sizeof aebuf.abRemotePadding;
+
+   fdConnection = create_socket(m_iIPVersion);
+   ::DWORD cbRead;
+   ::OVERLAPPED ovl;
+   ovl.hEvent = nullptr;
+   ovl.Offset = 0;
+   ovl.OffsetHigh = 0;
+   if (!::AcceptEx(
+      reinterpret_cast< ::SOCKET>(m_fdSocket.get()),
+      reinterpret_cast< ::SOCKET>(fdConnection.get()),
+      &aebuf, 0 /*don’t wait for data, just wait for a connection*/,
+      cbLocalBuf, cbRemoteBuf, &cbRead, &ovl
+   )) {
+      ::DWORD iErr = static_cast< ::DWORD>(::WSAGetLastError());
+      if (iErr == ERROR_IO_PENDING) {
+         // Wait for m_fdSocket. Accepting a connection is considered a read event.
+         this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false, &m_hIocp);
+         // cbRead is now available in ovl.
+         cbRead = static_cast< ::DWORD>(ovl.InternalHigh);
+         /* ovl.Internal was translated from an NTSTATUS to a Win32 error by the coroutine
+         scheduler. */
+         iErr = static_cast< ::DWORD>(ovl.Internal);
       }
-      int iErr = ::WSAGetLastError();
-      switch (iErr) {
-         case WSAEWOULDBLOCK:
-            {
-               // Wait for m_fdSocket. Accepting a connection is considered a read event.
-               // TODO: track hIocp.
-               ::HANDLE hIocp = nullptr;
-               this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false, &hIocp);
-            }
-            break;
-         default:
-            exception::throw_os_error(static_cast<errint_t>(iErr));
+      if (iErr != ERROR_SUCCESS) {
+         exception::throw_os_error(iErr);
       }
    }
+
+   // Parse the weird buffer.
+   ::SOCKADDR * psaClient, * psaLocal;
+   int cbClient, cbLocal;
+   ::GetAcceptExSockaddrs(
+      &aebuf, 0, cbLocalBuf, cbRemoteBuf, &psaLocal, &cbLocal, &psaClient, &cbClient
+   );
 #else
    #error "TODO: HOST_API"
 #endif
@@ -258,7 +277,9 @@ std::shared_ptr<connection> tcp_server::accept() {
    // TODO: validate cbClient and set ipaddrClient/portClient using saClient4/6.sin_addr.
    ipaddrClient = ip_address(0);
    portClient = 0;
-   return std::make_shared<connection>(std::move(fd), std::move(ipaddrClient), portClient);
+   return std::make_shared<connection>(
+      std::move(fdConnection), std::move(ipaddrClient), portClient
+   );
 }
 
 /*static*/ io::filedesc tcp_server::create_socket(std::uint8_t iIPVersion) {
