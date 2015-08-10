@@ -102,28 +102,42 @@ private:
    //! Pointer to the object that instantiated *this.
    binbuf_reader * m_ptbbr;
 
-   // Internal state of binbuf_reader::read_line_or_all().
+   // State persisted for *this by binbuf_reader::read_line_or_all().
 
+   //! Pointer to the first non-consumed byte in the peek buffer.
    char_t const * m_pchSrc;
+   /*! Size of the non-consumed part of the peek buffer. Set by replenish_peek_buffer(), updated by
+   consume_used_chars(). */
    std::size_t m_cchSrc;
+   //! Pointer to the destination string.
    mstr * m_psDst;
+   //! If true, reading will stop as soon as a valid line terminator is found.
    bool m_bOneLine:1;
 
    // Buffered from m_ptbbr.
 
+   //! If true, the end of the source has been detected. Set by replenish_peek_buffer().
    bool m_bEOF:1;
+   //! If true, a CR has been found, and a following LF should be discarded if detected.
    bool m_bDiscardNextLF:1;
 
    // Internal state.
 
+   //! If true, the line terminator is not LF.
    bool m_bLineEndsOnCROrAny:1;
+   //! If true, the line terminator is not CR.
    bool m_bLineEndsOnLFOrAny:1;
+   //! Tracks how many source bytes have been consumed. Updated by consume_used_chars().
    std::size_t m_cchSrcTotal;
+   /*! If m_bOneLine, this tracks how many characters will need to be stripped off to remove the
+   trailing line terminator before the final resize of *m_psDst. */
    std::size_t m_cchLTerm;
+   //! Pointer to the beginning of the peek buffer.
    char_t const * m_pchSrcBegin;
+   //! Pointer to the end of the peek buffer.
    char_t const * m_pchSrcEnd;
+   //! Pointer to the first free character in *m_psDst.
    char_t * m_pchDst;
-
 };
 
 }}}} //namespace abc::io::text::detail

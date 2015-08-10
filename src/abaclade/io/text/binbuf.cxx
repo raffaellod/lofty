@@ -102,8 +102,8 @@ void reader_read_helper::read_line() {
       }
       m_bDiscardNextLF = false;
    }
-   /* This (inner) loop copies characters from the peek buffer into *psDst until it gets to
-   the appropriate line terminator, which gets translated on the fly if necessary. */
+   /* This (inner) loop copies characters from the peek buffer into *m_psDst until it gets to the
+   appropriate line terminator, which gets translated on the fly if necessary. */
    bool bLineEndsOnCRLFAndFoundCR = false;
    while (m_cchLTerm == 0 && (m_pchSrc != m_pchSrcEnd || replenish_peek_buffer())) {
       char_t ch = *m_pchSrc++;
