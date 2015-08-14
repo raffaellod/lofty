@@ -253,8 +253,10 @@ public:
          @return
             Iterator to the line following the one read by this iterator.
          */
-         iterator operator++(int) const {
-            return ++iterator(*this);
+         iterator operator++(int) {
+            iterator itPrev(*this);
+            operator++();
+            return std::move(itPrev);
          }
 
          /*! Equality relational operator.
