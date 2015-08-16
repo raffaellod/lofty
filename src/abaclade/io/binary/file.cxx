@@ -191,7 +191,11 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    }
 #elif ABC_HOST_API_WIN32
    if (!::FlushFileBuffers(m_fd.get())) {
-      exception::throw_os_error();
+      ::DWORD iErr = ::GetLastError();
+      if (iErr != ERROR_INVALID_FUNCTION) {
+         exception::throw_os_error(iErr);
+      }
+      // m_fd.get() does not support FlushFileBuffers(); ignore the error.
    }
 #else
    #error "TODO: HOST_API"
