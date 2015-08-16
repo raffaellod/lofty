@@ -77,23 +77,28 @@ class ABACLADE_SYM reader_read_helper : public noncopyable {
 public:
    //! Constructor.
    reader_read_helper(
-      binbuf_reader * ptbbr, char_t const * pchSrc, std::size_t cchSrc, mstr * psDst, bool bOneLine
+      binbuf_reader * ptbbr, std::uint8_t const * pbSrc, std::size_t cbSrc, mstr * psDst,
+      bool bOneLine
    );
 
    //! Destructor.
    ~reader_read_helper();
 
-   //! Consumes the used characters from the binary::buffered_reader.
-   void consume_used_chars();
+   /*! Consumes the used bytes from the binary::buffered_reader.
+
+   @return
+      Count of bytes consumed.
+   */
+   std::size_t consume_used_bytes();
 
    //! Reads characters until a line terminator is found.
    void read_line();
 
-   //! Enlarges the destination string and recalculate source and destination pointers.
-   void recalc_src_dst();
-
    //! Performs a new binary::buffered_reader::peek() call.
    bool replenish_peek_buffer();
+
+   //! Transcodes more characters from the peek buffer.
+   bool replenish_transcoded_buffer();
 
    //! Runs the helper.
    bool run();
@@ -105,10 +110,10 @@ private:
    // State persisted for *this by binbuf_reader::read_line_or_all().
 
    //! Pointer to the first non-consumed byte in the peek buffer.
-   char_t const * m_pchSrc;
+   std::uint8_t const * m_pbSrc;
    /*! Size of the non-consumed part of the peek buffer. Set by replenish_peek_buffer(), updated by
-   consume_used_chars(). */
-   std::size_t m_cchSrc;
+   consume_used_bytes(). */
+   std::size_t m_cbSrc;
    //! Pointer to the destination string.
    mstr * m_psDst;
    //! If true, reading will stop as soon as a valid line terminator is found.
@@ -116,6 +121,8 @@ private:
 
    // Buffered from m_ptbbr.
 
+   //! Encoding of the source.
+   abc::text::encoding const mc_enc;
    //! If true, the end of the source has been detected. Set by replenish_peek_buffer().
    bool m_bEOF:1;
    //! If true, a CR has been found, and a following LF should be discarded if detected.
@@ -127,17 +134,24 @@ private:
    bool m_bLineEndsOnCROrAny:1;
    //! If true, the line terminator is not CR.
    bool m_bLineEndsOnLFOrAny:1;
-   //! Tracks how many source bytes have been consumed. Updated by consume_used_chars().
-   std::size_t m_cchSrcTotal;
+   //! Tracks how many source bytes have been read. Updated by consume_used_bytes().
+   std::size_t m_cchReadTotal;
    /*! If m_bOneLine, this tracks how many characters will need to be stripped off to remove the
    trailing line terminator before the final resize of *m_psDst. */
    std::size_t m_cchLTerm;
-   //! Pointer to the beginning of the peek buffer.
-   char_t const * m_pchSrcBegin;
-   //! Pointer to the end of the peek buffer.
-   char_t const * m_pchSrcEnd;
-   //! Pointer to the first free character in *m_psDst.
+   //! Tracks how many source bytes have been transcoded.
+   std::size_t m_cbSrcTranscoded;
+   //! TODO: comment.
+   char_t const * m_pchTranscoded;
+   //! Pointer to the beginning of TODO: comment.
+   char_t const * m_pchTranscodedBegin;
+   //! Pointer to the end of TODO: comment.
+   char_t const * m_pchTranscodedEnd;
+   //! Pointer to the next character in *m_psDst to be used.
    char_t * m_pchDst;
+
+   //! Maximum count of characters to be transcoded.
+   static std::size_t const smc_cbTranscodeMax;
 };
 
 }}}} //namespace abc::io::text::detail
@@ -189,43 +203,7 @@ private:
       Size of the BOM, if found in the source. If non-zero, the caller should discard this many
       bytes from the provided buffer.
    */
-   std::size_t detect_encoding(std::int8_t const * pb, std::size_t cb);
-
-   /*! Implementation of read_line_or_all() for the source encoding == host encoding.
-
-   @param pchSrc
-      Pointer to a buffer with the initial contents of the file.
-   @param cchSrc
-      Size of the buffer pointed to by pb.
-   @param psDst
-      Pointer to the string that will receive the read data.
-   @param bOneLine
-      If true, reading will stop at the first line terminator character.
-   @return
-      true if any characters could be read (not necessarily put into *psDst), or false if the reader
-      hit EOF immediately.
-   */
-   bool read_line_or_all_with_host_encoding(
-      char_t const * pchSrc, std::size_t cchSrc, mstr * psDst, bool bOneLine
-   );
-
-   /*! Implementation of read_line_or_all() for the source encoding != host encoding.
-
-   @param pbSrc
-      Pointer to a buffer with the initial contents of the file.
-   @param cbSrc
-      Size of the buffer pointed to by pb.
-   @param psDst
-      Pointer to the string that will receive the read data.
-   @param bOneLine
-      If true, reading will stop at the first line terminator character.
-   @return
-      true if any characters could be read (not necessarily put into *psDst), or false if the reader
-      hit EOF immediately.
-   */
-   bool read_line_or_all_with_transcode(
-      std::int8_t const * pbSrc, std::size_t cbSrc, mstr * psDst, bool bOneLine
-   );
+   std::size_t detect_encoding(std::uint8_t const * pb, std::size_t cb);
 
 protected:
    //! Underlying binary buffered reader.
