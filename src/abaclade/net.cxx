@@ -247,13 +247,13 @@ std::shared_ptr<connection> tcp_server::accept() {
    )) {
       ::DWORD iErr = static_cast< ::DWORD>(::WSAGetLastError());
       if (iErr == ERROR_IO_PENDING) {
-         // Wait for m_fdSocket. Accepting a connection is considered a read event.
-         this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false, &m_hIocp);
-         // cbRead is now available in ovl.
-         cbRead = static_cast< ::DWORD>(ovl.InternalHigh);
-         /* ovl.Internal was translated from an NTSTATUS to a Win32 error by the coroutine
-         scheduler. */
-         iErr = static_cast< ::DWORD>(ovl.Internal);
+         // This may repeat in case of spurious notifications by an IOCP.
+         do {
+            // Wait for m_fdSocket. Accepting a connection is considered a read event.
+            this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false, &m_hIocp);
+            ::GetOverlappedResult(nullptr, &ovl, &cbRead, false);
+            iErr = ::GetLastError();
+         } while (iErr == ERROR_IO_INCOMPLETE);
       }
       if (iErr != ERROR_SUCCESS) {
          exception::throw_os_error(iErr);

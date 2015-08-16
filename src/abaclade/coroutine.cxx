@@ -745,13 +745,17 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          if (!povl) {
             exception::throw_os_error();
          }
-         // Translate povl->Internal from an NTSTATUS to a Win32 error.
-         // cbTransferred is already in *povl, so here we’ll throw it away.
-         ::DWORD cbTransferred;
-         ::GetOverlappedResult(nullptr, povl, &cbTransferred, false);
-         povl->Internal = ::GetLastError();
       }
       io::filedesc_t fd = reinterpret_cast< ::HANDLE>(iCompletionKey);
+      /* Note (WIN32 BUG?)
+      Empirical evidence shows that at this point, povl might not be a valid pointer, even
+      if the completion key (fd) returned was a valid Abaclade-owned handle. I could not find any
+      explanation for this, but at least the caller of sleep_until_fd_ready() will be able to detect
+      the spurious notification by GetOverlappedResult() setting the last error to
+      ERROR_IO_INCOMPLETE.
+      Spurious notifications seem to occur predictably with sockets when, after a completed
+      overlapped read, a new overlapped read is requested and ReadFile() return ERROR_IO_PENDING. */
+
       // A completion reported on the IOCP itself is used by Abaclade to emulate EINTR.
       /* TODO: this is not a reliable way to interrupt a thread’s ::GetQueuedCompletionStatus() call
       when multiple threads share the same coroutine::scheduler. */

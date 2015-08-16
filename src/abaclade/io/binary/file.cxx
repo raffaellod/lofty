@@ -113,11 +113,12 @@ file_reader::file_reader(detail::file_init_data * pfid) :
    ::BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
    ::DWORD iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
    if (iErr == ERROR_IO_PENDING) {
-      this_coroutine::sleep_until_fd_ready(m_fd.get(), false, &m_hIocp);
-      // cbRead is now available in ovl.
-      cbRead = static_cast< ::DWORD>(ovl.InternalHigh);
-      // ovl.Internal was translated from an NTSTATUS to a Win32 error by the coroutine scheduler.
-      iErr = static_cast< ::DWORD>(ovl.Internal);
+      // This may repeat in case of spurious notifications by an IOCP.
+      do {
+         this_coroutine::sleep_until_fd_ready(m_fd.get(), false, &m_hIocp);
+         ::GetOverlappedResult(nullptr, &ovl, &cbRead, false);
+         iErr = ::GetLastError();
+      } while (iErr == ERROR_IO_INCOMPLETE);
    }
    // Check for pending interruptions.
    this_coroutine::interruption_point();
@@ -260,12 +261,12 @@ file_writer::file_writer(detail::file_init_data * pfid) :
       if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, &ovl)) {
          ::DWORD iErr = ::GetLastError();
          if (iErr == ERROR_IO_PENDING) {
-            this_coroutine::sleep_until_fd_ready(m_fd.get(), true, &m_hIocp);
-            // cbWritten is now available in ovl.
-            cbWritten = static_cast< ::DWORD>(ovl.InternalHigh);
-            /* ovl.Internal was translated from an NTSTATUS to a Win32 error by the coroutine
-            scheduler. */
-            iErr = static_cast< ::DWORD>(ovl.Internal);
+            // This may repeat in case of spurious notifications by an IOCP.
+            do {
+               this_coroutine::sleep_until_fd_ready(m_fd.get(), true, &m_hIocp);
+               ::GetOverlappedResult(nullptr, &ovl, &cbWritten, false);
+               iErr = ::GetLastError();
+            } while (iErr == ERROR_IO_INCOMPLETE);
          }
          if (iErr != ERROR_SUCCESS) {
             exception::throw_os_error(iErr);
