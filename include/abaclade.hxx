@@ -511,8 +511,19 @@ class writer;
 
 #if defined(ABC_STLIMPL) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1700)
    #include <abaclade/_std/atomic.hxx>
+   #include <abaclade/_std/mutex.hxx>
 #else
    #include <atomic>
+   #include <mutex>
+
+   namespace abc { namespace _std {
+
+   using ::std::atomic;
+   using ::std::lock_guard;
+   using ::std::mutex;
+   using ::std::unique_lock;
+
+   }} //namespace abc::_std
 #endif
 #ifdef ABC_STLIMPL
    #include <abaclade/_std/exception.hxx>
