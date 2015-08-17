@@ -73,9 +73,9 @@ public:
    tuple_head(T const & t) :
       T(t) {
    }
-   template <typename Tr>
-   tuple_head(Tr && t) :
-      T(std::forward<Tr>(t)) {
+   template <typename U>
+   tuple_head(U && u) :
+      T(std::forward<U>(u)) {
    }
    tuple_head(tuple_head const & th) :
       T(static_cast<T const &>(th)) {
@@ -130,9 +130,9 @@ public:
    tuple_head(T const & t) :
       m_t(t) {
    }
-   template <typename Tr>
-   tuple_head(Tr && t) :
-      m_t(std::forward<Tr>(t)) {
+   template <typename U>
+   tuple_head(U && u) :
+      m_t(std::forward<U>(u)) {
    }
    tuple_head(tuple_head const & th) :
       m_t(th.m_t) {
@@ -216,9 +216,9 @@ public:
    explicit tuple_tail(T0 const & thead, Ts const &... ts) :
       _thead(thead), _ttail(ts ...) {
    }
-   template <typename Tr0, typename... Trs>
-   explicit tuple_tail(Tr0 && thead, Trs &&... ts) :
-      _thead(std::forward<Tr0>(thead)), _ttail(std::forward<Trs>(ts) ...) {
+   template <typename U0, typename... Us>
+   explicit tuple_tail(U0 && uhead, Us &&... us) :
+      _thead(std::forward<U0>(uhead)), _ttail(std::forward<Us>(us) ...) {
    }
    tuple_tail(tuple_tail const & tt) :
       _thead(tt.get_thead()), _ttail(tt.get_ttail()) {
@@ -306,18 +306,18 @@ public:
       _ttail(t1, t2, t3, t4, t5, t6, t7, t8, t9, detail::tuple_void()) {
    }
    template <
-      typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
-      typename Tr6, typename Tr7, typename Tr8, typename Tr9
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
    >
    tuple_tail(
-      Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5, Tr6 && t6, Tr7 && t7,
-      Tr8 && t8, Tr9 && t9
+      U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6, U7 && u7, U8 && u8,
+      U9 && u9
    ) :
-      _thead(std::forward<Tr0>(t0)),
+      _thead(std::forward<U0>(u0)),
       _ttail(
-         std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3), std::forward<Tr4>(t4),
-         std::forward<Tr5>(t5), std::forward<Tr6>(t6), std::forward<Tr7>(t7), std::forward<Tr8>(t8),
-         std::forward<Tr9>(t9), detail::tuple_void()
+         std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3), std::forward<U4>(u4),
+         std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7), std::forward<U8>(u8),
+         std::forward<U9>(u9), detail::tuple_void()
       ) {
    }
    tuple_tail(tuple_tail const & tt) :
@@ -438,9 +438,9 @@ public:
    explicit tuple(Ts const &... ts) :
       _timpl(ts ...) {
    }
-   template <typename... Trs>
-   explicit tuple(Trs &&... ts) :
-      _timpl(std::forward<Trs>(ts) ...) {
+   template <typename... Us>
+   explicit tuple(Us &&... us) :
+      _timpl(std::forward<Us>(us) ...) {
    }
    tuple(tuple const & tpl) :
       _timpl(static_cast<_timpl const &>(tpl)) {
@@ -501,10 +501,10 @@ public:
          _tvoid()
       ) {
    }
-   template <typename Tr0>
-   explicit tuple(Tr0 && t0) :
+   template <typename U0>
+   explicit tuple(U0 && u0) :
       _timpl(
-         std::forward<Tr0>(t0), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         std::forward<U0>(u0), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
          _tvoid(), _tvoid(), _tvoid()
       ) {
    }
@@ -514,36 +514,32 @@ public:
          t0, t1, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
-   template <typename Tr0, typename Tr1>
-   tuple(Tr0 && t0, Tr1 && t1) :
+   template <typename U0, typename U1>
+   tuple(U0 && u0, U1 && u1) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         std::forward<U0>(u0), std::forward<U1>(u1), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
          _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 3.
    tuple(T0 const & t0, T1 const & t1, T2 const & t2) :
-      _timpl(
-         t0, t1, t2, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
-      ) {
+      _timpl(t0, t1, t2, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
    }
-   template <typename Tr0, typename Tr1, typename Tr2>
-   tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2) :
+   template <typename U0, typename U1, typename U2>
+   tuple(U0 && u0, U1 && u1, U2 && u2) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), _tvoid(), _tvoid(),
+         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), _tvoid(), _tvoid(),
          _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 4.
    tuple(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) :
-      _timpl(
-         t0, t1, t2, t3, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
-      ) {
+      _timpl(t0, t1, t2, t3, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
    }
-   template <typename Tr0, typename Tr1, typename Tr2, typename Tr3>
-   tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3) :
+   template <typename U0, typename U1, typename U2, typename U3>
+   tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
+         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
          _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
@@ -553,22 +549,22 @@ public:
          t0, t1, t2, t3, t4, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
-   template <typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4>
-   tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4) :
+   template <typename U0, typename U1, typename U2, typename U3, typename U4>
+   tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
+         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
+         std::forward<U4>(u4), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 6.
    tuple(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5) :
       _timpl(t0, t1, t2, t3, t4, t5, _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
    }
-   template <typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5>
-   tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5) :
+   template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
+   tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), std::forward<Tr5>(t5), _tvoid(), _tvoid(), _tvoid(), _tvoid()
+         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
+         std::forward<U4>(u4), std::forward<U5>(u5), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    // Overloads for tuple of 7.
@@ -579,13 +575,12 @@ public:
       _timpl(t0, t1, t2, t3, t4, t5, t6, _tvoid(), _tvoid(), _tvoid()) {
    }
    template <
-      typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
-      typename Tr6
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6
    >
-   tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5, Tr6 && t6) :
+   tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), std::forward<Tr5>(t5), std::forward<Tr6>(t6), _tvoid(), _tvoid(),
+         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
+         std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), _tvoid(), _tvoid(),
          _tvoid()
       ) {
    }
@@ -597,13 +592,13 @@ public:
       _timpl(t0, t1, t2, t3, t4, t5, t6, t7, _tvoid(), _tvoid()) {
    }
    template <
-      typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
-      typename Tr6, typename Tr7
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7
    >
-   tuple(Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5, Tr6 && t6, Tr7 && t7) :
+   tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6, U7 && u7) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), std::forward<Tr5>(t5), std::forward<Tr6>(t6), std::forward<Tr7>(t7),
+         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
+         std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7),
          _tvoid(), _tvoid()
       ) {
    }
@@ -615,17 +610,14 @@ public:
       _timpl(t0, t1, t2, t3, t4, t5, t6, t7, t8, _tvoid()) {
    }
    template <
-      typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
-      typename Tr6, typename Tr7, typename Tr8
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5,
+      typename U6, typename U7, typename U8
    >
-   tuple(
-      Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5, Tr6 && t6, Tr7 && t7,
-      Tr8 && t8
-   ) :
+   tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6, U7 && u7, U8 && u8) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), std::forward<Tr5>(t5), std::forward<Tr6>(t6), std::forward<Tr7>(t7),
-         std::forward<Tr8>(t8), _tvoid()
+         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
+         std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7),
+         std::forward<U8>(u8), _tvoid()
       ) {
    }
    // Overloads for tuple of 10.
@@ -636,17 +628,17 @@ public:
       _timpl(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
    }
    template <
-      typename Tr0, typename Tr1, typename Tr2, typename Tr3, typename Tr4, typename Tr5,
-      typename Tr6, typename Tr7, typename Tr8, typename Tr9
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
    >
    tuple(
-      Tr0 && t0, Tr1 && t1, Tr2 && t2, Tr3 && t3, Tr4 && t4, Tr5 && t5, Tr6 && t6, Tr7 && t7,
-      Tr8 && t8, Tr9 && t9
+      U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6, U7 && u7, U8 && u8,
+      U9 && u9
    ) :
       _timpl(
-         std::forward<Tr0>(t0), std::forward<Tr1>(t1), std::forward<Tr2>(t2), std::forward<Tr3>(t3),
-         std::forward<Tr4>(t4), std::forward<Tr5>(t5), std::forward<Tr6>(t6), std::forward<Tr7>(t7),
-         std::forward<Tr8>(t8), std::forward<Tr9>(t9)
+         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
+         std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7),
+         std::forward<U8>(u8), std::forward<U9>(u9)
       ) {
    }
    tuple(tuple const & tpl) :
