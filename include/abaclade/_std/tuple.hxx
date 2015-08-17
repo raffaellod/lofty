@@ -907,6 +907,186 @@ struct tuple_size<tuple<
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace _std {
+
+// TODO: comment.
+// TODO: complete and move to <type_traits>.
+template <typename T>
+struct decay {
+    typedef typename std::remove_reference<T>::type U;
+    typedef typename std::conditional<
+        std::is_array<U>::value,
+        typename std::remove_extent<U>::type *,
+        typename std::conditional<
+            std::is_function<U>::value,
+            typename std::add_pointer<U>::type,
+            typename std::remove_cv<U>::type
+        >::type
+    >::type type;
+};
+
+/*! TODO: comment.
+
+@param ts
+   Variables to store in a tuple.
+@return
+   Tuple containing each argument.
+*/
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+template <typename... Ts>
+inline /*constexpr*/ tuple<Ts...> make_tuple(Ts &&... ts) {
+   return tuple<Ts...>(std::forward<Ts>(ts) ...);
+}
+
+#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+inline /*constexpr*/ tuple<> make_tuple() {
+   return tuple<>();
+}
+template <typename T0>
+inline /*constexpr*/ tuple<typename decay<T0>::type> make_tuple(T0 && t0) {
+   return tuple<typename decay<T0>::type>(std::forward<T0>(t0));
+}
+template <typename T0, typename T1>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type
+> make_tuple(T0 && t0, T1 && t1) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type
+   >(std::forward<T0>(t0), std::forward<T1>(t1));
+}
+template <typename T0, typename T1, typename T2>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type
+> make_tuple(T0 && t0, T1 && t1, T2 && t2) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type
+   >(std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2));
+}
+template <typename T0, typename T1, typename T2, typename T3>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+   typename decay<T3>::type
+> make_tuple(T0 && t0, T1 && t1, T2 && t2, T3 && t3) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+      typename decay<T3>::type
+   >(std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3));
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+   typename decay<T3>::type, typename decay<T4>::type
+> make_tuple(T0 && t0, T1 && t1, T2 && t2, T3 && t3, T4 && t4) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+      typename decay<T3>::type, typename decay<T4>::type
+   >(
+      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
+      std::forward<T4>(t4)
+   );
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+   typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type
+> make_tuple(T0 && t0, T1 && t1, T2 && t2, T3 && t3, T4 && t4, T5 && t5) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+      typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type
+   >(
+      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
+      std::forward<T4>(t4), std::forward<T5>(t5)
+   );
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
+>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+   typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
+   typename decay<T6>::type
+> make_tuple(T0 && t0, T1 && t1, T2 && t2, T3 && t3, T4 && t4, T5 && t5, T6 && t6) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+      typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
+      typename decay<T6>::type
+   >(
+      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
+      std::forward<T4>(t4), std::forward<T5>(t5), std::forward<T6>(t6)
+   );
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7
+>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+   typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
+   typename decay<T6>::type, typename decay<T7>::type
+> make_tuple(T0 && t0, T1 && t1, T2 && t2, T3 && t3, T4 && t4, T5 && t5, T6 && t6, T7 && t7) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+      typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
+      typename decay<T6>::type, typename decay<T7>::type
+   >(
+      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
+      std::forward<T4>(t4), std::forward<T5>(t5), std::forward<T6>(t6), std::forward<T7>(t7)
+   );
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7, typename T8
+>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+   typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
+   typename decay<T6>::type, typename decay<T7>::type, typename decay<T8>::type
+> make_tuple(
+   T0 && t0, T1 && t1, T2 && t2, T3 && t3, T4 && t4, T5 && t5, T6 && t6, T7 && t7, T8 && t8
+) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+      typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
+      typename decay<T6>::type, typename decay<T7>::type, typename decay<T8>::type
+   >(
+      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
+      std::forward<T4>(t4), std::forward<T5>(t5), std::forward<T6>(t6), std::forward<T7>(t7),
+      std::forward<T8>(t8)
+   );
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
+   typename T7, typename T8, typename T9
+>
+inline /*constexpr*/ tuple<
+   typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+   typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
+   typename decay<T6>::type, typename decay<T7>::type, typename decay<T8>::type,
+   typename decay<T9>::type
+> make_tuple(
+   T0 && t0, T1 && t1, T2 && t2, T3 && t3, T4 && t4, T5 && t5, T6 && t6, T7 && t7, T8 && t8,
+   T9 && t9
+) {
+   return tuple<
+      typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
+      typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
+      typename decay<T6>::type, typename decay<T7>::type, typename decay<T8>::type,
+      typename decay<T9>::type
+   >(
+      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
+      std::forward<T4>(t4), std::forward<T5>(t5), std::forward<T6>(t6), std::forward<T7>(t7),
+      std::forward<T8>(t8), std::forward<T9>(t9)
+   );
+}
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+
+}} //namespace abc::_std
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace _std { namespace detail {
 
 /*! Internal (implementation-defined) type of ignore. It supports construction and assignment from
