@@ -29,7 +29,7 @@ namespace abc { namespace test {
 /* A thread_local variable, being specific to a thread, by definition does not need to be atomic;
 however this test case wants to find out if the variable is accidentally shared among multipliple
 threads, and making the value not atomic could hide the problem. So atomic it is. */
-static thread_local_value<std::atomic<int>> g_iThreadLocal /*= 0*/;
+static thread_local_value<_std::atomic<int>> g_iThreadLocal /*= 0*/;
 
 ABC_TESTING_TEST_CASE_FUNC(
    thread_local_basic,

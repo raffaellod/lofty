@@ -33,8 +33,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/collections/trie_ordered_multimap.hxx>
 #include <abaclade/thread.hxx>
 
-#include <mutex>
-
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN
       #define _XOPEN_SOURCE
@@ -210,7 +208,7 @@ private:
    io::filedesc m_fdIocp;
    //! Thread that translates events from m_fdTimer into IOCP completions.
    ::HANDLE m_hTimerThread;
-   std::atomic<bool> m_bTimerThreadEnd;
+   _std::atomic<bool> m_bTimerThreadEnd;
 #else
    #error "TODO: HOST_API"
 #endif
@@ -228,12 +226,12 @@ private:
    have not been started yet. */
    collections::queue<std::shared_ptr<impl>> m_qReadyCoros;
    //! Governs access to m_qReadyCoros, m_hmCorosBlockedByFD and other “blocked by” maps/sets.
-   std::mutex m_mtxCorosAddRemove;
+   _std::mutex m_mtxCorosAddRemove;
    /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught
    exception, or if the scheduler throws an exception while not running coroutines. Once one of
    these events happens, every thread running the scheduler will start interrupting coroutines with
    this type of exception. */
-   std::atomic<exception::common_type::enum_type> m_xctInterruptionReason;
+   _std::atomic<exception::common_type::enum_type> m_xctInterruptionReason;
 
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
    static thread_local_value<std::shared_ptr<impl>> sm_pcoroimplActive;

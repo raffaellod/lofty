@@ -30,8 +30,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/collections/hash_map.hxx>
 #include <abaclade/thread.hxx>
 
-#include <mutex>
-
 #if ABC_HOST_API_MACH
    // Mach reference: <http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/>.
    #include <mach/mach.h> // mach_port_t
@@ -205,7 +203,7 @@ private:
    // TODO: instantiate this lazily, only if needed.
    std::shared_ptr<thread::impl> m_pthrimplMain;
    //! Governs access to m_hmThreads.
-   std::mutex m_mtxThreads;
+   _std::mutex m_mtxThreads;
    //! Tracks all threads running in the process except *m_pthrimplMain.
    // TODO: make this a hash_set instead of a hash_map.
    collections::hash_map<thread::impl *, std::shared_ptr<thread::impl>> m_hmThreads;

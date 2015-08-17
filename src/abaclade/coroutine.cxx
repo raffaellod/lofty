@@ -151,7 +151,7 @@ public:
       threads from changing m_xctPending until we reset it to none. */
       auto xct = m_xctPending.load();
       if (xct != exception::common_type::none) {
-         m_xctPending.store(exception::common_type::none, std::memory_order_relaxed);
+         m_xctPending.store(exception::common_type::none/*, std::memory_order_relaxed*/);
          exception::throw_common_type(xct, 0, 0);
       }
    }
@@ -206,7 +206,7 @@ private:
 #endif
    /*! Every time the coroutine is scheduled or returns from an interruption point, this is checked
    for pending exceptions to be injected. */
-   std::atomic<exception::common_type::enum_type> m_xctPending;
+   _std::atomic<exception::common_type::enum_type> m_xctPending;
    //! Function to be executed in the coroutine.
    std::function<void ()> m_fnInnerMain;
    //! Local storage for the coroutine.
@@ -336,7 +336,7 @@ coroutine::scheduler::~scheduler() {
 void coroutine::scheduler::add_ready(std::shared_ptr<impl> pcoroimpl) {
    ABC_TRACE_FUNC(this, pcoroimpl);
 
-//   std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//   _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
    m_qReadyCoros.push_back(std::move(pcoroimpl));
 }
 
@@ -430,7 +430,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    }
    // Deactivate the current coroutine and find one to activate instead.
    {
-//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
       m_hmCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive));
    }
    try {
@@ -439,7 +439,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    } catch (...) {
       // If anything went wrong or the coroutine was terminated, remove the timer.
       {
-//         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//         _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
          m_hmCorosBlockedByTimer.remove(ke.ident);
       }
       ke.flags = EV_DELETE;
@@ -569,7 +569,7 @@ void coroutine::scheduler::block_active_until_fd_ready(
    // Deactivate the current coroutine and find one to activate instead.
    impl * pcoroimpl;
    {
-//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
       pcoroimpl = m_hmCorosBlockedByFD.add_or_assign(
          fd, std::move(sm_pcoroimplActive)
       ).first->value.get();
@@ -584,7 +584,7 @@ void coroutine::scheduler::block_active_until_fd_ready(
       ::CancelIo(fd);
 #endif
       // Remove the coroutine from the map of blocked ones.
-//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
       m_hmCorosBlockedByFD.remove(fd);
       throw;
    }
@@ -675,7 +675,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       changed”, in edge-triggered mode so it wakes all waiting threads once, at once. */
    for (;;) {
       {
-//         std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//         _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
          if (m_qReadyCoros) {
             // There are coroutines that are ready to run; remove and return the first.
             return m_qReadyCoros.pop_front();
@@ -711,7 +711,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
       /*if (ke.flags & EV_ERROR) {
          exception::throw_os_error(ke.data);
       }*/
-//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
       if (ke.filter == EVFILT_TIMER) {
          // Remove and return the coroutine that was waiting for this timer.
          return m_hmCorosBlockedByTimer.pop(ke.ident);
@@ -764,7 +764,7 @@ std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activat
          continue;
       }
    #endif
-//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
       if (fd == m_fdTimer.get()) {
          // Pop the coroutine that should run now, and rearm the timer if necessary.
          auto kv(m_tommCorosBlockedByTimer.pop_front());
@@ -788,7 +788,7 @@ void coroutine::scheduler::interrupt_all() {
    {
       /* TODO: using a different locking pattern, this work could be split across multiple threads,
       in case multiple are associated to this scheduler. */
-//      std::lock_guard<std::mutex> lock(m_mtxCorosAddRemove);
+//      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
       ABC_FOR_EACH(auto kv, m_hmCorosBlockedByFD) {
          kv.value->inject_exception(kv.value, xctInterruptionReason);
       }

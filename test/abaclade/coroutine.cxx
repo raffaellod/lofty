@@ -183,7 +183,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    unsigned sc_aiSleeps[sc_cWorkers] = { 20, 30, 10, 50, 40 };
    std::size_t aiWorkersAwoke[sc_cWorkers];
    memory::clear(aiWorkersAwoke);
-   std::atomic<std::size_t> aiNextAwakingWorkerSlot(0);
+   _std::atomic<std::size_t> aiNextAwakingWorkerSlot(0);
    for (std::size_t i = 0; i < sc_cWorkers; ++i) {
       coroWorkers[i] = coroutine([
          this, i, &sc_aiSleeps, &aiWorkersAwoke, &aiNextAwakingWorkerSlot

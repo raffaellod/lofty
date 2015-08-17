@@ -529,7 +529,7 @@ void interruption_point() {
    auto const & pimpl = get_impl();
    auto xct = pimpl->m_xctPending.load();
    if (xct != exception::common_type::none) {
-      pimpl->m_xctPending.store(exception::common_type::none, std::memory_order_relaxed);
+      pimpl->m_xctPending.store(exception::common_type::none/*, std::memory_order_relaxed*/);
       exception::throw_common_type(xct, 0, 0);
    }
 }

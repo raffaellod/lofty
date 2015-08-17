@@ -31,7 +31,7 @@ namespace abc { namespace test {
 need to be atomic; however this test case wants to find out if the variable is accidentally shared
 among multipliple threads or coroutines, and making the value not atomic could hide the problem. So
 atomic it is. */
-static coroutine_local_value<std::atomic<int>> g_iCoroutineLocal /*= 0*/;
+static coroutine_local_value<_std::atomic<int>> g_iCoroutineLocal /*= 0*/;
 
 ABC_TESTING_TEST_CASE_FUNC(
    coroutine_local_basic,

@@ -33,7 +33,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   std::atomic<bool> bThr1Completed(false), bThr2Completed(false);
+   _std::atomic<bool> bThr1Completed(false), bThr2Completed(false);
 
    thread thr1([this, &bThr1Completed] () {
       ABC_TRACE_FUNC(this);
@@ -85,11 +85,11 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    static std::size_t const sc_cWorkers = 5;
-   std::atomic<bool> abWorkersCompleted[sc_cWorkers], abWorkersInterrupted[sc_cWorkers];
+   _std::atomic<bool> abWorkersCompleted[sc_cWorkers], abWorkersInterrupted[sc_cWorkers];
    thread thrWorkers[sc_cWorkers];
    for (std::size_t i = 0; i < sc_cWorkers; ++i) {
-      std::atomic<bool> * pbWorkerCompleted = &abWorkersCompleted[i];
-      std::atomic<bool> * pbWorkerInterrupted = &abWorkersInterrupted[i];
+      _std::atomic<bool> * pbWorkerCompleted = &abWorkersCompleted[i];
+      _std::atomic<bool> * pbWorkerInterrupted = &abWorkersInterrupted[i];
       pbWorkerCompleted->store(false);
       pbWorkerInterrupted->store(false);
       thrWorkers[i] = thread([this, pbWorkerCompleted, pbWorkerInterrupted] () {
@@ -139,7 +139,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    bool bExceptionCaught = false;
-   std::atomic<bool> bThr1Completed(false);
+   _std::atomic<bool> bThr1Completed(false);
    /* Temporarily redirect stderr to a local string writer, so the exception trace from the thread
    won’t show in the test output. */
    auto ptswErr(std::make_shared<io::text::str_writer>());
@@ -191,7 +191,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    bool bExceptionCaught = false;
-   std::atomic<bool> bThr1Completed(false);
+   _std::atomic<bool> bThr1Completed(false);
    thread thr1([this, &bThr1Completed] () {
       ABC_TRACE_FUNC(this);
 

@@ -207,10 +207,10 @@ private:
    detail::simple_event * m_pseStarted;
    /*! Every time the thread returns from an interruption point, this is checked for pending
    exceptions to be injected. */
-   std::atomic<exception::common_type::enum_type> m_xctPending;
+   _std::atomic<exception::common_type::enum_type> m_xctPending;
    /*! true if the thread is terminating, i.e. running Abaclade threading code, or false if it’s
    still running application code. */
-   std::atomic<bool> m_bTerminating;
+   _std::atomic<bool> m_bTerminating;
    //! Function to be executed in the thread.
    std::function<void ()> m_fnInnerMain;
    //! Pointer to the thread’s coroutine scheduler, if any.

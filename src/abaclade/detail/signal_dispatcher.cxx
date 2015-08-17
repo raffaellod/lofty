@@ -579,7 +579,7 @@ void signal_dispatcher::main_thread_terminated(exception::common_type xct) {
    // Make this thread uninterruptible by other threads.
    m_pthrimplMain->m_bTerminating.store(true);
 
-   std::unique_lock<std::mutex> lock(m_mtxThreads);
+   _std::unique_lock<_std::mutex> lock(m_mtxThreads);
    // Signal every other thread to terminate.
    ABC_FOR_EACH(auto kv, m_hmThreads) {
       kv.value->inject_exception(xct);
@@ -598,7 +598,7 @@ void signal_dispatcher::main_thread_terminated(exception::common_type xct) {
 }
 
 void signal_dispatcher::nonmain_thread_started(std::shared_ptr<thread::impl> const & pthrimpl) {
-   std::lock_guard<std::mutex> lock(m_mtxThreads);
+   _std::lock_guard<_std::mutex> lock(m_mtxThreads);
    m_hmThreads.add_or_assign(pthrimpl.get(), pthrimpl);
 }
 
@@ -607,7 +607,7 @@ void signal_dispatcher::nonmain_thread_terminated(
 ) {
    // Remove the thread from the bookkeeping list.
    {
-      std::lock_guard<std::mutex> lock(m_mtxThreads);
+      _std::lock_guard<_std::mutex> lock(m_mtxThreads);
       m_hmThreads.remove(pthrimpl);
    }
    /* If the thread was terminated by an exception making it all the way out of the thread function,
