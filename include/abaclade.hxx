@@ -406,13 +406,10 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
    Size of type, in bytes. Guaranteed to be at most equal to sizeof(type).
 */
 #if ABC_HOST_CXX_MSC
-   /* MSC16/MSC18 BUG: sizeof lastmember results in C2070 “illegal sizeof operand”. No way of
-   qualifying lastmember seems to work either, so we force sizeof to consider its type instead. */
-   #define ABC_UNPADDED_SIZEOF(type_, lastmember) \
-         ( \
-            ABC_OFFSETOF(type_, lastmember) + \
-            sizeof(std::remove_reference<decltype(lastmember)>::type) \
-         )
+   /* MSC16/MSC18 BUG: sizeof lastmember results in C2070 “illegal sizeof operand”, so we forcibly
+   qualify lastmember by pretending to retrieve it from an instance of the containing type. */
+   #define ABC_UNPADDED_SIZEOF(type, lastmember) \
+      (ABC_OFFSETOF(type, lastmember) + sizeof(reinterpret_cast<type *>(8192)->lastmember))
 #else
    #define ABC_UNPADDED_SIZEOF(type, lastmember) \
       (ABC_OFFSETOF(type, lastmember) + sizeof lastmember)
