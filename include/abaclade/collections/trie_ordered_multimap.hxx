@@ -191,7 +191,7 @@ public:
          Pointer to the value to create a reference to.
       */
       const_reference(TKey key_, TValue const * pvalue) :
-         key(*key_),
+         key(key_),
          value(*pvalue) {
       }
 
