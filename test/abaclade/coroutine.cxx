@@ -222,7 +222,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    thread thr1([this] () {
       bool bCoro1Completed = false;
 
-      coroutine coro1([this, &bCoro1Completed] () {
+      coroutine coro1([&bCoro1Completed] () {
          bCoro1Completed = true;
       });
 

@@ -56,8 +56,8 @@ public:
             io::text::stdout->write_line(ABC_SL("server: connection established"));
 
             // Add a coroutine that will echo every line sent over the newly-established connection.
-            coroutine([this, pconn] () {
-               ABC_TRACE_FUNC(this, pconn);
+            coroutine([pconn] () {
+               ABC_TRACE_FUNC(pconn);
 
                io::text::stdout->write_line(ABC_SL("responder: starting"));
 
