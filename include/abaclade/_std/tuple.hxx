@@ -70,7 +70,7 @@ public:
       Source object.
    */
    tuple_head(tuple_head && th) :
-      T(static_cast<T &&>(th)) {
+      T(std::move(th.get())) {
    }
 
    /*! Copy constructor.
@@ -79,7 +79,7 @@ public:
       Source object.
    */
    tuple_head(tuple_head const & th) :
-      T(static_cast<T const &>(th)) {
+      T(th.get()) {
    }
 
    /*! Element-moving constructor.
@@ -427,7 +427,7 @@ public:
       Const reference to the embedded tuple head.
    */
    _thead & get_thead() {
-      return *static_cast<_thead *>(this);
+      return *this;
    }
 
    /*! Returns the embedded tuple_head.
@@ -436,7 +436,7 @@ public:
       Const reference to the embedded tuple head.
    */
    _thead const & get_thead() const {
-      return *static_cast<_thead const *>(this);
+      return *this;
    }
 
    /*! Returns the embedded tuple_tail.
@@ -445,7 +445,7 @@ public:
       Const reference to the embedded tuple tail.
    */
    _ttail & get_ttail() {
-      return *static_cast<_ttail *>(this);
+      return *this;
    }
 
    /*! Returns the embedded tuple_tail.
@@ -454,7 +454,7 @@ public:
       Const reference to the embedded tuple tail.
    */
    _ttail const & get_ttail() const {
-      return *static_cast<_ttail const *>(this);
+      return *this;
    }
 };
 
@@ -604,7 +604,7 @@ public:
       Reference to the embedded tuple head.
    */
    _thead & get_thead() {
-      return *static_cast<_thead *>(this);
+      return *this;
    }
 
    /*! Returns the embedded tuple_head.
@@ -613,7 +613,7 @@ public:
       Const reference to the embedded tuple head.
    */
    _thead const & get_thead() const {
-      return *static_cast<_thead const *>(this);
+      return *this;
    }
 
    /*! Returns the embedded tuple_tail.
@@ -622,7 +622,7 @@ public:
       Reference to the embedded tuple tail.
    */
    _ttail & get_ttail() {
-      return *static_cast<_ttail *>(this);
+      return *this;
    }
 
    /*! Returns the embedded tuple_tail.
@@ -631,7 +631,7 @@ public:
       Const reference to the embedded tuple tail.
    */
    _ttail const & get_ttail() const {
-      return *static_cast<_ttail const *>(this);
+      return *this;
    }
 };
 
