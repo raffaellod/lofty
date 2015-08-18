@@ -126,6 +126,32 @@ public:
       return *this;
    }
 
+   /*! Move-assignment operator.
+
+   @param th
+      Source object.
+   @return
+      *this.
+   */
+   template <typename U>
+   tuple_head & operator=(tuple_head<t_i, U> && th) {
+      get() = std::move(th.get());
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param th
+      Source object.
+   @return
+      *this.
+   */
+   template <typename U>
+   tuple_head & operator=(tuple_head<t_i, U> const & th) {
+      get() = th.get();
+      return *this;
+   }
+
    /*! Accessor to the wrapped element.
 
    @return
@@ -215,6 +241,32 @@ public:
       return *this;
    }
 
+   /*! Move-assignment operator.
+
+   @param th
+      Source object.
+   @return
+      *this.
+   */
+   template <typename U>
+   tuple_head & operator=(tuple_head<t_i, U> && th) {
+      get() = std::move(th.get());
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param th
+      Source object.
+   @return
+      *this.
+   */
+   template <typename U>
+   tuple_head & operator=(tuple_head<t_i, U> const & th) {
+      get() = th.get();
+      return *this;
+   }
+
    /*! Accessor to the wrapped element.
 
    @return
@@ -257,12 +309,12 @@ class tuple_tail<t_i> {
 
 // Template recursion step.
 template <std::size_t t_i, typename T0, typename... Ts>
-class tuple_tail<t_i, T0, Ts ...> :
+class tuple_tail<t_i, T0, Ts...> :
    public tuple_head<t_i, T0>,
-   public tuple_tail<t_i + 1, Ts ...> {
+   public tuple_tail<t_i + 1, Ts...> {
 private:
    typedef tuple_head<t_i, T0> _thead;
-   typedef tuple_tail<t_i + 1, Ts ...> _ttail;
+   typedef tuple_tail<t_i + 1, Ts...> _ttail;
 
 public:
    //! Default constructor.
@@ -299,7 +351,7 @@ public:
    template <typename U0, typename... Us>
    explicit tuple_tail(U0 && thead, Us &&... us) :
       _thead(std::forward<U0>(thead)),
-      _ttail(std::forward<Us>(us) ...) {
+      _ttail(std::forward<Us>(us)...) {
    }
 
    /*! Element-copying constructor.
@@ -312,7 +364,7 @@ public:
    template <typename U0, typename... Us>
    explicit tuple_tail(U0 const & thead, Us const &... us) :
       _thead(thead),
-      _ttail(us ...) {
+      _ttail(us...) {
    }
 
    /*! Move-assignment operator.
@@ -336,6 +388,34 @@ public:
       *this.
    */
    tuple_tail & operator=(tuple_tail const & tt) {
+      get_thead() = tt.get_thead();
+      get_ttail() = tt.get_ttail();
+      return *this;
+   }
+
+   /*! Move-assignment operator.
+
+   @param tt
+      Source object.
+   @return
+      *this.
+   */
+   template <typename... Us>
+   tuple_tail & operator=(tuple_tail<Us...> && tt) {
+      get_thead() = std::move(tt.get_thead());
+      get_ttail() = std::move(tt.get_ttail());
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param tt
+      Source object.
+   @return
+      *this.
+   */
+   template <typename... Us>
+   tuple_tail & operator=(tuple_tail<Us...> const & tt) {
       get_thead() = tt.get_thead();
       get_ttail() = tt.get_ttail();
       return *this;
@@ -484,6 +564,40 @@ public:
       return *this;
    }
 
+   /*! Move-assignment operator.
+
+   @param tt
+      Source object.
+   @return
+      *this.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple_tail & operator=(tuple_tail<t_i, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tt) {
+      get_thead() = std::move(tt.get_thead());
+      get_ttail() = std::move(tt.get_ttail());
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param tt
+      Source object.
+   @return
+      *this.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple_tail & operator=(tuple_tail<t_i, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const & tt) {
+      get_thead() = tt.get_thead();
+      get_ttail() = tt.get_ttail();
+      return *this;
+   }
+
    /*! Returns the embedded tuple_head.
 
    @return
@@ -569,9 +683,9 @@ namespace abc { namespace _std {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
-class tuple : public detail::tuple_tail<0, Ts ...> {
+class tuple : public detail::tuple_tail<0, Ts...> {
 private:
-   typedef detail::tuple_tail<0, Ts ...> _timpl;
+   typedef detail::tuple_tail<0, Ts...> _timpl;
 
 public:
    //! Default constructor.
@@ -603,7 +717,7 @@ public:
    */
    template <typename... Us>
    explicit tuple(Us &&... us) :
-      _timpl(std::forward<Us>(us) ...) {
+      _timpl(std::forward<Us>(us)...) {
    }
 
    /*! Element-copying constructor.
@@ -613,7 +727,7 @@ public:
    */
    template <typename... Us>
    explicit tuple(Us const &... us) :
-      _timpl(us ...) {
+      _timpl(us...) {
    }
 
    /*! Move-assignment operator.
@@ -637,6 +751,32 @@ public:
    */
    tuple & operator=(tuple const & tpl) {
       _timpl::operator=(static_cast<_timpl const &>(tpl));
+      return *this;
+   }
+
+   /*! Move-assignment operator.
+
+   @param tpl
+      Source object.
+   @return
+      *this.
+   */
+   template <typename... Us>
+   tuple & operator=(tuple<Us...> && tpl) {
+      _timpl::operator=(static_cast<detail::tuple_tail<0, Us...> &&>(tpl));
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param tpl
+      Source object.
+   @return
+      *this.
+   */
+   template <typename... Us>
+   tuple & operator=(tuple<Us...> const & tpl) {
+      _timpl::operator=(static_cast<detail::tuple_tail<0, Us...> const &>(tpl));
       return *this;
    }
 };
@@ -875,6 +1015,38 @@ public:
       _timpl::operator=(static_cast<_timpl &&>(tpl));
       return *this;
    }
+
+   /*! Copy-assignment operator.
+
+   @param tpl
+      Source object.
+   @return
+      *this.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple & operator=(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const & tpl) {
+      _timpl::operator=(static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const &>(tpl));
+      return *this;
+   }
+
+   /*! Move-assignment operator.
+
+   @param tpl
+      Source object.
+   @return
+      *this.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple & operator=(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tpl) {
+      _timpl::operator=(static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> &&>(tpl));
+      return *this;
+   }
 };
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -894,12 +1066,12 @@ struct tuple_element;
 
 // Recursion: remove 1 from the index, and 1 item from the tuple.
 template <std::size_t t_i, typename T0, typename... Ts>
-struct tuple_element<t_i, tuple<T0, Ts ...>> : public tuple_element<t_i - 1, tuple<Ts ...>> {
+struct tuple_element<t_i, tuple<T0, Ts...>> : public tuple_element<t_i - 1, tuple<Ts...>> {
 };
 
 // Base recursion step.
 template <typename T0, typename... Ts>
-struct tuple_element<0, tuple<T0, Ts ...>> {
+struct tuple_element<0, tuple<T0, Ts...>> {
    typedef T0 type;
 };
 
@@ -991,15 +1163,15 @@ namespace abc { namespace _std {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <std::size_t t_i, typename... Ts>
-inline typename tuple_element<t_i, tuple<Ts ...>>::type & get(tuple<Ts ...> & tpl) {
+inline typename tuple_element<t_i, tuple<Ts...>>::type & get(tuple<Ts...> & tpl) {
    return static_cast<tuple_head<
-      t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
+      t_i, typename tuple_element<t_i, tuple<Ts...>>::type
    > &>(tpl).get();
 }
 template <std::size_t t_i, typename... Ts>
-inline typename tuple_element<t_i, tuple<Ts ...>>::type const & get(tuple<Ts ...> const & tpl) {
+inline typename tuple_element<t_i, tuple<Ts...>>::type const & get(tuple<Ts...> const & tpl) {
    return static_cast<tuple_head<
-      t_i, typename tuple_element<t_i, tuple<Ts ...>>::type
+      t_i, typename tuple_element<t_i, tuple<Ts...>>::type
    > const &>(tpl).get();
 }
 
@@ -1040,7 +1212,7 @@ struct tuple_size;
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <class... Ts>
-struct tuple_size<tuple<Ts ...>> : std::integral_constant<std::size_t, sizeof ...(Ts)> {};
+struct tuple_size<tuple<Ts...>> : std::integral_constant<std::size_t, sizeof...(Ts)> {};
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -1140,7 +1312,7 @@ struct decay {
 
 template <typename... Ts>
 inline /*constexpr*/ tuple<Ts...> make_tuple(Ts &&... ts) {
-   return tuple<Ts...>(std::forward<Ts>(ts) ...);
+   return tuple<Ts...>(std::forward<Ts>(ts)...);
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -1341,8 +1513,8 @@ functions”).
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
-inline /*constexpr*/ tuple<Ts & ...> tie(Ts &... ts) {
-   return tuple<Ts & ...>(ts ...);
+inline /*constexpr*/ tuple<Ts &...> tie(Ts &... ts) {
+   return tuple<Ts &...>(ts...);
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
