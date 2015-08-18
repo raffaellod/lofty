@@ -190,6 +190,16 @@ public:
    }
 
    //! TODO: comment.
+   T fetch_sub(T tSubtrahend, memory_order mo = memory_order_seq_cst) {
+      for (;;) {
+         T tPrevValue = load(mo);
+         if (compare_exchange_strong(tPrevValue, tPrevValue - tSubtrahend, mo)) {
+            return tPrevValue;
+         }
+      }
+   }
+
+   //! TODO: comment.
    T load(memory_order mo = memory_order_seq_cst) const {
 #if ABC_HOST_CXX_MSC
       #pragma warning(push)
