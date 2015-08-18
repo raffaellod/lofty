@@ -166,6 +166,9 @@ namespace abc {
    #pragma warning(disable: 4711)
    // “'struct' : 'n' bytes padding added after data member 'member'”
    #pragma warning(disable: 4820)
+   /* “nonstandard extension used : 'type' : local types or unnamed types cannot be used as template
+   arguments”. */
+   #pragma warning(disable: 4836)
 #endif //if ABC_HOST_CXX_MSC
 
 // Make sure DEBUG and _DEBUG are coherent; DEBUG wins.
