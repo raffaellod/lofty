@@ -703,7 +703,7 @@ public:
       Reference count.
    */
    long use_count() const {
-      return m_cStrongRefs;
+      return static_cast<long>(m_cStrongRefs.load());
    }
 
 protected:
@@ -716,9 +716,9 @@ protected:
 
 protected:
    //! Number of shared_ptr references to this.
-   unsigned m_cStrongRefs;
+   atomic<unsigned> m_cStrongRefs;
    //! Number of weak_ptr references to this.
-   unsigned m_cWeakRefs;
+   atomic<unsigned> m_cWeakRefs;
 };
 
 }}} //namespace abc::_std::detail
@@ -869,20 +869,14 @@ public:
       m_pt(nullptr) {
    }
    template <typename T2>
-   explicit shared_ptr(T2 * pt2) try :
+   explicit shared_ptr(T2 * pt2) :
       m_psr(new detail::basic_shared_refcount<T2>(pt2)),
       m_pt(pt2) {
-   } catch (...) {
-      delete pt2;
-      throw;
    }
    template <typename T2, typename TDel>
-   shared_ptr(T2 * pt2, TDel tdel) try :
+   shared_ptr(T2 * pt2, TDel tdel) :
       m_psr(new detail::shared_refcount_with_deleter<T2, TDel>(pt2, tdel)),
       m_pt(pt2) {
-   } catch (...) {
-      tdel(pt2);
-      throw;
    }
    template <typename T2, typename TDel, class TAllocator>
    shared_ptr(T2 * pt2, TDel tdel, TAllocator talloc);
@@ -925,7 +919,7 @@ public:
       )),
       m_pt(upt2.release()) {
    }
-   /*constexpr*/ shared_ptr(nullptr_t) {
+   /*constexpr*/ shared_ptr(nullptr_t) :
       m_psr(new detail::basic_shared_refcount<nullptr_t>(nullptr)),
       m_pt(nullptr) {
    }
