@@ -60,34 +60,64 @@ class tuple_head;
 template <std::size_t t_i, typename T>
 class tuple_head<t_i, T, true> : private T {
 public:
-   /*! Constructor.
+   //! Default constructor.
+   tuple_head() {
+   }
+
+   /*! Move constructor.
 
    @param th
-      Source tuple head.
-   @param t
-      Source element.
+      Source object.
    */
-   tuple_head() :
-      T() {
-   }
-   tuple_head(T const & t) :
-      T(t) {
-   }
-   template <typename U>
-   tuple_head(U && u) :
-      T(std::forward<U>(u)) {
-   }
-   tuple_head(tuple_head const & th) :
-      T(static_cast<T const &>(th)) {
-   }
    tuple_head(tuple_head && th) :
       T(static_cast<T &&>(th)) {
    }
 
-   /*! Assignment operator.
+   /*! Copy constructor.
 
    @param th
-      Source tuple head.
+      Source object.
+   */
+   tuple_head(tuple_head const & th) :
+      T(static_cast<T const &>(th)) {
+   }
+
+   /*! Element-moving constructor.
+
+   @param u
+      Source element.
+   */
+   template <typename U>
+   explicit tuple_head(U && u) :
+      T(std::forward<U>(u)) {
+   }
+
+   /*! Element-copying constructor.
+
+   @param u
+      Source element.
+   */
+   template <typename U>
+   explicit tuple_head(U const & u) :
+      T(u) {
+   }
+
+   /*! Move-assignment operator.
+
+   @param th
+      Source object.
+   @return
+      *this.
+   */
+   tuple_head & operator=(tuple_head && th) {
+      get() = std::move(th.get());
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param th
+      Source object.
    @return
       *this.
    */
@@ -95,12 +125,8 @@ public:
       get() = th.get();
       return *this;
    }
-   tuple_head & operator=(tuple_head && th) {
-      get() = std::move(th.get());
-      return *this;
-   }
 
-   /*! Accessor to the wrapped object.
+   /*! Accessor to the wrapped element.
 
    @return
       Reference to the wrapped element.
@@ -108,6 +134,12 @@ public:
    T & get() {
       return *this;
    }
+
+   /*! Const accessor to the wrapped element.
+
+   @return
+      Const reference to the wrapped element.
+   */
    T const & get() const {
       return *this;
    }
@@ -117,43 +149,69 @@ public:
 template <std::size_t t_i, typename T>
 class tuple_head<t_i, T, false> {
 public:
-   /*! Constructor.
+   //! Default constructor.
+   tuple_head() {
+   }
+
+   /*! Move constructor.
 
    @param th
-      Source tuple head.
-   @param t
+      Source object.
+   */
+   tuple_head(tuple_head && th) :
+      m_t(std::move(th.get())) {
+   }
+
+   /*! Copy constructor.
+
+   @param th
+      Source object.
+   */
+   tuple_head(tuple_head const & th) :
+      m_t(th.get()) {
+   }
+
+   /*! Element-moving constructor.
+
+   @param u
       Source element.
    */
-   tuple_head() :
-      m_t() {
-   }
-   tuple_head(T const & t) :
-      m_t(t) {
-   }
    template <typename U>
-   tuple_head(U && u) :
+   explicit tuple_head(U && u) :
       m_t(std::forward<U>(u)) {
    }
-   tuple_head(tuple_head const & th) :
-      m_t(th.m_t) {
-   }
-   tuple_head(tuple_head && th) :
-      m_t(std::move(th.m_t)) {
+
+   /*! Element-copying constructor.
+
+   @param u
+      Source element.
+   */
+   template <typename U>
+   explicit tuple_head(U const & u) :
+      m_t(u) {
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param th
-      Source tuple head.
+      Source object.
+   @return
+      *this.
+   */
+   tuple_head & operator=(tuple_head && th) {
+      get() = std::move(th.get());
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param th
+      Source object.
    @return
       *this.
    */
    tuple_head & operator=(tuple_head const & th) {
       get() = th.get();
-      return *this;
-   }
-   tuple_head & operator=(tuple_head && th) {
-      get() = std::move(th.get());
       return *this;
    }
 
@@ -165,6 +223,12 @@ public:
    T & get() {
       return m_t;
    }
+
+   /*! Const accessor to the wrapped element.
+
+   @return
+      Const reference to the wrapped element.
+   */
    T const & get() const {
       return m_t;
    }
@@ -201,36 +265,73 @@ private:
    typedef tuple_tail<t_i + 1, Ts ...> _ttail;
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   tuple_tail() {
+   }
+
+   /*! Move constructor.
+
+   @param tt
+      Source object.
+   */
+   tuple_tail(tuple_tail && tt) :
+      _thead(std::move(tt.get_thead())),
+      _ttail(std::move(tt.get_ttail())) {
+   }
+
+   /*! Copy constructor.
+
+   @param tt
+      Source object.
+   */
+   tuple_tail(tuple_tail const & tt) :
+      _thead(tt.get_thead()),
+      _ttail(tt.get_ttail()) {
+   }
+
+   /*! Element-moving constructor.
 
    @param thead
       Source tuple head.
-   @param ts
+   @param us
       Source elements.
-   @param tt
-      Source tuple tail.
    */
-   tuple_tail() :
-      _thead(), _ttail() {
-   }
-   explicit tuple_tail(T0 const & thead, Ts const &... ts) :
-      _thead(thead), _ttail(ts ...) {
-   }
    template <typename U0, typename... Us>
-   explicit tuple_tail(U0 && uhead, Us &&... us) :
-      _thead(std::forward<U0>(uhead)), _ttail(std::forward<Us>(us) ...) {
-   }
-   tuple_tail(tuple_tail const & tt) :
-      _thead(tt.get_thead()), _ttail(tt.get_ttail()) {
-   }
-   tuple_tail(tuple_tail && tt) :
-      _thead(std::move(tt.get_thead())), _ttail(std::move(tt.get_ttail())) {
+   explicit tuple_tail(U0 && thead, Us &&... us) :
+      _thead(std::forward<U0>(thead)),
+      _ttail(std::forward<Us>(us) ...) {
    }
 
-   /*! Assignment operator.
+   /*! Element-copying constructor.
+
+   @param thead
+      Source tuple head.
+   @param us
+      Source elements.
+   */
+   template <typename U0, typename... Us>
+   explicit tuple_tail(U0 const & thead, Us const &... us) :
+      _thead(thead),
+      _ttail(us ...) {
+   }
+
+   /*! Move-assignment operator.
 
    @param tt
-      Source tuple tail.
+      Source object.
+   @return
+      *this.
+   */
+   tuple_tail & operator=(tuple_tail && tt) {
+      get_thead() = std::move(tt.get_thead());
+      get_ttail() = std::move(tt.get_ttail());
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param tt
+      Source object.
    @return
       *this.
    */
@@ -239,34 +340,41 @@ public:
       get_ttail() = tt.get_ttail();
       return *this;
    }
-   tuple_tail & operator=(tuple_tail && tt) {
-      get_thead() = std::move(tt.get_thead());
-      get_ttail() = std::move(tt.get_ttail());
-      return *this;
+
+   /*! Returns the embedded tuple_head.
+
+   @return
+      Const reference to the embedded tuple head.
+   */
+   _thead & get_thead() {
+      return *static_cast<_thead *>(this);
    }
 
    /*! Returns the embedded tuple_head.
 
    @return
-      Reference to the embedded tuple head.
+      Const reference to the embedded tuple head.
    */
-   _thead & get_thead() {
-      return static_cast<_thead &>(*this);
-   }
    _thead const & get_thead() const {
-      return static_cast<_thead const &>(*this);
+      return *static_cast<_thead const *>(this);
    }
 
    /*! Returns the embedded tuple_tail.
 
    @return
-      Reference to the embedded tuple tail.
+      Const reference to the embedded tuple tail.
    */
    _ttail & get_ttail() {
-      return static_cast<_ttail &>(*this);
+      return *static_cast<_ttail *>(this);
    }
+
+   /*! Returns the embedded tuple_tail.
+
+   @return
+      Const reference to the embedded tuple tail.
+   */
    _ttail const & get_ttail() const {
-      return static_cast<_ttail const &>(*this);
+      return *static_cast<_ttail const *>(this);
    }
 };
 
@@ -288,23 +396,35 @@ private:
    typedef tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, detail::tuple_void> _ttail;
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   tuple_tail() {
+   }
+
+   /*! Move constructor.
 
    @param tt
-      Source tuple tail.
-   @param t0...t9
+      Source object.
+   */
+   tuple_tail(tuple_tail && tt) :
+      _thead(std::move(tt.get_thead())),
+      _ttail(std::move(tt.get_ttail())) {
+   }
+
+   /*! Copy constructor.
+
+   @param tt
+      Source object.
+   */
+   tuple_tail(tuple_tail const & tt) :
+      _thead(tt.get_thead()),
+      _ttail(tt.get_ttail()) {
+   }
+
+   /*! Element-moving constructor.
+
+   @param u0...u9
       Source elements.
    */
-   tuple_tail() :
-      _thead(), _ttail() {
-   }
-   tuple_tail(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
-   ) :
-      _thead(t0),
-      _ttail(t1, t2, t3, t4, t5, t6, t7, t8, t9, detail::tuple_void()) {
-   }
    template <
       typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
       typename U7, typename U8, typename U9
@@ -320,30 +440,47 @@ public:
          std::forward<U9>(u9), detail::tuple_void()
       ) {
    }
-   tuple_tail(tuple_tail const & tt) :
-      _thead(tt.get_thead()),
-      _ttail(tt.get_ttail()) {
-   }
-   tuple_tail(tuple_tail && tt) :
-      _thead(std::move(tt.get_thead())),
-      _ttail(std::move(tt.get_ttail())) {
+
+   /*! Element-copying constructor.
+
+   @param u0...u9
+      Source elements.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple_tail(
+      U0 const & u0, U1 const & u1, U2 const & u2, U3 const & u3, U4 const & u4, U5 const & u5,
+      U6 const & u6, U7 const & u7, U8 const & u8, U9 const & u9
+   ) :
+      _thead(u0),
+      _ttail(u1, u2, u3, u4, u5, u6, u7, u8, u9, detail::tuple_void()) {
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param tt
-      Source tuple tail.
+      Source object.
+   @return
+      *this.
+   */
+   tuple_tail & operator=(tuple_tail && tt) {
+      get_thead() = std::move(tt.get_thead());
+      get_ttail() = std::move(tt.get_ttail());
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param tt
+      Source object.
    @return
       *this.
    */
    tuple_tail & operator=(tuple_tail const & tt) {
       get_thead() = tt.get_thead();
       get_ttail() = tt.get_ttail();
-      return *this;
-   }
-   tuple_tail & operator=(tuple_tail && tt) {
-      get_thead() = std::move(tt.get_thead());
-      get_ttail() = std::move(tt.get_ttail());
       return *this;
    }
 
@@ -355,6 +492,12 @@ public:
    _thead & get_thead() {
       return *static_cast<_thead *>(this);
    }
+
+   /*! Returns the embedded tuple_head.
+
+   @return
+      Const reference to the embedded tuple head.
+   */
    _thead const & get_thead() const {
       return *static_cast<_thead const *>(this);
    }
@@ -367,6 +510,12 @@ public:
    _ttail & get_ttail() {
       return *static_cast<_ttail *>(this);
    }
+
+   /*! Returns the embedded tuple_tail.
+
+   @return
+      Const reference to the embedded tuple tail.
+   */
    _ttail const & get_ttail() const {
       return *static_cast<_ttail const *>(this);
    }
@@ -381,15 +530,15 @@ class tuple_tail<
    detail::tuple_void, detail::tuple_void
 > {
 public:
-   /*! Constructor.
-
-   @param tt
-      Source tuple tail.
-   */
+   //! Default constructor.
    tuple_tail() {
    }
+
+   //! Copy constructor.
    tuple_tail(tuple_tail const &) {
    }
+
+   //! Constructor.
    tuple_tail(
       detail::tuple_void const &, detail::tuple_void const &, detail::tuple_void const &,
       detail::tuple_void const &, detail::tuple_void const &, detail::tuple_void const &,
@@ -398,7 +547,7 @@ public:
    ) {
    }
 
-   /*! Assignment operator.
+   /*! Copy-assignment operator.
 
    @return
       *this.
@@ -425,43 +574,69 @@ private:
    typedef detail::tuple_tail<0, Ts ...> _timpl;
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   /*constexpr*/ tuple() {
+   }
 
-   @param ts
-      Source elements.
+   /*! Move constructor.
+
    @param tpl
-      Source tuple.
+      Source object.
    */
-   /*constexpr*/ tuple() :
-      _timpl() {
-   }
-   explicit tuple(Ts const &... ts) :
-      _timpl(ts ...) {
-   }
-   template <typename... Us>
-   explicit tuple(Us &&... us) :
-      _timpl(std::forward<Us>(us) ...) {
-   }
-   tuple(tuple const & tpl) :
-      _timpl(static_cast<_timpl const &>(tpl)) {
-   }
    tuple(tuple && tpl) :
       _timpl(static_cast<_timpl &&>(tpl)) {
    }
 
-   /*! Assignment operator.
+   /*! Copy constructor.
 
    @param tpl
-      Source tuple.
+      Source object.
+   */
+   tuple(tuple const & tpl) :
+      _timpl(static_cast<_timpl const &>(tpl)) {
+   }
+
+   /*! Element-moving constructor.
+
+   @param us
+      Source elements.
+   */
+   template <typename... Us>
+   explicit tuple(Us &&... us) :
+      _timpl(std::forward<Us>(us) ...) {
+   }
+
+   /*! Element-copying constructor.
+
+   @param ts
+      Source elements.
+   */
+   template <typename... Us>
+   explicit tuple(Us const &... us) :
+      _timpl(us ...) {
+   }
+
+   /*! Move-assignment operator.
+
+   @param tpl
+      Source object.
+   @return
+      *this.
+   */
+   tuple & operator=(tuple && tpl) {
+      _timpl::operator=(static_cast<_timpl &&>(tpl));
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param tpl
+      Source object.
    @return
       *this.
    */
    tuple & operator=(tuple const & tpl) {
       _timpl::operator=(static_cast<_timpl const &>(tpl));
-      return *this;
-   }
-   tuple & operator=(tuple && tpl) {
-      _timpl::operator=(static_cast<_timpl &&>(tpl));
       return *this;
    }
 };
@@ -481,37 +656,41 @@ private:
    typedef detail::tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _timpl;
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   /*constexpr*/ tuple() {
+   }
 
-   @param t0...t9
-      Source elements.
+   /*! Move constructor.
+
    @param tpl
-      Source tuple.
+      Source object.
    */
-   /*constexpr*/ tuple() :
-      _timpl(
-         _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
-         _tvoid()
-      ) {
+   tuple(tuple && tpl) :
+      _timpl(static_cast<_timpl &&>(tpl)) {
    }
-   // Overloads for tuple of 1.
-   explicit tuple(T0 const & t0) :
-      _timpl(
-         t0, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
-         _tvoid()
-      ) {
+
+   /*! Copy constructor.
+
+   @param tpl
+      Source object.
+   */
+   tuple(tuple const & tpl) :
+      _timpl(static_cast<_timpl const &>(tpl)) {
    }
+
+   /*! Element-moving constructor.
+
+   Note: every extra element is initialized to _tvoid() to ensure one can’t select an overload with
+   a number of argument that doesn’t match the element count of the tuple.
+
+   @param u0...u9
+      Source elements.
+   */
    template <typename U0>
    explicit tuple(U0 && u0) :
       _timpl(
-         std::forward<U0>(u0), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
-         _tvoid(), _tvoid(), _tvoid()
-      ) {
-   }
-   // Overloads for tuple of 2.
-   tuple(T0 const & t0, T1 const & t1) :
-      _timpl(
-         t0, t1, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
+         std::forward<U0>(u0), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         _tvoid(), _tvoid()
       ) {
    }
    template <typename U0, typename U1>
@@ -521,10 +700,6 @@ public:
          _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
-   // Overloads for tuple of 3.
-   tuple(T0 const & t0, T1 const & t1, T2 const & t2) :
-      _timpl(t0, t1, t2, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
-   }
    template <typename U0, typename U1, typename U2>
    tuple(U0 && u0, U1 && u1, U2 && u2) :
       _timpl(
@@ -532,21 +707,11 @@ public:
          _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
-   // Overloads for tuple of 4.
-   tuple(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) :
-      _timpl(t0, t1, t2, t3, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
-   }
    template <typename U0, typename U1, typename U2, typename U3>
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3) :
       _timpl(
          std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
          _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
-      ) {
-   }
-   // Overloads for tuple of 5.
-   tuple(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4) :
-      _timpl(
-         t0, t1, t2, t3, t4, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4>
@@ -556,23 +721,12 @@ public:
          std::forward<U4>(u4), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
-   // Overloads for tuple of 6.
-   tuple(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5) :
-      _timpl(t0, t1, t2, t3, t4, t5, _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
-   }
    template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5) :
       _timpl(
          std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
          std::forward<U4>(u4), std::forward<U5>(u5), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
-   }
-   // Overloads for tuple of 7.
-   tuple(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6
-   ) :
-      _timpl(t0, t1, t2, t3, t4, t5, t6, _tvoid(), _tvoid(), _tvoid()) {
    }
    template <
       typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6
@@ -583,13 +737,6 @@ public:
          std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), _tvoid(), _tvoid(),
          _tvoid()
       ) {
-   }
-   // Overloads for tuple of 8.
-   tuple(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7
-   ) :
-      _timpl(t0, t1, t2, t3, t4, t5, t6, t7, _tvoid(), _tvoid()) {
    }
    template <
       typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
@@ -602,16 +749,9 @@ public:
          _tvoid(), _tvoid()
       ) {
    }
-   // Overloads for tuple of 9.
-   tuple(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7, T8 const & t8
-   ) :
-      _timpl(t0, t1, t2, t3, t4, t5, t6, t7, t8, _tvoid()) {
-   }
    template <
-      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5,
-      typename U6, typename U7, typename U8
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8
    >
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6, U7 && u7, U8 && u8) :
       _timpl(
@@ -619,13 +759,6 @@ public:
          std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7),
          std::forward<U8>(u8), _tvoid()
       ) {
-   }
-   // Overloads for tuple of 10.
-   tuple(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
-   ) :
-      _timpl(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
    }
    template <
       typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
@@ -641,17 +774,88 @@ public:
          std::forward<U8>(u8), std::forward<U9>(u9)
       ) {
    }
-   tuple(tuple const & tpl) :
-      _timpl(static_cast<_timpl const &>(tpl)) {
+
+   /*! Element-copying constructor.
+
+   Note: every extra element is initialized to _tvoid() to ensure one can’t select an overload with
+   a number of argument that doesn’t match the element count of the tuple.
+
+   @param u0...u9
+      Source elements.
+   */
+   template <typename U0>
+   explicit tuple(U0 const & u0) :
+      _timpl(
+         u0, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         _tvoid()
+      ) {
    }
-   tuple(tuple && tpl) :
-      _timpl(static_cast<_timpl &&>(tpl)) {
+   template <typename U0, typename U1>
+   tuple(U0 const & u0, U1 const & u1) :
+      _timpl(
+         u0, u1, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
+      ) {
+   }
+   template <typename U0, typename U1, typename U2>
+   tuple(U0 const & u0, U1 const & u1, U2 const & u2) :
+      _timpl(u0, u1, u2, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
+   }
+   template <typename U0, typename U1, typename U2, typename U3>
+   tuple(U0 const & u0, U1 const & u1, U2 const & u2, U3 const & u3) :
+      _timpl(u0, u1, u2, u3, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
+   }
+   template <typename U0, typename U1, typename U2, typename U3, typename U4>
+   tuple(U0 const & u0, U1 const & u1, U2 const & u2, U3 const & u3, U4 const & u4) :
+      _timpl(u0, u1, u2, u3, u4, _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
+   }
+   template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
+   tuple(U0 const & u0, U1 const & u1, U2 const & u2, U3 const & u3, U4 const & u4, U5 const & u5) :
+      _timpl(u0, u1, u2, u3, u4, u5, _tvoid(), _tvoid(), _tvoid(), _tvoid()) {
+   }
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6
+   >
+   tuple(
+      U0 const & u0, U1 const & u1, U2 const & u2, U3 const & u3, U4 const & u4, U5 const & u5,
+      U6 const & u6
+   ) :
+      _timpl(u0, u1, u2, u3, u4, u5, u6, _tvoid(), _tvoid(), _tvoid()) {
+   }
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7
+   >
+   tuple(
+      U0 const & u0, U1 const & u1, U2 const & u2, U3 const & u3, U4 const & u4, U5 const & u5,
+      U6 const & u6, U7 const & u7
+   ) :
+      _timpl(u0, u1, u2, u3, u4, u5, u6, u7, _tvoid(), _tvoid()) {
+   }
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8
+   >
+   tuple(
+      U0 const & u0, U1 const & u1, U2 const & u2, U3 const & u3, U4 const & u4, U5 const & u5,
+      U6 const & u6, U7 const & u7, U8 const & u8
+   ) :
+      _timpl(u0, u1, u2, u3, u4, u5, u6, u7, u8, _tvoid()) {
+   }
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple(
+      U0 const & u0, U1 const & u1, U2 const & u2, U3 const & u3, U4 const & u4, U5 const & u5,
+      U6 const & u6, U7 const & u7, U8 const & u8, U9 const & u9
+   ) :
+      _timpl(u0, u1, u2, u3, u4, u5, u6, u7, u8, u9) {
    }
 
-   /*! Assignment operator.
+   /*! Copy-assignment operator.
 
    @param tpl
-      Source tuple.
+      Source object.
    @return
       *this.
    */
@@ -659,6 +863,14 @@ public:
       _timpl::operator=(static_cast<_timpl const &>(tpl));
       return *this;
    }
+
+   /*! Move-assignment operator.
+
+   @param tpl
+      Source object.
+   @return
+      *this.
+   */
    tuple & operator=(tuple && tpl) {
       _timpl::operator=(static_cast<_timpl &&>(tpl));
       return *this;
