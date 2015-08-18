@@ -82,6 +82,26 @@ public:
       T(th.get()) {
    }
 
+   /*! Move constructor.
+
+   @param th
+      Source object.
+   */
+   template <typename U>
+   tuple_head(tuple_head<t_i, U> && th) :
+      T(std::move(th.get())) {
+   }
+
+   /*! Copy constructor.
+
+   @param th
+      Source object.
+   */
+   template <typename U>
+   tuple_head(tuple_head<t_i, U> const & th) :
+      T(th.get()) {
+   }
+
    /*! Element-moving constructor.
 
    @param u
@@ -194,6 +214,26 @@ public:
       Source object.
    */
    tuple_head(tuple_head const & th) :
+      m_t(th.get()) {
+   }
+
+   /*! Move constructor.
+
+   @param th
+      Source object.
+   */
+   template <typename U>
+   tuple_head(tuple_head<t_i, U> && th) :
+      m_t(std::move(th.get())) {
+   }
+
+   /*! Copy constructor.
+
+   @param th
+      Source object.
+   */
+   template <typename U>
+   tuple_head(tuple_head<t_i, U> const & th) :
       m_t(th.get()) {
    }
 
@@ -337,6 +377,28 @@ public:
       Source object.
    */
    tuple_tail(tuple_tail const & tt) :
+      _thead(tt.get_thead()),
+      _ttail(tt.get_ttail()) {
+   }
+
+   /*! Move constructor.
+
+   @param tt
+      Source object.
+   */
+   template <typename U0, typename... Us>
+   tuple_tail(tuple_tail<t_i, U0, Us> && tt) :
+      _thead(std::move(tt.get_thead())),
+      _ttail(std::move(tt.get_ttail())) {
+   }
+
+   /*! Copy constructor.
+
+   @param tt
+      Source object.
+   */
+   template <typename U0, typename... Us>
+   tuple_tail(tuple_tail<t_i, U0, Us> const & tt) :
       _thead(tt.get_thead()),
       _ttail(tt.get_ttail()) {
    }
@@ -496,6 +558,34 @@ public:
       Source object.
    */
    tuple_tail(tuple_tail const & tt) :
+      _thead(tt.get_thead()),
+      _ttail(tt.get_ttail()) {
+   }
+
+   /*! Move constructor.
+
+   @param tt
+      Source object.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple_tail(tuple_tail<t_i, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tt) :
+      _thead(std::move(tt.get_thead())),
+      _ttail(std::move(tt.get_ttail())) {
+   }
+
+   /*! Copy constructor.
+
+   @param tt
+      Source object.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple_tail(tuple_tail<t_i, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const & tt) :
       _thead(tt.get_thead()),
       _ttail(tt.get_ttail()) {
    }
@@ -710,6 +800,26 @@ public:
       _timpl(static_cast<_timpl const &>(tpl)) {
    }
 
+   /*! Move constructor.
+
+   @param tpl
+      Source object.
+   */
+   template <typename... Us>
+   tuple(tuple<Us...> && tpl) :
+      _timpl(static_cast<detail::tuple_tail<0, Us...> &&>(tpl)) {
+   }
+
+   /*! Copy constructor.
+
+   @param tpl
+      Source object.
+   */
+   template <typename... Us>
+   tuple(tuple<Us...> const & tpl) :
+      _timpl(static_cast<detail::tuple_tail<0, Us...> const &>(tpl)) {
+   }
+
    /*! Element-moving constructor.
 
    @param us
@@ -816,6 +926,34 @@ public:
    */
    tuple(tuple const & tpl) :
       _timpl(static_cast<_timpl const &>(tpl)) {
+   }
+
+   /*! Move constructor.
+
+   @param tpl
+      Source object.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tpl) :
+      _timpl(static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> &&>(tpl)) {
+   }
+
+   /*! Copy constructor.
+
+   @param tpl
+      Source object.
+   */
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6,
+      typename U7, typename U8, typename U9
+   >
+   tuple(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const & tpl) :
+      _timpl(
+         static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const &>(tpl)
+      ) {
    }
 
    /*! Element-moving constructor.
