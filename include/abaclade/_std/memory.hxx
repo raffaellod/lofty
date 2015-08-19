@@ -27,11 +27,31 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#include <abaclade/_std/new.hxx>
-#include <abaclade/_std/type_traits.hxx>
-#include <abaclade/_std/tuple.hxx>
-#include <abaclade/_std/exception.hxx>
-#include <abaclade/_std/typeinfo.hxx>
+// TODO: move this to abaclade.hxx or maybe a _std.hxx that includes all these namespace pulls.
+#if defined(ABC_STLIMPL)
+   #include <abaclade/_std/new.hxx>
+   #include <abaclade/_std/type_traits.hxx>
+   #include <abaclade/_std/exception.hxx>
+   #include <abaclade/_std/typeinfo.hxx>
+#else
+   #include <new>
+   #include <type_traits>
+   #include <exception>
+   #include <typeinfo>
+
+   namespace abc { namespace _std {
+
+   using ::std::add_lvalue_reference;
+   using ::std::conditional;
+   using ::std::exception;
+   using ::std::is_reference;
+   using ::std::move;
+   using ::std::nothrow;
+   using ::std::nothrow_t;
+   using ::std::remove_reference;
+
+   }} //namespace abc::_std
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,16 +62,18 @@ namespace abc { namespace _std {
 template <typename T>
 class default_delete {
 public:
-   /*! Constructor.
-
-   @param dd2
-      Source object.
-   */
+   //! Default constructor.
    /*constexpr*/ default_delete() {
    }
-   template <class T2>
-   default_delete(default_delete<T2> const & dd2) {
-      ABC_UNUSED_ARG(dd2);
+
+   /*! Copy constructor.
+
+   @param dd
+      Source object.
+   */
+   template <typename U>
+   default_delete(default_delete<U> const & dd) {
+      ABC_UNUSED_ARG(dd);
    }
 
    /*! Function call operator.
@@ -375,15 +397,15 @@ public:
    */
    unique_ptr & operator=(unique_ptr && upt) {
       if (&upt != this) {
-         std::get<0>(m_pt_and_tdel) = upt.release();
-         std::get<1>(m_pt_and_tdel) = move(upt.get_deleter());
+         _std::get<0>(m_pt_and_tdel) = upt.release();
+         _std::get<1>(m_pt_and_tdel) = move(upt.get_deleter());
       }
       return *this;
    }
    template <class T2, typename TDel2>
    unique_ptr & operator=(unique_ptr<T2, TDel2> && upt2) {
-      std::get<0>(m_pt_and_tdel) = upt2.release();
-      std::get<1>(m_pt_and_tdel) = move(upt2.get_deleter());
+      _std::get<0>(m_pt_and_tdel) = upt2.release();
+      _std::get<1>(m_pt_and_tdel) = move(upt2.get_deleter());
       return *this;
    }
    unique_ptr & operator=(nullptr_t) {
@@ -424,7 +446,7 @@ public:
       Pointer to the owned object.
    */
    T * get() const {
-      return std::get<0>(m_pt_and_tdel);
+      return _std::get<0>(m_pt_and_tdel);
    }
 
    /*! Returns the stored deleter.
@@ -433,10 +455,10 @@ public:
       Reference to the deleter.
    */
    TDel & get_deleter() {
-      return std::get<1>(m_pt_and_tdel);
+      return _std::get<1>(m_pt_and_tdel);
    }
    TDel const & get_deleter() const {
-      return std::get<1>(m_pt_and_tdel);
+      return _std::get<1>(m_pt_and_tdel);
    }
 
    /*! Returns the wrapped pointer, and deassociates from it.
@@ -446,7 +468,7 @@ public:
    */
    T * release() {
       T * pt = get();
-      std::get<0>(m_pt_and_tdel) = nullptr;
+      _std::get<0>(m_pt_and_tdel) = nullptr;
       return pt;
    }
 
@@ -458,13 +480,13 @@ public:
    */
    void reset(T * pt = nullptr) {
       T * ptOld = get();
-      std::get<0>(m_pt_and_tdel) = move(pt);
+      _std::get<0>(m_pt_and_tdel) = move(pt);
       if (ptOld) {
          get_deleter()(ptOld);
       }
    }
 
-protected:
+private:
    /*! Wrapper for pointer and deleter. It’s a tuple, so that an empty TDel can end up taking up no
    space at all due to EBO. */
    tuple<T *, TDel> m_pt_and_tdel;
@@ -525,8 +547,8 @@ public:
    */
    unique_ptr & operator=(unique_ptr && upt) {
       if (&upt != this) {
-         std::get<0>(m_pt_and_tdel) = upt.release();
-         std::get<1>(m_pt_and_tdel) = move(upt.get_deleter());
+         _std::get<0>(m_pt_and_tdel) = upt.release();
+         _std::get<1>(m_pt_and_tdel) = move(upt.get_deleter());
       }
       return *this;
    }
@@ -561,7 +583,7 @@ public:
       Pointer to the owned array.
    */
    T * get() const {
-      return std::get<0>(m_pt_and_tdel);
+      return _std::get<0>(m_pt_and_tdel);
    }
 
    /*! Returns the stored deleter.
@@ -570,10 +592,10 @@ public:
       Reference to the deleter.
    */
    TDel & get_deleter() {
-      return std::get<1>(m_pt_and_tdel);
+      return _std::get<1>(m_pt_and_tdel);
    }
    TDel const & get_deleter() const {
-      return std::get<1>(m_pt_and_tdel);
+      return _std::get<1>(m_pt_and_tdel);
    }
 
    /*! Returns the wrapped pointer, and deassociates from it.
@@ -583,7 +605,7 @@ public:
    */
    T * release() {
       T * pt = get();
-      std::get<0>(m_pt_and_tdel) = nullptr;
+      _std::get<0>(m_pt_and_tdel) = nullptr;
       return pt;
    }
 
@@ -595,13 +617,13 @@ public:
    */
    void reset(T * pt = nullptr) {
       T * ptOld = get();
-      std::get<0>(m_pt_and_tdel) = move(pt);
+      _std::get<0>(m_pt_and_tdel) = move(pt);
       if (ptOld) {
          get_deleter()(ptOld);
       }
    };
 
-protected:
+private:
    /*! Wrapper for pointer and deleter. It’s a tuple, so that an empty TDel can end up taking up no
    space at all due to EBO. */
    tuple<T *, TDel> m_pt_and_tdel;
@@ -631,7 +653,7 @@ namespace abc { namespace _std {
 
 /*! Type of exception thrown by shared_ptr in case of attempt to lock an expired weak_ptr (C++11 §
 20.7.2.1 “Class bad_weak_ptr”). */
-class bad_weak_ptr : public std::exception {
+class bad_weak_ptr : public exception {
 public:
    //! See exception::exception().
    bad_weak_ptr();
@@ -672,7 +694,7 @@ public:
       m_cWeakRefs.fetch_add(1);
    }
 
-   /*! Returns the deleter in use by this owner, if any. Used by std::get_deleter().
+   /*! Returns the deleter in use by this owner, if any. Used by get_deleter().
 
    TODO: comment signature.
    */
@@ -742,7 +764,7 @@ public:
 
    //! Destructor.
    virtual ~basic_shared_refcount() {
-      ABC_ASSERT(!m_pt);
+      //ABC_ASSERT(!m_pt);
    }
 
 protected:
@@ -854,6 +876,10 @@ class weak_ptr;
 //! Smart resource-sharing pointer (C++11 § 20.7.2.2 “Class template shared_ptr”).
 template <typename T>
 class shared_ptr : public support_explicit_operator_bool<shared_ptr<T>> {
+private:
+   template <typename U>
+   friend class shared_ptr;
+
 public:
    //! Type of the element pointed to.
    typedef T element_type;
@@ -942,7 +968,7 @@ public:
    */
    shared_ptr & operator=(shared_ptr const & spt) {
       if (&spt != this) {
-         T * psrNew = spt.m_psr;
+         detail::shared_refcount * psrNew = spt.m_psr;
          if (psrNew) {
             psrNew->add_strong_ref();
          }
@@ -1058,7 +1084,7 @@ public:
       return m_psr ? m_psr->use_count() : 0;
    }
 
-protected:
+private:
    /*! Constructor. Non-standard.
 
    TODO: comment signature.
@@ -1077,7 +1103,7 @@ protected:
       return m_psr;
    }
 
-protected:
+private:
    //! Shared reference count. We hold a strong reference to it.
    detail::shared_refcount * m_psr;
    //! Owned object.
@@ -1232,7 +1258,7 @@ public:
       return m_psr ? m_psr->use_count() : 0;
    }
 
-protected:
+private:
    /*! Constructor. Non-standard, used by make_shared().
 
    TODO: comment signature.
@@ -1259,7 +1285,7 @@ protected:
       return m_pt;
    }
 
-protected:
+private:
    //! Shared reference count. We hold a weak reference to it.
    detail::shared_refcount * m_psr;
    /*! Weakly-owned object. Not to be used directly; we only keep it to pass it when constructing a
