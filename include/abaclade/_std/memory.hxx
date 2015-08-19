@@ -44,6 +44,7 @@ You should have received a copy of the GNU General Public License along with Aba
    using ::std::add_lvalue_reference;
    using ::std::conditional;
    using ::std::exception;
+   using ::std::forward;
    using ::std::is_reference;
    using ::std::move;
    using ::std::nothrow;
@@ -333,7 +334,7 @@ namespace abc { namespace _std {
 
 //! Smart resource-owning pointer (C++11 § 20.7.1.2 “unique_ptr for single objects”).
 template <typename T, typename TDel = default_delete<T>>
-class unique_ptr : public noncopyable {
+class unique_ptr : public noncopyable, public support_explicit_operator_bool<unique_ptr<T, TDel>> {
 public:
    //! Type of the element pointed to.
    typedef T element_type;
@@ -495,7 +496,9 @@ private:
 /* Specialization for dynamically-allocated arrays (C++11 § 20.7.1.3 “unique_ptr for array objects
 with a runtime length”). */
 template <typename T, typename TDel>
-class unique_ptr<T[], TDel> : public noncopyable {
+class unique_ptr<T[], TDel> :
+   public noncopyable,
+   public support_explicit_operator_bool<unique_ptr<T[], TDel>> {
 public:
    //! Type of the element pointed to.
    typedef T element_type;
@@ -675,7 +678,7 @@ namespace abc { namespace _std { namespace detail {
 
 All strong references to this object collectively hold a weak reference to it; this prevents race
 conditions upon release of the last strong reference in absence of other weak references. */
-class shared_refcount : public noncopyable {
+class ABACLADE_SYM shared_refcount : public noncopyable {
 public:
    /*! Constructor.
 
@@ -856,16 +859,15 @@ protected:
 
 namespace abc { namespace _std {
 
-// Forward declaration.
-template <typename T>
-class weak_ptr;
-
 //! Smart resource-sharing pointer (C++11 § 20.7.2.2 “Class template shared_ptr”).
 template <typename T>
 class shared_ptr : public support_explicit_operator_bool<shared_ptr<T>> {
 private:
    template <typename U>
    friend class shared_ptr;
+
+   template <typename U>
+   friend class weak_ptr;
 
    template <typename T2, typename U>
    friend shared_ptr<T2> const_pointer_cast(shared_ptr<U> const & pu);
@@ -1177,6 +1179,10 @@ namespace abc { namespace _std {
 weak_ptr”). */
 template <typename T>
 class weak_ptr {
+private:
+   template <typename U>
+   friend class shared_ptr;
+
 public:
    //! Type of the element pointed to.
    typedef T element_type;
@@ -1356,8 +1362,8 @@ private:
 template <typename T>
 template <typename T2>
 inline shared_ptr<T>::shared_ptr(weak_ptr<T2> const & wpt2) :
-   m_psr(wpt2->get_shared_refcount()),
-   m_pt(wpt2->get()) {
+   m_psr(wpt2.get_shared_refcount()),
+   m_pt(wpt2.get()) {
    m_psr->add_strong_ref();
 }
 
