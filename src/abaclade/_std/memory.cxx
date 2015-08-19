@@ -47,15 +47,21 @@ shared_refcount::shared_refcount(unsigned cStrongRefs, unsigned cWeakRefs) :
 }
 
 /*virtual*/ shared_refcount::~shared_refcount() {
-   ABC_ASSERT(m_cStrongRefs == 0);
-   ABC_ASSERT(m_cWeakRefs == 0);
+   ABC_ASSERT(
+      m_cStrongRefs.load() == 0,
+      ABC_SL("shared_refcount being destructed with non-zero strong references!")
+   );
+   ABC_ASSERT(
+      m_cWeakRefs.load() == 0,
+      ABC_SL("shared_refcount being destructed with non-zero weak references!")
+   );
 }
 
 void shared_refcount::add_strong_ref() {
    // Increment the count of strong references if non-zero; it it’s zero, the owned object is gone.
    unsigned cStrongRefsOld;
    do {
-      cStrongRefsOld = m_cStrongRefs;
+      cStrongRefsOld = m_cStrongRefs.load();
       if (cStrongRefsOld == 0) {
          throw bad_weak_ptr();
       }
