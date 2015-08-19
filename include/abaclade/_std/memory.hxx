@@ -1148,9 +1148,12 @@ private:
 
    TODO: comment signature.
    */
-   shared_ptr(detail::shared_refcount * psr, T * pt) :
+   shared_ptr(detail::shared_refcount * psr, T * pt, bool bAddRef) :
       m_psr(psr),
       m_pt(pt) {
+      if (bAddRef) {
+         m_psr->add_strong_ref();
+      }
    }
 
    /*! Returns a pointer to the shared object owner. Non-standard.
@@ -1483,7 +1486,7 @@ inline shared_ptr<T> make_shared(TArgs &&... targs) {
    ::new(get<1>(tpl)) T(forward<TArgs>(targs)...);
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -1494,7 +1497,7 @@ inline shared_ptr<T> make_shared() {
    ::new(get<1>(tpl)) T();
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 1-argument T::T().
 template <typename T, typename TArg0>
@@ -1503,7 +1506,7 @@ inline shared_ptr<T> make_shared(TArg0 && targ0) {
    ::new(get<1>(tpl)) T(forward<TArg0>(targ0));
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 2-argument T::T().
 template <typename T, typename TArg0, typename TArg1>
@@ -1512,7 +1515,7 @@ inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1) {
    ::new(get<1>(tpl)) T(forward<TArg0>(targ0), forward<TArg1>(targ1));
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 3-argument T::T().
 template <typename T, typename TArg0, typename TArg1, typename TArg2>
@@ -1521,7 +1524,7 @@ inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1, TArg2 && targ2)
    ::new(get<1>(tpl)) T(forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2));
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 4-argument T::T().
 template <typename T, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
@@ -1532,7 +1535,7 @@ inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1, TArg2 && targ2,
    );
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 5-argument T::T().
 template <
@@ -1548,7 +1551,7 @@ inline shared_ptr<T> make_shared(
    );
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 6-argument T::T().
 template <
@@ -1565,7 +1568,7 @@ inline shared_ptr<T> make_shared(
    );
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 7-argument T::T().
 template <
@@ -1583,7 +1586,7 @@ inline shared_ptr<T> make_shared(
    );
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 8-argument T::T().
 template <
@@ -1601,7 +1604,7 @@ inline shared_ptr<T> make_shared(
    );
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 9-argument T::T().
 template <
@@ -1620,7 +1623,7 @@ inline shared_ptr<T> make_shared(
    );
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 // Overload for 10-argument T::T().
 template <
@@ -1639,7 +1642,7 @@ inline shared_ptr<T> make_shared(
    );
    return shared_ptr<T>(static_cast<detail::shared_refcount *>(
       static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
-   ), get<1>(tpl));
+   ), get<1>(tpl), false);
 }
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -1659,7 +1662,7 @@ namespace abc { namespace _std {
 */
 template <typename T, typename U>
 inline shared_ptr<T> const_pointer_cast(shared_ptr<U> const & pu) {
-   return shared_ptr<T>(pu.get_shared_refcount(), const_cast<T *>(pu.get()));
+   return shared_ptr<T>(pu.get_shared_refcount(), const_cast<T *>(pu.get()), true);
 }
 
 /* Perform a dynamic_cast<>() on a shared_ptr instance (C++11 § 20.7.2.2.9 “shared_ptr casts”).
@@ -1671,7 +1674,7 @@ inline shared_ptr<T> const_pointer_cast(shared_ptr<U> const & pu) {
 */
 template <typename T, typename U>
 inline shared_ptr<T> dynamic_pointer_cast(shared_ptr<U> const & pu) {
-   return shared_ptr<T>(pu.get_shared_refcount(), dynamic_cast<T *>(pu.get()));
+   return shared_ptr<T>(pu.get_shared_refcount(), dynamic_cast<T *>(pu.get()), true);
 }
 
 /* Perform a static_cast<>() on a shared_ptr instance (C++11 § 20.7.2.2.9 “shared_ptr casts”).
@@ -1683,7 +1686,7 @@ inline shared_ptr<T> dynamic_pointer_cast(shared_ptr<U> const & pu) {
 */
 template <typename T, typename U>
 inline shared_ptr<T> static_pointer_cast(shared_ptr<U> const & pu) {
-   return shared_ptr<T>(pu.get_shared_refcount(), static_cast<T *>(pu.get()));
+   return shared_ptr<T>(pu.get_shared_refcount(), static_cast<T *>(pu.get()), true);
 }
 
 }} //namespace abc::_std
