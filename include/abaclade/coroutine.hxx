@@ -148,7 +148,7 @@ public:
 
 private:
    //! Pointer to the implementation instance.
-   std::shared_ptr<impl> m_pimpl;
+   _std::shared_ptr<impl> m_pimpl;
 };
 
 } //namespace abc

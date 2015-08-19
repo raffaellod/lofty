@@ -367,7 +367,7 @@ void to_str_backend<std::type_info>::write(std::type_info const & ti, io::text::
 #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
    // Clang and G++ generate mangled names.
    int iRet = 0;
-   std::unique_ptr<char const, memory::freeing_deleter> pszDemangled(
+   _std::unique_ptr<char const, memory::freeing_deleter> pszDemangled(
       abi::__cxa_demangle(psz, nullptr, nullptr, &iRet)
    );
    if (iRet >= 0 && pszDemangled) {

@@ -122,7 +122,7 @@ public:
    @param xct
       Type of exception to inject.
    */
-   void inject_exception(std::shared_ptr<impl> const & pimplThis, exception::common_type xct) {
+   void inject_exception(_std::shared_ptr<impl> const & pimplThis, exception::common_type xct) {
       ABC_TRACE_FUNC(this, pimplThis, xct);
 
       /* Avoid interrupting the coroutine if there’s already a pending interruption (xctExpected !=
@@ -222,7 +222,7 @@ namespace abc {
 coroutine::coroutine() {
 }
 /*explicit*/ coroutine::coroutine(std::function<void ()> fnMain) :
-   m_pimpl(std::make_shared<impl>(std::move(fnMain))) {
+   m_pimpl(_std::make_shared<impl>(std::move(fnMain))) {
    this_thread::attach_coroutine_scheduler()->add_ready(m_pimpl);
 }
 
@@ -283,7 +283,7 @@ void to_str_backend<coroutine>::write(coroutine const & coro, io::text::writer *
 
 namespace abc {
 
-thread_local_value<std::shared_ptr<coroutine::impl>> coroutine::scheduler::sm_pcoroimplActive;
+thread_local_value<_std::shared_ptr<coroutine::impl>> coroutine::scheduler::sm_pcoroimplActive;
 #if ABC_HOST_API_POSIX
 thread_local_value< ::ucontext_t *> coroutine::scheduler::sm_puctxReturn /*= nullptr*/;
 #elif ABC_HOST_API_WIN32
@@ -333,7 +333,7 @@ coroutine::scheduler::~scheduler() {
 #endif
 }
 
-void coroutine::scheduler::add_ready(std::shared_ptr<impl> pcoroimpl) {
+void coroutine::scheduler::add_ready(_std::shared_ptr<impl> pcoroimpl) {
    ABC_TRACE_FUNC(this, pcoroimpl);
 
 //   _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
@@ -570,9 +570,9 @@ void coroutine::scheduler::block_active_until_fd_ready(
    impl * pcoroimpl;
    {
 //      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
-      pcoroimpl = m_hmCorosBlockedByFD.add_or_assign(
+      pcoroimpl = _std::get<0>(m_hmCorosBlockedByFD.add_or_assign(
          fd, std::move(sm_pcoroimplActive)
-      ).first->value.get();
+      ))->value.get();
    }
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
@@ -592,7 +592,7 @@ void coroutine::scheduler::block_active_until_fd_ready(
 }
 
 void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= false*/) {
-   std::shared_ptr<impl> & pcoroimplActive = sm_pcoroimplActive;
+   _std::shared_ptr<impl> & pcoroimplActive = sm_pcoroimplActive;
    detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
    detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
 #if ABC_HOST_API_POSIX
@@ -663,7 +663,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
 }
 #endif
 
-std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
+_std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
    ABC_TRACE_FUNC(this);
 
    // This loop will only repeat in case of EINTR from the blocking-wait API.
@@ -953,7 +953,7 @@ coroutine::id_type id() {
 
 void interruption_point() {
    if (
-      std::shared_ptr<coroutine::impl> const & pcoroimplActive =
+      _std::shared_ptr<coroutine::impl> const & pcoroimplActive =
          coroutine::scheduler::sm_pcoroimplActive
    ) {
       pcoroimplActive->interruption_point();

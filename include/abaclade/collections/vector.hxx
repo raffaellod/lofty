@@ -638,18 +638,18 @@ protected:
       index; if negative, it’s interpreted as a 1-based index from the end of the item array by
       adding this->size() to it.
    @return
-      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
       interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
    */
-   std::pair<T const *, T const *> translate_range(
+   _std::tuple<T const *, T const *> translate_range(
       std::ptrdiff_t iBegin, std::ptrdiff_t iEnd
    ) const {
       auto range(raw_trivial_vextr_impl::translate_byte_range(
          static_cast<std::ptrdiff_t>(sizeof(T)) * iBegin,
          static_cast<std::ptrdiff_t>(sizeof(T)) * iEnd
       ));
-      return std::make_pair(
-         static_cast<T const *>(range.first), static_cast<T const *>(range.second)
+      return _std::make_tuple(
+         static_cast<T const *>(_std::get<0>(range)), static_cast<T const *>(_std::get<1>(range))
       );
    }
 };
@@ -679,7 +679,7 @@ public:
    */
    dmvector<T, true> slice(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) const {
       auto range(this->translate_range(iBegin, iEnd));
-      return dmvector<T, true>(range.first, range.second);
+      return dmvector<T, true>(_std::get<0>(range), _std::get<1>(range));
    }
 
 protected:
@@ -876,15 +876,15 @@ public:
    */
    void remove_range(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) {
       auto range(this->translate_range(iBegin, iEnd));
-      this->remove(range.first, range.second);
+      this->remove(_std::get<0>(range), _std::get<1>(range));
    }
    void remove_range(std::ptrdiff_t iBegin, const_iterator itEnd) {
       auto range(this->translate_range(iBegin, itEnd - this->cbegin()));
-      this->remove(range.first, range.second);
+      this->remove(_std::get<0>(range), _std::get<1>(range));
    }
    void remove_range(const_iterator itBegin, std::ptrdiff_t iEnd) {
       auto range(this->translate_range(itBegin - this->cbegin(), iEnd));
-      this->remove(range.first, range.second);
+      this->remove(_std::get<0>(range), _std::get<1>(range));
    }
    void remove_range(const_iterator itBegin, const_iterator itEnd) {
       this->validate_pointer(itBegin.base());

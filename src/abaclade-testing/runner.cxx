@@ -37,7 +37,7 @@ assertion_error::assertion_error() :
 
 namespace abc { namespace testing {
 
-runner::runner(std::shared_ptr<io::text::writer> ptwOut) :
+runner::runner(_std::shared_ptr<io::text::writer> ptwOut) :
    m_ptwOut(std::move(ptwOut)),
    m_cFailedAssertions(0) {
 }

@@ -159,7 +159,7 @@ public:
 
 private:
    //! Pointer to the implementation instance.
-   std::shared_ptr<impl> m_pimpl;
+   _std::shared_ptr<impl> m_pimpl;
 };
 
 } //namespace abc
@@ -213,8 +213,8 @@ required for the current thread to run coroutines.
    Coroutine scheduler associated to this thread. If pcorosched was non-nullptr, this is the same as
    pcorosched.
 */
-ABACLADE_SYM std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
-   std::shared_ptr<coroutine::scheduler> pcorosched = nullptr
+ABACLADE_SYM _std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
+   _std::shared_ptr<coroutine::scheduler> pcorosched = nullptr
 );
 
 /*! Returns the coroutine scheduler associated to the current thread, if any.
@@ -223,7 +223,7 @@ ABACLADE_SYM std::shared_ptr<coroutine::scheduler> const & attach_coroutine_sche
    Coroutine scheduler associated to this thread. May be nullptr if attach_coroutine_scheduler() was
    never called for the current thread.
 */
-ABACLADE_SYM std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler();
+ABACLADE_SYM _std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler();
 
 //! Removes the current thread’s coroutine scheduler, if any.
 ABACLADE_SYM void detach_coroutine_scheduler();

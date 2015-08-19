@@ -506,10 +506,10 @@ protected:
       offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
       by adding this->size<std::int8_t>() to it.
    @return
-      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
       interval [nullptr, nullptr) if the offsets represent an empty interval after being adjusted.
    */
-   std::pair<void const *, void const *> translate_byte_range(
+   _std::tuple<void const *, void const *> translate_byte_range(
       std::ptrdiff_t ibBegin, std::ptrdiff_t ibEnd
    ) const;
 

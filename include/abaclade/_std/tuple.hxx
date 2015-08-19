@@ -225,6 +225,10 @@ public:
    template <typename U>
    tuple_head(tuple_head<t_i, U> && th) :
       m_t(std::move(th.get())) {
+#if ABC_HOST_CXX_MSC == 1600
+   // MSC16 BUG: thinks that th is not used?!
+   #pragma warning(suppress: 4100)
+#endif
    }
 
    /*! Copy constructor.
@@ -245,6 +249,10 @@ public:
    template <typename U>
    explicit tuple_head(U && u) :
       m_t(std::forward<U>(u)) {
+#if ABC_HOST_CXX_MSC == 1600
+   // MSC16 BUG: thinks that u is not used?!
+   #pragma warning(suppress: 4100)
+#endif
    }
 
    /*! Element-copying constructor.

@@ -441,7 +441,7 @@ public:
    @param pfnFactory
       Pointer to the derived class’s factory function.
    */
-   test_case_factory_impl(std::unique_ptr<test_case> (* pfnFactory)(runner * prunner)) :
+   test_case_factory_impl(_std::unique_ptr<test_case> (* pfnFactory)(runner * prunner)) :
       factory(pfnFactory) {
    }
 
@@ -452,7 +452,7 @@ public:
    @return
       Test case instance.
    */
-   std::unique_ptr<test_case> (* const factory)(runner * prunner);
+   _std::unique_ptr<test_case> (* const factory)(runner * prunner);
 };
 
 }} //namespace abc::testing
@@ -477,8 +477,8 @@ private:
    @param prunner
       Runner to provide to the test case.
    */
-   static std::unique_ptr<test_case> static_factory(runner * prunner) {
-      std::unique_ptr<T> pt(new T());
+   static _std::unique_ptr<test_case> static_factory(runner * prunner) {
+      _std::unique_ptr<T> pt(new T());
       pt->init(prunner);
       return std::move(pt);
    }

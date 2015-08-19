@@ -156,7 +156,7 @@ tcp_server::~tcp_server() {
 #endif
 }
 
-std::shared_ptr<connection> tcp_server::accept() {
+_std::shared_ptr<connection> tcp_server::accept() {
    ABC_TRACE_FUNC(this);
 
    io::filedesc fdConnection;
@@ -277,7 +277,7 @@ std::shared_ptr<connection> tcp_server::accept() {
    // TODO: validate cbClient and set ipaddrClient/portClient using saClient4/6.sin_addr.
    ipaddrClient = ip_address(0);
    portClient = 0;
-   return std::make_shared<connection>(
+   return _std::make_shared<connection>(
       std::move(fdConnection), std::move(ipaddrClient), portClient
    );
 }

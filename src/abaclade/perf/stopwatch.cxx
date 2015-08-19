@@ -37,28 +37,28 @@ namespace abc { namespace perf {
 
 typedef ::timespec timepoint_t;
 
-static std::pair<bool, ::clockid_t> get_timer_clock() {
+static _std::tuple<bool, ::clockid_t> get_timer_clock() {
    ::clockid_t clkid;
    // Try and get a timer specific to this process.
    if (::clock_getcpuclockid(0, &clkid) == 0) {
-      return std::make_pair(true, std::move(clkid));
+      return _std::make_tuple(true, std::move(clkid));
    }
 #if defined(CLOCK_PROCESS_CPUTIME_ID)
-   return std::make_pair(true, CLOCK_PROCESS_CPUTIME_ID);
+   return _std::make_tuple(true, CLOCK_PROCESS_CPUTIME_ID);
 #endif //if defined(CLOCK_PROCESS_CPUTIME_ID)
    // No suitable timer to use.
-   return std::make_pair(false, ::clockid_t());
+   return _std::make_tuple(false, ::clockid_t());
 }
 
 static ::timespec get_time_point() {
    auto clkidTimer = get_timer_clock();
-   if (!clkidTimer.first) {
+   if (!_std::get<0>(clkidTimer)) {
       // No suitable timer to use.
       // TODO: do something other than throw.
       throw 0;
    }
    ::timespec tsRet;
-   ::clock_gettime(clkidTimer.second, &tsRet);
+   ::clock_gettime(_std::get<1>(clkidTimer), &tsRet);
    return std::move(tsRet);
 }
 

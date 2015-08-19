@@ -142,7 +142,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    _std::atomic<bool> bThr1Completed(false);
    /* Temporarily redirect stderr to a local string writer, so the exception trace from the thread
    won’t show in the test output. */
-   auto ptswErr(std::make_shared<io::text::str_writer>());
+   auto ptswErr(_std::make_shared<io::text::str_writer>());
    {
       auto ptwOldStdErr(io::text::stderr);
       io::text::stderr = ptswErr;
@@ -203,7 +203,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    /* Temporarily redirect stderr to a local string writer, so the exception trace from the thread
    won’t show in the test output. */
-   auto ptswErr(std::make_shared<io::text::str_writer>());
+   auto ptswErr(_std::make_shared<io::text::str_writer>());
    {
       auto ptwOldStdErr(io::text::stderr);
       io::text::stderr = ptswErr;

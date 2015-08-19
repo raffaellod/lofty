@@ -322,7 +322,7 @@ public:
       key/value pair was just added, or false if the key already existed in the map and the
       corresponding value was overwritten.
    */
-   std::pair<iterator, bool> add_or_assign(TKey key, TValue value) {
+   _std::tuple<iterator, bool> add_or_assign(TKey key, TValue value) {
       ABC_TRACE_FUNC(this/*, key, value*/);
 
       type_void_adapter typeKey, typeValue;
@@ -336,10 +336,10 @@ public:
       typeValue.set_size<TValue>();
       std::size_t iKeyHash = calculate_and_adjust_hash(key), iBucket;
       bool bNew;
-      std::tie(iBucket, bNew) = hash_map_impl::add_or_assign(
+      _std::tie(iBucket, bNew) = hash_map_impl::add_or_assign(
          typeKey, typeValue, &keys_equal, &key, iKeyHash, &value, 1 | 2
       );
-      return std::make_pair(iterator(this, iBucket), bNew);
+      return _std::make_tuple(iterator(this, iBucket), bNew);
    }
 
    /*! Returns an iterator set to the first key/value pair in the map.
@@ -575,7 +575,7 @@ private:
          return smc_iNullIndex;
       }
       std::size_t iNhBegin, iNhEnd;
-      std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+      _std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
 
       std::size_t const * piHash      = m_piHashes.get() + iNhBegin,
                         * piHashNhEnd = m_piHashes.get() + iNhEnd,

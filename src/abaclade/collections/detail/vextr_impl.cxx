@@ -81,7 +81,7 @@ void const * raw_vextr_impl_base::translate_offset(std::ptrdiff_t ib) const {
    ABC_THROW(index_error, (ib));
 }
 
-std::pair<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
+_std::tuple<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
    std::ptrdiff_t ibBegin, std::ptrdiff_t ibEnd
 ) const {
    ABC_TRACE_FUNC(this, ibBegin, ibEnd);
@@ -106,12 +106,10 @@ std::pair<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
    }
    // If the interval is empty, return [0, 0) .
    if (ibBegin >= ibEnd) {
-      return std::pair<void const *, void const *>(nullptr, nullptr);
+      return _std::make_tuple(nullptr, nullptr);
    }
    // Return the constructed interval.
-   return std::pair<void const *, void const *>(
-      begin<std::int8_t>() + ibBegin, begin<std::int8_t>() + ibEnd
-   );
+   return _std::make_tuple(begin<std::int8_t>() + ibBegin, begin<std::int8_t>() + ibEnd);
 }
 
 void raw_vextr_impl_base::validate_pointer(void const * p) const {
@@ -245,7 +243,7 @@ void raw_complex_vextr_impl::assign_concat(
    std::size_t cb2 = reinterpret_cast<std::size_t>(p2End) - reinterpret_cast<std::size_t>(p2Begin);
    raw_vextr_transaction trn(this, false, cb1 + cb2);
    std::size_t cbOrig = size<std::int8_t>();
-   std::unique_ptr<std::int8_t[]> pbBackup;
+   _std::unique_ptr<std::int8_t[]> pbBackup;
    std::int8_t * pbWorkCopy = trn.work_array<std::int8_t>();
    if (cb1 || cb2) {
       /* If we’re going to overwrite the old item array and we’re going to perform copies (exception

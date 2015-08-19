@@ -566,7 +566,7 @@ signal_dispatcher::~signal_dispatcher() {
 #endif
 
 void signal_dispatcher::main_thread_started() {
-   m_pthrimplMain = std::make_shared<thread::impl>(nullptr);
+   m_pthrimplMain = _std::make_shared<thread::impl>(nullptr);
 }
 
 void signal_dispatcher::main_thread_terminated(exception::common_type xct) {
@@ -597,7 +597,7 @@ void signal_dispatcher::main_thread_terminated(exception::common_type xct) {
    }
 }
 
-void signal_dispatcher::nonmain_thread_started(std::shared_ptr<thread::impl> const & pthrimpl) {
+void signal_dispatcher::nonmain_thread_started(_std::shared_ptr<thread::impl> const & pthrimpl) {
    _std::lock_guard<_std::mutex> lock(m_mtxThreads);
    m_hmThreads.add_or_assign(pthrimpl.get(), pthrimpl);
 }

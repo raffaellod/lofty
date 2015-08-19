@@ -237,17 +237,17 @@ plus additional cbExtra bytes.
    the pointer is destructed.
 */
 template <typename T>
-inline std::unique_ptr<T, freeing_deleter> alloc(std::size_t c = 1, std::size_t cbExtra = 0) {
-   typedef typename std::unique_ptr<T, freeing_deleter>::element_type TElt;
-   return std::unique_ptr<T, freeing_deleter>(
+inline _std::unique_ptr<T, freeing_deleter> alloc(std::size_t c = 1, std::size_t cbExtra = 0) {
+   typedef typename _std::unique_ptr<T, freeing_deleter>::element_type TElt;
+   return _std::unique_ptr<T, freeing_deleter>(
       static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
    );
 }
 template <>
-inline std::unique_ptr<void, freeing_deleter> alloc<void>(
+inline _std::unique_ptr<void, freeing_deleter> alloc<void>(
    std::size_t cb, std::size_t cbExtra /*= 0*/
 ) {
-   return std::unique_ptr<void, freeing_deleter>(_raw_alloc(cb + cbExtra));
+   return _std::unique_ptr<void, freeing_deleter>(_raw_alloc(cb + cbExtra));
 }
 
 /*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing
@@ -264,16 +264,16 @@ it in case a new memory block is needed.
 */
 template <typename T>
 inline void realloc(
-   std::unique_ptr<T, freeing_deleter> * ppt, std::size_t c, std::size_t cbExtra = 0
+   _std::unique_ptr<T, freeing_deleter> * ppt, std::size_t c, std::size_t cbExtra = 0
 ) {
-   typedef typename std::unique_ptr<T, freeing_deleter>::element_type TElt;
+   typedef typename _std::unique_ptr<T, freeing_deleter>::element_type TElt;
    TElt * pt = static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra));
    ppt->release();
    ppt->reset(pt);
 }
 template <>
 inline void realloc(
-   std::unique_ptr<void, freeing_deleter> * ppt, std::size_t cb, std::size_t cbExtra /*= 0*/
+   _std::unique_ptr<void, freeing_deleter> * ppt, std::size_t cb, std::size_t cbExtra /*= 0*/
 ) {
    void * pt = _raw_realloc(ppt->get(), cb + cbExtra);
    ppt->release();

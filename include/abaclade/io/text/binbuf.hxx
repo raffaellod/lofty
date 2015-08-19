@@ -37,7 +37,7 @@ public:
    @return
       Pointer to a buffered binary I/O object.
    */
-   std::shared_ptr<binary::buffered_base> binary_buffered() const {
+   _std::shared_ptr<binary::buffered_base> binary_buffered() const {
       return _binary_buffered_base();
    }
 
@@ -58,7 +58,7 @@ protected:
    @return
       Pointer to a buffered binary I/O object.
    */
-   virtual std::shared_ptr<binary::buffered_base> _binary_buffered_base() const = 0;
+   virtual _std::shared_ptr<binary::buffered_base> _binary_buffered_base() const = 0;
 
 protected:
    /*! Encoding used for I/O to/from the underlying buffered_base. If not explicitly set, it will be
@@ -173,7 +173,7 @@ public:
       (guessed) on the first read from the underlying binary reader.
    */
    explicit binbuf_reader(
-      std::shared_ptr<binary::buffered_reader> pbbr,
+      _std::shared_ptr<binary::buffered_reader> pbbr,
       abc::text::encoding enc = abc::text::encoding::unknown
    );
 
@@ -181,13 +181,13 @@ public:
    virtual ~binbuf_reader();
 
    //! See binbuf_base::binary_buffered().
-   std::shared_ptr<binary::buffered_reader> binary_buffered() const {
+   _std::shared_ptr<binary::buffered_reader> binary_buffered() const {
       return m_pbbr;
    }
 
 protected:
    //! See binbuf_base::_binary_buffered_base().
-   virtual std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
+   virtual _std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
 
    //! See reader::read_line_or_all().
    virtual bool read_line_or_all(mstr * psDst, bool bOneLine) override;
@@ -207,7 +207,7 @@ private:
 
 protected:
    //! Underlying binary buffered reader.
-   std::shared_ptr<binary::buffered_reader> m_pbbr;
+   _std::shared_ptr<binary::buffered_reader> m_pbbr;
 
 private:
    //! true if a previous call to read*() got to EOF.
@@ -238,7 +238,7 @@ public:
       will default to abc::text::encoding::utf8.
    */
    explicit binbuf_writer(
-      std::shared_ptr<binary::buffered_writer> pbbw,
+      _std::shared_ptr<binary::buffered_writer> pbbw,
       abc::text::encoding enc = abc::text::encoding::unknown
    );
 
@@ -246,7 +246,7 @@ public:
    virtual ~binbuf_writer();
 
    //! See binbuf_base::binary_buffered().
-   std::shared_ptr<binary::buffered_writer> binary_buffered() const {
+   _std::shared_ptr<binary::buffered_writer> binary_buffered() const {
       return m_pbbw;
    }
 
@@ -263,11 +263,11 @@ public:
 
 protected:
    //! See binbuf_base::_binary_buffered_base().
-   virtual std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
+   virtual _std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
 
 protected:
    //! Underlying binary buffered writer.
-   std::shared_ptr<binary::buffered_writer> m_pbbw;
+   _std::shared_ptr<binary::buffered_writer> m_pbbw;
 };
 
 }}} //namespace abc::io::text

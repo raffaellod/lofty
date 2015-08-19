@@ -146,11 +146,11 @@ namespace abc { namespace detail {
 //! Implementation of scope_trace_tuple with actual data storage.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 template <typename... Ts>
-class scope_trace_tuple_impl : public scope_trace_tuple, public std::tuple<Ts const & ...> {
+class scope_trace_tuple_impl : public scope_trace_tuple, public _std::tuple<Ts const & ...> {
 private:
    // Handy shortcuts.
-   typedef std::tuple<Ts const & ...> tuple_type;
-   static std::size_t const smc_cTs = std::tuple_size<tuple_type>::value;
+   typedef _std::tuple<Ts const & ...> tuple_type;
+   static std::size_t const smc_cTs = _std::tuple_size<tuple_type>::value;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 template <
    typename T0 /*= _std::detail::tuple_void*/, typename T1 /*= _std::detail::tuple_void*/,
@@ -211,11 +211,7 @@ private:
    void write_vars(
       typename std::enable_if<t_i + 1 < smc_cTs, io::text::writer *>::type ptwOut
    ) const {
-#ifdef ABC_CXX_VARIADIC_TEMPLATES
-      ptwOut->write(std::get<t_i>(*this));
-#else
       ptwOut->write(_std::get<t_i>(*this));
-#endif
       // Write a separator and recurse to write the rest.
       write_separator(ptwOut);
       write_vars<t_i + 1>(ptwOut);
@@ -225,11 +221,7 @@ private:
    void write_vars(
       typename std::enable_if<t_i + 1 == smc_cTs, io::text::writer *>::type ptwOut
    ) const {
-#ifdef ABC_CXX_VARIADIC_TEMPLATES
-      ptwOut->write(std::get<t_i>(*this));
-#else
       ptwOut->write(_std::get<t_i>(*this));
-#endif
    }
    /* This overload does nothing. Only needed because the tuple may be empty, but write() will call
    write_vars<0>() unconditionally. */

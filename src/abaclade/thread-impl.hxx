@@ -123,7 +123,7 @@ public:
    @return
       Pointer to the thread’s coroutine scheduler.
    */
-   std::shared_ptr<coroutine::scheduler> & coroutine_scheduler() {
+   _std::shared_ptr<coroutine::scheduler> & coroutine_scheduler() {
       return m_pcorosched;
    }
 
@@ -162,7 +162,7 @@ public:
       Pointer by which outer_main() will get a reference (as in refcount) to *this, preventing it
       from being deallocated while still running.
    */
-   void start(std::shared_ptr<impl> * ppimplThis);
+   void start(_std::shared_ptr<impl> * ppimplThis);
 
    /*! Returns true if the thread is terminating, which means that it’s running Abaclade threading
    code instead of application code.
@@ -214,7 +214,7 @@ private:
    //! Function to be executed in the thread.
    std::function<void ()> m_fnInnerMain;
    //! Pointer to the thread’s coroutine scheduler, if any.
-   std::shared_ptr<coroutine::scheduler> m_pcorosched;
+   _std::shared_ptr<coroutine::scheduler> m_pcorosched;
 
    //! Allows a thread to access its impl instance.
    static thread_local_value<impl *> sm_pimplThis;

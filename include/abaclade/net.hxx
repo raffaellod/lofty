@@ -162,13 +162,13 @@ public:
    @return
       Reader/writer for the connection’s socket.
    */
-   std::shared_ptr<io::binary::file_readwriter> const & socket() {
+   _std::shared_ptr<io::binary::file_readwriter> const & socket() {
       return m_bfrw;
    }
 
 private:
    //! Reader/writer for the connection’s socket.
-   std::shared_ptr<io::binary::file_readwriter> m_bfrw;
+   _std::shared_ptr<io::binary::file_readwriter> m_bfrw;
    //! Address of the remote peer.
    ip_address m_ipaddrRemote;
    //! Port of the remote peer.
@@ -206,7 +206,7 @@ public:
    @return
       New client connection.
    */
-   std::shared_ptr<connection> accept();
+   _std::shared_ptr<connection> accept();
 
 private:
    /*! Creates a socket for the server.

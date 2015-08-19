@@ -53,7 +53,7 @@ struct poor_hash {
 //! Application class for this program.
 class maps_comparison_app : public app {
 private:
-   typedef std::tuple<perf::stopwatch, perf::stopwatch, perf::stopwatch> run_test_ret;
+   typedef _std::tuple<perf::stopwatch, perf::stopwatch, perf::stopwatch> run_test_ret;
 
 public:
    /*! Main function of the program.
@@ -66,7 +66,7 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
-      using std::get;
+      using _std::get;
 
       io::text::stdout->print(ABC_SL(
          "                                                 Add   Hit lookup  Miss lookup  [ns]\n"

@@ -31,7 +31,7 @@ abc::text::*str instance. */
 class c_str_ptr {
 private:
    //! Internal conditionally-deleting pointer type.
-   typedef std::unique_ptr<
+   typedef _std::unique_ptr<
       char_t const [], memory::conditional_deleter<char_t const [], memory::freeing_deleter>
    > pointer;
 
@@ -656,10 +656,10 @@ protected:
       index; if negative, it’s interpreted as a 1-based index from the end of the character array by
       adding this->size() to it.
    @return
-      Left-closed, right-open interval such that return.first <= i < return.second, or the empty
+      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
       interval [end(), end()) if the indices represent an empty interval after being adjusted.
    */
-   std::pair<const_iterator, const_iterator> translate_range(
+   _std::tuple<const_iterator, const_iterator> translate_range(
       std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
    ) const;
 };
@@ -1587,7 +1587,7 @@ inline dmstr str_base::substr(std::ptrdiff_t ichBegin) const {
 }
 inline dmstr str_base::substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
    auto range(translate_range(ichBegin, ichEnd));
-   return dmstr(range.first.base(), range.second.base());
+   return dmstr(_std::get<0>(range).base(), _std::get<1>(range).base());
 }
 inline dmstr str_base::substr(const_iterator itBegin) const {
    validate_pointer(itBegin.base());

@@ -78,20 +78,20 @@ public:
    }
 };
 
-// Specialization for std::unique_ptr.
+// Specialization for _std::unique_ptr.
 template <typename T, typename TDel>
-class to_str_backend<std::unique_ptr<T, TDel>> : public detail::ptr_to_str_backend {
+class to_str_backend<_std::unique_ptr<T, TDel>> : public detail::ptr_to_str_backend {
 public:
    //! See detail::ptr_to_str_backend::write().
-   void write(std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
+   void write(_std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
       _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptwOut);
    }
 };
 
-// Specialization for std::shared_ptr.
+// Specialization for _std::shared_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_str_backend<std::shared_ptr<T>> : public detail::ptr_to_str_backend {
+class to_str_backend<_std::shared_ptr<T>> : public detail::ptr_to_str_backend {
 public:
    /*! Converts a pointer to a string representation.
 
@@ -100,15 +100,15 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(std::shared_ptr<T> const & p, io::text::writer * ptwOut) {
+   void write(_std::shared_ptr<T> const & p, io::text::writer * ptwOut) {
       _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptwOut);
    }
 };
 
-// Specialization for std::weak_ptr.
+// Specialization for _std::weak_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_str_backend<std::weak_ptr<T>> : public detail::ptr_to_str_backend {
+class to_str_backend<_std::weak_ptr<T>> : public detail::ptr_to_str_backend {
 public:
    /*! Converts a pointer to a string representation.
 
@@ -117,7 +117,7 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(std::weak_ptr<T> const & p, io::text::writer * ptwOut) {
+   void write(_std::weak_ptr<T> const & p, io::text::writer * ptwOut) {
       _write_impl(reinterpret_cast<std::uintptr_t>(p.lock().get()), ptwOut);
    }
 };
@@ -272,9 +272,9 @@ protected:
 namespace abc {
 
 template <typename... Ts>
-class to_str_backend<std::tuple<Ts ...>> :
+class to_str_backend<_std::tuple<Ts ...>> :
    public detail::sequence_to_str_backend,
-   public detail::tuple_to_str_backend_element_writer<std::tuple<Ts ...>, Ts ...> {
+   public detail::tuple_to_str_backend_element_writer<_std::tuple<Ts ...>, Ts ...> {
 public:
    //! Constructor.
    to_str_backend() :
@@ -288,7 +288,7 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(std::tuple<Ts ...> const & tpl, io::text::writer * ptwOut) {
+   void write(_std::tuple<Ts ...> const & tpl, io::text::writer * ptwOut) {
       _write_start(ptwOut);
       this->_write_elements(tpl, ptwOut);
       _write_end(ptwOut);
@@ -305,8 +305,8 @@ template <class TTuple, typename T0, typename... Ts>
 inline void tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_elements(
    TTuple const & tpl, io::text::writer * ptwOut
 ) {
-   m_tsbt0.write(std::get<
-      std::tuple_size<TTuple>::value - (1 /*Ts*/ + sizeof ...(Ts))
+   m_tsbt0.write(_std::get<
+      _std::tuple_size<TTuple>::value - (1 /*Ts*/ + sizeof ...(Ts))
    >(tpl), ptwOut);
    // If there are any remaining elements, write a separator and recurse to write the rest.
    if (sizeof ...(Ts)) {
@@ -339,7 +339,8 @@ protected:
 // Base case for the template recursion.
 template <class TTuple>
 class tuple_to_str_backend_element_writer<
-   TTuple, _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
+   TTuple,
+   _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
    _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
    _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
    _std::detail::tuple_void

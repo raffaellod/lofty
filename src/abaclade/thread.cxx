@@ -263,7 +263,7 @@ void thread::impl::join() {
    even after start() returns, in the creating thread.
    Dereferencing p is safe because the creating thread, which owns *p, is blocked, waiting for this
    thread to signal that it’s finished starting. */
-   std::shared_ptr<impl> pimplThis(*static_cast<std::shared_ptr<impl> *>(p));
+   _std::shared_ptr<impl> pimplThis(*static_cast<_std::shared_ptr<impl> *>(p));
    /* Store pimplThis in TLS. No need to clear it before returning, since it can only be accessed by
    this thread, which will terminate upon returning. */
    sm_pimplThis = pimplThis.get();
@@ -304,7 +304,7 @@ void thread::impl::join() {
 #endif
 }
 
-void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
+void thread::impl::start(_std::shared_ptr<impl> * ppimplThis) {
    ABC_TRACE_FUNC(this, ppimplThis);
 
    detail::simple_event seStarted;
@@ -349,7 +349,7 @@ void thread::impl::start(std::shared_ptr<impl> * ppimplThis) {
 namespace abc {
 
 /*explicit*/ thread::thread(std::function<void ()> fnMain) :
-   m_pimpl(std::make_shared<impl>(std::move(fnMain))) {
+   m_pimpl(_std::make_shared<impl>(std::move(fnMain))) {
    ABC_TRACE_FUNC(this);
 
    m_pimpl->start(&m_pimpl);
@@ -454,12 +454,12 @@ void to_str_backend<thread>::write(thread const & thr, io::text::writer * ptwOut
 
 namespace abc { namespace this_thread {
 
-std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
-   std::shared_ptr<coroutine::scheduler> pcorosched /*= nullptr*/
+_std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
+   _std::shared_ptr<coroutine::scheduler> pcorosched /*= nullptr*/
 ) {
    ABC_TRACE_FUNC(pcorosched);
 
-   std::shared_ptr<coroutine::scheduler> & pcoroschedCurr = get_impl()->coroutine_scheduler();
+   _std::shared_ptr<coroutine::scheduler> & pcoroschedCurr = get_impl()->coroutine_scheduler();
    if (pcorosched) {
       if (pcoroschedCurr) {
          // The current thread already has a coroutine scheduler.
@@ -470,13 +470,13 @@ std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
    } else {
       // Create and set a new coroutine scheduler if the current thread didn’t already have one.
       if (!pcoroschedCurr) {
-         pcoroschedCurr = std::make_shared<coroutine::scheduler>();
+         pcoroschedCurr = _std::make_shared<coroutine::scheduler>();
       }
    }
    return pcoroschedCurr;
 }
 
-std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler() {
+_std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler() {
    return get_impl()->coroutine_scheduler();
 }
 

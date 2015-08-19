@@ -38,7 +38,7 @@ class buffered_writer;
 @return
    Pointer to a buffered wrapper for *pbb.
 */
-ABACLADE_SYM std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
+ABACLADE_SYM _std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb);
 
 /*! Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
 
@@ -47,8 +47,8 @@ ABACLADE_SYM std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb);
 @return
    Pointer to a buffered wrapper for *pbr.
 */
-inline std::shared_ptr<buffered_reader> buffer_reader(std::shared_ptr<reader> pbr) {
-   return std::dynamic_pointer_cast<buffered_reader>(buffer(std::move(pbr)));
+inline _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr) {
+   return _std::dynamic_pointer_cast<buffered_reader>(buffer(std::move(pbr)));
 }
 
 /*! Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
@@ -58,8 +58,8 @@ inline std::shared_ptr<buffered_reader> buffer_reader(std::shared_ptr<reader> pb
 @return
    Pointer to a buffered wrapper for *pbw.
 */
-inline std::shared_ptr<buffered_writer> buffer_writer(std::shared_ptr<writer> pbw) {
-   return std::dynamic_pointer_cast<buffered_writer>(buffer(std::move(pbw)));
+inline _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw) {
+   return _std::dynamic_pointer_cast<buffered_writer>(buffer(std::move(pbw)));
 }
 
 }}} //namespace abc::io::binary
@@ -244,7 +244,7 @@ public:
 
 private:
    //! Pointer to the allocated memory block.
-   std::unique_ptr<void, memory::freeing_deleter> m_p;
+   _std::unique_ptr<void, memory::freeing_deleter> m_p;
    //! Size of *m_p.
    std::size_t m_cb;
    /*! Offset of the used portion of the buffer. Only bytes following the used portion are reported
@@ -268,7 +268,7 @@ public:
    @return
       Pointer to a unbuffered binary I/O object.
    */
-   std::shared_ptr<base> unbuffered() const {
+   _std::shared_ptr<base> unbuffered() const {
       return _unbuffered_base();
    }
 
@@ -279,7 +279,7 @@ protected:
    @return
       Pointer to a unbuffered binary I/O object.
    */
-   virtual std::shared_ptr<base> _unbuffered_base() const = 0;
+   virtual _std::shared_ptr<base> _unbuffered_base() const = 0;
 };
 
 }}} //namespace abc::io::binary
@@ -327,10 +327,10 @@ public:
          0 indicates that no more data is available (EOF).
    */
    template <typename T>
-   std::pair<T const *, std::size_t> peek(std::size_t c = 1) {
+   _std::tuple<T const *, std::size_t> peek(std::size_t c = 1) {
       auto ret(peek_bytes(sizeof(T) * c));
       // Repack the tuple, changing pointer type.
-      return std::make_pair(static_cast<T const *>(ret.first), ret.second);
+      return _std::make_tuple(static_cast<T const *>(_std::get<0>(ret)), _std::get<1>(ret));
    }
 
    /*! Non-template implementation of peek(). See peek().
@@ -338,7 +338,7 @@ public:
    @param cb
       Count of bytes to peek.
    */
-   virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb) = 0;
+   virtual _std::tuple<void const *, std::size_t> peek_bytes(std::size_t cb) = 0;
 
    /*! See binary::reader::read(). Using peek()/consume() or peek_bytes()/consume_bytes() is
    preferred to calling this method, because it will spare the caller from having to allocate an
@@ -346,8 +346,8 @@ public:
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 
    //! See buffered_base::unbuffered().
-   std::shared_ptr<reader> unbuffered() const {
-      return std::dynamic_pointer_cast<reader>(_unbuffered_base());
+   _std::shared_ptr<reader> unbuffered() const {
+      return _std::dynamic_pointer_cast<reader>(_unbuffered_base());
    }
 };
 
@@ -387,10 +387,10 @@ public:
       •  Size of the portion of internal buffer, in bytes.
    */
    template <typename T>
-   std::pair<T *, std::size_t> get_buffer(std::size_t c) {
+   _std::tuple<T *, std::size_t> get_buffer(std::size_t c) {
       auto ret(get_buffer_bytes(sizeof(T) * c));
       // Repack the tuple, changing pointer type.
-      return std::make_pair(static_cast<T *>(ret.first), ret.second);
+      return _std::make_tuple(static_cast<T *>(_std::get<0>(ret)), _std::get<1>(ret));
    }
 
    /*! Byte-oriented implementation of get_buffer(). See get_buffer().
@@ -398,11 +398,11 @@ public:
    @param cb
       Count of bytes to create buffer space for.
    */
-   virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) = 0;
+   virtual _std::tuple<void *, std::size_t> get_buffer_bytes(std::size_t cb) = 0;
 
    //! See buffered_base::unbuffered().
-   std::shared_ptr<writer> unbuffered() const {
-      return std::dynamic_pointer_cast<writer>(_unbuffered_base());
+   _std::shared_ptr<writer> unbuffered() const {
+      return _std::dynamic_pointer_cast<writer>(_unbuffered_base());
    }
 
    /*! See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
@@ -425,7 +425,7 @@ public:
    @param pbr
       Pointer to a buffered reader to wrap.
    */
-   default_buffered_reader(std::shared_ptr<reader> pbr);
+   default_buffered_reader(_std::shared_ptr<reader> pbr);
 
    //! Destructor.
    virtual ~default_buffered_reader();
@@ -434,15 +434,15 @@ public:
    virtual void consume_bytes(std::size_t cb) override;
 
    //! See buffered_reader::peek_bytes().
-   virtual std::pair<void const *, std::size_t> peek_bytes(std::size_t cb) override;
+   virtual _std::tuple<void const *, std::size_t> peek_bytes(std::size_t cb) override;
 
 protected:
    //! See buffered_reader::_unbuffered_base().
-   virtual std::shared_ptr<base> _unbuffered_base() const override;
+   virtual _std::shared_ptr<base> _unbuffered_base() const override;
 
 protected:
    //! Wrapped binary reader.
-   std::shared_ptr<reader> m_pbr;
+   _std::shared_ptr<reader> m_pbr;
    //! Main read buffer.
    detail::buffer m_bufRead;
    //! Default/increment size of m_pbReadBuf.
@@ -464,7 +464,7 @@ public:
    @param pbw
       Pointer to a buffered writer to wrap.
    */
-   default_buffered_writer(std::shared_ptr<writer> pbw);
+   default_buffered_writer(_std::shared_ptr<writer> pbw);
 
    //! Destructor.
    virtual ~default_buffered_writer();
@@ -479,18 +479,18 @@ public:
    virtual void flush() override;
 
    //! See buffered_writer::get_buffer_bytes().
-   virtual std::pair<void *, std::size_t> get_buffer_bytes(std::size_t cb) override;
+   virtual _std::tuple<void *, std::size_t> get_buffer_bytes(std::size_t cb) override;
 
 protected:
    //! Flushes the internal write buffer.
    void flush_buffer();
 
    //! See buffered_writer::_unbuffered_base().
-   virtual std::shared_ptr<base> _unbuffered_base() const override;
+   virtual _std::shared_ptr<base> _unbuffered_base() const override;
 
 protected:
    //! Wrapped binary writer.
-   std::shared_ptr<writer> m_pbw;
+   _std::shared_ptr<writer> m_pbw;
    //! Write buffer.
    detail::buffer m_bufWrite;
    //! If true, every commit_bytes() call will flush the buffer.

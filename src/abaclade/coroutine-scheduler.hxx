@@ -70,7 +70,7 @@ public:
    @param pcoroimpl
       Pointer to a coroutine (implementation) that’s ready to execute.
    */
-   void add_ready(std::shared_ptr<impl> pcoroimpl);
+   void add_ready(_std::shared_ptr<impl> pcoroimpl);
 
    /*! Allows other coroutines to run, preventing the calling coroutine from being rescheduled until
    at least iMillisecs milliseconds have passed.
@@ -148,7 +148,7 @@ private:
    @return
       Pointer to a coroutine (implementation) that’s ready to execute.
    */
-   std::shared_ptr<impl> find_coroutine_to_activate();
+   _std::shared_ptr<impl> find_coroutine_to_activate();
 
    /*! Repeatedly finds and runs coroutines that are ready to execute.
 
@@ -199,7 +199,7 @@ private:
    /*! Coroutines that are blocked on a timer wait. The keys are the same as the values, but this
    can’t be changed into a set<shared_ptr<impl>> because we need it to hold a strong reference to
    the coroutine implementation while allowing lookups without having a shared_ptr. */
-   collections::hash_map<std::uintptr_t, std::shared_ptr<impl>> m_hmCorosBlockedByTimer;
+   collections::hash_map<std::uintptr_t, _std::shared_ptr<impl>> m_hmCorosBlockedByTimer;
 #elif ABC_HOST_API_LINUX
    //! File descriptor of the internal epoll.
    io::filedesc m_fdEpoll;
@@ -215,16 +215,16 @@ private:
 #if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
    //! Map of timeouts, in milliseconds, and their associated coroutines.
    collections::trie_ordered_multimap<
-      time_point_t, std::shared_ptr<impl>
+      time_point_t, _std::shared_ptr<impl>
    > m_tommCorosBlockedByTimer;
    //! Timer responsible for every timed wait.
    io::filedesc m_fdTimer;
 #endif
    //! Coroutines that are blocked on a fd wait.
-   collections::hash_map<io::filedesc_t, std::shared_ptr<impl>> m_hmCorosBlockedByFD;
+   collections::hash_map<io::filedesc_t, _std::shared_ptr<impl>> m_hmCorosBlockedByFD;
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but
    have not been started yet. */
-   collections::queue<std::shared_ptr<impl>> m_qReadyCoros;
+   collections::queue<_std::shared_ptr<impl>> m_qReadyCoros;
    //! Governs access to m_qReadyCoros, m_hmCorosBlockedByFD and other “blocked by” maps/sets.
    _std::mutex m_mtxCorosAddRemove;
    /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught
@@ -234,7 +234,7 @@ private:
    _std::atomic<exception::common_type::enum_type> m_xctInterruptionReason;
 
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
-   static thread_local_value<std::shared_ptr<impl>> sm_pcoroimplActive;
+   static thread_local_value<_std::shared_ptr<impl>> sm_pcoroimplActive;
 #if ABC_HOST_API_POSIX
    //! Pointer to the original context of every thread running a coroutine scheduler.
    static thread_local_value< ::ucontext_t *> sm_puctxReturn;

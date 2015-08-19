@@ -193,7 +193,7 @@ protected:
       key/value pair was just added, or false if the key already existed in the map and the
       corresponding value was overwritten.
    */
-   std::pair<std::size_t, bool> add_or_assign(
+   _std::tuple<std::size_t, bool> add_or_assign(
       type_void_adapter const & typeKey, type_void_adapter const & typeValue,
       keys_equal_fn pfnKeysEqual, void * pKey, std::size_t iKeyHash, void * pValue, unsigned iMove
    );
@@ -226,12 +226,12 @@ protected:
    @return
       Calculated range for the neighborhood bucket index.
    */
-   std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const {
+   _std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t iHash) const {
       std::size_t iNhBegin = hash_neighborhood_index(iHash);
       std::size_t iNhEnd = iNhBegin + m_cNeighborhoodBuckets;
       // Wrap the end index back in the table.
       iNhEnd &= m_cBuckets - 1;
-      return std::make_tuple(iNhBegin, iNhEnd);
+      return _std::make_tuple(iNhBegin, iNhEnd);
    }
 
    /*! Marks a bucket as empty and destructs the corresponding key and value.
@@ -406,11 +406,11 @@ private:
 
 protected:
    //! Array containing the hash of each key.
-   std::unique_ptr<std::size_t[]> m_piHashes;
+   _std::unique_ptr<std::size_t[]> m_piHashes;
    //! Array of keys.
-   std::unique_ptr<void, memory::freeing_deleter> m_pKeys;
+   _std::unique_ptr<void, memory::freeing_deleter> m_pKeys;
    //! Array of buckets.
-   std::unique_ptr<void, memory::freeing_deleter> m_pValues;
+   _std::unique_ptr<void, memory::freeing_deleter> m_pValues;
    //! Count of total buckets. Always a power of two.
    std::size_t m_cBuckets;
    //! Count of elements / occupied buckets.

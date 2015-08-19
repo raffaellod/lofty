@@ -57,7 +57,7 @@ public:
    @param posOut
       Pointer to the writer that will be used to log the results of the tests.
    */
-   runner(std::shared_ptr<io::text::writer> ptwOut);
+   runner(_std::shared_ptr<io::text::writer> ptwOut);
 
    //! Destructor.
    ~runner();
@@ -109,9 +109,9 @@ public:
 
 private:
    //! Vector of loaded test test cases to be executed.
-   collections::dmvector<std::unique_ptr<test_case>> m_vptc;
+   collections::dmvector<_std::unique_ptr<test_case>> m_vptc;
    //! Output writer.
-   std::shared_ptr<io::text::writer> m_ptwOut;
+   _std::shared_ptr<io::text::writer> m_ptwOut;
    //! Total count of failed assertions.
    unsigned m_cFailedAssertions;
 };

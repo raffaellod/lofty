@@ -25,16 +25,16 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace io { namespace binary {
 
-std::shared_ptr<buffered_base> buffer(std::shared_ptr<base> pbb) {
+_std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb) {
    ABC_TRACE_FUNC(pbb);
 
-   auto pbr(std::dynamic_pointer_cast<reader>(pbb));
-   auto pbw(std::dynamic_pointer_cast<writer>(pbb));
+   auto pbr(_std::dynamic_pointer_cast<reader>(pbb));
+   auto pbw(_std::dynamic_pointer_cast<writer>(pbb));
    if (pbr) {
-      return std::make_shared<default_buffered_reader>(std::move(pbr));
+      return _std::make_shared<default_buffered_reader>(std::move(pbr));
    }
    if (pbw) {
-      return std::make_shared<default_buffered_writer>(std::move(pbw));
+      return _std::make_shared<default_buffered_writer>(std::move(pbw));
    }
    // TODO: use a better exception class.
    ABC_THROW(argument_error, ());
@@ -107,7 +107,7 @@ namespace abc { namespace io { namespace binary {
       // Attempt to read at least the count of bytes requested by the caller.
       std::int8_t const * pbBuf;
       std::size_t cbBuf;
-      std::tie(pbBuf, cbBuf) = peek<std::int8_t>(cbMax);
+      _std::tie(pbBuf, cbBuf) = peek<std::int8_t>(cbMax);
       if (cbBuf == 0) {
          // No more data available.
          break;
@@ -135,7 +135,7 @@ namespace abc { namespace io { namespace binary {
    // Obtain a buffer large enough.
    std::int8_t * pbBuf;
    std::size_t cbBuf;
-   std::tie(pbBuf, cbBuf) = get_buffer<std::int8_t>(cb);
+   _std::tie(pbBuf, cbBuf) = get_buffer<std::int8_t>(cb);
    // Copy the source data into the buffer.
    memory::copy(pbBuf, static_cast<std::int8_t const *>(p), cb);
    return cb;
@@ -147,7 +147,7 @@ namespace abc { namespace io { namespace binary {
 
 namespace abc { namespace io { namespace binary {
 
-default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
+default_buffered_reader::default_buffered_reader(_std::shared_ptr<reader> pbr) :
    m_pbr(std::move(pbr)) {
 }
 
@@ -166,7 +166,7 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
    m_bufRead.mark_as_unused(cb);
 }
 
-/*virtual*/ std::pair<void const *, std::size_t> default_buffered_reader::peek_bytes(
+/*virtual*/ _std::tuple<void const *, std::size_t> default_buffered_reader::peek_bytes(
    std::size_t cb
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
@@ -191,13 +191,13 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
       m_bufRead.mark_as_used(cbRead);
    }
    // Return the “used window” of the buffer.
-   return std::make_pair(m_bufRead.get_used(), m_bufRead.used_size());
+   return _std::make_tuple(m_bufRead.get_used(), m_bufRead.used_size());
 }
 
-/*virtual*/ std::shared_ptr<base> default_buffered_reader::_unbuffered_base() const /*override*/ {
+/*virtual*/ _std::shared_ptr<base> default_buffered_reader::_unbuffered_base() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   return std::static_pointer_cast<base>(m_pbr);
+   return _std::static_pointer_cast<base>(m_pbr);
 }
 
 }}} //namespace abc::io::binary
@@ -206,10 +206,10 @@ default_buffered_reader::default_buffered_reader(std::shared_ptr<reader> pbr) :
 
 namespace abc { namespace io { namespace binary {
 
-default_buffered_writer::default_buffered_writer(std::shared_ptr<writer> pbw) :
+default_buffered_writer::default_buffered_writer(_std::shared_ptr<writer> pbw) :
    m_pbw(std::move(pbw)),
    // Disable buffering for console (interactive) files.
-   m_bFlushAfterCommit(std::dynamic_pointer_cast<console_writer>(m_pbw) != nullptr) {
+   m_bFlushAfterCommit(_std::dynamic_pointer_cast<console_writer>(m_pbw) != nullptr) {
 }
 
 /*virtual*/ default_buffered_writer::~default_buffered_writer() {
@@ -273,7 +273,7 @@ void default_buffered_writer::flush_buffer() {
    }
 }
 
-/*virtual*/ std::pair<void *, std::size_t> default_buffered_writer::get_buffer_bytes(
+/*virtual*/ _std::tuple<void *, std::size_t> default_buffered_writer::get_buffer_bytes(
    std::size_t cb
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
@@ -295,13 +295,13 @@ void default_buffered_writer::flush_buffer() {
       }
    }
    // Return the available portion of the buffer.
-   return std::make_pair(m_bufWrite.get_available(), m_bufWrite.available_size());
+   return _std::make_tuple(m_bufWrite.get_available(), m_bufWrite.available_size());
 }
 
-/*virtual*/ std::shared_ptr<base> default_buffered_writer::_unbuffered_base() const /*override*/ {
+/*virtual*/ _std::shared_ptr<base> default_buffered_writer::_unbuffered_base() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   return std::static_pointer_cast<base>(m_pbw);
+   return _std::static_pointer_cast<base>(m_pbw);
 }
 
 }}} //namespace abc::io::binary

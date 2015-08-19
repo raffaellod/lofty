@@ -34,9 +34,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace io { namespace binary {
 
-std::shared_ptr<writer> stderr;
-std::shared_ptr<reader> stdin;
-std::shared_ptr<writer> stdout;
+_std::shared_ptr<writer> stderr;
+_std::shared_ptr<reader> stdin;
+_std::shared_ptr<writer> stdout;
 
 /*! Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
 shared pointer to it.
@@ -46,7 +46,7 @@ pfid
 return
    Shared pointer to the newly created object.
 */
-static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
+static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    ABC_TRACE_FUNC(pfid);
 
 #if ABC_HOST_API_POSIX
@@ -56,22 +56,22 @@ static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    if (S_ISREG(pfid->statFile.st_mode)) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return std::make_shared<regular_file_reader>(pfid);
+            return _std::make_shared<regular_file_reader>(pfid);
          case access_mode::write:
          case access_mode::write_append:
-            return std::make_shared<regular_file_writer>(pfid);
+            return _std::make_shared<regular_file_writer>(pfid);
          case access_mode::read_write:
-            return std::make_shared<regular_file_readwriter>(pfid);
+            return _std::make_shared<regular_file_readwriter>(pfid);
       }
    }
    if (S_ISCHR(pfid->statFile.st_mode) && ::isatty(pfid->fd.get())) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return std::make_shared<console_reader>(pfid);
+            return _std::make_shared<console_reader>(pfid);
          case access_mode::write:
-            return std::make_shared<console_writer>(pfid);
+            return _std::make_shared<console_writer>(pfid);
          case access_mode::read_write:
-            return std::make_shared<console_readwriter>(pfid);
+            return _std::make_shared<console_readwriter>(pfid);
          case access_mode::write_append:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
@@ -80,11 +80,11 @@ static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    if (S_ISFIFO(pfid->statFile.st_mode) || S_ISSOCK(pfid->statFile.st_mode)) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return std::make_shared<pipe_reader>(pfid);
+            return _std::make_shared<pipe_reader>(pfid);
          case access_mode::write:
-            return std::make_shared<pipe_writer>(pfid);
+            return _std::make_shared<pipe_writer>(pfid);
          case access_mode::read_write:
-            return std::make_shared<pipe_readwriter>(pfid);
+            return _std::make_shared<pipe_readwriter>(pfid);
          case access_mode::write_append:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
@@ -105,11 +105,11 @@ static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
             switch (pfid->am.base()) {
                case access_mode::read:
-                  return std::make_shared<console_reader>(pfid);
+                  return _std::make_shared<console_reader>(pfid);
                case access_mode::write:
-                  return std::make_shared<console_writer>(pfid);
+                  return _std::make_shared<console_writer>(pfid);
                case access_mode::read_write:
-                  return std::make_shared<console_readwriter>(pfid);
+                  return _std::make_shared<console_readwriter>(pfid);
                case access_mode::write_append:
                   // TODO: use a better exception class.
                   ABC_THROW(argument_error, ());
@@ -121,12 +121,12 @@ static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          // Regular file.
          switch (pfid->am.base()) {
             case access_mode::read:
-               return std::make_shared<regular_file_reader>(pfid);
+               return _std::make_shared<regular_file_reader>(pfid);
             case access_mode::write:
             case access_mode::write_append:
-               return std::make_shared<regular_file_writer>(pfid);
+               return _std::make_shared<regular_file_writer>(pfid);
             case access_mode::read_write:
-               return std::make_shared<regular_file_readwriter>(pfid);
+               return _std::make_shared<regular_file_readwriter>(pfid);
          }
          break;
 
@@ -134,11 +134,11 @@ static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          // Socket or pipe.
          switch (pfid->am.base()) {
             case access_mode::read:
-               return std::make_shared<pipe_reader>(pfid);
+               return _std::make_shared<pipe_reader>(pfid);
             case access_mode::write:
-               return std::make_shared<pipe_writer>(pfid);
+               return _std::make_shared<pipe_writer>(pfid);
             case access_mode::read_write:
-               return std::make_shared<pipe_readwriter>(pfid);
+               return _std::make_shared<pipe_readwriter>(pfid);
             case access_mode::write_append:
                // TODO: use a better exception class.
                ABC_THROW(argument_error, ());
@@ -161,11 +161,11 @@ static std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    // If a file object was not returned in the code above, return a generic file.
    switch (pfid->am.base()) {
       case access_mode::read:
-         return std::make_shared<file_reader>(pfid);
+         return _std::make_shared<file_reader>(pfid);
       case access_mode::write:
-         return std::make_shared<file_writer>(pfid);
+         return _std::make_shared<file_writer>(pfid);
       case access_mode::read_write:
-         return std::make_shared<file_readwriter>(pfid);
+         return _std::make_shared<file_readwriter>(pfid);
       default:
          // TODO: use a better exception class.
          ABC_THROW(argument_error, ());
@@ -181,7 +181,7 @@ am
 return
    Pointer to a binary I/O object controlling fd.
 */
-static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
+static _std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    ABC_TRACE_FUNC(fd, am);
 
    detail::file_init_data fid;
@@ -194,37 +194,37 @@ static std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
 }
 
 
-std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
+_std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
    fid.fd = std::move(fd);
    fid.am = access_mode::read;
    fid.bBypassCache = false;
-   return std::dynamic_pointer_cast<file_reader>(_construct(&fid));
+   return _std::dynamic_pointer_cast<file_reader>(_construct(&fid));
 }
 
-std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
+_std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
    fid.fd = std::move(fd);
    fid.am = access_mode::write;
    fid.bBypassCache = false;
-   return std::dynamic_pointer_cast<file_writer>(_construct(&fid));
+   return _std::dynamic_pointer_cast<file_writer>(_construct(&fid));
 }
 
-std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd) {
+_std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
    fid.fd = std::move(fd);
    fid.am = access_mode::read_write;
    fid.bBypassCache = false;
-   return std::dynamic_pointer_cast<file_readwriter>(_construct(&fid));
+   return _std::dynamic_pointer_cast<file_readwriter>(_construct(&fid));
 }
 
-std::shared_ptr<file_base> open(
+_std::shared_ptr<file_base> open(
    os::path const & op, access_mode am, bool bBypassCache /*= false*/
 ) {
    ABC_TRACE_FUNC(op, am, bBypassCache);
@@ -428,7 +428,7 @@ pipe_ends pipe() {
    fidWriter.am = access_mode::write;
    fidReader.bBypassCache = fidWriter.bBypassCache = false;
    return pipe_ends(
-      std::make_shared<pipe_reader>(&fidReader), std::make_shared<pipe_writer>(&fidWriter)
+      _std::make_shared<pipe_reader>(&fidReader), _std::make_shared<pipe_writer>(&fidWriter)
    );
 }
 
@@ -436,7 +436,7 @@ pipe_ends pipe() {
 
 namespace abc { namespace io { namespace binary { namespace detail {
 
-std::shared_ptr<writer> make_stderr() {
+_std::shared_ptr<writer> make_stderr() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -444,7 +444,7 @@ std::shared_ptr<writer> make_stderr() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return std::dynamic_pointer_cast<writer>(_attach(filedesc(
+   return _std::dynamic_pointer_cast<writer>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDERR_FILENO
 #elif ABC_HOST_API_WIN32
@@ -455,7 +455,7 @@ std::shared_ptr<writer> make_stderr() {
    ), access_mode::write));
 }
 
-std::shared_ptr<reader> make_stdin() {
+_std::shared_ptr<reader> make_stdin() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -463,7 +463,7 @@ std::shared_ptr<reader> make_stdin() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return std::dynamic_pointer_cast<reader>(_attach(filedesc(
+   return _std::dynamic_pointer_cast<reader>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDIN_FILENO
 #elif ABC_HOST_API_WIN32
@@ -474,7 +474,7 @@ std::shared_ptr<reader> make_stdin() {
    ), access_mode::read));
 }
 
-std::shared_ptr<writer> make_stdout() {
+_std::shared_ptr<writer> make_stdout() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -482,7 +482,7 @@ std::shared_ptr<writer> make_stdout() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return std::dynamic_pointer_cast<writer>(_attach(filedesc(
+   return _std::dynamic_pointer_cast<writer>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDOUT_FILENO
 #elif ABC_HOST_API_WIN32

@@ -144,30 +144,30 @@ ABC_TESTING_TEST_CASE_FUNC(
    istr sPtr(to_str(pi));
 
    {
-      std::unique_ptr<int> upi(pi);
-      // Test non-nullptr std::unique_ptr.
+      _std::unique_ptr<int> upi(pi);
+      // Test non-nullptr _std::unique_ptr.
       ABC_TESTING_ASSERT_EQUAL(to_str(upi, istr::empty), sPtr);
 
       upi.release();
-      // Test nullptr std::unique_ptr.
+      // Test nullptr _std::unique_ptr.
       ABC_TESTING_ASSERT_EQUAL(to_str(upi, istr::empty), ABC_SL("nullptr"));
    }
    {
-      std::shared_ptr<int> spi(pi);
-      // Test non-nullptr std::shared_ptr.
+      _std::shared_ptr<int> spi(pi);
+      // Test non-nullptr _std::shared_ptr.
       ABC_TESTING_ASSERT_EQUAL(to_str(spi, istr::empty), sPtr);
-      std::weak_ptr<int> wpi(spi);
-      // Test non-nullptr std::weak_ptr.
+      _std::weak_ptr<int> wpi(spi);
+      // Test non-nullptr _std::weak_ptr.
       ABC_TESTING_ASSERT_EQUAL(to_str(wpi, istr::empty), sPtr);
 
       spi.reset();
-      // Test nullptr std::shared_ptr.
+      // Test nullptr _std::shared_ptr.
       ABC_TESTING_ASSERT_EQUAL(to_str(spi, istr::empty), ABC_SL("nullptr"));
-      // Test expired non-nullptr std::weak_ptr.
+      // Test expired non-nullptr _std::weak_ptr.
       ABC_TESTING_ASSERT_EQUAL(to_str(wpi, istr::empty), ABC_SL("nullptr"));
 
       wpi.reset();
-      // Test nullptr std::weak_ptr.
+      // Test nullptr _std::weak_ptr.
       ABC_TESTING_ASSERT_EQUAL(to_str(wpi, istr::empty), ABC_SL("nullptr"));
    }
 }
@@ -184,17 +184,11 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-#ifdef ABC_CXX_VARIADIC_TEMPLATES
-   using std::tuple;
-#else
-   using abc::_std::tuple;
-#endif
-
-   // Test {std,abc::_std}::tuple.
-   ABC_TESTING_ASSERT_EQUAL(to_str(tuple<>()), ABC_SL("()"));
-   ABC_TESTING_ASSERT_EQUAL(to_str(tuple<int>(1)), ABC_SL("(1)"));
-   ABC_TESTING_ASSERT_EQUAL(to_str(tuple<int, int>(1, 2)), ABC_SL("(1, 2)"));
-   ABC_TESTING_ASSERT_EQUAL(to_str(tuple<istr, int>(ABC_SL("abc"), 42)), ABC_SL("(abc, 42)"));
+   // Test _std::tuple.
+   ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<>()), ABC_SL("()"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<int>(1)), ABC_SL("(1)"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<int, int>(1, 2)), ABC_SL("(1, 2)"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<istr, int>(ABC_SL("abc"), 42)), ABC_SL("(abc, 42)"));
 }
 
 }} //namespace abc::test

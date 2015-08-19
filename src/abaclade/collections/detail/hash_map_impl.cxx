@@ -73,7 +73,7 @@ hash_map_impl & hash_map_impl::operator=(hash_map_impl && hmi) {
    return *this;
 }
 
-std::pair<std::size_t, bool> hash_map_impl::add_or_assign(
+_std::tuple<std::size_t, bool> hash_map_impl::add_or_assign(
    type_void_adapter const & typeKey, type_void_adapter const & typeValue,
    keys_equal_fn pfnKeysEqual, void * pKey, std::size_t iKeyHash, void * pValue, unsigned iMove
 ) {
@@ -107,7 +107,7 @@ std::pair<std::size_t, bool> hash_map_impl::add_or_assign(
    }
    ++m_cUsedBuckets;
    ++m_iRev;
-   return std::make_pair(iBucket, bNew);
+   return _std::make_tuple(iBucket, bNew);
 }
 
 void hash_map_impl::clear(type_void_adapter const & typeKey, type_void_adapter const & typeValue) {
@@ -261,7 +261,7 @@ std::size_t hash_map_impl::get_empty_bucket_for_key(
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/, iKeyHash);
 
    std::size_t iNhBegin, iNhEnd;
-   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+   _std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
    // Search for an empty bucket in the neighborhood.
    std::size_t iBucket = find_empty_bucket(iNhBegin, iNhEnd);
    if (iBucket != smc_iNullIndex) {
@@ -277,7 +277,7 @@ std::size_t hash_map_impl::get_existing_or_empty_bucket_for_key(
    ABC_TRACE_FUNC(this/*, typeKey, typeValue*/, pfnKeysEqual, pKey, iKeyHash);
 
    std::size_t iNhBegin, iNhEnd;
-   std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
+   _std::tie(iNhBegin, iNhEnd) = hash_neighborhood_range(iKeyHash);
    // Look for the key or an empty bucket in the neighborhood.
    std::size_t iBucket = lookup_key_or_find_empty_bucket(
       typeKey, pfnKeysEqual, pKey, iKeyHash, iNhBegin, iNhEnd
@@ -295,7 +295,7 @@ void hash_map_impl::grow_table(
 
    // The “old” names of these four variables will make sense in a moment…
    std::size_t cOldBuckets = m_cBuckets ? m_cBuckets * smc_iGrowthFactor : smc_cBucketsMin;
-   std::unique_ptr<std::size_t[]> piOldHashes(new std::size_t[cOldBuckets]);
+   _std::unique_ptr<std::size_t[]> piOldHashes(new std::size_t[cOldBuckets]);
    auto pOldKeys  (memory::alloc<void>(typeKey  .size() * cOldBuckets));
    auto pOldValues(memory::alloc<void>(typeValue.size() * cOldBuckets));
    // At this point we’re safe from exceptions, so we can update the member variables.

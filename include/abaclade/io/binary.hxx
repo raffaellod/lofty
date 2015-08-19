@@ -37,9 +37,9 @@ class pipe_writer;
 //! Contains the two ends of a pipe.
 struct pipe_ends {
    //! Reader end.
-   std::shared_ptr<pipe_reader> reader;
+   _std::shared_ptr<pipe_reader> reader;
    //! Writer end.
-   std::shared_ptr<pipe_writer> writer;
+   _std::shared_ptr<pipe_writer> writer;
 
    /*! Constructor.
 
@@ -48,7 +48,7 @@ struct pipe_ends {
    @param pbpwWriter
       Writer end.
    */
-   pipe_ends(std::shared_ptr<pipe_reader> pbprReader, std::shared_ptr<pipe_writer> pbpwWriter) :
+   pipe_ends(_std::shared_ptr<pipe_reader> pbprReader, _std::shared_ptr<pipe_writer> pbpwWriter) :
       reader(std::move(pbprReader)),
       writer(std::move(pbpwWriter)) {
    }
@@ -96,7 +96,7 @@ class writer;
 @return
    Pointer to a binary reader for the file descriptor.
 */
-ABACLADE_SYM std::shared_ptr<file_reader> make_reader(io::filedesc && fd);
+ABACLADE_SYM _std::shared_ptr<file_reader> make_reader(io::filedesc && fd);
 
 /*! Creates and returns a binary writer for the specified file descriptor.
 
@@ -105,7 +105,7 @@ ABACLADE_SYM std::shared_ptr<file_reader> make_reader(io::filedesc && fd);
 @return
    Pointer to a binary writer for the file descriptor.
 */
-ABACLADE_SYM std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
+ABACLADE_SYM _std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
 
 /*! Creates and returns a binary reader/writer for the specified file descriptor.
 
@@ -114,7 +114,7 @@ ABACLADE_SYM std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
 @return
    Pointer to a binary reader/writer for the file descriptor.
 */
-ABACLADE_SYM std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd);
+ABACLADE_SYM _std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd);
 
 /*! Opens a file for binary access.
 
@@ -128,7 +128,7 @@ ABACLADE_SYM std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd
 @return
    Pointer to a binary I/O object for the file.
 */
-ABACLADE_SYM std::shared_ptr<file_base> open(
+ABACLADE_SYM _std::shared_ptr<file_base> open(
    os::path const & op, access_mode am, bool bBypassCache = false
 );
 
@@ -142,8 +142,8 @@ ABACLADE_SYM std::shared_ptr<file_base> open(
 @return
    Pointer to a binary reader for the file.
 */
-inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBypassCache = false) {
-   return std::dynamic_pointer_cast<file_reader>(open(op, access_mode::read, bBypassCache));
+inline _std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBypassCache = false) {
+   return _std::dynamic_pointer_cast<file_reader>(open(op, access_mode::read, bBypassCache));
 }
 
 /*! Opens a file for binary writing.
@@ -156,8 +156,8 @@ inline std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBypas
 @return
    Pointer to a binary writer for the file.
 */
-inline std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBypassCache = false) {
-   return std::dynamic_pointer_cast<file_writer>(open(op, access_mode::write, bBypassCache));
+inline _std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBypassCache = false) {
+   return _std::dynamic_pointer_cast<file_writer>(open(op, access_mode::write, bBypassCache));
 }
 
 /*! Opens a file for binary reading and writing.
@@ -170,10 +170,10 @@ inline std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBypas
 @return
    Pointer to a binary reader/writer for the file.
 */
-inline std::shared_ptr<file_readwriter> open_readwriter(
+inline _std::shared_ptr<file_readwriter> open_readwriter(
    os::path const & op, bool bBypassCache = false
 ) {
-   return std::dynamic_pointer_cast<file_readwriter>(open(op, access_mode::write, bBypassCache));
+   return _std::dynamic_pointer_cast<file_readwriter>(open(op, access_mode::write, bBypassCache));
 }
 
 /*! Creates a unidirectional pipe (FIFO), returning a reader and a writer connected to its ends.
@@ -184,11 +184,11 @@ inline std::shared_ptr<file_readwriter> open_readwriter(
 ABACLADE_SYM pipe_ends pipe();
 
 //! Binary writer associated to the standard error output file.
-extern ABACLADE_SYM std::shared_ptr<writer> stderr;
+extern ABACLADE_SYM _std::shared_ptr<writer> stderr;
 //! Binary reader associated to the standard input file.
-extern ABACLADE_SYM std::shared_ptr<reader> stdin;
+extern ABACLADE_SYM _std::shared_ptr<reader> stdin;
 //! Binary writer associated to the standard output file.
-extern ABACLADE_SYM std::shared_ptr<writer> stdout;
+extern ABACLADE_SYM _std::shared_ptr<writer> stdout;
 
 }}} //namespace abc::io::binary
 
@@ -199,21 +199,21 @@ namespace abc { namespace io { namespace binary { namespace detail {
 @return
    Standard error file.
 */
-ABACLADE_SYM std::shared_ptr<writer> make_stderr();
+ABACLADE_SYM _std::shared_ptr<writer> make_stderr();
 
 /*! Creates and returns a binary reader associated to the standard input file (stdin).
 
 @return
    Standard input file.
 */
-ABACLADE_SYM std::shared_ptr<reader> make_stdin();
+ABACLADE_SYM _std::shared_ptr<reader> make_stdin();
 
 /*! Creates and returns a binary writer associated to the standard output file (stdout).
 
 @return
    Standard output file.
 */
-ABACLADE_SYM std::shared_ptr<writer> make_stdout();
+ABACLADE_SYM _std::shared_ptr<writer> make_stdout();
 
 }}}} //namespace abc::io::binary::detail
 

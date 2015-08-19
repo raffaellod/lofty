@@ -214,7 +214,7 @@ bool reader_read_helper::replenish_peek_buffer() {
    /* If we didn’t consume some bytes because they don’t make a complete code point, we’ll ask for
    at least one more byte, in an attempt to complete the code point. */
    std::size_t cbConsumed = consume_used_bytes();
-   std::tie(m_pbSrc, m_cbSrc) = m_ptbbr->m_pbbr->peek<std::uint8_t>(cbConsumed + 1);
+   _std::tie(m_pbSrc, m_cbSrc) = m_ptbbr->m_pbbr->peek<std::uint8_t>(cbConsumed + 1);
    if (m_cbSrc > 0) {
       return true;
    } else {
@@ -308,7 +308,7 @@ bool reader_read_helper::run() {
 namespace abc { namespace io { namespace text {
 
 binbuf_reader::binbuf_reader(
-   std::shared_ptr<binary::buffered_reader> pbbr,
+   _std::shared_ptr<binary::buffered_reader> pbbr,
    abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) :
    base(),
@@ -322,7 +322,7 @@ binbuf_reader::binbuf_reader(
 /*virtual*/ binbuf_reader::~binbuf_reader() {
 }
 
-/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_reader::_binary_buffered_base(
+/*virtual*/ _std::shared_ptr<binary::buffered_base> binbuf_reader::_binary_buffered_base(
 ) const /*override*/ {
    ABC_TRACE_FUNC(this);
 
@@ -333,7 +333,7 @@ std::size_t binbuf_reader::detect_encoding(std::uint8_t const * pb, std::size_t 
    ABC_TRACE_FUNC(this, pb, cb);
 
    std::size_t cbFile, cbBom;
-   if (auto psb = std::dynamic_pointer_cast<binary::sized>(m_pbbr->unbuffered())) {
+   if (auto psb = _std::dynamic_pointer_cast<binary::sized>(m_pbbr->unbuffered())) {
       /* This special value prevents guess_encoding() from dismissing UTF-16/32 as impossible just
       because the need to clip cbFile to a std::size_t resulted in an odd count of bytes. */
       static std::size_t const sc_cbAlignedMax =
@@ -364,7 +364,7 @@ std::size_t binbuf_reader::detect_encoding(std::uint8_t const * pb, std::size_t 
    // Attempt to read at least a single byte.
    std::uint8_t const * pbSrc;
    std::size_t cbSrc;
-   std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::uint8_t>(1);
+   _std::tie(pbSrc, cbSrc) = m_pbbr->peek<std::uint8_t>(1);
    if (cbSrc == 0) {
       // If nothing was read, this is the end of the data.
       m_bEOF = true;
@@ -393,7 +393,7 @@ std::size_t binbuf_reader::detect_encoding(std::uint8_t const * pb, std::size_t 
 namespace abc { namespace io { namespace text {
 
 binbuf_writer::binbuf_writer(
-   std::shared_ptr<binary::buffered_writer> pbbw,
+   _std::shared_ptr<binary::buffered_writer> pbbw,
    abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) :
    base(),
@@ -406,7 +406,7 @@ binbuf_writer::binbuf_writer(
    // Let m_pbbw detect whether finalize() was not called.
 }
 
-/*virtual*/ std::shared_ptr<binary::buffered_base> binbuf_writer::_binary_buffered_base(
+/*virtual*/ _std::shared_ptr<binary::buffered_base> binbuf_writer::_binary_buffered_base(
 ) const /*override*/ {
    ABC_TRACE_FUNC(this);
 
@@ -445,7 +445,7 @@ binbuf_writer::binbuf_writer(
    }
    std::int8_t * pbDst;
    std::size_t cbDst;
-   std::tie(pbDst, cbDst) = m_pbbw->get_buffer<std::int8_t>(cbSrc);
+   _std::tie(pbDst, cbDst) = m_pbbw->get_buffer<std::int8_t>(cbSrc);
    if (enc == m_enc) {
       // Optimal case: no transcoding necessary.
       memory::copy(pbDst, static_cast<std::int8_t const *>(pSrc), cbSrc);

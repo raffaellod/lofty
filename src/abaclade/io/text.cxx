@@ -28,9 +28,9 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace io { namespace text {
 
-std::shared_ptr<writer> stderr;
-std::shared_ptr<reader> stdin;
-std::shared_ptr<writer> stdout;
+_std::shared_ptr<writer> stderr;
+_std::shared_ptr<reader> stdin;
+_std::shared_ptr<writer> stdout;
 
 /*! Instantiates a text::base specialization appropriate for the specified binary I/O object,
 returning a shared pointer to it. If the binary I/O object does not implement buffering, a buffered
@@ -41,29 +41,29 @@ pbb
 return
    Shared pointer to the newly created object.
 */
-static std::shared_ptr<binbuf_base> _construct(
-   std::shared_ptr<binary::base> pbb, abc::text::encoding enc
+static _std::shared_ptr<binbuf_base> _construct(
+   _std::shared_ptr<binary::base> pbb, abc::text::encoding enc
 ) {
    ABC_TRACE_FUNC(pbb, enc);
 
    // Choose what type of text I/O object to create based on what type of binary I/O object we got.
 
    // Check if it’s a buffered I/O object.
-   auto pbbr(std::dynamic_pointer_cast<binary::buffered_reader>(pbb));
-   auto pbbw(std::dynamic_pointer_cast<binary::buffered_writer>(pbb));
+   auto pbbr(_std::dynamic_pointer_cast<binary::buffered_reader>(pbb));
+   auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbb));
    if (!pbbr && !pbbw) {
       // Not a buffered I/O object? Get one then, and try again with the casts.
       auto pbbb(binary::buffer(pbb));
-      pbbr = std::dynamic_pointer_cast<binary::buffered_reader>(pbbb);
-      pbbw = std::dynamic_pointer_cast<binary::buffered_writer>(pbbb);
+      pbbr = _std::dynamic_pointer_cast<binary::buffered_reader>(pbbb);
+      pbbw = _std::dynamic_pointer_cast<binary::buffered_writer>(pbbb);
    }
 
    // Now we must have a buffered reader or writer, or pbb is not something we can use.
    if (pbbr) {
-      return std::make_shared<binbuf_reader>(std::move(pbbr), enc);
+      return _std::make_shared<binbuf_reader>(std::move(pbbr), enc);
    }
    if (pbbw) {
-      return std::make_shared<binbuf_writer>(std::move(pbbw), enc);
+      return _std::make_shared<binbuf_writer>(std::move(pbbw), enc);
    }
    // TODO: use a better exception class.
    ABC_THROW(argument_error, ());
@@ -86,13 +86,13 @@ pszEnvVarName
 return
    Encoding appropriate for the requested standard I/O file.
 */
-static std::shared_ptr<binbuf_base> _construct_stdio(
-   std::shared_ptr<binary::base> pbb, char_t const * pszEnvVarName
+static _std::shared_ptr<binbuf_base> _construct_stdio(
+   _std::shared_ptr<binary::base> pbb, char_t const * pszEnvVarName
 ) {
    ABC_TRACE_FUNC(pbb, pszEnvVarName);
 
    abc::text::encoding enc;
-   if (std::dynamic_pointer_cast<binary::console_file_base>(pbb)) {
+   if (_std::dynamic_pointer_cast<binary::console_file_base>(pbb)) {
       /* Console files can only perform I/O in the host platform’s encoding, so force the correct
       encoding here. */
       enc = abc::text::encoding::host;
@@ -127,27 +127,27 @@ static std::shared_ptr<binbuf_base> _construct_stdio(
 }
 
 
-std::shared_ptr<reader> make_reader(
-   std::shared_ptr<binary::reader> pbr, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+_std::shared_ptr<reader> make_reader(
+   _std::shared_ptr<binary::reader> pbr, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
    ABC_TRACE_FUNC(pbr, enc);
 
-   return std::make_shared<binbuf_reader>(
-      std::make_shared<binary::default_buffered_reader>(std::move(pbr)), enc
+   return _std::make_shared<binbuf_reader>(
+      _std::make_shared<binary::default_buffered_reader>(std::move(pbr)), enc
    );
 }
 
-std::shared_ptr<writer> make_writer(
-   std::shared_ptr<binary::writer> pbw, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+_std::shared_ptr<writer> make_writer(
+   _std::shared_ptr<binary::writer> pbw, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
    ABC_TRACE_FUNC(pbw, enc);
 
-   return std::make_shared<binbuf_writer>(
-      std::make_shared<binary::default_buffered_writer>(std::move(pbw)), enc
+   return _std::make_shared<binbuf_writer>(
+      _std::make_shared<binary::default_buffered_writer>(std::move(pbw)), enc
    );
 }
 
-std::shared_ptr<binbuf_base> open(
+_std::shared_ptr<binbuf_base> open(
    os::path const & op, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
    ABC_TRACE_FUNC(op, am, enc);
@@ -159,26 +159,26 @@ std::shared_ptr<binbuf_base> open(
 
 namespace abc { namespace io { namespace text { namespace detail {
 
-std::shared_ptr<writer> make_stderr() {
+_std::shared_ptr<writer> make_stderr() {
    ABC_TRACE_FUNC();
 
-   return std::dynamic_pointer_cast<writer>(
+   return _std::dynamic_pointer_cast<writer>(
       _construct_stdio(binary::stderr, ABC_SL("ABC_STDERR_ENCODING"))
    );
 }
 
-std::shared_ptr<reader> make_stdin() {
+_std::shared_ptr<reader> make_stdin() {
    ABC_TRACE_FUNC();
 
-   return std::dynamic_pointer_cast<reader>(
+   return _std::dynamic_pointer_cast<reader>(
       _construct_stdio(binary::stdin, ABC_SL("ABC_STDIN_ENCODING"))
    );
 }
 
-std::shared_ptr<writer> make_stdout() {
+_std::shared_ptr<writer> make_stdout() {
    ABC_TRACE_FUNC();
 
-   return std::dynamic_pointer_cast<writer>(
+   return _std::dynamic_pointer_cast<writer>(
       _construct_stdio(binary::stdout, ABC_SL("ABC_STDOUT_ENCODING"))
    );
 }

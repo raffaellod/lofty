@@ -116,7 +116,7 @@ public:
    @param pthrimpl
       Pointer to the abc::thread::impl instance running the thread.
    */
-   void nonmain_thread_started(std::shared_ptr<thread::impl> const & pthrimpl);
+   void nonmain_thread_started(_std::shared_ptr<thread::impl> const & pthrimpl);
 
    /*! Registers a non-main thread as no longer running.
 
@@ -201,12 +201,12 @@ private:
    /*! Pointer to an incomplete abc::thread::impl instance that’s used to control the main (default)
    thread of the process. */
    // TODO: instantiate this lazily, only if needed.
-   std::shared_ptr<thread::impl> m_pthrimplMain;
+   _std::shared_ptr<thread::impl> m_pthrimplMain;
    //! Governs access to m_hmThreads.
    _std::mutex m_mtxThreads;
    //! Tracks all threads running in the process except *m_pthrimplMain.
    // TODO: make this a hash_set instead of a hash_map.
-   collections::hash_map<thread::impl *, std::shared_ptr<thread::impl>> m_hmThreads;
+   collections::hash_map<thread::impl *, _std::shared_ptr<thread::impl>> m_hmThreads;
 
    //! Pointer to the singleton instance.
    static signal_dispatcher * sm_psd;

@@ -124,9 +124,9 @@ protected:
 
 private:
    //! Array of flags indicating whether each storage slot has been constructed.
-   std::unique_ptr<bool[]> m_pbConstructed;
+   _std::unique_ptr<bool[]> m_pbConstructed;
    //! Raw byte storage.
-   std::unique_ptr<std::int8_t[]> m_pb;
+   _std::unique_ptr<std::int8_t[]> m_pb;
 };
 
 }} //namespace abc::detail
@@ -364,9 +364,11 @@ public:
 
 // Specialization for std::shared_ptr, which offers a few additional methods.
 template <typename T, typename TStorage>
-class context_local_value<std::shared_ptr<T>, TStorage, false> :
-   public context_local_var_impl<std::shared_ptr<T>, TStorage>,
-   public support_explicit_operator_bool<context_local_value<std::shared_ptr<T>, TStorage, false>> {
+class context_local_value<_std::shared_ptr<T>, TStorage, false> :
+   public context_local_var_impl<_std::shared_ptr<T>, TStorage>,
+   public support_explicit_operator_bool<
+      context_local_value<_std::shared_ptr<T>, TStorage, false>
+   > {
 public:
    //! Constructor.
    context_local_value() {
@@ -381,24 +383,24 @@ public:
    @return
       *this.
    */
-   context_local_value & operator=(std::shared_ptr<T> const & pt) {
+   context_local_value & operator=(_std::shared_ptr<T> const & pt) {
       *this->get_ptr() = pt;
       return *this;
    }
-   context_local_value & operator=(std::shared_ptr<T> && pt) {
+   context_local_value & operator=(_std::shared_ptr<T> && pt) {
       *this->get_ptr() = std::move(pt);
       return *this;
    }
 
-   /*! Implicit cast to std::shared_ptr<T> &.
+   /*! Implicit cast to _std::shared_ptr<T> &.
 
    @return
       Reference to the shared pointer.
    */
-   operator std::shared_ptr<T> &() {
+   operator _std::shared_ptr<T> &() {
       return *this->get_ptr();
    }
-   operator std::shared_ptr<T> const &() const {
+   operator _std::shared_ptr<T> const &() const {
       return *this->get_ptr();
    }
 
@@ -449,12 +451,12 @@ public:
 private:
    //! Implementation of context_local_var_impl::construct().
    static void construct_impl(void * p) {
-      new(p) std::shared_ptr<T>();
+      new(p) _std::shared_ptr<T>();
    }
 
    //! Implementation of context_local_var_impl::destruct().
    static void destruct_impl(void * p) {
-      static_cast<std::shared_ptr<T> *>(p)->~shared_ptr();
+      static_cast<_std::shared_ptr<T> *>(p)->~shared_ptr();
    }
 };
 

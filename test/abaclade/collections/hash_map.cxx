@@ -112,8 +112,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    // Validate that non-copyable types can be stored in a map.
    {
-      collections::hash_map<int, std::unique_ptr<int>> hm2;
-      hm2.add_or_assign(1, std::unique_ptr<int>(new int(10)));
+      collections::hash_map<int, _std::unique_ptr<int>> hm2;
+      hm2.add_or_assign(1, _std::unique_ptr<int>(new int(10)));
    }
 }
 

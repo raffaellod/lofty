@@ -243,7 +243,7 @@ str_base::const_iterator str_base::translate_index(std::ptrdiff_t ich) const {
    return std::move(it);
 }
 
-std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
+_std::tuple<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
    std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
 ) const {
    ABC_TRACE_FUNC(this, ichBegin, ichEnd);
@@ -252,10 +252,10 @@ std::pair<str_base::const_iterator, str_base::const_iterator> str_base::translat
    auto itEnd(translate_index(ichEnd));
    // If the interval is empty, return [end(), end()) .
    if (itBegin >= itEnd) {
-      return std::pair<const_iterator, const_iterator>(end(), end());
+      return _std::make_tuple(end(), end());
    }
    // Return the constructed interval.
-   return std::pair<const_iterator, const_iterator>(itBegin, itEnd);
+   return _std::make_tuple(itBegin, itEnd);
 }
 
 }}} //namespace abc::text::detail

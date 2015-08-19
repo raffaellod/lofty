@@ -33,8 +33,8 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    static std::size_t const sc_ciBuffer = 1024;
-   std::unique_ptr<std::uint8_t[]> aiSrc(new std::uint8_t[sc_ciBuffer]),
-                                   aiDst(new std::uint8_t[sc_ciBuffer]);
+   _std::unique_ptr<std::uint8_t[]> aiSrc(new std::uint8_t[sc_ciBuffer]),
+                                    aiDst(new std::uint8_t[sc_ciBuffer]);
    // Prepare the source array.
    for (std::size_t i = 0; i < sc_ciBuffer; ++i) {
       aiSrc[i] = static_cast<std::uint8_t>(i);

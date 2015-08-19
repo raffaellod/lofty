@@ -34,11 +34,11 @@ class binbuf_reader;
 class binbuf_writer;
 
 //! Text writer associated to the standard error output file.
-extern ABACLADE_SYM std::shared_ptr<writer> stderr;
+extern ABACLADE_SYM _std::shared_ptr<writer> stderr;
 //! Text reader associated to the standard input file.
-extern ABACLADE_SYM std::shared_ptr<reader> stdin;
+extern ABACLADE_SYM _std::shared_ptr<reader> stdin;
 //! Text writer associated to the standard output file.
-extern ABACLADE_SYM std::shared_ptr<writer> stdout;
+extern ABACLADE_SYM _std::shared_ptr<writer> stdout;
 
 /*! Creates and returns a text reader for the specified binary reader.
 
@@ -49,8 +49,8 @@ extern ABACLADE_SYM std::shared_ptr<writer> stdout;
 @return
    Pointer to a text reader operating on top of the specified binary reader.
 */
-ABACLADE_SYM std::shared_ptr<reader> make_reader(
-   std::shared_ptr<binary::reader> pbr, abc::text::encoding enc = abc::text::encoding::unknown
+ABACLADE_SYM _std::shared_ptr<reader> make_reader(
+   _std::shared_ptr<binary::reader> pbr, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
 /*! Creates and returns a text writer for the specified binary writer.
@@ -62,8 +62,8 @@ ABACLADE_SYM std::shared_ptr<reader> make_reader(
 @return
    Pointer to a text writer operating on top of the specified binary writer.
 */
-ABACLADE_SYM std::shared_ptr<writer> make_writer(
-   std::shared_ptr<binary::writer> pbw, abc::text::encoding enc = abc::text::encoding::unknown
+ABACLADE_SYM _std::shared_ptr<writer> make_writer(
+   _std::shared_ptr<binary::writer> pbw, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
 /*! Opens a file for text-mode access.
@@ -77,7 +77,7 @@ ABACLADE_SYM std::shared_ptr<writer> make_writer(
 @return
    Pointer to a text I/O object for the file.
 */
-ABACLADE_SYM std::shared_ptr<binbuf_base> open(
+ABACLADE_SYM _std::shared_ptr<binbuf_base> open(
    os::path const & op, access_mode am, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
@@ -90,10 +90,10 @@ ABACLADE_SYM std::shared_ptr<binbuf_base> open(
 @return
    Pointer to a text reader for the file.
 */
-inline std::shared_ptr<binbuf_reader> open_reader(
+inline _std::shared_ptr<binbuf_reader> open_reader(
    os::path const & op, abc::text::encoding enc = abc::text::encoding::unknown
 ) {
-   return std::dynamic_pointer_cast<binbuf_reader>(open(op, access_mode::read, enc));
+   return _std::dynamic_pointer_cast<binbuf_reader>(open(op, access_mode::read, enc));
 }
 
 /*! Opens a file for text-mode writing.
@@ -105,10 +105,10 @@ inline std::shared_ptr<binbuf_reader> open_reader(
 @return
    Pointer to a text writer for the file.
 */
-inline std::shared_ptr<binbuf_writer> open_writer(
+inline _std::shared_ptr<binbuf_writer> open_writer(
    os::path const & op, abc::text::encoding enc = abc::text::encoding::utf8
 ) {
-   return std::dynamic_pointer_cast<binbuf_writer>(open(op, access_mode::write, enc));
+   return _std::dynamic_pointer_cast<binbuf_writer>(open(op, access_mode::write, enc));
 }
 
 }}} //namespace abc::io::text
@@ -120,21 +120,21 @@ namespace abc { namespace io { namespace text { namespace detail {
 @return
    Standard error file.
 */
-ABACLADE_SYM std::shared_ptr<writer> make_stderr();
+ABACLADE_SYM _std::shared_ptr<writer> make_stderr();
 
 /*! Creates and returns a text reader associated to the standard input file (stdin).
 
 @return
    Standard input file.
 */
-ABACLADE_SYM std::shared_ptr<reader> make_stdin();
+ABACLADE_SYM _std::shared_ptr<reader> make_stdin();
 
 /*! Creates and returns a text writer associated to the standard output file (stdout).
 
 @return
    Standard output file.
 */
-ABACLADE_SYM std::shared_ptr<writer> make_stdout();
+ABACLADE_SYM _std::shared_ptr<writer> make_stdout();
 
 }}}} //namespace abc::io::text::detail
 
