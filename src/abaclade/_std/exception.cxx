@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#ifdef ABC_STLIMPL
+#ifdef _ABACLADE_STL_EXCEPTION_HXX
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,4 +39,4 @@ exception::exception() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifdef ABC_STLIMPL
+#endif //ifdef _ABACLADE_STL_EXCEPTION_HXX
