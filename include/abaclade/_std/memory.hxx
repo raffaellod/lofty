@@ -832,35 +832,22 @@ class prefix_shared_refcount : public shared_refcount {
 public:
    //! Constructor.
    prefix_shared_refcount() :
-      shared_refcount(1, 0),
-      m_bOwnedConstructed(false) {
+      shared_refcount(1, 0) {
    }
 
    //! Destructor.
    virtual ~prefix_shared_refcount() {
-      ABC_ASSERT(!m_bOwnedConstructed);
-   }
-
-   /*! Declares the T that follows *this as constructed, thereby enabling its destruction in
-   delete_owned(). */
-   void set_owned_constructed() {
-      m_bOwnedConstructed = true;
    }
 
 protected:
    //! See shared_refcount::delete_owned().
    virtual void delete_owned() override {
-      if (m_bOwnedConstructed) {
-         // Calculate the address of the T that follows *this.
-         T * pt = reinterpret_cast<max_align_t *>(this) + ABC_ALIGNED_SIZE(sizeof(*this));
-         pt->~T();
-         m_bOwnedConstructed = false;
-      }
+      // Calculate the address of the T that follows *this.
+      T * pt = reinterpret_cast<T *>(
+         reinterpret_cast<max_align_t *>(this) + ABC_ALIGNED_SIZE(sizeof(*this))
+      );
+      pt->~T();
    }
-
-protected:
-   //! true if the T that follows *this has been constructed.
-   bool m_bOwnedConstructed;
 };
 
 }}} //namespace abc::_std::detail
@@ -888,6 +875,67 @@ private:
 
    template <typename T2, typename U>
    friend shared_ptr<T2> static_pointer_cast(shared_ptr<U> const & pu);
+
+#ifdef ABC_CXX_VARIADIC_TEMPLATES
+   template <typename T2, typename... TArgs>
+   friend shared_ptr<T2> make_shared(TArgs &&... targs);
+#else
+   template <typename T2>
+   friend shared_ptr<T2> make_shared();
+   template <typename T2, typename TArg0>
+   friend shared_ptr<T2> make_shared(TArg0 && targ0);
+   template <typename T2, typename TArg0, typename TArg1>
+   friend shared_ptr<T2> make_shared(TArg0 && targ0, TArg1 && targ1);
+   template <typename T2, typename TArg0, typename TArg1, typename TArg2>
+   friend shared_ptr<T2> make_shared(TArg0 && targ0, TArg1 && targ1, TArg2 && targ2);
+   template <typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
+   friend shared_ptr<T2> make_shared(TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3);
+   template <
+      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4
+   >
+   inline shared_ptr<T2> make_shared(
+      TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4
+   );
+   template <
+      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename TArg5
+   >
+   friend shared_ptr<T2> make_shared(
+      TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5
+   );
+   template <
+      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename TArg5, typename TArg6
+   >
+   friend shared_ptr<T2> make_shared(
+      TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5,
+      TArg6 && targ6
+   );
+   template <
+      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename TArg5, typename TArg6, typename TArg7
+   >
+   friend shared_ptr<T2> make_shared(
+      TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5,
+      TArg6 && targ6, TArg7 && targ7
+   );
+   template <
+      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename TArg5, typename TArg6, typename TArg7, typename TArg8
+   >
+   friend shared_ptr<T2> make_shared(
+      TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5,
+      TArg6 && targ6, TArg7 && targ7, TArg8 && targ8
+   );
+   template <
+      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename TArg5, typename TArg6, typename TArg7, typename TArg8, typename TArg9
+   >
+   friend shared_ptr<T2> make_shared(
+      TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5,
+      TArg6 && targ6, TArg7 && targ7, TArg8 && targ8, TArg9 && targ9
+   );
+#endif
 
 public:
    //! Type of the element pointed to.
@@ -1377,38 +1425,29 @@ private:
 
 namespace abc { namespace _std {
 
-/*! Similar to make_shared(), except it uses a custom allocator.
+/*! Helper for make_shared(); handles everything except calling T::T().
 
-TODO: comment signature. */
-#ifdef ABC_CXX_VARIADIC_TEMPLATES
-
-template <typename T, class TAllocator, typename... TArgs>
-inline shared_ptr<T> allocate_shared(TAllocator const & talloc, TArgs &&... targs) {
+@return
+   Pointer referencing a prefix_shared_refcount followed by storage for a T instance.
+*/
+template <typename T>
+inline tuple<unique_ptr<void>, T *> _make_unconstructed_shared() {
+   typedef detail::prefix_shared_refcount<T> prefix_shared_refcount;
    /* Allocate a block of memory large enough to contain a refcount object and a T instance, making
    sure the T has proper alignment. */
-   max_align_t * p = new max_align_t[
-      ABC_ALIGNED_SIZE(sizeof(detail::prefix_shared_refcount<T>)) + ABC_ALIGNED_SIZE(sizeof(T))
-   ];
-   T * pt = p + ABC_ALIGNED_SIZE(sizeof(detail::prefix_shared_refcount<T>));
-   /* Construct and return a raw shared_ptr, also constructing the refcount object on the fly.
-   Note that we’ll only call set_owned_constructed() on the refcount after T::T() succeeds; in case
-   this throws, shared_ptr::~shared_ptr() will call m_psr->release_strong(), but this won’t attempt
-   to destruct the unconstructed T object because it hasn’t been told that the object was
-   constructed. This also avoids the need for exception handling. */
-   shared_ptr<T> spt(::new(p) detail::prefix_shared_refcount<T>(), pt);
-   // Read comments in _make_unconstructed_shared() to see why this is really exception-proof.
-   ::new(spt.get()) T(forward(targs) ...);
-   static_cast<detail::prefix_shared_refcount<T> *>(
-      spt.get_shared_refcount()
-   )->set_owned_constructed();
-   return move(spt);
+   unique_ptr<max_align_t> p(new max_align_t[
+      ABC_ALIGNED_SIZE(sizeof(prefix_shared_refcount)) + ABC_ALIGNED_SIZE(sizeof(T))
+   ]);
+   /* Construct the shared_refcount. Its destructor won’t be called if an exception is thrown before
+   psr gets stored in a shared_ptr. */
+   ::new(p.get()) prefix_shared_refcount();
+   T * pt = reinterpret_cast<T *>(p.get() + ABC_ALIGNED_SIZE(sizeof(prefix_shared_refcount)));
+   return make_tuple(move(p), pt);
 }
 
-#else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+}} //namespace abc::_std
 
-// TODO: non-template version!
-
-#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+namespace abc { namespace _std {
 
 /*! Returns the deleter in use by the specified shared_ptr, if any (C++11 § 20.7.2.2.10
 “get_deleter”).
@@ -1434,29 +1473,60 @@ TODO: comment signature.
 
 template <typename T, typename... TArgs>
 inline shared_ptr<T> make_shared(TArgs &&... targs) {
-   return allocate_shared<T, allocator, TArgs ...>(targs ...);
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(forward<TArgs>(targs)...);
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename T>
 inline shared_ptr<T> make_shared() {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T();
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 1-argument T::T().
 template <typename T, typename TArg0>
 inline shared_ptr<T> make_shared(TArg0 && targ0) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(forward<TArg0>(targ0));
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 2-argument T::T().
 template <typename T, typename TArg0, typename TArg1>
 inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(forward<TArg0>(targ0), forward<TArg1>(targ1));
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 3-argument T::T().
 template <typename T, typename TArg0, typename TArg1, typename TArg2>
 inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1, TArg2 && targ2) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2));
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 4-argument T::T().
 template <typename T, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
 inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(
+      forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3)
+   );
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 5-argument T::T().
 template <
@@ -1465,6 +1535,14 @@ template <
 inline shared_ptr<T> make_shared(
    TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4
 ) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(
+      forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
+      forward<TArg4>(targ4)
+   );
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 6-argument T::T().
 template <
@@ -1474,6 +1552,14 @@ template <
 inline shared_ptr<T> make_shared(
    TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5
 ) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(
+      forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
+      forward<TArg4>(targ4), forward<TArg5>(targ5)
+   );
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 7-argument T::T().
 template <
@@ -1484,6 +1570,14 @@ inline shared_ptr<T> make_shared(
    TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5,
    TArg6 && targ6
 ) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(
+      forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
+      forward<TArg4>(targ4), forward<TArg5>(targ5), forward<TArg6>(targ6)
+   );
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 8-argument T::T().
 template <
@@ -1494,6 +1588,14 @@ inline shared_ptr<T> make_shared(
    TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5,
    TArg6 && targ6, TArg7 && targ7
 ) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(
+      forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
+      forward<TArg4>(targ4), forward<TArg5>(targ5), forward<TArg6>(targ6), forward<TArg7>(targ7)
+   );
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 9-argument T::T().
 template <
@@ -1504,6 +1606,15 @@ inline shared_ptr<T> make_shared(
    TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5,
    TArg6 && targ6, TArg7 && targ7, TArg8 && targ8
 ) {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(
+      forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
+      forward<TArg4>(targ4), forward<TArg5>(targ5), forward<TArg6>(targ6), forward<TArg7>(targ7),
+      forward<TArg8>(targ8)
+   );
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 // Overload for 10-argument T::T().
 template <
@@ -1514,14 +1625,15 @@ inline shared_ptr<T> make_shared(
    TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4, TArg5 && targ5,
    TArg6 && targ6, TArg7 && targ7, TArg8 && targ8, TArg9 && targ9
 ) {
-}
-
-/*! Helper for make_shared(); handles everything except calling T::T().
-
-TODO: comment signature.
-*/
-template <typename T>
-inline shared_ptr<T> _make_unconstructed_shared() {
+   auto tpl(_make_unconstructed_shared<T>());
+   ::new(get<1>(tpl)) T(
+      forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
+      forward<TArg4>(targ4), forward<TArg5>(targ5), forward<TArg6>(targ6), forward<TArg7>(targ7),
+      forward<TArg8>(targ8), forward<TArg9>(targ9)
+   );
+   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
+      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   ), get<1>(tpl));
 }
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
