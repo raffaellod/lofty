@@ -455,11 +455,37 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 #if defined(ABC_STLIMPL) || !defined(ABC_CXX_VARIADIC_TEMPLATES)
    #include <abaclade/_std/tuple.hxx>
-#endif
-#ifdef ABC_STLIMPL
-   #include <abaclade/_std/memory.hxx>
-#else //ifdef ABC_STLIMPL
+#else
    #include <tuple>
+
+   namespace abc { namespace _std {
+
+   using ::std::ignore;
+   using ::std::tie;
+   using ::std::tuple;
+   using ::std::tuple_element;
+   using ::std::tuple_get;
+   using ::std::tuple_size;
+
+   }} //namespace abc::_std
+#endif
+
+#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
+   #include <abaclade/_std/atomic.hxx>
+#else
+   #include <atomic>
+
+   namespace abc { namespace _std {
+
+   using ::std::atomic;
+
+   }} //namespace abc::_std
+#endif
+
+#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
+   // MSC16 has a half-assed std::shared_ptr that requires the type’s destructor to be defined.
+   #include <abaclade/_std/memory.hxx>
+#else
    #if ABC_HOST_CXX_MSC
       // Silence warnings from system header files.
       #pragma warning(push)
@@ -481,7 +507,18 @@ from Abaclade’s testing shared library (into another library/executable). */
 
       } //namespace std
    #endif
-#endif //ifdef ABC_STLIMPL … else
+
+   namespace abc { namespace _std {
+
+   using ::std::dynamic_pointer_cast;
+   using ::std::make_shared;
+   using ::std::shared_ptr;
+   using ::std::static_pointer_cast;
+   using ::std::unique_ptr;
+   using ::std::weak_ptr;
+
+   }} //namespace abc::_std
+#endif
 #include <abaclade/memory.hxx>
 
 // Forward declarations.
@@ -512,16 +549,13 @@ class writer;
 
 }}} //namespace abc::io::text
 
-#if defined(ABC_STLIMPL) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1700)
-   #include <abaclade/_std/atomic.hxx>
+#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
    #include <abaclade/_std/mutex.hxx>
 #else
-   #include <atomic>
    #include <mutex>
 
    namespace abc { namespace _std {
 
-   using ::std::atomic;
    using ::std::lock_guard;
    using ::std::mutex;
    using ::std::unique_lock;
@@ -530,7 +564,7 @@ class writer;
 #endif
 #ifdef ABC_STLIMPL
    #include <abaclade/_std/exception.hxx>
-   // TODO: #include <abaclade/_std/stdexcept.hxx>
+   #include <abaclade/_std/stdexcept.hxx>
    #include <abaclade/_std/functional.hxx>
    #include <abaclade/_std/iterator.hxx>
 #else
