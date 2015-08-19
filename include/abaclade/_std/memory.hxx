@@ -880,6 +880,15 @@ private:
    template <typename U>
    friend class shared_ptr;
 
+   template <typename T2, typename U>
+   friend shared_ptr<T2> const_pointer_cast(shared_ptr<U> const & pu);
+
+   template <typename T2, typename U>
+   friend shared_ptr<T2> dynamic_pointer_cast(shared_ptr<U> const & pu);
+
+   template <typename T2, typename U>
+   friend shared_ptr<T2> static_pointer_cast(shared_ptr<U> const & pu);
+
 public:
    //! Type of the element pointed to.
    typedef T element_type;
@@ -1516,6 +1525,48 @@ inline shared_ptr<T> _make_unconstructed_shared() {
 }
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+
+}} //namespace abc::_std
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace _std {
+
+/* Perform a const_cast<>() on a shared_ptr instance (C++11 § 20.7.2.2.9 “shared_ptr casts”).
+
+@param pu
+   Source pointer.
+@return
+   Resulting pointer.
+*/
+template <typename T, typename U>
+inline shared_ptr<T> const_pointer_cast(shared_ptr<U> const & pu) {
+   return shared_ptr<T>(pu.get_shared_refcount(), const_cast<T *>(pu.get()));
+}
+
+/* Perform a dynamic_cast<>() on a shared_ptr instance (C++11 § 20.7.2.2.9 “shared_ptr casts”).
+
+@param pu
+   Source pointer.
+@return
+   Resulting pointer.
+*/
+template <typename T, typename U>
+inline shared_ptr<T> dynamic_pointer_cast(shared_ptr<U> const & pu) {
+   return shared_ptr<T>(pu.get_shared_refcount(), dynamic_cast<T *>(pu.get()));
+}
+
+/* Perform a static_cast<>() on a shared_ptr instance (C++11 § 20.7.2.2.9 “shared_ptr casts”).
+
+@param pu
+   Source pointer.
+@return
+   Resulting pointer.
+*/
+template <typename T, typename U>
+inline shared_ptr<T> static_pointer_cast(shared_ptr<U> const & pu) {
+   return shared_ptr<T>(pu.get_shared_refcount(), static_cast<T *>(pu.get()));
+}
 
 }} //namespace abc::_std
 
