@@ -27,12 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-#ifdef ABC_STLIMPL
-   #include <abaclade/_std/utility.hxx>
-#else
-   #include <utility>
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -27,33 +27,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
-// TODO: move this to abaclade.hxx or maybe a _std.hxx that includes all these namespace pulls.
-#if defined(ABC_STLIMPL)
-   #include <abaclade/_std/new.hxx>
-   #include <abaclade/_std/type_traits.hxx>
-   #include <abaclade/_std/exception.hxx>
-   #include <abaclade/_std/typeinfo.hxx>
-#else
-   #include <new>
-   #include <type_traits>
-   #include <exception>
-   #include <typeinfo>
-
-   namespace abc { namespace _std {
-
-   using ::std::add_lvalue_reference;
-   using ::std::conditional;
-   using ::std::exception;
-   using ::std::forward;
-   using ::std::is_reference;
-   using ::std::move;
-   using ::std::nothrow;
-   using ::std::nothrow_t;
-   using ::std::remove_reference;
-
-   }} //namespace abc::_std
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

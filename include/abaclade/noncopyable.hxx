@@ -70,70 +70,18 @@ private:
 
 } //namespace abc
 
-#ifdef ABC_STLIMPL
-   #include <abaclade/_std/type_traits.hxx>
-#else
-   #if ABC_HOST_CXX_MSC == 1800
-      // See abc::noncopyable to understand what’s going on here.
-      #define is_copy_constructible _ABC_MSC18_is_copy_constructible
-   #endif
-   #include <type_traits>
-   #if ABC_HOST_CXX_MSC == 1800
-      #undef is_copy_constructible
-   #endif
-#endif
-
 // Provide a definition of std::is_copy_constructible for STL implementations lacking it.
-#if ( \
-   (ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1900) \
-) && !defined(ABC_STLIMPL)
+#ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
 
-namespace std {
+   namespace std {
 
-#if ABC_HOST_CXX_GCC
-   // GCC lacks a definition of std::add_reference.
+   /* Partially-specialize std::is_copy_constructible to always return true for abc::noncopyable
+   subclasses. */
    template <typename T>
-   struct add_reference {
-      typedef T & type;
-   };
-   template <typename T>
-   struct add_reference<T &> {
-      typedef T & type;
-   };
-#elif ABC_HOST_CXX_MSC < 1800
-   // MSC16 lacks a definition of std::declval.
-   template <typename T>
-   typename add_rvalue_reference<T>::type declval();
+   struct is_copy_constructible<T, typename enable_if<
+      is_base_of< ::abc::noncopyable, T>::value
+   >::type> : public false_type {};
+
+   } //namespace std
+
 #endif
-
-template <typename T, typename = void>
-struct is_copy_constructible {
-private:
-   static int test(T &);
-   static char test(...);
-
-   typedef typename add_reference<T>::type TRef;
-
-public:
-   static bool const value = (sizeof(test(declval<TRef>())) == sizeof(int))
-#if ABC_HOST_CXX_MSC == 1800
-      /* MSC18 does provide an implementation which, while severely flawed (see abc::noncopyable),
-      may be stricter than this, so && its return value. */
-      && _ABC_MSC18_is_copy_constructible<T>::value
-#endif
-   ;
-};
-
-/* Partially-specialize std::is_copy_constructible to always return true for abc::noncopyable
-subclasses. */
-template <typename T>
-struct is_copy_constructible<T, typename enable_if<
-   is_base_of< ::abc::noncopyable, T>::value
->::type> : public false_type {};
-
-#define ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
-
-} //namespace std
-
-#endif /*if ((ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) ||
-             (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1900) && !defined(ABC_STLIMPL) */

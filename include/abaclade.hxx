@@ -324,17 +324,9 @@ compilers. */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* Extended features that can take advantage of C++11 or fallback to still-functional alternatives,
-plus a few compiler-specific STL fixes. */
+// Extended features that can take advantage of C++11 or fallback to still-functional alternatives.
 
-#ifdef ABC_STLIMPL
-// In case we’re reimplementing all of STL, just merge ::abc::_std into ::std.
-namespace std {
-using namespace ::abc::_std;
-} //namespace std
-#endif
-
-// This will also #include <type_traits>.
+#include <abaclade/_std-before-noncopyable.hxx>
 #include <abaclade/noncopyable.hxx>
 #include <abaclade/explicit_operator_bool.hxx>
 
@@ -453,72 +445,7 @@ from Abaclade’s testing shared library (into another library/executable). */
    #pragma warning(pop)
 #endif
 
-#if defined(ABC_STLIMPL) || !defined(ABC_CXX_VARIADIC_TEMPLATES)
-   #include <abaclade/_std/tuple.hxx>
-#else
-   #include <tuple>
-
-   namespace abc { namespace _std {
-
-   using ::std::ignore;
-   using ::std::tie;
-   using ::std::tuple;
-   using ::std::tuple_element;
-   using ::std::tuple_get;
-   using ::std::tuple_size;
-
-   }} //namespace abc::_std
-#endif
-
-#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
-   #include <abaclade/_std/atomic.hxx>
-#else
-   #include <atomic>
-
-   namespace abc { namespace _std {
-
-   using ::std::atomic;
-
-   }} //namespace abc::_std
-#endif
-
-#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
-   // MSC16 has a half-assed std::shared_ptr that requires the type’s destructor to be defined.
-   #include <abaclade/_std/memory.hxx>
-#else
-   #if ABC_HOST_CXX_MSC
-      // Silence warnings from system header files.
-      #pragma warning(push)
-      // “expression before comma has no effect; expected expression with side-effect”
-      #pragma warning(disable: 4548)
-      // “'function': exception specification does not match previous declaration”
-      #pragma warning(disable: 4986)
-   #endif //if ABC_HOST_CXX_MSC
-   #include <memory>
-   #if ABC_HOST_CXX_MSC
-      #pragma warning(pop)
-   #endif
-   #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
-      namespace std {
-
-      // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
-      template <typename T, typename TDeleter>
-      struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
-
-      } //namespace std
-   #endif
-
-   namespace abc { namespace _std {
-
-   using ::std::dynamic_pointer_cast;
-   using ::std::make_shared;
-   using ::std::shared_ptr;
-   using ::std::static_pointer_cast;
-   using ::std::unique_ptr;
-   using ::std::weak_ptr;
-
-   }} //namespace abc::_std
-#endif
+#include <abaclade/_std-before-memory.hxx>
 #include <abaclade/memory.hxx>
 
 // Forward declarations.
@@ -549,30 +476,7 @@ class writer;
 
 }}} //namespace abc::io::text
 
-#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
-   #include <abaclade/_std/mutex.hxx>
-#else
-   #include <mutex>
-
-   namespace abc { namespace _std {
-
-   using ::std::lock_guard;
-   using ::std::mutex;
-   using ::std::unique_lock;
-
-   }} //namespace abc::_std
-#endif
-#ifdef ABC_STLIMPL
-   #include <abaclade/_std/exception.hxx>
-   #include <abaclade/_std/stdexcept.hxx>
-   #include <abaclade/_std/functional.hxx>
-   #include <abaclade/_std/iterator.hxx>
-#else
-   #include <exception>
-   #include <stdexcept>
-   #include <functional>
-   #include <iterator>
-#endif
+#include <abaclade/_std.hxx>
 #include <abaclade/collections/static_list.hxx>
 #include <abaclade/detail/context_local.hxx>
 #include <abaclade/coroutine_local.hxx>
