@@ -50,11 +50,12 @@ You should have received a copy of the GNU General Public License along with Aba
 
    namespace abc { namespace _std {
 
+   using ::std::get;
    using ::std::ignore;
+   using ::std::make_tuple;
    using ::std::tie;
    using ::std::tuple;
    using ::std::tuple_element;
-   using ::std::tuple_get;
    using ::std::tuple_size;
 
    }} //namespace abc::_std
