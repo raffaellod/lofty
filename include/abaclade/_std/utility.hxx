@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_STL_UTILITY_HXX
-#define _ABACLADE_STL_UTILITY_HXX
+#ifndef _ABACLADE_STD_UTILITY_HXX
+#define _ABACLADE_STD_UTILITY_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -113,4 +113,4 @@ inline void swap(T (& t1)[t_ci], T (& t2)[t_ci]) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_STL_UTILITY_HXX
+#endif //ifndef _ABACLADE_STD_UTILITY_HXX

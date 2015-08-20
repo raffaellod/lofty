@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_STL_NEW_HXX
-#define _ABACLADE_STL_NEW_HXX
+#ifndef _ABACLADE_STD_NEW_HXX
+#define _ABACLADE_STD_NEW_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -93,4 +93,4 @@ inline void operator delete[](void * p, void * pMem) ABC_STL_NOEXCEPT_TRUE() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_STL_NEW_HXX
+#endif //ifndef _ABACLADE_STD_NEW_HXX

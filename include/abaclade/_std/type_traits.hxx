@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_STL_TYPE_TRAITS_HXX
-#define _ABACLADE_STL_TYPE_TRAITS_HXX
+#ifndef _ABACLADE_STD_TYPE_TRAITS_HXX
+#define _ABACLADE_STD_TYPE_TRAITS_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -329,4 +329,4 @@ struct enable_if<true, T> {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_STL_TYPE_TRAITS_HXX
+#endif //ifndef _ABACLADE_STD_TYPE_TRAITS_HXX

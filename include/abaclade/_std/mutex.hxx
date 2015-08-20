@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_STL_MUTEX_HXX
-#define _ABACLADE_STL_MUTEX_HXX
+#ifndef _ABACLADE_STD_MUTEX_HXX
+#define _ABACLADE_STD_MUTEX_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -161,4 +161,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_STL_MUTEX_HXX
+#endif //ifndef _ABACLADE_STD_MUTEX_HXX

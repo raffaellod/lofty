@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_STL_TUPLE_HXX
-#define _ABACLADE_STL_TUPLE_HXX
+#ifndef _ABACLADE_STD_TUPLE_HXX
+#define _ABACLADE_STD_TUPLE_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -1733,4 +1733,4 @@ inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_STL_TUPLE_HXX
+#endif //ifndef _ABACLADE_STD_TUPLE_HXX
