@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#ifdef _ABACLADE_STL_TUPLE_HXX
+#ifdef _ABACLADE_STD_TUPLE_HXX
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,4 +31,4 @@ detail::ignore_t const ignore;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifdef _ABACLADE_STL_TUPLE_HXX
+#endif //ifdef _ABACLADE_STD_TUPLE_HXX

@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#ifdef _ABACLADE_STL_MEMORY_HXX
+#ifdef _ABACLADE_STD_MEMORY_HXX
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,4 +81,4 @@ void shared_refcount::add_strong_ref() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifdef _ABACLADE_STL_MEMORY_HXX
+#endif //ifdef _ABACLADE_STD_MEMORY_HXX
