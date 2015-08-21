@@ -32,21 +32,21 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace _std {
 
-//! TODO: comment.
-enum memory_order {
-   //! TODO: comment.
+//! Memory synchronization orders (C++11 § 29.3 “Order and consistency”).
+typedef enum {
+   //! No operation orders memory.
    memory_order_relaxed,
-   //! TODO: comment.
+   //! Causes a load to perform a consume operation.
    memory_order_consume,
-   //! TODO: comment.
+   //! Causes a load to perform an acquire operation.
    memory_order_acquire,
-   //! TODO: comment.
+   //! Causes a store to perform a release operation.
    memory_order_release,
-   //! TODO: comment.
+   //! Causes a load to perform an acquire operation, and a store to perform a release operation.
    memory_order_acq_rel,
-   //! TODO: comment.
+   //! Causes a load to perform an acquire operation, and a store to perform a release operation.
    memory_order_seq_cst
-};
+}  memory_order;
 
 }} //namespace abc::_std
 
@@ -64,7 +64,7 @@ class atomic_impl_base;
    template <typename T>
    class atomic_impl_base_impl {
    protected:
-      //! TODO: comment.
+      //! Type of the underlying scalar value.
       typedef T int_t;
 
    protected:
@@ -73,11 +73,11 @@ class atomic_impl_base;
       @param i
          Initial value for the variable.
       */
-      atomic_impl_base_impl(int_t i) :
+      /*constexpr*/ atomic_impl_base_impl(int_t i) :
          m_i(i) {
       }
 
-      //! TODO: comment.
+      //! See atomic::compare_exchange_strong().
       bool compare_exchange_strong(int_t & iExpected, int_t iDesired, memory_order mo) {
          ABC_UNUSED_ARG(mo);
          if (m_i != iExpected) {
@@ -88,20 +88,20 @@ class atomic_impl_base;
          return true;
       }
 
-      //! TODO: comment.
+      //! See atomic::load().
       int_t load(memory_order mo) const {
          ABC_UNUSED_ARG(mo);
          return m_i;
       }
 
-      //! TODO: comment.
+      //! See atomic::store().
       void store(int_t i, memory_order mo) {
          ABC_UNUSED_ARG(mo);
          m_i = i;
       }
 
    private:
-      //! Underlying integer.
+      //! Underlying scalar value.
       T volatile m_i;
    };
 
@@ -168,18 +168,38 @@ public:
    @param t
       Initial value for the variable.
    */
-   atomic_impl(T t = T()) :
+   /*constexpr*/ atomic_impl(T t = T()) :
       impl_base(static_cast<impl_base::int_t>(t)) {
    }
 
-   //! TODO: comment.
+   /*! Performs a compare-and-swap operation (C++11 § 29.6.1 “General operations on atomic types”).
+
+   @param tExpected
+      Expected value of *this; if *this has a different value, that value will be stored in
+      tExpected and this method will return false.
+   @param tDesired
+      New value to be stored in *this.
+   @param mo
+      Memory ordering requirement.
+   @return
+      true if the value was swapped, or false if *this was not equal to tExpected.
+   */
    bool compare_exchange_strong(T & tExpected, T tDesired, memory_order mo = memory_order_seq_cst) {
       return impl_base::compare_exchange_strong(
          *reinterpret_cast<int_t *>(&tExpected), static_cast<int_t>(tDesired), mo
       );
    }
 
-   //! TODO: comment.
+   /*! Performs an atomic addition operation (C++11 § 29.6.3 “Arithmetic operations on atomic
+   types”).
+
+   @param tAddend
+      Value to add to *this.
+   @param mo
+      Memory ordering requirement.
+   @return
+      Value of *this before the addition.
+   */
    T fetch_add(T tAddend, memory_order mo = memory_order_seq_cst) {
       for (;;) {
          T tPrevValue = load(mo);
@@ -189,7 +209,16 @@ public:
       }
    }
 
-   //! TODO: comment.
+   /*! Performs an atomic subtraction operation (C++11 § 29.6.3 “Arithmetic operations on atomic
+   types”).
+
+   @param tSubtrahend
+      Value to subtract from *this.
+   @param mo
+      Memory ordering requirement.
+   @return
+      Value of *this before the subtraction.
+   */
    T fetch_sub(T tSubtrahend, memory_order mo = memory_order_seq_cst) {
       for (;;) {
          T tPrevValue = load(mo);
@@ -199,7 +228,13 @@ public:
       }
    }
 
-   //! TODO: comment.
+   /*! Reads the current value of the object (C++11 § 29.6.1 “General operations on atomic types”).
+
+   @param mo
+      Memory ordering requirement.
+   @return
+      Current value of *this.
+   */
    T load(memory_order mo = memory_order_seq_cst) const {
 #if ABC_HOST_CXX_MSC
       #pragma warning(push)
@@ -212,7 +247,13 @@ public:
 #endif
    }
 
-   //! TODO: comment.
+   /*! Stores a value in the object (C++11 § 29.6.1 “General operations on atomic types”).
+
+   @param t
+      New value of *this.
+   @param mo
+      Memory ordering requirement.
+   */
    void store(T t, memory_order mo = memory_order_seq_cst) {
       impl_base::store(static_cast<impl_base::int_t>(t), mo);
    }
@@ -230,11 +271,22 @@ public:
    @param t
       Initial value for the variable.
    */
-   atomic_impl(T t = T()) :
+   /*constexpr*/ atomic_impl(T t = T()) :
       impl_base(static_cast<impl_base::int_t>(t)) {
    }
 
-   //! TODO: comment.
+   /*! Performs a compare-and-swap operation (C++11 § 29.6.1 “General operations on atomic types”).
+
+   @param tExpected
+      Expected value of *this; if *this has a different value, that value will be stored in
+      tExpected and this method will return false.
+   @param tDesired
+      New value to be stored in *this.
+   @param mo
+      Memory ordering requirement.
+   @return
+      true if the value was swapped, or false if *this was not equal to tExpected.
+   */
    bool compare_exchange_strong(T & tExpected, T tDesired, memory_order mo = memory_order_seq_cst) {
       return impl_base::compare_exchange_strong(
          *reinterpret_cast<impl_base::int_t *>(&tExpected),
@@ -242,12 +294,24 @@ public:
       );
    }
 
-   //! TODO: comment.
+   /*! Reads the current value of the object (C++11 § 29.6.1 “General operations on atomic types”).
+
+   @param mo
+      Memory ordering requirement.
+   @return
+      Current value of *this.
+   */
    T load(memory_order mo = memory_order_seq_cst) const {
       return reinterpret_cast<T>(impl_base::load(mo));
    }
 
-   //! TODO: comment.
+   /*! Stores a value in the object (C++11 § 29.6.1 “General operations on atomic types”).
+
+   @param t
+      New value of *this.
+   @param mo
+      Memory ordering requirement.
+   */
    void store(T t, memory_order mo = memory_order_seq_cst) {
       impl_base::store(reinterpret_cast<impl_base::int_t>(t), mo);
    }
@@ -257,7 +321,8 @@ public:
 
 namespace abc { namespace _std {
 
-//! TODO: comment.
+/*! Type with enforceable atomic access and defined memory access ordering (C++11 § 29.5.1 “Atomic
+types”). */
 template <typename T>
 class atomic : public detail::atomic_impl<T> {
 public:
@@ -266,7 +331,7 @@ public:
    @param t
       Initial value for the variable.
    */
-   atomic(T t = T()) :
+   /*constexpr*/ atomic(T t = T()) :
       detail::atomic_impl<T>(t) {
    }
 };
