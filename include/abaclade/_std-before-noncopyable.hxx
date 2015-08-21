@@ -54,7 +54,6 @@ using namespace ::abc::_std;
 
    using ::std::add_lvalue_reference;
    using ::std::add_pointer;
-   using ::std::add_reference;
    using ::std::add_rvalue_reference;
    using ::std::conditional;
    using ::std::enable_if;
@@ -109,17 +108,7 @@ using namespace ::abc::_std;
 
 namespace abc { namespace _std {
 
-#if ABC_HOST_CXX_GCC
-   // GCC lacks a definition of std::add_reference.
-   template <typename T>
-   struct add_reference {
-      typedef T & type;
-   };
-   template <typename T>
-   struct add_reference<T &> {
-      typedef T & type;
-   };
-#elif ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1800
+#if ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1800
    // MSC16 lacks a definition of std::declval.
    template <typename T>
    typename add_rvalue_reference<T>::type declval();
@@ -131,7 +120,7 @@ private:
    static int test(T &);
    static char test(...);
 
-   typedef typename add_reference<T>::type TRef;
+   typedef typename add_lvalue_reference<T>::type TRef;
 
 public:
    static bool const value = (sizeof(test(declval<TRef>())) == sizeof(int))
