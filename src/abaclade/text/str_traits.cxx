@@ -222,7 +222,7 @@ namespace abc { namespace text {
             ++pchHaystack;
          }
       }
-   } catch (std::bad_alloc const &) {
+   } catch (_std::bad_alloc const &) {
       /* Could not allocate enough memory for the failure restart table: fall back to a trivial (and
       potentially slower) substring search. */
       char_t chFirst = *pchNeedleBegin;

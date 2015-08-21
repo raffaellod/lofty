@@ -44,13 +44,13 @@ will never be negative (i.e. T is unsigned).
 */
 template <typename T>
 inline /*constexpr*/ bool is_negative(
-   typename std::enable_if<std::is_signed<T>::value, T>::type t
+   typename _std::enable_if<_std::is_signed<T>::value, T>::type t
 ) {
    return t < T(0);
 }
 template <typename T>
 inline /*constexpr*/ bool is_negative(
-   typename std::enable_if<!std::is_signed<T>::value, T>::type t
+   typename _std::enable_if<!_std::is_signed<T>::value, T>::type t
 ) {
    ABC_UNUSED_ARG(t);
    return false;

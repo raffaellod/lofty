@@ -283,7 +283,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 }
 
 /*static*/ exception::common_type exception::execution_interruption_to_common_type(
-   std::exception const * px /*= nullptr */
+   _std::exception const * px /*= nullptr */
 ) {
    if (px) {
       // The order of the dynamic_casts matters, since some are subclasses of others.
@@ -311,7 +311,7 @@ char const * exception::what() const {
 }
 
 /*static*/ void exception::write_with_scope_trace(
-   io::text::writer * ptwOut /*= nullptr*/, std::exception const * pstdx /*= nullptr*/
+   io::text::writer * ptwOut /*= nullptr*/, _std::exception const * pstdx /*= nullptr*/
 ) {
    if (!ptwOut) {
       ptwOut = io::text::stderr.get();
@@ -368,7 +368,7 @@ destructing_unfinalized_object::destructing_unfinalized_object() {
 /*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() {
 }
 
-void destructing_unfinalized_object::init(void const * pObj, std::type_info const & ti) {
+void destructing_unfinalized_object::init(void const * pObj, _std::type_info const & ti) {
    // TODO: enable this for Win32.
 #if !ABC_HOST_API_WIN32
    m_sWhat = istr(ABC_SL("object being destructed: {} @ {}")).format(ti, pObj);

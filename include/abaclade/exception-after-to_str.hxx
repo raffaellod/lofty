@@ -54,7 +54,7 @@ public:
    @param pti
       Type of *pObj.
    */
-   void init(void const * pObj, std::type_info const & pti);
+   void init(void const * pObj, _std::type_info const & pti);
 
 protected:
    //! See abc::exception::write_extended_info().

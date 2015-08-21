@@ -110,7 +110,7 @@ public:
       return *this;
    }
    coroutine_local_value & operator=(T && t) {
-      context_local::operator=(std::move(t));
+      context_local::operator=(_std::move(t));
       return *this;
    }
 };

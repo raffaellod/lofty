@@ -34,14 +34,14 @@ namespace abc { namespace math { namespace detail {
 
 /*! Helper for abc::math::abs(). Needed because function templates can’t be partially specialized,
 but structs/classes can. */
-template <typename T, bool t_bIsSigned = std::is_signed<T>::value>
+template <typename T, bool t_bIsSigned = _std::is_signed<T>::value>
 struct abs_helper;
 
 // Partial specialization for signed types.
 template <typename T>
 struct abs_helper<T, true> {
    /*constexpr*/ T operator()(T t) const {
-      return std::move(t >= 0 ? t : -t);
+      return _std::move(t >= 0 ? t : -t);
    }
 };
 
@@ -49,7 +49,7 @@ struct abs_helper<T, true> {
 template <typename T>
 struct abs_helper<T, false> {
    /*constexpr*/ T operator()(T t) const {
-      return std::move(t);
+      return _std::move(t);
    }
 };
 
@@ -67,7 +67,7 @@ will never be negative (i.e. T is unsigned).
 */
 template <typename T>
 inline /*constexpr*/ T abs(T t) {
-   return detail::abs_helper<T>()(std::move(t));
+   return detail::abs_helper<T>()(_std::move(t));
 }
 
 }} //namespace abc::math

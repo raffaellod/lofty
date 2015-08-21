@@ -114,7 +114,7 @@ private:
    coroutine_local_storage * m_pcrls;
 #if ABC_HOST_API_POSIX
    //! Count of instances.
-   static std::atomic<unsigned> sm_cInstances;
+   static _std::atomic<unsigned> sm_cInstances;
 #endif
 };
 
@@ -153,7 +153,7 @@ public:
       return *this;
    }
    thread_local_value & operator=(T && t) {
-      context_local::operator=(std::move(t));
+      context_local::operator=(_std::move(t));
       return *this;
    }
 };

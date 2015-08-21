@@ -40,7 +40,7 @@ file_base::file_base(detail::file_init_data * pfid) :
 #if ABC_HOST_API_WIN32
    m_hIocp(nullptr),
 #endif
-   m_fd(std::move(pfid->fd)) {
+   m_fd(_std::move(pfid->fd)) {
 }
 
 /*virtual*/ file_base::~file_base() {

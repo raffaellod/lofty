@@ -110,7 +110,7 @@ public:
    @param fnMain
       Initial value for m_fnInnerMain.
    */
-   explicit impl(std::function<void ()> fnMain);
+   explicit impl(_std::function<void ()> fnMain);
 
    //! Constructor used to instantiate an impl for the main thread.
    explicit impl(std::nullptr_t);
@@ -212,7 +212,7 @@ private:
    still running application code. */
    _std::atomic<bool> m_bTerminating;
    //! Function to be executed in the thread.
-   std::function<void ()> m_fnInnerMain;
+   _std::function<void ()> m_fnInnerMain;
    //! Pointer to the thread’s coroutine scheduler, if any.
    _std::shared_ptr<coroutine::scheduler> m_pcorosched;
 

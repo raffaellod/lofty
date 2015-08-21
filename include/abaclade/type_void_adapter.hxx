@@ -158,12 +158,12 @@ public:
    template <typename T>
    void set_copy_construct() {
       m_pfnCopyConstrImpl = reinterpret_cast<copy_construct_impl_type>(
-         &copy_construct_impl<typename std::remove_cv<T>::type>
+         &copy_construct_impl<typename _std::remove_cv<T>::type>
       );
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!m_pfnCopyConstrImpl) {
-         &copy_construct_impl<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
+         &copy_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
       }
 #endif
    }
@@ -172,12 +172,12 @@ public:
    template <typename T>
    void set_destruct() {
       m_pfnDestructImpl = reinterpret_cast<destruct_impl_type>(
-         &destruct_impl<typename std::remove_cv<T>::type>
+         &destruct_impl<typename _std::remove_cv<T>::type>
       );
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!m_pfnDestructImpl) {
-         destruct_impl<typename std::remove_cv<T>::type>(nullptr, nullptr);
+         destruct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr);
       }
 #endif
    }
@@ -186,12 +186,12 @@ public:
    template <typename T>
    void set_move_construct() {
       m_pfnMoveConstructImpl = reinterpret_cast<move_construct_impl_type>(
-         &move_construct_impl<typename std::remove_cv<T>::type>
+         &move_construct_impl<typename _std::remove_cv<T>::type>
       );
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!m_pfnMoveConstructImpl) {
-         &move_construct_impl<typename std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
+         &move_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
       }
 #endif
    }
@@ -252,9 +252,9 @@ private:
    // Only enabled if the copy constructor is trivial.
    template <typename T>
    static void copy_construct_impl(
-      typename std::enable_if<
+      typename _std::enable_if<
    #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
-         std::is_trivially_copy_constructible<T>::value,
+         _std::is_trivially_copy_constructible<T>::value,
    #else
          std::has_trivial_copy_constructor<T>::value,
    #endif
@@ -266,9 +266,9 @@ private:
    // Only enabled if the copy constructor is not trivial.
    template <typename T>
    static void copy_construct_impl(
-      typename std::enable_if<
+      typename _std::enable_if<
    #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
-         !std::is_trivially_copy_constructible<T>::value,
+         !_std::is_trivially_copy_constructible<T>::value,
    #else
          !std::has_trivial_copy_constructor<T>::value,
    #endif
@@ -301,7 +301,7 @@ private:
    template <typename T>
    static void destruct_impl(T const * ptBegin, T const * ptEnd) {
 #if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS)
-      if (!std::is_trivially_destructible<T>::value) {
+      if (!_std::is_trivially_destructible<T>::value) {
 #else
       if (!std::has_trivial_destructor<T>::value) {
 #endif
@@ -325,7 +325,7 @@ private:
    template <typename T>
    static void move_construct_impl(T * ptDstBegin, T * ptSrcBegin, T * ptSrcEnd) {
       for (T * ptSrc = ptSrcBegin, * ptDst = ptDstBegin; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
-         ::new(ptDst) T(std::move(*ptSrc));
+         ::new(ptDst) T(_std::move(*ptSrc));
       }
    }
 

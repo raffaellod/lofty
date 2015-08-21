@@ -54,7 +54,15 @@ using namespace ::abc::_std;
 
    using ::std::add_lvalue_reference;
    using ::std::conditional;
+   using ::std::enable_if;
+   using ::std::is_copy_constructible;
    using ::std::is_reference;
+   using ::std::is_scalar;
+   using ::std::is_signed;
+   using ::std::is_trivial;
+   using ::std::is_trivially_destructible;
+   using ::std::remove_const;
+   using ::std::remove_cv;
    using ::std::remove_reference;
 
    }} //namespace abc::_std

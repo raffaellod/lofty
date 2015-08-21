@@ -39,6 +39,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
    using ::std::forward;
    using ::std::move;
+   using ::std::swap;
 
    }} //namespace abc::_std
 #endif
@@ -92,6 +93,7 @@ You should have received a copy of the GNU General Public License along with Aba
    namespace abc { namespace _std {
 
    using ::std::exception;
+   using ::std::uncaught_exception;
 
    }} //namespace abc::_std
 #endif
@@ -103,6 +105,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
    namespace abc { namespace _std {
 
+   using ::std::bad_alloc;
    using ::std::nothrow;
    using ::std::nothrow_t;
 
@@ -139,6 +142,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
    namespace abc { namespace _std {
 
+   using ::std::default_delete;
    using ::std::dynamic_pointer_cast;
    using ::std::make_shared;
    using ::std::shared_ptr;

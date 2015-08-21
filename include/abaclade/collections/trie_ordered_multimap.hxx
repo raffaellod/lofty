@@ -91,7 +91,7 @@ In the graph above, 1 is the prefix tree, where each node contains pointers to i
 the anchor level, where each node also contains pointers the last nodes of each list of identically-
 keyed values; 3 is the value level, containing doubly-linked lists of identically-keyed values. */
 template <typename TKey, typename TValue, unsigned t_iImplType = (
-   std::is_scalar<TKey>::value ? 1 : 0
+   _std::is_scalar<TKey>::value ? 1 : 0
 )>
 class trie_ordered_multimap;
 
@@ -157,7 +157,7 @@ public:
       */
       template <typename UKey, typename UValue>
       value_type(UKey && ukey, UValue && uvalue) :
-         key(std::forward<UKey>(ukey)), value(std::forward<UValue>(uvalue)) {
+         key(_std::forward<UKey>(ukey)), value(_std::forward<UValue>(uvalue)) {
       }
    };
 
@@ -213,7 +213,7 @@ public:
 
    public:
       typedef std::ptrdiff_t difference_type;
-      typedef std::forward_iterator_tag iterator_category;
+      typedef _std::forward_iterator_tag iterator_category;
       typedef const_reference value_type;
       typedef const_reference * pointer;
       typedef const_reference & reference;
@@ -271,7 +271,7 @@ public:
       const_iterator operator++(int) {
          const_iterator itPrev(*this);
          operator++();
-         return std::move(itPrev);
+         return _std::move(itPrev);
       }
 
       /*! Equality relational operator.
@@ -381,7 +381,7 @@ public:
       Source object.
    */
    trie_ordered_multimap(trie_ordered_multimap && tomm) :
-      detail::bitwise_trie_ordered_multimap_impl(std::move(tomm)) {
+      detail::bitwise_trie_ordered_multimap_impl(_std::move(tomm)) {
    }
 
    //! Destructor.
@@ -395,8 +395,8 @@ public:
       Source object.
    */
    trie_ordered_multimap & operator=(trie_ordered_multimap && tomm) {
-      trie_ordered_multimap tommOld(std::move(*this));
-      detail::bitwise_trie_ordered_multimap_impl::operator=(std::move(tomm));
+      trie_ordered_multimap tommOld(_std::move(*this));
+      detail::bitwise_trie_ordered_multimap_impl::operator=(_std::move(tomm));
       return *this;
    }
 
@@ -537,10 +537,10 @@ public:
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
       value_type vRet(
-         it.m_key, std::move(*static_cast<TValue *>(it.m_pln->value_ptr(typeValue)))
+         it.m_key, _std::move(*static_cast<TValue *>(it.m_pln->value_ptr(typeValue)))
       );
       remove_value(typeValue, key_to_int(it.m_key), it.m_pln);
-      return std::move(vRet);
+      return _std::move(vRet);
    }
 
    /*! Removes and returns the key/value pair that would be returned as a reference by front().
@@ -556,10 +556,10 @@ public:
       typeValue.set_destruct<TValue>();
       auto kvp(find_first_key());
       value_type vRet(
-         int_to_key(kvp.iKey), std::move(*static_cast<TValue *>(kvp.pln->value_ptr(typeValue)))
+         int_to_key(kvp.iKey), _std::move(*static_cast<TValue *>(kvp.pln->value_ptr(typeValue)))
       );
       remove_value(typeValue, kvp.iKey, kvp.pln);
-      return std::move(vRet);
+      return _std::move(vRet);
    }
 
    /*! Removes a value given an iterator to it.

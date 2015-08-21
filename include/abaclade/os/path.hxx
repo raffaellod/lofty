@@ -72,10 +72,10 @@ public:
       m_s(op.m_s) {
    }
    path(path && op) :
-      m_s(std::move(op.m_s)) {
+      m_s(_std::move(op.m_s)) {
    }
    path(dmstr s) :
-      m_s(validate_and_adjust(std::move(s))) {
+      m_s(validate_and_adjust(_std::move(s))) {
    }
 
    /*! Assignment operator.
@@ -92,11 +92,11 @@ public:
       return *this;
    }
    path & operator=(path && op) {
-      m_s = std::move(op.m_s);
+      m_s = _std::move(op.m_s);
       return *this;
    }
    path & operator=(dmstr s) {
-      m_s = validate_and_adjust(std::move(s));
+      m_s = validate_and_adjust(_std::move(s));
       return *this;
    }
 
@@ -442,7 +442,7 @@ public:
       }
    }
    _path_iterator(_path_iterator && iter) :
-      m_pathBaseDir(std::move(iter.m_pathBaseDir)),
+      m_pathBaseDir(_std::move(iter.m_pathBaseDir)),
       m_hSearch(iter.m_hSearch),
       m_bEOF(iter.m_bEOF) {
       memory::copy(&m_wfd, &iter.m_wfd);

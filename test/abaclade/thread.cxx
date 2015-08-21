@@ -147,7 +147,7 @@ ABC_TESTING_TEST_CASE_FUNC(
       auto ptwOldStdErr(io::text::stderr);
       io::text::stderr = ptswErr;
       auto deferred1(defer_to_scope_end([&ptwOldStdErr] () {
-         io::text::stderr = std::move(ptwOldStdErr);
+         io::text::stderr = _std::move(ptwOldStdErr);
       }));
 
       /* Expect to be interrupted by an exception in thr1 any time from its creation to the sleep,
@@ -208,7 +208,7 @@ ABC_TESTING_TEST_CASE_FUNC(
       auto ptwOldStdErr(io::text::stderr);
       io::text::stderr = ptswErr;
       auto deferred1(defer_to_scope_end([&ptwOldStdErr] () {
-         io::text::stderr = std::move(ptwOldStdErr);
+         io::text::stderr = _std::move(ptwOldStdErr);
       }));
 
       /* Expect to be interrupted by an exception in thr1 any time from its creation to the sleep,

@@ -53,7 +53,7 @@ public:
       Source object.
    */
    c_str_ptr(c_str_ptr && p) :
-      m_p(std::move(p.m_p)) {
+      m_p(_std::move(p.m_p)) {
    }
 
    /*! Move-assignment operator.
@@ -64,7 +64,7 @@ public:
       *this.
    */
    c_str_ptr & operator=(c_str_ptr && p) {
-      m_p = std::move(p.m_p);
+      m_p = _std::move(p.m_p);
       return *this;
    }
 
@@ -141,8 +141,8 @@ public:
    typedef std::ptrdiff_t difference_type;
    typedef codepoint_iterator<false> iterator;
    typedef codepoint_iterator<true> const_iterator;
-   typedef std::reverse_iterator<iterator> reverse_iterator;
-   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+   typedef _std::reverse_iterator<iterator> reverse_iterator;
+   typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 public:
    /*! Allows automatic cross-class-hierarchy casts.
@@ -734,7 +734,7 @@ public:
    istr(istr && s) :
       detail::str_base(0) {
       // Non-const, so it can’t be anything but a real istr, so it owns its character array.
-      assign_move(std::move(s));
+      assign_move(_std::move(s));
    }
 
    /*! Move constructor from mutable strings. May create a copy of the source if it’s using an
@@ -817,7 +817,7 @@ public:
    */
    istr & operator=(istr && s) {
       // Non-const, so it can’t be anything but a real istr, so it owns its character array.
-      assign_move(std::move(s));
+      assign_move(_std::move(s));
       return *this;
    }
 
@@ -924,7 +924,7 @@ public:
       *this.
    */
    mstr & operator=(istr && s) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
       return *this;
    }
 
@@ -1164,7 +1164,7 @@ public:
          be the final count of characters of *this; otherwise, fnRead will be called once more with
          a larger cchMax after the string buffer has been enlarged.
    */
-   void set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead);
+   void set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead);
 
    /*! Changes the length of the string. If the string needs to be lengthened, the added characters
    will be left uninitialized.
@@ -1225,11 +1225,11 @@ protected:
 
 inline istr::istr(mstr && s) :
    detail::str_base(0) {
-   assign_move_dynamic_or_move_items(std::move(s));
+   assign_move_dynamic_or_move_items(_std::move(s));
 }
 
 inline istr & istr::operator=(mstr && s) {
-   assign_move_dynamic_or_move_items(std::move(s));
+   assign_move_dynamic_or_move_items(_std::move(s));
    return *this;
 }
 
@@ -1272,7 +1272,7 @@ public:
    */
    dmstr(dmstr && s) :
       mstr(0) {
-      assign_move(std::move(s));
+      assign_move(_std::move(s));
    }
 
    /*! Copy constructor.
@@ -1292,7 +1292,7 @@ public:
    */
    dmstr(istr && s) :
       mstr(0) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
    }
 
    /*! Copy constructor.
@@ -1312,7 +1312,7 @@ public:
    */
    dmstr(mstr && s) :
       mstr(0) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
    }
 
    /*! Constructor that copies a string literal.
@@ -1377,7 +1377,7 @@ public:
       *this.
    */
    dmstr & operator=(dmstr && s) {
-      assign_move(std::move(s));
+      assign_move(_std::move(s));
       return *this;
    }
 
@@ -1401,7 +1401,7 @@ public:
       *this.
    */
    dmstr & operator=(istr && s) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
       return *this;
    }
 
@@ -1425,7 +1425,7 @@ public:
       *this.
    */
    dmstr & operator=(mstr && s) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
       return *this;
    }
 
@@ -1500,80 +1500,80 @@ inline dmstr operator+(char32_t chL, istr const & sR) {
 /* Overloads taking a temporary string as left or right operand; they can avoid creating an
 intermediate string. */
 inline dmstr operator+(istr && sL, char_t chR) {
-   dmstr dmsL(std::move(sL));
+   dmstr dmsL(_std::move(sL));
    dmsL += chR;
-   return std::move(dmsL);
+   return _std::move(dmsL);
 }
 /*inline dmstr operator+(char_t chL, istr && sR) {
-   dmstr dmsR(std::move(sR));
+   dmstr dmsR(_std::move(sR));
    dmsR.insert(0, chL);
-   return std::move(dmsR);
+   return _std::move(dmsR);
 }*/
 #if ABC_HOST_UTF > 8
 inline dmstr operator+(istr && sL, char chR) {
-   return operator+(std::move(sL), host_char(chR));
+   return operator+(_std::move(sL), host_char(chR));
 }
 /*inline dmstr operator+(char chL, istr && sR) {
-   return operator+(host_char(chL), std::move(sR));
+   return operator+(host_char(chL), _std::move(sR));
 }*/
 #endif
 inline dmstr operator+(istr && sL, char32_t chR) {
-   dmstr dmsL(std::move(sL));
+   dmstr dmsL(_std::move(sL));
    dmsL += chR;
-   return std::move(dmsL);
+   return _std::move(dmsL);
 }
 /*inline dmstr operator+(char32_t chL, istr && sR) {
-   dmstr dmsR(std::move(sR));
+   dmstr dmsR(_std::move(sR));
    dmsR.insert(0, chL);
-   return std::move(dmsR);
+   return _std::move(dmsR);
 }*/
 inline dmstr operator+(istr && sL, istr const & sR) {
-   dmstr dmsL(std::move(sL));
+   dmstr dmsL(_std::move(sL));
    dmsL += sR;
-   return std::move(dmsL);
+   return _std::move(dmsL);
 }
 /*inline dmstr operator+(istr const & sL, istr && sR) {
-   dmstr dmsR(std::move(sR));
+   dmstr dmsR(_std::move(sR));
    dmsR.insert(0, sL);
-   return std::move(dmsR);
+   return _std::move(dmsR);
 }*/
 inline dmstr operator+(mstr && sL, char_t chR) {
-   dmstr dmsL(std::move(sL));
+   dmstr dmsL(_std::move(sL));
    dmsL += chR;
-   return std::move(dmsL);
+   return _std::move(dmsL);
 }
 /*inline dmstr operator+(char_t chL, mstr && sR) {
-   dmstr dmsR(std::move(sR));
+   dmstr dmsR(_std::move(sR));
    dmsR.insert(0, chL);
-   return std::move(dmsR);
+   return _std::move(dmsR);
 }*/
 #if ABC_HOST_UTF > 8
 inline dmstr operator+(mstr && sL, char chR) {
-   return operator+(std::move(sL), host_char(chR));
+   return operator+(_std::move(sL), host_char(chR));
 }
 /*inline dmstr operator+(char chL, mstr && sR) {
-   return operator+(host_char(chL), std::move(sR));
+   return operator+(host_char(chL), _std::move(sR));
 }*/
 #endif
 inline dmstr operator+(mstr && sL, char32_t chR) {
-   dmstr dmsL(std::move(sL));
+   dmstr dmsL(_std::move(sL));
    dmsL += chR;
-   return std::move(dmsL);
+   return _std::move(dmsL);
 }
 /*inline dmstr operator+(char32_t chL, mstr && sR) {
-   dmstr dmsR(std::move(sR));
+   dmstr dmsR(_std::move(sR));
    dmsR.insert(0, chL);
-   return std::move(dmsR);
+   return _std::move(dmsR);
 }*/
 inline dmstr operator+(mstr && sL, istr const & sR) {
-   dmstr dmsL(std::move(sL));
+   dmstr dmsL(_std::move(sL));
    dmsL += sR;
-   return std::move(dmsL);
+   return _std::move(dmsL);
 }
 /*inline dmstr operator+(istr const & sL, mstr && sR) {
-   dmstr dmsR(std::move(sR));
+   dmstr dmsR(_std::move(sR));
    dmsR.insert(0, sL);
-   return std::move(dmsR);
+   return _std::move(dmsR);
 }*/
 
 }} //namespace abc::text
@@ -1605,16 +1605,16 @@ namespace abc { namespace text {
 
 inline istr::istr(dmstr && s) :
    detail::str_base(0) {
-   assign_move(std::move(s));
+   assign_move(_std::move(s));
 }
 
 inline istr & istr::operator=(dmstr && s) {
-   assign_move(std::move(s));
+   assign_move(_std::move(s));
    return *this;
 }
 
 inline mstr & mstr::operator=(dmstr && s) {
-   assign_move(std::move(s));
+   assign_move(_std::move(s));
    return *this;
 }
 
@@ -1667,7 +1667,7 @@ public:
    */
    smstr(smstr && s) :
       mstr(smc_cbEmbeddedCapacity) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
    }
 
    /*! Copy constructor.
@@ -1687,7 +1687,7 @@ public:
    */
    smstr(istr && s) :
       mstr(smc_cbEmbeddedCapacity) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
    }
 
    /*! Move constructor. This also covers smstr of different template arguments.
@@ -1697,7 +1697,7 @@ public:
    */
    smstr(mstr && s) :
       mstr(smc_cbEmbeddedCapacity) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
    }
 
    /*! Move constructor.
@@ -1707,7 +1707,7 @@ public:
    */
    smstr(dmstr && s) :
       mstr(smc_cbEmbeddedCapacity) {
-      assign_move(std::move(s));
+      assign_move(_std::move(s));
    }
 
    /*! Constructor that will copy the source string literal.
@@ -1743,7 +1743,7 @@ public:
       *this.
    */
    smstr & operator=(smstr && s) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
       return *this;
    }
 
@@ -1767,7 +1767,7 @@ public:
       *this.
    */
    smstr & operator=(istr && s) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
       return *this;
    }
 
@@ -1779,7 +1779,7 @@ public:
       *this.
    */
    smstr & operator=(mstr && s) {
-      assign_move_dynamic_or_move_items(std::move(s));
+      assign_move_dynamic_or_move_items(_std::move(s));
       return *this;
    }
 
@@ -1791,7 +1791,7 @@ public:
       *this.
    */
    smstr & operator=(dmstr && s) {
-      assign_move(std::move(s));
+      assign_move(_std::move(s));
       return *this;
    }
 

@@ -54,12 +54,28 @@ You should have received a copy of the GNU General Public License along with Aba
    #include <abaclade/_std/functional.hxx>
 #else
    #include <functional>
+
+   namespace abc { namespace _std {
+
+   using ::std::function;
+
+   }} //namespace abc::_std
 #endif
 
 #ifdef ABC_STLIMPL
    #include <abaclade/_std/iterator.hxx>
 #else
    #include <iterator>
+
+   namespace abc { namespace _std {
+
+   using ::std::bidirectional_iterator_tag;
+   using ::std::forward_iterator_tag;
+   using ::std::iterator;
+   using ::std::random_access_iterator_tag;
+   using ::std::reverse_iterator;
+
+   }} //namespace abc::_std
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

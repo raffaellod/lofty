@@ -40,7 +40,7 @@ namespace abc { namespace detail {
 #if ABC_HOST_API_POSIX
    //! TLS key.
    static pthread_key_t g_pthkey;
-   std::atomic<unsigned> thread_local_storage::sm_cInstances(0);
+   _std::atomic<unsigned> thread_local_storage::sm_cInstances(0);
 #elif ABC_HOST_API_WIN32
    //! TLS index.
    static ::DWORD g_iTls = TLS_OUT_OF_INDEXES;

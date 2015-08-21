@@ -72,7 +72,7 @@ protected:
       Source representation of the expression being evaluated.
    */
    void assert_does_not_throw(
-      source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr
+      source_location const & srcloc, _std::function<void ()> const & fnExpr, istr const & sExpr
    );
 
    /*! Implementation of ABC_TESTING_ASSERT_EQUAL().
@@ -250,8 +250,9 @@ protected:
       Return value of std::exception::what(), as overridden by the desired derived class.
    */
    void assert_throws(
-      source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr,
-      std::function<bool (std::exception const &)> const & fnMatchType, char const * pszExpectedWhat
+      source_location const & srcloc, _std::function<void ()> const & fnExpr, istr const & sExpr,
+      _std::function<bool (_std::exception const &)> const & fnMatchType,
+      char const * pszExpectedWhat
    );
 
    /*! Implementation of ABC_TESTING_ASSERT_TRUE().
@@ -364,7 +365,7 @@ protected:
    desired type of exception. */ \
    this->assert_throws(ABC_SOURCE_LOCATION(), [&] () { \
       static_cast<void>(expr); \
-   }, ABC_SL(#expr), [] (::std::exception const & x) -> bool { \
+   }, ABC_SL(#expr), [] (::abc::_std::exception const & x) -> bool { \
       return dynamic_cast<type const *>(&x) != nullptr; \
    }, type().what())
 
@@ -480,7 +481,7 @@ private:
    static _std::unique_ptr<test_case> static_factory(runner * prunner) {
       _std::unique_ptr<T> pt(new T());
       pt->init(prunner);
-      return std::move(pt);
+      return _std::move(pt);
    }
 };
 

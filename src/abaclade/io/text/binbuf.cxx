@@ -314,7 +314,7 @@ binbuf_reader::binbuf_reader(
    base(),
    binbuf_base(enc),
    reader(),
-   m_pbbr(std::move(pbbr)),
+   m_pbbr(_std::move(pbbr)),
    m_bEOF(false),
    m_bDiscardNextLF(false) {
 }
@@ -399,7 +399,7 @@ binbuf_writer::binbuf_writer(
    base(),
    binbuf_base(enc),
    writer(),
-   m_pbbw(std::move(pbbw)) {
+   m_pbbw(_std::move(pbbw)) {
 }
 
 /*virtual*/ binbuf_writer::~binbuf_writer() {

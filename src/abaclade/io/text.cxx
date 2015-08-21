@@ -60,10 +60,10 @@ static _std::shared_ptr<binbuf_base> _construct(
 
    // Now we must have a buffered reader or writer, or pbb is not something we can use.
    if (pbbr) {
-      return _std::make_shared<binbuf_reader>(std::move(pbbr), enc);
+      return _std::make_shared<binbuf_reader>(_std::move(pbbr), enc);
    }
    if (pbbw) {
-      return _std::make_shared<binbuf_writer>(std::move(pbbw), enc);
+      return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
    }
    // TODO: use a better exception class.
    ABC_THROW(argument_error, ());
@@ -123,7 +123,7 @@ static _std::shared_ptr<binbuf_base> _construct_stdio(
          }
       }
    }
-   return _construct(std::move(pbb), enc);
+   return _construct(_std::move(pbb), enc);
 }
 
 
@@ -133,7 +133,7 @@ _std::shared_ptr<reader> make_reader(
    ABC_TRACE_FUNC(pbr, enc);
 
    return _std::make_shared<binbuf_reader>(
-      _std::make_shared<binary::default_buffered_reader>(std::move(pbr)), enc
+      _std::make_shared<binary::default_buffered_reader>(_std::move(pbr)), enc
    );
 }
 
@@ -143,7 +143,7 @@ _std::shared_ptr<writer> make_writer(
    ABC_TRACE_FUNC(pbw, enc);
 
    return _std::make_shared<binbuf_writer>(
-      _std::make_shared<binary::default_buffered_writer>(std::move(pbw)), enc
+      _std::make_shared<binary::default_buffered_writer>(_std::move(pbw)), enc
    );
 }
 
@@ -211,7 +211,7 @@ dmstr reader::read_all() {
 
    dmstr sDst;
    read_line_or_all(&sDst, false);
-   return std::move(sDst);
+   return _std::move(sDst);
 }
 void reader::read_all(mstr * psDst) {
    ABC_TRACE_FUNC(this, psDst);

@@ -151,7 +151,7 @@ collections::dmvector<std::uint8_t> str_base::encode(encoding enc, bool bNulT) c
    }
    // Assign the vector its size, and return it.
    vb.set_size(cbUsed);
-   return std::move(vb);
+   return _std::move(vb);
 }
 
 bool str_base::ends_with(istr const & s) const {
@@ -240,7 +240,7 @@ str_base::const_iterator str_base::translate_index(std::ptrdiff_t ich) const {
       ich -= iDelta;
       it += iDelta;
    }
-   return std::move(it);
+   return _std::move(it);
 }
 
 _std::tuple<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
@@ -382,7 +382,7 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    host_char_traits::traits_base::codepoint_to_chars(chNew, pch);
 }
 
-void mstr::set_from(std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
+void mstr::set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
    ABC_TRACE_FUNC(this/*, fnRead*/);
 
    /* The initial size avoids a few reallocations (* smc_iGrowthRate ** 2). Multiplying by

@@ -108,7 +108,7 @@ static collections::list<testing::utility::instances_counter> return_list() {
    // New instance, immediately moved.
    l.push_back(testing::utility::instances_counter());
    // This will move the entire list, not each node individually.
-   return std::move(l);
+   return _std::move(l);
 }
 
 ABC_TESTING_TEST_CASE_FUNC(

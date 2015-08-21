@@ -381,7 +381,7 @@ public:
    );
 
    //! Related STL exception class.
-   typedef std::exception related_std;
+   typedef _std::exception related_std;
 
 public:
    /*! Constructor.
@@ -458,7 +458,7 @@ public:
       Exception type. May be nullptr to indicate that the caught exception is not an std::exception
       instance.
    */
-   static common_type execution_interruption_to_common_type(std::exception const * px = nullptr);
+   static common_type execution_interruption_to_common_type(_std::exception const * px = nullptr);
 
    /*! See std::exception::what(). Note that this is not virtual, because derived classes don’t need
    to override it; only abc::detail::exception_aggregator will define this as a virtual, to override
@@ -479,7 +479,7 @@ public:
       Caught exception.
    */
    static void write_with_scope_trace(
-      io::text::writer * ptwOut = nullptr, std::exception const * pstdx = nullptr
+      io::text::writer * ptwOut = nullptr, _std::exception const * pstdx = nullptr
    );
 
 protected:
@@ -701,7 +701,7 @@ public:
    // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
 
    //! See abc::generic_error::related_std.
-   typedef std::invalid_argument related_std;
+   typedef _std::invalid_argument related_std;
 #endif
 
 public:
@@ -776,7 +776,7 @@ public:
    // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
 
    //! See abc::generic_error::related_std.
-   typedef std::domain_error related_std;
+   typedef _std::domain_error related_std;
 #endif
 
 public:
@@ -864,7 +864,7 @@ public:
    // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
 
    //! See abc::lookup_error::related_std.
-   typedef std::out_of_range related_std;
+   typedef _std::out_of_range related_std;
 #endif
 
 public:
@@ -1032,7 +1032,7 @@ namespace abc {
 class ABACLADE_SYM memory_allocation_error : public virtual generic_error {
 public:
    //! See abc::generic_error::related_std.
-   typedef std::bad_alloc related_std;
+   typedef _std::bad_alloc related_std;
 
    //! Constructor.
    memory_allocation_error();

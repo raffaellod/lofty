@@ -38,7 +38,7 @@ template <typename T>
 class range : public support_explicit_operator_bool<range<T>> {
 public:
    //! Iterator for range values.
-   class iterator : public std::iterator<std::bidirectional_iterator_tag, T> {
+   class iterator : public _std::iterator<_std::bidirectional_iterator_tag, T> {
    public:
       /*! Constructor.
 
@@ -46,7 +46,7 @@ public:
          Current value.
       */
       explicit iterator(T t) :
-         m_t(std::move(t)) {
+         m_t(_std::move(t)) {
       }
 
       /*! Dereferencing operator.
@@ -139,8 +139,8 @@ public:
    };
 
    typedef iterator const_iterator;
-   typedef std::reverse_iterator<iterator> reverse_iterator;
-   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+   typedef _std::reverse_iterator<iterator> reverse_iterator;
+   typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 public:
    /*! Constructor.
@@ -155,8 +155,8 @@ public:
       m_tEnd() {
    }
    range(T tBegin, T tEnd) :
-      m_tBegin(std::move(tBegin)),
-      m_tEnd(std::move(tEnd)) {
+      m_tBegin(_std::move(tBegin)),
+      m_tEnd(_std::move(tEnd)) {
    }
 
    /*! Boolean evaluation operator.
@@ -312,7 +312,7 @@ private:
 */
 template <typename T>
 range<T> make_range(T tBegin, T tEnd) {
-   return range<T>(std::move(tBegin), std::move(tEnd));
+   return range<T>(_std::move(tBegin), _std::move(tEnd));
 }
 
 } //namespace abc

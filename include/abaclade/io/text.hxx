@@ -209,7 +209,7 @@ public:
    public:
       //! Lines iterator.
       class ABACLADE_SYM iterator :
-         public std::iterator<std::forward_iterator_tag, dmstr> {
+         public _std::iterator<_std::forward_iterator_tag, dmstr> {
       private:
          friend class _lines_proxy;
 
@@ -256,7 +256,7 @@ public:
          iterator operator++(int) {
             iterator itPrev(*this);
             operator++();
-            return std::move(itPrev);
+            return _std::move(itPrev);
          }
 
          /*! Equality relational operator.
@@ -751,7 +751,7 @@ public:
    */
    template <typename U0>
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0
    ) :
       wph_base(ptw, sFormat),
@@ -759,7 +759,7 @@ public:
    }
    template <typename U0, typename U1>
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1
    ) :
       wph_base(ptw, sFormat, t1),
@@ -767,7 +767,7 @@ public:
    }
    template <typename U0, typename U1, typename U2>
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2
    ) :
       wph_base(ptw, sFormat, t1, t2),
@@ -775,7 +775,7 @@ public:
    }
    template <typename U0, typename U1, typename U2, typename U3>
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3
    ) :
       wph_base(ptw, sFormat, t1, t2, t3),
@@ -783,7 +783,7 @@ public:
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4>
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4
    ) :
       wph_base(ptw, sFormat, t1, t2, t3, t4),
@@ -791,7 +791,7 @@ public:
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5
    ) :
       wph_base(ptw, sFormat, t1, t2, t3, t4, t5),
@@ -801,7 +801,7 @@ public:
       typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6
    >
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
       U6 const & t6
    ) :
@@ -813,7 +813,7 @@ public:
       typename U7
    >
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
       U6 const & t6, U7 const & t7
    ) :
@@ -825,7 +825,7 @@ public:
       typename U7, typename U8
    >
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
       U6 const & t6, U7 const & t7, U8 const & t8
    ) :
@@ -837,7 +837,7 @@ public:
       typename U7, typename U8, typename U9
    >
    writer_print_helper(
-      typename std::enable_if<!std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
       U6 const & t6, U7 const & t7, U8 const & t8, U9 const & t9
    ) :

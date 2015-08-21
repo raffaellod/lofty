@@ -101,7 +101,7 @@ public:
    @param fnMain
       Function to invoke once the coroutine is first scheduled.
    */
-   explicit coroutine(std::function<void ()> fnMain);
+   explicit coroutine(_std::function<void ()> fnMain);
 
    /*! Move constructor.
 
@@ -109,7 +109,7 @@ public:
       Source object.
    */
    coroutine(coroutine && coro) :
-      m_pimpl(std::move(coro.m_pimpl)) {
+      m_pimpl(_std::move(coro.m_pimpl)) {
    }
 
    //! Destructor.
@@ -123,7 +123,7 @@ public:
       *this.
    */
    coroutine & operator=(coroutine && coro) {
-      m_pimpl = std::move(coro.m_pimpl);
+      m_pimpl = _std::move(coro.m_pimpl);
       return *this;
    }
 

@@ -111,7 +111,7 @@ public:
       };
 
       typedef std::ptrdiff_t difference_type;
-      typedef std::forward_iterator_tag iterator_category;
+      typedef _std::forward_iterator_tag iterator_category;
       typedef value_type * pointer;
       typedef value_type & reference;
 
@@ -270,7 +270,7 @@ public:
       Source object.
    */
    hash_map(hash_map && hm) :
-      detail::hash_map_impl(std::move(hm)) {
+      detail::hash_map_impl(_std::move(hm)) {
    }
 
    //! Destructor.
@@ -286,7 +286,7 @@ public:
       *this.
    */
    hash_map & operator=(hash_map && hm) {
-      detail::hash_map_impl::operator=(std::move(hm));
+      detail::hash_map_impl::operator=(_std::move(hm));
       return *this;
    }
 
@@ -350,7 +350,7 @@ public:
    iterator begin() {
       iterator it(this, smc_iNullIndex);
       it.increment();
-      return std::move(it);
+      return _std::move(it);
    }
 
    /*! Returns a const iterator set to the first key/value pair in the map.
@@ -434,14 +434,14 @@ public:
       ABC_TRACE_FUNC(this/*, it*/);
 
       it.validate();
-      TValue value(std::move(*value_ptr(it.m_iBucket)));
+      TValue value(_std::move(*value_ptr(it.m_iBucket)));
       type_void_adapter typeKey, typeValue;
       typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
       typeValue.set_destruct<TValue>();
       typeValue.set_size<TValue>();
       empty_bucket(typeKey, typeValue, it.m_iBucket);
-      return std::move(value);
+      return _std::move(value);
    }
 
    /*! Removes and returns a value given a key, which must be in the map.
@@ -457,14 +457,14 @@ public:
          // TODO: provide more information in the exception.
          ABC_THROW(key_error, ());
       }
-      TValue value(std::move(*value_ptr(iBucket)));
+      TValue value(_std::move(*value_ptr(iBucket)));
       type_void_adapter typeKey, typeValue;
       typeKey.set_destruct<TKey>();
       typeKey.set_size<TKey>();
       typeValue.set_destruct<TValue>();
       typeValue.set_size<TValue>();
       empty_bucket(typeKey, typeValue, iBucket);
-      return std::move(value);
+      return _std::move(value);
    }
 
    /*! Removes a value given an iterator to it.

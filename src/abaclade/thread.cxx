@@ -121,7 +121,7 @@ namespace abc {
 
 thread_local_value<thread::impl *> thread::impl::sm_pimplThis /*= nullptr*/;
 
-/*explicit*/ thread::impl::impl(std::function<void ()> fnMain) :
+/*explicit*/ thread::impl::impl(_std::function<void ()> fnMain) :
 #if ABC_HOST_API_POSIX
    m_id(0),
 #elif ABC_HOST_API_WIN32
@@ -135,7 +135,7 @@ thread_local_value<thread::impl *> thread::impl::sm_pimplThis /*= nullptr*/;
    m_pseStarted(nullptr),
    m_xctPending(exception::common_type::none),
    m_bTerminating(false),
-   m_fnInnerMain(std::move(fnMain)) {
+   m_fnInnerMain(_std::move(fnMain)) {
 #if ABC_HOST_API_WIN32
    if (!m_hInterruptionEvent) {
       exception::throw_os_error();
@@ -284,7 +284,7 @@ void thread::impl::join() {
       /* deferred1 will set m_bTerminating to true, so no exceptions can be injected beyond this
       point. A simple bool flag will work because it’s only accessed by this thread (POSIX) or when
       this thread is suspended (Win32). */
-   } catch (std::exception const & x) {
+   } catch (_std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
       bUncaughtException = true;
    } catch (...) {
@@ -348,8 +348,8 @@ void thread::impl::start(_std::shared_ptr<impl> * ppimplThis) {
 
 namespace abc {
 
-/*explicit*/ thread::thread(std::function<void ()> fnMain) :
-   m_pimpl(_std::make_shared<impl>(std::move(fnMain))) {
+/*explicit*/ thread::thread(_std::function<void ()> fnMain) :
+   m_pimpl(_std::make_shared<impl>(_std::move(fnMain))) {
    ABC_TRACE_FUNC(this);
 
    m_pimpl->start(&m_pimpl);
@@ -399,7 +399,7 @@ void thread::join() {
       ABC_THROW(argument_error, ());
    }
    // Empty m_pimpl; this will also make joinable() return false.
-   auto pimpl(std::move(m_pimpl));
+   auto pimpl(_std::move(m_pimpl));
    pimpl->join();
 
    // Check for pending interruptions.
@@ -466,7 +466,7 @@ _std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
          // TODO: use a better exception class.
          ABC_THROW(generic_error, ());
       }
-      pcoroschedCurr = std::move(pcorosched);
+      pcoroschedCurr = _std::move(pcorosched);
    } else {
       // Create and set a new coroutine scheduler if the current thread didn’t already have one.
       if (!pcoroschedCurr) {
@@ -529,7 +529,7 @@ void interruption_point() {
    auto const & pimpl = get_impl();
    auto xct = pimpl->m_xctPending.load();
    if (xct != exception::common_type::none) {
-      pimpl->m_xctPending.store(exception::common_type::none/*, std::memory_order_relaxed*/);
+      pimpl->m_xctPending.store(exception::common_type::none/*, _std::memory_order_relaxed*/);
       exception::throw_common_type(xct, 0, 0);
    }
 }

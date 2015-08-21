@@ -36,9 +36,9 @@ hash_map_impl::hash_map_impl() :
    m_iRev(0) {
 }
 hash_map_impl::hash_map_impl(hash_map_impl && hmi) :
-   m_piHashes(std::move(hmi.m_piHashes)),
-   m_pKeys(std::move(hmi.m_pKeys)),
-   m_pValues(std::move(hmi.m_pValues)),
+   m_piHashes(_std::move(hmi.m_piHashes)),
+   m_pKeys(_std::move(hmi.m_pKeys)),
+   m_pValues(_std::move(hmi.m_pValues)),
    m_cBuckets(hmi.m_cBuckets),
    m_cUsedBuckets(hmi.m_cUsedBuckets),
    m_cNeighborhoodBuckets(hmi.m_cNeighborhoodBuckets),
@@ -58,9 +58,9 @@ hash_map_impl::~hash_map_impl() {
 hash_map_impl & hash_map_impl::operator=(hash_map_impl && hmi) {
    ABC_TRACE_FUNC(this);
 
-   m_piHashes = std::move(hmi.m_piHashes);
-   m_pKeys = std::move(hmi.m_pKeys);
-   m_pValues = std::move(hmi.m_pValues);
+   m_piHashes = _std::move(hmi.m_piHashes);
+   m_pKeys = _std::move(hmi.m_pKeys);
+   m_pValues = _std::move(hmi.m_pValues);
    m_cBuckets = hmi.m_cBuckets;
    hmi.m_cBuckets = 0;
    m_cUsedBuckets = hmi.m_cUsedBuckets;
@@ -299,10 +299,10 @@ void hash_map_impl::grow_table(
    auto pOldKeys  (memory::alloc<void>(typeKey  .size() * cOldBuckets));
    auto pOldValues(memory::alloc<void>(typeValue.size() * cOldBuckets));
    // At this point we’re safe from exceptions, so we can update the member variables.
-   std::swap(m_cBuckets, cOldBuckets);
-   std::swap(m_piHashes, piOldHashes);
-   std::swap(m_pKeys,    pOldKeys);
-   std::swap(m_pValues,  pOldValues);
+   _std::swap(m_cBuckets, cOldBuckets);
+   _std::swap(m_piHashes, piOldHashes);
+   _std::swap(m_pKeys,    pOldKeys);
+   _std::swap(m_pValues,  pOldValues);
    // Now the names of these variables make sense :)
 
    /* Recalculate the neighborhood size. The (missing) “else” to this “if” is for when the actual

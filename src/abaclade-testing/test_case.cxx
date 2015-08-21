@@ -38,14 +38,14 @@ void test_case::init(runner * prunner) {
 }
 
 void test_case::assert_does_not_throw(
-   source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr
+   source_location const & srcloc, _std::function<void ()> const & fnExpr, istr const & sExpr
 ) {
    ABC_TRACE_FUNC(this, srcloc, /*fnExpr, */sExpr);
 
    istr sCaughtWhat;
    try {
       fnExpr();
-   } catch (::std::exception const & x) {
+   } catch (_std::exception const & x) {
       sCaughtWhat = istr(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(x.what()));
    } catch (...) {
       sCaughtWhat = ABC_SL("unknown type");
@@ -72,8 +72,8 @@ void test_case::assert_true(source_location const & srcloc, bool bActual, istr c
 }
 
 void test_case::assert_throws(
-   source_location const & srcloc, std::function<void ()> const & fnExpr, istr const & sExpr,
-   std::function<bool (std::exception const &)> const & fnMatchType, char const * pszExpectedWhat
+   source_location const & srcloc, _std::function<void ()> const & fnExpr, istr const & sExpr,
+   _std::function<bool (_std::exception const &)> const & fnMatchType, char const * pszExpectedWhat
 ) {
    ABC_TRACE_FUNC(this, srcloc, /*fnExpr, */sExpr, /*fnMatchType, */pszExpectedWhat);
 
@@ -82,7 +82,7 @@ void test_case::assert_throws(
    try {
       fnExpr();
       sCaughtWhat = ABC_SL("does not throw");
-   } catch (::std::exception const & x) {
+   } catch (_std::exception const & x) {
       if (fnMatchType(x)) {
          bPass = true;
       } else {

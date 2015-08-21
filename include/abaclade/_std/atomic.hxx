@@ -151,8 +151,8 @@ class atomic_impl_base;
 //! Implementation of abc::_std::atomic.
 template <
    typename T,
-   bool t_bInt = std::is_arithmetic<T>::value || std::is_enum<T>::value,
-   bool t_bPtr = std::is_pointer<T>::value
+   bool t_bInt = is_arithmetic<T>::value || is_enum<T>::value,
+   bool t_bPtr = is_pointer<T>::value
 >
 class atomic_impl;
 

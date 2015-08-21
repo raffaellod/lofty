@@ -67,7 +67,7 @@ app::app() {
    io::binary::stdin.reset();
    try {
       io::text::stdout->finalize();
-   } catch (std::exception const & x) {
+   } catch (_std::exception const & x) {
       if (io::text::stderr) {
          try {
             exception::write_with_scope_trace(nullptr, &x);
@@ -89,7 +89,7 @@ app::app() {
    io::text::stdout.reset();
    try {
       io::binary::stdout->finalize();
-   } catch (std::exception const & x) {
+   } catch (_std::exception const & x) {
       if (io::text::stderr) {
          try {
             exception::write_with_scope_trace(nullptr, &x);
@@ -111,7 +111,7 @@ app::app() {
    io::binary::stdout.reset();
    try {
       io::text::stderr->finalize();
-   } catch (std::exception const &) {
+   } catch (_std::exception const &) {
       // FIXME: EXC-SWALLOW
       bErrors = true;
    } catch (...) {
@@ -121,7 +121,7 @@ app::app() {
    io::text::stderr.reset();
    try {
       io::binary::stderr->finalize();
-   } catch (std::exception const &) {
+   } catch (_std::exception const &) {
       // FIXME: EXC-SWALLOW
       bErrors = true;
    } catch (...) {
@@ -141,7 +141,7 @@ app::app() {
       io::text::stdin  = io::text::detail::make_stdin ();
       io::text::stdout = io::text::detail::make_stdout();
       return true;
-   } catch (std::exception const &) {
+   } catch (_std::exception const &) {
       // Exceptions can’t be reported at this point.
       return false;
    } catch (...) {
@@ -163,7 +163,7 @@ app::app() {
       try {
          sd.main_thread_started();
          iRet = pfnInstantiateAppAndCallMain(pargs);
-      } catch (std::exception const & x) {
+      } catch (_std::exception const & x) {
          try {
             exception::write_with_scope_trace(nullptr, &x);
          } catch (...) {

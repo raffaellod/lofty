@@ -141,7 +141,7 @@ public:
 
       try {
          run_sub_1(12345678u);
-      } catch (std::exception const & x) {
+      } catch (_std::exception const & x) {
          sScopeTrace = get_scope_trace(&x);
       }
       ABC_TESTING_ASSERT_NOT_EQUAL(
@@ -172,7 +172,7 @@ public:
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
    }
 
-   static dmstr get_scope_trace(std::exception const * px = nullptr) {
+   static dmstr get_scope_trace(_std::exception const * px = nullptr) {
       ABC_TRACE_FUNC(px);
 
       io::text::str_writer tsw;

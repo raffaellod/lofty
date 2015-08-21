@@ -333,7 +333,7 @@ void raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
       return;
    }
    if (rcvi.m_bDynamic) {
-      assign_move(type, std::move(rcvi));
+      assign_move(type, _std::move(rcvi));
    } else {
       /* Can’t move the item array, so move the items instead. assign_concat() is fast enough; pass
       the source as the second argument pair, because its code path is faster. */
@@ -595,7 +595,7 @@ void raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(raw_trivial_vextr
       return;
    }
    if (rtvi.m_bDynamic) {
-      assign_move(std::move(rtvi));
+      assign_move(_std::move(rtvi));
    } else {
       // Can’t move, so copy instead.
       assign_copy(rtvi.m_pBegin, rtvi.m_pEnd);

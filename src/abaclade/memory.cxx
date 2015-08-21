@@ -34,19 +34,23 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma warning(disable: 4986)
 #endif
 
-void * ABC_STL_CALLCONV operator new(std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
+void * ABC_STL_CALLCONV operator new(
+   std::size_t cb
+) ABC_STL_NOEXCEPT_FALSE((abc::_std::bad_alloc)) {
    return abc::memory::_raw_alloc(cb);
 }
-void * ABC_STL_CALLCONV operator new[](std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc)) {
+void * ABC_STL_CALLCONV operator new[](
+   std::size_t cb
+) ABC_STL_NOEXCEPT_FALSE((abc::_std::bad_alloc)) {
    return abc::memory::_raw_alloc(cb);
 }
 void * ABC_STL_CALLCONV operator new(
-   std::size_t cb, std::nothrow_t const &
+   std::size_t cb, abc::_std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE() {
    return std::malloc(cb);
 }
 void * ABC_STL_CALLCONV operator new[](
-   std::size_t cb, std::nothrow_t const &
+   std::size_t cb, abc::_std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE() {
    return std::malloc(cb);
 }
@@ -57,10 +61,14 @@ void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE() {
 void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE() {
    abc::memory::_raw_free(p);
 }
-void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
+void ABC_STL_CALLCONV operator delete(
+   void * p, abc::_std::nothrow_t const &
+) ABC_STL_NOEXCEPT_TRUE() {
    std::free(p);
 }
-void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE() {
+void ABC_STL_CALLCONV operator delete[](
+   void * p, abc::_std::nothrow_t const &
+) ABC_STL_NOEXCEPT_TRUE() {
    std::free(p);
 }
 
@@ -139,7 +147,7 @@ pages_ptr::~pages_ptr() {
 }
 
 pages_ptr & pages_ptr::operator=(pages_ptr && pp) {
-   pages_ptr ppOld(std::move(*this));
+   pages_ptr ppOld(_std::move(*this));
    m_p = pp.m_p;
    pp.m_p = nullptr;
    m_cb = pp.m_cb;

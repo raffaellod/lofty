@@ -335,9 +335,9 @@ array of code points (char32_t). Pointers/references are still char_t. */
 template <bool t_bConst>
 class codepoint_iterator :
    public detail::codepoint_iterator_impl<t_bConst>,
-   public std::iterator<
-      std::random_access_iterator_tag,
-      typename std::conditional<t_bConst, char_t const, char_t>::type
+   public _std::iterator<
+      _std::random_access_iterator_tag,
+      typename _std::conditional<t_bConst, char_t const, char_t>::type
    > {
 public:
    /*! Constructor.
@@ -353,8 +353,8 @@ public:
       detail::codepoint_iterator_impl<t_bConst>(nullptr, nullptr) {
    }
    codepoint_iterator(
-      typename std::conditional<t_bConst, char_t const, char_t>::type * pch,
-      typename std::conditional<t_bConst, detail::str_base const, detail::str_base>::type * ps
+      typename _std::conditional<t_bConst, char_t const, char_t>::type * pch,
+      typename _std::conditional<t_bConst, detail::str_base const, detail::str_base>::type * ps
    ) :
       detail::codepoint_iterator_impl<t_bConst>(pch, ps) {
    }

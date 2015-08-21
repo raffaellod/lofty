@@ -192,7 +192,7 @@ public:
       Source object.
    */
    list(list && l) :
-      detail::doubly_linked_list_impl(std::move(l)) {
+      detail::doubly_linked_list_impl(_std::move(l)) {
    }
 
    //! Destructor.
@@ -208,8 +208,8 @@ public:
       *this.
    */
    list & operator=(list && l) {
-      list lOld(std::move(*this));
-      detail::doubly_linked_list_impl::operator=(std::move(l));
+      list lOld(_std::move(*this));
+      detail::doubly_linked_list_impl::operator=(_std::move(l));
       return *this;
    }
 
@@ -315,9 +315,9 @@ public:
       type.set_align<T>();
       type.set_destruct<T>();
       node * pn = detail::doubly_linked_list_impl::back();
-      T tRet(std::move(*static_cast<T *>(pn->value_ptr(type))));
+      T tRet(_std::move(*static_cast<T *>(pn->value_ptr(type))));
       detail::doubly_linked_list_impl::remove(type, pn);
-      return std::move(tRet);
+      return _std::move(tRet);
    }
 
    /*! Removes the first element in the list.
@@ -330,9 +330,9 @@ public:
       type.set_align<T>();
       type.set_destruct<T>();
       node * pn = detail::doubly_linked_list_impl::front();
-      T tRet(std::move(*static_cast<T *>(pn->value_ptr(type))));
+      T tRet(_std::move(*static_cast<T *>(pn->value_ptr(type))));
       detail::doubly_linked_list_impl::remove(type, pn);
-      return std::move(tRet);
+      return _std::move(tRet);
    }
 
    /*! Adds an element to the end of the list.

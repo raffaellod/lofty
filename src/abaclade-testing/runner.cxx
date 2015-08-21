@@ -38,7 +38,7 @@ assertion_error::assertion_error() :
 namespace abc { namespace testing {
 
 runner::runner(_std::shared_ptr<io::text::writer> ptwOut) :
-   m_ptwOut(std::move(ptwOut)),
+   m_ptwOut(_std::move(ptwOut)),
    m_cFailedAssertions(0) {
 }
 
@@ -99,7 +99,7 @@ void runner::run_test_case(test_case & tc) {
    } catch (assertion_error const &) {
       // This exception type is only used to interrupt abc::testing::test_case::run().
       m_ptwOut->write(ABC_SL("test case execution interrupted\n"));
-   } catch (std::exception const & x) {
+   } catch (_std::exception const & x) {
       exception::write_with_scope_trace(m_ptwOut.get(), &x);
       m_ptwOut->write(
          ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n")

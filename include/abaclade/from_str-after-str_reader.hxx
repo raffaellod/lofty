@@ -39,7 +39,7 @@ inline T from_str(istr const & s, istr const & sFormat /*= istr::empty*/) {
          static_cast<unsigned>(s.index_from_char_index(s.size_in_chars() - cchRemaining))
       ));
    }
-   return std::move(t);
+   return _std::move(t);
 }
 
 } //namespace abc

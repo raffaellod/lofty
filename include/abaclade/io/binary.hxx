@@ -49,8 +49,8 @@ struct pipe_ends {
       Writer end.
    */
    pipe_ends(_std::shared_ptr<pipe_reader> pbprReader, _std::shared_ptr<pipe_writer> pbpwWriter) :
-      reader(std::move(pbprReader)),
-      writer(std::move(pbpwWriter)) {
+      reader(_std::move(pbprReader)),
+      writer(_std::move(pbpwWriter)) {
    }
 
    /*! Move constructor.
@@ -59,8 +59,8 @@ struct pipe_ends {
       Source object.
    */
    pipe_ends(pipe_ends && pe) :
-      reader(std::move(pe.reader)),
-      writer(std::move(pe.writer)) {
+      reader(_std::move(pe.reader)),
+      writer(_std::move(pe.writer)) {
    }
 
    /*! Move-assignment operator.
@@ -69,8 +69,8 @@ struct pipe_ends {
       Source object.
    */
    pipe_ends & operator=(pipe_ends && pe) {
-      reader = std::move(pe.reader);
-      writer = std::move(pe.writer);
+      reader = _std::move(pe.reader);
+      writer = _std::move(pe.writer);
       return *this;
    }
 };

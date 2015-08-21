@@ -193,7 +193,7 @@ public:
    }
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
    scope_trace_tuple_impl(scope_trace_tuple_impl && tpl) :
-      tuple_type(std::move(tpl)) {
+      tuple_type(_std::move(tpl)) {
    }
 
    //! See scope_trace_tuple::write().
@@ -209,7 +209,7 @@ private:
    #pragma warning(suppress: 4296) 
 #endif
    void write_vars(
-      typename std::enable_if<t_i + 1 < smc_cTs, io::text::writer *>::type ptwOut
+      typename _std::enable_if<t_i + 1 < smc_cTs, io::text::writer *>::type ptwOut
    ) const {
       ptwOut->write(_std::get<t_i>(*this));
       // Write a separator and recurse to write the rest.
@@ -219,14 +219,14 @@ private:
    // This overload writes a variable without a comma to follow, and does not recurse.
    template <std::size_t t_i>
    void write_vars(
-      typename std::enable_if<t_i + 1 == smc_cTs, io::text::writer *>::type ptwOut
+      typename _std::enable_if<t_i + 1 == smc_cTs, io::text::writer *>::type ptwOut
    ) const {
       ptwOut->write(_std::get<t_i>(*this));
    }
    /* This overload does nothing. Only needed because the tuple may be empty, but write() will call
    write_vars<0>() unconditionally. */
    template <std::size_t t_i>
-   void write_vars(typename std::enable_if<t_i == smc_cTs, io::text::writer *>::type ptwOut) const {
+   void write_vars(typename _std::enable_if<t_i == smc_cTs, io::text::writer *>::type ptwOut) const {
       ABC_UNUSED_ARG(ptwOut);
    }
 };

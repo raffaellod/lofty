@@ -48,7 +48,7 @@ ABACLADE_SYM _std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb);
    Pointer to a buffered wrapper for *pbr.
 */
 inline _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr) {
-   return _std::dynamic_pointer_cast<buffered_reader>(buffer(std::move(pbr)));
+   return _std::dynamic_pointer_cast<buffered_reader>(buffer(_std::move(pbr)));
 }
 
 /*! Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
@@ -59,7 +59,7 @@ inline _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> 
    Pointer to a buffered wrapper for *pbw.
 */
 inline _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw) {
-   return _std::dynamic_pointer_cast<buffered_writer>(buffer(std::move(pbw)));
+   return _std::dynamic_pointer_cast<buffered_writer>(buffer(_std::move(pbw)));
 }
 
 }}} //namespace abc::io::binary

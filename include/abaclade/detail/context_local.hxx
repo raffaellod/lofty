@@ -245,7 +245,7 @@ protected:
 namespace abc { namespace detail {
 
 //! Implementation of abc::thread_local_value and abc::coroutine_local_value.
-template <typename T, typename TStorage, bool t_bTrivial = std::is_trivial<T>::value>
+template <typename T, typename TStorage, bool t_bTrivial = _std::is_trivial<T>::value>
 class context_local_value;
 
 // Partial specialization for trivial types.
@@ -272,7 +272,7 @@ public:
       return *this;
    }
    context_local_value & operator=(T && t) {
-      *this->get_ptr() = std::move(t);
+      *this->get_ptr() = _std::move(t);
       return *this;
    }
 
@@ -310,7 +310,7 @@ public:
       return *this;
    }
    context_local_value & operator=(T && t) {
-      *this->get_ptr() = std::move(t);
+      *this->get_ptr() = _std::move(t);
       return *this;
    }
 
@@ -388,7 +388,7 @@ public:
       return *this;
    }
    context_local_value & operator=(_std::shared_ptr<T> && pt) {
-      *this->get_ptr() = std::move(pt);
+      *this->get_ptr() = _std::move(pt);
       return *this;
    }
 
@@ -544,7 +544,7 @@ public:
       reset();
       auto pvalue = this->get_ptr();
       // The constructor invoked is T::T(T &&), which should not throw.
-      new(&pvalue->t) T(std::move(tSrc));
+      new(&pvalue->t) T(_std::move(tSrc));
       pvalue->bConstructed = true;
       return &pvalue->t;
    }

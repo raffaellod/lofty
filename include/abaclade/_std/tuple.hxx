@@ -47,7 +47,7 @@ namespace abc { namespace _std { namespace detail {
 
 /*! Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
 for empty base optimization (EBO), if the compiler is smart enough. */
-template <std::size_t t_i, typename T, bool t_bEmpty = std::is_empty<T>::value>
+template <std::size_t t_i, typename T, bool t_bEmpty = is_empty<T>::value>
 class tuple_head;
 
 // Specialization for empty types: enable EBO.
@@ -64,7 +64,7 @@ public:
       Source object.
    */
    tuple_head(tuple_head && th) :
-      T(std::move(th.get())) {
+      T(move(th.get())) {
    }
 
    /*! Copy constructor.
@@ -83,7 +83,7 @@ public:
    */
    template <typename U>
    tuple_head(tuple_head<t_i, U> && th) :
-      T(std::move(th.get())) {
+      T(move(th.get())) {
    }
 
    /*! Copy constructor.
@@ -103,7 +103,7 @@ public:
    */
    template <typename U>
    explicit tuple_head(U && u) :
-      T(std::forward<U>(u)) {
+      T(forward<U>(u)) {
    }
 
    /*! Element-copying constructor.
@@ -124,7 +124,7 @@ public:
       *this.
    */
    tuple_head & operator=(tuple_head && th) {
-      get() = std::move(th.get());
+      get() = move(th.get());
       return *this;
    }
 
@@ -149,7 +149,7 @@ public:
    */
    template <typename U>
    tuple_head & operator=(tuple_head<t_i, U> && th) {
-      get() = std::move(th.get());
+      get() = move(th.get());
       return *this;
    }
 
@@ -199,7 +199,7 @@ public:
       Source object.
    */
    tuple_head(tuple_head && th) :
-      m_t(std::move(th.get())) {
+      m_t(move(th.get())) {
    }
 
    /*! Copy constructor.
@@ -218,7 +218,7 @@ public:
    */
    template <typename U>
    tuple_head(tuple_head<t_i, U> && th) :
-      m_t(std::move(th.get())) {
+      m_t(move(th.get())) {
 #if ABC_HOST_CXX_MSC == 1600
    // MSC16 BUG: thinks that th is not used?!
    #pragma warning(suppress: 4100)
@@ -242,7 +242,7 @@ public:
    */
    template <typename U>
    explicit tuple_head(U && u) :
-      m_t(std::forward<U>(u)) {
+      m_t(forward<U>(u)) {
 #if ABC_HOST_CXX_MSC == 1600
    // MSC16 BUG: thinks that u is not used?!
    #pragma warning(suppress: 4100)
@@ -267,7 +267,7 @@ public:
       *this.
    */
    tuple_head & operator=(tuple_head && th) {
-      get() = std::move(th.get());
+      get() = move(th.get());
       return *this;
    }
 
@@ -292,7 +292,7 @@ public:
    */
    template <typename U>
    tuple_head & operator=(tuple_head<t_i, U> && th) {
-      get() = std::move(th.get());
+      get() = move(th.get());
       return *this;
    }
 
@@ -369,8 +369,8 @@ public:
       Source object.
    */
    tuple_tail(tuple_tail && tt) :
-      _thead(std::move(tt.get_thead())),
-      _ttail(std::move(tt.get_ttail())) {
+      _thead(move(tt.get_thead())),
+      _ttail(move(tt.get_ttail())) {
    }
 
    /*! Copy constructor.
@@ -390,8 +390,8 @@ public:
    */
    template <typename U0, typename... Us>
    tuple_tail(tuple_tail<t_i, U0, Us> && tt) :
-      _thead(std::move(tt.get_thead())),
-      _ttail(std::move(tt.get_ttail())) {
+      _thead(move(tt.get_thead())),
+      _ttail(move(tt.get_ttail())) {
    }
 
    /*! Copy constructor.
@@ -414,8 +414,8 @@ public:
    */
    template <typename U0, typename... Us>
    explicit tuple_tail(U0 && thead, Us &&... us) :
-      _thead(std::forward<U0>(thead)),
-      _ttail(std::forward<Us>(us)...) {
+      _thead(forward<U0>(thead)),
+      _ttail(forward<Us>(us)...) {
    }
 
    /*! Element-copying constructor.
@@ -439,8 +439,8 @@ public:
       *this.
    */
    tuple_tail & operator=(tuple_tail && tt) {
-      get_thead() = std::move(tt.get_thead());
-      get_ttail() = std::move(tt.get_ttail());
+      get_thead() = move(tt.get_thead());
+      get_ttail() = move(tt.get_ttail());
       return *this;
    }
 
@@ -466,8 +466,8 @@ public:
    */
    template <typename... Us>
    tuple_tail & operator=(tuple_tail<Us...> && tt) {
-      get_thead() = std::move(tt.get_thead());
-      get_ttail() = std::move(tt.get_ttail());
+      get_thead() = move(tt.get_thead());
+      get_ttail() = move(tt.get_ttail());
       return *this;
    }
 
@@ -550,8 +550,8 @@ public:
       Source object.
    */
    tuple_tail(tuple_tail && tt) :
-      _thead(std::move(tt.get_thead())),
-      _ttail(std::move(tt.get_ttail())) {
+      _thead(move(tt.get_thead())),
+      _ttail(move(tt.get_ttail())) {
    }
 
    /*! Copy constructor.
@@ -574,8 +574,8 @@ public:
       typename U7, typename U8, typename U9
    >
    tuple_tail(tuple_tail<t_i, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tt) :
-      _thead(std::move(tt.get_thead())),
-      _ttail(std::move(tt.get_ttail())) {
+      _thead(move(tt.get_thead())),
+      _ttail(move(tt.get_ttail())) {
    }
 
    /*! Copy constructor.
@@ -605,11 +605,10 @@ public:
       U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6, U7 && u7, U8 && u8,
       U9 && u9
    ) :
-      _thead(std::forward<U0>(u0)),
+      _thead(forward<U0>(u0)),
       _ttail(
-         std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3), std::forward<U4>(u4),
-         std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7), std::forward<U8>(u8),
-         std::forward<U9>(u9), detail::tuple_void()
+         forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), forward<U4>(u4), forward<U5>(u5),
+         forward<U6>(u6), forward<U7>(u7), forward<U8>(u8), forward<U9>(u9), detail::tuple_void()
       ) {
    }
 
@@ -638,8 +637,8 @@ public:
       *this.
    */
    tuple_tail & operator=(tuple_tail && tt) {
-      get_thead() = std::move(tt.get_thead());
-      get_ttail() = std::move(tt.get_ttail());
+      get_thead() = move(tt.get_thead());
+      get_ttail() = move(tt.get_ttail());
       return *this;
    }
 
@@ -668,8 +667,8 @@ public:
       typename U7, typename U8, typename U9
    >
    tuple_tail & operator=(tuple_tail<t_i, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tt) {
-      get_thead() = std::move(tt.get_thead());
-      get_ttail() = std::move(tt.get_ttail());
+      get_thead() = move(tt.get_thead());
+      get_ttail() = move(tt.get_ttail());
       return *this;
    }
 
@@ -829,7 +828,7 @@ public:
    */
    template <typename... Us>
    explicit tuple(Us &&... us) :
-      _timpl(std::forward<Us>(us)...) {
+      _timpl(forward<Us>(us)...) {
    }
 
    /*! Element-copying constructor.
@@ -969,43 +968,43 @@ public:
    template <typename U0>
    explicit tuple(U0 && u0) :
       _timpl(
-         std::forward<U0>(u0), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         forward<U0>(u0), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
          _tvoid(), _tvoid()
       ) {
    }
    template <typename U0, typename U1>
    tuple(U0 && u0, U1 && u1) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
-         _tvoid(), _tvoid(), _tvoid(), _tvoid()
+         forward<U0>(u0), forward<U1>(u1), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename U0, typename U1, typename U2>
    tuple(U0 && u0, U1 && u1, U2 && u2) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), _tvoid(), _tvoid(),
-         _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
+         forward<U0>(u0), forward<U1>(u1), forward<U2>(u2), _tvoid(), _tvoid(), _tvoid(), _tvoid(),
+         _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename U0, typename U1, typename U2, typename U3>
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
-         _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
+         forward<U0>(u0), forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), _tvoid(), _tvoid(),
+         _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4>
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
-         std::forward<U4>(u4), _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
+         forward<U0>(u0), forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), forward<U4>(u4),
+         _tvoid(), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
-         std::forward<U4>(u4), std::forward<U5>(u5), _tvoid(), _tvoid(), _tvoid(), _tvoid()
+         forward<U0>(u0), forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), forward<U4>(u4),
+         forward<U5>(u5), _tvoid(), _tvoid(), _tvoid(), _tvoid()
       ) {
    }
    template <
@@ -1013,8 +1012,8 @@ public:
    >
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
-         std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), _tvoid(), _tvoid(),
+         forward<U0>(u0), forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), forward<U4>(u4),
+         forward<U5>(u5), forward<U6>(u6), _tvoid(), _tvoid(),
          _tvoid()
       ) {
    }
@@ -1024,9 +1023,8 @@ public:
    >
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6, U7 && u7) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
-         std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7),
-         _tvoid(), _tvoid()
+         forward<U0>(u0), forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), forward<U4>(u4),
+         forward<U5>(u5), forward<U6>(u6), forward<U7>(u7), _tvoid(), _tvoid()
       ) {
    }
    template <
@@ -1035,9 +1033,8 @@ public:
    >
    tuple(U0 && u0, U1 && u1, U2 && u2, U3 && u3, U4 && u4, U5 && u5, U6 && u6, U7 && u7, U8 && u8) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
-         std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7),
-         std::forward<U8>(u8), _tvoid()
+         forward<U0>(u0), forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), forward<U4>(u4),
+         forward<U5>(u5), forward<U6>(u6), forward<U7>(u7), forward<U8>(u8), _tvoid()
       ) {
    }
    template <
@@ -1049,9 +1046,8 @@ public:
       U9 && u9
    ) :
       _timpl(
-         std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2), std::forward<U3>(u3),
-         std::forward<U4>(u4), std::forward<U5>(u5), std::forward<U6>(u6), std::forward<U7>(u7),
-         std::forward<U8>(u8), std::forward<U9>(u9)
+         forward<U0>(u0), forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), forward<U4>(u4),
+         forward<U5>(u5), forward<U6>(u6), forward<U7>(u7), forward<U8>(u8), forward<U9>(u9)
       ) {
    }
 
@@ -1429,14 +1425,14 @@ namespace abc { namespace _std {
 // TODO: complete and move to <type_traits>.
 template <typename T>
 struct decay {
-    typedef typename std::remove_reference<T>::type U;
-    typedef typename std::conditional<
-        std::is_array<U>::value,
-        typename std::remove_extent<U>::type *,
-        typename std::conditional<
-            std::is_function<U>::value,
-            typename std::add_pointer<U>::type,
-            typename std::remove_cv<U>::type
+    typedef typename remove_reference<T>::type U;
+    typedef typename conditional<
+        is_array<U>::value,
+        typename remove_extent<U>::type *,
+        typename conditional<
+            is_function<U>::value,
+            typename add_pointer<U>::type,
+            typename remove_cv<U>::type
         >::type
     >::type type;
 };
@@ -1452,7 +1448,7 @@ struct decay {
 
 template <typename... Ts>
 inline /*constexpr*/ tuple<Ts...> make_tuple(Ts &&... ts) {
-   return tuple<Ts...>(std::forward<Ts>(ts)...);
+   return tuple<Ts...>(forward<Ts>(ts)...);
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -1462,7 +1458,7 @@ inline /*constexpr*/ tuple<> make_tuple() {
 }
 template <typename T0>
 inline /*constexpr*/ tuple<typename decay<T0>::type> make_tuple(T0 && t0) {
-   return tuple<typename decay<T0>::type>(std::forward<T0>(t0));
+   return tuple<typename decay<T0>::type>(forward<T0>(t0));
 }
 template <typename T0, typename T1>
 inline /*constexpr*/ tuple<
@@ -1470,7 +1466,7 @@ inline /*constexpr*/ tuple<
 > make_tuple(T0 && t0, T1 && t1) {
    return tuple<
       typename decay<T0>::type, typename decay<T1>::type
-   >(std::forward<T0>(t0), std::forward<T1>(t1));
+   >(forward<T0>(t0), forward<T1>(t1));
 }
 template <typename T0, typename T1, typename T2>
 inline /*constexpr*/ tuple<
@@ -1478,7 +1474,7 @@ inline /*constexpr*/ tuple<
 > make_tuple(T0 && t0, T1 && t1, T2 && t2) {
    return tuple<
       typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type
-   >(std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2));
+   >(forward<T0>(t0), forward<T1>(t1), forward<T2>(t2));
 }
 template <typename T0, typename T1, typename T2, typename T3>
 inline /*constexpr*/ tuple<
@@ -1488,7 +1484,7 @@ inline /*constexpr*/ tuple<
    return tuple<
       typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
       typename decay<T3>::type
-   >(std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3));
+   >(forward<T0>(t0), forward<T1>(t1), forward<T2>(t2), forward<T3>(t3));
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 inline /*constexpr*/ tuple<
@@ -1498,10 +1494,7 @@ inline /*constexpr*/ tuple<
    return tuple<
       typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
       typename decay<T3>::type, typename decay<T4>::type
-   >(
-      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
-      std::forward<T4>(t4)
-   );
+   >(forward<T0>(t0), forward<T1>(t1), forward<T2>(t2), forward<T3>(t3), forward<T4>(t4));
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 inline /*constexpr*/ tuple<
@@ -1512,8 +1505,8 @@ inline /*constexpr*/ tuple<
       typename decay<T0>::type, typename decay<T1>::type, typename decay<T2>::type,
       typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type
    >(
-      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
-      std::forward<T4>(t4), std::forward<T5>(t5)
+      forward<T0>(t0), forward<T1>(t1), forward<T2>(t2), forward<T3>(t3), forward<T4>(t4),
+      forward<T5>(t5)
    );
 }
 template <
@@ -1529,8 +1522,8 @@ inline /*constexpr*/ tuple<
       typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
       typename decay<T6>::type
    >(
-      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
-      std::forward<T4>(t4), std::forward<T5>(t5), std::forward<T6>(t6)
+      forward<T0>(t0), forward<T1>(t1), forward<T2>(t2), forward<T3>(t3), forward<T4>(t4),
+      forward<T5>(t5), forward<T6>(t6)
    );
 }
 template <
@@ -1547,8 +1540,8 @@ inline /*constexpr*/ tuple<
       typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
       typename decay<T6>::type, typename decay<T7>::type
    >(
-      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
-      std::forward<T4>(t4), std::forward<T5>(t5), std::forward<T6>(t6), std::forward<T7>(t7)
+      forward<T0>(t0), forward<T1>(t1), forward<T2>(t2), forward<T3>(t3), forward<T4>(t4),
+      forward<T5>(t5), forward<T6>(t6), forward<T7>(t7)
    );
 }
 template <
@@ -1567,9 +1560,8 @@ inline /*constexpr*/ tuple<
       typename decay<T3>::type, typename decay<T4>::type, typename decay<T5>::type,
       typename decay<T6>::type, typename decay<T7>::type, typename decay<T8>::type
    >(
-      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
-      std::forward<T4>(t4), std::forward<T5>(t5), std::forward<T6>(t6), std::forward<T7>(t7),
-      std::forward<T8>(t8)
+      forward<T0>(t0), forward<T1>(t1), forward<T2>(t2), forward<T3>(t3), forward<T4>(t4),
+      forward<T5>(t5), forward<T6>(t6), forward<T7>(t7), forward<T8>(t8)
    );
 }
 template <
@@ -1591,9 +1583,8 @@ inline /*constexpr*/ tuple<
       typename decay<T6>::type, typename decay<T7>::type, typename decay<T8>::type,
       typename decay<T9>::type
    >(
-      std::forward<T0>(t0), std::forward<T1>(t1), std::forward<T2>(t2), std::forward<T3>(t3),
-      std::forward<T4>(t4), std::forward<T5>(t5), std::forward<T6>(t6), std::forward<T7>(t7),
-      std::forward<T8>(t8), std::forward<T9>(t9)
+      forward<T0>(t0), forward<T1>(t1), forward<T2>(t2), forward<T3>(t3), forward<T4>(t4),
+      forward<T5>(t5), forward<T6>(t6), forward<T7>(t7), forward<T8>(t8), forward<T9>(t9)
    );
 }
 

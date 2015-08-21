@@ -73,7 +73,7 @@ private:
 // Provide a definition of std::is_copy_constructible for STL implementations lacking it.
 #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
 
-   namespace std {
+   namespace abc { namespace _std {
 
    /* Partially-specialize std::is_copy_constructible to always return true for abc::noncopyable
    subclasses. */
@@ -82,6 +82,6 @@ private:
       is_base_of< ::abc::noncopyable, T>::value
    >::type> : public false_type {};
 
-   } //namespace std
+   }} //namespace abc::_std
 
 #endif

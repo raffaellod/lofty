@@ -73,8 +73,8 @@ ip_address const & ip_address::any_ipv6 = static_cast<ip_address const &>(gc_abA
 namespace abc { namespace net {
 
 connection::connection(io::filedesc fd, ip_address && ipaddrRemote, port_t portRemote) :
-   m_bfrw(io::binary::make_readwriter(std::move(fd))),
-   m_ipaddrRemote(std::move(ipaddrRemote)),
+   m_bfrw(io::binary::make_readwriter(_std::move(fd))),
+   m_ipaddrRemote(_std::move(ipaddrRemote)),
    m_portRemote(portRemote) {
 }
 
@@ -278,7 +278,7 @@ _std::shared_ptr<connection> tcp_server::accept() {
    ipaddrClient = ip_address(0);
    portClient = 0;
    return _std::make_shared<connection>(
-      std::move(fdConnection), std::move(ipaddrClient), portClient
+      _std::move(fdConnection), _std::move(ipaddrClient), portClient
    );
 }
 
@@ -343,7 +343,7 @@ _std::shared_ptr<connection> tcp_server::accept() {
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-   return std::move(fd);
+   return _std::move(fd);
 }
 
 }} //namespace abc::net

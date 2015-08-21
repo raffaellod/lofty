@@ -41,7 +41,7 @@ static _std::tuple<bool, ::clockid_t> get_timer_clock() {
    ::clockid_t clkid;
    // Try and get a timer specific to this process.
    if (::clock_getcpuclockid(0, &clkid) == 0) {
-      return _std::make_tuple(true, std::move(clkid));
+      return _std::make_tuple(true, _std::move(clkid));
    }
 #if defined(CLOCK_PROCESS_CPUTIME_ID)
    return _std::make_tuple(true, CLOCK_PROCESS_CPUTIME_ID);
@@ -59,7 +59,7 @@ static ::timespec get_time_point() {
    }
    ::timespec tsRet;
    ::clock_gettime(_std::get<1>(clkidTimer), &tsRet);
-   return std::move(tsRet);
+   return _std::move(tsRet);
 }
 
 static stopwatch::duration_type get_duration_ns(
@@ -95,7 +95,7 @@ typedef ::FILETIME timepoint_t;
 static ::FILETIME get_time_point() {
    ::FILETIME ftRet, ftUnused;
    ::GetProcessTimes(::GetCurrentProcess(), &ftUnused, &ftUnused, &ftUnused, &ftRet);
-   return std::move(ftRet);
+   return _std::move(ftRet);
 }
 
 static stopwatch::duration_type get_duration_ns(
@@ -145,7 +145,7 @@ void stopwatch::start() {
    ABC_TRACE_FUNC(this);
 
    timepoint_t timepoint(get_time_point());
-   *static_cast<timepoint_t *>(m_pStartTime.get()) = std::move(timepoint);
+   *static_cast<timepoint_t *>(m_pStartTime.get()) = _std::move(timepoint);
 }
 
 stopwatch::duration_type stopwatch::stop() {
@@ -155,7 +155,7 @@ stopwatch::duration_type stopwatch::stop() {
    ABC_TRACE_FUNC(this);
 
    duration_type iPartialDuration = get_duration_ns(
-      *static_cast<timepoint_t *>(m_pStartTime.get()), std::move(timepoint)
+      *static_cast<timepoint_t *>(m_pStartTime.get()), _std::move(timepoint)
    );
    m_iTotalDuration += iPartialDuration;
    return iPartialDuration;

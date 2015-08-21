@@ -58,7 +58,7 @@ public:
    @param fnMain
       Initial value for m_fnInnerMain.
    */
-   impl(std::function<void ()> fnMain) :
+   impl(_std::function<void ()> fnMain) :
 #if ABC_HOST_API_POSIX
       m_pStack(SIGSTKSZ),
 #elif ABC_HOST_API_WIN32
@@ -70,7 +70,7 @@ public:
       )),
 #endif
       m_xctPending(exception::common_type::none),
-      m_fnInnerMain(std::move(fnMain)) {
+      m_fnInnerMain(_std::move(fnMain)) {
 #if ABC_HOST_API_POSIX
       // TODO: use ::mprotect() to setup a guard page for the stack.
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
@@ -151,7 +151,7 @@ public:
       threads from changing m_xctPending until we reset it to none. */
       auto xct = m_xctPending.load();
       if (xct != exception::common_type::none) {
-         m_xctPending.store(exception::common_type::none/*, std::memory_order_relaxed*/);
+         m_xctPending.store(exception::common_type::none/*, _std::memory_order_relaxed*/);
          exception::throw_common_type(xct, 0, 0);
       }
    }
@@ -208,7 +208,7 @@ private:
    for pending exceptions to be injected. */
    _std::atomic<exception::common_type::enum_type> m_xctPending;
    //! Function to be executed in the coroutine.
-   std::function<void ()> m_fnInnerMain;
+   _std::function<void ()> m_fnInnerMain;
    //! Local storage for the coroutine.
    detail::coroutine_local_storage m_crls;
 };
@@ -221,8 +221,8 @@ namespace abc {
 
 coroutine::coroutine() {
 }
-/*explicit*/ coroutine::coroutine(std::function<void ()> fnMain) :
-   m_pimpl(_std::make_shared<impl>(std::move(fnMain))) {
+/*explicit*/ coroutine::coroutine(_std::function<void ()> fnMain) :
+   m_pimpl(_std::make_shared<impl>(_std::move(fnMain))) {
    this_thread::attach_coroutine_scheduler()->add_ready(m_pimpl);
 }
 
@@ -337,7 +337,7 @@ void coroutine::scheduler::add_ready(_std::shared_ptr<impl> pcoroimpl) {
    ABC_TRACE_FUNC(this, pcoroimpl);
 
 //   _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
-   m_qReadyCoros.push_back(std::move(pcoroimpl));
+   m_qReadyCoros.push_back(_std::move(pcoroimpl));
 }
 
 #if ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
@@ -431,7 +431,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    // Deactivate the current coroutine and find one to activate instead.
    {
 //      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
-      m_hmCorosBlockedByTimer.add_or_assign(ke.ident, std::move(sm_pcoroimplActive));
+      m_hmCorosBlockedByTimer.add_or_assign(ke.ident, _std::move(sm_pcoroimplActive));
    }
    try {
       // Switch back to the thread’s own context and have it wait for a ready coroutine.
@@ -490,7 +490,7 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
    }
 
    // Move the active coroutine to the map.
-   auto it(m_tommCorosBlockedByTimer.add(tpSleepEndMillisecs, std::move(sm_pcoroimplActive)));
+   auto it(m_tommCorosBlockedByTimer.add(tpSleepEndMillisecs, _std::move(sm_pcoroimplActive)));
    try {
       // If the calculated time is sooner than the next timeout, rearm the timer.
       if (tpSleepEndMillisecs < tpNextSleepEnd) {
@@ -571,7 +571,7 @@ void coroutine::scheduler::block_active_until_fd_ready(
    {
 //      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
       pcoroimpl = _std::get<0>(m_hmCorosBlockedByFD.add_or_assign(
-         fd, std::move(sm_pcoroimplActive)
+         fd, _std::move(sm_pcoroimplActive)
       ))->value.get();
    }
    try {
@@ -772,7 +772,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
             arm_timer_for_next_sleep_end();
          }
          // Return the coroutine that was waiting for the timer.
-         return std::move(kv.value);
+         return _std::move(kv.value);
       }
       // Remove and return the coroutine that was waiting for this file descriptor.
       return m_hmCorosBlockedByFD.pop(fd);
@@ -868,7 +868,7 @@ void coroutine::scheduler::run() {
 #endif
    try {
       coroutine_scheduling_loop();
-   } catch (std::exception const & x) {
+   } catch (_std::exception const & x) {
       interrupt_all(exception::execution_interruption_to_common_type(&x));
       throw;
    } catch (...) {
@@ -931,7 +931,7 @@ void coroutine::scheduler::timer_thread() {
    exception::common_type xct = exception::common_type::none;
    try {
       pimplThis->m_fnInnerMain();
-   } catch (std::exception const & x) {
+   } catch (_std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
       xct = exception::execution_interruption_to_common_type(&x);
    } catch (...) {

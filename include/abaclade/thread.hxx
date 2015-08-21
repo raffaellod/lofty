@@ -96,7 +96,7 @@ public:
    @param fnMain
       Function that will act as the entry point for a new thread to be started immediately.
    */
-   explicit thread(std::function<void ()> fnMain);
+   explicit thread(_std::function<void ()> fnMain);
 
    /*! Move constructor.
 
@@ -104,7 +104,7 @@ public:
       Source object.
    */
    thread(thread && thr) :
-      m_pimpl(std::move(thr.m_pimpl)) {
+      m_pimpl(_std::move(thr.m_pimpl)) {
    }
 
    //! Destructor.
@@ -118,7 +118,7 @@ public:
       *this.
    */
    thread & operator=(thread && thr) {
-      m_pimpl = std::move(thr.m_pimpl);
+      m_pimpl = _std::move(thr.m_pimpl);
       return *this;
    }
 

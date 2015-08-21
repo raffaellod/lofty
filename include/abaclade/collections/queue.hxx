@@ -49,7 +49,7 @@ public:
       Source object.
    */
    queue(queue && q) :
-      detail::singly_linked_list_impl(std::move(q)) {
+      detail::singly_linked_list_impl(_std::move(q)) {
    }
 
    //! Destructor.
@@ -69,7 +69,7 @@ public:
    */
    queue & operator=(queue && q) {
       node * pnFirst = m_pnFirst;
-      detail::singly_linked_list_impl::operator=(std::move(q));
+      detail::singly_linked_list_impl::operator=(_std::move(q));
       // Now that *this has been successfully overwritten, destruct the old nodes.
       type_void_adapter type;
       type.set_align<T>();
@@ -124,9 +124,9 @@ public:
       type.set_align<T>();
       type.set_destruct<T>();
       // Move the value of *m_pnFirst into t, then unlink and discard *m_pnFirst.
-      T t(std::move(*static_cast<T *>(m_pnFirst->value_ptr(type))));
+      T t(_std::move(*static_cast<T *>(m_pnFirst->value_ptr(type))));
       detail::singly_linked_list_impl::pop_front(type);
-      return std::move(t);
+      return _std::move(t);
    }
 
    /*! Adds an element to the end of the queue.

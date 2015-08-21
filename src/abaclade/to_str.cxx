@@ -341,13 +341,13 @@ void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptw
 
 namespace abc {
 
-to_str_backend<std::type_info>::to_str_backend() {
+to_str_backend<_std::type_info>::to_str_backend() {
 }
 
-to_str_backend<std::type_info>::~to_str_backend() {
+to_str_backend<_std::type_info>::~to_str_backend() {
 }
 
-void to_str_backend<std::type_info>::set_format(istr const & sFormat) {
+void to_str_backend<_std::type_info>::set_format(istr const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -362,7 +362,7 @@ void to_str_backend<std::type_info>::set_format(istr const & sFormat) {
    }
 }
 
-void to_str_backend<std::type_info>::write(std::type_info const & ti, io::text::writer * ptwOut) {
+void to_str_backend<_std::type_info>::write(_std::type_info const & ti, io::text::writer * ptwOut) {
    char const * psz = ti.name();
 #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
    // Clang and G++ generate mangled names.

@@ -31,10 +31,10 @@ _std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb) {
    auto pbr(_std::dynamic_pointer_cast<reader>(pbb));
    auto pbw(_std::dynamic_pointer_cast<writer>(pbb));
    if (pbr) {
-      return _std::make_shared<default_buffered_reader>(std::move(pbr));
+      return _std::make_shared<default_buffered_reader>(_std::move(pbr));
    }
    if (pbw) {
-      return _std::make_shared<default_buffered_writer>(std::move(pbw));
+      return _std::make_shared<default_buffered_writer>(_std::move(pbw));
    }
    // TODO: use a better exception class.
    ABC_THROW(argument_error, ());
@@ -53,7 +53,7 @@ buffer::buffer(std::size_t cb) :
    m_ibAvailableOffset(0) {
 }
 buffer::buffer(buffer && buf) :
-   m_p(std::move(buf.m_p)),
+   m_p(_std::move(buf.m_p)),
    m_cb(buf.m_cb),
    m_ibUsedOffset(buf.m_ibUsedOffset),
    m_ibAvailableOffset(buf.m_ibAvailableOffset) {
@@ -68,7 +68,7 @@ buffer::~buffer() {
 buffer & buffer::operator=(buffer && buf) {
    ABC_TRACE_FUNC(this/*, buf*/);
 
-   m_p = std::move(buf.m_p);
+   m_p = _std::move(buf.m_p);
    m_cb = buf.m_cb;
    buf.m_cb = 0;
    m_ibUsedOffset = buf.m_ibUsedOffset;
@@ -148,7 +148,7 @@ namespace abc { namespace io { namespace binary {
 namespace abc { namespace io { namespace binary {
 
 default_buffered_reader::default_buffered_reader(_std::shared_ptr<reader> pbr) :
-   m_pbr(std::move(pbr)) {
+   m_pbr(_std::move(pbr)) {
 }
 
 /*virtual*/ default_buffered_reader::~default_buffered_reader() {
@@ -207,7 +207,7 @@ default_buffered_reader::default_buffered_reader(_std::shared_ptr<reader> pbr) :
 namespace abc { namespace io { namespace binary {
 
 default_buffered_writer::default_buffered_writer(_std::shared_ptr<writer> pbw) :
-   m_pbw(std::move(pbw)),
+   m_pbw(_std::move(pbw)),
    // Disable buffering for console (interactive) files.
    m_bFlushAfterCommit(_std::dynamic_pointer_cast<console_writer>(m_pbw) != nullptr) {
 }

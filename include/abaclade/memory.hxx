@@ -71,19 +71,27 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma warning(disable: 4986)
 #endif
 
-void * ABC_STL_CALLCONV operator new(std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
-void * ABC_STL_CALLCONV operator new[](std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
 void * ABC_STL_CALLCONV operator new(
-   std::size_t cb, std::nothrow_t const &
+   std::size_t cb
+) ABC_STL_NOEXCEPT_FALSE((abc::_std::bad_alloc));
+void * ABC_STL_CALLCONV operator new[](
+   std::size_t cb
+) ABC_STL_NOEXCEPT_FALSE((abc::_std::bad_alloc));
+void * ABC_STL_CALLCONV operator new(
+   std::size_t cb, abc::_std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE();
 void * ABC_STL_CALLCONV operator new[](
-   std::size_t cb, std::nothrow_t const &
+   std::size_t cb, abc::_std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE();
 
 void ABC_STL_CALLCONV operator delete(void * p) ABC_STL_NOEXCEPT_TRUE();
 void ABC_STL_CALLCONV operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE();
-void ABC_STL_CALLCONV operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
-void ABC_STL_CALLCONV operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void ABC_STL_CALLCONV operator delete(
+   void * p, abc::_std::nothrow_t const &
+) ABC_STL_NOEXCEPT_TRUE();
+void ABC_STL_CALLCONV operator delete[](
+   void * p, abc::_std::nothrow_t const &
+) ABC_STL_NOEXCEPT_TRUE();
 
 #if ABC_HOST_CXX_MSC
    #pragma warning(pop)
@@ -127,7 +135,7 @@ ABACLADE_SYM void * _raw_realloc(void * p, std::size_t cb);
 namespace abc { namespace memory {
 
 //! Wrapper that invokes a deleter if and only if a set condition is true.
-template <typename T, typename TDeleter = std::default_delete<T>>
+template <typename T, typename TDeleter = _std::default_delete<T>>
 class conditional_deleter : public TDeleter {
 public:
    /*! Constructor.

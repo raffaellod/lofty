@@ -91,7 +91,7 @@ ABC_TESTING_TEST_CASE_FUNC(
       auto ptwOldStdErr(io::text::stderr);
       io::text::stderr = ptswErr;
       this_thread::run_coroutines();
-      io::text::stderr = std::move(ptwOldStdErr);
+      io::text::stderr = _std::move(ptwOldStdErr);
    }
 
    ABC_TESTING_ASSERT_FALSE(bCoro1Completed);

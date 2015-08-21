@@ -331,7 +331,7 @@ public:
    //! Iterator for XOR doubly-linked list node classes.
    class iterator :
       public static_list_impl_base::iterator,
-      public std::iterator<std::forward_iterator_tag, TValue> {
+      public _std::iterator<_std::forward_iterator_tag, TValue> {
    private:
       friend class static_list_impl;
 

@@ -449,7 +449,7 @@ static collections::dmvector<testing::utility::instances_counter> return_dmvecto
    v.push_back(testing::utility::instances_counter());
    /* This will move the item array or the items in it, depending on the destination type (embedded
    or dynamic item array). */
-   return std::move(v);
+   return _std::move(v);
 }
 
 ABC_TESTING_TEST_CASE_FUNC(

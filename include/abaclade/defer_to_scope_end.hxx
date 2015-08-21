@@ -47,7 +47,7 @@ public:
       Code to execute when the object goes out of scope.
    */
    deferred_to_scope_end(F fn) :
-      m_fn(std::move(fn)) {
+      m_fn(_std::move(fn)) {
    }
 
    //! Destructor. Most important part of the class.
@@ -97,7 +97,7 @@ abc::detail::deferred_to_scope_end instance (see that class for more information
 */
 template <typename F>
 inline detail::deferred_to_scope_end<F> defer_to_scope_end(F fn) {
-   return detail::deferred_to_scope_end<F>(std::move(fn));
+   return detail::deferred_to_scope_end<F>(_std::move(fn));
 }
 
 } //namespace abc

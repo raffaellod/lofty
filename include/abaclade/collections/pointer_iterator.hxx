@@ -28,7 +28,7 @@ namespace abc { namespace collections {
 
 //! Iterator based on a plain pointer.
 template <typename TCont, typename TVal>
-class pointer_iterator : public std::iterator<std::random_access_iterator_tag, TVal> {
+class pointer_iterator : public _std::iterator<_std::random_access_iterator_tag, TVal> {
 public:
    //! Default constructor.
    /*constexpr*/ pointer_iterator() :

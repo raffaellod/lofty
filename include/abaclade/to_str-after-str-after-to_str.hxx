@@ -129,7 +129,7 @@ public:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<std::type_info> {
+class ABACLADE_SYM to_str_backend<_std::type_info> {
 public:
    //! Constructor.
    to_str_backend();
@@ -151,7 +151,7 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(std::type_info const & ti, io::text::writer * ptwOut);
+   void write(_std::type_info const & ti, io::text::writer * ptwOut);
 
 protected:
    //! Backend for C strings.

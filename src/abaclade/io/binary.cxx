@@ -185,7 +185,7 @@ static _std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    ABC_TRACE_FUNC(fd, am);
 
    detail::file_init_data fid;
-   fid.fd = std::move(fd);
+   fid.fd = _std::move(fd);
    fid.am = am;
    /* Since this method is supposed to be used only for standard descriptors, assume that OS
    buffering is on. */
@@ -198,7 +198,7 @@ _std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
-   fid.fd = std::move(fd);
+   fid.fd = _std::move(fd);
    fid.am = access_mode::read;
    fid.bBypassCache = false;
    return _std::dynamic_pointer_cast<file_reader>(_construct(&fid));
@@ -208,7 +208,7 @@ _std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
-   fid.fd = std::move(fd);
+   fid.fd = _std::move(fd);
    fid.am = access_mode::write;
    fid.bBypassCache = false;
    return _std::dynamic_pointer_cast<file_writer>(_construct(&fid));
@@ -218,7 +218,7 @@ _std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
-   fid.fd = std::move(fd);
+   fid.fd = _std::move(fd);
    fid.am = access_mode::read_write;
    fid.bBypassCache = false;
    return _std::dynamic_pointer_cast<file_readwriter>(_construct(&fid));

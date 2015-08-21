@@ -307,26 +307,26 @@ public:
    */
    void write(I i, io::text::writer * ptwOut) {
       if (sizeof(i) <= sizeof(std::int8_t)) {
-         if (std::is_signed<I>::value) {
+         if (_std::is_signed<I>::value) {
             write_s8(static_cast<std::int8_t>(i), ptwOut);
          } else {
             write_u8(static_cast<std::uint8_t>(i), ptwOut);
          }
       } else if (sizeof(i) <= sizeof(std::int16_t)) {
-         if (std::is_signed<I>::value) {
+         if (_std::is_signed<I>::value) {
             write_s16(static_cast<std::int16_t>(i), ptwOut);
          } else {
             write_u16(static_cast<std::uint16_t>(i), ptwOut);
          }
       } else if (sizeof(i) <= sizeof(std::int32_t)) {
-         if (std::is_signed<I>::value) {
+         if (_std::is_signed<I>::value) {
             write_s32(static_cast<std::int32_t>(i), ptwOut);
          } else {
             write_u32(static_cast<std::uint32_t>(i), ptwOut);
          }
       } else {
          static_assert(sizeof(i) <= sizeof(std::int64_t), "unsupported integer size");
-         if (std::is_signed<I>::value) {
+         if (_std::is_signed<I>::value) {
             write_s64(static_cast<std::int64_t>(i), ptwOut);
          } else {
             write_u64(static_cast<std::uint64_t>(i), ptwOut);

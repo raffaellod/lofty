@@ -52,7 +52,7 @@ scope_trace::scope_trace(
 scope_trace::~scope_trace() {
    /* The set-and-reset of sm_bReentering doesn’t need memory barriers because this is all contained
    in a single thread (sm_bReentering is in TLS). */
-   if (!sm_bReentering && std::uncaught_exception()) {
+   if (!sm_bReentering && _std::uncaught_exception()) {
       sm_bReentering = true;
       try {
          write(get_trace_writer(), ++sm_iStackDepth);

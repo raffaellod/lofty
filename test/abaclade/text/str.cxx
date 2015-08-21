@@ -167,12 +167,12 @@ ABC_TESTING_TEST_CASE_FUNC(
       dmstr s1, s2(ABC_SL("a"));
       char_t const * pchCheck = s2.cbegin().base();
       // Verify that the compiler selects operator+(dmstr &&, …) when possible.
-      s1 = std::move(s2) + ABC_SL("b");
+      s1 = _std::move(s2) + ABC_SL("b");
       ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
 
-      istr s3(std::move(s1));
+      istr s3(_std::move(s1));
       // Verify that the compiler selects operator+(istr &&, …) when possible.
-      s1 = std::move(s3) + ABC_SL("c");
+      s1 = _std::move(s3) + ABC_SL("c");
       ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
    }
 

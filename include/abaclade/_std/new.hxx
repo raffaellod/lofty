@@ -62,16 +62,16 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Single-object new and delete (C++11 § 18.6.1.1 “Single-object forms”).
-void * operator new(std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
-void * operator new(std::size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void * operator new(std::size_t cb) ABC_STL_NOEXCEPT_FALSE((abc::_std::bad_alloc));
+void * operator new(std::size_t cb, abc::_std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 void operator delete(void * p) ABC_STL_NOEXCEPT_TRUE();
-void operator delete(void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void operator delete(void * p, abc::_std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 
 // Array new[] and delete[] (C++11 § 18.6.1.2 “Array forms”).
-void * operator new[](std::size_t cb) ABC_STL_NOEXCEPT_FALSE((std::bad_alloc));
-void * operator new[](std::size_t cb, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void * operator new[](std::size_t cb) ABC_STL_NOEXCEPT_FALSE((abc::_std::bad_alloc));
+void * operator new[](std::size_t cb, abc::_std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 void operator delete[](void * p) ABC_STL_NOEXCEPT_TRUE();
-void operator delete[](void * p, std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
+void operator delete[](void * p, abc::_std::nothrow_t const &) ABC_STL_NOEXCEPT_TRUE();
 
 // Placement new and delete (C++11 § 18.6.1.3 “Placement forms”).
 inline void * operator new(std::size_t cb, void * pMem) ABC_STL_NOEXCEPT_TRUE() {

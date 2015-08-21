@@ -195,7 +195,7 @@ path path::base_name() const {
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-   return std::move(s);
+   return _std::move(s);
 }
 
 #if ABC_HOST_API_WIN32
@@ -223,7 +223,7 @@ path path::base_name() const {
    memory::copy(s.chars_begin(), smc_aszRoot, c_cchRoot);
    // Remove the last character, the “a” from achDummyPath.
    s.set_size_in_chars(s.size_in_chars() - 1 /*“a”*/);
-   return std::move(s);
+   return _std::move(s);
 }
 #endif //if ABC_HOST_API_WIN32
 
@@ -311,14 +311,14 @@ path path::normalize() const {
 
    // Adjust the length based on the position of the last character written.
    s.set_size_in_chars(static_cast<std::size_t>(itDst.base() - itBegin.base()));
-   return std::move(s);
+   return _std::move(s);
 }
 
 #if ABC_HOST_API_WIN32
 istr path::os_str() const {
    ABC_TRACE_FUNC(this);
 
-   return std::move(absolute().m_s);
+   return _std::move(absolute().m_s);
 }
 #endif //if ABC_HOST_API_WIN32
 
@@ -497,7 +497,7 @@ dmstr::const_iterator path::base_name_start() const {
 
    // Adjust the length based on the position of the last character written.
    s.set_size_in_chars(static_cast<std::size_t>(itDst.base() - itBegin.base()));
-   return std::move(s);
+   return _std::move(s);
 }
 
 }} //namespace abc::os
