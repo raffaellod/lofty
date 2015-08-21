@@ -30,20 +30,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef ABC_STLIMPL
-   #include <abaclade/_std/utility.hxx>
-#else
-   #include <utility>
-
-   namespace abc { namespace _std {
-
-   using ::std::forward;
-   using ::std::move;
-   using ::std::swap;
-
-   }} //namespace abc::_std
-#endif
-
 #if defined(ABC_STLIMPL) || !defined(ABC_CXX_VARIADIC_TEMPLATES)
    #include <abaclade/_std/tuple.hxx>
 #else
@@ -130,16 +116,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #else
    #include <memory>
 
-   #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
-      namespace std {
-
-      // (Partially-) specialize is_copy_constructible for MSC-provided STL types.
-      template <typename T, typename TDeleter>
-      struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
-
-      } //namespace std
-   #endif
-
    namespace abc { namespace _std {
 
    using ::std::default_delete;
@@ -149,6 +125,12 @@ You should have received a copy of the GNU General Public License along with Aba
    using ::std::static_pointer_cast;
    using ::std::unique_ptr;
    using ::std::weak_ptr;
+
+   #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+      // (Partially-) specialize is_copy_constructible for stock STL types.
+      template <typename T, typename TDeleter>
+      struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
+   #endif
 
    }} //namespace abc::_std
 #endif

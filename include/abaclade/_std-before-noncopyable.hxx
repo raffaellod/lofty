@@ -53,9 +53,14 @@ using namespace ::abc::_std;
    namespace abc { namespace _std {
 
    using ::std::add_lvalue_reference;
+   using ::std::add_reference;
    using ::std::conditional;
    using ::std::enable_if;
+   using ::std::false_type;
+   using ::std::is_base_of;
+#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
    using ::std::is_copy_constructible;
+#endif
    using ::std::is_reference;
    using ::std::is_scalar;
    using ::std::is_signed;
@@ -68,12 +73,27 @@ using namespace ::abc::_std;
    }} //namespace abc::_std
 #endif
 
+#ifdef ABC_STLIMPL
+   #include <abaclade/_std/utility.hxx>
+#else
+   #include <utility>
+
+   namespace abc { namespace _std {
+
+   using ::std::declval;
+   using ::std::forward;
+   using ::std::move;
+   using ::std::swap;
+
+   }} //namespace abc::_std
+#endif
+
 // Provide a definition of std::is_copy_constructible for STL implementations lacking it.
 #if ( \
    (ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1900) \
 ) && !defined(ABC_STLIMPL)
 
-namespace std {
+namespace abc { namespace _std {
 
 #if ABC_HOST_CXX_GCC
    // GCC lacks a definition of std::add_reference.
@@ -85,7 +105,7 @@ namespace std {
    struct add_reference<T &> {
       typedef T & type;
    };
-#elif ABC_HOST_CXX_MSC < 1800
+#elif ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1800
    // MSC16 lacks a definition of std::declval.
    template <typename T>
    typename add_rvalue_reference<T>::type declval();
@@ -104,14 +124,14 @@ public:
 #if ABC_HOST_CXX_MSC == 1800
       /* MSC18 does provide an implementation which, while severely flawed (see abc::noncopyable),
       may be stricter than this, so && its return value. */
-      && _ABC_MSC18_is_copy_constructible<T>::value
+      && std::_ABC_MSC18_is_copy_constructible<T>::value
 #endif
    ;
 };
 
 #define ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
 
-} //namespace std
+}} //namespace abc::_std
 
 #endif /*if ((ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) ||
              (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1900) && !defined(ABC_STLIMPL) */
