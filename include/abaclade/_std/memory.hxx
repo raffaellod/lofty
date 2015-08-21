@@ -629,7 +629,7 @@ namespace abc { namespace _std {
 
 /*! Type of exception thrown by shared_ptr in case of attempt to lock an expired weak_ptr (C++11 §
 20.7.2.1 “Class bad_weak_ptr”). */
-class bad_weak_ptr : public exception {
+class ABACLADE_SYM bad_weak_ptr : public exception {
 public:
    //! See exception::exception().
    bad_weak_ptr();

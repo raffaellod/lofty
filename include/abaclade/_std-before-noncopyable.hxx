@@ -53,22 +53,34 @@ using namespace ::abc::_std;
    namespace abc { namespace _std {
 
    using ::std::add_lvalue_reference;
+   using ::std::add_pointer;
    using ::std::add_reference;
+   using ::std::add_rvalue_reference;
    using ::std::conditional;
    using ::std::enable_if;
    using ::std::false_type;
+   using ::std::is_arithmetic;
+   using ::std::is_array;
    using ::std::is_base_of;
 #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
    using ::std::is_copy_constructible;
 #endif
+   using ::std::is_empty;
+   using ::std::is_enum;
+   using ::std::is_function;
+   using ::std::is_pointer;
    using ::std::is_reference;
    using ::std::is_scalar;
    using ::std::is_signed;
    using ::std::is_trivial;
+#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
    using ::std::is_trivially_destructible;
+#endif
    using ::std::remove_const;
    using ::std::remove_cv;
+   using ::std::remove_extent;
    using ::std::remove_reference;
+   using ::std::is_void;
 
    }} //namespace abc::_std
 #endif
@@ -80,7 +92,9 @@ using namespace ::abc::_std;
 
    namespace abc { namespace _std {
 
-   using ::std::declval;
+   #if !ABC_HOST_CXX_MSC || ABC_HOST_CXX_MSC >= 1800
+      using ::std::declval;
+   #endif
    using ::std::forward;
    using ::std::move;
    using ::std::swap;
