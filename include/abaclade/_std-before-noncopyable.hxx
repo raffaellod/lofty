@@ -61,7 +61,7 @@ using namespace ::abc::_std;
    using ::std::is_arithmetic;
    using ::std::is_array;
    using ::std::is_base_of;
-#ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
+#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS)
    using ::std::is_copy_constructible;
 #endif
    using ::std::is_empty;
@@ -73,6 +73,9 @@ using namespace ::abc::_std;
    using ::std::is_signed;
    using ::std::is_trivial;
 #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
+   using ::std::is_trivially_copy_constructible;
+#endif
+#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS)
    using ::std::is_trivially_destructible;
 #endif
    using ::std::remove_const;
