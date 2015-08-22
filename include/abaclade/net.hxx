@@ -219,10 +219,6 @@ private:
    static io::filedesc create_socket(std::uint8_t iIPVersion);
 
 private:
-#if ABC_HOST_API_WIN32
-   //! Handle to the IOCP this file has been associated to, if any.
-   ::HANDLE m_hIocp;
-#endif
    //! Server socket bound to the TCP port.
    io::filedesc m_fdSocket;
    //! IP version; 4 = IPv4, 6 = IPv6.

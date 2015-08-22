@@ -53,10 +53,6 @@ protected:
    file_base(detail::file_init_data * pfid);
 
 protected:
-#if ABC_HOST_API_WIN32
-   //! Handle to the IOCP this file has been associated to, if any.
-   ::HANDLE m_hIocp;
-#endif
    //! Descriptor of the underlying file.
    filedesc m_fd;
 };

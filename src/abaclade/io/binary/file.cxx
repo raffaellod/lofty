@@ -37,9 +37,6 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace io { namespace binary {
 
 file_base::file_base(detail::file_init_data * pfid) :
-#if ABC_HOST_API_WIN32
-   m_hIocp(nullptr),
-#endif
    m_fd(_std::move(pfid->fd)) {
 }
 
@@ -110,12 +107,13 @@ file_reader::file_reader(detail::file_init_data * pfid) :
          ovl.OffsetHigh = 0;
       }
    }
+   m_fd.bind_to_this_coroutine_scheduler_iocp();
    ::BOOL bRet = ::ReadFile(m_fd.get(), p, cbToRead, &cbRead, &ovl);
    ::DWORD iErr = bRet ? ERROR_SUCCESS : ::GetLastError();
    if (iErr == ERROR_IO_PENDING) {
       // This may repeat in case of spurious notifications by an IOCP.
       do {
-         this_coroutine::sleep_until_fd_ready(m_fd.get(), false, &m_hIocp);
+         this_coroutine::sleep_until_fd_ready(m_fd.get(), false);
          ::GetOverlappedResult(nullptr, &ovl, &cbRead, false);
          iErr = ::GetLastError();
       } while (iErr == ERROR_IO_INCOMPLETE);
@@ -258,12 +256,13 @@ file_writer::file_writer(detail::file_init_data * pfid) :
             ovl.OffsetHigh = 0;
          }
       }
+      m_fd.bind_to_this_coroutine_scheduler_iocp();
       if (!::WriteFile(m_fd.get(), pb, cbToWrite, &cbWritten, &ovl)) {
          ::DWORD iErr = ::GetLastError();
          if (iErr == ERROR_IO_PENDING) {
             // This may repeat in case of spurious notifications by an IOCP.
             do {
-               this_coroutine::sleep_until_fd_ready(m_fd.get(), true, &m_hIocp);
+               this_coroutine::sleep_until_fd_ready(m_fd.get(), true);
                ::GetOverlappedResult(nullptr, &ovl, &cbWritten, false);
                iErr = ::GetLastError();
             } while (iErr == ERROR_IO_INCOMPLETE);

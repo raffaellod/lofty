@@ -510,17 +510,8 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
 #endif
 }
 
-void coroutine::scheduler::block_active_until_fd_ready(
-   io::filedesc_t fd, bool bWrite
-#if ABC_HOST_API_WIN32
-   , ::HANDLE * phCurrentIocp
-#endif
-) {
-#if ABC_HOST_API_WIN32
-   ABC_TRACE_FUNC(this, fd, bWrite, phCurrentIocp);
-#else
+void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    ABC_TRACE_FUNC(this, fd, bWrite);
-#endif
 
    // Add fd as a new event source.
 #if ABC_HOST_API_BSD
@@ -549,20 +540,7 @@ void coroutine::scheduler::block_active_until_fd_ready(
       ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
    }));
 #elif ABC_HOST_API_WIN32
-   // Make sure fd has not been used on a different IOCP.
-   if (::HANDLE hCurrentIocp = *phCurrentIocp) {
-      if (hCurrentIocp != m_fdIocp.get()) {
-         // TODO: use a better exception class.
-         ABC_THROW(argument_error, ());
-      }
-   } else {
-      // First time this fd is being used with a scheduler; associate it to the IOCP.
-      if (!::CreateIoCompletionPort(fd, m_fdIocp.get(), reinterpret_cast< ::ULONG_PTR>(fd), 0)) {
-         exception::throw_os_error();
-      }
-      // Now associate the IOCP to the fd’s owner.
-      *phCurrentIocp = m_fdIocp.get();
-   }
+   // TODO: ensure bind_to_this_coroutine_scheduler_iocp() has been called on fd.
 #else
    #error "TODO: HOST_API"
 #endif
@@ -971,27 +949,10 @@ void sleep_for_ms(unsigned iMillisecs) {
    }
 }
 
-void sleep_until_fd_ready(
-   io::filedesc_t fd, bool bWrite
-#if ABC_HOST_API_WIN32
-   , ::HANDLE * phCurrentIocp
-#endif
-) {
+void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active_until_fd_ready(
-         fd, bWrite
-#if ABC_HOST_API_WIN32
-         , phCurrentIocp
-#endif
-      );
+      pcorosched->block_active_until_fd_ready(fd, bWrite);
    } else {
-#if ABC_HOST_API_WIN32
-      // Make sure that fd has never been used with an IOCP.
-      if (*phCurrentIocp) {
-         // TODO: use a better exception class.
-         ABC_THROW(argument_error, ());
-      }
-#endif
       this_thread::sleep_until_fd_ready(fd, bWrite);
    }
 }

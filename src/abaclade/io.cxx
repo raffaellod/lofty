@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/thread.hxx>
+#include "coroutine-scheduler.hxx"
 
 #if ABC_HOST_API_POSIX
    #include <fcntl.h> // F_* FD_* O_* fcntl()
@@ -55,10 +57,44 @@ filedesc & filedesc::operator=(filedesc && fd) {
    if (fd.m_fd != m_fd) {
       safe_close();
       m_fd = fd.m_fd;
+#if ABC_HOST_API_WIN32
+      m_fdIocp = fd.m_fdIocp;
+#endif
       fd.m_fd = smc_fdNull;
+#if ABC_HOST_API_WIN32
+      fd.m_fdIocp = smc_fdNull;
+#endif
    }
    return *this;
 }
+
+#if ABC_HOST_API_WIN32
+void filedesc::bind_to_this_coroutine_scheduler_iocp() {
+   if (auto pcorosched = this_thread::coroutine_scheduler()) {
+      ::HANDLE hIocp = pcorosched->iocp();
+      if (m_fdIocp) {
+         if (m_fdIocp != hIocp) {
+            /* *this has been associated to (the IOCP of) a different coroutine scheduler in the
+            past. */
+            // TODO: use a better exception class.
+            ABC_THROW(argument_error, ());
+         }
+      } else {
+         /* First time *this is associated to (the IOCP of) a coroutine scheduler.
+         This will fail with ERROR_INVALID_PARAMETER if m_fd has not been opened with OVERLAPPED
+         support. */
+         if (::CreateIoCompletionPort(m_fd, hIocp, reinterpret_cast< ::ULONG_PTR>(m_fd), 0)) {
+            m_fdIocp = hIocp;
+         } else {
+            ::DWORD iErr = ::GetLastError();
+            if (iErr != ERROR_INVALID_PARAMETER) {
+               exception::throw_os_error(iErr);
+            }
+         }
+      }
+   }
+}
+#endif
 
 void filedesc::safe_close() {
    if (m_fd != smc_fdNull) {

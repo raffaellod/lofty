@@ -94,14 +94,29 @@ public:
       releasing it when appropriate.
    */
    filedesc() :
-      m_fd(smc_fdNull) {
+      m_fd(smc_fdNull)
+#if ABC_HOST_API_WIN32
+      , m_fdIocp(smc_fdNull)
+#endif
+   {
    }
    explicit filedesc(filedesc_t fd) :
-      m_fd(fd) {
+      m_fd(fd)
+#if ABC_HOST_API_WIN32
+      , m_fdIocp(smc_fdNull)
+#endif
+   {
    }
    filedesc(filedesc && fd) :
-      m_fd(fd.m_fd) {
+      m_fd(fd.m_fd)
+#if ABC_HOST_API_WIN32
+      , m_fdIocp(fd.m_fdIocp)
+#endif
+   {
       fd.m_fd = smc_fdNull;
+#if ABC_HOST_API_WIN32
+      fd.m_fdIocp = smc_fdNull;
+#endif
    }
 
    //! Destructor.
@@ -125,9 +140,11 @@ public:
       return m_fd != smc_fdNull;
    }
 
-   /*! Closes the file descriptor, ensuring that no error conditions remain possible in the
-   destructor. */
-   void safe_close();
+#if ABC_HOST_API_WIN32
+   /*! Associates the file descriptor to the IOCP of the coroutine::scheduler for the current
+   thread, blocking attempts to associate a file descriptor to more than one IOCP. */
+   void bind_to_this_coroutine_scheduler_iocp();
+#endif
 
    /*! Returns the wrapped raw file descriptor.
 
@@ -149,6 +166,10 @@ public:
       return fd;
    }
 
+   /*! Closes the file descriptor, ensuring that no error conditions remain possible in the
+   destructor. */
+   void safe_close();
+
 #if ABC_HOST_API_POSIX
    /*! Sets the CLOEXEC flag.
 
@@ -168,6 +189,10 @@ public:
 private:
    //! The actual descriptor.
    filedesc_t m_fd;
+#if ABC_HOST_API_WIN32
+   //! Handle to the IOCP this file has been associated to, if any.
+   filedesc_t m_fdIocp;
+#endif
    //! Logically null file descriptor.
    static filedesc_t const smc_fdNull;
 };

@@ -88,9 +88,6 @@ connection::~connection() {
 namespace abc { namespace net {
 
 tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog /*= 5*/) :
-#if ABC_HOST_API_WIN32
-   m_hIocp(nullptr),
-#endif
    m_fdSocket(create_socket(ipaddr.version())),
    m_iIPVersion(ipaddr.version()) {
    ABC_TRACE_FUNC(this/*, ipaddr*/, port, cBacklog);
@@ -239,6 +236,7 @@ _std::shared_ptr<connection> tcp_server::accept() {
    ovl.hEvent = nullptr;
    ovl.Offset = 0;
    ovl.OffsetHigh = 0;
+   m_fdSocket.bind_to_this_coroutine_scheduler_iocp();
    if (!::AcceptEx(
       reinterpret_cast< ::SOCKET>(m_fdSocket.get()),
       reinterpret_cast< ::SOCKET>(fdConnection.get()),
@@ -250,7 +248,7 @@ _std::shared_ptr<connection> tcp_server::accept() {
          // This may repeat in case of spurious notifications by an IOCP.
          do {
             // Wait for m_fdSocket. Accepting a connection is considered a read event.
-            this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false, &m_hIocp);
+            this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false);
             ::GetOverlappedResult(nullptr, &ovl, &cbRead, false);
             iErr = ::GetLastError();
          } while (iErr == ERROR_IO_INCOMPLETE);

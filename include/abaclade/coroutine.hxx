@@ -219,16 +219,8 @@ ABACLADE_SYM void sleep_for_ms(unsigned iMillisecs);
    File descriptor that the calling coroutine is waiting for I/O on.
 @param bWrite
    true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
-@param phCurrentIocp
-   (Win32 only) Checked on input and updated on output, allows to ensure that fd is only associated
-   to a single IOCP at a time.
 */
-ABACLADE_SYM void sleep_until_fd_ready(
-   io::filedesc_t fd, bool bWrite
-#if ABC_HOST_API_WIN32
-   , ::HANDLE * phCurrentIocp
-#endif
-);
+ABACLADE_SYM void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite);
 
 }} //namespace abc::this_coroutine
 
