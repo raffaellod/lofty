@@ -703,7 +703,7 @@ public:
 
    //! Records the release of a strong reference to this.
    void release_strong() {
-      if (m_cStrongRefs.fetch_sub(1) == 0) {
+      if (m_cStrongRefs.fetch_sub(1) == 1) {
          /* All the strong references are gone: release the owned object and the weak link hold by
          the strong references. */
          delete_owned();
@@ -713,7 +713,7 @@ public:
 
    //! Records the release of a weak reference to this.
    void release_weak() {
-      if (m_cWeakRefs.fetch_sub(1) == 0) {
+      if (m_cWeakRefs.fetch_sub(1) == 1) {
          /* All references are gone, including the one held by all the strong references together:
          this object can go away as well. */
          delete_this();
