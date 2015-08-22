@@ -105,8 +105,8 @@ public:
 template <typename T>
 class allocator {
 public:
-   typedef size_t size_type;
-   typedef ptrdiff_t difference_type;
+   typedef std::size_t size_type;
+   typedef std::ptrdiff_t difference_type;
    typedef T * pointer;
    typedef T const * const_pointer;
    typedef T & reference;
@@ -198,7 +198,7 @@ public:
       allocate() count limit.
    */
    size_type max_size() const {
-      return ~size_t(0) / sizeof(T);
+      return ~size_type(0) / sizeof(T);
    }
 
    /*! Construct an object at the specified address, with the provided constructor arguments.
@@ -561,7 +561,7 @@ public:
    @return
       Reference to the requested element.
    */
-   T & operator[](size_t i) const {
+   T & operator[](std::size_t i) const {
       return get()[i];
    }
 

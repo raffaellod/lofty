@@ -45,7 +45,7 @@ struct hash<bool> {
    @return
       Hash of the argument.
    */
-   size_t operator()(bool b) const {
+   std::size_t operator()(bool b) const {
       return b;
    }
 };
@@ -59,7 +59,7 @@ struct hash<char> {
    @return
       Hash of the argument.
    */
-   size_t operator()(char ch) const {
+   std::size_t operator()(char ch) const {
       return ch;
    }
 };
@@ -73,7 +73,7 @@ struct hash<signed char> {
    @return
       Hash of the argument.
    */
-   size_t operator()(signed char sch) const {
+   std::size_t operator()(signed char sch) const {
       return sch;
    }
 };
@@ -87,7 +87,7 @@ struct hash<unsigned char> {
    @return
       Hash of the argument.
    */
-   size_t operator()(unsigned char uch) const {
+   std::size_t operator()(unsigned char uch) const {
       return uch;
    }
 };
@@ -101,7 +101,7 @@ struct hash<char16_t> {
    @return
       Hash of the argument.
    */
-   size_t operator()(char16_t ch) const {
+   std::size_t operator()(char16_t ch) const {
       return ch;
    }
 };
@@ -115,7 +115,7 @@ struct hash<char32_t> {
    @return
       Hash of the argument.
    */
-   size_t operator()(char32_t ch) const {
+   std::size_t operator()(char32_t ch) const {
       return ch;
    }
 };
@@ -129,7 +129,7 @@ struct hash<wchar_t> {
    @return
       Hash of the argument.
    */
-   size_t operator()(wchar_t ch) const {
+   std::size_t operator()(wchar_t ch) const {
       return ch;
    }
 };
@@ -143,7 +143,7 @@ struct hash<short> {
    @return
       Hash of the argument.
    */
-   size_t operator()(short i) const {
+   std::size_t operator()(short i) const {
       return i;
    }
 };
@@ -157,7 +157,7 @@ struct hash<unsigned short> {
    @return
       Hash of the argument.
    */
-   size_t operator()(unsigned short i) const {
+   std::size_t operator()(unsigned short i) const {
       return i;
    }
 };
@@ -171,7 +171,7 @@ struct hash<int> {
    @return
       Hash of the argument.
    */
-   size_t operator()(int i) const {
+   std::size_t operator()(int i) const {
       return i;
    }
 };
@@ -185,7 +185,7 @@ struct hash<unsigned int> {
    @return
       Hash of the argument.
    */
-   size_t operator()(unsigned int i) const {
+   std::size_t operator()(unsigned int i) const {
       return i;
    }
 };
@@ -199,7 +199,7 @@ struct hash<long> {
    @return
       Hash of the argument.
    */
-   size_t operator()(long i) const {
+   std::size_t operator()(long i) const {
       return i;
    }
 };
@@ -213,7 +213,7 @@ struct hash<long long> {
    @return
       Hash of the argument.
    */
-   size_t operator()(long long i) const {
+   std::size_t operator()(long long i) const {
       return i;
    }
 };
@@ -227,7 +227,7 @@ struct hash<unsigned long> {
    @return
       Hash of the argument.
    */
-   size_t operator()(unsigned long i) const {
+   std::size_t operator()(unsigned long i) const {
       return i;
    }
 };
@@ -241,7 +241,7 @@ struct hash<unsigned long long> {
    @return
       Hash of the argument.
    */
-   size_t operator()(unsigned long long i) const {
+   std::size_t operator()(unsigned long long i) const {
       return i;
    }
 };
@@ -255,7 +255,7 @@ struct hash<float> {
    @return
       Hash of the argument.
    */
-   size_t operator()(float f) const {
+   std::size_t operator()(float f) const {
       return f;
    }
 };
@@ -269,7 +269,7 @@ struct hash<double> {
    @return
       Hash of the argument.
    */
-   size_t operator()(double d) const {
+   std::size_t operator()(double d) const {
       return d;
    }
 };
@@ -283,7 +283,7 @@ struct hash<long double> {
    @return
       Hash of the argument.
    */
-   size_t operator()(long double ld) const {
+   std::size_t operator()(long double ld) const {
       return ld;
    }
 };
@@ -297,8 +297,8 @@ struct hash<T *> {
    @return
       Hash of the argument.
    */
-   size_t operator()(T * pt) const {
-      return reinterpret_cast<uintptr_t>(pt);
+   std::size_t operator()(T * pt) const {
+      return reinterpret_cast<std::uintptr_t>(pt);
    }
 };
 
