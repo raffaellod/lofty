@@ -45,6 +45,7 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
+      ABC_UNUSED_ARG(vsArgs);
       // Read one line at a time from stdin…
       ABC_FOR_EACH(auto & sLine, io::text::stdin->lines()) {
          // …and write it to stdout.

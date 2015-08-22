@@ -41,6 +41,7 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
+      ABC_UNUSED_ARG(vsArgs);
       this_thread::attach_coroutine_scheduler();
 
       /* Open a pipe. Since this thread now has a coroutine scheduler, the pipe will take advantage

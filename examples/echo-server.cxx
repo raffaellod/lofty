@@ -41,6 +41,7 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
+      ABC_UNUSED_ARG(vsArgs);
       // Schedule a TCP server. To connect to it, use: socat - TCP4:127.0.0.1:9082
       coroutine([this] () {
          ABC_TRACE_FUNC(this);

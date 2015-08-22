@@ -66,6 +66,7 @@ public:
    virtual int main(collections::mvector<istr> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
+      ABC_UNUSED_ARG(vsArgs);
       using _std::get;
 
       io::text::stdout->print(ABC_SL(
