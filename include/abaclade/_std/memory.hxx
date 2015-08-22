@@ -1345,12 +1345,9 @@ inline shared_ptr<T>::shared_ptr(weak_ptr<U> const & wpu) :
 
 namespace abc { namespace _std {
 
-/*! Base class for sharable objects (C++11 § 20.7.2.4 “Class template enable_shared_from_this”).
-
-The way this works is that when the last shared_ptr to this is released, the embedded refcount will
-call delete on this, which will self-destruct the refcount.
-
-TODO: initialize m_pThis. Probably need a detail::shared_refcount somewhere to function. */
+/*! Base class for objects that need to repeatedly create shared_ptr instances pointing to
+themselves (C++11 § 20.7.2.4 “Class template enable_shared_from_this”). */
+// TODO: incomplete and not working; needs shared_ptr::shared_ptr() support to initialize m_psr.
 template <typename T>
 class enable_shared_from_this {
 public:
@@ -1360,41 +1357,52 @@ public:
       Pointer to *this.
    */
    shared_ptr<T> shared_from_this() {
-      return shared_ptr<T>(m_pThis);
+      shared_ptr<T> spThis(m_psr, static_cast<T *>(this));
+      m_psr->add_strong_ref();
+      return std::move(spThis);
    }
+
+   /*! Returns a shared const pointer to this.
+
+   @return
+      Const pointer to *this.
+   */
    shared_ptr<T const> shared_from_this() const {
-      return shared_ptr<T const>(m_pThis);
+      shared_ptr<T const> spThis(m_psr, static_cast<T const *>(this));
+      m_psr->add_strong_ref();
+      return std::move(spThis);
    }
 
 protected:
-   /*! Constructor.
-
-   @param esft
-      Ignored.
-   */
-   enable_shared_from_this() {
+   //! Default constructor.
+   enable_shared_from_this() :
+      m_psr(nullptr) {
    }
-   enable_shared_from_this(enable_shared_from_this const & esft) {
-      ABC_UNUSED_ARG(esft);
+
+   //! Copy constructor.
+   enable_shared_from_this(enable_shared_from_this const &) :
+      m_psr(nullptr) {
    }
 
    //! Destructor.
    ~enable_shared_from_this() {
+      if (m_psr) {
+         m_psr->release_weak();
+      }
    }
 
-   /*! Assignment operator.
+   /*! Copy-assignment operator.
 
-   @param esft
-      Ignored.
+   @return
+      *this.
    */
-   enable_shared_from_this & operator=(enable_shared_from_this const & esft) {
-      ABC_UNUSED_ARG(esft);
+   enable_shared_from_this & operator=(enable_shared_from_this const &) {
       return *this;
    }
 
 private:
-   //! Weak reference to *this.
-   weak_ptr<T> m_pThis;
+   //! Shared reference count. We hold a weak reference to it.
+   detail::shared_refcount * m_psr;
 };
 
 }} //namespace abc::_std
