@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/net.hxx>
 #include <abaclade/thread.hxx>
 
@@ -45,20 +46,26 @@ public:
          ABC_TRACE_FUNC(this);
 
          static net::port_t const sc_port = 9080;
-         io::text::stdout->print(ABC_SL("server: starting\n"));
+         io::text::stdout->print(ABC_SL("server: starting, listening on port {}\n"), sc_port);
          net::tcp_server server(net::ip_address::any_ipv4, sc_port);
          try {
             for (;;) {
-               io::text::stdout->print(ABC_SL("server: accepting\n"));
+               io::text::stdout->write_line(ABC_SL("server: accepting"));
+               // This will cause a context switch if no connections are ready to be established.
                auto pconn(server.accept());
-               /* Add a coroutine that will echo every byte sent over the newly-established
-               connection. */
+
+               io::text::stdout->write_line(ABC_SL("server: connection established"));
+
+               // Add a coroutine that will process the newly-established connection.
                coroutine([pconn] () {
                   ABC_TRACE_FUNC(pconn);
 
                   // Create text-mode reader and writer for the connection’s socket.
                   auto ptr(io::text::make_reader(pconn->socket()));
                   auto ptw(io::text::make_writer(pconn->socket(), text::encoding::utf8));
+                  auto deferred1(defer_to_scope_end([&ptw] () {
+                     ptw->finalize();
+                  }));
                   io::text::stdout->write_line(ABC_SL("responder: reading request"));
                   ABC_FOR_EACH(auto & sLine, ptr->lines()) {
                      if (!sLine) {
@@ -77,9 +84,9 @@ public:
 
                   // Send the response content.
                   ptw->write("OK");
-                  io::text::stdout->write_line(ABC_SL("responder: terminating"));
 
-                  ptw->finalize();
+                  io::text::stdout->write_line(ABC_SL("responder: terminating"));
+                  // deferred1 will finalize *ptw.
                });
             }
          } catch (execution_interruption const &) {
