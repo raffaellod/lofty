@@ -139,7 +139,6 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    bool bExceptionCaught = false;
-   _std::atomic<bool> bThr1Completed(false);
    /* Temporarily redirect stderr to a local string writer, so the exception trace from the thread
    won’t show in the test output. */
    auto ptswErr(_std::make_shared<io::text::str_writer>());
@@ -155,11 +154,10 @@ ABC_TESTING_TEST_CASE_FUNC(
       test assertions in this scope, since their output would end up in ptswErr instead of the real
       stderr. */
       try {
-         thread thr1([this, &bThr1Completed] () {
+         thread thr1([this] () {
             ABC_TRACE_FUNC(this);
 
             ABC_THROW(execution_interruption, ());
-            bThr1Completed.store(true);
          });
          /* Wait for the termination of thr1. Since thr1 will terminate with an exception, the
          current thread will be interrupted as well, right after thr1’s termination. */
@@ -173,7 +171,6 @@ ABC_TESTING_TEST_CASE_FUNC(
       // deferred1 will restore io::text::stderr.
    }
    ABC_TESTING_ASSERT_TRUE(bExceptionCaught);
-   ABC_TESTING_ASSERT_FALSE(bThr1Completed.load());
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 }

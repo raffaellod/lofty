@@ -47,40 +47,46 @@ public:
          static net::port_t const sc_port = 9080;
          io::text::stdout->print(ABC_SL("server: starting\n"));
          net::tcp_server server(net::ip_address::any_ipv4, sc_port);
-         for (;;) {
-            io::text::stdout->print(ABC_SL("server: accepting\n"));
-            auto pconn(server.accept());
-            // Add a coroutine that will echo every byte sent over the newly-established connection.
-            coroutine([pconn] () {
-               ABC_TRACE_FUNC(pconn);
+         try {
+            for (;;) {
+               io::text::stdout->print(ABC_SL("server: accepting\n"));
+               auto pconn(server.accept());
+               /* Add a coroutine that will echo every byte sent over the newly-established
+               connection. */
+               coroutine([pconn] () {
+                  ABC_TRACE_FUNC(pconn);
 
-               // Create text-mode reader and writer for the connection’s socket.
-               auto ptr(io::text::make_reader(pconn->socket()));
-               auto ptw(io::text::make_writer(pconn->socket(), text::encoding::utf8));
-               io::text::stdout->write_line(ABC_SL("responder: reading request"));
-               ABC_FOR_EACH(auto & sLine, ptr->lines()) {
-                  if (!sLine) {
-                     // The request ends on the first empty line.
-                     break;
+                  // Create text-mode reader and writer for the connection’s socket.
+                  auto ptr(io::text::make_reader(pconn->socket()));
+                  auto ptw(io::text::make_writer(pconn->socket(), text::encoding::utf8));
+                  io::text::stdout->write_line(ABC_SL("responder: reading request"));
+                  ABC_FOR_EACH(auto & sLine, ptr->lines()) {
+                     if (!sLine) {
+                        // The request ends on the first empty line.
+                        break;
+                     }
                   }
-               }
-               io::text::stdout->write_line(ABC_SL("responder: responding"));
+                  io::text::stdout->write_line(ABC_SL("responder: responding"));
 
-               // Send the response headers.
-               ptw->write_line(ABC_SL("HTTP/1.0 200 OK"));
-               ptw->write_line(ABC_SL("Content-Type: text/plain; charset=utf-8"));
-               ptw->write_line(ABC_SL("Content-Length: 2"));
-               ptw->write_line();
-               ptw->flush();
+                  // Send the response headers.
+                  ptw->write_line(ABC_SL("HTTP/1.0 200 OK"));
+                  ptw->write_line(ABC_SL("Content-Type: text/plain; charset=utf-8"));
+                  ptw->write_line(ABC_SL("Content-Length: 2"));
+                  ptw->write_line();
+                  ptw->flush();
 
-               // Send the response content.
-               ptw->write("OK");
-               io::text::stdout->write_line(ABC_SL("responder: terminating"));
+                  // Send the response content.
+                  ptw->write("OK");
+                  io::text::stdout->write_line(ABC_SL("responder: terminating"));
 
-               ptw->finalize();
-            });
+                  ptw->finalize();
+               });
+            }
+         } catch (execution_interruption const &) {
+            io::text::stdout->write_line(ABC_SL("server: terminating"));
+            // Rethrow the exception to ensure that all remaining coroutines are terminated.
+            throw;
          }
-         io::text::stdout->write_line(ABC_SL("server: terminating"));
       });
 
       // Switch this thread to run coroutines, until they all terminate.

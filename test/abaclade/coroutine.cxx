@@ -75,13 +75,11 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   bool bCoro1Completed = false;
-   coroutine coro1([this, &bCoro1Completed] () {
+   coroutine coro1([this] () {
       ABC_TRACE_FUNC(this);
 
       // If exceptions are not properly contained by Abaclade, this will kill the entire process.
       ABC_THROW(generic_error, ());
-      bCoro1Completed = true;
    });
 
    /* Temporarily redirect stderr to a local string writer, so the exception trace from the
@@ -94,7 +92,6 @@ ABC_TESTING_TEST_CASE_FUNC(
       io::text::stderr = _std::move(ptwOldStdErr);
    }
 
-   ABC_TESTING_ASSERT_FALSE(bCoro1Completed);
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
    ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
 
