@@ -312,6 +312,7 @@ _std::shared_ptr<connection> tcp_server::accept() {
          fd.set_nonblocking(true);
       }
    #endif
+   return _std::move(fd);
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    static std::uint8_t const sc_iWSAMajorVersion = 2, sc_iWSAMinorVersion = 2;
    ::WSADATA wsad;
@@ -334,16 +335,14 @@ _std::shared_ptr<connection> tcp_server::accept() {
    #ifdef WSA_FLAG_NO_HANDLE_INHERIT
       iFlags |= WSA_FLAG_NO_HANDLE_INHERIT;
    #endif
-   io::filedesc fd(reinterpret_cast<io::filedesc_t>(::WSASocket(
-      iFamily, iType, 0, nullptr, 0, iFlags
-   )));
-   if (!fd) {
+   ::SOCKET sock = ::WSASocket(iFamily, iType, 0, nullptr, 0, iFlags);
+   if (sock == INVALID_SOCKET) {
       exception::throw_os_error();
    }
+   return io::filedesc(reinterpret_cast<io::filedesc_t>(sock));
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
-   return _std::move(fd);
 }
 
 }} //namespace abc::net

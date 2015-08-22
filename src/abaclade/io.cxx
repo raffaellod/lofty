@@ -33,7 +33,7 @@ filedesc_t const filedesc::smc_fdNull =
 #if ABC_HOST_API_POSIX
    -1;
 #elif ABC_HOST_API_WIN32
-   INVALID_HANDLE_VALUE;
+   nullptr;
 #else
    #error "TODO: HOST_API"
 #endif
