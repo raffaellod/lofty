@@ -119,18 +119,24 @@ public:
    };
 
 public:
-   /*! Constructor.
-
-   @param a
-      Source allocator.
-   @param a2
-      Source allocator.
-   */
+   //! Default constructor.
    allocator() {
    }
+
+   /*! Copy constructor.
+
+   @param a
+      Source object.
+   */
    allocator(allocator const & a) {
       ABC_UNUSED_ARG(a);
    }
+
+   /*! Copy constructor.
+
+   @param a
+      Source object.
+   */
    template <typename U>
    allocator(allocator<U> const & a) {
       ABC_UNUSED_ARG(a);
@@ -140,25 +146,47 @@ public:
    ~allocator() {
    }
 
-   //! TODO: comment.
+   /*! Returns a pointer to the argument.
+
+   @param t
+      Variable to return the address of.
+   @return
+      Pointer to t.
+   */
    pointer address(reference t) const {
-      return &reinterpret_cast<int8_t &>(t);
+      return &t;
    }
+
+   /*! Returns a const pointer to the argument.
+
+   @param t
+      Variable to return the address of.
+   @return
+      Const pointer to t.
+   */
    const_pointer address(const_reference t) const {
-      return &reinterpret_cast<int8_t const &>(t);
+      return &t;
    }
 
    /*! Allocates memory for the requested number of T objects.
 
-   TODO: comment signature.
+   @param c
+      Count of objects to allocate.
+   @param pHint
+      Pointer to use as allcation hint.
+   @return
+      Newly allocated storage for c T objects.
    */
-   pointer allocate(size_type c, allocator<void>::const_pointer pHint = 0) {
+   pointer allocate(size_type c, allocator<void>::const_pointer pHint = nullptr) {
       return reinterpret_cast<T *>(::new max_align_t[ABC_ALIGNED_SIZE(c * sizeof(T))]);
    }
 
    /*! Releases memory obtained through allocate().
 
-   TODO: comment signature.
+   @param p
+      Storage for c T objects.
+   @param c
+      Count of objects to deallocate.
    */
    void deallocate(pointer p, size_type c) {
       ::delete static_cast<void *>(p);
@@ -166,7 +194,8 @@ public:
 
    /*! Returns the meximum number of T objects that allocate() can succeed for.
 
-   TODO: comment signature.
+   @return
+      allocate() count limit.
    */
    size_type max_size() const {
       return ~size_t(0) / sizeof(T);
@@ -174,7 +203,10 @@ public:
 
    /*! Construct an object at the specified address, with the provided constructor arguments.
 
-   TODO: comment signature.
+   @param pu
+      Pointer to uninitialized storage of size at least equal to sizeof(U).
+   @param targs
+      Arguments to construct a U instance with.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
    template <typename U, typename... TArgs>
@@ -642,7 +674,10 @@ class ABACLADE_SYM shared_refcount : public noncopyable {
 public:
    /*! Constructor.
 
-   TODO: comment signature.
+   @param cStrongRefs
+      Initial count of strong references.
+   @param cWeakRefs
+      Initial count of weak references.
    */
    shared_refcount(unsigned cStrongRefs, unsigned cWeakRefs);
 
@@ -657,9 +692,12 @@ public:
       m_cWeakRefs.fetch_add(1);
    }
 
-   /*! Returns the deleter in use by this owner, if any. Used by get_deleter().
+   /*! Returns the deleter in use by this owner, if any. Used by shared_ptr::get_deleter().
 
-   TODO: comment signature.
+   @param ti
+      Expected type of deleter.
+   @return
+      Pointer to the deleter.
    */
    virtual void * get_deleter(type_info const & ti) const;
 
@@ -754,7 +792,10 @@ class shared_refcount_with_deleter : public basic_shared_refcount<T> {
 public:
    /*! Constructor.
 
-   TODO: comment signature.
+   @param pt
+      Pointer to the object to manage.
+   @param tdel
+      Deleter to use on pt.
    */
    shared_refcount_with_deleter(T * pt, TDel const & tdel) :
       basic_shared_refcount<T>(pt),
@@ -793,7 +834,7 @@ the owned object to be allocated on the same memory block. */
 template <typename T>
 class prefix_shared_refcount : public shared_refcount {
 public:
-   //! Constructor.
+   //! Default constructor.
    prefix_shared_refcount() :
       shared_refcount(1, 0) {
    }
