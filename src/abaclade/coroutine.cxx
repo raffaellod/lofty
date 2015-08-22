@@ -715,10 +715,8 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       if (ke.filter == EVFILT_TIMER) {
          // Remove and return the coroutine that was waiting for this timer.
          return m_hmCorosBlockedByTimer.pop(ke.ident);
-      } else {
-         // Remove and return the coroutine that was waiting for this file descriptor.
-         return m_hmCorosBlockedByFD.pop(static_cast<io::filedesc_t>(ke.ident));
       }
+      io::filedesc_t fd = static_cast<io::filedesc_t>(ke.ident);
 #elif ABC_HOST_API_LINUX || ABC_HOST_API_WIN32
    #if ABC_HOST_API_LINUX
       ::epoll_event ee;
@@ -774,11 +772,15 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          // Return the coroutine that was waiting for the timer.
          return _std::move(kv.value);
       }
-      // Remove and return the coroutine that was waiting for this file descriptor.
-      return m_hmCorosBlockedByFD.pop(fd);
 #else
    #error "TODO: HOST_API"
 #endif
+      // Remove and return the coroutine that was waiting for this file descriptor.
+      auto itBlockedCoro(m_hmCorosBlockedByFD.find(fd));
+      if (itBlockedCoro != m_hmCorosBlockedByFD.cend()) {
+         return m_hmCorosBlockedByFD.pop(itBlockedCoro);
+      }
+      // Else ignore this notification for an event that nobody was waiting for.
    }
 }
 
