@@ -149,9 +149,9 @@ public:
       TDeleter(),
       m_bEnabled(bEnabled) {
    }
-   template <typename T2, typename TDeleter2>
-   conditional_deleter(conditional_deleter<T2, TDeleter2> const & cd) :
-      TDeleter(static_cast<TDeleter2 const &>(cd)),
+   template <typename U, typename UDeleter>
+   conditional_deleter(conditional_deleter<U, UDeleter> const & cd) :
+      TDeleter(static_cast<UDeleter const &>(cd)),
       m_bEnabled(cd.enabled()) {
    }
 
@@ -188,21 +188,21 @@ public:
    conditional_deleter(bool bEnabled) :
       conditional_deleter<T, TDeleter>(bEnabled) {
    }
-   template <typename T2, typename TDeleter2>
-   conditional_deleter(conditional_deleter<T2, TDeleter2> const & cd) :
+   template <typename U, typename UDeleter>
+   conditional_deleter(conditional_deleter<U, UDeleter> const & cd) :
       conditional_deleter<T, TDeleter>(cd) {
    }
 
    /*! Deletes the specified array if the condition set in the constructor was true. See also
    conditional_deleter<T, TDeleter>::operator()().
 
-   @param pt
+   @param pu
       Pointer to the array to delete.
    */
-   template <typename T2>
-   void operator()(T2 * pt) const {
+   template <typename U>
+   void operator()(U * pu) const {
       if (this->m_bEnabled) {
-         TDeleter::operator()(pt);
+         TDeleter::operator()(pu);
       }
    }
 };

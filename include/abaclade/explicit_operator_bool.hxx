@@ -77,16 +77,15 @@ struct support_explicit_operator_bool {
    // Disable relational operators for support_explicit_operator_bool.
    #ifdef ABC_CXX_FUNC_DELETE
       #define ABC_RELOP_IMPL(op) \
-         template <typename T1, typename T2> \
+         template <typename T, typename U> \
          bool operator op( \
-            support_explicit_operator_bool<T1> const &, support_explicit_operator_bool<T2> const & \
+            support_explicit_operator_bool<T> const &, support_explicit_operator_bool<U> const & \
          ) = delete;
    #else //ifdef ABC_CXX_FUNC_DELETE
       #define ABC_RELOP_IMPL(op) \
-         template <typename T1, typename T2> \
+         template <typename T, typename U> \
          bool operator op( \
-            support_explicit_operator_bool<T1> const & lhs, \
-            support_explicit_operator_bool<T2> const & rhs \
+            support_explicit_operator_bool<T> const &, support_explicit_operator_bool<U> const & \
          );
    #endif //ifdef ABC_CXX_FUNC_DELETE … else
 

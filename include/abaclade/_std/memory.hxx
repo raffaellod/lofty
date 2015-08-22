@@ -96,9 +96,9 @@ public:
    typedef void const * const_pointer;
    typedef void value_type;
 
-   template <typename T2>
+   template <typename U>
    struct rebind {
-      typedef allocator<T2> other;
+      typedef allocator<U> other;
    };
 };
 
@@ -113,9 +113,9 @@ public:
    typedef T const & const_reference;
    typedef T value_type;
 
-   template <typename T2>
+   template <typename U>
    struct rebind {
-      typedef allocator<T2> other;
+      typedef allocator<U> other;
    };
 
 public:
@@ -131,9 +131,9 @@ public:
    allocator(allocator const & a) {
       ABC_UNUSED_ARG(a);
    }
-   template <typename T2>
-   allocator(allocator<T2> const & a2) {
-      ABC_UNUSED_ARG(a2);
+   template <typename U>
+   allocator(allocator<U> const & a) {
+      ABC_UNUSED_ARG(a);
    }
 
    //! Destructor.
@@ -177,111 +177,100 @@ public:
    TODO: comment signature.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
-   template <typename T2, typename... TArgs>
-   void construct(T2 * pt2, TArgs &&... targs) {
-      ::new(pt2) T2(forward(targs) ...);
+   template <typename U, typename... TArgs>
+   void construct(U * pu, TArgs &&... targs) {
+      ::new(pu) U(forward(targs) ...);
    }
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
-   // Overload for 0-argument T2::T2().
-   template <typename T2>
-   void construct(T2 * pt2) {
-      ::new(pt2) T2();
+   template <typename U>
+   void construct(U * pu) {
+      ::new(pu) U();
    }
-   // Overload for 1-argument T2::T2().
-   template <typename T2, typename TArg0>
-   void construct(T2 * pt2, TArg0 && targ0) {
-      ::new(pt2) T2(forward(targ0));
+   template <typename U, typename TArg0>
+   void construct(U * pu, TArg0 && targ0) {
+      ::new(pu) U(forward(targ0));
    }
-   // Overload for 2-argument T2::T2().
-   template <typename T2, typename TArg0, typename TArg1>
-   void construct(T2 * pt2, TArg0 && targ0, TArg1 && targ1) {
-      ::new(pt2) T2(forward(targ0), forward(targ1));
+   template <typename U, typename TArg0, typename TArg1>
+   void construct(U * pu, TArg0 && targ0, TArg1 && targ1) {
+      ::new(pu) U(forward(targ0), forward(targ1));
    }
-   // Overload for 3-argument T2::T2().
-   template <typename T2, typename TArg0, typename TArg1, typename TArg2>
-   void construct(T2 * pt2, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2) {
-      ::new(pt2) T2(forward(targ0), forward(targ1), forward(targ2));
+   template <typename U, typename TArg0, typename TArg1, typename TArg2>
+   void construct(U * pu, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2) {
+      ::new(pu) U(forward(targ0), forward(targ1), forward(targ2));
    }
-   // Overload for 4-argument T2::T2().
-   template <typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
-   void construct(T2 * pt2, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3) {
-      ::new(pt2) T2(forward(targ0), forward(targ1), forward(targ2), forward(targ3));
+   template <typename U, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
+   void construct(U * pu, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3) {
+      ::new(pu) U(forward(targ0), forward(targ1), forward(targ2), forward(targ3));
    }
-   // Overload for 5-argument T2::T2().
    template <
-      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4
+      typename U, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4
    >
    void construct(
-      T2 * pt2, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4
+      U * pu, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4
    ) {
-      ::new(pt2) T2(forward(targ0), forward(targ1), forward(targ2), forward(targ3), forward(targ4));
+      ::new(pu) U(forward(targ0), forward(targ1), forward(targ2), forward(targ3), forward(targ4));
    }
-   // Overload for 6-argument T2::T2().
    template <
-      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename U, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
       typename TArg5
    >
    void construct(
-      T2 * pt2, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
+      U * pu, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
       TArg5 && targ5
    ) {
-      ::new(pt2) T2(
+      ::new(pu) U(
          forward(targ0), forward(targ1), forward(targ2), forward(targ3), forward(targ4),
          forward(targ5)
       );
    }
-   // Overload for 7-argument T2::T2().
    template <
-      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename U, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
       typename TArg5, typename TArg6
    >
    void construct(
-      T2 * pt2, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
+      U * pu, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
       TArg5 && targ5, TArg6 && targ6
    ) {
-      ::new(pt2) T2(
+      ::new(pu) U(
          forward(targ0), forward(targ1), forward(targ2), forward(targ3), forward(targ4),
          forward(targ5), forward(targ6)
       );
    }
-   // Overload for 8-argument T2::T2().
    template <
-      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename U, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
       typename TArg5, typename TArg6, typename TArg7
    >
    void construct(
-      T2 * pt2, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
+      U * pu, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
       TArg5 && targ5, TArg6 && targ6, TArg7 && targ7
    ) {
-      ::new(pt2) T2(
+      ::new(pu) U(
          forward(targ0), forward(targ1), forward(targ2), forward(targ3), forward(targ4),
          forward(targ5), forward(targ6), forward(targ7)
       );
    }
-   // Overload for 9-argument T2::T2().
    template <
-      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename U, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
       typename TArg5, typename TArg6, typename TArg7, typename TArg8
    >
    void construct(
-      T2 * pt2, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
+      U * pu, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
       TArg5 && targ5, TArg6 && targ6, TArg7 && targ7, TArg8 && targ8
    ) {
-      ::new(pt2) T2(
+      ::new(pu) U(
          forward(targ0), forward(targ1), forward(targ2), forward(targ3), forward(targ4),
          forward(targ5), forward(targ6), forward(targ7), forward(targ8)
       );
    }
-   // Overload for 10-argument T2::T2().
    template <
-      typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
+      typename U, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4,
       typename TArg5, typename TArg6, typename TArg7, typename TArg8, typename TArg9
    >
    void construct(
-      T2 * pt2, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
+      U * pu, TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4,
       TArg5 && targ5, TArg6 && targ6, TArg7 && targ7, TArg8 && targ8, TArg9 && targ9
    ) {
-      ::new(pt2) T2(
+      ::new(pu) U(
          forward(targ0), forward(targ1), forward(targ2), forward(targ3), forward(targ4),
          forward(targ5), forward(targ6), forward(targ7), forward(targ8), forward(targ9)
       );
@@ -290,12 +279,12 @@ public:
 
    /*! Destructs the argument.
 
-   @param pt2
+   @param pu
       Pointer to the object to destruct.
    */
-   template <typename T2>
-   void destroy(T2 * pt2) {
-      pt2->~T2();
+   template <typename U>
+   void destroy(U * pu) {
+      pu->~U();
    }
 };
 
@@ -324,7 +313,7 @@ public:
    @param upt
       Pointer to transfer ownership from.
    @param upt2
-      Pointer to transfer ownership from. T2 and TDel2 must be convertible to T and TDel,
+      Pointer to transfer ownership from. U and UDel must be convertible to T and TDel,
       respectively.
    */
    /*constexpr*/ unique_ptr() :
@@ -347,9 +336,9 @@ public:
    /*constexpr*/ unique_ptr(nullptr_t) :
       m_pt_and_tdel(nullptr, TDel()) {
    }
-   template <class T2, typename TDel2>
-   unique_ptr(unique_ptr<T2, TDel2> && upt2) :
-      m_pt_and_tdel(upt2.release(), move(upt2.get_deleter())) {
+   template <typename U, typename UDel>
+   unique_ptr(unique_ptr<U, UDel> && upu) :
+      m_pt_and_tdel(upu.release(), move(upu.get_deleter())) {
    }
 
    //! Destructor.
@@ -376,10 +365,10 @@ public:
       }
       return *this;
    }
-   template <class T2, typename TDel2>
-   unique_ptr & operator=(unique_ptr<T2, TDel2> && upt2) {
-      _std::get<0>(m_pt_and_tdel) = upt2.release();
-      _std::get<1>(m_pt_and_tdel) = move(upt2.get_deleter());
+   template <typename U, typename UDel>
+   unique_ptr & operator=(unique_ptr<U, UDel> && upu) {
+      _std::get<0>(m_pt_and_tdel) = upu.release();
+      _std::get<1>(m_pt_and_tdel) = move(upu.get_deleter());
       return *this;
    }
    unique_ptr & operator=(nullptr_t) {
@@ -607,11 +596,9 @@ private:
 
 // Relational operators for unique_ptr.
 #define ABC_RELOP_IMPL(op) \
-   template <typename T1, typename TDel1, typename T2, typename TDel2> \
-   inline bool operator op( \
-      unique_ptr<T1, TDel1> const & upt1, unique_ptr<T2, TDel2> const & upt2 \
-   ) { \
-      return upt1.get() op upt2.get(); \
+   template <typename T, typename TDel, typename U, typename UDel> \
+   inline bool operator op(unique_ptr<T, TDel> const & upt, unique_ptr<U, UDel> const & upu) { \
+      return upt.get() op upu.get(); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -926,20 +913,20 @@ public:
       m_psr(nullptr),
       m_pt(nullptr) {
    }
-   template <typename T2>
-   explicit shared_ptr(T2 * pt2) :
-      m_psr(new detail::basic_shared_refcount<T2>(pt2)),
-      m_pt(pt2) {
+   template <typename U>
+   explicit shared_ptr(U * pu) :
+      m_psr(new detail::basic_shared_refcount<U>(pu)),
+      m_pt(pu) {
    }
-   template <typename T2, typename TDel>
-   shared_ptr(T2 * pt2, TDel tdel) :
-      m_psr(new detail::shared_refcount_with_deleter<T2, TDel>(pt2, tdel)),
-      m_pt(pt2) {
+   template <typename U, typename TDel>
+   shared_ptr(U * pu, TDel tdel) :
+      m_psr(new detail::shared_refcount_with_deleter<U, TDel>(pu, tdel)),
+      m_pt(pu) {
    }
-   template <typename T2, typename TDel, class TAllocator>
-   shared_ptr(T2 * pt2, TDel tdel, TAllocator talloc);
-   template <typename T2>
-   shared_ptr(shared_ptr<T2> const & spt2, T * pt);
+   template <typename U, typename TDel, class TAllocator>
+   shared_ptr(U * pu, TDel tdel, TAllocator talloc);
+   template <typename U>
+   shared_ptr(shared_ptr<U> const & spu, T * pt);
    shared_ptr(shared_ptr const & spt) :
       m_psr(spt.m_psr),
       m_pt(spt.m_pt) {
@@ -947,10 +934,10 @@ public:
          m_psr->add_strong_ref();
       }
    }
-   template <typename T2>
-   shared_ptr(shared_ptr<T2> const & spt2) :
-      m_psr(spt2.m_psr),
-      m_pt(spt2.m_pt) {
+   template <typename U>
+   shared_ptr(shared_ptr<U> const & spu) :
+      m_psr(spu.m_psr),
+      m_pt(spu.m_pt) {
       if (m_psr) {
          m_psr->add_strong_ref();
       }
@@ -961,20 +948,18 @@ public:
       spt.m_psr = nullptr;
       spt.m_pt = nullptr;
    }
-   template <typename T2>
-   shared_ptr(shared_ptr<T2> && spt2) :
-      m_psr(spt2.m_psr),
-      m_pt(spt2.m_pt) {
-      spt2.m_psr = nullptr;
-      spt2.m_pt = nullptr;
+   template <typename U>
+   shared_ptr(shared_ptr<U> && spu) :
+      m_psr(spu.m_psr),
+      m_pt(spu.m_pt) {
+      spu.m_psr = nullptr;
+      spu.m_pt = nullptr;
    }
-   template <typename T2>
-   explicit shared_ptr(weak_ptr<T2> const & wpt2);
-   template <typename T2, typename TDel>
-   shared_ptr(unique_ptr<T2, TDel> && upt2) :
-      m_psr(new detail::shared_refcount_with_deleter<T2, TDel>(
-         upt2.get(), upt2.get_deleter()
-      )),
+   template <typename U>
+   explicit shared_ptr(weak_ptr<U> const & wpu);
+   template <typename U, typename TDel>
+   shared_ptr(unique_ptr<U, TDel> && upu) :
+      m_psr(new detail::shared_refcount_with_deleter<U, TDel>(upu.get(), upu.get_deleter())),
       m_pt(upt2.release()) {
    }
    /*constexpr*/ shared_ptr(nullptr_t) :
@@ -1012,9 +997,9 @@ public:
       }
       return *this;
    }
-   template <class T2>
-   shared_ptr & operator=(shared_ptr<T2> const & spt2) {
-      return operator=(shared_ptr(spt2));
+   template <typename U>
+   shared_ptr & operator=(shared_ptr<U> const & spu) {
+      return operator=(shared_ptr(spu));
    }
    shared_ptr & operator=(shared_ptr && spt) {
       if (&spt != this) {
@@ -1028,13 +1013,13 @@ public:
       }
       return *this;
    }
-   template <class T2>
-   shared_ptr & operator=(shared_ptr<T2> && spt2) {
-      return operator=(shared_ptr(move(spt2)));
+   template <typename U>
+   shared_ptr & operator=(shared_ptr<U> && spu) {
+      return operator=(shared_ptr(move(spu)));
    }
-   template <class T2, typename TDel>
-   shared_ptr & operator=(unique_ptr<T2, TDel> && upt2) {
-      return operator=(shared_ptr(move(upt2)));
+   template <typename U, typename TDel>
+   shared_ptr & operator=(unique_ptr<U, TDel> && upu) {
+      return operator=(shared_ptr(move(upu)));
    }
 
    /*! Dereference operator.
@@ -1070,17 +1055,17 @@ public:
          m_pt = nullptr;
       }
    }
-   template <typename T2>
-   void reset(T2 * pt) {
-      operator=(shared_ptr(pt));
+   template <typename U>
+   void reset(U * pu) {
+      operator=(shared_ptr(pu));
    }
-   template <typename T2, typename TDel>
-   void reset(T2 * pt2, TDel tdel) {
-      operator=(shared_ptr(pt2, tdel));
+   template <typename U, typename TDel>
+   void reset(U * pu, TDel tdel) {
+      operator=(shared_ptr(pu, tdel));
    }
-   template <typename T2, typename TDel, class TAllocator>
-   void reset(T2 * pt2, TDel tdel, TAllocator talloc) {
-      operator=(shared_ptr(pt2, tdel, talloc));
+   template <typename U, typename TDel, class TAllocator>
+   void reset(U * pu, TDel tdel, TAllocator talloc) {
+      operator=(shared_ptr(pu, tdel, talloc));
    }
 
    /*! Returns the wrapped pointer.
@@ -1093,10 +1078,10 @@ public:
    }
 
    //! TODO: comment.
-   template <class T2>
-   bool owner_before(shared_ptr<T2> const & spt2) const;
-   template <class T2>
-   bool owner_before(weak_ptr<T2> const & wpt2) const;
+   template <typename U>
+   bool owner_before(shared_ptr<U> const & spu) const;
+   template <typename U>
+   bool owner_before(weak_ptr<U> const & wpu) const;
 
    /*! Returns true if no other pointers are referring to the object pointed to.
 
@@ -1179,18 +1164,18 @@ public:
          m_psr->add_weak_ref();
       }
    }
-   template <typename T2>
-   weak_ptr(weak_ptr<T2> const & wpt2) :
-      m_psr(wpt2.m_psr),
-      m_pt(wpt2.m_pt) {
+   template <typename U>
+   weak_ptr(weak_ptr<U> const & wpu) :
+      m_psr(wpu.m_psr),
+      m_pt(wpu.m_pt) {
       if (m_psr) {
          m_psr->add_weak_ref();
       }
    }
-   template <typename T2>
-   weak_ptr(shared_ptr<T2> const & spt2) :
-      m_psr(spt2.get_shared_refcount()),
-      m_pt(spt2.get()) {
+   template <typename U>
+   weak_ptr(shared_ptr<U> const & spu) :
+      m_psr(spu.get_shared_refcount()),
+      m_pt(spu.get()) {
       if (m_psr) {
          m_psr->add_weak_ref();
       }
@@ -1233,13 +1218,13 @@ public:
       }
       return *this;
    }
-   template <typename T2>
-   weak_ptr & operator=(weak_ptr<T2> const & wpt2) {
-      return operator=(weak_ptr(wpt2));
+   template <typename U>
+   weak_ptr & operator=(weak_ptr<U> const & wpu) {
+      return operator=(weak_ptr(wpu));
    }
-   template <typename T2>
-   weak_ptr & operator=(shared_ptr<T2> const & spt2) {
-      return operator=(weak_ptr(spt2));
+   template <typename U>
+   weak_ptr & operator=(shared_ptr<U> const & spu) {
+      return operator=(weak_ptr(spu));
    }
    // Non-standard.
    weak_ptr & operator=(weak_ptr && wpt) {
@@ -1274,10 +1259,10 @@ public:
    }
 
    //! TODO: comment.
-   template <class T2>
-   bool owner_before(shared_ptr<T2> const & spt2) const;
-   template <class T2>
-   bool owner_before(weak_ptr<T2> const & wpt2) const;
+   template <typename U>
+   bool owner_before(shared_ptr<U> const & spu) const;
+   template <typename U>
+   bool owner_before(weak_ptr<U> const & wpu) const;
 
    //! Releases the object pointed to.
    void reset() {
@@ -1336,10 +1321,10 @@ private:
 // Now these can be defined.
 
 template <typename T>
-template <typename T2>
-inline shared_ptr<T>::shared_ptr(weak_ptr<T2> const & wpt2) :
-   m_psr(wpt2.get_shared_refcount()),
-   m_pt(wpt2.get()) {
+template <typename U>
+inline shared_ptr<T>::shared_ptr(weak_ptr<U> const & wpu) :
+   m_psr(wpu.get_shared_refcount()),
+   m_pt(wpu.get()) {
    m_psr->add_strong_ref();
 }
 
