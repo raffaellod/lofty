@@ -244,7 +244,7 @@ path path::normalize() const {
 
    dmstr s(m_s);
    auto itBegin(s.begin()), itEnd(s.end());
-   auto itRootEnd(itBegin + static_cast<std::ptrdiff_t>(get_root_length(s, true)));
+   auto itRootEnd(itBegin + static_cast<std::ptrdiff_t>(get_root_length(s)));
 
    /* Interpret “.” and “..” components, starting from itRootEnd. Every time we encounter a
    separator, store its iterator in vitSeps; when we encounter a “..” component, we’ll jump back to
@@ -333,7 +333,7 @@ path path::parent_dir() const {
    }
    /* If there’s a root separator/prefix, make sure we don’t destroy it by stripping it of a
    separator; advance the iterator instead. */
-   if (itLastSep - itBegin < static_cast<std::ptrdiff_t>(get_root_length(m_s, true))) {
+   if (itLastSep - itBegin < static_cast<std::ptrdiff_t>(get_root_length(m_s))) {
       ++itLastSep;
    }
    return m_s.substr(itBegin, itLastSep);
@@ -369,8 +369,17 @@ dmstr::const_iterator path::base_name_start() const {
    return itBaseNameStart;
 }
 
-/*static*/ std::size_t path::get_root_length(istr const & s, bool bIncludeNonRoot) {
+/*static*/ std::size_t path::get_root_length(
+   istr const & s
+#if ABC_HOST_API_WIN32
+   , bool bIncludeNonRoot /*= true*/
+#endif
+) {
+#if ABC_HOST_API_WIN32
    ABC_TRACE_FUNC(s, bIncludeNonRoot);
+#else
+   ABC_TRACE_FUNC(s);
+#endif
 
    static std::size_t const sc_cchRoot = ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
 
@@ -468,7 +477,7 @@ dmstr::const_iterator path::base_name_start() const {
 
    auto itBegin(s.begin()), itEnd(s.end());
    // Save an iterator to the end of the root prefix.
-   auto itRootEnd(itBegin + static_cast<std::ptrdiff_t>(get_root_length(s, true)));
+   auto itRootEnd(itBegin + static_cast<std::ptrdiff_t>(get_root_length(s)));
 
    // Collapse sequences of one or more path separators with a single separator.
    auto itDst(itRootEnd);

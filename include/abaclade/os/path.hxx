@@ -228,7 +228,12 @@ public:
       true if the path represents a root directory, of false otherwise.
    */
    bool is_root() const {
-      return get_root_length(m_s, false) == m_s.size_in_chars();
+      return get_root_length(
+         m_s
+#if ABC_HOST_API_WIN32
+         , false
+#endif
+      ) == m_s.size_in_chars();
    }
 
    /*! Returns a normalized version of the path by interpreting sequences such as “.” and “..”. The
@@ -318,12 +323,17 @@ private:
    @param s
       Path to parse. Must comply with the rules set for abc::os::path’s internal representation.
    @param bIncludeNonRoot
-      If true, non-absolute prefixes such as “\” and ”X:” (Win32) will be considered root prefixes;
-      if false, they won’t.
+      (Win32 only) If omitted or true, non-absolute prefixes such as “\” and ”X:” will be considered
+      root prefixes; if false, they won’t.
    @return
       Length of the root part in s, or 0 if s does not start with a root part.
    */
-   static std::size_t get_root_length(istr const & s, bool bIncludeNonAbsolute);
+   static std::size_t get_root_length(
+      istr const & s
+#if ABC_HOST_API_WIN32
+      , bool bIncludeNonAbsolute = true
+#endif
+   );
 
    /*! Returns true if the specified string represents an absolute path. Under Win32, this means
    that the path needs to be prefixed with “\\?\”, e.g. “\\?\C:\my\path”; a path starting with a
