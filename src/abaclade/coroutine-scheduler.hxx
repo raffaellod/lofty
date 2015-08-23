@@ -87,8 +87,16 @@ public:
       File descriptor that the calling coroutine is waiting for I/O on.
    @param bWrite
       true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
+   @param povl
+      (Win32 only) Pointer to the abc::io::overlapped object that is being used for the asynchronous
+      I/O operation.
    */
-   void block_active_until_fd_ready(io::filedesc_t fd, bool bWrite);
+   void block_active_until_fd_ready(
+      io::filedesc_t fd, bool bWrite
+#if ABC_HOST_API_WIN32
+      , io::overlapped * povl
+#endif
+   );
 
 #if ABC_HOST_API_WIN32
    /*! Returns the internal IOCP.

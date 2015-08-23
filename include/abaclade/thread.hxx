@@ -265,8 +265,16 @@ ABACLADE_SYM void sleep_for_ms(unsigned iMillisecs);
    File descriptor that the calling coroutine is waiting for I/O on.
 @param bWrite
    true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
+@param povl
+   (Win32 only) Pointer to the abc::io::overlapped object that is being used for the asynchronous
+   I/O operation.
 */
-ABACLADE_SYM void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite);
+ABACLADE_SYM void sleep_until_fd_ready(
+   io::filedesc_t fd, bool bWrite
+#if ABC_HOST_API_WIN32
+   , io::overlapped * povl
+#endif
+);
 
 }} //namespace abc::this_thread
 

@@ -510,8 +510,17 @@ void coroutine::scheduler::block_active_for_ms(unsigned iMillisecs) {
 #endif
 }
 
-void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool bWrite) {
+void coroutine::scheduler::block_active_until_fd_ready(
+   io::filedesc_t fd, bool bWrite
+#if ABC_HOST_API_WIN32
+   , io::overlapped * povl
+#endif
+) {
+#if ABC_HOST_API_WIN32
+   ABC_TRACE_FUNC(this, fd, bWrite, povl);
+#else
    ABC_TRACE_FUNC(this, fd, bWrite);
+#endif
 
    // Add fd as a new event source.
 #if ABC_HOST_API_BSD
@@ -541,32 +550,37 @@ void coroutine::scheduler::block_active_until_fd_ready(io::filedesc_t fd, bool b
    }));
 #elif ABC_HOST_API_WIN32
    // TODO: ensure bind_to_this_coroutine_scheduler_iocp() has been called on fd.
+   // This may repeat in case of spurious notifications by the IOCP for fd (WIN32 BUG?).
+   do {
 #else
    #error "TODO: HOST_API"
 #endif
-   // Deactivate the current coroutine and find one to activate instead.
-   impl * pcoroimpl;
-   {
-//      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
-      pcoroimpl = _std::get<0>(m_hmCorosBlockedByFD.add_or_assign(
-         fd, _std::move(sm_pcoroimplActive)
-      ))->value.get();
-   }
-   try {
-      // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(pcoroimpl);
-   } catch (...) {
+      // Deactivate the current coroutine and find one to activate instead.
+      impl * pcoroimpl;
+      {
+//         _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
+         pcoroimpl = _std::get<0>(m_hmCorosBlockedByFD.add_or_assign(
+            fd, _std::move(sm_pcoroimplActive)
+         ))->value.get();
+      }
+      try {
+         // Switch back to the thread’s own context and have it wait for a ready coroutine.
+         switch_to_scheduler(pcoroimpl);
+      } catch (...) {
 #if ABC_HOST_API_WIN32
-      /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the file,
-      not just this one. */
-      ::CancelIo(fd);
+         /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the
+         file, not just this one. */
+         ::CancelIo(fd);
 #endif
-      // Remove the coroutine from the map of blocked ones.
-//      _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
-      m_hmCorosBlockedByFD.remove(fd);
-      throw;
-   }
-   // Under Linux, deferred1 will remove the now-inactive event for fd.
+         // Remove the coroutine from the map of blocked ones.
+//         _std::lock_guard<_std::mutex> lock(m_mtxCorosAddRemove);
+         m_hmCorosBlockedByFD.remove(fd);
+         throw;
+      }
+      // Under Linux, deferred1 will remove the now-inactive event for fd.
+#if ABC_HOST_API_WIN32
+   } while (povl->get_result() == ERROR_IO_INCOMPLETE);
+#endif
 }
 
 void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= false*/) {
@@ -949,11 +963,26 @@ void sleep_for_ms(unsigned iMillisecs) {
    }
 }
 
-void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
+void sleep_until_fd_ready(
+   io::filedesc_t fd, bool bWrite
+#if ABC_HOST_API_WIN32
+   , io::overlapped * povl
+#endif
+) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active_until_fd_ready(fd, bWrite);
+      pcorosched->block_active_until_fd_ready(
+         fd, bWrite
+#if ABC_HOST_API_WIN32
+         , povl
+#endif
+      );
    } else {
-      this_thread::sleep_until_fd_ready(fd, bWrite);
+      this_thread::sleep_until_fd_ready(
+         fd, bWrite
+#if ABC_HOST_API_WIN32
+         , povl
+#endif
+      );
    }
 }
 

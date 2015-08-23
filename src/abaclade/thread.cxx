@@ -568,7 +568,12 @@ void sleep_for_ms(unsigned iMillisecs) {
    interruption_point();
 }
 
-void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
+void sleep_until_fd_ready(
+   io::filedesc_t fd, bool bWrite
+#if ABC_HOST_API_WIN32
+   , io::overlapped * povl
+#endif
+) {
 #if ABC_HOST_API_POSIX
    ::pollfd pfd;
    pfd.fd = fd;
@@ -596,15 +601,18 @@ void sleep_until_fd_ready(io::filedesc_t fd, bool bWrite) {
    } else {
       // TODO: what to do if ::poll() returned but no meaningful bits are set in pfd.revents?
    }
+   // Check for pending interruptions.
+   interruption_point();
 #elif ABC_HOST_API_WIN32
    ABC_UNUSED_ARG(bWrite);
    interruptible_wait_for_single_object(fd);
+   // Check for pending interruptions.
+   interruption_point();
+   // If we’re still here, the wait must’ve been interrupted by fd, so update *povl.
+   povl->get_result();
 #else
    #error "TODO: HOST_API"
 #endif
-
-   // Check for pending interruptions.
-   interruption_point();
 }
 
 }} //namespace abc::this_thread

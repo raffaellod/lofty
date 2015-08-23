@@ -148,3 +148,21 @@ void filedesc::set_nonblocking(bool b) {
 #endif
 
 }} //namespace abc::io
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if ABC_HOST_API_WIN32
+namespace abc { namespace io {
+
+::DWORD overlapped::get_result() {
+   // This will be thrown away; its value will be (and is already) available in InternalHigh.
+   ::DWORD cbTranferred;
+   ::GetOverlappedResult(nullptr, this, &cbTranferred, false);
+   ::DWORD iErr = ::GetLastError();
+   // Change Internal from an NTSTATUS to a Win32 error code.
+   Internal = iErr;
+   return iErr;
+}
+
+}} //namespace abc::io
+#endif //if ABC_HOST_API_WIN32

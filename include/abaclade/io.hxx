@@ -213,3 +213,44 @@ public:
 };
 
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if ABC_HOST_API_WIN32
+namespace abc { namespace io {
+
+//! Extends OVERLAPPED with more information.
+struct overlapped : public ::OVERLAPPED {
+   //! Default constructor.
+   overlapped() {
+      hEvent = nullptr;
+   }
+
+   /*! Returns the status of the overlapped I/O operation.
+
+   @return
+      Status of the overlapped operation.
+   */
+   ::DWORD status() const {
+      return static_cast< ::DWORD>(Internal);
+   }
+
+   /*! Returns the count of transferred bytes.
+
+   @return
+      Size of transferred data, in bytes.
+   */
+   ::DWORD transferred_size() const {
+      return static_cast< ::DWORD>(InternalHigh);
+   }
+
+   /*! Calls GetOverlappedResult() to retrieve information about the I/O operation.
+
+   @return
+      Error status of the I/O operation.
+   */
+   ::DWORD get_result();
+};
+
+}} //namespace abc::io
+#endif //if ABC_HOST_API_WIN32

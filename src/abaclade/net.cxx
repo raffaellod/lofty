@@ -232,8 +232,7 @@ _std::shared_ptr<connection> tcp_server::accept() {
 
    fdConnection = create_socket(m_iIPVersion);
    ::DWORD cbRead;
-   ::OVERLAPPED ovl;
-   ovl.hEvent = nullptr;
+   io::overlapped ovl;
    ovl.Offset = 0;
    ovl.OffsetHigh = 0;
    m_fdSocket.bind_to_this_coroutine_scheduler_iocp();
@@ -245,17 +244,13 @@ _std::shared_ptr<connection> tcp_server::accept() {
    )) {
       ::DWORD iErr = static_cast< ::DWORD>(::WSAGetLastError());
       if (iErr == ERROR_IO_PENDING) {
-         // This may repeat in case of spurious notifications by an IOCP.
-         do {
-            // Wait for m_fdSocket. Accepting a connection is considered a read event.
-            this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false);
-            ::GetOverlappedResult(nullptr, &ovl, &cbRead, false);
-            iErr = ::GetLastError();
-         } while (iErr == ERROR_IO_INCOMPLETE);
+         this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false, &ovl);
       }
+      iErr = ovl.status();
       if (iErr != ERROR_SUCCESS) {
          exception::throw_os_error(iErr);
       }
+      cbRead = ovl.transferred_size();
    }
 
    // Parse the weird buffer.
