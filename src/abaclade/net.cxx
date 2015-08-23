@@ -244,12 +244,12 @@ _std::shared_ptr<connection> tcp_server::accept() {
       ::DWORD iErr = static_cast< ::DWORD>(::WSAGetLastError());
       if (iErr == ERROR_IO_PENDING) {
          this_coroutine::sleep_until_fd_ready(m_fdSocket.get(), false, &ovl);
+         iErr = ovl.status();
+         cbRead = ovl.transferred_size();
       }
-      iErr = ovl.status();
       if (iErr != ERROR_SUCCESS) {
          exception::throw_os_error(iErr);
       }
-      cbRead = ovl.transferred_size();
    }
 
    // Parse the weird buffer.
