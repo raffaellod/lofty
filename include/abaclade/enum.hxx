@@ -195,20 +195,30 @@ struct ABACLADE_SYM enum_member {
    //! Value.
    int iValue;
 
-   /*! Finds and returns the member associated to the specified enumerated value or name. If no
-   match is found, an exception will be throw.
+   /*! Finds and returns the member associated to the specified enumerated value. If no match is
+   found, an exception will be throw.
 
    @param pem
       Pointer to the first item in the enumeration members array; the last item in the array has a
       nullptr name string pointer.
    @param iValue
       Value of the constant to search for.
+   @return
+      Pointer to the matching name/value pair.
+   */
+   static enum_member const * find_in_map(enum_member const * pem, int iValue);
+
+   /*! Finds and returns the member associated to the specified value name. If no match is found, an
+   exception will be throw.
+
+   @param pem
+      Pointer to the first item in the enumeration members array; the last item in the array has a
+      nullptr name string pointer.
    @param sName
       Name of the constant to search for.
    @return
       Pointer to the matching name/value pair.
    */
-   static enum_member const * find_in_map(enum_member const * pem, int iValue);
    static enum_member const * find_in_map(enum_member const * pem, istr const & sName);
 };
 
@@ -239,19 +249,55 @@ public:
    */
    enum_impl() {
    }
+
+   /*! Constructor.
+
+   @param e
+      Initial value.
+   */
    enum_impl(enum_type e) :
       m_e(e) {
    }
+
+   /*! Copy constructor.
+
+   @param e
+      Source object.
+   */
    enum_impl(enum_impl const & e) :
       m_e(e.m_e) {
    }
-   // Conversion from integer.
+
+   /*! Constructor that converts from an integer.
+
+   @param iValue
+      Integer value to be converted to enum_type. If this doesn’t match the value of any enum_type
+      member, an exception of type abc::domain_error will be thrown.
+   */
    explicit enum_impl(int iValue) :
       m_e(static_cast<enum_type>(detail::enum_member::find_in_map(T::_get_map(), iValue)->iValue)) {
    }
-   // Conversion from string.
+
+   /*! Constructor that converts from a string.
+
+   @param sName
+      String to be converted to enum_type. If this doesn’t match exactly the name of any enum_type
+      member, an exception of type abc::domain_error will be thrown.
+   */
    explicit enum_impl(istr const & sName) :
       m_e(static_cast<enum_type>(detail::enum_member::find_in_map(T::_get_map(), sName)->iValue)) {
+   }
+
+   /*! Copy-assignment operator.
+
+   @param e
+      Source object.
+   @return
+      *this.
+   */
+   enum_impl & operator=(enum_impl const & e) {
+      m_e = e.m_e;
+      return *this;
    }
 
    /*! Assignment operator.
@@ -261,10 +307,6 @@ public:
    @return
       *this.
    */
-   enum_impl & operator=(enum_impl const & e) {
-      m_e = e.m_e;
-      return *this;
-   }
    enum_impl & operator=(enum_type e) {
       m_e = e;
       return *this;
