@@ -103,7 +103,6 @@ void simple_event::wait() {
    /* Block until the new thread is finished updating *this. The only possible failure is EINTR, so
    we just keep on retrying. */
    while (::sem_wait(&m_sem)) {
-      // Check for pending interruptions.
       this_coroutine::interruption_point();
    }
 #elif ABC_HOST_API_WIN32
@@ -234,6 +233,7 @@ void thread::impl::inject_exception(
 void thread::impl::join() {
    ABC_TRACE_FUNC(this);
 
+   // TODO: wait using coroutine::scheduler.
 #if ABC_HOST_API_POSIX
    if (int iErr = ::pthread_join(m_h, nullptr)) {
       exception::throw_os_error(iErr);
@@ -243,7 +243,6 @@ void thread::impl::join() {
 #else
    #error "TODO: HOST_API"
 #endif
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
 }
 
@@ -402,7 +401,6 @@ void thread::join() {
    auto pimpl(_std::move(m_pimpl));
    pimpl->join();
 
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
 }
 
@@ -550,7 +548,6 @@ void sleep_for_ms(unsigned iMillisecs) {
    /* This loop will only repeat in case of EINTR. Technically ::nanosleep() may fail with EINVAL,
    but the calculation above makes that impossible. */
    while (::nanosleep(&tsRequested, &tsRemaining) < 0) {
-      // Check for pending interruptions.
       interruption_point();
       // Set the new requested time to whatever we didn’t get to sleep in the last nanosleep() call.
       tsRequested = tsRemaining;
@@ -563,8 +560,6 @@ void sleep_for_ms(unsigned iMillisecs) {
 #else
    #error "TODO: HOST_API"
 #endif
-
-   // Check for pending interruptions.
    interruption_point();
 }
 
@@ -581,7 +576,6 @@ void sleep_until_fd_ready(
    while (::poll(&pfd, 1, -1) < 0) {
       int iErr = errno;
       if (iErr == EINTR) {
-         // Check for pending interruptions.
          interruption_point();
          break;
       }
@@ -601,12 +595,10 @@ void sleep_until_fd_ready(
    } else {
       // TODO: what to do if ::poll() returned but no meaningful bits are set in pfd.revents?
    }
-   // Check for pending interruptions.
    interruption_point();
 #elif ABC_HOST_API_WIN32
    ABC_UNUSED_ARG(bWrite);
    interruptible_wait_for_single_object(fd);
-   // Check for pending interruptions.
    interruption_point();
    // If we’re still here, the wait must’ve been interrupted by fd, so update *povl.
    povl->get_result();

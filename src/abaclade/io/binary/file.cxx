@@ -70,14 +70,12 @@ file_reader::file_reader(detail::file_init_data * pfid) :
          m_fd.get(), p, std::min<std::size_t>(cbMax, numeric::max< ::ssize_t>::value)
       );
       if (cbRead >= 0) {
-         // Check for pending interruptions.
          this_coroutine::interruption_point();
          return static_cast<std::size_t>(cbRead);
       }
       int iErr = errno;
       switch (iErr) {
          case EINTR:
-            // Check for pending interruptions.
             this_coroutine::interruption_point();
             break;
          case EAGAIN:
@@ -114,7 +112,6 @@ file_reader::file_reader(detail::file_init_data * pfid) :
       iErr = ovl.status();
       cbRead = ovl.transferred_size();
    }
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
    return check_if_eof_or_throw_os_error(cbRead, iErr) ? 0 : cbRead;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
@@ -169,7 +166,6 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    while (::fsync(m_fd.get()) < 0) {
       int iErr = errno;
       if (iErr == EINTR) {
-         // Check for pending interruptions.
          this_coroutine::interruption_point();
       } else if (
    #if ABC_HOST_API_DARWIN
@@ -195,7 +191,6 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 #else
    #error "TODO: HOST_API"
 #endif
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
 }
 
@@ -218,7 +213,6 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          int iErr = errno;
          switch (iErr) {
             case EINTR:
-               // Check for pending interruptions.
                this_coroutine::interruption_point();
                break;
             case EAGAIN:
@@ -232,7 +226,6 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          }
       }
    }
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    do {
@@ -263,7 +256,6 @@ file_writer::file_writer(detail::file_init_data * pfid) :
          }
          cbWritten = ovl.transferred_size();
       }
-      // Check for pending interruptions.
       this_coroutine::interruption_point();
       pb += cbWritten;
       cb -= cbWritten;
@@ -332,7 +324,6 @@ console_reader::console_reader(detail::file_init_data * pfid) :
          exception::throw_os_error(iErr);
       }
    }
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
    return cchRead * sizeof(char_t);
 }
@@ -538,7 +529,6 @@ bool console_writer::processing_enabled() const {
    if (pchLastWritten < pchEnd) {
       write_range(pchLastWritten, pchEnd);
    }
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
    return cb;
 }

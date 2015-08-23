@@ -773,6 +773,11 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          return m_hmCorosBlockedByFD.pop(itBlockedCoro);
       }
       // Else ignore this notification for an event that nobody was waiting for.
+      /* TODO: in a Win32 multithreaded scenario, the IOCP notification might arrive to a thread
+      before the coroutine blocked itself (on another thread) for the event due, to associating the
+      fd with the IOCP before blocking, which is unavoidable and necessary.
+      To address this, requeue the event so it gets another chance at being processed. It may be
+      necessary to keep a list of handles that should be helf until a coroutine blocks for them. */
    }
 }
 

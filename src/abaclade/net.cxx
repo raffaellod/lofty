@@ -198,7 +198,6 @@ _std::shared_ptr<connection> tcp_server::accept() {
       int iErr = errno;
       switch (iErr) {
          case EINTR:
-            // Check for pending interruptions.
             this_coroutine::interruption_point();
             break;
          case EAGAIN:
@@ -262,7 +261,6 @@ _std::shared_ptr<connection> tcp_server::accept() {
 #else
    #error "TODO: HOST_API"
 #endif
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
 
    ip_address ipaddrClient;

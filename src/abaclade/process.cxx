@@ -108,6 +108,7 @@ process::id_type process::id() const {
 int process::join() {
    ABC_TRACE_FUNC(this);
 
+   // TODO: wait using coroutine::scheduler.
 #if ABC_HOST_API_POSIX
    int iStatus;
    while (::waitpid(static_cast< ::pid_t>(m_h), &iStatus, 0) != static_cast< ::pid_t>(m_h)) {
@@ -115,10 +116,8 @@ int process::join() {
       if (iErr != EINTR) {
          exception::throw_os_error(iErr);
       }
-      // Check for pending interruptions.
       this_coroutine::interruption_point();
    }
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
    if (WIFEXITED(iStatus)) {
       return WEXITSTATUS(iStatus);
@@ -129,9 +128,7 @@ int process::join() {
       return -1;
    }
 #elif ABC_HOST_API_WIN32
-   // TODO: wait using this_thread::coroutine_scheduler(), if possible.
    this_thread::interruptible_wait_for_single_object(m_h);
-   // Check for pending interruptions.
    this_coroutine::interruption_point();
    ::DWORD iExitCode;
    if (!::GetExitCodeProcess(m_h, &iExitCode)) {
