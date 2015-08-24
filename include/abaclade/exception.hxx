@@ -44,6 +44,12 @@ namespace abc {
 //! Source code location.
 class source_location {
 public:
+   //! Default constructor.
+   source_location() :
+      m_pszFilePath(nullptr),
+      m_iLine(0) {
+   }
+
    /*! Constructor.
 
    @param pszFilePath
@@ -51,10 +57,6 @@ public:
    @param iLine
       Line number in pszFilePath.
    */
-   source_location() :
-      m_pszFilePath(nullptr),
-      m_iLine(0) {
-   }
    source_location(char_t const * pszFilePath, unsigned iLine) :
       m_pszFilePath(pszFilePath),
       m_iLine(static_cast<std::uint16_t>(iLine)) {
@@ -105,7 +107,7 @@ that can be caught from code written for either framework. */
 template <class TAbc, class TStd = typename TAbc::related_std>
 class exception_aggregator : public TStd, public TAbc {
 public:
-   //! Constructor.
+   //! Default constructor.
    exception_aggregator() :
       TStd(),
       TAbc() {
@@ -384,18 +386,20 @@ public:
    typedef _std::exception related_std;
 
 public:
+   //! Default Constructor.
+   exception();
+
    /*! Constructor.
 
    @param x
-      Source error.
+      Source object.
    */
-   exception();
    exception(exception const & x);
 
    //! Destructor.
    virtual ~exception();
 
-   //! Assignment operator. See std::exception::operator=().
+   //! See std::exception::operator=().
    exception & operator=(exception const & x);
 
    /*! Stores context information to be displayed if the exception is not caught.
@@ -442,12 +446,14 @@ public:
    );
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
-   /*! Throws an exception matching a specified OS-defined error, or the last reported by the OS.
+   //! Throws an exception matching the last error reported by the OS.
+   static ABC_FUNC_NORETURN void throw_os_error();
+
+   /*! Throws an exception matching a specified OS-defined error.
 
    @param err
       OS-defined error number.
    */
-   static ABC_FUNC_NORETURN void throw_os_error();
    static ABC_FUNC_NORETURN void throw_os_error(errint_t err);
 #endif
 
@@ -554,7 +560,7 @@ namespace abc {
 //! Execution interruption. May affect a single thread/coroutine or the whole program.
 class ABACLADE_SYM execution_interruption : public exception {
 public:
-   //! Constructor.
+   //! Default constructor.
    execution_interruption(/*source?*/);
 
    //! Destructor.
@@ -571,7 +577,7 @@ namespace abc {
 simultaneously in every coroutine and thread. */
 class ABACLADE_SYM app_execution_interruption : public execution_interruption {
 public:
-   //! Constructor.
+   //! Default constructor.
    app_execution_interruption();
 
    //! Destructor.
@@ -588,7 +594,7 @@ namespace abc {
 them to return as well. */
 class ABACLADE_SYM app_exit_interruption : public execution_interruption {
 public:
-   //! Constructor.
+   //! Default constructor.
    app_exit_interruption();
 
    //! Destructor.
@@ -605,7 +611,7 @@ namespace abc {
 threads in the process. */
 class ABACLADE_SYM user_forced_interruption : public app_execution_interruption {
 public:
-   //! Constructor.
+   //! Default constructor.
    user_forced_interruption();
 
    //! Destructor.
@@ -621,12 +627,14 @@ namespace abc {
 //! Base for all error-related exceptions classes.
 class ABACLADE_SYM generic_error : public exception {
 public:
+   //! Default constructor.
+   generic_error();
+
    /*! Constructor.
 
    @param x
-      Source error.
+      Source object.
    */
-   generic_error();
    generic_error(generic_error const & x);
 
    //! Assignment operator. See abc::exception::operator=().
@@ -705,7 +713,7 @@ public:
 #endif
 
 public:
-   /*! Constructor.
+   /*! Default constructor.
 
    TODO: add arguments name/value, to be passed by macro ABC_THROW_ARGUMENT_ERROR(argname).
    */
@@ -724,7 +732,7 @@ namespace abc {
 //! Base for arithmetic errors.
 class ABACLADE_SYM arithmetic_error : public virtual generic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    arithmetic_error();
 
    //! See abc::generic_error::init().
@@ -740,7 +748,7 @@ namespace abc {
 //! A buffer operation could not be performed.
 class ABACLADE_SYM buffer_error : public virtual generic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    buffer_error();
 
    //! See abc::generic_error::init().
@@ -756,7 +764,7 @@ namespace abc {
 //! The divisor of a division or modulo operation was zero.
 class ABACLADE_SYM division_by_zero_error : public virtual arithmetic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    division_by_zero_error();
 
    //! See abc::arithmetic_error::init().
@@ -780,7 +788,7 @@ public:
 #endif
 
 public:
-   //! Constructor.
+   //! Default constructor.
    domain_error();
 
    //! See abc::generic_error::init().
@@ -796,7 +804,7 @@ namespace abc {
 //! Base for errors that occur in the outer system.
 class ABACLADE_SYM environment_error : public virtual generic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    environment_error();
 
    //! See abc::generic_error::init().
@@ -812,7 +820,7 @@ namespace abc {
 //! A floating point operation failed.
 class ABACLADE_SYM floating_point_error : public virtual arithmetic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    floating_point_error();
 
    //! See abc::arithmetic_error::init().
@@ -828,7 +836,7 @@ namespace abc {
 //! Invalid iterator operation, such as moving an iterator to outside the container’s range.
 class ABACLADE_SYM iterator_error : public virtual generic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    iterator_error();
 
    //! See abc::generic_error::init().
@@ -844,7 +852,7 @@ namespace abc {
 //! Base for errors due to an invalid key or index being used on a mapping or sequence.
 class ABACLADE_SYM lookup_error : public virtual generic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    lookup_error();
 
    //! See abc::generic_error::init().
@@ -868,15 +876,17 @@ public:
 #endif
 
 public:
+   //! Default constructor.
+   index_error();
+
    /*! Constructor.
 
    @param x
-      Source error.
+      Source object.
    */
-   index_error();
    index_error(index_error const & x);
 
-   //! Assignment operator. See abc::lookup_error::operator=().
+   //! See abc::lookup_error::operator=().
    index_error & operator=(index_error const & x);
 
    /*! Returns the invalid index.
@@ -915,7 +925,7 @@ namespace abc {
 //! Mapping (dictionary) key not found in the set of existing keys.
 class ABACLADE_SYM key_error : public virtual lookup_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    key_error();
 
    //! See abc::lookup_error::init().
@@ -931,7 +941,7 @@ namespace abc {
 //! The specified path is not valid.
 class ABACLADE_SYM invalid_path_error : public virtual generic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    invalid_path_error();
 
    //! See abc::generic_error::init().
@@ -947,7 +957,7 @@ namespace abc {
 //! An I/O operation failed for an I/O-related reason.
 class ABACLADE_SYM io_error : public virtual environment_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    io_error();
 
    //! See abc::environment_error::init().
@@ -963,15 +973,17 @@ namespace abc {
 //! An attempt was made to access an invalid memory location.
 class ABACLADE_SYM memory_address_error : public virtual generic_error {
 public:
+   //! Default constructor.
+   memory_address_error();
+
    /*! Constructor.
 
    @param x
-      Source error.
+      Source object.
    */
-   memory_address_error();
    memory_address_error(memory_address_error const & x);
 
-   //! Assignment operator. See abc::generic_error::operator=().
+   //! See abc::generic_error::operator=().
    memory_address_error & operator=(memory_address_error const & x);
 
    /*! Returns the faulty address.
@@ -1015,7 +1027,7 @@ namespace abc {
 //! An invalid memory access (e.g. misaligned pointer) was detected.
 class ABACLADE_SYM memory_access_error : public virtual memory_address_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    memory_access_error();
 
    //! See abc::memory_address_error::init().
@@ -1034,7 +1046,7 @@ public:
    //! See abc::generic_error::related_std.
    typedef _std::bad_alloc related_std;
 
-   //! Constructor.
+   //! Default constructor.
    memory_allocation_error();
 
    //! See abc::generic_error::init().
@@ -1050,7 +1062,7 @@ namespace abc {
 //! A network-related error occurred.
 class ABACLADE_SYM network_error : public virtual environment_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    network_error();
 
    //! See abc::environment_error::init().
@@ -1066,7 +1078,7 @@ namespace abc {
 //! An I/O operation failed for a network-related reason.
 class ABACLADE_SYM network_io_error : public virtual io_error, public virtual network_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    network_io_error();
 
    //! See abc::io_error::init() and abc::network_error::init().
@@ -1083,7 +1095,7 @@ namespace abc {
 implementation of an interface; in practice, this should be avoided. */
 class ABACLADE_SYM not_implemented_error : public virtual generic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    not_implemented_error();
 
    //! See abc::generic_error::init().
@@ -1099,7 +1111,7 @@ namespace abc {
 //! An attempt was made to access the memory location 0 (nullptr).
 class ABACLADE_SYM null_pointer_error : public virtual memory_address_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    null_pointer_error();
 
    //! See abc::memory_address_error::init().
@@ -1117,7 +1129,7 @@ standardization of floating point exception handling in C, most floating point o
 not checked. */
 class ABACLADE_SYM overflow_error : public virtual arithmetic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    overflow_error();
 
    //! See abc::arithmetic_error::init().
@@ -1133,15 +1145,17 @@ namespace abc {
 //! Invalid operation on a pointer-like iterator.
 class ABACLADE_SYM pointer_iterator_error : public virtual iterator_error {
 public:
+   //! Default constructor.
+   pointer_iterator_error();
+
    /*! Constructor.
 
    @param x
-      Source error.
+      Source object.
    */
-   pointer_iterator_error();
    pointer_iterator_error(pointer_iterator_error const & x);
 
-   //! Assignment operator. See abc::iterator_error::operator=().
+   //! See abc::iterator_error::operator=().
    pointer_iterator_error & operator=(pointer_iterator_error const & x);
 
    /*! Returns the container’s begin iterator’s pointer.
@@ -1208,7 +1222,7 @@ namespace abc {
 //! An operation failed to prevent a security hazard.
 class ABACLADE_SYM security_error : public virtual environment_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    security_error();
 
    //! See abc::environment_error::init().

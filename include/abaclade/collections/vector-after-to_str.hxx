@@ -30,7 +30,7 @@ namespace abc { namespace collections { namespace detail {
 the implementation can be in a cxx file. */
 class ABACLADE_SYM vector_to_str_backend : public abc::detail::sequence_to_str_backend {
 public:
-   //! Constructor.
+   //! Default constructor.
    vector_to_str_backend();
 
    //! Destructor.

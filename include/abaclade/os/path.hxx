@@ -59,31 +59,53 @@ class ABACLADE_SYM path : public support_explicit_operator_bool<path> {
 #endif
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   path() {
+   }
+
+   /*! Move constructor.
 
    @param op
       Source path.
-   @param s
-      Source string.
    */
-   path() {
-   }
-   path(path const & op) :
-      m_s(op.m_s) {
-   }
    path(path && op) :
       m_s(_std::move(op.m_s)) {
    }
+
+   /*! Copy constructor.
+
+   @param op
+      Source path.
+   */
+   path(path const & op) :
+      m_s(op.m_s) {
+   }
+
+   /*! Constructor.
+
+   @param s
+      Source string.
+   */
    path(dmstr s) :
       m_s(validate_and_adjust(_std::move(s))) {
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param op
       Source path.
-   @param s
-      Source string.
+   @return
+      *this.
+   */
+   path & operator=(path && op) {
+      m_s = _std::move(op.m_s);
+      return *this;
+   }
+
+   /*! Move-assignment operator.
+
+   @param op
+      Source path.
    @return
       *this.
    */
@@ -91,10 +113,14 @@ public:
       m_s = op.m_s;
       return *this;
    }
-   path & operator=(path && op) {
-      m_s = _std::move(op.m_s);
-      return *this;
-   }
+
+   /*! Assignment operator.
+
+   @param s
+      Source string.
+   @return
+      *this.
+   */
    path & operator=(dmstr s) {
       m_s = validate_and_adjust(_std::move(s));
       return *this;
@@ -556,12 +582,14 @@ namespace abc {
 //! A file could not be found.
 class ABACLADE_SYM file_not_found_error : public virtual environment_error {
 public:
+   //! Default constructor.
+   file_not_found_error();
+
    /*! Constructor.
 
    @param x
-      Source error.
+      Source object.
    */
-   file_not_found_error();
    file_not_found_error(file_not_found_error const & x);
 
    //! Assignment operator. See abc::environment_error::operator=().

@@ -80,11 +80,11 @@ template <>
 struct min<char16_t> : public std::integral_constant<char16_t,        0> {};
 template <>
 struct max<char16_t> : public std::integral_constant<char16_t,
-#ifdef UINT_LEAST16_MAX
+   #ifdef UINT_LEAST16_MAX
       UINT_LEAST16_MAX
-#else
+   #else
       0xffff
-#endif
+   #endif
    > {};
 #endif //if ABC_CXX_CHAR16 > 0
 #if ABC_CXX_CHAR32 > 0
@@ -92,11 +92,11 @@ template <>
 struct min<char32_t> : public std::integral_constant<char32_t,        0> {};
 template <>
 struct max<char32_t> : public std::integral_constant<char32_t,
-#ifdef UINT_LEAST32_MAX
+   #ifdef UINT_LEAST32_MAX
       UINT_LEAST32_MAX
-#else
+   #else
       0xffffffff
-#endif
+   #endif
    > {};
 #endif //if ABC_CXX_CHAR32 > 0
 

@@ -40,18 +40,20 @@ public:
    typedef std::uint64_t duration_type;
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   stopwatch();
+
+   /*! Copy constructor.
 
    @param sw
       Source object.
    */
-   stopwatch();
    stopwatch(stopwatch const & sw);
 
    //! Destructor.
    ~stopwatch();
 
-   /*! Assignment operator.
+   /*! Copy-assignment operator.
 
    @param sw
       Source object.

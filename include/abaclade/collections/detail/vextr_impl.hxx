@@ -377,12 +377,15 @@ private:
    }
 
 protected:
-   /*! Constructor. The overload with cbEmbeddedCapacity constructs the object as empty, setting
-   m_pBegin/End to nullptr; the overload with pConstSrcBegin/End constructs the object assigning an
-   item array.
+   /*! Constructor. Constructs the object as empty, setting m_pBegin/End to nullptr.
 
    @param cbEmbeddedCapacity
       Size of the embedded prefixed item array, in bytes, or 0 if no embedded item array is present.
+   */
+   raw_vextr_impl_base(std::size_t cbEmbeddedCapacity);
+
+   /*! Constructor. Assigns the object an item array.
+
    @param pConstSrcBegin
       Pointer to the start of an array that will be adopted by the vextr as read-only.
    @param pConstSrcEnd
@@ -390,7 +393,6 @@ protected:
    @param bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
-   raw_vextr_impl_base(std::size_t cbEmbeddedCapacity);
    raw_vextr_impl_base(void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false) {
       m_pBegin = const_cast<void *>(pConstSrcBegin);
       m_pEnd = const_cast<void *>(pConstSrcEnd);
@@ -563,12 +565,20 @@ public:
       If true, the items are of a trivial type; if false, they’re not.
    @param cbNew
       New item array size, in bytes.
+   */
+   raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbNew);
+
+   /*! Constructor.
+
+   @param prvib
+      Subject of the transaction.
+   @param bTrivial
+      If true, the items are of a trivial type; if false, they’re not.
    @param cbAdd
       Item array size increase, in bytes.
    @param cbRemove
       Item array size decrease, in bytes.
    */
-   raw_vextr_transaction(raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbNew);
    raw_vextr_transaction(
       raw_vextr_impl_base * prvib, bool bTrivial, std::size_t cbAdd, std::size_t cbRemove
    );
@@ -771,6 +781,8 @@ protected:
    raw_complex_vextr_impl(std::size_t cbEmbeddedCapacity) :
       raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
+
+   //! See raw_vextr_impl_base::raw_vextr_impl_base().
    raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
       raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
    }
@@ -887,6 +899,8 @@ protected:
    raw_trivial_vextr_impl(std::size_t cbEmbeddedCapacity) :
       raw_vextr_impl_base(cbEmbeddedCapacity) {
    }
+
+   //! See raw_vextr_impl_base::raw_vextr_impl_base().
    raw_trivial_vextr_impl(
       void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
    ) :

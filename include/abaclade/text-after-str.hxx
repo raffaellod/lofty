@@ -29,7 +29,7 @@ namespace abc { namespace text {
 //! A text encoding or decoding error occurred.
 class ABACLADE_SYM error : public virtual generic_error {
 public:
-   //! Constructor.
+   //! Default constructor.
    error();
 
    //! See abc::generic_error::init().
@@ -45,15 +45,17 @@ namespace abc { namespace text {
 //! A text decoding error occurred.
 class ABACLADE_SYM decode_error : public virtual error {
 public:
-   /*! Constructor.
+   //! Default constructor.
+   decode_error();
+
+   /*! Copy constructor.
 
    @param x
       Source object.
    */
-   decode_error();
    decode_error(decode_error const & x);
 
-   //! Assignment operator. See abc::text::error::operator=().
+   //! See abc::text::error::operator=().
    decode_error & operator=(decode_error const & x);
 
    /*! See abc::text::error::init().
@@ -90,15 +92,17 @@ namespace abc { namespace text {
 //! A text encoding error occurred.
 class ABACLADE_SYM encode_error : public virtual error {
 public:
+   //! Default constructor.
+   encode_error();
+
    /*! Constructor.
 
    @param x
       Source object.
    */
-   encode_error();
    encode_error(encode_error const & x);
 
-   //! Assignment operator. See abc::text::error::operator=().
+   //! See abc::text::error::operator=().
    encode_error & operator=(encode_error const & x);
 
    /*! See abc::text::error::init().

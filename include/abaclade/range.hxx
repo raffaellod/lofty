@@ -143,6 +143,12 @@ public:
    typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 public:
+   //! Default constructor. Constructs an empty range.
+   range() :
+      m_tBegin(),
+      m_tEnd() {
+   }
+
    /*! Constructor.
 
    @param tBegin
@@ -150,10 +156,6 @@ public:
    @param tEnd
       Value beyond the last one in the range.
    */
-   range() :
-      m_tBegin(),
-      m_tEnd() {
-   }
    range(T tBegin, T tEnd) :
       m_tBegin(_std::move(tBegin)),
       m_tEnd(_std::move(tEnd)) {

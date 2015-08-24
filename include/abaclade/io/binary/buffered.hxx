@@ -132,25 +132,31 @@ And more bytes are read into the buffer, repeating the cycle.
 */
 class ABACLADE_SYM buffer : public noncopyable {
 public:
-   /*! Constructor.
-
-   @param cb
-      Size of the buffer to allocate, in bytes.
-   @param buf
-      Source object.
-   */
+   //! Default constructor.
    buffer() :
       m_cb(0),
       m_ibUsedOffset(0),
       m_ibAvailableOffset(0) {
    }
-   buffer(std::size_t cb);
+
+   /*! Move-constructor.
+
+   @param buf
+      Source object.
+   */
    buffer(buffer && buf);
+
+   /*! Constructor.
+
+   @param cb
+      Size of the buffer to allocate, in bytes.
+   */
+   buffer(std::size_t cb);
 
    //! Destructor.
    ~buffer();
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param buf
       Source object.

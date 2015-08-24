@@ -109,6 +109,8 @@ public:
       context_local::operator=(t);
       return *this;
    }
+
+   //! See detail::context_local_value::operator=().
    coroutine_local_value & operator=(T && t) {
       context_local::operator=(_std::move(t));
       return *this;

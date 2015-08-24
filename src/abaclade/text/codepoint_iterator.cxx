@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace text { namespace detail {
 
-codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch) {
+codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t cp) {
    /* Save the internal pointer of *this and this->mc_pcii so that if the string switches buffer we
    can recalculate the pointers from these offsets. */
    std::size_t ichThis = static_cast<std::size_t>(m_pch - mc_ps->chars_begin());
@@ -33,7 +33,7 @@ codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch) {
       ichIter = static_cast<std::size_t>(mc_pcii->m_pch - mc_ps->chars_begin());
    }
    static_cast<mstr *>(const_cast<str_base *>(mc_ps))->_replace_codepoint(
-      const_cast<char_t *>(m_pch), ch
+      const_cast<char_t *>(m_pch), cp
    );
    /* If _replace_codepoint() switched string buffer, recalculate the internal pointers from the
    offsets saved above. */

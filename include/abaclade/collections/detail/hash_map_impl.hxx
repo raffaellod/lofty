@@ -52,6 +52,9 @@ protected:
       friend class hash_map_impl;
 
    public:
+      //! Default constructor.
+      iterator_base();
+
       /*! Constructor.
 
       @param phm
@@ -59,7 +62,6 @@ protected:
       @param iBucket
          Index of the current bucket.
       */
-      iterator_base();
       iterator_base(hash_map_impl const * phm, std::size_t iBucket);
 
       /*! Equality relational operator.
@@ -106,18 +108,20 @@ protected:
    };
 
 public:
-   /*! Constructor.
+   //! Default constructor.
+   hash_map_impl();
+
+   /*! Move constructor.
 
    @param hmi
       Source object.
    */
-   hash_map_impl();
    hash_map_impl(hash_map_impl && hmi);
 
    //! Destructor.
    ~hash_map_impl();
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param m
       Source object.

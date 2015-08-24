@@ -279,7 +279,7 @@ namespace abc { namespace detail {
 template <typename I>
 class int_to_str_backend : public int_to_str_backend_base {
 public:
-   //! Constructor.
+   //! Default constructor.
    int_to_str_backend() :
       int_to_str_backend_base(sizeof(I)) {
    }

@@ -72,19 +72,26 @@ public:
    static std::size_t const ipv6_str_size = 45 /*“0000:0000:0000:0000:0000:0000:255.255.255.255”*/;
 
 public:
-   /*! Constructor.
-
-   @param iAddress
-      Source address, in host endianness.
-   @param abAddress
-      Array of bytes to be used as the address, in host endianness.
-   @param addr
-      Source object.
-   */
+   //! Default constructor.
    ip_address() {
       memory::clear(m_abAddress);
       m_iVersion = 0;
    }
+
+   /*! Move constructor.
+
+   @param addr
+      Source object.
+   */
+   ip_address(ip_address const & addr) :
+      detail::raw_ip_address(addr) {
+   }
+
+   /*! Constructor. Initializes the object as an IPv4 address.
+
+   @param iAddress
+      Source IPv4 address, in host endianness.
+   */
    explicit ip_address(std::uint32_t iAddress) {
       memory::copy(
          m_abAddress,
@@ -93,18 +100,27 @@ public:
       );
       m_iVersion = 4;
    }
+
+   /*! Constructor. Initializes the object as an IPv4 address.
+
+   @param abAddress
+      Array of bytes to be used as an IPv4 address, in host endianness.
+   */
    explicit ip_address(std::uint8_t const (& abAddress)[4]) {
       static_assert(sizeof abAddress == 4, "sizeof != 4");
       memory::copy<std::uint8_t>(m_abAddress, abAddress, sizeof abAddress);
       m_iVersion = 4;
    }
+
+   /*! Constructor. Initializes the object as an IPv6 address.
+
+   @param abAddress
+      Array of bytes to be used as an IPv6 address, in host endianness.
+   */
    explicit ip_address(std::uint8_t const (& abAddress)[16]) {
       static_assert(sizeof abAddress == 16, "sizeof != 16");
       memory::copy<std::uint8_t>(m_abAddress, abAddress, sizeof abAddress);
       m_iVersion = 6;
-   }
-   ip_address(ip_address const & addr) :
-      detail::raw_ip_address(addr) {
    }
 
    /*! Returns a pointer to the raw address storage.

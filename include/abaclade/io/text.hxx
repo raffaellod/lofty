@@ -214,7 +214,7 @@ public:
          friend class _lines_proxy;
 
       public:
-         //! Constructor.
+         //! Default constructor.
          iterator() :
             mc_ptr(nullptr),
             m_bEOF(true) {
@@ -351,14 +351,18 @@ public:
       return _lines_proxy(this);
    }
 
-   /*! Reads the entire source into the specified mutable string.
+   /*! Reads the entire source into a string.
+
+   @return
+      Content of the source.
+   */
+   dmstr read_all();
+
+   /*! Reads the entire source into a mutable string.
 
    @param psDst
       Pointer to the string that will receive the data.
-   @return
-      Content of the source, if psDst is omitted.
    */
-   dmstr read_all();
    void read_all(mstr * psDst);
 
    /*! Reads a whole line into the specified mutable string, discarding the line terminator.

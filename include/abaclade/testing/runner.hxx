@@ -36,7 +36,7 @@ namespace abc { namespace testing {
 halted. */
 class ABACLADE_TESTING_SYM assertion_error : public virtual exception {
 public:
-   //! Constructor.
+   //! Default constructor.
    assertion_error();
 };
 

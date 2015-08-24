@@ -128,23 +128,25 @@ protected:
    };
 
 public:
-   /*! Constructor.
-
-   @param slli
-      Source object.
-   */
+   //! Default constructor.
    singly_linked_list_impl() :
       m_pnFirst(nullptr),
       m_pnLast(nullptr),
       m_cNodes(0) {
    }
+
+   /*! Move constructor.
+
+   @param slli
+      Source object.
+   */
    singly_linked_list_impl(singly_linked_list_impl && slli);
 
    //! Destructor.
    ~singly_linked_list_impl() {
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param slli
       Source object.

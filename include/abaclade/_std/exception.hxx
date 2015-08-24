@@ -35,7 +35,7 @@ namespace abc { namespace _std {
 //! Base class for standard exceptions (C++ § 18.8.1 “Class exception”).
 class ABACLADE_SYM exception {
 public:
-   //! Constructor.
+   //! Default constructor.
    exception();
 
    //! Destructor.

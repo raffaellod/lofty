@@ -43,7 +43,7 @@ public:
    queue() {
    }
 
-   /*! Constructor.
+   /*! Move constructor.
 
    @param q
       Source object.

@@ -55,20 +55,28 @@ namespace abc { namespace testing { namespace utility {
 //! Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
 class class_with_internal_pointer {
 public:
-   /*! Constructor.
-
-   @param cwip
-      Source object.
-   */
+   //! Default constructor.
    class_with_internal_pointer() :
       m_pi(&m_i),
       m_i(0xcafe) {
    }
-   class_with_internal_pointer(class_with_internal_pointer const & cwip) :
+
+   /*! Move constructor.
+
+   @param cwip
+      Source object.
+   */
+   class_with_internal_pointer(class_with_internal_pointer && cwip) :
       m_pi(&m_i),
       m_i(cwip.m_i) {
    }
-   class_with_internal_pointer(class_with_internal_pointer && cwip) :
+
+   /*! Copy constructor.
+
+   @param cwip
+      Source object.
+   */
+   class_with_internal_pointer(class_with_internal_pointer const & cwip) :
       m_pi(&m_i),
       m_i(cwip.m_i) {
    }
@@ -155,41 +163,45 @@ namespace abc { namespace testing { namespace utility {
 and to check if individual instances have been copied instead of being moved. */
 class ABACLADE_TESTING_SYM instances_counter {
 public:
-   /*! Constructor. The copying overload doesn’t really use their argument, because the only non-
-   static member (m_iUnique) is always generated.
-
-   @param ic
-      Source object.
-   */
+   //! Default constructor.
    instances_counter() :
       m_iUnique(++m_iNextUnique) {
       ++m_cNew;
    }
-   instances_counter(instances_counter const & ic) :
-      m_iUnique(++m_iNextUnique) {
-      ABC_UNUSED_ARG(ic);
-      ++m_cCopies;
-   }
+
+   /*! Move constructor.
+
+   @param ic
+      Source object.
+   */
    instances_counter(instances_counter && ic) :
       m_iUnique(ic.m_iUnique) {
       ++m_cMoves;
    }
 
-   /*! Assigment operator. The copying overload doesn’t really use its argument, because the only
-   non-static member (m_iUnique) is always generated.
+   /*! Copy constructor. Doesn’t use its argument since the only non-static member (m_iUnique) is
+   always generated. */
+   instances_counter(instances_counter const &) :
+      m_iUnique(++m_iNextUnique) {
+      ++m_cCopies;
+   }
+
+   /*! Move-assigment operator.
 
    @param ic
       Source object.
    */
-   instances_counter & operator=(instances_counter const & ic) {
-      ABC_UNUSED_ARG(ic);
-      m_iUnique = ++m_iNextUnique;
-      ++m_cCopies;
-      return *this;
-   }
    instances_counter & operator=(instances_counter && ic) {
       m_iUnique = ic.m_iUnique;
       ++m_cMoves;
+      return *this;
+   }
+
+   /*! Copy-assigment operator. Doesn’t use its argument since the only non-static member
+   (m_iUnique) is always generated. */
+   instances_counter & operator=(instances_counter const &) {
+      m_iUnique = ++m_iNextUnique;
+      ++m_cCopies;
       return *this;
    }
 

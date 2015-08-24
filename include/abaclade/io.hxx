@@ -87,12 +87,7 @@ namespace abc { namespace io {
 //! Wrapper for filedesc_t, to implement RAII; similar to std::unique_ptr.
 class ABACLADE_SYM filedesc : public support_explicit_operator_bool<filedesc>, public noncopyable {
 public:
-   /*! Constructor.
-
-   @param fd
-      Source file descriptor. The filedesc object will take ownership of the raw descriptor,
-      releasing it when appropriate.
-   */
+   //! Default constructor.
    filedesc() :
       m_fd(smc_fdNull)
 #if ABC_HOST_API_WIN32
@@ -100,13 +95,12 @@ public:
 #endif
    {
    }
-   explicit filedesc(filedesc_t fd) :
-      m_fd(fd)
-#if ABC_HOST_API_WIN32
-      , m_fdIocp(smc_fdNull)
-#endif
-   {
-   }
+
+   /*! Move constructor.
+
+   @param fd
+      Source object.
+   */
    filedesc(filedesc && fd) :
       m_fd(fd.m_fd)
 #if ABC_HOST_API_WIN32
@@ -119,10 +113,23 @@ public:
 #endif
    }
 
+   /*! Constructor.
+
+   @param fd
+      Source file descriptor that *this will take ownership of, releasing it when appropriate.
+   */
+   explicit filedesc(filedesc_t fd) :
+      m_fd(fd)
+#if ABC_HOST_API_WIN32
+      , m_fdIocp(smc_fdNull)
+#endif
+   {
+   }
+
    //! Destructor.
    ~filedesc();
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param fd
       Source file descriptor.
@@ -131,7 +138,7 @@ public:
    */
    filedesc & operator=(filedesc && fd);
 
-   /*! Safe bool operator.
+   /*! Boolean evaluation operator.
 
    @return
       true if the object has a valid file descriptor, or false otherwise.

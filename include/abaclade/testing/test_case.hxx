@@ -37,7 +37,7 @@ namespace abc { namespace testing {
 //! Base class for test cases.
 class ABACLADE_TESTING_SYM test_case {
 public:
-   //! Constructor.
+   //! Default constructor.
    test_case();
 
    //! Destructor.
@@ -467,7 +467,7 @@ from abc::testing::test_case. */
 template <class T>
 class test_case_factory : public test_case_factory_impl {
 public:
-   //! Constructor.
+   //! Default constructor.
    test_case_factory() :
       test_case_factory_impl(&static_factory) {
    }

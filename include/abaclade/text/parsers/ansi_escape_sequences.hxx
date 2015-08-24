@@ -103,7 +103,7 @@ public:
    }
 
 protected:
-   //! Constructor.
+   //! Default constructor.
    ansi_escape_sequences();
 
    //! Destructor.

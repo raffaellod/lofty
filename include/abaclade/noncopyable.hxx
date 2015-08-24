@@ -50,7 +50,7 @@ report non-copyable classes as copyable.
 */
 class noncopyable {
 protected:
-   //! Constructor. Protected to prevent instantiations of this class as-is.
+   //! Default constructor. Protected to prevent instantiations of this class as-is.
    noncopyable() {
    }
 
@@ -70,7 +70,6 @@ private:
 
 } //namespace abc
 
-// Provide a definition of std::is_copy_constructible for STL implementations lacking it.
 #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
 
    namespace abc { namespace _std {

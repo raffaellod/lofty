@@ -29,7 +29,7 @@ namespace abc { namespace detail {
 //! Base class for the specializations of to_str_backend for integer types.
 class ABACLADE_SYM ptr_to_str_backend {
 public:
-   //! Constructor.
+   //! Default constructor.
    ptr_to_str_backend();
 
    /*! Changes the output format.
@@ -131,7 +131,7 @@ namespace abc {
 template <>
 class ABACLADE_SYM to_str_backend<_std::type_info> {
 public:
-   //! Constructor.
+   //! Default constructor.
    to_str_backend();
 
    //! Constructor.
@@ -276,7 +276,7 @@ class to_str_backend<_std::tuple<Ts ...>> :
    public detail::sequence_to_str_backend,
    public detail::tuple_to_str_backend_element_writer<_std::tuple<Ts ...>, Ts ...> {
 public:
-   //! Constructor.
+   //! Default constructor.
    to_str_backend() :
       detail::sequence_to_str_backend(ABC_SL("("), ABC_SL(")")) {
    }

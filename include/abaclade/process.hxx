@@ -55,26 +55,32 @@ public:
 #endif
 
 public:
-   /*! Constructor.
-
-   @param id
-      ID of a running process to associate this abc::process instance with.
-   @param proc
-      Source process.
-   */
+   //! Default constructor.
    process() :
       m_h(smc_hNull) {
    }
-   explicit process(id_type pid);
+
+   /*! Move constructor.
+
+   @param proc
+      Source object.
+   */
    process(process && proc) :
       m_h(proc.m_h) {
       proc.m_h = smc_hNull;
    }
 
+   /*! Constructor.
+
+   @param id
+      ID of a running process to associate this abc::process instance with.
+   */
+   explicit process(id_type pid);
+
    //! Destructor.
    ~process();
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param proc
       Source process.
@@ -170,7 +176,7 @@ namespace abc {
 template <>
 class ABACLADE_SYM to_str_backend<process> {
 public:
-   //! Constructor.
+   //! Default constructor.
    to_str_backend();
 
    //! Destructor.

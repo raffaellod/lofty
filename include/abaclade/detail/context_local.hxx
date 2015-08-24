@@ -29,7 +29,7 @@ namespace abc { namespace detail {
 // Forward declarations.
 class context_local_storage_node_impl;
 
-//! Type containing data members for this class.
+//! Type containing data members for context_local_storage_registrar_impl.
 struct context_local_storage_registrar_impl_extra_members {
    //! Count of variables registered with calls to add_var().
    unsigned m_cVars;
@@ -49,8 +49,11 @@ private:
    friend class context_local_storage_impl;
 
 public:
+   //! Data members to be declared as a static member of the most-derived class.
    struct data_members {
+      //! Basic list members.
       collections::static_list_impl_base slib;
+      //! Additional members for this class.
       context_local_storage_registrar_impl_extra_members clsridm;
    };
 
@@ -206,6 +209,12 @@ public:
    operator T &() {
       return *get_ptr();
    }
+
+   /*! Implicit cast to T const &.
+
+   @return
+      Const reference to the object’s value.
+   */
    operator T const &() const {
       return *get_ptr();
    }
@@ -218,6 +227,12 @@ public:
    T & get() {
       return *get_ptr();
    }
+
+   /*! Explicit cast to T const &.
+
+   @return
+      Const reference to the object’s value.
+   */
    T const & get() const {
       return *get_ptr();
    }
@@ -254,13 +269,25 @@ class context_local_value<T, TStorage, true> :
    public context_local_var_impl<T, TStorage>,
    public support_explicit_operator_bool<context_local_value<T, TStorage, true>> {
 public:
-   //! Constructor.
+   //! Default constructor.
    context_local_value() {
       this->construct = nullptr;
       this->destruct  = nullptr;
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
+
+   @param t
+      Source object.
+   @return
+      *this.
+   */
+   context_local_value & operator=(T && t) {
+      *this->get_ptr() = _std::move(t);
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
 
    @param t
       Source object.
@@ -269,10 +296,6 @@ public:
    */
    context_local_value & operator=(T const & t) {
       *this->get_ptr() = t;
-      return *this;
-   }
-   context_local_value & operator=(T && t) {
-      *this->get_ptr() = _std::move(t);
       return *this;
    }
 
@@ -292,13 +315,25 @@ class context_local_value<T, TStorage, false> :
    public context_local_var_impl<T, TStorage>,
    public support_explicit_operator_bool<context_local_value<T, TStorage>> {
 public:
-   //! Constructor.
+   //! Default constructor.
    context_local_value() {
       this->construct = &construct_impl;
       this->destruct  = &destruct_impl;
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
+
+   @param t
+      Source object.
+   @return
+      *this.
+   */
+   context_local_value & operator=(T && t) {
+      *this->get_ptr() = _std::move(t);
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
 
    @param t
       Source object.
@@ -307,10 +342,6 @@ public:
    */
    context_local_value & operator=(T const & t) {
       *this->get_ptr() = t;
-      return *this;
-   }
-   context_local_value & operator=(T && t) {
-      *this->get_ptr() = _std::move(t);
       return *this;
    }
 
@@ -343,7 +374,7 @@ private:
 template <typename TStorage>
 class context_local_value<bool, TStorage, true> : public context_local_var_impl<bool, TStorage> {
 public:
-   //! Constructor.
+   //! Default constructor.
    context_local_value() {
       this->construct = nullptr;
       this->destruct  = nullptr;
@@ -370,13 +401,25 @@ class context_local_value<_std::shared_ptr<T>, TStorage, false> :
       context_local_value<_std::shared_ptr<T>, TStorage, false>
    > {
 public:
-   //! Constructor.
+   //! Default constructor.
    context_local_value() {
       this->construct = &construct_impl;
       this->destruct  = &destruct_impl;
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
+
+   @param pt
+      Source object.
+   @return
+      *this.
+   */
+   context_local_value & operator=(_std::shared_ptr<T> && pt) {
+      *this->get_ptr() = _std::move(pt);
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
 
    @param pt
       Source object.
@@ -385,10 +428,6 @@ public:
    */
    context_local_value & operator=(_std::shared_ptr<T> const & pt) {
       *this->get_ptr() = pt;
-      return *this;
-   }
-   context_local_value & operator=(_std::shared_ptr<T> && pt) {
-      *this->get_ptr() = _std::move(pt);
       return *this;
    }
 
@@ -400,6 +439,12 @@ public:
    operator _std::shared_ptr<T> &() {
       return *this->get_ptr();
    }
+
+   /*! Implicit cast to _std::shared_ptr<T> const &.
+
+   @return
+      Const reference to the shared pointer.
+   */
    operator _std::shared_ptr<T> const &() const {
       return *this->get_ptr();
    }
@@ -421,6 +466,12 @@ public:
    T * get() {
       return this->get_ptr()->get();
    }
+
+   /*! Explicit cast to T const *.
+
+   @return
+      Const pointer to the current T instance.
+   */
    T const * get() const {
       return this->get_ptr()->get();
    }
@@ -480,7 +531,7 @@ class context_local_ptr :
    public support_explicit_operator_bool<context_local_ptr<T, TStorage>> {
 private:
 public:
-   //! Constructor.
+   //! Default constructor.
    context_local_ptr() {
       // No constructor: we’d only set bConstructed to false, which is already its value (0).
       this->construct = nullptr;

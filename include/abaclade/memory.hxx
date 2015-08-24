@@ -188,6 +188,8 @@ public:
    conditional_deleter(bool bEnabled) :
       conditional_deleter<T, TDeleter>(bEnabled) {
    }
+
+   //! See conditional_deleter<T>::conditional_deleter().
    template <typename U, typename UDeleter>
    conditional_deleter(conditional_deleter<U, UDeleter> const & cd) :
       conditional_deleter<T, TDeleter>(cd) {
@@ -315,14 +317,12 @@ inline T * clear(T * ptDst, std::size_t c = 1) {
    return ptDst;
 }
 
-/*! Copies memory, by number of items.
+/*! Copies memory from one pointer to another.
 
 @param ptDst
    Pointer to the destination memory.
 @param ptSrc
    Pointer to the source data.
-@param c
-   Count of items to copy.
 @return
    Same as ptDst.
 */
@@ -349,6 +349,18 @@ inline T * copy(T * ptDst, T const * ptSrc) {
    }
    return ptDst;
 }
+
+/*! Copies memory from an array to another.
+
+@param ptDst
+   Pointer to the destination memory.
+@param ptSrc
+   Pointer to the source data.
+@param c
+   Count of items to copy.
+@return
+   Same as ptDst.
+*/
 template <typename T>
 inline T * copy(T * ptDst, T const * ptSrc, std::size_t c) {
 #if ABC_HOST_API_POSIX
@@ -361,7 +373,7 @@ inline T * copy(T * ptDst, T const * ptSrc, std::size_t c) {
    return ptDst;
 }
 
-/*! Copies possibly overlapping memory, by number of items.
+/*! Copies memory from an array to another, where the two arrays may be overlapping.
 
 @param ptDst
    Pointer to the destination memory.
@@ -384,7 +396,7 @@ inline T * move(T * ptDst, T const * ptSrc, std::size_t c) {
    return ptDst;
 }
 
-/*! Copies a value over each item of a static array.
+/*! Copies a value over each item of an array.
 
 @param ptDst
    Pointer to the destination memory.
@@ -425,16 +437,22 @@ namespace abc { namespace memory {
 //! Pointer to a chunk of memory allocated by the page.
 class ABACLADE_SYM pages_ptr : public noncopyable {
 public:
+   //! Default constructor.
+   pages_ptr();
+
+   /*! Move constructor.
+
+   @param pp
+      Source object.
+   */
+   pages_ptr(pages_ptr && pp);
+
    /*! Constructor.
 
    @param cb
       Amount of memory to allocate, in bytes.
-   @param pp
-      Source object.
    */
-   pages_ptr();
    pages_ptr(std::size_t cb);
-   pages_ptr(pages_ptr && pp);
 
    //! Destructor.
    ~pages_ptr();

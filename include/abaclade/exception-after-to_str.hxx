@@ -31,7 +31,7 @@ called on it. The owner ot the object should be changed to invoke finalize() bef
 object go out of scope. */
 class ABACLADE_SYM destructing_unfinalized_object : public exception {
 public:
-   //! Constructor.
+   //! Default constructor.
    destructing_unfinalized_object();
 
    //! Destructor.
@@ -74,15 +74,17 @@ namespace abc {
 //! The syntax for the specified expression is invalid.
 class ABACLADE_SYM syntax_error : public virtual generic_error {
 public:
+   //! Default constructor.
+   syntax_error();
+
    /*! Constructor.
 
    @param x
       Source object.
    */
-   syntax_error();
    syntax_error(syntax_error const & x);
 
-   //! Assignment operator. See abc::generic_error::operator=().
+   //! See abc::generic_error::operator=().
    syntax_error & operator=(syntax_error const & x);
 
    /*! See abc::generic_error::init().

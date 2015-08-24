@@ -46,13 +46,17 @@ public:
       Pointer to the character(s) that this proxy will present as char32_t.
    @param ps
       Pointer to the string that contains *pch.
-   @param cpp
-      Source code point proxy to copy.
    */
    codepoint_proxy(char_t const * pch, str_base const * ps) :
       m_pch(pch),
       mc_ps(ps) {
    }
+
+   /*! Copy constructor.
+
+   @param cpp
+      Source object.
+   */
    codepoint_proxy(codepoint_proxy const & cpp) :
       m_pch(cpp.m_pch),
       mc_ps(cpp.mc_ps) {
@@ -68,6 +72,7 @@ public:
    }
 
 private:
+   // Disable this.
    codepoint_proxy & operator=(codepoint_proxy const & cpp);
 
 protected:
@@ -88,40 +93,74 @@ public:
    @param pcii
       Pointer to the instantiating iterator; *pcii will be updated in case of changes to *ps. If not
       instantiated by an iterator, this should be set to nullptr.
-   @param cpp
-      Source code point proxy to copy.
    */
    codepoint_proxy(char_t * pch, str_base * ps, codepoint_iterator_impl<false> * pcii) :
       codepoint_proxy<true>(pch, ps),
       mc_pcii(pcii) {
    }
+
+   /*! See codepoint_proxy<true>::codepoint_proxy().
+
+   @param cpp
+      Source object.
+   */
    codepoint_proxy(codepoint_proxy const & cpp) :
       codepoint_proxy<true>(cpp),
       mc_pcii(cpp.mc_pcii) {
    }
 
-   /*! Assignment operator. Note that the copy assignment operator copies the char32_t value, not
-   the internal data members; this allows to write expressions like *itDst = *itSrc to copy code
-   points from one iterator to another.
+   /*! Assignment operator.
 
    @param ch
       Source character.
-   @param cpp
-      Source code point proxy to copy a code point from.
    @return
       *this.
    */
    codepoint_proxy & operator=(char_t ch);
+
 #if ABC_HOST_UTF > 8
+   /*! Assignment operator that accepts ASCII characters.
+
+   @param ch
+      Source ASCII character.
+   @return
+      *this.
+   */
    codepoint_proxy & operator=(char ch) {
       return operator=(host_char(ch));
    }
 #endif
-   codepoint_proxy & operator=(char32_t ch);
+
+   /*! Assignment operator that accepts a code point.
+
+   @param cp
+      Source code point.
+   @return
+      *this.
+   */
+   codepoint_proxy & operator=(char32_t cp);
+
+   /*! Copy-assignment operator. This copies the char32_t value, not the internal data members; this
+   allows writing expressions like *itDst = *itSrc to copy code points from one iterator to another.
+
+   @param cpp
+      Source object to copy a code point from.
+   @return
+      *this.
+   */
    codepoint_proxy & operator=(codepoint_proxy const & cpp) {
       return operator=(cpp.operator char32_t());
    }
-   // Support copying a code point from a const iterator to a non-const iterator.
+
+   /*! Copy-assignment operator. This copies the char32_t value, not the internal data members; this
+   allows writing expressions like *itDst = *itSrc to copy code points from one iterator to another.
+   This overload supports copying a code point from a const iterator to a non-const iterator.
+
+   @param cpp
+      Source object to copy a code point from.
+   @return
+      *this.
+   */
    codepoint_proxy & operator=(codepoint_proxy<true> const & cpp) {
       return operator=(cpp.operator char32_t());
    }
@@ -340,25 +379,30 @@ class codepoint_iterator :
       typename _std::conditional<t_bConst, char_t const, char_t>::type
    > {
 public:
+   //! Default constructor.
+   /*constexpr*/ codepoint_iterator() :
+      detail::codepoint_iterator_impl<t_bConst>(nullptr, nullptr) {
+   }
+
    /*! Constructor.
 
    @param pch
       Pointer to set the iterator to.
    @param ps
       Pointer to the string that is creating the iterator.
-   @param it
-      Source iterator.
    */
-   /*constexpr*/ codepoint_iterator() :
-      detail::codepoint_iterator_impl<t_bConst>(nullptr, nullptr) {
-   }
    codepoint_iterator(
       typename _std::conditional<t_bConst, char_t const, char_t>::type * pch,
       typename _std::conditional<t_bConst, detail::str_base const, detail::str_base>::type * ps
    ) :
       detail::codepoint_iterator_impl<t_bConst>(pch, ps) {
    }
-   // Allows to convert from non-const to const iterator types.
+
+   /*! Copy constructor. Allows to convert from non-const to const iterator types.
+
+   @param it
+      Source object.
+   */
    template <bool t_bConst2>
    codepoint_iterator(codepoint_iterator<t_bConst2> const & it) :
       detail::codepoint_iterator_impl<t_bConst>(it.base(), it._str()) {

@@ -171,7 +171,7 @@ namespace abc {
 template <>
 class ABACLADE_SYM to_str_backend<thread> {
 public:
-   //! Constructor.
+   //! Default constructor.
    to_str_backend();
 
    //! Destructor.
