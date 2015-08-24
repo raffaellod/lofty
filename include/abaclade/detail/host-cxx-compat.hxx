@@ -39,7 +39,7 @@ compilers. */
       been “used” yet (see <https://connect.microsoft.com/VisualStudio/feedback/details/682695>);
       work around it by forcing “using” the type by applying sizeof() to it. */
       #define alignof(type) \
-         sizeof(type) * 0 + __alignof(type)
+         (sizeof(type) * 0 + __alignof(type))
    #else
       // Non-standard name, but analogous to C++11’s alignof().
       #define alignof(type) \
