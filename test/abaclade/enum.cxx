@@ -27,6 +27,33 @@ namespace abc { namespace test {
 
 namespace {
    
+ABC_ENUM_AUTO_VALUES(auto_enum_test,
+   value0,
+   value1,
+   value2
+);
+
+} //namespace
+
+ABC_TESTING_TEST_CASE_FUNC(
+   enum_auto_values,
+   "ABC_ENUM_AUTO_VALUES() – generated member values"
+) {
+   ABC_TRACE_FUNC(this);
+
+   ABC_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value0), 0);
+   ABC_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value1), 1);
+   ABC_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value2), 2);
+}
+
+}} //namespace abc::test
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace test {
+
+namespace {
+
 ABC_ENUM(test_enum,
    (value1, 15),
    (value2, 56),
