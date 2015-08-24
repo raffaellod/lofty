@@ -117,10 +117,15 @@ namespace abc {
    #pragma warning(disable: 4062)
    // “conditional expression is constant”
    #pragma warning(disable: 4127)
-   // “'class' : inherits 'base::member' via dominance” – it points out the obvious and intended.
+   /* “nonstandard extension used : 'initializing' : conversion from 'type' to 'type &' A non-const
+   reference may only be bound to an lvalue”: raised by ABC_FOR_EACH() when the iterated expression
+   is not an l-value. No other compiler complains about it. */
+   #pragma warning(disable: 4239)
+   // “'class' : inherits 'base::member' via dominance”: it points out the obvious and intended.
    #pragma warning(disable: 4250)
    /* “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients
-   of class 'class1'” */
+   of class 'class1'”: not sure why, but can’t imagine how it could possibly make sense to DLL-
+   export a class template. */
    #pragma warning(disable: 4251)
    // “'class' : class has virtual functions, but destructor is not virtual”
    #pragma warning(disable: 4265)

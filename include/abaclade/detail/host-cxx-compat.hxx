@@ -60,11 +60,8 @@ compilers. */
    #define ABC_FOR_EACH(rangedecl, expr) \
       for (rangedecl : expr)
 #elif ABC_HOST_CXX_MSC
-   /* MSC16 has a pre-C++11 syntax that expects to assign expr to a non-const l-value reference; if
-   expr is an r-value, an MSC non-standard extension allows to reference expr from the non-const
-   l-value reference, raising warning C4239; here we suppress this possible warning. */
+   // MSC16 has a pre-C++11 syntax that seems to be functionally identical to the C++11 version.
    #define ABC_FOR_EACH(rangedecl, expr) \
-      __pragma(warning(suppress: 4239)) \
       for each (rangedecl in expr)
 #endif
 
