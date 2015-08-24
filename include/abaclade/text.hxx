@@ -107,11 +107,6 @@ ABC_ENUM(line_terminator,
 //! This should be used to replace any invalid char32_t value.
 char32_t const replacement_char(0x00fffd);
 
-//! Maximum run length for the encoding of a code point, in any encoding.
-/* Technically 6 is an illegal UTF-8 run, but it’s possible due to the way bits are encoded, so it’s
-here. */
-std::size_t const max_codepoint_length(6);
-
 /*! Casts a single character into a code point.
 
 @param ch
