@@ -56,6 +56,8 @@ namespace abc {
 
 /*! Implementation of the various ABC_ENUM*() flavors.
 
+@param othermembers
+   Additional members to be injected as-is at the beginning of the class.
 @param name
    Name of the enumeration type.
 @param cMembers
@@ -64,10 +66,8 @@ namespace abc {
    C++ enum members.
 @param arrayitems
    Internal name/value array items.
-@param othermembers
-   Additional members to be injected as-is at the beginning of the class.
 */
-#define _ABC_ENUM_IMPL(name, cMembers, members, arrayitems, othermembers) \
+#define _ABC_ENUM_IMPL(othermembers, name, cMembers, members, arrayitems) \
    class ABC_CPP_CAT(_, name, _e) { \
    othermembers \
    \
@@ -149,12 +149,12 @@ etc.
 */
 #define ABC_ENUM(name, ...) \
    _ABC_ENUM_IMPL( \
+      public: \
+      ,\
       name, \
       ABC_CPP_LIST_COUNT(__VA_ARGS__), \
       ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR, __VA_ARGS__), \
-      ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM, __VA_ARGS__), \
-      \
-      public: \
+      ABC_CPP_TUPLELIST_WALK(_ABC_ENUM_MEMBER_PAIR_ARRAY_ITEM, __VA_ARGS__) \
    )
 
 /*! Defines an enumeration class as a specialization of abc::enum_impl. See @ref enumeration-classes
@@ -171,13 +171,13 @@ values cannot be explicitly specified; for example:
 */
 #define ABC_ENUM_AUTO_VALUES(name, ...) \
    _ABC_ENUM_IMPL( \
+      private: \
+         static int const smc_iBase = __COUNTER__ + 1; \
+      , \
       name, \
       ABC_CPP_LIST_COUNT(__VA_ARGS__), \
       ABC_CPP_LIST_WALK(_ABC_ENUM_MEMBER, __VA_ARGS__), \
-      ABC_CPP_LIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__), \
-      \
-      private: \
-         static int const smc_iBase = __COUNTER__ + 1; \
+      ABC_CPP_LIST_WALK(_ABC_ENUM_MEMBER_ARRAY_ITEM, __VA_ARGS__) \
    )
 
 } //namespace abc
