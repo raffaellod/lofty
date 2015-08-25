@@ -256,8 +256,7 @@ bitwise_trie_ordered_multimap_impl::find_next_key(std::uintmax_t iPrevKey) const
 
    // This loop might pop levels from vtnsPath if they have no next sibling.
    while (vtnsPath) {
-      // TODO: vector::back()
-      if (auto tnsNextSibling = vtnsPath.rbegin()->next_used_sibling()) {
+      if (auto tnsNextSibling = vtnsPath.back().next_used_sibling()) {
          // Replace the sibling and its bits permutation.
          iKey &= ~static_cast<std::uintmax_t>(smc_cBitPermutationsPerLevel - 1);
          iKey |= static_cast<std::uintmax_t>(tnsNextSibling.index());

@@ -372,8 +372,7 @@ destructing_unfinalized_object::destructing_unfinalized_object(
 #if ABC_HOST_UTF > 8
    m_vchWhat(x.m_vchWhat),
    m_sWhat(x.m_sWhat) {
-   // TODO: vector::front().
-   m_pszWhat = reinterpret_cast<char const *>(&*m_vchWhat.begin());
+   m_pszWhat = reinterpret_cast<char const *>(m_vchWhat.data());
 #else
    m_sWhat(x.m_sWhat) {
    m_pszWhat = m_sWhat.c_str();
@@ -389,8 +388,7 @@ destructing_unfinalized_object & destructing_unfinalized_object::operator=(
 #if ABC_HOST_UTF > 8
    m_vchWhat = x.m_vchWhat;
    m_sWhat = x.m_sWhat;
-   // TODO: vector::front().
-   m_pszWhat = reinterpret_cast<char const *>(&*m_vchWhat.begin());
+   m_pszWhat = reinterpret_cast<char const *>(m_vchWhat.data());
 #else
    m_sWhat = x.m_sWhat;
    m_pszWhat = m_sWhat.c_str();
@@ -403,8 +401,7 @@ void destructing_unfinalized_object::init(void const * pObj, _std::type_info con
 #if ABC_HOST_UTF > 8
    // TODO: abc::text::encoding::ascii.
    m_vchWhat = m_sWhat.encode(text::encoding::utf8, true);
-   // TODO: vector::front().
-   m_pszWhat = reinterpret_cast<char const *>(&*m_vchWhat.begin());
+   m_pszWhat = reinterpret_cast<char const *>(m_vchWhat.data());
 #else
    m_pszWhat = m_sWhat.c_str();
 #endif

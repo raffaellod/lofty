@@ -128,11 +128,8 @@ collections::dmvector<std::uint8_t> str_base::encode(encoding enc, bool bNulT) c
       cbChar = sizeof(char_t);
       // Enlarge vb as necessary, then copy to it the contents of the string buffer.
       vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
-      // TODO: vector::front().
       memory::copy(
-         vb.begin().base(),
-         collections::detail::raw_trivial_vextr_impl::begin<std::uint8_t>(),
-         cbStr
+         vb.data(), collections::detail::raw_trivial_vextr_impl::begin<std::uint8_t>(), cbStr
       );
       cbUsed = cbStr;
    } else {
@@ -142,14 +139,12 @@ collections::dmvector<std::uint8_t> str_base::encode(encoding enc, bool bNulT) c
       cbUsed = transcode(true, encoding::host, &pStr, &cbStr, enc);
       vb.set_capacity(cbUsed + (bNulT ? cbChar : 0), false);
       // Transcode the string into vb.
-      // TODO: vector::front().
-      void * pBuf = vb.begin().base();
+      void * pBuf = vb.data();
       // Re-assign to cbUsed because transcode() will set *(&cbUsed) to 0.
       cbUsed = transcode(true, encoding::host, &pStr, &cbStr, enc, &pBuf, &cbUsed);
    }
    if (bNulT) {
-      // TODO: vector::front().
-      memory::clear(vb.begin().base() + cbUsed, cbChar);
+      memory::clear(vb.data() + cbUsed, cbChar);
       cbUsed += cbChar;
    }
    // Assign the vector its size, and return it.
