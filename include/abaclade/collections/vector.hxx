@@ -478,6 +478,30 @@ public:
       return !operator==(v);
    }
 
+   /*! Returns a reference to the last element.
+
+   @return
+      Reference to the last element.
+   */
+   T & back() {
+      if (!*this) {
+         ABC_THROW(lookup_error, ());
+      }
+      return *(raw_vextr_impl_base::end<T>() - 1);
+   }
+
+   /*! Returns a const reference to the last element.
+
+   @return
+      Const reference to the last element.
+   */
+   T const & back() const {
+      if (!*this) {
+         ABC_THROW(lookup_error, ());
+      }
+      return *(raw_vextr_impl_base::end<T>() - 1);
+   }
+
    /*! Returns a forward iterator set to the first element.
 
    @return
@@ -539,6 +563,30 @@ public:
    */
    const_iterator end() const {
       return cend();
+   }
+
+   /*! Returns a reference to the first element.
+
+   @return
+      Reference to the first element.
+   */
+   T & front() {
+      if (!*this) {
+         ABC_THROW(lookup_error, ());
+      }
+      return *raw_vextr_impl_base::begin<T>();
+   }
+
+   /*! Returns a const reference to the first element.
+
+   @return
+      Const reference to the first element.
+   */
+   T const & front() const {
+      if (!*this) {
+         ABC_THROW(lookup_error, ());
+      }
+      return *raw_vextr_impl_base::begin<T>();
    }
 
    /*! Returns the count of elements in the array.
