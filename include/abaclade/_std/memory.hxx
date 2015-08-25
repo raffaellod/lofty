@@ -429,7 +429,7 @@ public:
    /*! Boolean evaluation operator.
 
    @return
-      true if get() != nullptr, or false otherwise.
+      true if the pointer is not nullptr, or false if it is.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       return get() != nullptr;
@@ -568,7 +568,7 @@ public:
    /*! Boolean evaluation operator.
 
    @return
-      true if get() != nullptr, or false otherwise.
+      true if the pointer is not nullptr, or false if it is.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       return get() != nullptr;
@@ -1088,7 +1088,7 @@ public:
    /*! Boolean evaluation operator.
 
    @return
-      true if *this points to a valid object, or false if it points to nullptr.
+      true if the object points to a valid object, or false if it points to nullptr.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       return m_pt != nullptr;

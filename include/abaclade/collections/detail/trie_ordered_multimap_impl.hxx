@@ -92,10 +92,10 @@ protected:
          m_iChild(iChild) {
       }
 
-      /*! Returns true if the object is usable.
+      /*! Boolean evaluation operator.
 
       @return
-         true if *this is usable, or false otherwise.
+         true if the object is usable, or false otherwise.
       */
       ABC_EXPLICIT_OPERATOR_BOOL() const {
          return m_ptn != nullptr;
@@ -171,10 +171,10 @@ protected:
          m_iChild(iChild) {
       }
 
-      /*! Returns true if the object is usable.
+      /*! Boolean evaluation operator.
 
       @return
-         true if *this is usable, or false otherwise.
+         true if the object is usable, or false otherwise.
       */
       ABC_EXPLICIT_OPERATOR_BOOL() const {
          return m_pan != nullptr;
@@ -290,7 +290,7 @@ public:
    */
    bitwise_trie_ordered_multimap_impl & operator=(bitwise_trie_ordered_multimap_impl && bwtommi);
 
-   /*! Returns true if the map contains at least one value.
+   /*! Boolean evaluation operator.
 
    @return
       true if the map is not empty, or false otherwise.

@@ -299,7 +299,7 @@ public:
       return *this;
    }
 
-   /*! Returns true if the object’s value evaluates to true.
+   /*! Boolean evaluation operator.
 
    @return
       Result of the evaluation of the object’s value in a boolean context.
@@ -345,7 +345,7 @@ public:
       return *this;
    }
 
-   /*! Returns true if the object’s value evaluates to true.
+   /*! Boolean evaluation operator.
 
    @return
       Result of the evaluation of the object’s value in a boolean context.
@@ -449,10 +449,10 @@ public:
       return *this->get_ptr();
    }
 
-   /*! Returns true if the pointer is not nullptr.
+   /*! Boolean evaluation operator.
 
    @return
-      false if the pointer is nullptr, or true otherwise.
+      true if the pointer is not nullptr, or false if it is.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       return *this->get_ptr() ? true : false;
@@ -559,7 +559,7 @@ public:
    /*! Boolean evaluation operator.
 
    @return
-      true if get() != nullptr, or false otherwise.
+      true if the pointer is not nullptr, or false if it is.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       return this->get_ptr()->bConstructed;

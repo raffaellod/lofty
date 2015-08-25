@@ -231,7 +231,7 @@ public:
    */
    doubly_linked_list_impl & operator=(doubly_linked_list_impl && dlli);
 
-   /*! Returns true if the list size is greater than 0.
+   /*! Boolean evaluation operator.
 
    @return
       true if the list is not empty, or false otherwise.

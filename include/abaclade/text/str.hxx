@@ -164,7 +164,7 @@ public:
       return detail::codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
    }
 
-   /*! Returns true if the length is greater than 0.
+   /*! Boolean evaluation operator.
 
    @return
       true if the string is not empty, or false otherwise.

@@ -128,7 +128,7 @@ public:
    */
    hash_map_impl & operator=(hash_map_impl && hmi);
 
-   /*! Returns true if the map size is greater than 0.
+   /*! Boolean evaluation operator.
 
    @return
       true if the map is not empty, or false otherwise.

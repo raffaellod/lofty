@@ -195,7 +195,7 @@ public:
    typedef iterator reverse_iterator;
 
 public:
-   /*! Returns true if the list size is greater than 0.
+   /*! Boolean evaluation operator.
 
    @return
       true if the list is not empty, or false otherwise.

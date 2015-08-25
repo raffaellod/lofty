@@ -153,7 +153,7 @@ public:
    */
    singly_linked_list_impl & operator=(singly_linked_list_impl && slli);
 
-   /*! Returns true if the list size is greater than 0.
+   /*! Boolean evaluation operator.
 
    @return
       true if the list is not empty, or false otherwise.

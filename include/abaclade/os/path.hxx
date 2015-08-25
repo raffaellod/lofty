@@ -126,10 +126,10 @@ public:
       return *this;
    }
 
-   /*! Returns true if the path length is greater than 0.
+   /*! Boolean evaluation operator.
 
    @return
-      true if the length of the path string is greater than 0, or false otherwise.
+      true if the path string is not empty, or false otherwise.
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       return bool(m_s);

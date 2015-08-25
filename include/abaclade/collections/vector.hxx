@@ -425,7 +425,7 @@ public:
       return *this->translate_index(i);
    }
 
-   /*! Returns true if the vector size is greater than 0.
+   /*! Boolean evaluation operator.
 
    @return
       true if the vector is not empty, or false otherwise.
