@@ -825,7 +825,7 @@ public:
       *this.
    */
    mvector & operator+=(mvector && v) {
-      this->insert_move(this->cend(), v.begin().base(), v.size());
+      this->insert_move(this->cend(), v.data(), v.size());
       return *this;
    }
 
@@ -1029,7 +1029,7 @@ public:
       *this.
    */
    mvector & operator=(mvector const & v) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
       return *this;
    }
    mvector & operator=(dmvector<T> && v) {
@@ -1045,11 +1045,11 @@ public:
       *this.
    */
    mvector & operator+=(mvector const & v) {
-      this->insert_copy(this->cend().base(), v.begin().base(), v.size());
+      this->insert_copy(this->cend().base(), v.data(), v.size());
       return *this;
    }
    mvector & operator+=(mvector && v) {
-      this->insert_move(this->cend().base(), v.begin().base(), v.size());
+      this->insert_move(this->cend().base(), v.data(), v.size());
       return *this;
    }
 
@@ -1163,7 +1163,7 @@ public:
    */
    dmvector(mvector<T, false> && v1, mvector<T, false> && v2) :
       mvector<T, false>(0) {
-      this->assign_concat_move(v1.begin().base(), v1.size(), v2.begin().base(), v2.size());
+      this->assign_concat_move(v1.data(), v1.size(), v2.data(), v2.size());
    }
 
    /*! Move-assignment operator.
@@ -1207,7 +1207,7 @@ public:
    */
    dmvector(dmvector const & v) :
       mvector<T, true>(0) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
    }
 
    /*! Move constructor.
@@ -1227,7 +1227,7 @@ public:
    */
    dmvector(mvector<T, true> const & v) :
       mvector<T, true>(0) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
    }
 
    /*! Move constructor.
@@ -1249,9 +1249,7 @@ public:
    */
    dmvector(mvector<T, true> const & v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
-      this->assign_concat(
-         v1.cbegin().base(), v1.cend().base(), v2.cbegin().base(), v2.cend().base(), 0
-      );
+      this->assign_concat(v1.data(), v1.cend().base(), v2.data(), v2.cend().base(), 0);
    }
 
    /*! Constructor that concatenates two vectors, moving elements from one and copying elements from
@@ -1264,9 +1262,7 @@ public:
    */
    dmvector(mvector<T, true> && v1, mvector<T, true> const & v2) :
       mvector<T, true>(0) {
-      this->assign_concat(
-         v1.begin().base(), v1.end().base(), v2.cbegin().base(), v2.cend().base(), 1
-      );
+      this->assign_concat(v1.data(), v1.end().base(), v2.data(), v2.cend().base(), 1);
    }
 
    /*! Constructor that concatenates two vectors, copying elements from one and moving elements from
@@ -1279,9 +1275,7 @@ public:
    */
    dmvector(mvector<T, true> const & v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
-      this->assign_concat(
-         v1.cbegin().base(), v1.cend().base(), v2.begin().base(), v2.end().base(), 2
-      );
+      this->assign_concat(v1.data(), v1.cend().base(), v2.data(), v2.end().base(), 2);
    }
 
    /*! Constructor that concatenates two vectors, moving elements from both.
@@ -1293,9 +1287,7 @@ public:
    */
    dmvector(mvector<T, true> && v1, mvector<T, true> && v2) :
       mvector<T, true>(0) {
-      this->assign_concat_move(
-         v1.begin().base(), v1.end().base(), v2.begin().base(), v2.end().base()
-      );
+      this->assign_concat_move(v1.data(), v1.end().base(), v2.data(), v2.end().base());
    }
 
    /*! Constructor that copies elements from a static array.
@@ -1345,7 +1337,7 @@ public:
       *this.
    */
    dmvector & operator=(dmvector const & v) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
       return *this;
    }
 
@@ -1369,7 +1361,7 @@ public:
       *this.
    */
    dmvector & operator=(mvector<T, true> const & v) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
       return *this;
    }
 
@@ -1541,7 +1533,7 @@ public:
    }
    smvector(smvector const & v) :
       mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
    }
    /* If the source is using its embedded item array, it will be copied without allocating a dynamic
    one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
@@ -1561,7 +1553,7 @@ public:
    }
    smvector(mvector<T, true> const & v) :
       mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
    }
    /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
    also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
@@ -1592,7 +1584,7 @@ public:
       *this.
    */
    smvector & operator=(smvector const & v) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
       return *this;
    }
    /* If the source is using its embedded item array, it will be copied without allocating a dynamic
@@ -1612,7 +1604,7 @@ public:
       return *this;
    }
    smvector & operator=(mvector<T, true> const & v) {
-      this->assign_copy(v.cbegin().base(), v.cend().base());
+      this->assign_copy(v.data(), v.cend().base());
       return *this;
    }
    /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This

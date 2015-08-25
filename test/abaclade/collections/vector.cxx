@@ -312,14 +312,14 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
    ABC_TESTING_ASSERT_EQUAL(v2.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(v2[0], 20);
-   int const * const p2Static(v2.cbegin().base());
+   int const * const p2Static(v2.data());
 
    // Should begin using the embedded item array.
    v3.push_back(30);
    ABC_TESTING_ASSERT_TRUE(cdpt3.changed());
    ABC_TESTING_ASSERT_EQUAL(v3.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
-   int const * const p3Static(v3.cbegin().base());
+   int const * const p3Static(v3.data());
 
    // Add more elements to each vector.
 
@@ -372,7 +372,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    // The embedded item array has room for this, so no reallocation is needed.
    v3.push_back(31);
-   ABC_TESTING_ASSERT_EQUAL(v3.cbegin().base(), p3Static);
+   ABC_TESTING_ASSERT_EQUAL(v3.data(), p3Static);
    ABC_TESTING_ASSERT_FALSE(cdpt3.changed());
    ABC_TESTING_ASSERT_EQUAL(v3.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(v3[0], 30);
@@ -397,7 +397,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    // Should return to using the embedded item array, copying v3’s items over.
    v2 = v3;
-   ABC_TESTING_ASSERT_EQUAL(v2.cbegin().base(), p2Static);
+   ABC_TESTING_ASSERT_EQUAL(v2.data(), p2Static);
    ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
    ABC_TESTING_ASSERT_EQUAL(v2.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(v2[0], 30);
