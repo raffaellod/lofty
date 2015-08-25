@@ -54,6 +54,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
    ABC_TESTING_ASSERT_THROWS(exception, v.front());
    ABC_TESTING_ASSERT_THROWS(exception, v.back());
+   ABC_TESTING_ASSERT_THROWS(index_error, v[0]);
 
    v.push_back(1);
    ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
@@ -91,6 +92,20 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(v.back(), 3);
    ABC_TESTING_ASSERT_EQUAL(v[0], 2);
    ABC_TESTING_ASSERT_EQUAL(v[1], 3);
+
+   int i3 = v.pop_back();
+   ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(v.front(), 2);
+   ABC_TESTING_ASSERT_EQUAL(v.back(), 2);
+   ABC_TESTING_ASSERT_EQUAL(v[0], 2);
+   ABC_TESTING_ASSERT_EQUAL(i3, 3);
+
+   v.clear();
+   ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
+   ABC_TESTING_ASSERT_THROWS(exception, v.front());
+   ABC_TESTING_ASSERT_THROWS(exception, v.back());
+   ABC_TESTING_ASSERT_THROWS(index_error, v[0]);
+   ABC_TESTING_ASSERT_THROWS(exception, v.pop_back());
 }
 
 }} //namespace abc::test
