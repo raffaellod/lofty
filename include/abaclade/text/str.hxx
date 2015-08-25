@@ -1051,14 +1051,14 @@ public:
 
    @param ichOffset
       0-based offset at which to insert the character.
-   @param ch
+   @param cp
       Code point to insert.
    */
-   void insert(std::size_t ichOffset, char32_t ch) {
+   void insert(std::size_t ichOffset, char32_t cp) {
       char_t ach[host_char_traits::max_codepoint_length];
       insert(
          ichOffset, ach,
-         static_cast<std::size_t>(host_char_traits::codepoint_to_chars(ch, ach) - ach)
+         static_cast<std::size_t>(host_char_traits::codepoint_to_chars(cp, ach) - ach)
       );
    }
 
@@ -1125,12 +1125,12 @@ public:
 
    /*! Replaces all occurrences of a code point with another code point.
 
-   @param chSearch
+   @param cpSearch
       Code point to search for.
-   @param chReplacement
+   @param cpReplacement
       Code point to replace chSearch with.
    */
-   void replace(char32_t chSearch, char32_t chReplacement);
+   void replace(char32_t cpSearch, char32_t cpReplacement);
 
    /*! See collections::detail::raw_trivial_vextr_impl::set_capacity().
 
@@ -1214,10 +1214,10 @@ protected:
 
    @param pch
       Pointer to the start of the code point to replace.
-   @param chNew
+   @param cpNew
       Code point that will be encoded starting at at *pch.
    */
-   void _replace_codepoint(char_t * pch, char32_t chNew);
+   void _replace_codepoint(char_t * pch, char32_t cpNew);
 };
 
 

@@ -108,14 +108,14 @@ public:
       Pointer to the first character of the string to be searched.
    @param pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
-   @param chNeedle
+   @param cpNeedle
       Code point to search for.
    @return
       Pointer to the beginning of the first match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
    static char_t const * find_char(
-      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t cpNeedle
    );
 
    /*! Returns a pointer to the first occurrence of a char_t-encoded code point in a string, or
@@ -169,14 +169,14 @@ public:
       Pointer to the first character of the string to be searched.
    @param pchHaystackEnd
       Pointer to beyond the last character of the string to be searched.
-   @param chNeedle
+   @param cpNeedle
       Code point to search for.
    @return
       Pointer to the beginning of the last match, in the string to be searched, of the code point
       to search for, or nullptr if no matches are found.
    */
    static char_t const * find_char_last(
-      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
+      char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t cpNeedle
    );
 
    /*! Returns the character index of the first occurrence of a string into another.

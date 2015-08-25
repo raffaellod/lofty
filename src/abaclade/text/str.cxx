@@ -345,13 +345,13 @@ void mstr::replace(char_t chSearch, char_t chReplacement) {
       }
    }
 }
-void mstr::replace(char32_t chSearch, char32_t chReplacement) {
-   ABC_TRACE_FUNC(this, chSearch, chReplacement);
+void mstr::replace(char32_t cpSearch, char32_t cpReplacement) {
+   ABC_TRACE_FUNC(this, cpSearch, cpReplacement);
 
    // TODO: optimize this. Using iterators requires little code but it’s not that efficient.
    for (auto it(begin()); it != end(); ++it) {
-      if (*it == chSearch) {
-         *it = chReplacement;
+      if (*it == cpSearch) {
+         *it = cpReplacement;
       }
    }
 }
@@ -370,9 +370,9 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    *pch = chNew;
 }
 void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
-   ABC_TRACE_FUNC(this, pch, chNew);
+   ABC_TRACE_FUNC(this, pch, cpNew);
 
-   std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(chNew);
+   std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(cpNew);
    std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
    std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
    collections::detail::raw_trivial_vextr_impl::insert_remove(
@@ -380,9 +380,9 @@ void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
    );
    // insert_remove() may have switched string buffer, so recalculate pch now.
    pch = chars_begin() + ich;
-   /* At this point, insert_remove() validated pch and codepoint_size() validated chNew; this means
+   /* At this point, insert_remove() validated pch and codepoint_size() validated cpNew; this means
    that there’s nothing that could go wrong here leaving us in an inconsistent state. */
-   host_char_traits::traits_base::codepoint_to_chars(chNew, pch);
+   host_char_traits::traits_base::codepoint_to_chars(cpNew, pch);
 }
 
 void mstr::set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {

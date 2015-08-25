@@ -197,13 +197,13 @@ ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char
 must be included in the interval [0, U+10FFFF] (see Unicode Standard 6.2 § 2.4 “Code Points and
 Characters”).
 
-@param ch
-   UTF-32 character to validate.
+@param cp
+   Code point to validate.
 @return
    true if the character is a valid code point, or false otherwise.
 */
-inline /*constexpr*/ bool is_codepoint_valid(char32_t ch) {
-   return ch <= 0x10ffff;
+inline /*constexpr*/ bool is_codepoint_valid(char32_t cp) {
+   return cp <= 0x10ffff;
 }
 
 /*! Calculates the length of a NUL-terminated string, in characters.

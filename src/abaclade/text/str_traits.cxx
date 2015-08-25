@@ -104,17 +104,17 @@ namespace abc { namespace text {
 }
 
 /*static*/ char_t const * str_traits::find_char(
-   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
+   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t cpNeedle
 ) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, cpNeedle);
 
-   if (chNeedle <= host_char_traits::max_single_char_codepoint) {
+   if (cpNeedle <= host_char_traits::max_single_char_codepoint) {
       // The needle can be encoded as a single character, so this faster search can be used.
-      return find_char(pchHaystackBegin, pchHaystackEnd, static_cast<char_t>(chNeedle));
+      return find_char(pchHaystackBegin, pchHaystackEnd, static_cast<char_t>(cpNeedle));
    } else {
       // The needle is two or more characters, so take the slower approach.
       char_t achNeedle[host_char_traits::max_codepoint_length];
-      host_char_traits::codepoint_to_chars(chNeedle, achNeedle);
+      host_char_traits::codepoint_to_chars(cpNeedle, achNeedle);
       return find_char(pchHaystackBegin, pchHaystackEnd, achNeedle);
    }
 }
@@ -147,7 +147,7 @@ namespace abc { namespace text {
    }
 #elif ABC_HOST_UTF == 16 //if ABC_HOST_UTF == 8
    // In UTF-16, there’s always at most two characters per code point.
-   char16_t chNeedle0(pchNeedle[0]);
+   char16_t chNeedle0 = pchNeedle[0];
    /* We only have a second character if the first is a lead surrogate. Using NUL as a special value
    is safe, because if this is a surrogate, the tail surrogate cannot be NUL. */
    char16_t chNeedle1 =
@@ -164,20 +164,20 @@ namespace abc { namespace text {
 }
 
 /*static*/ char_t const * str_traits::find_char_last(
-   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t chNeedle
+   char_t const * pchHaystackBegin, char_t const * pchHaystackEnd, char32_t cpNeedle
 ) {
-   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, chNeedle);
+   ABC_TRACE_FUNC(pchHaystackBegin, pchHaystackEnd, cpNeedle);
 
-   if (chNeedle <= host_char_traits::max_single_char_codepoint) {
+   if (cpNeedle <= host_char_traits::max_single_char_codepoint) {
       // The needle can be encoded as a single character, so this faster search can be used.
-      return find_char_last(pchHaystackBegin, pchHaystackEnd, static_cast<char_t>(chNeedle));
+      return find_char_last(pchHaystackBegin, pchHaystackEnd, static_cast<char_t>(cpNeedle));
    } else {
       /* The needle is two or more characters; this means that we can’t do the fast backwards scan
       above, so just do a regular substring reverse search. */
       char_t achNeedle[host_char_traits::max_codepoint_length];
       return find_substr_last(
          pchHaystackBegin, pchHaystackEnd,
-         achNeedle, host_char_traits::codepoint_to_chars(chNeedle, achNeedle)
+         achNeedle, host_char_traits::codepoint_to_chars(cpNeedle, achNeedle)
       );
    }
 }
