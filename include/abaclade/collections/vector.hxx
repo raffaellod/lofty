@@ -888,10 +888,16 @@ public:
       this->insert_move(itOffset.base(), &t, 1);
    }
 
-   //! Removes the last element from the vector.
-   void pop_back() {
-      T * ptEnd = this->end().base();
-      this->remove(ptEnd - 1, ptEnd);
+   /*! Removes and returns the last element in the vector.
+
+   @return
+      Former last element of the vector.
+   */
+   T pop_back() {
+      T * ptBack = &this->back();
+      T tBack(std::move(*ptBack));
+      this->remove(ptBack, ptBack + 1);
+      return std::move(tBack);
    }
 
    //! See detail::vector_base::rbegin(). Here also available in non-const overload.
