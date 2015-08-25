@@ -365,13 +365,47 @@ destructing_unfinalized_object::destructing_unfinalized_object() {
    m_pszWhat = "abc::destructing_unfinalized_object";
 }
 
+destructing_unfinalized_object::destructing_unfinalized_object(
+   destructing_unfinalized_object const & x
+) :
+   exception(x),
+#if ABC_HOST_UTF > 8
+   m_vchWhat(x.m_vchWhat),
+   m_sWhat(x.m_sWhat) {
+   // TODO: vector::front().
+   m_pszWhat = reinterpret_cast<char const *>(&*m_vchWhat.begin());
+#else
+   m_sWhat(x.m_sWhat) {
+   m_pszWhat = m_sWhat.c_str();
+#endif
+}
+
 /*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() {
 }
 
+destructing_unfinalized_object & destructing_unfinalized_object::operator=(
+   destructing_unfinalized_object const & x
+) {
+#if ABC_HOST_UTF > 8
+   m_vchWhat = x.m_vchWhat;
+   m_sWhat = x.m_sWhat;
+   // TODO: vector::front().
+   m_pszWhat = reinterpret_cast<char const *>(&*m_vchWhat.begin());
+#else
+   m_sWhat = x.m_sWhat;
+   m_pszWhat = m_sWhat.c_str();
+#endif
+   return *this;
+}
+
 void destructing_unfinalized_object::init(void const * pObj, _std::type_info const & ti) {
-   // TODO: enable this for Win32.
-#if !ABC_HOST_API_WIN32
    m_sWhat = istr(ABC_SL("object being destructed: {} @ {}")).format(ti, pObj);
+#if ABC_HOST_UTF > 8
+   // TODO: abc::text::encoding::ascii.
+   m_vchWhat = m_sWhat.encode(text::encoding::utf8, true);
+   // TODO: vector::front().
+   m_pszWhat = reinterpret_cast<char const *>(&*m_vchWhat.begin());
+#else
    m_pszWhat = m_sWhat.c_str();
 #endif
 }

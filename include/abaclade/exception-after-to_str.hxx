@@ -34,8 +34,24 @@ public:
    //! Default constructor.
    destructing_unfinalized_object();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   destructing_unfinalized_object(destructing_unfinalized_object const & x);
+
    //! Destructor.
    virtual ~destructing_unfinalized_object();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   destructing_unfinalized_object & operator=(destructing_unfinalized_object const & x);
 
    /*! See abc::exception::init().
 
@@ -61,6 +77,10 @@ protected:
    virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
+#if ABC_HOST_UTF > 8
+   //! Same data as m_sWhat but in ASCII, pointed to by abc::exception::m_pszWhat.
+   collections::dmvector<std::uint8_t> m_vchWhat;
+#endif
    //! Pointer to and type of the object that was not finalized.
    dmstr m_sWhat;
 };
