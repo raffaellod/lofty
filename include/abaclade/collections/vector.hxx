@@ -556,6 +556,24 @@ public:
       return const_reverse_iterator(cbegin());
    }
 
+   /*! Returns a pointer to the first element.
+
+   @return
+      Pointer to the first element.
+   */
+   T * data() {
+      return raw_vextr_impl_base::begin<T>();
+   }
+
+   /*! Returns a const pointer to the first element.
+
+   @return
+      Const pointer to the first element.
+   */
+   T const * data() const {
+      return raw_vextr_impl_base::begin<T>();
+   }
+
    /*! Returns a forward iterator set beyond the last element.
 
    @return
