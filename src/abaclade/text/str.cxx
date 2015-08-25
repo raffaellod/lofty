@@ -369,7 +369,7 @@ void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
    // At this point, insert_remove() validated pch.
    *pch = chNew;
 }
-void mstr::_replace_codepoint(char_t * pch, char32_t chNew) {
+void mstr::_replace_codepoint(char_t * pch, char32_t cpNew) {
    ABC_TRACE_FUNC(this, pch, cpNew);
 
    std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(cpNew);
