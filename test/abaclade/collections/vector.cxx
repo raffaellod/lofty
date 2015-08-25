@@ -57,6 +57,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    v.push_back(1);
    ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
+   ABC_TESTING_ASSERT_EQUAL(&v.front(), v.data());
    ABC_TESTING_ASSERT_EQUAL(v.front(), 1);
    ABC_TESTING_ASSERT_EQUAL(v.back(), 1);
    ABC_TESTING_ASSERT_EQUAL(v[0], 1);
@@ -85,6 +86,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    v.remove_at(1);
    ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
+   ABC_TESTING_ASSERT_EQUAL(&v.front(), v.data());
    ABC_TESTING_ASSERT_EQUAL(v.front(), 2);
    ABC_TESTING_ASSERT_EQUAL(v.back(), 3);
    ABC_TESTING_ASSERT_EQUAL(v[0], 2);
