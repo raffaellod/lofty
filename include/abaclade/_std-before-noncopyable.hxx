@@ -56,6 +56,7 @@ using namespace ::abc::_std;
    using ::std::add_pointer;
    using ::std::add_rvalue_reference;
    using ::std::conditional;
+   using ::std::decay;
    using ::std::enable_if;
    using ::std::false_type;
    using ::std::is_arithmetic;

@@ -1425,23 +1425,6 @@ struct tuple_size<tuple<
 
 namespace abc { namespace _std {
 
-/*! Removes extents, references, cv-qualifiers and more, similarly to the way types decay when used
-as arguments in a function call (C++11 § 20.9.7.6 “Other transformations”). */
-// TODO: complete and move to <type_traits>.
-template <typename T>
-struct decay {
-    typedef typename remove_reference<T>::type U;
-    typedef typename conditional<
-        is_array<U>::value,
-        typename remove_extent<U>::type *,
-        typename conditional<
-            is_function<U>::value,
-            typename add_pointer<U>::type,
-            typename remove_cv<U>::type
-        >::type
-    >::type type;
-};
-
 /*! Creates a tuple from the specified values, inferring their types automatically (C++11 § 20.4.2.4
 “Tuple creation functions”).
 

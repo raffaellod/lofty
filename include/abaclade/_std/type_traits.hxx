@@ -315,6 +315,22 @@ struct conditional<true, TTrue, TFalse> {
    typedef TTrue type;
 };
 
+/*! Removes extents, references, cv-qualifiers and more, similarly to the way types decay when used
+as arguments in a function call (C++11 § 20.9.7.6 “Other transformations”). */
+template <typename T>
+struct decay {
+    typedef typename remove_reference<T>::type U;
+    typedef typename conditional<
+        is_array<U>::value,
+        typename remove_extent<U>::type *,
+        typename conditional<
+            is_function<U>::value,
+            typename add_pointer<U>::type,
+            typename remove_cv<U>::type
+        >::type
+    >::type type;
+};
+
 /*! Defines a member named type as T, if and only if t_bTest == true (C++11 § 20.9.7.6 “Other
 transformations”). */
 template <bool t_bTest, typename T = void>
