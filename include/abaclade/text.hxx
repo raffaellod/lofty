@@ -251,8 +251,8 @@ to variables will be written to.
    but all the other arguments will be updated regardless.
 @param pcbDstMax
    Pointer to a variable that holds the size of the buffer pointed to by *ppDst, and that will be
-   decremented by the number of bytes stored in the buffer (or that would be stored, if ppDst
-   is nullptr). If nullptr is passed no writes will be attempted to any of the arguments, but the
+   decremented by the number of bytes stored in the buffer (or that would be stored, if ppDst is
+   nullptr). If nullptr is passed no writes will be attempted to any of the arguments, but the
    return value will be correct.
 @return
    Used destination buffer size, in bytes.

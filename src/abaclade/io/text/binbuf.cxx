@@ -101,9 +101,6 @@ reader_read_helper::reader_read_helper(
       std::size_t cbTranscoded = abc::text::transcode(
          true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host
       );
-      // Restore pbSrc and cbSrc.
-      pbSrc = m_pbSrc;
-      cbSrc = m_cbSrc;
       m_psDst->set_capacity(cbTranscoded / sizeof(char_t), false);
       m_pchTranscodedBegin = m_psDst->chars_begin();
       // Transcode *pbSrc. This will move m_pchTranscodedEnd to the end of the transcoded string.
@@ -261,8 +258,6 @@ bool reader_read_helper::replenish_transcoded_buffer() {
       std::size_t cbTranscoded = abc::text::transcode(
          true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host
       );
-      pbSrc = m_pbSrc;
-      cbSrc = m_cbSrc;
       m_cbSrcTranscoded = m_cbSrc - cbSrc;
       m_psDst->set_capacity(cchDstUsed + cbTranscoded / sizeof(char_t), true);
       // Use the part of the string beyond cchDstUsed as the transcoding destination buffer.
