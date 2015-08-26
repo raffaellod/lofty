@@ -1164,7 +1164,9 @@ public:
       typename U7, typename U8, typename U9
    >
    tuple & operator=(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const & tpl) {
-      _timpl::operator=(static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const &>(tpl));
+      _timpl::operator=(
+         static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const &>(tpl)
+      );
       return *this;
    }
 
@@ -1180,7 +1182,9 @@ public:
       typename U7, typename U8, typename U9
    >
    tuple & operator=(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tpl) {
-      _timpl::operator=(static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> &&>(tpl));
+      _timpl::operator=(
+         static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> &&>(tpl)
+      );
       return *this;
    }
 };
@@ -1421,7 +1425,8 @@ struct tuple_size<tuple<
 
 namespace abc { namespace _std {
 
-// TODO: comment.
+/*! Removes extents, references, cv-qualifiers and more, similarly to the way types decay when used
+as arguments in a function call (C++11 § 20.9.7.6 “Other transformations”). */
 // TODO: complete and move to <type_traits>.
 template <typename T>
 struct decay {
@@ -1437,7 +1442,8 @@ struct decay {
     >::type type;
 };
 
-/*! TODO: comment.
+/*! Creates a tuple from the specified values, inferring their types automatically (C++11 § 20.4.2.4
+“Tuple creation functions”).
 
 @param ts
    Variables to store in a tuple.
@@ -1447,7 +1453,7 @@ struct decay {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
-inline /*constexpr*/ tuple<Ts...> make_tuple(Ts &&... ts) {
+inline /*constexpr*/ tuple<typename decay<Ts>::type...> make_tuple(Ts &&... ts) {
    return tuple<Ts...>(forward<Ts>(ts)...);
 }
 
@@ -1600,19 +1606,33 @@ namespace abc { namespace _std { namespace detail {
 any type, and silently discards everything. */
 class ignore_t {
 public:
-   //! Constructor.
+   //! Default constructor.
    ignore_t() {
    }
+
+   //! Copy constructor.
    ignore_t(ignore_t const &) {
    }
+
+   //! Constructor from any type.
    template <typename T>
    ignore_t(T const &) {
    }
 
-   //! Assignment operator.
+   /*! Copy-assignment operator.
+
+   @return
+      *this.
+   */
    ignore_t const & operator=(ignore_t const &) const {
       return *this;
    }
+
+   /*! Assignment operator from any type.
+
+   @return
+      *this.
+   */
    template <typename T>
    ignore_t const & operator=(T const &) const {
       return *this;
