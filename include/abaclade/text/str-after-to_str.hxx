@@ -121,24 +121,6 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 
 namespace abc {
 
-template <>
-class ABACLADE_SYM to_str_backend<text::str> : public text::detail::str_to_str_backend {
-public:
-   /*! Writes a string, applying the formatting options.
-
-   @param s
-      String to write.
-   @param ptwOut
-      Pointer to the writer to output to.
-   */
-   void write(text::str const & s, io::text::writer * ptwOut) {
-      text::detail::str_to_str_backend::write(s.chars_begin(), static_cast<std::size_t>(
-         reinterpret_cast<std::uintptr_t>(s.chars_end()) -
-         reinterpret_cast<std::uintptr_t>(s.chars_begin())
-      ), text::encoding::host, ptwOut);
-   }
-};
-
 template <std::size_t t_cchEmbeddedCapacity>
 class to_str_backend<text::sstr<t_cchEmbeddedCapacity>> : public text::detail::str_to_str_backend {
 public:

@@ -1108,8 +1108,9 @@ public:
    @param s
       Source object.
    */
-   sstr(text::str const & s) :
-      text::str(smc_cbEmbeddedCapacity, s) {
+   template <std::size_t t_cchEmbeddedCapacity2>
+   sstr(sstr<t_cchEmbeddedCapacity2> const & s) :
+      text::str(smc_cbEmbeddedCapacity, s.str()) {
    }
 
    /*! Constructor that will copy the source string literal.
@@ -1141,8 +1142,9 @@ public:
    @return
       *this.
    */
-   sstr & operator=(text::str const & s) {
-      text::str::operator=(s);
+   template <std::size_t t_cchEmbeddedCapacity2>
+   sstr & operator=(sstr<t_cchEmbeddedCapacity2> const & s) {
+      text::str::operator=(s.str());
       return *this;
    }
 
@@ -1215,7 +1217,8 @@ public:
    @return
       *this.
    */
-   sstr & operator+=(text::str const & s) {
+   template <std::size_t t_cchEmbeddedCapacity2>
+   sstr & operator+=(sstr<t_cchEmbeddedCapacity2> const & s) {
       text::str::operator=(s);
       return *this;
    }
@@ -1273,12 +1276,12 @@ public:
 
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
-   template <std::size_t t_cchEmbeddedCapacity1, std::size_t t_cchEmbeddedCapacity2> \
+   template <std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR> \
    inline bool operator op( \
-      sstr<t_cchEmbeddedCapacity1> const & s1, sstr<t_cchEmbeddedCapacity2> const & s2 \
+      sstr<t_cchEmbeddedCapacityL> const & sL, sstr<t_cchEmbeddedCapacityR> const & sR \
    ) { \
       return str_traits::compare( \
-         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
+         sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end() \
       ) op 0; \
    } \
    template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch> \
@@ -1312,62 +1315,119 @@ ABC_RELOP_IMPL(<=)
 @return
    Resulting string.
 */
-inline str operator+(str const & sL, str const & sR) {
+template <std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR>
+inline str operator+(
+   sstr<t_cchEmbeddedCapacityL> const & sL, sstr<t_cchEmbeddedCapacityR> const & sR
+) {
    return str(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
 }
-inline str operator+(str && sL, str const & sR) {
+
+template <std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR>
+inline sstr<t_cchEmbeddedCapacityL> operator+(
+   sstr<t_cchEmbeddedCapacityL> && sL, sstr<t_cchEmbeddedCapacityR> const & sR
+) {
    sL += sR;
    return _std::move(sL);
 }
 
-// Overloads taking a character literal as right operand.
-inline str operator+(str && sL, char_t chR) {
+// Overloads taking a string or character literal as right operand.
+template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch>
+inline sstr<t_cchEmbeddedCapacity> operator+(
+   sstr<t_cchEmbeddedCapacity> && sL, char_t const (& achR)[t_cch]
+) {
+   sL += achR;
+   return _std::move(sL);
+}
+
+template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch>
+inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char_t const (& achR)[t_cch]) {
+   char_t const * pchREnd = achR + t_cch - (achR[t_cch - 1 /*NUL*/] == '\0');
+   return str(sL.chars_begin(), sL.chars_end(), achR, pchREnd);
+}
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, char_t chR) {
    sL += chR;
    return _std::move(sL);
 }
-inline str operator+(str const & sL, char_t chR) {
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char_t chR) {
    return str(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
 }
+
 #if ABC_HOST_UTF > 8
-inline str operator+(str && sL, char chR) {
+template <std::size_t t_cchEmbeddedCapacity>
+inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, char chR) {
    return operator+(_std::move(sL), host_char(chR));
 }
-inline str operator+(str const & sL, char chR) {
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char chR) {
    return operator+(sL, host_char(chR));
 }
 #endif
-inline str operator+(str && sL, char32_t chR) {
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, char32_t chR) {
    sL += chR;
    return _std::move(sL);
 }
-inline str operator+(str const & sL, char32_t chR) {
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char32_t chR) {
    char_t achR[host_char_traits::max_codepoint_length];
    return str(
       sL.chars_begin(), sL.chars_end(), achR, host_char_traits::codepoint_to_chars(chR, achR)
    );
 }
 
-// Overloads taking a character literal as left operand.
-inline str operator+(char_t chL, str && sR) {
+// Overloads taking a string or character literal as left operand.
+template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity>
+inline sstr<t_cchEmbeddedCapacity> operator+(
+   char_t const (& achL)[t_cch], sstr<t_cchEmbeddedCapacity> && sR
+) {
+   sR.insert(0, achL);
+   return _std::move(sR);
+}
+
+template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity>
+inline str operator+(char_t const (& achL)[t_cch], sstr<t_cchEmbeddedCapacity> const & sR) {
+   char_t const * pchLEnd = achL + t_cch - (achL[t_cch - 1 /*NUL*/] == '\0');
+   return str(achL, pchLEnd, sR.chars_begin(), sR.chars_end());
+}
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline sstr<t_cchEmbeddedCapacity> operator+(char_t chL, sstr<t_cchEmbeddedCapacity> && sR) {
    sR.insert(0, chL);
    return _std::move(sR);
 }
-inline str operator+(char_t chL, str const & sR) {
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline str operator+(char_t chL, sstr<t_cchEmbeddedCapacity> const & sR) {
    return str(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
 }
+
 #if ABC_HOST_UTF > 8
-inline str operator+(char chL, str && sR) {
+template <std::size_t t_cchEmbeddedCapacity>
+inline sstr<t_cchEmbeddedCapacity> operator+(char chL, sstr<t_cchEmbeddedCapacity> && sR) {
    return operator+(host_char(chL), _std::move(sR));
 }
-inline str operator+(char chL, str const & sR) {
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline str operator+(char chL, sstr<t_cchEmbeddedCapacity> const & sR) {
    return operator+(host_char(chL), sR);
 }
 #endif
-inline str operator+(char32_t chL, str && sR) {
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline sstr<t_cchEmbeddedCapacity> operator+(char32_t chL, sstr<t_cchEmbeddedCapacity> && sR) {
    sR.insert(0, chL);
    return _std::move(sR);
 }
-inline str operator+(char32_t chL, str const & sR) {
+
+template <std::size_t t_cchEmbeddedCapacity>
+inline str operator+(char32_t chL, sstr<t_cchEmbeddedCapacity> const & sR) {
    char_t achL[host_char_traits::max_codepoint_length];
    return str(
       achL, host_char_traits::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
