@@ -26,19 +26,24 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace test {
 
+//! Unicode Plane 0 code point.
 char32_t const gc_chP0(ABC_CHAR('\x20ac'));
+//! Unicode Plane 2 code point.
 char32_t const gc_chP2(0x024b62);
-/* The string “acabaabca” has the following properties:
+
+/*! Returns the special string “acabaabca”, which has the following properties:
 •  misleading start for “ab” at index 0 (it’s “ac” instead) and for “abc” at index 2 (it’s
    “aba” instead), to catch incorrect skip-last comparisons;
 •  first and last characters match 'a', but other inner ones do too;
 •  would match “abcd” were it not for the last character;
 •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
 The only thing though is that we replace ‘b’ with the Unicode Plane 2 character defined
-above and ‘c’ with the BMP (Plane 0) character above. */
-str get_acabaabca();
+above and ‘c’ with the BMP (Plane 0) character above.
 
-str get_acabaabca() {
+@return
+   String described above.
+*/
+static str get_acabaabca() {
    return str::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a';
 }
 
