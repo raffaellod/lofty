@@ -180,7 +180,7 @@ public:
    template <std::size_t t_cch>
    str(char_t const (& ach)[t_cch]) :
       vextr_impl(
-         &ach[0], &ach[t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')], ach[t_cch - 1 /*NUL*/] == '\0'
+         0, &ach[0], &ach[t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')], ach[t_cch - 1 /*NUL*/] == '\0'
       ) {
    }
 
@@ -221,7 +221,7 @@ public:
       Pointer to the source NUL-terminated string literal.
    */
    str(external_buffer_t const &, char_t const * psz) :
-      vextr_impl(psz, psz + text::size_in_chars(psz), true) {
+      vextr_impl(0, psz, psz + text::size_in_chars(psz), true) {
    }
 
    /*! Constructor that will make the string refer to the specified raw C string.
@@ -232,7 +232,7 @@ public:
       Count of characters in the array pointed to be psz.
    */
    str(external_buffer_t const &, char_t const * pch, std::size_t cch) :
-      vextr_impl(pch, pch + cch, false) {
+      vextr_impl(0, pch, pch + cch, false) {
    }
 
    /*! Move-assignment operator.
@@ -958,13 +958,52 @@ public:
    }
 
 protected:
-   /*! Constructor to be used by subclasses.
+   /*! Constructor for subclasses with an embedded character array.
 
    @param cbEmbeddedCapacity
-      Size of the embedded character array, in bytes, or 0 if no embedded array is present.
+      Size of the embedded character array, in bytes.
    */
    str(std::size_t cbEmbeddedCapacity) :
       vextr_impl(cbEmbeddedCapacity) {
+   }
+
+   /*! Move constructor for subclasses with an embedded character array.
+
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes.
+   @param s
+      Source object.
+   */
+   str(std::size_t cbEmbeddedCapacity, str && s) :
+      vextr_impl(cbEmbeddedCapacity) {
+      vextr_impl::assign_move_desc_or_move_items(_std::move(s));
+   }
+
+   /*! Copy constructor for subclasses with an embedded character array.
+
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes.
+   @param s
+      Source object.
+   */
+   str(std::size_t cbEmbeddedCapacity, str const & s) :
+      vextr_impl(cbEmbeddedCapacity) {
+      vextr_impl::assign_share_raw_or_copy_desc(s);
+   }
+
+   /*! Constructor from string literals for subclasses with an embedded character array.
+
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes.
+   @param ach
+      Source NUL-terminated string literal.
+   */
+   template <std::size_t t_cch>
+   str(std::size_t cbEmbeddedCapacity, char_t const (& ach)[t_cch]) :
+      vextr_impl(
+         cbEmbeddedCapacity, &ach[0], &ach[t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')],
+         ach[t_cch - 1 /*NUL*/] == '\0'
+      ) {
    }
 
    /*! Constructor from string literals.
@@ -977,7 +1016,7 @@ protected:
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
    str(char_t const * pchConstSrc, std::size_t cchSrc, bool bNulT) :
-      vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
+      vextr_impl(0, pchConstSrc, pchConstSrc + cchSrc, bNulT) {
    }
 
    //! Prepares the character array to be modified.
@@ -1169,7 +1208,6 @@ private:
    using collections::detail::raw_vextr_prefixed_item_array<
       char_t, t_cchEmbeddedCapacity
    >::smc_cbEmbeddedCapacity;
-   typedef collections::detail::raw_trivial_vextr_impl vextr_impl;
 
 public:
    //! Default constructor.
@@ -1177,16 +1215,13 @@ public:
       str(smc_cbEmbeddedCapacity) {
    }
 
-   /*! Move constructor. If the source is using its embedded character array, it will be copied
-   without allocating a dynamic one; if the source is dynamic, it will be moved. Either way, this
-   won’t throw.
+   /*! Move constructor.
 
    @param s
       Source object.
    */
    sstr(str && s) :
-      str(smc_cbEmbeddedCapacity) {
-      vextr_impl::assign_move_desc_or_move_items(_std::move(s));
+      str(smc_cbEmbeddedCapacity, _std::move(s)) {
    }
 
    /*! Copy constructor.
@@ -1195,8 +1230,7 @@ public:
       Source object.
    */
    sstr(str const & s) :
-      str(smc_cbEmbeddedCapacity) {
-      vextr_impl::assign_share_raw_or_copy_desc(s);
+      str(smc_cbEmbeddedCapacity, s) {
    }
 
    /*! Constructor that will copy the source string literal.
@@ -1206,8 +1240,7 @@ public:
    */
    template <std::size_t t_cch>
    sstr(char_t const (& ach)[t_cch]) :
-      str(smc_cbEmbeddedCapacity) {
-      vextr_impl::assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
+      str(smc_cbEmbeddedCapacity, ach) {
    }
 
    /*! Move-assignment operator.
@@ -1218,7 +1251,7 @@ public:
       *this.
    */
    sstr & operator=(str && s) {
-      vextr_impl::assign_move_desc_or_move_items(_std::move(s));
+      str::operator=(_std::move(s));
       return *this;
    }
 
@@ -1230,7 +1263,7 @@ public:
       *this.
    */
    sstr & operator=(str const & s) {
-      vextr_impl::assign_share_raw_or_copy_desc(s);
+      str::operator=(s);
       return *this;
    }
 
@@ -1243,7 +1276,7 @@ public:
    */
    template <std::size_t t_cch>
    sstr & operator=(char_t const (& ach)[t_cch]) {
-      vextr_impl::assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
+      str::operator=(ach);
       return *this;
    }
 };
@@ -1253,6 +1286,7 @@ public:
 namespace std {
 
 template <std::size_t t_cchEmbeddedCapacity>
-struct hash<abc::text::sstr<t_cchEmbeddedCapacity>> : public hash<abc::text::str> {};
+struct hash<abc::text::sstr<t_cchEmbeddedCapacity>> : public hash<abc::text::str> {
+};
 
 } //namespace std

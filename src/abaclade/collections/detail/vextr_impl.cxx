@@ -38,6 +38,22 @@ raw_vextr_impl_base::raw_vextr_impl_base(std::size_t cbEmbeddedCapacity) {
    m_bNulT = false;
 }
 
+raw_vextr_impl_base::raw_vextr_impl_base(
+   std::size_t cbEmbeddedCapacity, void const * pConstSrcBegin, void const * pConstSrcEnd,
+   bool bNulT /*= false*/
+) {
+   m_pBegin = const_cast<void *>(pConstSrcBegin);
+   m_pEnd = const_cast<void *>(pConstSrcEnd);
+   mc_bEmbeddedPrefixedItemArray = cbEmbeddedCapacity > 0;
+   if (mc_bEmbeddedPrefixedItemArray) {
+      // Assign cbEmbeddedCapacity to the embedded item array that follows *this.
+      embedded_prefixed_item_array()->m_cbCapacity = cbEmbeddedCapacity;
+   }
+   m_bPrefixedItemArray = false;
+   m_bDynamic = false;
+   m_bNulT = bNulT;
+}
+
 /*static*/ std::size_t raw_vextr_impl_base::calculate_increased_capacity(
    std::size_t cbOld, std::size_t cbNew
 ) {

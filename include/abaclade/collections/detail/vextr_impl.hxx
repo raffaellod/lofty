@@ -386,6 +386,8 @@ protected:
 
    /*! Constructor. Assigns the object an item array.
 
+   @param cbEmbeddedCapacity
+      Size of the embedded prefixed item array, in bytes, or 0 if no embedded item array is present.
    @param pConstSrcBegin
       Pointer to the start of an array that will be adopted by the vextr as read-only.
    @param pConstSrcEnd
@@ -393,14 +395,10 @@ protected:
    @param bNulT
       true if the array pointed to by pConstSrc is a NUL-terminated string, or false otherwise.
    */
-   raw_vextr_impl_base(void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false) {
-      m_pBegin = const_cast<void *>(pConstSrcBegin);
-      m_pEnd = const_cast<void *>(pConstSrcEnd);
-      mc_bEmbeddedPrefixedItemArray = false;
-      m_bPrefixedItemArray = false;
-      m_bDynamic = false;
-      m_bNulT = bNulT;
-   }
+   raw_vextr_impl_base(
+      std::size_t cbEmbeddedCapacity, void const * pConstSrcBegin, void const * pConstSrcEnd,
+      bool bNulT = false
+   );
 
    //! Resets the contents of the object to nullptr.
    void assign_empty() {
@@ -783,8 +781,10 @@ protected:
    }
 
    //! See raw_vextr_impl_base::raw_vextr_impl_base().
-   raw_complex_vextr_impl(void const * pConstSrcBegin, void const * pConstSrcEnd) :
-      raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd) {
+   raw_complex_vextr_impl(
+      std::size_t cbEmbeddedCapacity, void const * pConstSrcBegin, void const * pConstSrcEnd
+   ) :
+      raw_vextr_impl_base(cbEmbeddedCapacity, pConstSrcBegin, pConstSrcEnd) {
    }
 };
 
@@ -904,9 +904,10 @@ protected:
 
    //! See raw_vextr_impl_base::raw_vextr_impl_base().
    raw_trivial_vextr_impl(
-      void const * pConstSrcBegin, void const * pConstSrcEnd, bool bNulT = false
+      std::size_t cbEmbeddedCapacity, void const * pConstSrcBegin, void const * pConstSrcEnd,
+      bool bNulT = false
    ) :
-      raw_vextr_impl_base(pConstSrcBegin, pConstSrcEnd, bNulT) {
+      raw_vextr_impl_base(cbEmbeddedCapacity, pConstSrcBegin, pConstSrcEnd, bNulT) {
    }
 
 private:
