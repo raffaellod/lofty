@@ -119,7 +119,7 @@ namespace abc {
 #define _ABC_ENUM_MEMBER_ARRAY_ITEM(name) \
             { \
                ABC_SL(ABC_CPP_TOSTRING(name)), \
-               static_cast<unsigned short>(ABC_COUNTOF(ABC_CPP_TOSTRING(name)) - 1 /*NUL*/), \
+               static_cast<unsigned short>(ABC_SL_SIZE(ABC_CPP_TOSTRING(name))), \
                name \
             },
 

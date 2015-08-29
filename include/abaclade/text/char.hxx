@@ -165,7 +165,7 @@ and wchar_t otherwise, which on Windows is limited to 16 bits (UCS-2).
    overloads we need. */
    #define ABC_CHAR(ch) U ## ch
 #else
-   // Everybody else can only use wchar_t has the largest character literal type, so here it goes.
+   // Everybody else can only use wchar_t as the largest character literal type, so here it goes.
    #define ABC_CHAR(ch) L ## ch
 #endif
 
@@ -173,28 +173,38 @@ and wchar_t otherwise, which on Windows is limited to 16 bits (UCS-2).
 Implementation of ABC_SL(); allows for expansion of the argument prior to pasting it to the
 appropriate string literal prefix, as is necessary for e.g. __FILE__.
 
-@param s
+@param sz
    String literal.
 @return
    UTF string literal.
 */
 #if ABC_HOST_UTF == 8
    #if ABC_CXX_UTF8LIT == 2
-      #define _ABC_SL(s) u8 ## s
+      #define _ABC_SL(sz) u8 ## sz
    #else
-      #define _ABC_SL(s) s
+      #define _ABC_SL(s) sz
    #endif
 #elif ABC_HOST_UTF == 16
-   // Use ABC_CPP_CAT2() to expand macros before pasting them with L.
-   #define _ABC_SL(s) L ## s
+   #define _ABC_SL(sz) L ## sz
 #endif
 //! @endcond
 
 /*! Defines a string literal of the default host string literal type (UTF-8 or UTF-16).
 
-@param s
+@param sz
    String literal.
 @return
    UTF string literal.
 */
-#define ABC_SL(s) _ABC_SL(s)
+#define ABC_SL(sz) _ABC_SL(sz)
+
+/*! Returns the size of a string literal (character array), excluding the trailing NUL character, if
+present.
+
+@param ach
+   String literal.
+@return
+   Size of ach, in characters, minus 1 if its last character is NUL.
+*/
+#define ABC_SL_SIZE(ach) \
+   (ABC_COUNTOF(ach) - (ach[ABC_COUNTOF(ach) - 1 /*NUL*/] == '\0'))

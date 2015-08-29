@@ -38,8 +38,8 @@ void to_str_backend<text::char_ptr_to_str_adapter>::write(
    } else {
       static char_t const sc_achNull[] = ABC_SL("<nullptr>");
       p = sc_achNull;
-      cb = sizeof sc_achNull - sizeof sc_achNull[0] /*NUL*/;
       enc = text::encoding::host;
+      cb = ABC_SL_SIZE(sc_achNull) * sizeof(char_t);
    }
    text::detail::str_to_str_backend::write(p, cb, enc, ptwOut);
 }

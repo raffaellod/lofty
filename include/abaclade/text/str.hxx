@@ -175,9 +175,7 @@ public:
    */
    template <std::size_t t_cch>
    sstr(char_t const (& ach)[t_cch]) :
-      vextr_impl(
-         0, &ach[0], &ach[t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')], ach[t_cch - 1 /*NUL*/] == '\0'
-      ) {
+      vextr_impl(0, &ach[0], &ach[ABC_SL_SIZE(ach)], ach[t_cch - 1 /*NUL*/] == '\0') {
    }
 
    /*! Constructor that copies the contents of a character buffer.
@@ -997,8 +995,7 @@ protected:
    template <std::size_t t_cch>
    sstr(std::size_t cbEmbeddedCapacity, char_t const (& ach)[t_cch]) :
       vextr_impl(
-         cbEmbeddedCapacity, &ach[0], &ach[t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')],
-         ach[t_cch - 1 /*NUL*/] == '\0'
+         cbEmbeddedCapacity, &ach[0], &ach[ABC_SL_SIZE(ach)], ach[t_cch - 1 /*NUL*/] == '\0'
       ) {
    }
 
@@ -1286,13 +1283,15 @@ public:
    } \
    template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch> \
    inline bool operator op(sstr<t_cchEmbeddedCapacity> const & s, char_t const (& ach)[t_cch]) { \
-      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
+      return str_traits::compare( \
+         s.chars_begin(), s.chars_end(), &ach[0], &ach[ABC_SL_SIZE(ach)] \
+      ) op 0; \
    } \
    template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity> \
    inline bool operator op(char_t const (& ach)[t_cch], sstr<t_cchEmbeddedCapacity> const & s) { \
-      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
+      return str_traits::compare( \
+         &ach[0], &ach[ABC_SL_SIZE(ach)], s.chars_begin(), s.chars_end() \
+      ) op 0; \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -1341,8 +1340,7 @@ inline sstr<t_cchEmbeddedCapacity> operator+(
 
 template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch>
 inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char_t const (& achR)[t_cch]) {
-   char_t const * pchREnd = achR + t_cch - (achR[t_cch - 1 /*NUL*/] == '\0');
-   return str(sL.chars_begin(), sL.chars_end(), achR, pchREnd);
+   return str(sL.chars_begin(), sL.chars_end(), &achR[0], &achR[ABC_SL_SIZE(achR)]);
 }
 
 template <std::size_t t_cchEmbeddedCapacity>
@@ -1393,8 +1391,7 @@ inline sstr<t_cchEmbeddedCapacity> operator+(
 
 template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity>
 inline str operator+(char_t const (& achL)[t_cch], sstr<t_cchEmbeddedCapacity> const & sR) {
-   char_t const * pchLEnd = achL + t_cch - (achL[t_cch - 1 /*NUL*/] == '\0');
-   return str(achL, pchLEnd, sR.chars_begin(), sR.chars_end());
+   return str(&achL[0], &achL[ABC_SL_SIZE(achL)], sR.chars_begin(), sR.chars_end());
 }
 
 template <std::size_t t_cchEmbeddedCapacity>

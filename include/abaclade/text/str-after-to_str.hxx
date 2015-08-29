@@ -88,12 +88,7 @@ namespace abc {
          Pointer to the writer to output to.
       */ \
       void write(C const (& ach)[t_cch], io::text::writer * ptwOut) { \
-         ABC_ASSERT( \
-            ach[t_cch - 1 /*NUL*/] == '\0', ABC_SL("string literal must be NUL-terminated") \
-         ); \
-         text::detail::str_to_str_backend::write( \
-            ach, sizeof(C) * (t_cch - 1 /*NUL*/), enc, ptwOut \
-         ); \
+         text::detail::str_to_str_backend::write(ach, sizeof(C) * ABC_SL_SIZE(ach), enc, ptwOut); \
       } \
    }; \
    \
