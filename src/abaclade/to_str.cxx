@@ -267,7 +267,7 @@ inline void int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) 
    }
 
    // Add prefix or sign, and output to the writer.
-   add_prefixes_and_write(numeric::is_negative<I>(i), ptwOut, &sBuf, it);
+   add_prefixes_and_write(numeric::is_negative<I>(i), ptwOut, sBuf.str_ptr(), it);
 }
 
 void int_to_str_backend_base::write_s64(std::int64_t i, io::text::writer * ptwOut) const {

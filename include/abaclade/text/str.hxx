@@ -1198,11 +1198,25 @@ struct ABACLADE_SYM hash<abc::text::str> {
 
 namespace abc { namespace text {
 
-/*! str subclass useful for clients that need in-place manipulation of strings that are most likely
-to be shorter than a known small size. */
+/*! abc::text::str subclass that includes a fixed-size character array.
+
+This class offers clients the option to avoid dynamic memory allocation when then strings to be
+manipulated are expected to be of a known small size. If the string expands to more than what the
+fixed-size character array can hold, the object will seamlessly switch to behaving like
+abc::text::str.
+
+The abc::text::sstr class derives from abc::text::str, but the inheritance is private to prevent
+sstr instances from being accidentally passed as abc::text::str && arguments, which would be a
+problem since moving an sstr object to a str object may throw exceptions due to potentially having
+to allocate dynamic memory.
+
+To enable using an sstr object as a str instance, the accessor methods sstr::str() and
+sstr::str_ptr() are provided. Note that while either method may be indirectly used to get an r-value
+reference to the object as an abc::text::str instance, doing so is discouraged, for the reasons
+explained above. */
 template <std::size_t t_cchEmbeddedCapacity>
 class sstr :
-   public str,
+   private str,
    private collections::detail::raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
 private:
    using collections::detail::raw_vextr_prefixed_item_array<
@@ -1212,7 +1226,7 @@ private:
 public:
    //! Default constructor.
    sstr() :
-      str(smc_cbEmbeddedCapacity) {
+      text::str(smc_cbEmbeddedCapacity) {
    }
 
    /*! Move constructor.
@@ -1220,8 +1234,8 @@ public:
    @param s
       Source object.
    */
-   sstr(str && s) :
-      str(smc_cbEmbeddedCapacity, _std::move(s)) {
+   sstr(text::str && s) :
+      text::str(smc_cbEmbeddedCapacity, _std::move(s)) {
    }
 
    /*! Copy constructor.
@@ -1229,8 +1243,8 @@ public:
    @param s
       Source object.
    */
-   sstr(str const & s) :
-      str(smc_cbEmbeddedCapacity, s) {
+   sstr(text::str const & s) :
+      text::str(smc_cbEmbeddedCapacity, s) {
    }
 
    /*! Constructor that will copy the source string literal.
@@ -1240,7 +1254,7 @@ public:
    */
    template <std::size_t t_cch>
    sstr(char_t const (& ach)[t_cch]) :
-      str(smc_cbEmbeddedCapacity, ach) {
+      text::str(smc_cbEmbeddedCapacity, ach) {
    }
 
    /*! Move-assignment operator.
@@ -1250,8 +1264,8 @@ public:
    @return
       *this.
    */
-   sstr & operator=(str && s) {
-      str::operator=(_std::move(s));
+   sstr & operator=(text::str && s) {
+      text::str::operator=(_std::move(s));
       return *this;
    }
 
@@ -1262,8 +1276,8 @@ public:
    @return
       *this.
    */
-   sstr & operator=(str const & s) {
-      str::operator=(s);
+   sstr & operator=(text::str const & s) {
+      text::str::operator=(s);
       return *this;
    }
 
@@ -1276,10 +1290,161 @@ public:
    */
    template <std::size_t t_cch>
    sstr & operator=(char_t const (& ach)[t_cch]) {
-      str::operator=(ach);
+      text::str::operator=(ach);
       return *this;
    }
+
+   using text::str::operator[];
+
+   /*! Boolean evaluation operator.
+
+   @return
+      true if the string is not empty, or false otherwise.
+   */
+   ABC_EXPLICIT_OPERATOR_BOOL() const {
+      return *static_cast<text::str *>(this) ? true : false;
+   }
+
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      Character to append.
+   @return
+      *this.
+   */
+   sstr & operator+=(char_t ch) {
+      text::str::operator+=(ch);
+      return *this;
+   }
+
+#if ABC_HOST_UTF > 8
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      ASCII character to append.
+   @return
+      *this.
+   */
+   sstr & operator+=(char ch) {
+      text::str::operator+=(host_char(ch));
+      return *this;
+   }
+#endif
+
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      Code point to append.
+   @return
+      *this.
+   */
+   sstr & operator+=(char32_t ch) {
+      text::str::operator+=(ch);
+      return *this;
+   }
+
+   /*! Concatenation-assignment operator.
+
+   @param s
+      String to append.
+   @return
+      *this.
+   */
+   sstr & operator+=(text::str const & s) {
+      text::str::operator=(s);
+      return *this;
+   }
+
+   using text::str::append;
+   using text::str::begin;
+   using text::str::c_str;
+   using text::str::capacity;
+   using text::str::cbegin;
+   using text::str::cend;
+   using text::str::chars_begin;
+   using text::str::chars_end;
+   using text::str::clear;
+   using text::str::crbegin;
+   using text::str::crend;
+   using text::str::encode;
+   using text::str::end;
+   using text::str::ends_with;
+   using text::str::find;
+   using text::str::find_last;
+   using text::str::format;
+   using text::str::index_from_char_index;
+   using text::str::insert;
+   using text::str::rbegin;
+   using text::str::rend;
+   using text::str::replace;
+   using text::str::set_capacity;
+   using text::str::set_from;
+   using text::str::set_size_in_chars;
+   using text::str::size;
+   using text::str::size_in_bytes;
+   using text::str::size_in_chars;
+   using text::str::starts_with;
+
+   /*! Allows using the object as an abc::text::str const instance.
+
+   @return
+      *this.
+   */
+   text::str const & str() const {
+      return *this;
+   }
+
+   /*! Returns a pointer to the object as an abc::text::str instance.
+
+   @return
+      this.
+   */
+   text::str * str_ptr() {
+      return this;
+   }
+
+   using text::str::substr;
 };
+
+// Relational operators.
+#define ABC_RELOP_IMPL(op) \
+   template <std::size_t t_cchEmbeddedCapacity1, std::size_t t_cchEmbeddedCapacity2> \
+   inline bool operator op( \
+      sstr<t_cchEmbeddedCapacity1> const & s1, sstr<t_cchEmbeddedCapacity2> const & s2 \
+   ) { \
+      return str_traits::compare( \
+         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
+      ) op 0; \
+   } \
+   template <std::size_t t_cchEmbeddedCapacity> \
+   inline bool operator op(sstr<t_cchEmbeddedCapacity> const & s1, str const & s2) { \
+      return str_traits::compare( \
+         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
+      ) op 0; \
+   } \
+   template <std::size_t t_cchEmbeddedCapacity> \
+   inline bool operator op(str const & s1, sstr<t_cchEmbeddedCapacity> const & s2) { \
+      return str_traits::compare( \
+         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
+      ) op 0; \
+   } \
+   template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch> \
+   inline bool operator op(sstr<t_cchEmbeddedCapacity> const & s, char_t const (& ach)[t_cch]) { \
+      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
+      return str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
+   } \
+   template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity> \
+   inline bool operator op(char_t const (& ach)[t_cch], sstr<t_cchEmbeddedCapacity> const & s) { \
+      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
+      return str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
+   }
+ABC_RELOP_IMPL(==)
+ABC_RELOP_IMPL(!=)
+ABC_RELOP_IMPL(>)
+ABC_RELOP_IMPL(>=)
+ABC_RELOP_IMPL(<)
+ABC_RELOP_IMPL(<=)
+#undef ABC_RELOP_IMPL
 
 }} //namespace abc::text
 
