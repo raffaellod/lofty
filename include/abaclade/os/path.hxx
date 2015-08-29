@@ -338,7 +338,7 @@ public:
       Path component separator.
    */
    static str separator() {
-      return str(smc_aszSeparator);
+      return str(smc_szSeparator);
    }
 
    /*! Returns the count of characters in the path.
@@ -412,9 +412,9 @@ private:
    //! Full path, always in normalized form.
    str m_s;
    //! Platform-specific path component separator.
-   static char_t const smc_aszSeparator[1 /*"/" or "\"*/ + 1 /*NUL*/];
+   static char_t const smc_szSeparator[1 /*"/" or "\"*/ + 1 /*NUL*/];
    //! Platform-specific root path.
-   static char_t const smc_aszRoot[
+   static char_t const smc_szRoot[
 #if ABC_HOST_API_POSIX
       1 /*"/"*/ + 1 /*NUL*/
 #elif ABC_HOST_API_WIN32
@@ -425,7 +425,7 @@ private:
    ];
 #if ABC_HOST_API_WIN32
    //! Root for UNC paths in the Win32 File Namespace.
-   static char_t const smc_aszUNCRoot[8 /*"\\?\UNC\"*/ + 1 /*NUL*/];
+   static char_t const smc_szUNCRoot[8 /*"\\?\UNC\"*/ + 1 /*NUL*/];
 #endif
 };
 

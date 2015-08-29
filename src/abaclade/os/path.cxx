@@ -76,7 +76,7 @@ bool file_attrs(path const & op, ::DWORD fi) {
 } //namespace
 
 
-char_t const path::smc_aszSeparator[] =
+char_t const path::smc_szSeparator[] =
 #if ABC_HOST_API_POSIX
    ABC_SL("/");
 #elif ABC_HOST_API_WIN32
@@ -84,7 +84,7 @@ char_t const path::smc_aszSeparator[] =
 #else
    #error "TODO: HOST_API"
 #endif
-char_t const path::smc_aszRoot[] =
+char_t const path::smc_szRoot[] =
 #if ABC_HOST_API_POSIX
    ABC_SL("/");
 #elif ABC_HOST_API_WIN32
@@ -93,14 +93,14 @@ char_t const path::smc_aszRoot[] =
    #error "TODO: HOST_API"
 #endif
 #if ABC_HOST_API_WIN32
-char_t const path::smc_aszUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
+char_t const path::smc_szUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
 #endif
 
 path & path::operator/=(str const & s) {
    ABC_TRACE_FUNC(this, s);
 
    // Only the root already ends in a separator; everything else needs one.
-   m_s = validate_and_adjust((!m_s || is_root() ? str(m_s) : m_s + smc_aszSeparator) + s);
+   m_s = validate_and_adjust((!m_s || is_root() ? str(m_s) : m_s + smc_szSeparator) + s);
    return *this;
 }
 
@@ -132,7 +132,7 @@ path path::absolute() const {
       } else if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == '\\') {
          /* The path is in the form “\a”: make it absolute by prepending to it the volume designator
          of the current directory. */
-         opAbsolute = current_dir().m_s.substr(0, ABC_SL_SIZE(smc_aszRoot) + 2 /*"X:"*/) + m_s;
+         opAbsolute = current_dir().m_s.substr(0, ABC_SL_SIZE(smc_szRoot) + 2 /*"X:"*/) + m_s;
       } else {
          /* None of the above patterns applies: prepend the current directory to make the path
          absolute. */
@@ -170,12 +170,12 @@ path path::base_name() const {
       return cchMax;
    });
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   /* Since we want to prefix the result of ::GetCurrentDirectory() with smc_aszRoot, we’ll make
+   /* Since we want to prefix the result of ::GetCurrentDirectory() with smc_szRoot, we’ll make
    str::set_from() allocate space for that too, by adding the size of the root to the buffer size
    while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to reserve space
    for the root prefix. */
    s.set_from([] (char_t * pch, std::size_t cchMax) -> std::size_t {
-      static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_aszRoot);
+      static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_szRoot);
       if (sc_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
@@ -189,7 +189,7 @@ path path::base_name() const {
       return cch + sc_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.chars_begin(), smc_aszRoot, ABC_SL_SIZE(smc_aszRoot));
+   memory::copy(s.chars_begin(), smc_szRoot, ABC_SL_SIZE(smc_szRoot));
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -204,7 +204,7 @@ path path::base_name() const {
    char_t achDummyPath[4] = { chVolume, ':', 'a', '\0' };
    str s;
    s.set_from([&achDummyPath] (char_t * pch, std::size_t cchMax) -> std::size_t {
-      static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_aszRoot);
+      static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_szRoot);
       if (sc_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
@@ -218,7 +218,7 @@ path path::base_name() const {
       return cch + sc_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.chars_begin(), smc_aszRoot, ABC_SL_SIZE(smc_aszRoot));
+   memory::copy(s.chars_begin(), smc_szRoot, ABC_SL_SIZE(smc_szRoot));
    // Remove the last character, the “a” from achDummyPath.
    s.set_size_in_chars(s.size_in_chars() - 1 /*“a”*/);
    return _std::move(s);
@@ -260,7 +260,7 @@ path path::normalize() const {
       if (ch == '.') {
          ++cDots;
       } else {
-         if (ch == text::codepoint(smc_aszSeparator[0])) {
+         if (ch == text::codepoint(smc_szSeparator[0])) {
             if (cDots > 0 && cDots <= 2) {
                // We found “./” or “../”: go back by as many separators as the count of dots.
                auto itPrevSep(vitSeps.cend() - static_cast<std::ptrdiff_t>(cDots));
@@ -302,7 +302,7 @@ path path::normalize() const {
          of the path. */
          itDst = itRootEnd;
       }
-   } else if (itDst > itRootEnd && *(itDst - 1) == smc_aszSeparator[0]) {
+   } else if (itDst > itRootEnd && *(itDst - 1) == smc_szSeparator[0]) {
       // The last character written was a separator; rewind by 1 to avoid a trailing separator.
       --itDst;
    }
@@ -340,13 +340,13 @@ path path::parent_dir() const {
 /*static*/ path path::root() {
    ABC_TRACE_FUNC();
 
-   return str(smc_aszRoot);
+   return str(smc_szRoot);
 }
 
 str::const_iterator path::base_name_start() const {
    ABC_TRACE_FUNC(this);
 
-   auto itBaseNameStart(m_s.find_last(smc_aszSeparator[0]));
+   auto itBaseNameStart(m_s.find_last(smc_szSeparator[0]));
    if (itBaseNameStart == m_s.cend()) {
       itBaseNameStart = m_s.cbegin();
    }
@@ -379,23 +379,23 @@ str::const_iterator path::base_name_start() const {
    ABC_TRACE_FUNC(s);
 #endif
 
-   static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_aszRoot);
+   static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_szRoot);
 
 #if ABC_HOST_API_POSIX
-   if (s.starts_with(smc_aszRoot)) {
+   if (s.starts_with(smc_szRoot)) {
       // Return the index of “a” in “/a”.
       return sc_cchRoot;
    }
 #elif ABC_HOST_API_WIN32
-   static std::size_t const sc_cchUNCRoot = ABC_SL_SIZE(smc_aszUNCRoot);
+   static std::size_t const sc_cchUNCRoot = ABC_SL_SIZE(smc_szUNCRoot);
    static std::size_t const sc_cchVolumeRoot = sc_cchRoot + 3; //“X:\”
    static std::size_t const sc_ichVolumeColon = 1; // “:” in “X:”
    static std::size_t const sc_ichLeadingSep = 0; // “\” in “\”
 
    std::size_t cch = s.size_in_chars();
    char_t const * pch = s.chars_begin();
-   if (s.starts_with(smc_aszRoot)) {
-      if (s.starts_with(smc_aszUNCRoot)) {
+   if (s.starts_with(smc_szRoot)) {
+      if (s.starts_with(smc_szUNCRoot)) {
          // Return the index of “a” in “\\?\UNC\a”.
          return sc_cchUNCRoot;
       }
@@ -430,7 +430,7 @@ str::const_iterator path::base_name_start() const {
 /*static*/ bool path::is_absolute(str const & s) {
    ABC_TRACE_FUNC(s);
 
-   return s.starts_with(smc_aszRoot);
+   return s.starts_with(smc_szRoot);
 }
 
 /*static*/ str path::validate_and_adjust(str s) {
@@ -448,7 +448,7 @@ str::const_iterator path::base_name_start() const {
 
       if (s.starts_with(ABC_SL("\\\\"))) {
          // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
-         s = smc_aszUNCRoot + s.substr(2 /*“\\”*/);
+         s = smc_szUNCRoot + s.substr(2 /*“\\”*/);
       } else {
          std::size_t cch = s.size_in_chars();
          char_t * pch = s.chars_begin();
@@ -466,7 +466,7 @@ str::const_iterator path::base_name_start() const {
             }
             if (cch >= 3 /*“X:\”*/ && *(pch + 2) == '\\') {
                // This is a DOS-style absolute path; prepend to it the Win32 File Namespace prefix.
-               s = smc_aszRoot + s;
+               s = smc_szRoot + s;
             }
          }
       }
@@ -482,7 +482,7 @@ str::const_iterator path::base_name_start() const {
    bool bPrevIsSeparator = false;
    for (auto itSrc(itRootEnd); itSrc != itEnd; ++itSrc) {
       char32_t ch = *itSrc;
-      bool bCurrIsSeparator = ch == text::codepoint(smc_aszSeparator[0]);
+      bool bCurrIsSeparator = ch == text::codepoint(smc_szSeparator[0]);
       if (bCurrIsSeparator && bPrevIsSeparator) {
          /* Collapse consecutive separators by advancing itSrc (as part of the for loop) without
          advancing itDst. */

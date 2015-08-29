@@ -36,10 +36,10 @@ void to_str_backend<text::char_ptr_to_str_adapter>::write(
       enc = text::guess_encoding(cs.m_psz, cs.m_psz + cch);
       cb = cch * sizeof(char);
    } else {
-      static char_t const sc_achNull[] = ABC_SL("<nullptr>");
-      p = sc_achNull;
+      static char_t const sc_szNull[] = ABC_SL("<nullptr>");
+      p = sc_szNull;
       enc = text::encoding::host;
-      cb = ABC_SL_SIZE(sc_achNull) * sizeof(char_t);
+      cb = ABC_SL_SIZE(sc_szNull) * sizeof(char_t);
    }
    text::detail::str_to_str_backend::write(p, cb, enc, ptwOut);
 }

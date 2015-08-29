@@ -756,7 +756,7 @@ void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 
 namespace abc {
 
-char_t const memory_address_error::smc_achUnknownAddress[] = ABC_SL(" unknown memory address");
+char_t const memory_address_error::smc_szUnknownAddress[] = ABC_SL(" unknown memory address");
 
 memory_address_error::memory_address_error() :
    generic_error() {
@@ -782,10 +782,10 @@ void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
    io::text::writer * ptwOut
 ) const /*override*/ {
    generic_error::write_extended_info(ptwOut);
-   if (m_pInvalid != smc_achUnknownAddress) {
+   if (m_pInvalid != smc_szUnknownAddress) {
       ptwOut->print(ABC_SL(" invalid address: {}"), m_pInvalid);
    } else {
-      ptwOut->write(smc_achUnknownAddress);
+      ptwOut->write(smc_szUnknownAddress);
    }
 }
 

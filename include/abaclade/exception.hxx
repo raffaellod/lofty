@@ -1003,7 +1003,7 @@ public:
       OS-defined error number associated to the error.
    */
    void init(errint_t err = 0) {
-      init(smc_achUnknownAddress, err);
+      init(smc_szUnknownAddress, err);
    }
    void init(void const * pInvalid, errint_t err = 0);
 
@@ -1015,7 +1015,7 @@ private:
    //! Address that could not be dereferenced.
    void const * m_pInvalid;
    //! String used as special value for when the address is not available.
-   static char_t const smc_achUnknownAddress[];
+   static char_t const smc_szUnknownAddress[];
 };
 
 } //namespace abc
