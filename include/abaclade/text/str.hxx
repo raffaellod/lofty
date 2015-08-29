@@ -121,7 +121,7 @@ class ABACLADE_SYM sstr<0> :
    public support_explicit_operator_bool<str> {
 private:
    friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char_t ch);
-   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char32_t ch);
+   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char32_t cp);
 
    typedef collections::detail::raw_trivial_vextr_impl vextr_impl;
 
@@ -337,9 +337,9 @@ public:
    @return
       *this.
    */
-   str & operator+=(char32_t ch) {
+   str & operator+=(char32_t cp) {
       char_t ach[host_char_traits::max_codepoint_length];
-      append(ach, static_cast<std::size_t>(host_char_traits::codepoint_to_chars(ch, ach) - ach));
+      append(ach, static_cast<std::size_t>(host_char_traits::codepoint_to_chars(cp, ach) - ach));
       return *this;
    }
 
@@ -557,8 +557,8 @@ public:
       return find(host_char(chNeedle));
    }
 #endif
-   const_iterator find(char32_t chNeedle) const {
-      return find(chNeedle, cbegin());
+   const_iterator find(char32_t cpNeedle) const {
+      return find(cpNeedle, cbegin());
    }
    const_iterator find(char_t chNeedle, const_iterator itWhence) const;
 #if ABC_HOST_UTF > 8
@@ -566,7 +566,7 @@ public:
       return find(host_char(chNeedle), itWhence);
    }
 #endif
-   const_iterator find(char32_t chNeedle, const_iterator itWhence) const;
+   const_iterator find(char32_t cpNeedle, const_iterator itWhence) const;
    const_iterator find(str const & sNeedle) const {
       return find(sNeedle, cbegin());
    }
@@ -592,8 +592,8 @@ public:
       return find_last(host_char(chNeedle));
    }
 #endif
-   const_iterator find_last(char32_t chNeedle) const {
-      return find_last(chNeedle, cend());
+   const_iterator find_last(char32_t cpNeedle) const {
+      return find_last(cpNeedle, cend());
    }
    const_iterator find_last(char_t chNeedle, const_iterator itWhence) const;
 #if ABC_HOST_UTF > 8
@@ -601,7 +601,7 @@ public:
       return find_last(host_char(chNeedle), itWhence);
    }
 #endif
-   const_iterator find_last(char32_t chNeedle, const_iterator itWhence) const;
+   const_iterator find_last(char32_t cpNeedle, const_iterator itWhence) const;
    const_iterator find_last(str const & sNeedle) const {
       return find_last(sNeedle, cend());
    }
@@ -1205,8 +1205,8 @@ public:
    @return
       *this.
    */
-   sstr & operator+=(char32_t ch) {
-      text::str::operator+=(ch);
+   sstr & operator+=(char32_t cp) {
+      text::str::operator+=(cp);
       return *this;
    }
 
@@ -1369,16 +1369,16 @@ inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char chR) {
 #endif
 
 template <std::size_t t_cchEmbeddedCapacity>
-inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, char32_t chR) {
-   sL += chR;
+inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, char32_t cpR) {
+   sL += cpR;
    return _std::move(sL);
 }
 
 template <std::size_t t_cchEmbeddedCapacity>
-inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char32_t chR) {
+inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char32_t cpR) {
    char_t achR[host_char_traits::max_codepoint_length];
    return str(
-      sL.chars_begin(), sL.chars_end(), achR, host_char_traits::codepoint_to_chars(chR, achR)
+      sL.chars_begin(), sL.chars_end(), achR, host_char_traits::codepoint_to_chars(cpR, achR)
    );
 }
 
@@ -1421,16 +1421,16 @@ inline str operator+(char chL, sstr<t_cchEmbeddedCapacity> const & sR) {
 #endif
 
 template <std::size_t t_cchEmbeddedCapacity>
-inline sstr<t_cchEmbeddedCapacity> operator+(char32_t chL, sstr<t_cchEmbeddedCapacity> && sR) {
-   sR.insert(0, chL);
+inline sstr<t_cchEmbeddedCapacity> operator+(char32_t cpL, sstr<t_cchEmbeddedCapacity> && sR) {
+   sR.insert(0, cpL);
    return _std::move(sR);
 }
 
 template <std::size_t t_cchEmbeddedCapacity>
-inline str operator+(char32_t chL, sstr<t_cchEmbeddedCapacity> const & sR) {
+inline str operator+(char32_t cpL, sstr<t_cchEmbeddedCapacity> const & sR) {
    char_t achL[host_char_traits::max_codepoint_length];
    return str(
-      achL, host_char_traits::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
+      achL, host_char_traits::codepoint_to_chars(cpL, achL), sR.chars_begin(), sR.chars_end()
    );
 }
 

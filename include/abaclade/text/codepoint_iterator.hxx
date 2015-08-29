@@ -175,12 +175,12 @@ char{,8,16}_t don’t raise warnings. */
       return codepoint(ch) op cpp.operator char32_t(); \
    } \
    template <bool t_bConst> \
-   inline bool operator op(codepoint_proxy<t_bConst> const & cpp, char32_t ch) { \
-      return cpp.operator char32_t() op ch; \
+   inline bool operator op(codepoint_proxy<t_bConst> const & cpp, char32_t cp) { \
+      return cpp.operator char32_t() op cp; \
    } \
    template <bool t_bConst> \
-   inline bool operator op(char32_t ch, codepoint_proxy<t_bConst> const & cpp) { \
-      return ch op cpp.operator char32_t(); \
+   inline bool operator op(char32_t cp, codepoint_proxy<t_bConst> const & cpp) { \
+      return cp op cpp.operator char32_t(); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)

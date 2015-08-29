@@ -27,9 +27,9 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace test {
 
 //! Unicode Plane 0 code point.
-char32_t const gc_chP0(ABC_CHAR('\x20ac'));
+char32_t const gc_cpP0(ABC_CHAR('\x20ac'));
 //! Unicode Plane 2 code point.
-char32_t const gc_chP2(0x024b62);
+char32_t const gc_cpP2(0x024b62);
 
 /*! Returns the special string “acabaabca”, which has the following properties:
 •  misleading start for “ab” at index 0 (it’s “ac” instead) and for “abc” at index 2 (it’s
@@ -44,7 +44,7 @@ above and ‘c’ with the BMP (Plane 0) character above.
    String described above.
 */
 static str get_acabaabca() {
-   return str::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a';
+   return str::empty + 'a' + gc_cpP0 + 'a' + gc_cpP2 + 'a' + 'a' + gc_cpP2 + gc_cpP0 + 'a';
 }
 
 }} //namespace abc::test
@@ -181,13 +181,13 @@ ABC_TESTING_TEST_CASE_FUNC(
    // While we’re at it, let’s also validate acabaabca.
    s = get_acabaabca();
    ABC_TESTING_ASSERT_EQUAL(s[0], 'a');
-   ABC_TESTING_ASSERT_EQUAL(s[1], gc_chP0);
+   ABC_TESTING_ASSERT_EQUAL(s[1], gc_cpP0);
    ABC_TESTING_ASSERT_EQUAL(s[2], 'a');
-   ABC_TESTING_ASSERT_EQUAL(s[3], gc_chP2);
+   ABC_TESTING_ASSERT_EQUAL(s[3], gc_cpP2);
    ABC_TESTING_ASSERT_EQUAL(s[4], 'a');
    ABC_TESTING_ASSERT_EQUAL(s[5], 'a');
-   ABC_TESTING_ASSERT_EQUAL(s[6], gc_chP2);
-   ABC_TESTING_ASSERT_EQUAL(s[7], gc_chP0);
+   ABC_TESTING_ASSERT_EQUAL(s[6], gc_cpP2);
+   ABC_TESTING_ASSERT_EQUAL(s[7], gc_cpP0);
    ABC_TESTING_ASSERT_EQUAL(s[8], 'a');
 }
 
@@ -317,13 +317,13 @@ ABC_TESTING_TEST_CASE_FUNC(
    iterator used in abc::text::str::replace() must be intelligent enough to self-refresh with the
    new descriptor. */
    ABC_TESTING_ASSERT_EQUAL(
-      ((s = ABC_SL("aaaaa")).replace(char32_t('a'), gc_chP2), s),
-      str::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2
+      ((s = ABC_SL("aaaaa")).replace(char32_t('a'), gc_cpP2), s),
+      str::empty + gc_cpP2 + gc_cpP2 + gc_cpP2 + gc_cpP2 + gc_cpP2
    );
    // Less-complex char32_t-to-ASCII replacement: size will decrease.
    ABC_TESTING_ASSERT_EQUAL(
-      ((s = str::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2).
-         replace(gc_chP2, char32_t('a')), s),
+      ((s = str::empty + gc_cpP2 + gc_cpP2 + gc_cpP2 + gc_cpP2 + gc_cpP2).
+         replace(gc_cpP2, char32_t('a')), s),
       ABC_SL("aaaaa")
    );
 }
@@ -484,26 +484,22 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    // Special characters.
-   char32_t ch0 = gc_chP0;
-   char32_t ch2 = gc_chP2;
+   char32_t cp0 = gc_cpP0;
+   char32_t cp2 = gc_cpP2;
    /* See get_acabaabca() for more information on its pattern. To make it more interesting, here we
    also duplicate it. */
    str const s(get_acabaabca() + get_acabaabca());
 
-   ABC_TESTING_ASSERT_EQUAL(s.find(ch0), s.cbegin() + 1);
+   ABC_TESTING_ASSERT_EQUAL(s.find(cp0), s.cbegin() + 1);
    ABC_TESTING_ASSERT_EQUAL(s.find('d'), s.cend());
-   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + ch2), s.cbegin() + 2);
-   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + ch2 + ch0 + 'a'), s.cbegin() + 5);
-   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + ch2 + ch0 + 'd'), s.cend());
-   ABC_TESTING_ASSERT_EQUAL(
-      s.find(str::empty + 'a' + ch2 + 'a' + 'a' + ch2 + ch0), s.cbegin() + 2
-   );
-   ABC_TESTING_ASSERT_EQUAL(
-      s.find(str::empty + 'a' + ch2 + 'a' + 'a' + ch2 + ch0 + 'd'), s.cend()
-   );
+   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + cp2), s.cbegin() + 2);
+   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + cp2 + cp0 + 'a'), s.cbegin() + 5);
+   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + cp2 + cp0 + 'd'), s.cend());
+   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + cp2 + 'a' + 'a' + cp2 + cp0), s.cbegin() + 2);
+   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + cp2 + 'a' + 'a' + cp2 + cp0 + 'd'), s.cend());
    ABC_TESTING_ASSERT_EQUAL(s.find_last('a'), s.cend() - 1);
 #if 0
-   ABC_TESTING_ASSERT_EQUAL(s.find_last(ch2), s.cend() - 3);
+   ABC_TESTING_ASSERT_EQUAL(s.find_last(cp2), s.cend() - 3);
    ABC_TESTING_ASSERT_EQUAL(s.find_last(ABC_SL("ab")), s.cend() - 4);
    ABC_TESTING_ASSERT_EQUAL(s.find_last(ABC_SL("ac")), s.cend() - 9);
    ABC_TESTING_ASSERT_EQUAL(s.find_last(ABC_SL("ca")), s.cend() - 2);
@@ -523,17 +519,17 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    // Special characters.
-   char32_t ch0 = gc_chP0;
-   char32_t ch2 = gc_chP2;
+   char32_t cp0 = gc_cpP0;
+   char32_t cp2 = gc_cpP2;
    // See get_acabaabca() for more information on its pattern.
    str const s(get_acabaabca());
 
    ABC_TESTING_ASSERT_TRUE(s.starts_with(str::empty));
    ABC_TESTING_ASSERT_TRUE(s.starts_with(str::empty + 'a'));
-   ABC_TESTING_ASSERT_TRUE(s.starts_with(str::empty + 'a' + ch0));
-   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + 'a' + ch2));
-   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + ch0));
-   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + ch2));
+   ABC_TESTING_ASSERT_TRUE(s.starts_with(str::empty + 'a' + cp0));
+   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + 'a' + cp2));
+   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + cp0));
+   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + cp2));
    ABC_TESTING_ASSERT_TRUE(s.starts_with(s));
    ABC_TESTING_ASSERT_FALSE(s.starts_with(s + '-'));
    ABC_TESTING_ASSERT_FALSE(s.starts_with('-' + s));
@@ -552,17 +548,17 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    // Special characters.
-   char32_t ch0 = gc_chP0;
-   char32_t ch2 = gc_chP2;
+   char32_t cp0 = gc_cpP0;
+   char32_t cp2 = gc_cpP2;
    // See get_acabaabca() for more information on its pattern.
    str const s(get_acabaabca());
 
    ABC_TESTING_ASSERT_TRUE(s.ends_with(str::empty));
    ABC_TESTING_ASSERT_TRUE(s.ends_with(str::empty + 'a'));
-   ABC_TESTING_ASSERT_TRUE(s.ends_with(str::empty + ch0 + 'a'));
-   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + ch2 + 'a'));
-   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + ch0));
-   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + ch2));
+   ABC_TESTING_ASSERT_TRUE(s.ends_with(str::empty + cp0 + 'a'));
+   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + cp2 + 'a'));
+   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + cp0));
+   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + cp2));
    ABC_TESTING_ASSERT_TRUE(s.ends_with(s));
    ABC_TESTING_ASSERT_FALSE(s.ends_with(s + '-'));
    ABC_TESTING_ASSERT_FALSE(s.ends_with('-' + s));
