@@ -382,19 +382,19 @@ std::size_t hash<abc::text::str>::operator()(abc::text::str const & s) const {
       "unexpected sizeof(std::size_t) will break FNV prime/basis selection"
    );
 #if ABC_HOST_WORD_SIZE == 16
-   std::size_t const c_iFNVPrime = 0x1135;
-   std::size_t const c_iFNVBasis = 16635u;
+   static std::size_t const sc_iFNVPrime = 0x1135;
+   static std::size_t const sc_iFNVBasis = 16635u;
 #elif ABC_HOST_WORD_SIZE == 32
-   std::size_t const c_iFNVPrime = 0x01000193;
-   std::size_t const c_iFNVBasis = 2166136261u;
+   static std::size_t const sc_iFNVPrime = 0x01000193;
+   static std::size_t const sc_iFNVBasis = 2166136261u;
 #elif ABC_HOST_WORD_SIZE == 64
-   std::size_t const c_iFNVPrime = 0x00000100000001b3;
-   std::size_t const c_iFNVBasis = 14695981039346656037u;
+   static std::size_t const sc_iFNVPrime = 0x00000100000001b3;
+   static std::size_t const sc_iFNVBasis = 14695981039346656037u;
 #endif
-   std::size_t iHash = c_iFNVBasis;
+   std::size_t iHash = sc_iFNVBasis;
    for (auto it(s.cbegin()), itEnd(s.cend()); it != itEnd; ++it) {
       iHash ^= static_cast<std::size_t>(*it);
-      iHash *= c_iFNVPrime;
+      iHash *= sc_iFNVPrime;
    }
    return iHash;
 }
