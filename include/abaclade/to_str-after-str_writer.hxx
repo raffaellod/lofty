@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 template <typename T>
-inline dmstr to_str(T const & t, istr const & sFormat /*= istr::empty*/) {
+inline str to_str(T const & t, str const & sFormat /*= str::empty*/) {
    io::text::str_writer tsw;
    to_str_backend<T> tsb;
    tsb.set_format(sFormat);

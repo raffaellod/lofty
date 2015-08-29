@@ -115,22 +115,20 @@ extern ABACLADE_SYM external_buffer_t const external_buffer;
 
 namespace abc { namespace text {
 
-// Forward declarations.
-class istr;
-class dmstr;
-
-}} //namespace abc::text
-
-namespace abc { namespace text { namespace detail {
-
 /*! Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
 trailing NUL character.
 
 See @ref vextr-design for implementation details for this and derived classes, such as
-abc::text::istr. */
-class ABACLADE_SYM str_base :
+abc::text::sstr. */
+class ABACLADE_SYM str :
    protected collections::detail::raw_trivial_vextr_impl,
-   public support_explicit_operator_bool<str_base> {
+   public support_explicit_operator_bool<str> {
+private:
+   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char_t ch);
+   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char32_t ch);
+
+   typedef collections::detail::raw_trivial_vextr_impl vextr_impl;
+
 public:
    typedef char_t value_type;
    typedef char_t * pointer;
@@ -145,12 +143,135 @@ public:
    typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 public:
-   /*! Allows automatic cross-class-hierarchy casts.
+   //! Empty string constant.
+   static str const & empty;
 
-   @return
-      Const reference to *this as an immutable string.
+public:
+   //! Default constructor.
+   str() :
+      vextr_impl(0) {
+   }
+
+   /*! Move constructor.
+
+   @param s
+      Source object.
    */
-   operator istr const &() const;
+   str(str && s) :
+      vextr_impl(0) {
+      vextr_impl::assign_move_desc_or_move_items(_std::move(s));
+   }
+
+   /*! Copy constructor.
+
+   @param s
+      Source object.
+   */
+   str(str const & s) :
+      vextr_impl(0) {
+      vextr_impl::assign_share_raw_or_copy_desc(s);
+   }
+
+   /*! Constructor from string literals.
+
+   @param ach
+      Source NUL-terminated string literal.
+   */
+   template <std::size_t t_cch>
+   str(char_t const (& ach)[t_cch]) :
+      vextr_impl(
+         &ach[0], &ach[t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')], ach[t_cch - 1 /*NUL*/] == '\0'
+      ) {
+   }
+
+   /*! Constructor that copies the contents of a character buffer.
+
+   @param pchBegin
+      Pointer to the beginning of the source stirng.
+   @param pchEnd
+      Pointer to the end of the source stirng.
+   */
+   str(char_t const * pchBegin, char_t const * pchEnd) :
+      vextr_impl(0) {
+      vextr_impl::assign_copy(pchBegin, pchEnd);
+   }
+
+   /*! Constructor that creates a new string from two character buffers.
+
+   @param pch1Begin
+      Pointer to the beginning of the left source stirng to concatenate.
+   @param pch1End
+      Pointer to the end of the left source stirng.
+   @param pch2Begin
+      Pointer to the beginning of the right source stirng to concatenate.
+   @param pch2End
+      Pointer to the end of the right source stirng.
+   */
+   str(
+      char_t const * pch1Begin, char_t const * pch1End,
+      char_t const * pch2Begin, char_t const * pch2End
+   ) :
+      vextr_impl(0) {
+      vextr_impl::assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
+   }
+
+   /*! Constructor that makes the string refer to the specified NUL-terminated raw C string.
+
+   @param psz
+      Pointer to the source NUL-terminated string literal.
+   */
+   str(external_buffer_t const &, char_t const * psz) :
+      vextr_impl(psz, psz + text::size_in_chars(psz), true) {
+   }
+
+   /*! Constructor that will make the string refer to the specified raw C string.
+
+   @param pch
+      Pointer to the source string.
+   @param cch
+      Count of characters in the array pointed to be psz.
+   */
+   str(external_buffer_t const &, char_t const * pch, std::size_t cch) :
+      vextr_impl(pch, pch + cch, false) {
+   }
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
+   str & operator=(str && s) {
+      vextr_impl::assign_move_desc_or_move_items(_std::move(s));
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
+   str & operator=(str const & s) {
+      vextr_impl::assign_share_raw_or_copy_desc(s);
+      return *this;
+   }
+
+   /*! Assignment operator from string literal.
+
+   @param ach
+      Source NUL-terminated string literal.
+   @return
+      *this.
+   */
+   template <std::size_t t_cch>
+   str & operator=(char_t const (& ach)[t_cch]) {
+      str s(ach);
+      operator=(_std::move(s));
+      return *this;
+   }
 
    /*! Character access operator.
 
@@ -160,8 +281,20 @@ public:
    @return
       Character at index i.
    */
+   detail::codepoint_proxy<false> operator[](std::ptrdiff_t i) {
+      return detail::codepoint_proxy<false>(_advance_char_index(0, i, true), this);
+   }
+
+   /*! Const haracter access operator.
+
+   @param i
+      Character index. If outside of the [begin, end) range, an  index_error exception will be
+      thrown.
+   @return
+      Character at index i.
+   */
    detail::codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
-      return detail::codepoint_proxy<true>(_advance_char_ptr(chars_begin(), i, true), this);
+      return detail::codepoint_proxy<true>(_advance_char_index(0, i, true), this);
    }
 
    /*! Boolean evaluation operator.
@@ -176,30 +309,115 @@ public:
          collections::detail::raw_vextr_impl_base::begin<std::int8_t>();
    }
 
-   /*! Advances or backs up a pointer by the specified number of code points, returning the
-   resulting pointer. If the pointer is moved outside of the buffer, an index_error or
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      Character to append.
+   @return
+      *this.
+   */
+   str & operator+=(char_t ch) {
+      append(&ch, 1);
+      return *this;
+   }
+
+#if ABC_HOST_UTF > 8
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      ASCII character to append.
+   @return
+      *this.
+   */
+   str & operator+=(char ch) {
+      return operator+=(host_char(ch));
+   }
+#endif
+
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      Code point to append.
+   @return
+      *this.
+   */
+   str & operator+=(char32_t ch) {
+      char_t ach[host_char_traits::max_codepoint_length];
+      append(ach, static_cast<std::size_t>(host_char_traits::codepoint_to_chars(ch, ach) - ach));
+      return *this;
+   }
+
+   /*! Concatenation-assignment operator.
+
+   @param s
+      String to append.
+   @return
+      *this.
+   */
+   str & operator+=(str const & s) {
+      append(s.chars_begin(), s.size_in_chars());
+      return *this;
+   }
+
+   /*! Advances or backs up a character index by the specified number of code points, returning the
+   resulting pointer. If the index is moved outside of the buffer, an index_error or
    iterator_error exception (depending on bIndex) is thrown.
 
-   @param pch
-      Initial pointer.
-   @param i
-      Count of code points to move from pch by.
+   @param ich
+      Initial index.
+   @param iDelta
+      Count of code points to move from ich by.
    @param bIndex
       If true, a movement to outside of [begin, end) will cause an index_error to be thrown; if
       false, a movement to outside of [begin, end] will cause an iterator_error to be thrown.
    @return
       Resulting pointer.
    */
-   char_t const * _advance_char_ptr(char_t const * pch, std::ptrdiff_t i, bool bIndex) const;
+   std::size_t _advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const;
 
-   /*! Returns a forward iterator set to the first element.
+   /*! Same as operator+=(), but for multi-argument overloads.
+
+   @param pchAdd
+      Pointer to an array of characters to append.
+   @param cchAdd
+      Count of characters in the array pointed to by pchAdd.
+   */
+   void append(char_t const * pchAdd, std::size_t cchAdd) {
+      vextr_impl::insert_remove(
+         collections::detail::raw_vextr_impl_base::size<std::int8_t>(),
+         pchAdd, sizeof(char_t) * cchAdd, 0
+      );
+   }
+
+   /*! Returns an iterator set to the first character.
 
    @return
-      Forward iterator to the first element.
+      Iterator to the first character.
+   */
+   iterator begin() {
+      return iterator(0, this);
+   }
+
+   /*! Returns a const iterator set to the first character.
+
+   @return
+      Const iterator to the first character.
    */
    const_iterator begin() const {
-      return cbegin();
+      return const_cast<str *>(this)->begin();
    }
+
+   /*! Returns a pointer to the string, after ensuring that its character array is NUL-terminated.
+
+   If the string does not include a NUL terminator, the character array will be expanded to include
+   one. Either way, the returned pointer will refer to the same character array, and it will not own
+   it and the pointed-to memory.
+
+   @return
+      Pointer to the NUL-terminated string. Only valid as long as *this is, and only until the next
+      change to *this.
+   */
+   detail::c_str_ptr c_str();
 
    /*! Returns a pointer to a NUL-terminated version of the string.
 
@@ -207,11 +425,9 @@ public:
    character array, and it will not own it; if the string does not include a NUL terminator, the
    returned pointer will own a NUL-terminated copy of *this.
 
-   The returned pointer will only be valid as long as *this is, and only until the next change to
-   *this.
-
    @return
-      NUL-terminated version of the string.
+      Pointer to the NUL-terminated string. Only valid as long as *this is, and only until the next
+      change to *this.
    */
    detail::c_str_ptr c_str() const;
 
@@ -224,60 +440,65 @@ public:
       return collections::detail::raw_vextr_impl_base::capacity<char_t>();
    }
 
-   /*! Returns a const forward iterator set to the first element.
+   /*! Returns a const iterator set to the first character.
 
    @return
-      Forward iterator to the first element.
+      Const iterator to the first character.
    */
    const_iterator cbegin() const {
-      return const_iterator(chars_begin(), this);
+      return const_cast<str *>(this)->begin();
    }
 
-   /*! Returns a const forward iterator set beyond the last element.
+   /*! Returns a const iterator set beyond the last character.
 
    @return
-      Forward iterator to beyond the last element.
+      Const iterator to beyond the last character.
    */
    const_iterator cend() const {
-      return const_iterator(chars_end(), this);
+      return const_cast<str *>(this)->end();
    }
 
-   //! See collections::detail::raw_trivial_vextr_impl::begin().
+   //! See vextr_impl::begin().
    char_t * chars_begin() {
-      return collections::detail::raw_trivial_vextr_impl::begin<char_t>();
+      return vextr_impl::begin<char_t>();
    }
 
-   //! See collections::detail::raw_trivial_vextr_impl::begin().
+   //! See vextr_impl::begin().
    char_t const * chars_begin() const {
-      return collections::detail::raw_trivial_vextr_impl::begin<char_t>();
+      return vextr_impl::begin<char_t>();
    }
 
-   //! See collections::detail::raw_trivial_vextr_impl::end().
+   //! See vextr_impl::end().
    char_t * chars_end() {
-      return collections::detail::raw_trivial_vextr_impl::end<char_t>();
+      return vextr_impl::end<char_t>();
    }
 
-   //! See collections::detail::raw_trivial_vextr_impl::end().
+   //! See vextr_impl::end().
    char_t const * chars_end() const {
-      return collections::detail::raw_trivial_vextr_impl::end<char_t>();
+      return vextr_impl::end<char_t>();
    }
 
-   /*! Returns a const reverse iterator set to the last element.
+   //! Truncates the string to zero length, without deallocating the internal buffer.
+   void clear() {
+      set_size(0);
+   }
+
+   /*! Returns a const reverse iterator set to the last character.
 
    @return
-      Reverse iterator to the last element.
+      Const reverse iterator to the last character.
    */
    const_reverse_iterator crbegin() const {
-      return const_reverse_iterator(cend());
+      return const_cast<str *>(this)->rbegin();
    }
 
-   /*! Returns a const reverse iterator set to before the first element.
+   /*! Returns a const reverse iterator set to before the first character.
 
    @return
-      Reverse iterator to before the first element.
+      Const reverse iterator to before the first character.
    */
    const_reverse_iterator crend() const {
-      return const_reverse_iterator(cbegin());
+      return const_cast<str *>(this)->rend();
    }
 
    /*! Returns the string, encoded as requested, into a byte vector.
@@ -293,13 +514,22 @@ public:
    */
    collections::dmvector<std::uint8_t> encode(encoding enc, bool bNulT) const;
 
-   /*! Returns a forward iterator set beyond the last element.
+   /*! Returns an iterator set beyond the last character.
 
    @return
-      Forward iterator to the first element.
+      Iterator to the first character.
+   */
+   iterator end() {
+      return iterator(size_in_chars(), this);
+   }
+
+   /*! Returns a const iterator set beyond the last character.
+
+   @return
+      Const iterator to the first character.
    */
    const_iterator end() const {
-      return cend();
+      return const_cast<str *>(this)->end();
    }
 
    /*! Returns true if the string ends with a specified suffix.
@@ -309,7 +539,7 @@ public:
    @return
       true if *this ends with the specified suffix, or false otherwise.
    */
-   bool ends_with(istr const & s) const;
+   bool ends_with(str const & s) const;
 
    /*! Searches for and returns the first occurrence of the specified character or substring.
 
@@ -341,10 +571,10 @@ public:
    }
 #endif
    const_iterator find(char32_t chNeedle, const_iterator itWhence) const;
-   const_iterator find(istr const & sNeedle) const {
+   const_iterator find(str const & sNeedle) const {
       return find(sNeedle, cbegin());
    }
-   const_iterator find(istr const & sNeedle, const_iterator itWhence) const;
+   const_iterator find(str const & sNeedle, const_iterator itWhence) const;
 
    /*! Searches for and returns the last occurrence of the specified character or substring.
 
@@ -376,10 +606,10 @@ public:
    }
 #endif
    const_iterator find_last(char32_t chNeedle, const_iterator itWhence) const;
-   const_iterator find_last(istr const & sNeedle) const {
+   const_iterator find_last(str const & sNeedle) const {
       return find_last(sNeedle, cend());
    }
-   const_iterator find_last(istr const & sNeedle, const_iterator itWhence) const;
+   const_iterator find_last(str const & sNeedle, const_iterator itWhence) const;
 
    /*! Uses the current content of the string to generate a new one using io::text::writer::print().
 
@@ -390,27 +620,27 @@ public:
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
    template <typename... Ts>
-   dmstr format(Ts const &... ts) const;
+   str format(Ts const &... ts) const;
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
-   dmstr format() const;
+   str format() const;
    template <typename T0>
-   dmstr format(T0 const & t0) const;
+   str format(T0 const & t0) const;
    template <typename T0, typename T1>
-   dmstr format(T0 const & t0, T1 const & t1) const;
+   str format(T0 const & t0, T1 const & t1) const;
    template <typename T0, typename T1, typename T2>
-   dmstr format(T0 const & t0, T1 const & t1, T2 const & t2) const;
+   str format(T0 const & t0, T1 const & t1, T2 const & t2) const;
    template <typename T0, typename T1, typename T2, typename T3>
-   dmstr format(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) const;
+   str format(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) const;
    template <typename T0, typename T1, typename T2, typename T3, typename T4>
-   dmstr format(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4) const;
+   str format(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4) const;
    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-   dmstr format(
+   str format(
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
    ) const;
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
    >
-   dmstr format(
+   str format(
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6
    ) const;
@@ -418,7 +648,7 @@ public:
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
       typename T7
    >
-   dmstr format(
+   str format(
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7
    ) const;
@@ -426,7 +656,7 @@ public:
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
       typename T7, typename T8
    >
-   dmstr format(
+   str format(
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7, T8 const & t8
    ) const;
@@ -434,7 +664,7 @@ public:
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
       typename T7, typename T8, typename T9
    >
-   dmstr format(
+   str format(
       T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
       T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    ) const;
@@ -451,577 +681,6 @@ public:
    std::size_t index_from_char_index(std::size_t ich) const {
       return str_traits::size_in_codepoints(chars_begin(), chars_begin() + ich);
    }
-
-   /*! Returns a reverse iterator set to the last element.
-
-   @return
-      Reverse iterator to the last element.
-   */
-   const_reverse_iterator rbegin() const {
-      return crbegin();
-   }
-
-   /*! Returns a reverse iterator set to before the first element.
-
-   @return
-      Reverse iterator to before the first element.
-   */
-   const_reverse_iterator rend() const {
-      return crend();
-   }
-
-   /*! Returns size of the string, in code points.
-
-   @return
-      Size of the string.
-   */
-   std::size_t size() const {
-      return str_traits::size_in_codepoints(chars_begin(), chars_end());
-   }
-
-   /*! Returns size of the string, in bytes.
-
-   @return
-      Size of the string.
-   */
-   std::size_t size_in_bytes() const {
-      return collections::detail::raw_trivial_vextr_impl::size<std::int8_t>();
-   }
-
-   /*! Returns size of the string, in characters.
-
-   @return
-      Size of the string.
-   */
-   std::size_t size_in_chars() const {
-      return collections::detail::raw_trivial_vextr_impl::size<char_t>();
-   }
-
-   /*! Returns true if the string starts with a specified prefix.
-
-   @param s
-      String that *this should start with.
-   @return
-      true if *this starts with the specified suffix, or false otherwise.
-   */
-   bool starts_with(istr const & s) const;
-
-   /*! Returns a portion of the string from the specified index to the end of the string.
-
-   @param ichBegin
-      Index of the first character of the substring. See str_base::translate_range() for allowed
-      begin index values.
-   @return
-      Substring of *this.
-   */
-   dmstr substr(std::ptrdiff_t ichBegin) const;
-
-   /*! Returns a portion of the string.
-
-   @param ichBegin
-      Index of the first character of the substring. See str_base::translate_range() for allowed
-      begin index values.
-   @param ichEnd
-      Index of the last character of the substring, exclusive. See str_base::translate_range() for
-      allowed end index values.
-   @return
-      Substring of *this.
-   */
-   dmstr substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const;
-
-   /*! Returns a portion of the string from the specified iterator to the end of the string.
-
-   @param itBegin
-      Iterator to the first character of the substring.
-   @return
-      Substring of *this.
-   */
-   dmstr substr(const_iterator itBegin) const;
-
-   /*! Returns a portion of the string.
-
-   @param itBegin
-      Iterator to the first character of the substring.
-   @param itEnd
-      Iterator to past the end of the substring.
-   @return
-      Substring of *this.
-   */
-   dmstr substr(const_iterator itBegin, const_iterator itEnd) const;
-
-protected:
-   /*! Constructor to be used by subclasses.
-
-   @param cbEmbeddedCapacity
-      Size of the embedded character array, in bytes, or 0 if no embedded array is present.
-   */
-   str_base(std::size_t cbEmbeddedCapacity) :
-      collections::detail::raw_trivial_vextr_impl(cbEmbeddedCapacity) {
-   }
-
-   /*! Constructor from string literals.
-
-   @param pchConstSrc
-      Pointer to a string that will be adopted by the str_base as read-only.
-   @param cchSrc
-      Count of characters in the string pointed to by pchConstSrc.
-   @param bNulT
-      true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
-   */
-   str_base(char_t const * pchConstSrc, std::size_t cchSrc, bool bNulT) :
-      collections::detail::raw_trivial_vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
-   }
-
-   /*! See collections::detail::raw_trivial_vextr_impl::assign_copy().
-
-   @param pchBegin
-      Pointer to the start of the source string.
-   @param pchEnd
-      Pointer to the end of the source string.
-   */
-   void assign_copy(char_t const * pchBegin, char_t const * pchEnd) {
-      collections::detail::raw_trivial_vextr_impl::assign_copy(pchBegin, pchEnd);
-   }
-
-   /*! See collections::detail::raw_trivial_vextr_impl::assign_concat().
-
-   @param pch1Begin
-      Pointer to the start of the first source string.
-   @param pch1End
-      Pointer to the end of the first source string.
-   @param pch2Begin
-      Pointer to the start of the second source string.
-   @param pch2End
-      Pointer to the end of the second source string.
-   */
-   void assign_concat(
-      char_t const * pch1Begin, char_t const * pch1End,
-      char_t const * pch2Begin, char_t const * pch2End
-   ) {
-      collections::detail::raw_trivial_vextr_impl::assign_concat(
-         pch1Begin, pch1End, pch2Begin, pch2End
-      );
-   }
-
-   /*! See collections::detail::raw_trivial_vextr_impl::assign_move().
-
-   @param s
-      Source string.
-   */
-   void assign_move(str_base && s) {
-      collections::detail::raw_trivial_vextr_impl::assign_move(
-         static_cast<collections::detail::raw_trivial_vextr_impl &&>(s)
-      );
-   }
-
-   /*! See collections::detail::raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
-
-   @param s
-      Source string.
-   */
-   void assign_move_dynamic_or_move_items(str_base && s) {
-      collections::detail::raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(
-         static_cast<collections::detail::raw_trivial_vextr_impl &&>(s)
-      );
-   }
-
-   /*! See collections::detail::raw_trivial_vextr_impl::assign_share_raw_or_copy_desc().
-
-   @param s
-      Source string.
-   */
-   void assign_share_raw_or_copy_desc(str_base const & s) {
-      collections::detail::raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(s);
-   }
-
-   /*! Converts a possibly negative character index into an iterator.
-
-   @param ich
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the character array by adding this->size() to it.
-   @return
-      Resulting iterator.
-   */
-   const_iterator translate_index(std::ptrdiff_t ich) const;
-
-   /*! Converts a left-closed, right-open interval with possibly negative character indices into one
-   consisting of two iterators.
-
-   @param ichBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
-      this->size() to it.
-   @param ichEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
-      adding this->size() to it.
-   @return
-      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
-      interval [end(), end()) if the indices represent an empty interval after being adjusted.
-   */
-   _std::tuple<const_iterator, const_iterator> translate_range(
-      std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
-   ) const;
-};
-
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-   inline bool operator op(str_base const & s1, str_base const & s2) { \
-      return str_traits::compare( \
-         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
-      ) op 0; \
-   } \
-   template <std::size_t t_cch> \
-   inline bool operator op(str_base const & s, char_t const (& ach)[t_cch]) { \
-      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
-   } \
-   template <std::size_t t_cch> \
-   inline bool operator op(char_t const (& ach)[t_cch], str_base const & s) { \
-      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
-   }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-ABC_RELOP_IMPL(>)
-ABC_RELOP_IMPL(>=)
-ABC_RELOP_IMPL(<)
-ABC_RELOP_IMPL(<=)
-#undef ABC_RELOP_IMPL
-
-}}} //namespace abc::text::detail
-
-namespace std {
-
-template <>
-struct ABACLADE_SYM hash<abc::text::detail::str_base> {
-   std::size_t operator()(abc::text::detail::str_base const & s) const;
-};
-
-} //namespace std
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace text {
-
-// Forward declaration.
-class mstr;
-
-/*! Class to be used as “the” string class in most cases. It cannot be modified in-place, which
-means that it shouldn’t be used in code performing intensive string manipulations. */
-class ABACLADE_SYM istr : public detail::str_base {
-public:
-   //! Default constructor.
-   istr() :
-      detail::str_base(0) {
-   }
-
-   /*! Copy constructor.
-
-   @param s
-      Source object.
-   */
-   istr(istr const & s) :
-      detail::str_base(0) {
-      assign_share_raw_or_copy_desc(s);
-   }
-
-   /*! Move constructor.
-
-   @param s
-      Source object.
-   */
-   istr(istr && s) :
-      detail::str_base(0) {
-      // Non-const, so it can’t be anything but a real istr, so it owns its character array.
-      assign_move(_std::move(s));
-   }
-
-   /*! Move constructor from mutable strings. May create a copy of the source if it’s using an
-   embedded item array.
-
-   @param s
-      Source object.
-   */
-   istr(mstr && s);
-
-   /*! Move constructor from dynamic mutable strings.
-
-   @param s
-      Source object.
-   */
-   istr(dmstr && s);
-
-   /*! Constructor from string literals.
-
-   @param ach
-      Source NUL-terminated string literal.
-   */
-   template <std::size_t t_cch>
-   istr(char_t const (& ach)[t_cch]) :
-      detail::str_base(
-         ach, t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'), ach[t_cch - 1 /*NUL*/] == '\0'
-      ) {
-   }
-
-   /*! Constructor that will copy the specified character buffer.
-
-   @param pchBegin
-      Pointer to the beginning of the source stirng.
-   @param pchEnd
-      Pointer to the end of the source stirng.
-   */
-   istr(char_t const * pchBegin, char_t const * pchEnd) :
-      detail::str_base(0) {
-      assign_copy(pchBegin, pchEnd);
-   }
-
-   /*! Constructor that will make the string refer to the specified character buffer.
-
-   @param psz
-      Pointer to the source NUL-terminated string literal.
-   */
-   istr(external_buffer_t const &, char_t const * psz) :
-      detail::str_base(psz, text::size_in_chars(psz), true) {
-   }
-
-   /*! Constructor that will make the string refer to the specified character buffer.
-
-   @param psz
-      Pointer to the source string.
-   @param cch
-      Count of characters in the array pointed to be psz.
-   */
-   istr(external_buffer_t const &, char_t const * psz, std::size_t cch) :
-      detail::str_base(psz, cch, false) {
-   }
-
-   /*! Copy-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   istr & operator=(istr const & s) {
-      assign_share_raw_or_copy_desc(s);
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   istr & operator=(istr && s) {
-      // Non-const, so it can’t be anything but a real istr, so it owns its character array.
-      assign_move(_std::move(s));
-      return *this;
-   }
-
-   /*! Move-assignment operator from mutable strings. May create a copy of the source if it’s using
-   an embedded item array.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   istr & operator=(mstr && s);
-
-   /*! Move-assignment operator from mutable dynamic string.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   istr & operator=(dmstr && s);
-
-   /*! Assignment operator from string literal.
-
-   @param ach
-      Source NUL-terminated string literal.
-   @return
-      *this.
-   */
-   template <std::size_t t_cch>
-   istr & operator=(char_t const (& ach)[t_cch]) {
-      // This order is safe, because the constructor invoked on the next line won’t throw.
-      this->~istr();
-      ::new(this) istr(ach);
-      return *this;
-   }
-
-public:
-   //! Empty string constant.
-   static istr const & empty;
-};
-
-}} //namespace abc::text
-
-// Now this can be defined.
-
-namespace abc { namespace text { namespace detail {
-
-inline str_base::operator istr const &() const {
-   return *static_cast<istr const *>(this);
-}
-
-}}} //namespace abc::text::detail
-
-namespace std {
-
-template <>
-struct hash<abc::text::istr> : public hash<abc::text::detail::str_base> {};
-
-} //namespace std
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace text {
-
-/*! Class to be used as “the“ string class for arguments of functions that want to modify a string
-argument, since unlike istr, it allows in-place alterations to the string. Both smstr and dmstr
-are automatically converted to this. */
-class ABACLADE_SYM mstr : public detail::str_base {
-private:
-   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char_t ch);
-   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char32_t ch);
-
-public:
-   /*! Copy-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   mstr & operator=(mstr const & s) {
-      assign_copy(s.chars_begin(), s.chars_end());
-      return *this;
-   }
-
-   /*! Copy-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   mstr & operator=(istr const & s) {
-      assign_copy(s.chars_begin(), s.chars_end());
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   mstr & operator=(istr && s) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   mstr & operator=(dmstr && s);
-
-   /*! Concatenation-assignment operator.
-
-   @param ch
-      Character to append.
-   @return
-      *this.
-   */
-   mstr & operator+=(char_t ch) {
-      append(&ch, 1);
-      return *this;
-   }
-
-#if ABC_HOST_UTF > 8
-   /*! Concatenation-assignment operator.
-
-   @param ch
-      ASCII character to append.
-   @return
-      *this.
-   */
-   mstr & operator+=(char ch) {
-      return operator+=(host_char(ch));
-   }
-#endif
-
-   /*! Concatenation-assignment operator.
-
-   @param ch
-      Code point to append.
-   @return
-      *this.
-   */
-   mstr & operator+=(char32_t ch) {
-      char_t ach[host_char_traits::max_codepoint_length];
-      append(ach, static_cast<std::size_t>(host_char_traits::codepoint_to_chars(ch, ach) - ach));
-      return *this;
-   }
-
-   /*! Concatenation-assignment operator.
-
-   @param s
-      String to append.
-   @return
-      *this.
-   */
-   mstr & operator+=(istr const & s) {
-      append(s.chars_begin(), s.size_in_chars());
-      return *this;
-   }
-
-   /*! Same as operator+=(), but for multi-argument overloads.
-
-   @param pchAdd
-      Pointer to an array of characters to append.
-   @param cchAdd
-      Count of characters in the array pointed to by pchAdd.
-   */
-   void append(char_t const * pchAdd, std::size_t cchAdd) {
-      collections::detail::raw_trivial_vextr_impl::insert_remove(
-         collections::detail::raw_vextr_impl_base::size<std::int8_t>(),
-         pchAdd, sizeof(char_t) * cchAdd, 0
-      );
-   }
-
-   //! See detail::str_base::begin(). Here also available in non-const overload.
-   iterator begin() {
-      return iterator(chars_begin(), this);
-   }
-   using detail::str_base::begin;
-
-   //! Truncates the string to zero length, without deallocating the internal buffer.
-   void clear() {
-      set_size(0);
-   }
-
-   /*! See detail::str_base::c_str(). Here also available in non-const overload that permanently
-   adds a terminating NUL character to the string. */
-   using detail::str_base::c_str;
-   char_t const * c_str();
-
-   //! See detail::str_base::end(). Here also available in non-const overload.
-   iterator end() {
-      return iterator(chars_end(), this);
-   }
-   using detail::str_base::end;
 
    /*! Inserts a character into the string at a specific character (not code point) offset.
 
@@ -1070,7 +729,7 @@ public:
    @param s
       String to insert.
    */
-   void insert(std::size_t ichOffset, istr const & s) {
+   void insert(std::size_t ichOffset, str const & s) {
       insert(ichOffset, s.chars_begin(), s.size_in_chars());
    }
 
@@ -1084,22 +743,46 @@ public:
       Count of characters in the array pointed to by pchInsert.
    */
    void insert(std::size_t ichOffset, char_t const * pchInsert, std::size_t cchInsert) {
-      collections::detail::raw_trivial_vextr_impl::insert_remove(
+      vextr_impl::insert_remove(
          sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert, 0
       );
    }
 
-   //! See detail::str_base::rbegin(). Here also available in non-const overload.
-   reverse_iterator rbegin() {
-      return reverse_iterator(iterator(chars_end(), this));
-   }
-   using detail::str_base::rbegin;
+   /*! Returns a reverse iterator set to the last character.
 
-   //! See detail::str_base::rend(). Here also available in non-const overload.
-   reverse_iterator rend() {
-      return reverse_iterator(iterator(chars_begin(), this));
+   @return
+      Reverse iterator to the last character.
+   */
+   reverse_iterator rbegin() {
+      return reverse_iterator(iterator(size_in_chars(), this));
    }
-   using detail::str_base::rend;
+
+   /*! Returns a const reverse iterator set to the last character.
+
+   @return
+      Const reverse iterator to the last character.
+   */
+   const_reverse_iterator rbegin() const {
+      return const_cast<str *>(this)->rbegin();
+   }
+
+   /*! Returns a reverse iterator set to before the first character.
+
+   @return
+      Reverse iterator to before the first character.
+   */
+   reverse_iterator rend() {
+      return reverse_iterator(iterator(0, this));
+   }
+
+   /*! Returns a const reverse iterator set to before the first character.
+
+   @return
+      Const reverse iterator to before the first character.
+   */
+   const_reverse_iterator rend() const {
+      return const_cast<str *>(this)->rend();
+   }
 
    /*! Replaces all occurrences of a character with another character.
 
@@ -1132,7 +815,7 @@ public:
    */
    void replace(char32_t cpSearch, char32_t cpReplacement);
 
-   /*! See collections::detail::raw_trivial_vextr_impl::set_capacity().
+   /*! See vextr_impl::set_capacity().
 
    @param cchMin
       Minimum count of characters requested.
@@ -1141,7 +824,7 @@ public:
       causes the string to switch to a different character array.
    */
    void set_capacity(std::size_t cchMin, bool bPreserve) {
-      collections::detail::raw_trivial_vextr_impl::set_capacity(sizeof(char_t) * cchMin, bPreserve);
+      vextr_impl::set_capacity(sizeof(char_t) * cchMin, bPreserve);
    }
 
    /*! Expands the character array until the specified callback succeeds in filling it and returns a
@@ -1176,17 +859,129 @@ public:
       changed.
    */
    void set_size_in_chars(std::size_t cch, bool bClear = false) {
-      collections::detail::raw_trivial_vextr_impl::set_size(sizeof(char_t) * cch);
+      vextr_impl::set_size(sizeof(char_t) * cch);
       if (bClear) {
+         prepare_for_writing();
          memory::clear(chars_begin(), cch);
       }
    }
 
-protected:
-   //! See detail::str_base::str_base().
-   mstr(std::size_t cbEmbeddedCapacity) :
-      detail::str_base(cbEmbeddedCapacity) {
+   /*! Returns size of the string, in code points.
+
+   @return
+      Size of the string.
+   */
+   std::size_t size() const {
+      return str_traits::size_in_codepoints(chars_begin(), chars_end());
    }
+
+   /*! Returns size of the string, in bytes.
+
+   @return
+      Size of the string.
+   */
+   std::size_t size_in_bytes() const {
+      return vextr_impl::size<std::int8_t>();
+   }
+
+   /*! Returns size of the string, in characters.
+
+   @return
+      Size of the string.
+   */
+   std::size_t size_in_chars() const {
+      return vextr_impl::size<char_t>();
+   }
+
+   /*! Returns true if the string starts with a specified prefix.
+
+   @param s
+      String that *this should start with.
+   @return
+      true if *this starts with the specified suffix, or false otherwise.
+   */
+   bool starts_with(str const & s) const;
+
+   /*! Returns a portion of the string from the specified index to the end of the string.
+
+   @param ichBegin
+      Index of the first character of the substring. See str::translate_range() for allowed begin
+      index values.
+   @return
+      Substring of *this.
+   */
+   str substr(std::ptrdiff_t ichBegin) const {
+      return substr(ichBegin, static_cast<std::ptrdiff_t>(size_in_chars()));
+   }
+
+   /*! Returns a portion of the string.
+
+   @param ichBegin
+      Index of the first character of the substring. See str::translate_range() for allowed begin
+      index values.
+   @param ichEnd
+      Index of the last character of the substring, exclusive. See str::translate_range() for
+      allowed end index values.
+   @return
+      Substring of *this.
+   */
+   str substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
+      auto range(translate_range(ichBegin, ichEnd));
+      return str(_std::get<0>(range).base(), _std::get<1>(range).base());
+   }
+
+   /*! Returns a portion of the string from the specified iterator to the end of the string.
+
+   @param itBegin
+      Iterator to the first character of the substring.
+   @return
+      Substring of *this.
+   */
+   str substr(const_iterator itBegin) const {
+      validate_pointer(itBegin.base());
+      return str(itBegin.base(), chars_end());
+   }
+
+   /*! Returns a portion of the string.
+
+   @param itBegin
+      Iterator to the first character of the substring.
+   @param itEnd
+      Iterator to past the end of the substring.
+   @return
+      Substring of *this.
+   */
+   str substr(const_iterator itBegin, const_iterator itEnd) const {
+      validate_pointer(itBegin.base());
+      validate_pointer(itEnd.base());
+      return str(itBegin.base(), itEnd.base());
+   }
+
+protected:
+   /*! Constructor to be used by subclasses.
+
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes, or 0 if no embedded array is present.
+   */
+   str(std::size_t cbEmbeddedCapacity) :
+      vextr_impl(cbEmbeddedCapacity) {
+   }
+
+   /*! Constructor from string literals.
+
+   @param pchConstSrc
+      Pointer to a string that will be adopted by the str as read-only.
+   @param cchSrc
+      Count of characters in the string pointed to by pchConstSrc.
+   @param bNulT
+      true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
+   */
+   str(char_t const * pchConstSrc, std::size_t cchSrc, bool bNulT) :
+      vextr_impl(pchConstSrc, pchConstSrc + cchSrc, bNulT) {
+   }
+
+   //! Prepares the character array to be modified.
+   void prepare_for_writing();
 
    /*! Replaces a single character with another character.
 
@@ -1218,238 +1013,61 @@ protected:
       Code point that will be encoded starting at at *pch.
    */
    void _replace_codepoint(char_t * pch, char32_t cpNew);
+
+   /*! Converts a possibly negative character index into an iterator.
+
+   @param ich
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the character array by adding this->size() to it.
+   @return
+      Resulting iterator.
+   */
+   const_iterator translate_index(std::ptrdiff_t ich) const;
+
+   /*! Converts a left-closed, right-open interval with possibly negative character indices into one
+   consisting of two iterators.
+
+   @param ichBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
+      this->size() to it.
+   @param ichEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
+      adding this->size() to it.
+   @return
+      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
+      interval [end(), end()) if the indices represent an empty interval after being adjusted.
+   */
+   _std::tuple<const_iterator, const_iterator> translate_range(
+      std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
+   ) const;
 };
 
-
-// Now these can be defined.
-
-inline istr::istr(mstr && s) :
-   detail::str_base(0) {
-   assign_move_dynamic_or_move_items(_std::move(s));
-}
-
-inline istr & istr::operator=(mstr && s) {
-   assign_move_dynamic_or_move_items(_std::move(s));
-   return *this;
-}
-
-}} //namespace abc::text
-
-namespace std {
-
-template <>
-struct hash<abc::text::mstr> : public hash<abc::text::detail::str_base> {};
-
-} //namespace std
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace text {
-
-/*! mstr-derived class, good for clients that need in-place manipulation of strings whose length is
-unknown at design time. */
-class dmstr : public mstr {
-public:
-   //! Default constructor.
-   dmstr() :
-      mstr(0) {
+// Relational operators.
+#define ABC_RELOP_IMPL(op) \
+   inline bool operator op(str const & s1, str const & s2) { \
+      return str_traits::compare( \
+         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
+      ) op 0; \
+   } \
+   template <std::size_t t_cch> \
+   inline bool operator op(str const & s, char_t const (& ach)[t_cch]) { \
+      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
+      return str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
+   } \
+   template <std::size_t t_cch> \
+   inline bool operator op(char_t const (& ach)[t_cch], str const & s) { \
+      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
+      return str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
    }
-
-   /*! Copy constructor.
-
-   @param s
-      Source object.
-   */
-   dmstr(dmstr const & s) :
-      mstr(0) {
-      assign_copy(s.chars_begin(), s.chars_end());
-   }
-
-   /*! Move constructor.
-
-   @param s
-      Source object.
-   */
-   dmstr(dmstr && s) :
-      mstr(0) {
-      assign_move(_std::move(s));
-   }
-
-   /*! Copy constructor.
-
-   @param s
-      Source object.
-   */
-   dmstr(istr const & s) :
-      mstr(0) {
-      assign_copy(s.chars_begin(), s.chars_end());
-   }
-
-   /*! Move constructor.
-
-   @param s
-      Source object.
-   */
-   dmstr(istr && s) :
-      mstr(0) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-   }
-
-   /*! Copy constructor.
-
-   @param s
-      Source object.
-   */
-   dmstr(mstr const & s) :
-      mstr(0) {
-      assign_copy(s.chars_begin(), s.chars_end());
-   }
-
-   /*! Move constructor.
-
-   @param s
-      Source object.
-   */
-   dmstr(mstr && s) :
-      mstr(0) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-   }
-
-   /*! Constructor that copies a string literal.
-
-   @param ach
-      Source NUL-terminated string literal.
-   */
-   template <std::size_t t_cch>
-   dmstr(char_t const (& ach)[t_cch]) :
-      mstr(0) {
-      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
-   }
-
-   /*! Constructor that copies the contents of a character buffer.
-
-   @param pchBegin
-      Pointer to the beginning of the source stirng.
-   @param pchEnd
-      Pointer to the end of the source stirng.
-   */
-   dmstr(char_t const * pchBegin, char_t const * pchEnd) :
-      mstr(0) {
-      assign_copy(pchBegin, pchEnd);
-   }
-
-   /*! Constructor that creates a new string from two character buffers.
-
-   @param pch1Begin
-      Pointer to the beginning of the left source stirng to concatenate.
-   @param pch1End
-      Pointer to the end of the left source stirng.
-   @param pch2Begin
-      Pointer to the beginning of the right source stirng to concatenate.
-   @param pch2End
-      Pointer to the end of the right source stirng.
-   */
-   dmstr(
-      char_t const * pch1Begin, char_t const * pch1End,
-      char_t const * pch2Begin, char_t const * pch2End
-   ) :
-      mstr(0) {
-      assign_concat(pch1Begin, pch1End, pch2Begin, pch2End);
-   }
-
-   /*! Copy-assignment operator.
-
-   @param s
-      Source string.
-   @return
-      *this.
-   */
-   dmstr & operator=(dmstr const & s) {
-      assign_copy(s.chars_begin(), s.chars_end());
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   dmstr & operator=(dmstr && s) {
-      assign_move(_std::move(s));
-      return *this;
-   }
-
-   /*! Copy-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   dmstr & operator=(istr const & s) {
-      assign_copy(s.chars_begin(), s.chars_end());
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   dmstr & operator=(istr && s) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-      return *this;
-   }
-
-   /*! Copy-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   dmstr & operator=(mstr const & s) {
-      assign_copy(s.chars_begin(), s.chars_end());
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   dmstr & operator=(mstr && s) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-      return *this;
-   }
-
-   /*! Assignment operator.
-
-   @param ach
-      Source NUL-terminated string literal.
-   @return
-      *this.
-   */
-   template <std::size_t t_cch>
-   dmstr & operator=(char_t const (& ach)[t_cch]) {
-      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
-      return *this;
-   }
-
-#if ABC_HOST_CXX_MSC
-   /*! MSC16 BUG: re-defined here because MSC16 seems unable to see the definition in
-   detail::str_base. See detail::str_base::operator istr const &(). */
-   operator istr const &() const {
-      return detail::str_base::operator istr const &();
-   }
-#endif //if ABC_HOST_CXX_MSC
-};
+ABC_RELOP_IMPL(==)
+ABC_RELOP_IMPL(!=)
+ABC_RELOP_IMPL(>)
+ABC_RELOP_IMPL(>=)
+ABC_RELOP_IMPL(<)
+ABC_RELOP_IMPL(<=)
+#undef ABC_RELOP_IMPL
 
 /*! Concatenation operator.
 
@@ -1464,158 +1082,66 @@ public:
 @return
    Resulting string.
 */
-inline dmstr operator+(istr const & sL, istr const & sR) {
-   return dmstr(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
+inline str operator+(str const & sL, str const & sR) {
+   return str(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
 }
-// Overloads taking a character literal.
-inline dmstr operator+(istr const & sL, char_t chR) {
-   return dmstr(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
+inline str operator+(str && sL, str const & sR) {
+   sL += sR;
+   return _std::move(sL);
+}
+
+// Overloads taking a character literal as right operand.
+inline str operator+(str && sL, char_t chR) {
+   sL += chR;
+   return _std::move(sL);
+}
+inline str operator+(str const & sL, char_t chR) {
+   return str(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
 }
 #if ABC_HOST_UTF > 8
-inline dmstr operator+(istr const & sL, char chR) {
+inline str operator+(str && sL, char chR) {
+   return operator+(_std::move(sL), host_char(chR));
+}
+inline str operator+(str const & sL, char chR) {
    return operator+(sL, host_char(chR));
 }
 #endif
-inline dmstr operator+(istr const & sL, char32_t chR) {
+inline str operator+(str && sL, char32_t chR) {
+   sL += chR;
+   return _std::move(sL);
+}
+inline str operator+(str const & sL, char32_t chR) {
    char_t achR[host_char_traits::max_codepoint_length];
-   return dmstr(
+   return str(
       sL.chars_begin(), sL.chars_end(), achR, host_char_traits::codepoint_to_chars(chR, achR)
    );
 }
-inline dmstr operator+(char_t chL, istr const & sR) {
-   return dmstr(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
+
+// Overloads taking a character literal as left operand.
+inline str operator+(char_t chL, str && sR) {
+   sR.insert(0, chL);
+   return _std::move(sR);
+}
+inline str operator+(char_t chL, str const & sR) {
+   return str(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
 }
 #if ABC_HOST_UTF > 8
-inline dmstr operator+(char chL, istr const & sR) {
+inline str operator+(char chL, str && sR) {
+   return operator+(host_char(chL), _std::move(sR));
+}
+inline str operator+(char chL, str const & sR) {
    return operator+(host_char(chL), sR);
 }
 #endif
-inline dmstr operator+(char32_t chL, istr const & sR) {
+inline str operator+(char32_t chL, str && sR) {
+   sR.insert(0, chL);
+   return _std::move(sR);
+}
+inline str operator+(char32_t chL, str const & sR) {
    char_t achL[host_char_traits::max_codepoint_length];
-   return dmstr(
-      achL, host_char_traits::codepoint_to_chars(chL, achL),
-      sR.chars_begin(), sR.chars_end()
+   return str(
+      achL, host_char_traits::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
    );
-}
-/* Overloads taking a temporary string as left or right operand; they can avoid creating an
-intermediate string. */
-inline dmstr operator+(istr && sL, char_t chR) {
-   dmstr dmsL(_std::move(sL));
-   dmsL += chR;
-   return _std::move(dmsL);
-}
-/*inline dmstr operator+(char_t chL, istr && sR) {
-   dmstr dmsR(_std::move(sR));
-   dmsR.insert(0, chL);
-   return _std::move(dmsR);
-}*/
-#if ABC_HOST_UTF > 8
-inline dmstr operator+(istr && sL, char chR) {
-   return operator+(_std::move(sL), host_char(chR));
-}
-/*inline dmstr operator+(char chL, istr && sR) {
-   return operator+(host_char(chL), _std::move(sR));
-}*/
-#endif
-inline dmstr operator+(istr && sL, char32_t chR) {
-   dmstr dmsL(_std::move(sL));
-   dmsL += chR;
-   return _std::move(dmsL);
-}
-/*inline dmstr operator+(char32_t chL, istr && sR) {
-   dmstr dmsR(_std::move(sR));
-   dmsR.insert(0, chL);
-   return _std::move(dmsR);
-}*/
-inline dmstr operator+(istr && sL, istr const & sR) {
-   dmstr dmsL(_std::move(sL));
-   dmsL += sR;
-   return _std::move(dmsL);
-}
-/*inline dmstr operator+(istr const & sL, istr && sR) {
-   dmstr dmsR(_std::move(sR));
-   dmsR.insert(0, sL);
-   return _std::move(dmsR);
-}*/
-inline dmstr operator+(mstr && sL, char_t chR) {
-   dmstr dmsL(_std::move(sL));
-   dmsL += chR;
-   return _std::move(dmsL);
-}
-/*inline dmstr operator+(char_t chL, mstr && sR) {
-   dmstr dmsR(_std::move(sR));
-   dmsR.insert(0, chL);
-   return _std::move(dmsR);
-}*/
-#if ABC_HOST_UTF > 8
-inline dmstr operator+(mstr && sL, char chR) {
-   return operator+(_std::move(sL), host_char(chR));
-}
-/*inline dmstr operator+(char chL, mstr && sR) {
-   return operator+(host_char(chL), _std::move(sR));
-}*/
-#endif
-inline dmstr operator+(mstr && sL, char32_t chR) {
-   dmstr dmsL(_std::move(sL));
-   dmsL += chR;
-   return _std::move(dmsL);
-}
-/*inline dmstr operator+(char32_t chL, mstr && sR) {
-   dmstr dmsR(_std::move(sR));
-   dmsR.insert(0, chL);
-   return _std::move(dmsR);
-}*/
-inline dmstr operator+(mstr && sL, istr const & sR) {
-   dmstr dmsL(_std::move(sL));
-   dmsL += sR;
-   return _std::move(dmsL);
-}
-/*inline dmstr operator+(istr const & sL, mstr && sR) {
-   dmstr dmsR(_std::move(sR));
-   dmsR.insert(0, sL);
-   return _std::move(dmsR);
-}*/
-
-}} //namespace abc::text
-
-// Now these can be defined.
-
-namespace abc { namespace text { namespace detail {
-
-inline dmstr str_base::substr(std::ptrdiff_t ichBegin) const {
-   return substr(ichBegin, static_cast<std::ptrdiff_t>(size_in_chars()));
-}
-inline dmstr str_base::substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
-   auto range(translate_range(ichBegin, ichEnd));
-   return dmstr(_std::get<0>(range).base(), _std::get<1>(range).base());
-}
-inline dmstr str_base::substr(const_iterator itBegin) const {
-   validate_pointer(itBegin.base());
-   return dmstr(itBegin.base(), chars_end());
-}
-inline dmstr str_base::substr(const_iterator itBegin, const_iterator itEnd) const {
-   validate_pointer(itBegin.base());
-   validate_pointer(itEnd.base());
-   return dmstr(itBegin.base(), itEnd.base());
-}
-
-}}} //namespace abc::text::detail
-
-namespace abc { namespace text {
-
-inline istr::istr(dmstr && s) :
-   detail::str_base(0) {
-   assign_move(_std::move(s));
-}
-
-inline istr & istr::operator=(dmstr && s) {
-   assign_move(_std::move(s));
-   return *this;
-}
-
-inline mstr & mstr::operator=(dmstr && s) {
-   assign_move(_std::move(s));
-   return *this;
 }
 
 }} //namespace abc::text
@@ -1623,7 +1149,9 @@ inline mstr & mstr::operator=(dmstr && s) {
 namespace std {
 
 template <>
-struct hash<abc::text::dmstr> : public hash<abc::text::detail::str_base> {};
+struct ABACLADE_SYM hash<abc::text::str> {
+   std::size_t operator()(abc::text::str const & s) const;
+};
 
 } //namespace std
 
@@ -1631,31 +1159,22 @@ struct hash<abc::text::dmstr> : public hash<abc::text::detail::str_base> {};
 
 namespace abc { namespace text {
 
-/*! mstr-derived class, good for clients that need in-place manipulation of strings that are most
-likely to be shorter than a known small size. */
+/*! str subclass useful for clients that need in-place manipulation of strings that are most likely
+to be shorter than a known small size. */
 template <std::size_t t_cchEmbeddedCapacity>
-class smstr :
-   public mstr,
+class sstr :
+   public str,
    private collections::detail::raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
 private:
    using collections::detail::raw_vextr_prefixed_item_array<
       char_t, t_cchEmbeddedCapacity
    >::smc_cbEmbeddedCapacity;
+   typedef collections::detail::raw_trivial_vextr_impl vextr_impl;
 
 public:
    //! Default constructor.
-   smstr() :
-      mstr(smc_cbEmbeddedCapacity) {
-   }
-
-   /*! Copy constructor.
-
-   @param s
-      Source object.
-   */
-   smstr(smstr const & s) :
-      mstr(smc_cbEmbeddedCapacity) {
-      assign_copy(s.chars_begin(), s.chars_end());
+   sstr() :
+      str(smc_cbEmbeddedCapacity) {
    }
 
    /*! Move constructor. If the source is using its embedded character array, it will be copied
@@ -1665,9 +1184,9 @@ public:
    @param s
       Source object.
    */
-   smstr(smstr && s) :
-      mstr(smc_cbEmbeddedCapacity) {
-      assign_move_dynamic_or_move_items(_std::move(s));
+   sstr(str && s) :
+      str(smc_cbEmbeddedCapacity) {
+      vextr_impl::assign_move_desc_or_move_items(_std::move(s));
    }
 
    /*! Copy constructor.
@@ -1675,39 +1194,9 @@ public:
    @param s
       Source object.
    */
-   smstr(istr const & s) :
-      mstr(smc_cbEmbeddedCapacity) {
-      assign_copy(s.chars_begin(), s.chars_end());
-   }
-
-   /*! Move constructor.
-
-   @param s
-      Source object.
-   */
-   smstr(istr && s) :
-      mstr(smc_cbEmbeddedCapacity) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-   }
-
-   /*! Move constructor. This also covers smstr of different template arguments.
-
-   @param s
-      Source object.
-   */
-   smstr(mstr && s) :
-      mstr(smc_cbEmbeddedCapacity) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-   }
-
-   /*! Move constructor.
-
-   @param s
-      Source object.
-   */
-   smstr(dmstr && s) :
-      mstr(smc_cbEmbeddedCapacity) {
-      assign_move(_std::move(s));
+   sstr(str const & s) :
+      str(smc_cbEmbeddedCapacity) {
+      vextr_impl::assign_share_raw_or_copy_desc(s);
    }
 
    /*! Constructor that will copy the source string literal.
@@ -1716,9 +1205,21 @@ public:
       Source NUL-terminated string literal.
    */
    template <std::size_t t_cch>
-   smstr(char_t const (& ach)[t_cch]) :
-      mstr(smc_cbEmbeddedCapacity) {
-      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
+   sstr(char_t const (& ach)[t_cch]) :
+      str(smc_cbEmbeddedCapacity) {
+      vextr_impl::assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
+   }
+
+   /*! Move-assignment operator.
+
+   @param s
+      Source object.
+   @return
+      *this.
+   */
+   sstr & operator=(str && s) {
+      vextr_impl::assign_move_desc_or_move_items(_std::move(s));
+      return *this;
    }
 
    /*! Copy-assignment operator.
@@ -1728,70 +1229,8 @@ public:
    @return
       *this.
    */
-   smstr & operator=(smstr const & s) {
-      assign_copy(s.chars_begin(), s.chars_end());
-      return *this;
-   }
-
-   /*! Move-assignment operator. If the source is using its embedded character array, it will be
-   copied without allocating a dynamic one; if the source is dynamic, it will be moved. Either way,
-   this won’t throw.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   smstr & operator=(smstr && s) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-      return *this;
-   }
-
-   /*! Copy-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   smstr & operator=(istr const & s) {
-      assign_copy(s.chars_begin(), s.chars_end());
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   smstr & operator=(istr && s) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-      return *this;
-   }
-
-   /*! Move-assignment operator. This also covers smstr of different template arguments.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   smstr & operator=(mstr && s) {
-      assign_move_dynamic_or_move_items(_std::move(s));
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param s
-      Source object.
-   @return
-      *this.
-   */
-   smstr & operator=(dmstr && s) {
-      assign_move(_std::move(s));
+   sstr & operator=(str const & s) {
+      vextr_impl::assign_share_raw_or_copy_desc(s);
       return *this;
    }
 
@@ -1803,8 +1242,8 @@ public:
       *this.
    */
    template <std::size_t t_cch>
-   smstr & operator=(char_t const (& ach)[t_cch]) {
-      assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
+   sstr & operator=(char_t const (& ach)[t_cch]) {
+      vextr_impl::assign_copy(ach, ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'));
       return *this;
    }
 };
@@ -1814,6 +1253,6 @@ public:
 namespace std {
 
 template <std::size_t t_cchEmbeddedCapacity>
-struct hash<abc::text::smstr<t_cchEmbeddedCapacity>> : public hash<abc::text::detail::str_base> {};
+struct hash<abc::text::sstr<t_cchEmbeddedCapacity>> : public hash<abc::text::str> {};
 
 } //namespace std

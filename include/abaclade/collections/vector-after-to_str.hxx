@@ -39,7 +39,7 @@ public:
 protected:
    /*! Formatting options to be applied to the individual elements, obtained from the constructor
    argument sFormat. */
-   istr m_sEltFormat;
+   str m_sEltFormat;
 };
 
 }}} //namespace abc::collections::detail
@@ -58,7 +58,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat) {
+   void set_format(str const & sFormat) {
 //    ABC_TRACE_FUNC(this, sFormat);
 
       collections::detail::vector_to_str_backend::set_format(sFormat);

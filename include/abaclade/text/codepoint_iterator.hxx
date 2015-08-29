@@ -26,9 +26,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace text { namespace detail {
 
-// Forward declarations.
-class str_base;
-
+// Forward declaration.
 template <bool t_bConst>
 class codepoint_iterator_impl;
 
@@ -42,14 +40,14 @@ class codepoint_proxy<true> {
 public:
    /*! Constructor.
 
-   @param pch
-      Pointer to the character(s) that this proxy will present as char32_t.
+   @param ich
+      Index of the character(s) that this proxy will present as char32_t.
    @param ps
       Pointer to the string that contains *pch.
    */
-   codepoint_proxy(char_t const * pch, str_base const * ps) :
-      m_pch(pch),
-      mc_ps(ps) {
+   codepoint_proxy(std::size_t ich, str const * ps) :
+      m_ich(ich),
+      mc_ps(const_cast<str *>(ps)) {
    }
 
    /*! Copy constructor.
@@ -58,7 +56,7 @@ public:
       Source object.
    */
    codepoint_proxy(codepoint_proxy const & cpp) :
-      m_pch(cpp.m_pch),
+      m_ich(cpp.m_ich),
       mc_ps(cpp.mc_ps) {
    }
 
@@ -67,17 +65,15 @@ public:
    @return
       Code point that the proxy is currently referencing.
    */
-   operator char32_t() const {
-      return host_char_traits::chars_to_codepoint(m_pch);
-   }
+   operator char32_t() const;
 
 private:
    // Disable this.
    codepoint_proxy & operator=(codepoint_proxy const & cpp);
 
 protected:
-   char_t const * m_pch;
-   str_base const * const mc_ps;
+   std::size_t m_ich;
+   str * const mc_ps;
 };
 
 // Non-const specialization.
@@ -86,17 +82,13 @@ class codepoint_proxy<false> : public codepoint_proxy<true> {
 public:
    /*! See codepoint_proxy<true>::codepoint_proxy().
 
-   @param pch
-      Pointer to the character(s) that this proxy will present as char32_t.
+   @param ich
+      Index of the character(s) that this proxy will present as char32_t.
    @param ps
-      Pointer to the string that contains *pch.
-   @param pcii
-      Pointer to the instantiating iterator; *pcii will be updated in case of changes to *ps. If not
-      instantiated by an iterator, this should be set to nullptr.
+      Pointer to the string that contains the code point.
    */
-   codepoint_proxy(char_t * pch, str_base * ps, codepoint_iterator_impl<false> * pcii) :
-      codepoint_proxy<true>(pch, ps),
-      mc_pcii(pcii) {
+   codepoint_proxy(std::size_t ich, str const * ps) :
+      codepoint_proxy<true>(ich, const_cast<str *>(ps)) {
    }
 
    /*! See codepoint_proxy<true>::codepoint_proxy().
@@ -105,8 +97,7 @@ public:
       Source object.
    */
    codepoint_proxy(codepoint_proxy const & cpp) :
-      codepoint_proxy<true>(cpp),
-      mc_pcii(cpp.mc_pcii) {
+      codepoint_proxy<true>(cpp) {
    }
 
    /*! Assignment operator.
@@ -164,11 +155,6 @@ public:
    codepoint_proxy & operator=(codepoint_proxy<true> const & cpp) {
       return operator=(cpp.operator char32_t());
    }
-
-protected:
-   /*! Pointer to the instantiating iterator; will be updated in case of changes to *ps. Can be
-   nullptr if *this was not instantiated by an iterator. */
-   codepoint_iterator_impl<false> * const mc_pcii;
 };
 
 /* Relational operators. Provided so that comparisons between char32_t (from codepoint_proxy) and
@@ -245,7 +231,7 @@ public:
       Reference to the current character.
    */
    codepoint_proxy<true> operator*() const {
-      return codepoint_proxy<true>(throw_if_end(m_pch), m_ps);
+      return codepoint_proxy<true>(throw_if_end(m_ich), m_ps);
    }
 
    /*! Element access operator.
@@ -265,101 +251,72 @@ public:
    @return
       Pointer to the value pointed to by this iterator.
    */
-   char_t const * base() const {
-      return m_pch;
-   }
-
-   /*! Returns the string that created this iterator.
-
-   @return
-      Pointer to the value pointed to by this iterator.
-   */
-   str_base const * _str() const {
-      return m_ps;
-   }
+   char_t const * base() const;
 
 protected:
    /*! Constructor.
 
-   @param pch
-      Pointer to set the iterator to.
+   @param ich
+      Index to set the iterator to.
    @param ps
       Pointer to the string that is creating the iterator.
    */
-   codepoint_iterator_impl(char_t const * pch, str_base const * ps) :
-      m_pch(pch),
-      m_ps(ps) {
+   codepoint_iterator_impl(std::size_t ich, str const * ps) :
+      m_ich(ich),
+      m_ps(const_cast<str *>(ps)) {
    }
 
-   //! Invokes m_ps->_advance_char_ptr(). See str_base::_advance_char_ptr().
-   char_t const * advance(std::ptrdiff_t i, bool bIndex) const;
+   //! Invokes m_ps->_advance_char_index(). See str::_advance_char_index().
+   std::size_t advance(std::ptrdiff_t iDelta, bool bIndex) const;
 
-   /*! Computes the distance from another iterator/pointer.
+   /*! Computes the distance from another iterator/index.
 
-   @param pch
-      Pointer from which to calculate the distance.
+   @param ich
+      Index from which to calculate the distance.
    @return
-      Distance between *this and pch, in code points.
+      Distance between *this and ich, in code points.
    */
-   std::ptrdiff_t distance(char_t const * pch) const;
+   std::ptrdiff_t distance(std::size_t ich) const;
 
-   /*! Throws an iterator_error if the specified pointer is the end of the string.
+   /*! Throws an iterator_error if the specified index is at or beyond the end of the string.
 
-   @param pch
-      Pointer to validate.
+   @param ich
+      Index to validate.
+   @return
+      ich.
    */
-   char_t const * throw_if_end(char_t const * pch) const;
+   std::size_t throw_if_end(std::size_t ich) const;
 
-protected:
-   //! Pointer to the current character.
-   char_t const * m_pch;
+public:
+   //! Index of the current character.
+   std::size_t m_ich;
    //! Pointer to the source string.
-   str_base const * m_ps;
+   str * m_ps;
 };
 
 // Non-const specialization.
 template <>
 class codepoint_iterator_impl<false> : public codepoint_iterator_impl<true> {
-private:
-   // Needs to be able to update m_pch is the string buffer changes.
-   friend codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t ch);
-
 public:
    //! See codepoint_iterator_impl<true>::operator*().
    using codepoint_iterator_impl<true>::operator*;
    codepoint_proxy<false> operator*() {
-      return codepoint_proxy<false>(
-         const_cast<char_t *>(throw_if_end(m_pch)), const_cast<str_base *>(m_ps), this
-      );
+      return codepoint_proxy<false>(throw_if_end(m_ich), m_ps);
    }
 
    //! See codepoint_iterator_impl<true>::operator[]().
    using codepoint_iterator_impl<true>::operator[];
    codepoint_proxy<false> operator[](std::ptrdiff_t i) {
-      return codepoint_proxy<false>(
-         const_cast<char_t *>(throw_if_end(advance(i, true))), const_cast<str_base *>(m_ps), this
-      );
+      return codepoint_proxy<false>(throw_if_end(advance(i, true)), m_ps);
    }
 
    //! See codepoint_iterator_impl<true>::base().
-   char_t * base() const {
-      return const_cast<char_t *>(m_pch);
-   }
-
-   //! See codepoint_iterator_impl<true>::_str().
-   str_base * _str() const {
-      return const_cast<str_base *>(m_ps);
-   }
+   char_t * base() const;
 
 protected:
    //! See codepoint_iterator_impl<true>::codepoint_iterator_impl().
-   codepoint_iterator_impl(char_t * pch, str_base * ps) :
-      codepoint_iterator_impl<true>(pch, ps) {
-   }
-
-   //! See codepoint_iterator_impl<true>::advance().
-   char_t * advance(std::ptrdiff_t i, bool bIndex) const {
-      return const_cast<char_t *>(codepoint_iterator_impl<true>::advance(i, bIndex));
+   codepoint_iterator_impl(std::size_t ich, str const * ps) :
+      codepoint_iterator_impl<true>(ich, const_cast<str *>(ps)) {
    }
 };
 
@@ -381,21 +338,20 @@ class codepoint_iterator :
 public:
    //! Default constructor.
    /*constexpr*/ codepoint_iterator() :
-      detail::codepoint_iterator_impl<t_bConst>(nullptr, nullptr) {
+      detail::codepoint_iterator_impl<t_bConst>(0, nullptr) {
    }
 
    /*! Constructor.
 
-   @param pch
-      Pointer to set the iterator to.
+   @param ich
+      Character index to set the iterator to.
    @param ps
       Pointer to the string that is creating the iterator.
    */
    codepoint_iterator(
-      typename _std::conditional<t_bConst, char_t const, char_t>::type * pch,
-      typename _std::conditional<t_bConst, detail::str_base const, detail::str_base>::type * ps
+      std::size_t ich, typename _std::conditional<t_bConst, str const, str>::type * ps
    ) :
-      detail::codepoint_iterator_impl<t_bConst>(pch, ps) {
+      detail::codepoint_iterator_impl<t_bConst>(ich, ps) {
    }
 
    /*! Copy constructor. Allows to convert from non-const to const iterator types.
@@ -405,7 +361,7 @@ public:
    */
    template <bool t_bConst2>
    codepoint_iterator(codepoint_iterator<t_bConst2> const & it) :
-      detail::codepoint_iterator_impl<t_bConst>(it.base(), it._str()) {
+      detail::codepoint_iterator_impl<t_bConst>(it) {
    }
 
    /*! Addition-assignment operator.
@@ -417,7 +373,7 @@ public:
       *this after it’s moved forward by i positions.
    */
    codepoint_iterator & operator+=(std::ptrdiff_t i) {
-      this->m_pch = this->advance(i, false);
+      this->m_ich = this->advance(i, false);
       return *this;
    }
 
@@ -430,7 +386,7 @@ public:
       *this after it’s moved backwards by i positions.
    */
    codepoint_iterator & operator-=(std::ptrdiff_t i) {
-      this->m_pch = this->advance(-i, false);
+      this->m_ich = this->advance(-i, false);
       return *this;
    }
 
@@ -443,7 +399,7 @@ public:
       Iterator that’s i items ahead of *this.
    */
    codepoint_iterator operator+(std::ptrdiff_t i) const {
-      return codepoint_iterator(this->advance(i, false), this->_str());
+      return codepoint_iterator(this->advance(i, false), this->m_ps);
    }
 
    /*! Subtraction/difference operator.
@@ -458,11 +414,11 @@ public:
       points (difference).
    */
    codepoint_iterator operator-(std::ptrdiff_t i) const {
-      return codepoint_iterator(this->advance(-i, false), this->_str());
+      return codepoint_iterator(this->advance(-i, false), this->m_ps);
    }
    template <bool t_bConst2>
    std::ptrdiff_t operator-(codepoint_iterator<t_bConst2> it) const {
-      return this->distance(it.base());
+      return this->distance(it.m_ich);
    }
 
    /*! Preincrement operator. If the resulting iterator was already at the string’s end, an
@@ -472,7 +428,7 @@ public:
       *this after it’s moved to the value following the one currently pointed to.
    */
    codepoint_iterator & operator++() {
-      this->m_pch = this->advance(1, false);
+      this->m_ich = this->advance(1, false);
       return *this;
    }
 
@@ -483,9 +439,9 @@ public:
       Iterator pointing to the value following the one pointed to by this iterator.
    */
    codepoint_iterator operator++(int) {
-      auto pch(this->base());
-      this->m_pch = this->advance(1, false);
-      return codepoint_iterator(pch, this->_str());
+      auto ich(this->m_ich);
+      this->m_ich = this->advance(1, false);
+      return codepoint_iterator(ich, this->m_ps);
    }
 
    /*! Predecrement operator. If the resulting iterator was already at the string’s beginning, an
@@ -495,7 +451,7 @@ public:
       *this after it’s moved to the value preceding the one currently pointed to.
    */
    codepoint_iterator & operator--() {
-      this->m_pch = this->advance(-1, false);
+      this->m_ich = this->advance(-1, false);
       return *this;
    }
 
@@ -506,9 +462,9 @@ public:
       Iterator pointing to the value preceding the one pointed to by this iterator.
    */
    codepoint_iterator operator--(int) {
-      auto pch(this->base());
-      this->m_pch = this->advance(-1, false);
-      return codepoint_iterator(pch, this->_str());
+      auto ich(this->m_ich);
+      this->m_ich = this->advance(-1, false);
+      return codepoint_iterator(ich, this->m_ps);
    }
 
 // Relational operators.

@@ -168,7 +168,7 @@ protected:
    @param sTitle
       New window title.
    */
-   virtual void set_window_title(istr const & sTitle) = 0;
+   virtual void set_window_title(str const & sTitle) = 0;
 
 private:
    /*! Implementation of consume_char() for when the parser state is “in sequence”, i.e. while
@@ -234,7 +234,7 @@ private:
    //! Numeric arguments parsed from the current sequence.
    collections::smvector<std::int16_t, 4> m_viCmdArgs;
    //! String argument parsed from the current sequence.
-   dmstr m_sCmdArg;
+   str m_sCmdArg;
    //! Stores the row number for the Save/Restore Cursor Position command.
    std::int16_t m_iSavedRow;
    //! Stores the column number for the Save/Restore Cursor Position command.

@@ -32,7 +32,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-void to_str_backend<bool>::set_format(istr const & sFormat) {
+void to_str_backend<bool>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -86,7 +86,7 @@ int_to_str_backend_base::int_to_str_backend_base(unsigned cbInt) :
    m_chPrefix1('\0') {
 }
 
-void int_to_str_backend_base::set_format(istr const & sFormat) {
+void int_to_str_backend_base::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    bool bPrefix = false;
@@ -196,7 +196,7 @@ default_notation:
 }
 
 void int_to_str_backend_base::add_prefixes_and_write(
-   bool bNegative, io::text::writer * ptwOut, mstr * psBuf, mstr::iterator itBufFirstUsed
+   bool bNegative, io::text::writer * ptwOut, str * psBuf, str::iterator itBufFirstUsed
 ) const {
    ABC_TRACE_FUNC(this, bNegative, ptwOut, psBuf, itBufFirstUsed);
 
@@ -241,7 +241,7 @@ inline void int_to_str_backend_base::write_impl(I i, io::text::writer * ptwOut) 
    ABC_TRACE_FUNC(this/*, i*/, ptwOut);
 
    // Create a buffer of sufficient size for binary notation (the largest).
-   smstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
+   sstr<2 /* prefix or sign */ + sizeof(I) * CHAR_BIT> sBuf;
    /* Use bClear = true since we need to iterate backwards on sBuf, which requires reading its
    otherwise uninitialized charactes. */
    sBuf.set_size_in_chars(m_cchBuf, true);
@@ -310,7 +310,7 @@ ptr_to_str_backend::ptr_to_str_backend() {
    m_tsbInt.set_format(ABC_SL("#x"));
 }
 
-void ptr_to_str_backend::set_format(istr const & sFormat) {
+void ptr_to_str_backend::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -331,7 +331,7 @@ void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::writer * ptw
    if (iPtr) {
       m_tsbInt.write(iPtr, ptwOut);
    } else {
-      m_tsbStr.write(istr(ABC_SL("nullptr")), ptwOut);
+      m_tsbStr.write(str(ABC_SL("nullptr")), ptwOut);
    }
 }
 
@@ -347,7 +347,7 @@ to_str_backend<_std::type_info>::to_str_backend() {
 to_str_backend<_std::type_info>::~to_str_backend() {
 }
 
-void to_str_backend<_std::type_info>::set_format(istr const & sFormat) {
+void to_str_backend<_std::type_info>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -394,13 +394,13 @@ void to_str_backend<_std::type_info>::write(_std::type_info const & ti, io::text
 
 namespace abc { namespace detail {
 
-sequence_to_str_backend::sequence_to_str_backend(istr const & sStart, istr const & sEnd) :
+sequence_to_str_backend::sequence_to_str_backend(str const & sStart, str const & sEnd) :
    m_sSeparator(ABC_SL(", ")),
    m_sStart(sStart),
    m_sEnd(sEnd) {
 }
 
-void sequence_to_str_backend::set_format(istr const & sFormat) {
+void sequence_to_str_backend::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());

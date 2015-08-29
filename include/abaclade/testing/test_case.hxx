@@ -59,7 +59,7 @@ public:
    @return
       Test case title.
    */
-   virtual istr title() = 0;
+   virtual str title() = 0;
 
 protected:
    /*! Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW().
@@ -72,7 +72,7 @@ protected:
       Source representation of the expression being evaluated.
    */
    void assert_does_not_throw(
-      source_location const & srcloc, _std::function<void ()> const & fnExpr, istr const & sExpr
+      source_location const & srcloc, _std::function<void ()> const & fnExpr, str const & sExpr
    );
 
    /*! Implementation of ABC_TESTING_ASSERT_EQUAL().
@@ -91,12 +91,12 @@ protected:
    template <typename TExpr, typename TEqual>
    void assert_equal(
       source_location const & srcloc,
-      TExpr const & tActual, TEqual const & tEqual, istr const & sExpr, istr const & sEqual
+      TExpr const & tActual, TEqual const & tEqual, str const & sExpr, str const & sEqual
    ) {
       bool bPass = (tActual == tEqual);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("== "),
-         bPass ? sEqual : istr(to_str(tEqual)), bPass ? istr::empty : istr(to_str(tActual))
+         bPass ? sEqual : str(to_str(tEqual)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
@@ -109,7 +109,7 @@ protected:
    @param sExpr
       C++ code evaluating to bActual.
    */
-   void assert_false(source_location const & srcloc, bool bActual, istr const & sExpr);
+   void assert_false(source_location const & srcloc, bool bActual, str const & sExpr);
 
    /*! Implementation of ABC_TESTING_ASSERT_GREATER().
 
@@ -127,12 +127,12 @@ protected:
    template <typename TExpr, typename TLBound>
    void assert_greater(
       source_location const & srcloc,
-      TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
+      TExpr const & tActual, TLBound const & tLBound, str const & sExpr, str const & sLBound
    ) {
       bool bPass = (tActual > tLBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("> "),
-         bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr::empty : istr(to_str(tActual))
+         bPass ? sLBound : str(to_str(tLBound)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
@@ -152,12 +152,12 @@ protected:
    template <typename TExpr, typename TLBound>
    void assert_greater_equal(
       source_location const & srcloc,
-      TExpr const & tActual, TLBound const & tLBound, istr const & sExpr, istr const & sLBound
+      TExpr const & tActual, TLBound const & tLBound, str const & sExpr, str const & sLBound
    ) {
       bool bPass = (tActual >= tLBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL(">= "),
-         bPass ? sLBound : istr(to_str(tLBound)), bPass ? istr::empty : istr(to_str(tActual))
+         bPass ? sLBound : str(to_str(tLBound)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
@@ -177,12 +177,12 @@ protected:
    template <typename TExpr, typename TUBound>
    void assert_less(
       source_location const & srcloc,
-      TExpr const & tActual, TUBound const & tUBound, istr const & sExpr, istr const & sUBound
+      TExpr const & tActual, TUBound const & tUBound, str const & sExpr, str const & sUBound
    ) {
       bool bPass = (tActual < tUBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("<= "),
-         bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr::empty : istr(to_str(tActual))
+         bPass ? sUBound : str(to_str(tUBound)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
@@ -202,12 +202,12 @@ protected:
    template <typename TExpr, typename TUBound>
    void assert_less_equal(
       source_location const & srcloc,
-      TExpr const & tActual, TUBound const & tUBound, istr const & sExpr, istr const & sUBound
+      TExpr const & tActual, TUBound const & tUBound, str const & sExpr, str const & sUBound
    ) {
       bool bPass = (tActual <= tUBound);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("<= "),
-         bPass ? sUBound : istr(to_str(tUBound)), bPass ? istr::empty : istr(to_str(tActual))
+         bPass ? sUBound : str(to_str(tUBound)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
@@ -227,12 +227,12 @@ protected:
    template <typename TExpr, typename TNotEqual>
    void assert_not_equal(
       source_location const & srcloc,
-      TExpr const & tActual, TNotEqual const & tNotEqual, istr const & sExpr, istr const & sNotEqual
+      TExpr const & tActual, TNotEqual const & tNotEqual, str const & sExpr, str const & sNotEqual
    ) {
       bool bPass = (tActual != tNotEqual);
       m_prunner->log_assertion(
          srcloc, bPass, sExpr, ABC_SL("!= "),
-         bPass ? sNotEqual : istr(to_str(tNotEqual)), bPass ? istr::empty : istr(to_str(tActual))
+         bPass ? sNotEqual : str(to_str(tNotEqual)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
@@ -250,7 +250,7 @@ protected:
       Return value of std::exception::what(), as overridden by the desired derived class.
    */
    void assert_throws(
-      source_location const & srcloc, _std::function<void ()> const & fnExpr, istr const & sExpr,
+      source_location const & srcloc, _std::function<void ()> const & fnExpr, str const & sExpr,
       _std::function<bool (_std::exception const &)> const & fnMatchType,
       char const * pszExpectedWhat
    );
@@ -264,7 +264,7 @@ protected:
    @param sExpr
       C++ code evaluating to bActual.
    */
-   void assert_true(source_location const & srcloc, bool bActual, istr const & sExpr);
+   void assert_true(source_location const & srcloc, bool bActual, str const & sExpr);
 
 protected:
    //! Runner executing this test.
@@ -389,8 +389,8 @@ unique name.
    class name : public ::abc::testing::test_case { \
    public: \
       /*! See abc::testing::test_case::title(). */ \
-      virtual ::abc::istr title() override { \
-         return ::abc::istr(ABC_SL(test_title)); \
+      virtual ::abc::str title() override { \
+         return ::abc::str(ABC_SL(test_title)); \
       } \
    \
       /*! See abc::testing::test_case::run(). */ \

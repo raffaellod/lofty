@@ -43,7 +43,7 @@ app::app() {
 /*static*/ int app::call_main(app * papp, _args_t * pargs) {
    ABC_TRACE_FUNC(papp, pargs);
 
-   collections::smvector<istr, 8> vsArgs;
+   collections::smvector<str, 8> vsArgs;
 // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
 #if ABC_HOST_API_WIN32 && defined(ABC_HOST_API_WIN32_GUI)
    // TODO: call ::GetCommandLine() and parse its result.
@@ -51,7 +51,7 @@ app::app() {
    vsArgs.set_capacity(static_cast<std::size_t>(pargs->cArgs), false);
    // Make each string not allocate a new character array.
    for (int i = 0; i < pargs->cArgs; ++i) {
-      vsArgs.push_back(istr(external_buffer, pargs->ppszArgs[i]));
+      vsArgs.push_back(str(external_buffer, pargs->ppszArgs[i]));
    }
 #endif
 

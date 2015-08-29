@@ -33,10 +33,9 @@ Abaclade on non-compliant compilers such as MSC16) is the preferred character ty
 this means that the full range of valid Unicode code points is supported through the entire
 framework.
 
-Abaclade-based code should use one of the following string classes: abc::text::istr,
-abc::text::dmstr, and abc::text::smstr. These appear as arrays of char32_t characters and can be
-manipulated as such. The internal representation is in reality either UTF-8 or UTF-16, but this is
-for the most part abstracted away from Abaclade-based code.
+Abaclade-based code should the abc::text::str stirng class. This appears as an array of char32_t
+characters (code points) and can be manipulated as such. The internal representation is in reality
+either UTF-8 or UTF-16, but this is for the most part abstracted away from Abaclade-based code.
 
 While char32_t is the preferred character type, many functions/methods are available with overloads
 accepting C++ single-byte character literals, both for convenience and performance reasons. The
@@ -154,7 +153,7 @@ host default if lterm is line_terminator::any or line_terminator::convert_any_to
 @return
    String with the requested line terminator sequence.
 */
-ABACLADE_SYM istr get_line_terminator_str(line_terminator lterm);
+ABACLADE_SYM str get_line_terminator_str(line_terminator lterm);
 
 /*! Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
 total number of bytes in the source of which the buffer is the beginning.

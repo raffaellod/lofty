@@ -96,11 +96,11 @@ char_t const path::smc_aszRoot[] =
 char_t const path::smc_aszUNCRoot[] = ABC_SL("\\\\?\\UNC\\");
 #endif
 
-path & path::operator/=(istr const & s) {
+path & path::operator/=(str const & s) {
    ABC_TRACE_FUNC(this, s);
 
    // Only the root already ends in a separator; everything else needs one.
-   m_s = validate_and_adjust((!m_s || is_root() ? dmstr(m_s) : m_s + smc_aszSeparator) + s);
+   m_s = validate_and_adjust((!m_s || is_root() ? str(m_s) : m_s + smc_aszSeparator) + s);
    return *this;
 }
 
@@ -157,7 +157,7 @@ path path::base_name() const {
 /*static*/ path path::current_dir() {
    ABC_TRACE_FUNC();
 
-   dmstr s;
+   str s;
 #if ABC_HOST_API_POSIX
    s.set_from([] (char_t * pch, std::size_t cchMax) -> std::size_t {
       if (::getcwd(pch, cchMax)) {
@@ -173,7 +173,7 @@ path path::base_name() const {
    });
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
    /* Since we want to prefix the result of ::GetCurrentDirectory() with smc_aszRoot, we’ll make
-   mstr::set_from() allocate space for that too, by adding the size of the root to the buffer size
+   str::set_from() allocate space for that too, by adding the size of the root to the buffer size
    while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to reserve space
    for the root prefix. */
    std::size_t const c_cchRoot = ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/;
@@ -204,7 +204,7 @@ path path::base_name() const {
 
    // Create a dummy path for ::GetFullPathName() to expand.
    char_t achDummyPath[4] = { chVolume, ':', 'a', '\0' };
-   dmstr s;
+   str s;
    std::size_t const c_cchRoot(ABC_COUNTOF(smc_aszRoot) - 1 /*NUL*/);
    s.set_from([c_cchRoot, &achDummyPath] (char_t * pch, std::size_t cchMax) -> std::size_t {
       if (c_cchRoot >= cchMax) {
@@ -242,7 +242,7 @@ bool path::is_dir() const {
 path path::normalize() const {
    ABC_TRACE_FUNC(this);
 
-   dmstr s(m_s);
+   str s(m_s);
    auto itBegin(s.begin()), itEnd(s.end());
    auto itRootEnd(itBegin + static_cast<std::ptrdiff_t>(get_root_length(s)));
 
@@ -254,7 +254,7 @@ path path::normalize() const {
    •  Upon encountering the second “/” in “a/../”, roll back to index 0 (itRootEnd);
    •  Upon encountering the second “/” in “/../a”, roll back to index 1 (itRootEnd).
    */
-   collections::smvector<dmstr::iterator, 5> vitSeps;
+   collections::smvector<str::iterator, 5> vitSeps;
    std::size_t cDots = 0;
    auto itDst(itRootEnd);
    for (auto itSrc(itRootEnd); itSrc < itEnd; ++itSrc) {
@@ -315,7 +315,7 @@ path path::normalize() const {
 }
 
 #if ABC_HOST_API_WIN32
-istr path::os_str() const {
+str path::os_str() const {
    ABC_TRACE_FUNC(this);
 
    return _std::move(absolute().m_s);
@@ -342,10 +342,10 @@ path path::parent_dir() const {
 /*static*/ path path::root() {
    ABC_TRACE_FUNC();
 
-   return dmstr(smc_aszRoot);
+   return str(smc_aszRoot);
 }
 
-dmstr::const_iterator path::base_name_start() const {
+str::const_iterator path::base_name_start() const {
    ABC_TRACE_FUNC(this);
 
    auto itBaseNameStart(m_s.find_last(smc_aszSeparator[0]));
@@ -370,7 +370,7 @@ dmstr::const_iterator path::base_name_start() const {
 }
 
 /*static*/ std::size_t path::get_root_length(
-   istr const & s
+   str const & s
 #if ABC_HOST_API_WIN32
    , bool bIncludeNonRoot /*= true*/
 #endif
@@ -429,13 +429,13 @@ dmstr::const_iterator path::base_name_start() const {
    return 0;
 }
 
-/*static*/ bool path::is_absolute(istr const & s) {
+/*static*/ bool path::is_absolute(str const & s) {
    ABC_TRACE_FUNC(s);
 
    return s.starts_with(smc_aszRoot);
 }
 
-/*static*/ dmstr path::validate_and_adjust(dmstr s) {
+/*static*/ str path::validate_and_adjust(str s) {
    ABC_TRACE_FUNC(s);
 
 #if ABC_HOST_API_WIN32
@@ -515,7 +515,7 @@ dmstr::const_iterator path::base_name_start() const {
 
 namespace abc {
 
-void to_str_backend<os::path>::set_format(istr const & sFormat) {
+void to_str_backend<os::path>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -533,7 +533,7 @@ void to_str_backend<os::path>::set_format(istr const & sFormat) {
 void to_str_backend<os::path>::write(os::path const & op, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this/*, op*/, ptwOut);
 
-   ptwOut->write(static_cast<istr const &>(op));
+   ptwOut->write(static_cast<str const &>(op));
 }
 
 } //namespace abc

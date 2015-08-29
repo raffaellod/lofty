@@ -64,11 +64,9 @@ public:
       Pointer to the source string to be used as external_buffer.
    */
    str_reader(str_reader && sr);
-   explicit str_reader(istr const & s);
-   explicit str_reader(istr && s);
-   explicit str_reader(mstr && s);
-   str_reader(external_buffer_t const &, istr const * ps);
-   str_reader(external_buffer_t const &, mstr const * ps);
+   explicit str_reader(str const & s);
+   explicit str_reader(str && s);
+   str_reader(external_buffer_t const &, str const * ps);
 
    //! Destructor.
    virtual ~str_reader();
@@ -84,13 +82,13 @@ public:
 
 protected:
    //! See reader::read_line_or_all().
-   virtual bool read_line_or_all(mstr * psDst, bool bOneLine) override;
+   virtual bool read_line_or_all(str * psDst, bool bOneLine) override;
 
 protected:
    //! Pointer to the source string, which is m_sReadBuf or an external string.
-   istr const * m_psReadBuf;
+   str const * m_psReadBuf;
    //! Default target of m_psReadBuf, if none is supplied via the external_buffer constructor.
-   istr m_sReadBuf;
+   str m_sReadBuf;
 };
 
 }}} //namespace abc::io::text
@@ -110,7 +108,7 @@ public:
    */
    str_writer();
    str_writer(str_writer && sw);
-   str_writer(external_buffer_t const &, mstr * psBuf);
+   str_writer(external_buffer_t const &, str * psBuf);
 
    //! Destructor.
    virtual ~str_writer();
@@ -129,7 +127,7 @@ public:
    @return
       Content of the writer.
    */
-   istr const & get_str() const {
+   str const & get_str() const {
       return *m_psWriteBuf;
    }
 
@@ -141,7 +139,7 @@ public:
    @return
       Former content of the writer.
    */
-   dmstr release_content();
+   str release_content();
 
    //! See writer::write_binary().
    virtual void write_binary(
@@ -150,9 +148,9 @@ public:
 
 protected:
    //! Pointer to the destination string.
-   mstr * m_psWriteBuf;
+   str * m_psWriteBuf;
    //! Default target of m_psWriteBuf, if none is supplied via the external_buffer constructor.
-   dmstr m_sDefaultWriteBuf;
+   str m_sDefaultWriteBuf;
 };
 
 }}} //namespace abc::io::text

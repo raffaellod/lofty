@@ -38,47 +38,47 @@ void test_case::init(runner * prunner) {
 }
 
 void test_case::assert_does_not_throw(
-   source_location const & srcloc, _std::function<void ()> const & fnExpr, istr const & sExpr
+   source_location const & srcloc, _std::function<void ()> const & fnExpr, str const & sExpr
 ) {
    ABC_TRACE_FUNC(this, srcloc, /*fnExpr, */sExpr);
 
-   istr sCaughtWhat;
+   str sCaughtWhat;
    try {
       fnExpr();
    } catch (_std::exception const & x) {
-      sCaughtWhat = istr(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(x.what()));
+      sCaughtWhat = str(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(x.what()));
    } catch (...) {
       sCaughtWhat = ABC_SL("unknown type");
    }
    m_prunner->log_assertion(
-      srcloc, !sCaughtWhat, sExpr, istr::empty, ABC_SL("does not throw"), sCaughtWhat
+      srcloc, !sCaughtWhat, sExpr, str::empty, ABC_SL("does not throw"), sCaughtWhat
    );
 }
 
-void test_case::assert_false(source_location const & srcloc, bool bActual, istr const & sExpr) {
+void test_case::assert_false(source_location const & srcloc, bool bActual, str const & sExpr) {
    ABC_TRACE_FUNC(this, srcloc, bActual, sExpr);
 
    m_prunner->log_assertion(
-      srcloc, !bActual, sExpr, istr::empty, !bActual ? istr::empty : ABC_SL("false"), ABC_SL("true")
+      srcloc, !bActual, sExpr, str::empty, !bActual ? str::empty : ABC_SL("false"), ABC_SL("true")
    );
 }
 
-void test_case::assert_true(source_location const & srcloc, bool bActual, istr const & sExpr) {
+void test_case::assert_true(source_location const & srcloc, bool bActual, str const & sExpr) {
    ABC_TRACE_FUNC(this, srcloc, bActual, sExpr);
 
    m_prunner->log_assertion(
-      srcloc, bActual, sExpr, istr::empty, bActual ? istr::empty : ABC_SL("true"), ABC_SL("false")
+      srcloc, bActual, sExpr, str::empty, bActual ? str::empty : ABC_SL("true"), ABC_SL("false")
    );
 }
 
 void test_case::assert_throws(
-   source_location const & srcloc, _std::function<void ()> const & fnExpr, istr const & sExpr,
+   source_location const & srcloc, _std::function<void ()> const & fnExpr, str const & sExpr,
    _std::function<bool (_std::exception const &)> const & fnMatchType, char const * pszExpectedWhat
 ) {
    ABC_TRACE_FUNC(this, srcloc, /*fnExpr, */sExpr, /*fnMatchType, */pszExpectedWhat);
 
    bool bPass = false;
-   istr sCaughtWhat;
+   str sCaughtWhat;
    try {
       fnExpr();
       sCaughtWhat = ABC_SL("does not throw");
@@ -86,14 +86,14 @@ void test_case::assert_throws(
       if (fnMatchType(x)) {
          bPass = true;
       } else {
-         sCaughtWhat = istr(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(x.what()));
+         sCaughtWhat = str(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(x.what()));
       }
    } catch (...) {
       sCaughtWhat = ABC_SL("unknown type");
    }
    m_prunner->log_assertion(
-      srcloc, bPass, sExpr, istr::empty,
-      istr(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(pszExpectedWhat)), sCaughtWhat
+      srcloc, bPass, sExpr, str::empty,
+      str(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(pszExpectedWhat)), sCaughtWhat
    );
 }
 

@@ -68,7 +68,7 @@ public:
       Pointer to the end of the byte sequence that caused the error.
    */
    void init(
-      istr const & sDescription = istr::empty, std::uint8_t const * pbInvalidBegin = nullptr,
+      str const & sDescription = str::empty, std::uint8_t const * pbInvalidBegin = nullptr,
       std::uint8_t const * pbInvalidEnd = nullptr, errint_t err = 0
    );
 
@@ -78,7 +78,7 @@ protected:
 
 private:
    //! Description of the encountered problem.
-   istr m_sDescription;
+   str m_sDescription;
    //! Bytes that caused the error.
    collections::smvector<std::uint8_t, 16> m_viInvalid;
 };
@@ -113,7 +113,7 @@ public:
       Code point that caused the error.
    */
    void init(
-      istr const & sDescription = istr::empty, char32_t chInvalid = 0xffffff, errint_t err = 0
+      str const & sDescription = str::empty, char32_t chInvalid = 0xffffff, errint_t err = 0
    );
 
 protected:
@@ -122,7 +122,7 @@ protected:
 
 private:
    //! Description of the encountered problem.
-   istr m_sDescription;
+   str m_sDescription;
    /*! Code point that caused the error. Not a char32_t because if there’s anything wrong with it,
    we don’t want to find out when trying to print it in write_extended_info(). */
    std::uint32_t m_iInvalidCodePoint;

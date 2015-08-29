@@ -27,9 +27,9 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 template <class T>
-inline istr enum_impl<T>::name() const {
+inline str enum_impl<T>::name() const {
    detail::enum_member const * pem = _member();
-   return istr(external_buffer, pem->pszName, pem->cchName);
+   return str(external_buffer, pem->pszName, pem->cchName);
 }
 
 } //namespace abc
@@ -46,7 +46,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
 protected:
    /*! Writes an enumeration value, applying the formatting options.

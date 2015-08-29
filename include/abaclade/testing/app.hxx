@@ -39,7 +39,7 @@ allowing for the execution of test cases. */
 class ABACLADE_TESTING_SYM app : public abc::app {
 public:
    //! See abc::app::main().
-   virtual int main(collections::mvector<istr> & vsArgs) override;
+   virtual int main(collections::mvector<str> & vsArgs) override;
 };
 
 }} //namespace abc::testing

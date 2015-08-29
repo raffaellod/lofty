@@ -541,7 +541,7 @@ class ABACLADE_SYM assertion_error : public exception {
 public:
    //! Throws an exception of type ab::assertion_error due to an expression failing validation.
    static ABC_FUNC_NORETURN void _assertion_failed(
-      source_location const & srcloc, istr const & sFunction, istr const & sExpr, istr const & sMsg
+      source_location const & srcloc, str const & sFunction, str const & sExpr, str const & sMsg
    );
 
 protected:

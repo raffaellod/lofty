@@ -66,7 +66,7 @@ public:
    /*! Move constructor.
 
    @param op
-      Source path.
+      Source object.
    */
    path(path && op) :
       m_s(_std::move(op.m_s)) {
@@ -75,19 +75,28 @@ public:
    /*! Copy constructor.
 
    @param op
-      Source path.
+      Source object.
    */
    path(path const & op) :
       m_s(op.m_s) {
    }
 
-   /*! Constructor.
+   /*! Constructor from plain string.
 
    @param s
-      Source string.
+      Source path string.
    */
-   path(dmstr s) :
+   path(str && s) :
       m_s(validate_and_adjust(_std::move(s))) {
+   }
+
+   /*! Constructor from plain string.
+
+   @param s
+      Source path string.
+   */
+   path(str const & s) :
+      m_s(validate_and_adjust(s)) {
    }
 
    /*! Move-assignment operator.
@@ -102,7 +111,7 @@ public:
       return *this;
    }
 
-   /*! Move-assignment operator.
+   /*! Copy-assignment operator.
 
    @param op
       Source path.
@@ -114,15 +123,27 @@ public:
       return *this;
    }
 
-   /*! Assignment operator.
+   /*! Assignment operator from plain string.
 
    @param s
-      Source string.
+      Source path string.
    @return
       *this.
    */
-   path & operator=(dmstr s) {
+   path & operator=(str && s) {
       m_s = validate_and_adjust(_std::move(s));
+      return *this;
+   }
+
+   /*! Assignment operator from plain string.
+
+   @param s
+      Source path string.
+   @return
+      *this.
+   */
+   path & operator=(str const & s) {
+      m_s = validate_and_adjust(s);
       return *this;
    }
 
@@ -140,7 +161,7 @@ public:
    @return
       An immutable, constant reference to the internal path string.
    */
-   operator istr const &() const {
+   operator str const &() const {
       return m_s;
    }
 
@@ -151,7 +172,7 @@ public:
    @return
       *this.
    */
-   path & operator+=(istr const & s) {
+   path & operator+=(str const & s) {
       m_s = validate_and_adjust(m_s + s);
       return *this;
    }
@@ -163,7 +184,7 @@ public:
    @return
       Resulting path.
    */
-   path operator+(istr const & s) const {
+   path operator+(str const & s) const {
       return path(*this) += s;
    }
 
@@ -175,7 +196,7 @@ public:
    @return
       *this.
    */
-   path & operator/=(istr const & s);
+   path & operator/=(str const & s);
 
    /*! Path-correct concatenation operator. See operator/=() for details.
 
@@ -184,7 +205,7 @@ public:
    @return
       Resulting path.
    */
-   path operator/(istr const & s) const {
+   path operator/(str const & s) const {
       return path(*this) /= s;
    }
 
@@ -228,7 +249,7 @@ public:
 
    TODO: comment signature.
    */
-   _path_iterator find(istr const & sPattern) const;
+   _path_iterator find(str const & sPattern) const;
 #endif
 
    /*! Returns true if the path is in absolute form. Under Win32, this means that the path is
@@ -287,12 +308,12 @@ public:
       String representation of the path suitable for use with the OS’s file API.
    */
 #if ABC_HOST_API_POSIX
-   // Under POSIX we don’t need an intermediate string, so the return type can be istr const &.
-   istr const & os_str() const {
+   // Under POSIX we don’t need an intermediate string, so the return type can be str const &.
+   str const & os_str() const {
       return m_s;
    }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-   istr os_str() const;
+   str os_str() const;
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -316,8 +337,8 @@ public:
    @return
       Path component separator.
    */
-   static istr separator() {
-      return istr(smc_aszSeparator);
+   static str separator() {
+      return str(smc_aszSeparator);
    }
 
    /*! Returns the count of characters in the path.
@@ -338,7 +359,7 @@ private:
       Iterator pointing to the first character of the final component in m_s, or the beginning of
       m_s if the path does not contain a root component/prefix.
    */
-   dmstr::const_iterator base_name_start() const;
+   str::const_iterator base_name_start() const;
 
    /*! Returns the length of the root part of the specified path or, in other words, the index of
    the first character in the path that is not part of the root, e.g. “a” in “/a” (POSIX),
@@ -355,7 +376,7 @@ private:
       Length of the root part in s, or 0 if s does not start with a root part.
    */
    static std::size_t get_root_length(
-      istr const & s
+      str const & s
 #if ABC_HOST_API_WIN32
       , bool bIncludeNonAbsolute = true
 #endif
@@ -371,7 +392,7 @@ private:
    @return
       true if s represents an absolute path, or false otherwise.
    */
-   static bool is_absolute(istr const & s);
+   static bool is_absolute(str const & s);
 
    /*! Validates and adjusts a path to make it suitable as abc::os::path’s internal representation:
    •  Collapses sequences of consecutive path separators into a single separator;
@@ -385,11 +406,11 @@ private:
    @return
       Path suitable for abc::os::path’s internal representation.
    */
-   static dmstr validate_and_adjust(dmstr s);
+   static str validate_and_adjust(str s);
 
 private:
    //! Full path, always in normalized form.
-   dmstr m_s;
+   str m_s;
    //! Platform-specific path component separator.
    static char_t const smc_aszSeparator[1 /*"/" or "\"*/ + 1 /*NUL*/];
    //! Platform-specific root path.
@@ -411,7 +432,7 @@ private:
 // Relational operators.
 #define ABC_RELOP_IMPL(op) \
    inline bool operator op(path const & op1, path const & op2) { \
-      return static_cast<istr const &>(op1) op static_cast<istr const &>(op2); \
+      return static_cast<str const &>(op1) op static_cast<str const &>(op2); \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -426,10 +447,10 @@ ABC_RELOP_IMPL(<=)
 namespace std {
 
 template <>
-struct hash<abc::os::path> : public hash<abc::text::istr> {
+struct hash<abc::os::path> : public hash<abc::text::str> {
    //! See std::hash::operator()().
    std::size_t operator()(abc::os::path const & op) const {
-      return hash<abc::text::istr>::operator()(op);
+      return hash<abc::text::str>::operator()(op);
    }
 };
 
@@ -440,14 +461,14 @@ struct hash<abc::os::path> : public hash<abc::text::istr> {
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<os::path> : public to_str_backend<istr> {
+class ABACLADE_SYM to_str_backend<os::path> : public to_str_backend<str> {
 public:
    /*! Changes the output format.
 
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
    /*! Writes a string, applying the formatting options.
 
@@ -469,7 +490,7 @@ namespace abc { namespace os {
 class _path_iterator {
 public:
    //! Constructor.
-   _path_iterator(path const & pathDir, istr const & sPattern) :
+   _path_iterator(path const & pathDir, str const & sPattern) :
       m_pathBaseDir(pathDir),
       m_hSearch(find_first_file((m_pathBaseDir / sPattern).os_str().c_str(), &m_wfd)),
       m_bEOF(m_hSearch == INVALID_HANDLE_VALUE) {
@@ -547,7 +568,7 @@ private:
    //* Returns the path from the m_wfd member.
    path next_path() const {
       return path(
-         m_pathBaseDir / istr(m_wfd.cFileName, ::wcslen(m_wfd.cFileName)),
+         m_pathBaseDir / str(m_wfd.cFileName, ::wcslen(m_wfd.cFileName)),
          m_wfd.dwFileAttributes
       );
    }
@@ -568,7 +589,7 @@ private:
 
 // Now this can be defined.
 
-inline _path_iterator path::find(istr const & sPattern) const {
+inline _path_iterator path::find(str const & sPattern) const {
    return _path_iterator(*this, sPattern);
 }
 #endif

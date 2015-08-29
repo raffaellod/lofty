@@ -67,12 +67,12 @@ public:
       raw_complex_vextr_impl::assign_move(type, _std::move(rcvi));
    }
 
-   //! See raw_complex_vextr_impl::assign_move_dynamic_or_move_items().
+   //! See raw_complex_vextr_impl::assign_move_desc_or_move_items().
    void assign_move_dynamic_or_move_items(raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destruct<T>();
       type.set_move_construct<T>();
-      raw_complex_vextr_impl::assign_move_dynamic_or_move_items(type, _std::move(rcvi));
+      raw_complex_vextr_impl::assign_move_desc_or_move_items(type, _std::move(rcvi));
    }
 
    /*! Inserts elements at a specific position in the vector by moving them.
@@ -268,9 +268,9 @@ public:
       raw_trivial_vextr_impl::assign_move(_std::move(rtvi));
    }
 
-   //! See raw_trivial_vextr_impl::assign_move_dynamic_or_move_items().
+   //! See raw_trivial_vextr_impl::assign_move_desc_or_move_items().
    void assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi) {
-      raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(_std::move(rtvi));
+      raw_trivial_vextr_impl::assign_move_desc_or_move_items(_std::move(rtvi));
    }
 
    /*! Inserts elements at a specific position in the vector.
@@ -666,13 +666,13 @@ protected:
       );
    }
 
-   /*! See raw_vector<T>::assign_move_dynamic_or_move_items().
+   /*! See raw_vector<T>::assign_move_desc_or_move_items().
 
    @param v
       Source vector.
    */
    void assign_move_dynamic_or_move_items(vector_base && v) {
-      raw_vector<T, smc_bCopyConstructible>::assign_move_dynamic_or_move_items(
+      raw_vector<T, smc_bCopyConstructible>::assign_move_desc_or_move_items(
          static_cast<raw_vector<T, smc_bCopyConstructible> &&>(v)
       );
    }

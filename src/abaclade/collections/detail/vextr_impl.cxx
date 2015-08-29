@@ -188,8 +188,9 @@ void raw_vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
          // The embedded item array is large enough; switch to using it.
          m_rvibWork.m_pBegin = ppiaEmbedded->m_at;
          m_rvibWork.m_bDynamic = false;
-      } else if (cbNew <= m_prvib->capacity<std::int8_t>()) {
-         // The current item array is large enough, no need to change anything.
+      } else if (m_prvib->m_bPrefixedItemArray && cbNew <= m_prvib->capacity<std::int8_t>()) {
+         /* The current item array is prefixed (writable) and large enough, no need to change
+         anything. */
          m_rvibWork.m_pBegin = m_prvib->m_pBegin;
          m_rvibWork.m_bDynamic = m_prvib->m_bDynamic;
       } else {
@@ -324,7 +325,7 @@ void raw_complex_vextr_impl::assign_move(
    rcvi.assign_empty();
 }
 
-void raw_complex_vextr_impl::assign_move_dynamic_or_move_items(
+void raw_complex_vextr_impl::assign_move_desc_or_move_items(
    type_void_adapter const & type, raw_complex_vextr_impl && rcvi
 ) {
    ABC_TRACE_FUNC(this/*, type, rcvi*/);
@@ -588,20 +589,23 @@ void raw_trivial_vextr_impl::assign_move(raw_trivial_vextr_impl && rtvi) {
    rtvi.assign_empty();
 }
 
-void raw_trivial_vextr_impl::assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi) {
+void raw_trivial_vextr_impl::assign_move_desc_or_move_items(raw_trivial_vextr_impl && rtvi) {
    ABC_TRACE_FUNC(this/*, rtvi*/);
 
    if (rtvi.m_pBegin == m_pBegin) {
       return;
    }
-   if (rtvi.m_bDynamic) {
-      assign_move(_std::move(rtvi));
+   if (rtvi.m_bDynamic || !rtvi.m_bPrefixedItemArray) {
+      // A dynamic or non-prefixed item array can be moved; just transfer its ownership.
+      this->~raw_trivial_vextr_impl();
+      assign_shallow(rtvi);
    } else {
-      // Can’t move, so copy instead.
+      /* A static (prefixed) item array can’t be moved, so copy (same as move, for trivial items)
+      its items instead. */
       assign_copy(rtvi.m_pBegin, rtvi.m_pEnd);
-      // And now empty the source.
-      rtvi.assign_empty();
    }
+   // And now empty the source.
+   rtvi.assign_empty();
 }
 
 void raw_trivial_vextr_impl::assign_share_raw_or_copy_desc(raw_trivial_vextr_impl const & rtvi) {

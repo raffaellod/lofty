@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -36,12 +36,12 @@ namespace abc { namespace detail {
    ABC_THROW(domain_error, ());
 }
 /*static*/ enum_member const * enum_member::find_in_map(
-   enum_member const * pem, istr const & sName
+   enum_member const * pem, str const & sName
 ) {
    ABC_TRACE_FUNC(pem, sName);
 
    for (; pem->pszName; ++pem) {
-      if (sName == istr(external_buffer, pem->pszName, pem->cchName)) {
+      if (sName == str(external_buffer, pem->pszName, pem->cchName)) {
          return pem;
       }
    }
@@ -55,7 +55,7 @@ namespace abc { namespace detail {
 
 namespace abc { namespace detail {
 
-void enum_to_str_backend_impl::set_format(istr const & sFormat) {
+void enum_to_str_backend_impl::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -76,7 +76,7 @@ void enum_to_str_backend_impl::write_impl(
    ABC_TRACE_FUNC(this, i, pem, ptwOut);
 
    enum_member const * petvp = enum_member::find_in_map(pem, i);
-   ptwOut->write(istr(external_buffer, petvp->pszName));
+   ptwOut->write(str(external_buffer, petvp->pszName));
 }
 
 }} //namespace abc::detail

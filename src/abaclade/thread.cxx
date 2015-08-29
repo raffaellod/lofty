@@ -420,7 +420,7 @@ to_str_backend<thread>::to_str_backend() {
 to_str_backend<thread>::~to_str_backend() {
 }
 
-void to_str_backend<thread>::set_format(istr const & sFormat) {
+void to_str_backend<thread>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -439,10 +439,10 @@ void to_str_backend<thread>::write(thread const & thr, io::text::writer * ptwOut
    ABC_TRACE_FUNC(this/*, thr*/, ptwOut);
 
    if (thread::id_type id = thr.id()) {
-      m_tsbStr.write(istr(ABC_SL("TID:")), ptwOut);
+      m_tsbStr.write(str(ABC_SL("TID:")), ptwOut);
       m_tsbId.write(id, ptwOut);
    } else {
-      m_tsbStr.write(istr(ABC_SL("TID:-")), ptwOut);
+      m_tsbStr.write(str(ABC_SL("TID:-")), ptwOut);
    }
 }
 

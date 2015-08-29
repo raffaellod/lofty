@@ -483,7 +483,7 @@ bool console_writer::processing_enabled() const {
    ::SetConsoleCursorInfo(m_fd.get(), &cci);
 }
 
-/*virtual*/ void console_writer::set_window_title(istr const & sTitle) /*override*/ {
+/*virtual*/ void console_writer::set_window_title(str const & sTitle) /*override*/ {
    ABC_TRACE_FUNC(this, sTitle);
 
    ::SetConsoleTitle(sTitle.c_str());

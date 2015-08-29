@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -36,7 +36,7 @@ namespace abc {
    Object reconstructed from s according to sFormat.
 */
 template <typename T>
-T from_str(istr const & s, istr const & sFormat = istr::empty);
+T from_str(str const & s, str const & sFormat = str::empty);
 
 } //namespace abc
 

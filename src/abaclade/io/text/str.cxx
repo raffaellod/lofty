@@ -55,44 +55,31 @@ str_reader::str_reader(str_reader && sr) :
    sr.m_psReadBuf = &sr.m_sReadBuf;
 }
 
-str_reader::str_reader(istr const & s) :
+str_reader::str_reader(str const & s) :
    base(),
    str_base(),
    reader(),
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(s) {
 }
-str_reader::str_reader(istr && s) :
+str_reader::str_reader(str && s) :
    base(),
    str_base(),
    reader(),
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(_std::move(s)) {
 }
-str_reader::str_reader(mstr && s) :
-   base(),
-   str_base(),
-   reader(),
-   m_psReadBuf(&m_sReadBuf),
-   m_sReadBuf(_std::move(s)) {
-}
-str_reader::str_reader(external_buffer_t const &, istr const * ps) :
+str_reader::str_reader(external_buffer_t const &, str const * ps) :
    base(),
    str_base(),
    reader(),
    m_psReadBuf(ps) {
 }
-str_reader::str_reader(external_buffer_t const &, mstr const * ps) :
-   base(),
-   str_base(),
-   reader(),
-   m_psReadBuf(&ps->operator istr const &()) {
-}
 
 /*virtual*/ str_reader::~str_reader() {
 }
 
-/*virtual*/ bool str_reader::read_line_or_all(mstr * psDst, bool bOneLine) /*override*/ {
+/*virtual*/ bool str_reader::read_line_or_all(str * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
    // TODO: implement this.
@@ -119,7 +106,7 @@ str_writer::str_writer(str_writer && sw) :
    m_sDefaultWriteBuf(_std::move(sw.m_sDefaultWriteBuf)) {
    sw.m_psWriteBuf = &sw.m_sDefaultWriteBuf;
 }
-str_writer::str_writer(external_buffer_t const &, mstr * psBuf) :
+str_writer::str_writer(external_buffer_t const &, str * psBuf) :
    base(),
    str_base(),
    writer(),
@@ -144,7 +131,7 @@ void str_writer::clear() {
    // Nothing to do.
 }
 
-dmstr str_writer::release_content() {
+str str_writer::release_content() {
    ABC_TRACE_FUNC(this);
 
    m_ichOffset = 0;

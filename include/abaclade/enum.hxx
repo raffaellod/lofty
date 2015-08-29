@@ -219,7 +219,7 @@ struct ABACLADE_SYM enum_member {
    @return
       Pointer to the matching name/value pair.
    */
-   static enum_member const * find_in_map(enum_member const * pem, istr const & sName);
+   static enum_member const * find_in_map(enum_member const * pem, str const & sName);
 };
 
 }} //namespace abc::detail
@@ -284,7 +284,7 @@ public:
       String to be converted to enum_type. If this doesn’t match exactly the name of any enum_type
       member, an exception of type abc::domain_error will be thrown.
    */
-   explicit enum_impl(istr const & sName) :
+   explicit enum_impl(str const & sName) :
       m_e(static_cast<enum_type>(detail::enum_member::find_in_map(T::_get_map(), sName)->iValue)) {
    }
 
@@ -326,7 +326,7 @@ public:
    @return
       Name of the current value.
    */
-   istr name() const;
+   str name() const;
 
    /*! Returns the count of members in the enumeration.
 

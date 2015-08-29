@@ -30,9 +30,9 @@ namespace abc { namespace text {
 for compatibility with STL methods such as std::exception::what(). Without this, C strings are
 printed only as pointers, which is often undesirable.
 
-istr(external_buffer, "string") would seem to work just fine on POSIX platforms, but it’s not
+abc::str(external_buffer, "string") would seem to work just fine on POSIX platforms, but it’s not
 equivalent on Win32, where char (used by STL) and char_t (used by Abaclade) are not the same type.
-Even on POSIX, constructing istr instances is slower than using char_ptr_to_str_adapter.
+Even on POSIX, constructing str instances is slower than using char_ptr_to_str_adapter.
 
 Instances of this class don’t own the memory object they point to. */
 class char_ptr_to_str_adapter {

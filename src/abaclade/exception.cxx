@@ -61,7 +61,7 @@ namespace abc {
 
 namespace abc {
 
-void to_str_backend<source_location>::set_format(istr const & sFormat) {
+void to_str_backend<source_location>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -81,7 +81,7 @@ void to_str_backend<source_location>::write(
 ) {
    ABC_TRACE_FUNC(this/*, srcloc*/, ptwOut);
 
-   ptwOut->write(istr(external_buffer, srcloc.file_path()));
+   ptwOut->write(str(external_buffer, srcloc.file_path()));
    ptwOut->write(ABC_SL(":"));
    ptwOut->write(srcloc.line_number());
 }
@@ -346,7 +346,7 @@ char const * exception::what() const {
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
       ptwOut->print(
-         ABC_SL("#0 {} at {}\n"), istr(external_buffer, pabcx->m_pszSourceFunction), pabcx->m_srcloc
+         ABC_SL("#0 {} at {}\n"), str(external_buffer, pabcx->m_pszSourceFunction), pabcx->m_srcloc
       );
    }
    // Print the scope/stack trace collected via ABC_TRACE_FUNC().
@@ -397,7 +397,7 @@ destructing_unfinalized_object & destructing_unfinalized_object::operator=(
 }
 
 void destructing_unfinalized_object::init(void const * pObj, _std::type_info const & ti) {
-   m_sWhat = istr(ABC_SL("object being destructed: {} @ {}")).format(ti, pObj);
+   m_sWhat = str(ABC_SL("object being destructed: {} @ {}")).format(ti, pObj);
 #if ABC_HOST_UTF > 8
    // TODO: abc::text::encoding::ascii.
    m_vchWhat = m_sWhat.encode(text::encoding::utf8, true);
@@ -505,7 +505,7 @@ namespace abc {
 coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
 
 /*static*/ void assertion_error::_assertion_failed(
-   source_location const & srcloc, istr const & sFunction, istr const & sExpr, istr const & sMsg
+   source_location const & srcloc, str const & sFunction, str const & sExpr, str const & sMsg
 ) {
    if (!sm_bReentering) {
       sm_bReentering = true;
@@ -974,7 +974,7 @@ syntax_error & syntax_error::operator=(syntax_error const & x) {
 }
 
 void syntax_error::init(
-   istr const & sDescription /*= istr::empty*/, istr const & sSource /*= istr::empty*/,
+   str const & sDescription /*= str::empty*/, str const & sSource /*= str::empty*/,
    unsigned iChar /*= 0*/, unsigned iLine /*= 0*/, errint_t err /*= 0*/
 ) {
    generic_error::init(err ? err : os_error_mapping<syntax_error>::mapped_error);
@@ -986,7 +986,7 @@ void syntax_error::init(
 
 /*virtual*/ void syntax_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    generic_error::write_extended_info(ptwOut);
-   istr sFormat;
+   str sFormat;
    if (m_sSource) {
       if (m_iChar) {
          if (m_iLine) {

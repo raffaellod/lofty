@@ -26,16 +26,13 @@ namespace abc {
 
 external_buffer_t const external_buffer;
 
-//! Single NUL terminator.
-static char_t const gc_chNul('\0');
-
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace text { namespace detail {
 
-void str_to_str_backend::set_format(istr const & sFormat) {
+void str_to_str_backend::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -62,23 +59,36 @@ void str_to_str_backend::write(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text {
 
-char_t const * str_base::_advance_char_ptr(
-   char_t const * pch, std::ptrdiff_t i, bool bIndex
-) const {
-   ABC_TRACE_FUNC(this, pch, i, bIndex);
+//! Single NUL terminator.
+static char_t const gc_chNul('\0');
 
-   char_t const * pchBegin = chars_begin(), * pchEnd = chars_end();
-   std::ptrdiff_t iOrig = i;
+//! Vextr referencing a static, empty, NUL-terminated raw C string.
+static collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
+   /*m_pBegin                      =*/ const_cast<char_t *>(&gc_chNul),
+   /*m_pEnd                        =*/ const_cast<char_t *>(&gc_chNul),
+   /*mc_bEmbeddedPrefixedItemArray =*/ false,
+   /*m_bPrefixedItemArray          =*/ false,
+   /*m_bDynamic                    =*/ false,
+   /*m_bNulT                       =*/ true
+};
+
+str const & str::empty = static_cast<str const &>(gc_rvidEmpty);
+
+std::size_t str::_advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const {
+   ABC_TRACE_FUNC(this, ich, iDelta, bIndex);
+
+   char_t const * pchBegin = chars_begin(), * pch = pchBegin + ich, * pchEnd = chars_end();
+   std::ptrdiff_t iDeltaOrig = iDelta;
 
    // If i is positive, move forward.
-   for (; i > 0 && pch < pchEnd; --i) {
+   for (; iDelta > 0 && pch < pchEnd; --iDelta) {
       // Find the next code point start, skipping any trail characters.
       pch += host_char_traits::lead_char_to_codepoint_size(*pch);
    }
    // If i is negative, move backwards.
-   for (; i < 0 && pch > pchBegin; ++i) {
+   for (; iDelta < 0 && pch > pchBegin; ++iDelta) {
       // Moving to the previous code point requires finding the previous non-trail character.
       while (host_char_traits::is_trail_char(*--pch)) {
          ;
@@ -86,20 +96,38 @@ char_t const * str_base::_advance_char_ptr(
    }
 
    /* Verify that the pointer is still within range: that’s not the case if we left either for loop
-   before i reached 0, or if the pointer was invalid on entry (e.g. accessing istr()[0]). */
-   if (i != 0 || pch < pchBegin || pch > pchEnd || (bIndex && pch == pchEnd)) {
+   before i reached 0, or if the pointer was invalid on entry (e.g. accessing str()[0]). */
+   if (iDelta != 0 || pch < pchBegin || pch > pchEnd || (bIndex && pch == pchEnd)) {
       if (bIndex) {
-         ABC_THROW(index_error, (iOrig));
+         ABC_THROW(index_error, (iDeltaOrig));
       } else {
          ABC_THROW(pointer_iterator_error, (pchBegin, pchEnd, pch));
       }
    }
 
-   // Return the resulting pointer.
-   return pch;
+   // Return the resulting index.
+   return static_cast<std::size_t>(pch - pchBegin);
 }
 
-detail::c_str_ptr str_base::c_str() const {
+detail::c_str_ptr str::c_str() {
+   ABC_TRACE_FUNC(this);
+
+   if (m_bNulT) {
+      // The string already includes a NUL terminator, so we can simply return the same array.
+   } else if (std::size_t cch = size_in_chars()) {
+      // The string is not empty but lacks a NUL terminator: enlarge the string to include one.
+      prepare_for_writing();
+      set_capacity(cch + 1, true);
+      *chars_end() = '\0';
+      m_bNulT = true;
+   } else {
+      // The string is empty, so a static NUL character will suffice.
+      return detail::c_str_ptr(&gc_chNul, false);
+   }
+   return detail::c_str_ptr(chars_begin(), false);
+}
+
+detail::c_str_ptr str::c_str() const {
    ABC_TRACE_FUNC(this);
 
    if (m_bNulT) {
@@ -118,7 +146,7 @@ detail::c_str_ptr str_base::c_str() const {
    }
 }
 
-collections::dmvector<std::uint8_t> str_base::encode(encoding enc, bool bNulT) const {
+collections::dmvector<std::uint8_t> str::encode(encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
    collections::dmvector<std::uint8_t> vb;
@@ -152,7 +180,7 @@ collections::dmvector<std::uint8_t> str_base::encode(encoding enc, bool bNulT) c
    return _std::move(vb);
 }
 
-bool str_base::ends_with(istr const & s) const {
+bool str::ends_with(str const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    char_t const * pchStart = chars_end() - s.size_in_chars();
@@ -161,53 +189,135 @@ bool str_base::ends_with(istr const & s) const {
    ) == 0;
 }
 
-str_base::const_iterator str_base::find(char_t chNeedle, const_iterator itWhence) const {
+str::const_iterator str::find(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(str_traits::find_char(itWhence.base(), chars_end(), chNeedle), this);
+   auto pch = str_traits::find_char(itWhence.base(), chars_end(), chNeedle);
+   return const_iterator(static_cast<std::size_t>(pch - chars_begin()), this);
 }
-str_base::const_iterator str_base::find(char32_t chNeedle, const_iterator itWhence) const {
+str::const_iterator str::find(char32_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(str_traits::find_char(itWhence.base(), chars_end(), chNeedle), this);
+   auto pch = str_traits::find_char(itWhence.base(), chars_end(), chNeedle);
+   return const_iterator(static_cast<std::size_t>(pch - chars_begin()), this);
 }
-str_base::const_iterator str_base::find(istr const & sNeedle, const_iterator itWhence) const {
+str::const_iterator str::find(str const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(str_traits::find_substr(
+   auto pch = str_traits::find_substr(
       itWhence.base(), chars_end(), sNeedle.chars_begin(), sNeedle.chars_end()
-   ), this);
+   );
+   return const_iterator(static_cast<std::size_t>(pch - chars_begin()), this);
 }
 
-str_base::const_iterator str_base::find_last(char_t chNeedle, const_iterator itWhence) const {
+str::const_iterator str::find_last(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(str_traits::find_char_last(
-      chars_begin(), itWhence.base(), chNeedle
-   ), this);
+   auto pch = str_traits::find_char_last(chars_begin(), itWhence.base(), chNeedle);
+   return const_iterator(static_cast<std::size_t>(pch - chars_begin()), this);
 }
-str_base::const_iterator str_base::find_last(char32_t chNeedle, const_iterator itWhence) const {
+str::const_iterator str::find_last(char32_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(str_traits::find_char_last(
-      chars_begin(), itWhence.base(), chNeedle
-   ), this);
+   auto pch = str_traits::find_char_last(chars_begin(), itWhence.base(), chNeedle);
+   return const_iterator(static_cast<std::size_t>(pch - chars_begin()), this);
 }
-str_base::const_iterator str_base::find_last(istr const & sNeedle, const_iterator itWhence) const {
+str::const_iterator str::find_last(str const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    validate_pointer(itWhence.base());
-   return const_iterator(str_traits::find_substr_last(
+   auto pch = str_traits::find_substr_last(
       chars_begin(), itWhence.base(), sNeedle.chars_begin(), sNeedle.chars_end()
-   ), this);
+   );
+   return const_iterator(static_cast<std::size_t>(pch - chars_begin()), this);
 }
 
-bool str_base::starts_with(istr const & s) const {
+void str::prepare_for_writing() {
+   if (!m_bPrefixedItemArray) {
+      /* Copying from itself is safe because the new character array will necessarily not overlap
+      the old, non-prefixed one. */
+      assign_copy(chars_begin(), chars_end());
+   }
+}
+
+void str::replace(char_t chSearch, char_t chReplacement) {
+   ABC_TRACE_FUNC(this, chSearch, chReplacement);
+
+   prepare_for_writing();
+   for (char_t * pch = chars_begin(), * pchEnd = chars_end(); pch != pchEnd; ++pch) {
+      if (*pch == chSearch) {
+         *pch = chReplacement;
+      }
+   }
+}
+
+void str::replace(char32_t cpSearch, char32_t cpReplacement) {
+   ABC_TRACE_FUNC(this, cpSearch, cpReplacement);
+
+   prepare_for_writing();
+   // TODO: optimize this. Using iterators requires little code but it’s not that efficient.
+   for (auto it(begin()); it != end(); ++it) {
+      if (*it == cpSearch) {
+         *it = cpReplacement;
+      }
+   }
+}
+
+void str::_replace_codepoint(char_t * pch, char_t chNew) {
+   ABC_TRACE_FUNC(this, pch, chNew);
+
+   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
+   std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
+   prepare_for_writing();
+   collections::detail::raw_trivial_vextr_impl::insert_remove(
+      ich, nullptr, sizeof(char_t), cbRemove
+   );
+   // prepare_for_writing() or insert_remove() may have switched string buffer; recalculate pch.
+   pch = chars_begin() + ich;
+   // At this point, insert_remove() validated pch.
+   *pch = chNew;
+}
+
+void str::_replace_codepoint(char_t * pch, char32_t cpNew) {
+   ABC_TRACE_FUNC(this, pch, cpNew);
+
+   std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(cpNew);
+   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
+   std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
+   prepare_for_writing();
+   collections::detail::raw_trivial_vextr_impl::insert_remove(
+      sizeof(char_t) * ich, nullptr, cbInsert, cbRemove
+   );
+   // prepare_for_writing() or insert_remove() may have switched string buffer; recalculate pch.
+   pch = chars_begin() + ich;
+   /* At this point, insert_remove() validated pch and codepoint_size() validated cpNew; this means
+   that there’s nothing that could go wrong here leaving us in an inconsistent state. */
+   host_char_traits::traits_base::codepoint_to_chars(cpNew, pch);
+}
+
+void str::set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
+   ABC_TRACE_FUNC(this/*, fnRead*/);
+
+   prepare_for_writing();
+   /* The initial size avoids a few reallocations (* smc_iGrowthRate ** 2). Multiplying by
+   smc_iGrowthRate should guarantee that set_capacity() will allocate exactly the requested number
+   of characters, eliminating the need to query back with capacity(). */
+   std::size_t cchRet, cchMax = smc_cbCapacityMin * smc_iGrowthRate;
+   do {
+      cchMax *= smc_iGrowthRate;
+      set_capacity(cchMax, false);
+      cchRet = fnRead(chars_begin(), cchMax);
+   } while (cchRet >= cchMax);
+   // Finalize the length.
+   set_size_in_chars(cchRet);
+}
+
+bool str::starts_with(str const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    char_t const * pchEnd = chars_begin() + s.size_in_chars();
@@ -216,7 +326,7 @@ bool str_base::starts_with(istr const & s) const {
    ) == 0;
 }
 
-str_base::const_iterator str_base::translate_index(std::ptrdiff_t ich) const {
+str::const_iterator str::translate_index(std::ptrdiff_t ich) const {
    ABC_TRACE_FUNC(this, ich);
 
    const_iterator it, itLoopEnd;
@@ -241,7 +351,7 @@ str_base::const_iterator str_base::translate_index(std::ptrdiff_t ich) const {
    return _std::move(it);
 }
 
-_std::tuple<str_base::const_iterator, str_base::const_iterator> str_base::translate_range(
+_std::tuple<str::const_iterator, str::const_iterator> str::translate_range(
    std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
 ) const {
    ABC_TRACE_FUNC(this, ichBegin, ichEnd);
@@ -256,7 +366,7 @@ _std::tuple<str_base::const_iterator, str_base::const_iterator> str_base::transl
    return _std::make_tuple(itBegin, itEnd);
 }
 
-}}} //namespace abc::text::detail
+}} //namespace abc::text
 
 namespace std {
 
@@ -264,9 +374,7 @@ namespace std {
 <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
 
 The bases are calculated by src/fnv_hash_basis.py. */
-std::size_t hash<abc::text::detail::str_base>::operator()(
-   abc::text::detail::str_base const & s
-) const {
+std::size_t hash<abc::text::str>::operator()(abc::text::str const & s) const {
    ABC_TRACE_FUNC(this, s);
 
    static_assert(
@@ -292,108 +400,3 @@ std::size_t hash<abc::text::detail::str_base>::operator()(
 }
 
 } //namespace std
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace text {
-
-static collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
-   /*m_pBegin                      =*/ const_cast<char_t *>(&gc_chNul),
-   /*m_pEnd                        =*/ const_cast<char_t *>(&gc_chNul),
-   /*mc_bEmbeddedPrefixedItemArray =*/ false,
-   /*m_bPrefixedItemArray          =*/ false,
-   /*m_bDynamic                    =*/ false,
-   /*m_bNulT                       =*/ true
-};
-
-istr const & istr::empty = static_cast<istr const &>(gc_rvidEmpty);
-
-}} //namespace abc::text
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace text {
-
-char_t const * mstr::c_str() {
-   ABC_TRACE_FUNC(this);
-
-   if (m_bNulT) {
-      // The string already includes a NUL terminator, so we can simply return the same array.
-   } else if (std::size_t cch = size_in_chars()) {
-      // The string is not empty but lacks a NUL terminator: enlarge the string to include one.
-      set_capacity(cch + 1, true);
-      *chars_end() = '\0';
-      m_bNulT = true;
-   } else {
-      // The string is empty, so a static NUL character will suffice.
-      return &gc_chNul;
-   }
-   return chars_begin();
-}
-
-void mstr::replace(char_t chSearch, char_t chReplacement) {
-   ABC_TRACE_FUNC(this, chSearch, chReplacement);
-
-   for (char_t * pch = chars_begin(), * pchEnd = chars_end(); pch != pchEnd; ++pch) {
-      if (*pch == chSearch) {
-         *pch = chReplacement;
-      }
-   }
-}
-void mstr::replace(char32_t cpSearch, char32_t cpReplacement) {
-   ABC_TRACE_FUNC(this, cpSearch, cpReplacement);
-
-   // TODO: optimize this. Using iterators requires little code but it’s not that efficient.
-   for (auto it(begin()); it != end(); ++it) {
-      if (*it == cpSearch) {
-         *it = cpReplacement;
-      }
-   }
-}
-
-void mstr::_replace_codepoint(char_t * pch, char_t chNew) {
-   ABC_TRACE_FUNC(this, pch, chNew);
-
-   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
-   std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
-   collections::detail::raw_trivial_vextr_impl::insert_remove(
-      ich, nullptr, sizeof(char_t), cbRemove
-   );
-   // insert_remove() may have switched string buffer, so recalculate pch now.
-   pch = chars_begin() + ich;
-   // At this point, insert_remove() validated pch.
-   *pch = chNew;
-}
-void mstr::_replace_codepoint(char_t * pch, char32_t cpNew) {
-   ABC_TRACE_FUNC(this, pch, cpNew);
-
-   std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(cpNew);
-   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
-   std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
-   collections::detail::raw_trivial_vextr_impl::insert_remove(
-      sizeof(char_t) * ich, nullptr, cbInsert, cbRemove
-   );
-   // insert_remove() may have switched string buffer, so recalculate pch now.
-   pch = chars_begin() + ich;
-   /* At this point, insert_remove() validated pch and codepoint_size() validated cpNew; this means
-   that there’s nothing that could go wrong here leaving us in an inconsistent state. */
-   host_char_traits::traits_base::codepoint_to_chars(cpNew, pch);
-}
-
-void mstr::set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
-   ABC_TRACE_FUNC(this/*, fnRead*/);
-
-   /* The initial size avoids a few reallocations (* smc_iGrowthRate ** 2). Multiplying by
-   smc_iGrowthRate should guarantee that set_capacity() will allocate exactly the requested number
-   of characters, eliminating the need to query back with capacity(). */
-   std::size_t cchRet, cchMax = smc_cbCapacityMin * smc_iGrowthRate;
-   do {
-      cchMax *= smc_iGrowthRate;
-      set_capacity(cchMax, false);
-      cchRet = fnRead(chars_begin(), cchMax);
-   } while (cchRet >= cchMax);
-   // Finalize the length.
-   set_size_in_chars(cchRet);
-}
-
-}} //namespace abc::text

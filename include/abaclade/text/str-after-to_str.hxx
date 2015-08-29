@@ -36,7 +36,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
 protected:
    /*! Writes a string, applying the formatting options.
@@ -122,8 +122,7 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<text::detail::str_base> :
-   public text::detail::str_to_str_backend {
+class ABACLADE_SYM to_str_backend<text::str> : public text::detail::str_to_str_backend {
 public:
    /*! Writes a string, applying the formatting options.
 
@@ -132,32 +131,15 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(text::detail::str_base const & s, io::text::writer * ptwOut) {
-      text::detail::str_to_str_backend::write(
-         s.chars_begin(),
-         reinterpret_cast<std::size_t>(s.chars_end()) -
-            reinterpret_cast<std::size_t>(s.chars_begin()),
-         text::encoding::host, ptwOut
-      );
+   void write(text::str const & s, io::text::writer * ptwOut) {
+      text::detail::str_to_str_backend::write(s.chars_begin(), static_cast<std::size_t>(
+         reinterpret_cast<std::uintptr_t>(s.chars_end()) -
+         reinterpret_cast<std::uintptr_t>(s.chars_begin())
+      ), text::encoding::host, ptwOut);
    }
 };
 
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-template <>
-class to_str_backend<text::istr> : public to_str_backend<text::detail::str_base> {};
-
-template <>
-class to_str_backend<text::mstr> : public to_str_backend<text::detail::str_base> {};
-
-template <>
-class to_str_backend<text::dmstr> : public to_str_backend<text::detail::str_base> {};
-
 template <std::size_t t_cchStatic>
-class to_str_backend<text::smstr<t_cchStatic>> : public to_str_backend<text::detail::str_base> {};
+class to_str_backend<text::sstr<t_cchStatic>> : public to_str_backend<text::str> {};
 
 } //namespace abc

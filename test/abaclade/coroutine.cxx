@@ -48,7 +48,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL    (coro3.id(), coroutine::id_type(0));
 
    // Verify that the string representations are different.
-   dmstr sCoroutine1(to_str(coro1)), sCoroutine2(to_str(coro2)), sCoroutine3(to_str(coro3));
+   str sCoroutine1(to_str(coro1)), sCoroutine2(to_str(coro2)), sCoroutine3(to_str(coro3));
    ABC_TESTING_ASSERT_NOT_EQUAL(sCoroutine1, sCoroutine2);
    ABC_TESTING_ASSERT_NOT_EQUAL(sCoroutine1, sCoroutine3);
    ABC_TESTING_ASSERT_NOT_EQUAL(sCoroutine2, sCoroutine3);
@@ -93,7 +93,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    }
 
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
-   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
+   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), str::empty);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();

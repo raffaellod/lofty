@@ -56,7 +56,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL    (thr3.id(), thread::id_type(0));
 
    // Verify that the string representations are different.
-   dmstr sThread1(to_str(thr1)), sThread2(to_str(thr2)), sThread3(to_str(thr3));
+   str sThread1(to_str(thr1)), sThread2(to_str(thr2)), sThread3(to_str(thr3));
    ABC_TESTING_ASSERT_NOT_EQUAL(sThread1, sThread2);
    ABC_TESTING_ASSERT_NOT_EQUAL(sThread1, sThread3);
    ABC_TESTING_ASSERT_NOT_EQUAL(sThread2, sThread3);
@@ -172,7 +172,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    }
    ABC_TESTING_ASSERT_TRUE(bExceptionCaught);
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
-   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
+   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), str::empty);
 }
 
 }} //namespace abc::test
@@ -229,7 +229,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(bExceptionCaught);
    ABC_TESTING_ASSERT_FALSE(bThr1Completed.load());
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
-   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), istr::empty);
+   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), str::empty);
 }
 
 }} //namespace abc::test

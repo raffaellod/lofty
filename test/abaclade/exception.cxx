@@ -60,8 +60,8 @@ protected:
 
 public:
    //! See testing::test_case::title().
-   virtual istr title() override {
-      return istr(ABC_SL("abc::exception – polymorphism"));
+   virtual str title() override {
+      return str(ABC_SL("abc::exception – polymorphism"));
    }
 
    //! See testing::test_case::run().
@@ -120,8 +120,8 @@ namespace abc { namespace test {
 class exception_scope_trace : public testing::test_case {
 public:
    //! See testing::test_case::title().
-   virtual istr title() override {
-      return istr(ABC_SL("abc::exception – scope/stack trace generation"));
+   virtual str title() override {
+      return str(ABC_SL("abc::exception – scope/stack trace generation"));
    }
 
    //! See testing::test_case::run().
@@ -130,7 +130,7 @@ public:
 
       ABC_TRACE_FUNC(this, iTestLocal);
 
-      dmstr sScopeTrace;
+      str sScopeTrace;
 
       // Verify that the current scope trace contains this function.
 
@@ -172,7 +172,7 @@ public:
       ABC_TESTING_ASSERT_NOT_EQUAL(sScopeTrace.find(ABC_SL("3141592654")), sScopeTrace.cend());
    }
 
-   static dmstr get_scope_trace(_std::exception const * px = nullptr) {
+   static str get_scope_trace(_std::exception const * px = nullptr) {
       ABC_TRACE_FUNC(px);
 
       io::text::str_writer tsw;
@@ -186,7 +186,7 @@ public:
       run_sub_2(ABC_SL("spam and eggs"));
    }
 
-   void run_sub_2(istr const & sArg) {
+   void run_sub_2(str const & sArg) {
       ABC_TRACE_FUNC(this, sArg);
 
       throw_exception();

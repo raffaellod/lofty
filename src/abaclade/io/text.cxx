@@ -99,12 +99,12 @@ static _std::shared_ptr<binbuf_base> _construct_stdio(
    } else {
       // In all other cases, allow selecting the encoding via environment variable.
 #if ABC_HOST_API_POSIX
-      istr sEnc;
+      str sEnc;
       if (char_t const * pszEnvVarValue = std::getenv(pszEnvVarName)) {
-         sEnc = istr(external_buffer, pszEnvVarValue);
+         sEnc = str(external_buffer, pszEnvVarValue);
       }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-      smstr<64> sEnc;
+      sstr<64> sEnc;
       sEnc.set_from([pszEnvVarName] (char_t * pch, std::size_t cchMax) -> std::size_t {
          /* ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
          enough, or the required size (length including NUL) otherwise. */
@@ -206,21 +206,21 @@ reader::reader() :
    base() {
 }
 
-dmstr reader::read_all() {
+str reader::read_all() {
    ABC_TRACE_FUNC(this);
 
-   dmstr sDst;
+   str sDst;
    read_line_or_all(&sDst, false);
    return _std::move(sDst);
 }
-void reader::read_all(mstr * psDst) {
+void reader::read_all(str * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
    psDst->clear();
    read_line_or_all(psDst, false);
 }
 
-bool reader::read_line(mstr * psDst) {
+bool reader::read_line(str * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
    psDst->clear();
@@ -237,10 +237,10 @@ writer::writer() :
    base() {
 }
 
-void writer::write_line(istr const & s) {
+void writer::write_line(str const & s) {
    ABC_TRACE_FUNC(this, s);
 
-   to_str_backend<istr> tsb;
+   to_str_backend<str> tsb;
    tsb.write(s, this);
    abc::text::line_terminator lterm;
    // If no line terminator sequence has been explicitly set, use the platform’s default.
@@ -258,7 +258,7 @@ void writer::write_line(istr const & s) {
 
 namespace abc { namespace io { namespace text { namespace detail {
 
-writer_print_helper_impl::writer_print_helper_impl(writer * ptw, istr const & sFormat) :
+writer_print_helper_impl::writer_print_helper_impl(writer * ptw, str const & sFormat) :
    m_ptw(ptw),
    // write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
    m_iSubstArg(static_cast<unsigned>(-1)),
@@ -282,7 +282,7 @@ bool writer_print_helper_impl::write_format_up_to_next_repl() {
    ABC_TRACE_FUNC(this);
 
    // Search for the next replacement, if any.
-   istr::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
+   str::const_iterator it(m_itFormatToWriteBegin), itReplFieldBegin, itEnd(m_sFormat.cend());
    char32_t ch;
    for (;;) {
       if (it >= itEnd) {
@@ -370,7 +370,7 @@ bool writer_print_helper_impl::write_format_up_to_next_repl() {
 }
 
 void writer_print_helper_impl::throw_syntax_error(
-   istr const & sDescription, istr::const_iterator it
+   str const & sDescription, str::const_iterator it
 ) const {
    // +1 because the first character is 1, to human beings.
    ABC_THROW(
@@ -378,7 +378,7 @@ void writer_print_helper_impl::throw_syntax_error(
    );
 }
 
-void writer_print_helper_impl::write_format_up_to(istr::const_iterator itUpTo) {
+void writer_print_helper_impl::write_format_up_to(str::const_iterator itUpTo) {
    ABC_TRACE_FUNC(this, itUpTo);
 
    if (itUpTo > m_itFormatToWriteBegin) {

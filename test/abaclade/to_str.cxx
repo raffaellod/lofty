@@ -32,21 +32,21 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    // Test zero, decimal base.
-   ABC_TESTING_ASSERT_EQUAL(to_str(0, istr::empty), ABC_SL("0"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(0, str::empty), ABC_SL("0"));
    ABC_TESTING_ASSERT_EQUAL(to_str(0, ABC_SL(" 1")), ABC_SL(" 0"));
    ABC_TESTING_ASSERT_EQUAL(to_str(0, ABC_SL("01")), ABC_SL("0"));
    ABC_TESTING_ASSERT_EQUAL(to_str(0, ABC_SL(" 2")), ABC_SL(" 0"));
    ABC_TESTING_ASSERT_EQUAL(to_str(0, ABC_SL("02")), ABC_SL("00"));
 
    // Test positive values, decimal base.
-   ABC_TESTING_ASSERT_EQUAL(to_str(1, istr::empty), ABC_SL("1"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(1, str::empty), ABC_SL("1"));
    ABC_TESTING_ASSERT_EQUAL(to_str(1, ABC_SL(" 1")), ABC_SL(" 1"));
    ABC_TESTING_ASSERT_EQUAL(to_str(1, ABC_SL("01")), ABC_SL("1"));
    ABC_TESTING_ASSERT_EQUAL(to_str(1, ABC_SL(" 2")), ABC_SL(" 1"));
    ABC_TESTING_ASSERT_EQUAL(to_str(1, ABC_SL("02")), ABC_SL("01"));
 
    // Test negative values, decimal base.
-   ABC_TESTING_ASSERT_EQUAL(to_str(-1, istr::empty), ABC_SL("-1"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(-1, str::empty), ABC_SL("-1"));
    ABC_TESTING_ASSERT_EQUAL(to_str(-1, ABC_SL(" 1")), ABC_SL("-1"));
    ABC_TESTING_ASSERT_EQUAL(to_str(-1, ABC_SL("01")), ABC_SL("-1"));
    ABC_TESTING_ASSERT_EQUAL(to_str(-1, ABC_SL(" 2")), ABC_SL("-1"));
@@ -106,25 +106,25 @@ ABC_TESTING_TEST_CASE_FUNC(
    std::uintptr_t iBad = 0xbad;
 
    // Test nullptr.
-   ABC_TESTING_ASSERT_EQUAL(to_str(static_cast<void *>(nullptr), istr::empty), ABC_SL("nullptr"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(static_cast<void *>(nullptr), str::empty), ABC_SL("nullptr"));
 
    // Test void pointer.
-   ABC_TESTING_ASSERT_EQUAL(to_str(reinterpret_cast<void *>(iBad), istr::empty), ABC_SL("0xbad"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(reinterpret_cast<void *>(iBad), str::empty), ABC_SL("0xbad"));
 
    // Test void const volatile pointer.
    ABC_TESTING_ASSERT_EQUAL(
-      to_str(reinterpret_cast<void const volatile *>(iBad), istr::empty), ABC_SL("0xbad")
+      to_str(reinterpret_cast<void const volatile *>(iBad), str::empty), ABC_SL("0xbad")
    );
 
    // Test function pointer.
    ABC_TESTING_ASSERT_EQUAL(
-      to_str(reinterpret_cast<void (*)(int)>(iBad), istr::empty), ABC_SL("0xbad")
+      to_str(reinterpret_cast<void (*)(int)>(iBad), str::empty), ABC_SL("0xbad")
    );
 
    /* Test char_t const pointer. Also confirms that pointers-to-char are NOT treated as strings
    by abc::to_str(). */
    ABC_TESTING_ASSERT_EQUAL(
-      to_str(reinterpret_cast<char_t const *>(iBad), istr::empty), ABC_SL("0xbad")
+      to_str(reinterpret_cast<char_t const *>(iBad), str::empty), ABC_SL("0xbad")
    );
 }
 
@@ -141,34 +141,34 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    int * pi = new int;
-   istr sPtr(to_str(pi));
+   str sPtr(to_str(pi));
 
    {
       _std::unique_ptr<int> upi(pi);
       // Test non-nullptr _std::unique_ptr.
-      ABC_TESTING_ASSERT_EQUAL(to_str(upi, istr::empty), sPtr);
+      ABC_TESTING_ASSERT_EQUAL(to_str(upi, str::empty), sPtr);
 
       upi.release();
       // Test nullptr _std::unique_ptr.
-      ABC_TESTING_ASSERT_EQUAL(to_str(upi, istr::empty), ABC_SL("nullptr"));
+      ABC_TESTING_ASSERT_EQUAL(to_str(upi, str::empty), ABC_SL("nullptr"));
    }
    {
       _std::shared_ptr<int> spi(pi);
       // Test non-nullptr _std::shared_ptr.
-      ABC_TESTING_ASSERT_EQUAL(to_str(spi, istr::empty), sPtr);
+      ABC_TESTING_ASSERT_EQUAL(to_str(spi, str::empty), sPtr);
       _std::weak_ptr<int> wpi(spi);
       // Test non-nullptr _std::weak_ptr.
-      ABC_TESTING_ASSERT_EQUAL(to_str(wpi, istr::empty), sPtr);
+      ABC_TESTING_ASSERT_EQUAL(to_str(wpi, str::empty), sPtr);
 
       spi.reset();
       // Test nullptr _std::shared_ptr.
-      ABC_TESTING_ASSERT_EQUAL(to_str(spi, istr::empty), ABC_SL("nullptr"));
+      ABC_TESTING_ASSERT_EQUAL(to_str(spi, str::empty), ABC_SL("nullptr"));
       // Test expired non-nullptr _std::weak_ptr.
-      ABC_TESTING_ASSERT_EQUAL(to_str(wpi, istr::empty), ABC_SL("nullptr"));
+      ABC_TESTING_ASSERT_EQUAL(to_str(wpi, str::empty), ABC_SL("nullptr"));
 
       wpi.reset();
       // Test nullptr _std::weak_ptr.
-      ABC_TESTING_ASSERT_EQUAL(to_str(wpi, istr::empty), ABC_SL("nullptr"));
+      ABC_TESTING_ASSERT_EQUAL(to_str(wpi, str::empty), ABC_SL("nullptr"));
    }
 }
 
@@ -188,7 +188,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<>()), ABC_SL("()"));
    ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<int>(1)), ABC_SL("(1)"));
    ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<int, int>(1, 2)), ABC_SL("(1, 2)"));
-   ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<istr, int>(ABC_SL("abc"), 42)), ABC_SL("(abc, 42)"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(_std::tuple<str, int>(ABC_SL("abc"), 42)), ABC_SL("(abc, 42)"));
 }
 
 }} //namespace abc::test

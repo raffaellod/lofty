@@ -232,7 +232,7 @@ private:
    virtual void set_cursor_visibility(bool bVisible) override;
 
    //! See abc::text::parsers::ansi_escape_sequences::set_window_title().
-   virtual void set_window_title(istr const & sTitle) override;
+   virtual void set_window_title(str const & sTitle) override;
 
    /*! Writes a range of characters directly to the console, without any parsing.
 

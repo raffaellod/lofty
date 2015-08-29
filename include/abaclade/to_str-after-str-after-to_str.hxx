@@ -37,7 +37,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
 protected:
    /*! Converts a pointer to a string representation.
@@ -53,7 +53,7 @@ protected:
    //! Backend used to write the pointer as an integer.
    to_str_backend<std::uintptr_t> m_tsbInt;
    //! Backend used to write a nullptr.
-   to_str_backend<istr> m_tsbStr;
+   to_str_backend<str> m_tsbStr;
 };
 
 }} //namespace abc::detail
@@ -142,7 +142,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
    /*! Writes the name of a type, applying the formatting options.
 
@@ -175,7 +175,7 @@ public:
    @param sEnd
       Sequence end delimiter.
    */
-   sequence_to_str_backend(istr const & sStart, istr const & sEnd);
+   sequence_to_str_backend(str const & sStart, str const & sEnd);
 
    //! Destructor.
    ~sequence_to_str_backend();
@@ -185,7 +185,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
    /*! Writes the sequence end delimiter.
 
@@ -216,13 +216,13 @@ public:
 
 protected:
    //! Separator to be output between elements.
-   istr m_sSeparator;
+   str m_sSeparator;
    //! Sequence start delimiter.
-   istr m_sStart;
+   str m_sStart;
    //! Sequence end delimiter.
-   istr m_sEnd;
+   str m_sEnd;
    //! Backend for strings.
-   to_str_backend<istr> m_tsbStr;
+   to_str_backend<str> m_tsbStr;
 };
 
 }} //namespace abc::detail

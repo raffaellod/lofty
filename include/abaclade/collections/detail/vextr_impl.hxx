@@ -700,15 +700,15 @@ public:
    */
    void assign_move(type_void_adapter const & type, raw_complex_vextr_impl && rcvi);
 
-   /*! Moves the source’s item array if dynamically-allocated, else copies it to *this, moving the
-   items instead.
+   /*! Moves the source’s item array if dynamically-allocated or not prefixed, else copies it to
+   *this, moving the items instead.
 
    @param type
       Adapter for the items’ type.
    @param rcvi
       Source vextr.
    */
-   void assign_move_dynamic_or_move_items(
+   void assign_move_desc_or_move_items(
       type_void_adapter const & type, raw_complex_vextr_impl && rcvi
    );
 
@@ -822,7 +822,9 @@ public:
       Pointer to the end of the source array.
    */
    void assign_copy(void const * pBegin, void const * pEnd) {
-      if (pBegin == m_pBegin) {
+      /* Allow to continue with pBegin == m_pBegin if using a non-prefixed (read-only) item array;
+      this allows to switch to using a prefixed (writable) item array. */
+      if (pBegin == m_pBegin && m_bPrefixedItemArray) {
          return;
       }
       /* assign_concat() is fast enough. Pass the source as the second argument pair, because its
@@ -839,13 +841,13 @@ public:
    */
    void assign_move(raw_trivial_vextr_impl && rtvi);
 
-   /*! Moves the source’s item array if dynamically-allocated, else copies its items (not move –
-   items are trivial) to *this.
+   /*! Moves the source’s item array if dynamically-allocated or not prefixed, else copies its items
+   (not move – items are trivial) to *this.
 
    @param rtvi
       Source vextr.
    */
-   void assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi);
+   void assign_move_desc_or_move_items(raw_trivial_vextr_impl && rtvi);
 
    /*! Shares the source’s item array if not prefixed, otherwise it creates a copy of the source
    prefixed item array for *this.

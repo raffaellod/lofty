@@ -31,7 +31,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   smstr<128> sWriterBuffer;
+   sstr<128> sWriterBuffer;
    io::text::str_writer stw(external_buffer, &sWriterBuffer);
 
    // Syntax errors.
@@ -46,7 +46,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    // No replacements.
    stw.clear();
-   ABC_TESTING_ASSERT_EQUAL((stw.print(istr::empty), stw.get_str()), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL((stw.print(str::empty), stw.get_str()), str::empty);
    stw.clear();
    ABC_TESTING_ASSERT_EQUAL((stw.print(ABC_SL("x")), stw.get_str()), ABC_SL("x"));
    stw.clear();
@@ -71,7 +71,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   smstr<128> sWriterBuffer;
+   sstr<128> sWriterBuffer;
    io::text::str_writer stw(external_buffer, &sWriterBuffer);
 
    // Single string replacement, deduced argument index.
@@ -135,7 +135,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   smstr<128> sWriterBuffer;
+   sstr<128> sWriterBuffer;
    io::text::str_writer stw(external_buffer, &sWriterBuffer);
 
    // Single string replacement, referenced twice.

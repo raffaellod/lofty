@@ -82,7 +82,7 @@ private:
    collections::dmvector<std::uint8_t> m_vchWhat;
 #endif
    //! Pointer to and type of the object that was not finalized.
-   dmstr m_sWhat;
+   str m_sWhat;
 };
 
 } //namespace abc
@@ -121,7 +121,7 @@ public:
 
       syntax_error(ABC_SL("expression cannot be empty"))
       syntax_error(ABC_SL("unmatched '{'"), sExpr, iChar)
-      syntax_error(ABC_SL("expected expression"), istr::empty, iChar, iLine)
+      syntax_error(ABC_SL("expected expression"), str::empty, iChar, iLine)
       syntax_error(ABC_SL("unexpected end of file"), opSource, iChar, iLine)
 
    @param sDescription
@@ -134,7 +134,7 @@ public:
       Line where the error is located.
    */
    void init(
-      istr const & sDescription = istr::empty, istr const & sSource = istr::empty,
+      str const & sDescription = str::empty, str const & sSource = str::empty,
       unsigned iChar = 0, unsigned iLine = 0, errint_t err = 0
    );
 
@@ -144,9 +144,9 @@ protected:
 
 private:
    //! Description of the syntax error.
-   istr m_sDescription;
+   str m_sDescription;
    //! Source of the syntax error (whole or individual line).
-   istr m_sSource;
+   str m_sSource;
    //! Character at which the error is located.
    unsigned m_iChar;
    //! Line where the error is located.
@@ -167,7 +167,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
    /*! Writes a source location, applying the formatting options.
 

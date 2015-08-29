@@ -36,10 +36,10 @@ char32_t const gc_chP2(0x024b62);
 •  matches the self-repeating “abaabc” but not the (also self-repeating) “abaabcd”.
 The only thing though is that we replace ‘b’ with the Unicode Plane 2 character defined
 above and ‘c’ with the BMP (Plane 0) character above. */
-istr get_acabaabca();
+str get_acabaabca();
 
-istr get_acabaabca() {
-   return istr::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a';
+str get_acabaabca() {
+   return str::empty + 'a' + gc_chP0 + 'a' + gc_chP2 + 'a' + 'a' + gc_chP2 + gc_chP0 + 'a';
 }
 
 }} //namespace abc::test
@@ -50,11 +50,11 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_basic,
-   "abc::text::*str classes – basic operations"
+   "abc::text::str – basic operations"
 ) {
    ABC_TRACE_FUNC(this);
 
-   dmstr s;
+   str s;
    auto cdpt(testing::utility::make_container_data_ptr_tracker(s));
 
    s += ABC_SL("ä");
@@ -117,7 +117,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
    ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
 
-   s = dmstr(ABC_SL("ab")) + 'c';
+   s = str(ABC_SL("ab")) + 'c';
    // true: s got replaced by operator=.
    ABC_TESTING_ASSERT_TRUE(cdpt.changed());
    ABC_TESTING_ASSERT_EQUAL(s.size(), 3u);
@@ -164,16 +164,13 @@ ABC_TESTING_TEST_CASE_FUNC(
       /* Note: all string operations here must involve as few characters as possible to avoid
       triggering a reallocation, which would break these tests. */
 
-      dmstr s1, s2(ABC_SL("a"));
-      char_t const * pchCheck = s2.cbegin().base();
-      // Verify that the compiler selects operator+(dmstr &&, …) when possible.
-      s1 = _std::move(s2) + ABC_SL("b");
-      ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
-
-      istr s3(_std::move(s1));
-      // Verify that the compiler selects operator+(istr &&, …) when possible.
-      s1 = _std::move(s3) + ABC_SL("c");
-      ABC_TESTING_ASSERT_EQUAL(s1.cbegin().base(), pchCheck);
+      str s1(ABC_SL("a"));
+      // Write to the string to force it to stop using the string literal “a”.
+      s1[0] = 'b';
+      char_t const * pchCheck = s1.cbegin().base();
+      // Verify that the compiler selects operator+(str &&, …) when possible.
+      str s2 = _std::move(s1) + ABC_SL("c");
+      ABC_TESTING_ASSERT_EQUAL(s2.cbegin().base(), pchCheck);
    }
 
    // While we’re at it, let’s also validate acabaabca.
@@ -197,11 +194,11 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_iterators,
-   "abc::text::*str classes – iterator-based character access"
+   "abc::text::str – iterator-based character access"
 ) {
    ABC_TRACE_FUNC(this);
 
-   dmstr s;
+   str s;
 
    // No accessible characters.
    ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
@@ -227,11 +224,11 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_transcoding,
-   "abc::text::*str classes – conversion to different encodings"
+   "abc::text::str – conversion to different encodings"
 ) {
    ABC_TRACE_FUNC(this);
 
-   smstr<32> s;
+   sstr<32> s;
    s += char32_t(0x000024);
    s += char32_t(0x0000a2);
    s += char32_t(0x0020ac);
@@ -301,26 +298,26 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_char_replacement,
-   "abc::text::*str classes – character replacement"
+   "abc::text::str – character replacement"
 ) {
    ABC_TRACE_FUNC(this);
 
-   smstr<8> s;
+   sstr<8> s;
 
    // No replacements to be made.
    ABC_TESTING_ASSERT_EQUAL(((s = ABC_SL("aaa")).replace('b', 'c'), s), ABC_SL("aaa"));
    // Simple ASCII-to-ASCII replacement: no size change.
    ABC_TESTING_ASSERT_EQUAL(((s = ABC_SL("aaa")).replace('a', 'b'), s), ABC_SL("bbb"));
    /* Complex ASCII-to-char32_t replacement: size will increase beyond the embedded capacity, so the
-   iterator used in abc::text::mstr::replace() must be intelligent enough to self-refresh with the
+   iterator used in abc::text::str::replace() must be intelligent enough to self-refresh with the
    new descriptor. */
    ABC_TESTING_ASSERT_EQUAL(
       ((s = ABC_SL("aaaaa")).replace(char32_t('a'), gc_chP2), s),
-      istr::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2
+      str::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2
    );
    // Less-complex char32_t-to-ASCII replacement: size will decrease.
    ABC_TESTING_ASSERT_EQUAL(
-      ((s = istr::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2).
+      ((s = str::empty + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2 + gc_chP2).
          replace(gc_chP2, char32_t('a')), s),
       ABC_SL("aaaaa")
    );
@@ -334,60 +331,60 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_range_permutations,
-   "abc::text::*str classes – range() permutations"
+   "abc::text::str – range() permutations"
 ) {
    ABC_TRACE_FUNC(this);
 
-   istr sAB(ABC_SL("äb"));
+   str sAB(ABC_SL("äb"));
 
    // Substring of empty string.
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(-1, -1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(-1, 0), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(-1, 1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(0, -1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(0, 0), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(0, 1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(1, -1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(1, 0), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(istr::empty.substr(1, 1), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(-1, -1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(-1, 0), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(-1, 1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(0, -1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(0, 0), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(0, 1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(1, -1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(1, 0), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(1, 1), str::empty);
 
    // Substring of a 2-characer string.
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), str::empty);
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 0), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 0), str::empty);
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 1), ABC_SL("ä"));
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 2), ABC_SL("äb"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), str::empty);
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 0), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 0), str::empty);
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 1), ABC_SL("ä"));
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 2), ABC_SL("äb"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 0), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 1), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 0), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 1), str::empty);
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 2), ABC_SL("b"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -3), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -2), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -3), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -2), str::empty);
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 0), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 0), str::empty);
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 1), ABC_SL("ä"));
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 2), ABC_SL("äb"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -3), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -2), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 0), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 1), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -3), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -2), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 0), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 1), str::empty);
    ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 2), ABC_SL("b"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -3), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -2), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 0), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 1), istr::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), istr::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -3), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -2), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 0), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 1), str::empty);
+   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), str::empty);
 }
 
 }} //namespace abc::test
@@ -397,22 +394,22 @@ ABC_TESTING_TEST_CASE_FUNC(
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_istr_c_str,
-   "abc::text::istr – C string extraction"
+   text_str_c_str,
+   "abc::text::str – C string extraction"
 ) {
    ABC_TRACE_FUNC(this);
 
-   istr s;
+   str s;
    // Note: storing its return value in a variable is NOT a way to use c_str().
-   auto psz(s.c_str());
+   auto psz(const_cast<str const &>(s).c_str());
    // s has no character array, so it should have returned the static NUL character.
-   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), istr::empty.cbegin().base());
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), str::empty.cbegin().base());
    ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
    ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
    s = ABC_SL("");
-   psz = s.c_str();
+   psz = const_cast<str const &>(s).c_str();
    /* s should have adopted the literal and therefore have a trailing NUL, so it should have
    returned its own character array. */
    ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
@@ -421,7 +418,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
    s = ABC_SL("a");
-   psz = s.c_str();
+   psz = const_cast<str const &>(s).c_str();
    /* s should have adopted the literal and therefore have a trailing NUL, so it should have
    returned its own character array. */
    ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
@@ -429,32 +426,21 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 1u);
    ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
    ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
-}
 
-}} //namespace abc::test
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace test {
-
-ABC_TESTING_TEST_CASE_FUNC(
-   text_mstr_c_str,
-   "abc::text::mstr – C string extraction"
-) {
-   ABC_TRACE_FUNC(this);
-
-   dmstr s;
-   // Note: storing its return value in a variable is NOT a way to use c_str().
-   auto psz(s.c_str());
+   s = text::str::empty;
+   psz = s.c_str();
    // s has no character array, so it should have returned the static NUL character.
-   ABC_TESTING_ASSERT_EQUAL(psz, istr::empty.cbegin().base());
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), str::empty.cbegin().base());
+   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
    ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
    s = ABC_SL("");
    psz = s.c_str();
-   // s has no character array, so it should have returned the static NUL character.
-   ABC_TESTING_ASSERT_EQUAL(psz, istr::empty.cbegin().base());
+   /* s should have adopted the literal and therefore have a trailing NUL, so it should have
+   returned its own character array. */
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
    ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
 
@@ -462,7 +448,8 @@ ABC_TESTING_TEST_CASE_FUNC(
    psz = s.c_str();
    /* s should have copied the literal but dropped its trailing NUL, to then add it back when
    c_str() was called. */
-   ABC_TESTING_ASSERT_EQUAL(psz, s.cbegin().base());
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 1u);
    ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
    ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
@@ -471,7 +458,8 @@ ABC_TESTING_TEST_CASE_FUNC(
    psz = s.c_str();
    /* The character array should have grown, to then include a trailing NUL when c_str() was
    called. */
-   ABC_TESTING_ASSERT_EQUAL(psz, s.cbegin().base());
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.cbegin().base());
+   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
    ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 2u);
    ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
    ABC_TESTING_ASSERT_EQUAL(psz[1], 'b');
@@ -486,7 +474,7 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_find,
-   "abc::text::*str classes – character and substring search"
+   "abc::text::str – character and substring search"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -495,18 +483,18 @@ ABC_TESTING_TEST_CASE_FUNC(
    char32_t ch2 = gc_chP2;
    /* See get_acabaabca() for more information on its pattern. To make it more interesting, here we
    also duplicate it. */
-   istr const s(get_acabaabca() + get_acabaabca());
+   str const s(get_acabaabca() + get_acabaabca());
 
    ABC_TESTING_ASSERT_EQUAL(s.find(ch0), s.cbegin() + 1);
    ABC_TESTING_ASSERT_EQUAL(s.find('d'), s.cend());
-   ABC_TESTING_ASSERT_EQUAL(s.find(istr::empty + 'a' + ch2), s.cbegin() + 2);
-   ABC_TESTING_ASSERT_EQUAL(s.find(istr::empty + 'a' + ch2 + ch0 + 'a'), s.cbegin() + 5);
-   ABC_TESTING_ASSERT_EQUAL(s.find(istr::empty + 'a' + ch2 + ch0 + 'd'), s.cend());
+   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + ch2), s.cbegin() + 2);
+   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + ch2 + ch0 + 'a'), s.cbegin() + 5);
+   ABC_TESTING_ASSERT_EQUAL(s.find(str::empty + 'a' + ch2 + ch0 + 'd'), s.cend());
    ABC_TESTING_ASSERT_EQUAL(
-      s.find(istr::empty + 'a' + ch2 + 'a' + 'a' + ch2 + ch0), s.cbegin() + 2
+      s.find(str::empty + 'a' + ch2 + 'a' + 'a' + ch2 + ch0), s.cbegin() + 2
    );
    ABC_TESTING_ASSERT_EQUAL(
-      s.find(istr::empty + 'a' + ch2 + 'a' + 'a' + ch2 + ch0 + 'd'), s.cend()
+      s.find(str::empty + 'a' + ch2 + 'a' + 'a' + ch2 + ch0 + 'd'), s.cend()
    );
    ABC_TESTING_ASSERT_EQUAL(s.find_last('a'), s.cend() - 1);
 #if 0
@@ -525,7 +513,7 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_starts_with,
-   "abc::text::*str classes – initial matching"
+   "abc::text::str – initial matching"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -533,14 +521,14 @@ ABC_TESTING_TEST_CASE_FUNC(
    char32_t ch0 = gc_chP0;
    char32_t ch2 = gc_chP2;
    // See get_acabaabca() for more information on its pattern.
-   istr const s(get_acabaabca());
+   str const s(get_acabaabca());
 
-   ABC_TESTING_ASSERT_TRUE(s.starts_with(istr::empty));
-   ABC_TESTING_ASSERT_TRUE(s.starts_with(istr::empty + 'a'));
-   ABC_TESTING_ASSERT_TRUE(s.starts_with(istr::empty + 'a' + ch0));
-   ABC_TESTING_ASSERT_FALSE(s.starts_with(istr::empty + 'a' + ch2));
-   ABC_TESTING_ASSERT_FALSE(s.starts_with(istr::empty + ch0));
-   ABC_TESTING_ASSERT_FALSE(s.starts_with(istr::empty + ch2));
+   ABC_TESTING_ASSERT_TRUE(s.starts_with(str::empty));
+   ABC_TESTING_ASSERT_TRUE(s.starts_with(str::empty + 'a'));
+   ABC_TESTING_ASSERT_TRUE(s.starts_with(str::empty + 'a' + ch0));
+   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + 'a' + ch2));
+   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + ch0));
+   ABC_TESTING_ASSERT_FALSE(s.starts_with(str::empty + ch2));
    ABC_TESTING_ASSERT_TRUE(s.starts_with(s));
    ABC_TESTING_ASSERT_FALSE(s.starts_with(s + '-'));
    ABC_TESTING_ASSERT_FALSE(s.starts_with('-' + s));
@@ -554,7 +542,7 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_ends_with,
-   "abc::text::*str classes – final matching"
+   "abc::text::str – final matching"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -562,14 +550,14 @@ ABC_TESTING_TEST_CASE_FUNC(
    char32_t ch0 = gc_chP0;
    char32_t ch2 = gc_chP2;
    // See get_acabaabca() for more information on its pattern.
-   istr const s(get_acabaabca());
+   str const s(get_acabaabca());
 
-   ABC_TESTING_ASSERT_TRUE(s.ends_with(istr::empty));
-   ABC_TESTING_ASSERT_TRUE(s.ends_with(istr::empty + 'a'));
-   ABC_TESTING_ASSERT_TRUE(s.ends_with(istr::empty + ch0 + 'a'));
-   ABC_TESTING_ASSERT_FALSE(s.ends_with(istr::empty + ch2 + 'a'));
-   ABC_TESTING_ASSERT_FALSE(s.ends_with(istr::empty + ch0));
-   ABC_TESTING_ASSERT_FALSE(s.ends_with(istr::empty + ch2));
+   ABC_TESTING_ASSERT_TRUE(s.ends_with(str::empty));
+   ABC_TESTING_ASSERT_TRUE(s.ends_with(str::empty + 'a'));
+   ABC_TESTING_ASSERT_TRUE(s.ends_with(str::empty + ch0 + 'a'));
+   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + ch2 + 'a'));
+   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + ch0));
+   ABC_TESTING_ASSERT_FALSE(s.ends_with(str::empty + ch2));
    ABC_TESTING_ASSERT_TRUE(s.ends_with(s));
    ABC_TESTING_ASSERT_FALSE(s.ends_with(s + '-'));
    ABC_TESTING_ASSERT_FALSE(s.ends_with('-' + s));

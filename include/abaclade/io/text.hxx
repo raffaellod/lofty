@@ -208,8 +208,7 @@ public:
 
    public:
       //! Lines iterator.
-      class ABACLADE_SYM iterator :
-         public _std::iterator<_std::forward_iterator_tag, dmstr> {
+      class ABACLADE_SYM iterator : public _std::iterator<_std::forward_iterator_tag, str> {
       private:
          friend class _lines_proxy;
 
@@ -225,7 +224,7 @@ public:
          @return
             Reference to the current line.
          */
-         dmstr & operator*() const {
+         str & operator*() const {
             return m_s;
          }
 
@@ -234,7 +233,7 @@ public:
          @return
             Pointer to the current line.
          */
-         dmstr * operator->() const {
+         str * operator->() const {
             return &m_s;
          }
 
@@ -301,7 +300,7 @@ public:
          //! Pointer to the container from which lines are read.
          reader * const mc_ptr;
          //! Last line read.
-         dmstr mutable m_s;
+         str mutable m_s;
          //! If true, the iterator is at the end() of its container.
          bool m_bEOF:1;
       };
@@ -356,14 +355,14 @@ public:
    @return
       Content of the source.
    */
-   dmstr read_all();
+   str read_all();
 
    /*! Reads the entire source into a mutable string.
 
    @param psDst
       Pointer to the string that will receive the data.
    */
-   void read_all(mstr * psDst);
+   void read_all(str * psDst);
 
    /*! Reads a whole line into the specified mutable string, discarding the line terminator.
 
@@ -373,7 +372,7 @@ public:
       true if a line could be read, or false if the end of the data was reached, in which case
       *psDst is left in an undetermined state.
    */
-   bool read_line(mstr * psDst);
+   bool read_line(str * psDst);
 
 protected:
    //! See base::base().
@@ -389,7 +388,7 @@ protected:
    @return
       true if a string could be read, or false if the reader was at EOF.
    */
-   virtual bool read_line_or_all(mstr * psDst, bool bOneLine) = 0;
+   virtual bool read_line_or_all(str * psDst, bool bOneLine) = 0;
 };
 
 }}} //namespace abc::io::text
@@ -459,34 +458,31 @@ public:
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
    template <typename... Ts>
-   void print(istr const & sFormat, Ts const &... ts);
+   void print(str const & sFormat, Ts const &... ts);
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
-   void print(istr const & sFormat);
+   void print(str const & sFormat);
    template <typename T0>
-   void print(istr const & sFormat, T0 const & t0);
+   void print(str const & sFormat, T0 const & t0);
    template <typename T0, typename T1>
-   void print(istr const & sFormat, T0 const & t0, T1 const & t1);
+   void print(str const & sFormat, T0 const & t0, T1 const & t1);
    template <typename T0, typename T1, typename T2>
-   void print(istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2);
+   void print(str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2);
    template <typename T0, typename T1, typename T2, typename T3>
-   void print(
-      istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
-   );
+   void print(str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3);
    template <typename T0, typename T1, typename T2, typename T3, typename T4>
    void print(
-      istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
-      T4 const & t4
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
    );
    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
    void print(
-      istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
       T4 const & t4, T5 const & t5
    );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
    >
    void print(
-      istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
       T4 const & t4, T5 const & t5, T6 const & t6
    );
    template <
@@ -494,7 +490,7 @@ public:
       typename T7
    >
    void print(
-      istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
       T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7
    );
    template <
@@ -502,7 +498,7 @@ public:
       typename T7, typename T8
    >
    void print(
-      istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
       T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
    );
    template <
@@ -510,7 +506,7 @@ public:
       typename T7, typename T8, typename T9
    >
    void print(
-      istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
       T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    );
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -544,7 +540,7 @@ public:
    @param s
       String to write.
    */
-   void write_line(istr const & s = istr::empty);
+   void write_line(str const & s = str::empty);
 
 protected:
    //! See base::base().
@@ -567,7 +563,7 @@ public:
    @param sFormat
       Format string to parse for replacements.
    */
-   writer_print_helper_impl(writer * ptw, istr const & sFormat);
+   writer_print_helper_impl(writer * ptw, str const & sFormat);
 
    /*! Writes the provided arguments to the target text writer, performing replacements as
    necessary. */
@@ -596,7 +592,7 @@ private:
       Position of the offending character in m_sFormat.
    */
    ABC_FUNC_NORETURN void throw_syntax_error(
-      istr const & sDescription, istr::const_iterator it
+      str const & sDescription, str::const_iterator it
    ) const;
 
    /*! Writes the portion of format string between the first character to be written
@@ -605,7 +601,7 @@ private:
    @param itUpTo
       First character not to be written.
    */
-   void write_format_up_to(istr::const_iterator itUpTo);
+   void write_format_up_to(str::const_iterator itUpTo);
 
 protected:
    //! Target text writer.
@@ -620,9 +616,9 @@ protected:
 
 private:
    //! Format string.
-   istr const & m_sFormat;
+   str const & m_sFormat;
    //! First format string character to be written yet.
-   istr::const_iterator m_itFormatToWriteBegin;
+   str::const_iterator m_itFormatToWriteBegin;
 };
 
 //! Helper for/implementation of abc::io::text::writer::print().
@@ -642,7 +638,7 @@ public:
    @param sFormat
       Format string to parse for replacements.
    */
-   writer_print_helper(writer * ptw, istr const & sFormat) :
+   writer_print_helper(writer * ptw, str const & sFormat) :
       writer_print_helper_impl(ptw, sFormat) {
    }
 
@@ -678,7 +674,7 @@ public:
    @param ts
       Remaining replacement values.
    */
-   writer_print_helper(writer * ptw, istr const & sFormat, T0 const & t0, Ts const &... ts) :
+   writer_print_helper(writer * ptw, str const & sFormat, T0 const & t0, Ts const &... ts) :
       wph_base(ptw, sFormat, ts ...),
       m_t0(t0) {
    }
@@ -696,7 +692,7 @@ protected:
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
          to_str_backend<T0> tsb;
-         tsb.set_format(istr(
+         tsb.set_format(str(
             external_buffer, wph_base::m_pchReplFormatSpecBegin, static_cast<std::size_t>(
                wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin
             )
@@ -755,7 +751,7 @@ public:
    */
    template <typename U0>
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0
    ) :
       wph_base(ptw, sFormat),
@@ -763,7 +759,7 @@ public:
    }
    template <typename U0, typename U1>
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1
    ) :
       wph_base(ptw, sFormat, t1),
@@ -771,7 +767,7 @@ public:
    }
    template <typename U0, typename U1, typename U2>
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2
    ) :
       wph_base(ptw, sFormat, t1, t2),
@@ -779,7 +775,7 @@ public:
    }
    template <typename U0, typename U1, typename U2, typename U3>
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3
    ) :
       wph_base(ptw, sFormat, t1, t2, t3),
@@ -787,7 +783,7 @@ public:
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4>
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4
    ) :
       wph_base(ptw, sFormat, t1, t2, t3, t4),
@@ -795,7 +791,7 @@ public:
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5
    ) :
       wph_base(ptw, sFormat, t1, t2, t3, t4, t5),
@@ -805,7 +801,7 @@ public:
       typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6
    >
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
       U6 const & t6
    ) :
@@ -817,7 +813,7 @@ public:
       typename U7
    >
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
       U6 const & t6, U7 const & t7
    ) :
@@ -829,7 +825,7 @@ public:
       typename U7, typename U8
    >
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
       U6 const & t6, U7 const & t7, U8 const & t8
    ) :
@@ -841,7 +837,7 @@ public:
       typename U7, typename U8, typename U9
    >
    writer_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, istr const & sFormat,
+      typename _std::enable_if<!_std::is_void<U0>::value, writer *>::type ptw, str const & sFormat,
       U0 const & t0, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5,
       U6 const & t6, U7 const & t7, U8 const & t8, U9 const & t9
    ) :
@@ -862,7 +858,7 @@ protected:
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
          to_str_backend<T0> tsb;
-         tsb.set_format(istr(
+         tsb.set_format(str(
             external_buffer, wph_base::m_pchReplFormatSpecBegin, static_cast<std::size_t>(
                wph_base::m_pchReplFormatSpecEnd - wph_base::m_pchReplFormatSpecBegin
             )
@@ -890,7 +886,7 @@ public:
    @param sFormat
       Format string to parse for replacements.
    */
-   writer_print_helper(writer * ptw, istr const & sFormat) :
+   writer_print_helper(writer * ptw, str const & sFormat) :
       writer_print_helper_impl(ptw, sFormat) {
    }
 
@@ -919,49 +915,49 @@ namespace abc { namespace io { namespace text {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
-inline void writer::print(istr const & sFormat, Ts const &... ts) {
+inline void writer::print(str const & sFormat, Ts const &... ts) {
    detail::writer_print_helper<Ts ...> wph(this, sFormat, ts ...);
    wph.run();
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-inline void writer::print(istr const & sFormat) {
+inline void writer::print(str const & sFormat) {
    detail::writer_print_helper<> wph(this, sFormat);
    wph.run();
 }
 template <typename T0>
-inline void writer::print(istr const & sFormat, T0 const & t0) {
+inline void writer::print(str const & sFormat, T0 const & t0) {
    detail::writer_print_helper<T0> wph(this, sFormat, t0);
    wph.run();
 }
 template <typename T0, typename T1>
-inline void writer::print(istr const & sFormat, T0 const & t0, T1 const & t1) {
+inline void writer::print(str const & sFormat, T0 const & t0, T1 const & t1) {
    detail::writer_print_helper<T0, T1> wph(this, sFormat, t0, t1);
    wph.run();
 }
 template <typename T0, typename T1, typename T2>
-inline void writer::print(istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2) {
+inline void writer::print(str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2) {
    detail::writer_print_helper<T0, T1, T2> wph(this, sFormat, t0, t1, t2);
    wph.run();
 }
 template <typename T0, typename T1, typename T2, typename T3>
 inline void writer::print(
-   istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
+   str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
 ) {
    detail::writer_print_helper<T0, T1, T2, T3> wph(this, sFormat, t0, t1, t2, t3);
    wph.run();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 inline void writer::print(
-   istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
+   str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
 ) {
    detail::writer_print_helper<T0, T1, T2, T3, T4> wph(this, sFormat, t0, t1, t2, t3, t4);
    wph.run();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 inline void writer::print(
-   istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+   str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5
 ) {
    detail::writer_print_helper<T0, T1, T2, T3, T4, T5> wph(this, sFormat, t0, t1, t2, t3, t4, t5);
@@ -969,7 +965,7 @@ inline void writer::print(
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 inline void writer::print(
-   istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+   str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5, T6 const & t6
 ) {
    detail::writer_print_helper<T0, T1, T2, T3, T4, T5, T6> wph(
@@ -982,7 +978,7 @@ template <
    typename T7
 >
 inline void writer::print(
-   istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+   str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5, T6 const & t6, T7 const & t7
 ) {
    detail::writer_print_helper<T0, T1, T2, T3, T4, T5, T6, T7> wph(
@@ -995,7 +991,7 @@ template <
    typename T7, typename T8
 >
 inline void writer::print(
-   istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+   str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
 ) {
    detail::writer_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8> wph(
@@ -1008,7 +1004,7 @@ template <
    typename T7, typename T8, typename T9
 >
 inline void writer::print(
-   istr const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
+   str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
 ) {
    detail::writer_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> wph(

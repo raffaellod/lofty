@@ -171,7 +171,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
    /*! Writes a string, applying the formatting options.
 
@@ -184,7 +184,7 @@ public:
 
 protected:
    //! Backend used to write strings.
-   to_str_backend<istr> m_tsbStr;
+   to_str_backend<str> m_tsbStr;
    //! Backend used to write coroutine ID.
    to_str_backend<coroutine::id_type> m_tsbId;
 };

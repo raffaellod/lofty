@@ -68,7 +68,7 @@ scope_trace::~scope_trace() {
 
 void scope_trace::write(io::text::writer * ptwOut, unsigned iStackDepth) const {
    ptwOut->print(
-      ABC_SL("#{} {} with args: "), iStackDepth, istr(external_buffer, m_psrcloc->pszFunction)
+      ABC_SL("#{} {} with args: "), iStackDepth, str(external_buffer, m_psrcloc->pszFunction)
    );
    // Write the variables tuple.
    m_ptplVars->write(ptwOut);

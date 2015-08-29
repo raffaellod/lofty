@@ -459,21 +459,17 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 namespace abc { namespace text {
 
-class dmstr;
-class istr;
-class mstr;
+class str;
 template <std::size_t t_cchEmbeddedCapacity>
-class smstr;
+class sstr;
 
 }} //namespace abc::text
 
 namespace abc {
 
 using text::char_t;
-using text::dmstr;
-using text::istr;
-using text::mstr;
-using text::smstr;
+using text::str;
+using text::sstr;
 
 } //namespace abc
 

@@ -43,7 +43,7 @@ conversions”); here are the main differences when compared to the STL function
    classes.
 
 The format specification is provided to an abc::to_str_backend specialization by passing it an
-abc::text::istr const &, so a caller can specify a non-NUL-terminated substring of a larger string
+abc::text::str const &, so a caller can specify a non-NUL-terminated substring of a larger string
 without the need for temporary strings. Once an abc::to_str_backend instance has been constructed,
 it must be able to sequentially process an infinite number of conversions, i.e. instances of a
 to_str_backend specialization must be reusable.
@@ -67,7 +67,7 @@ The only fix for this is to provide an explicit specialization of abc::to_str_ba
    String representation of t according to sFormat.
 */
 template <typename T>
-dmstr to_str(T const & t, istr const & sFormat = istr::empty);
+str to_str(T const & t, str const & sFormat = str::empty);
 
 } //namespace abc
 
@@ -107,7 +107,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
    /*! Converts a boolean value to its string representation.
 
@@ -140,7 +140,7 @@ public:
    @param sFormat
       Formatting options.
    */
-   void set_format(istr const & sFormat);
+   void set_format(str const & sFormat);
 
 protected:
    /*! Writes the provided buffer to *posOut, prefixed as necessary.
@@ -156,7 +156,7 @@ protected:
       character in *psBuf.
    */
    void add_prefixes_and_write(
-      bool bNegative, io::text::writer * ptwOut, mstr * psBuf, mstr::iterator itBufFirstUsed
+      bool bNegative, io::text::writer * ptwOut, str * psBuf, str::iterator itBufFirstUsed
    ) const;
 
    /*! Converts an integer to its string representation.

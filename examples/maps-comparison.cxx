@@ -63,7 +63,7 @@ public:
    @return
       Return value of this program.
    */
-   virtual int main(collections::mvector<istr> & vsArgs) override {
+   virtual int main(collections::mvector<str> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
       ABC_UNUSED_ARG(vsArgs);

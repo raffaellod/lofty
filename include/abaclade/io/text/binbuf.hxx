@@ -77,7 +77,7 @@ class ABACLADE_SYM reader_read_helper : public noncopyable {
 public:
    //! Constructor.
    reader_read_helper(
-      binbuf_reader * ptbbr, std::uint8_t const * pbSrc, std::size_t cbSrc, mstr * psDst,
+      binbuf_reader * ptbbr, std::uint8_t const * pbSrc, std::size_t cbSrc, str * psDst,
       bool bOneLine
    );
 
@@ -115,7 +115,7 @@ private:
    consume_used_bytes(). */
    std::size_t m_cbSrc;
    //! Pointer to the destination string.
-   mstr * m_psDst;
+   str * m_psDst;
    //! If true, reading will stop as soon as a valid line terminator is found.
    bool m_bOneLine:1;
 
@@ -190,7 +190,7 @@ protected:
    virtual _std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
 
    //! See reader::read_line_or_all().
-   virtual bool read_line_or_all(mstr * psDst, bool bOneLine) override;
+   virtual bool read_line_or_all(str * psDst, bool bOneLine) override;
 
 private:
    /*! Detects the encoding used in the provided buffer.

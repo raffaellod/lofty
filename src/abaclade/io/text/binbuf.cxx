@@ -57,7 +57,7 @@ to calculate how many source bytes have been transcoded wihtout being consumed. 
 std::size_t const reader_read_helper::smc_cbTranscodeMax = 0x1000;
 
 reader_read_helper::reader_read_helper(
-   binbuf_reader * ptbbr, std::uint8_t const * pbSrc, std::size_t cbSrc, mstr * psDst, bool bOneLine
+   binbuf_reader * ptbbr, std::uint8_t const * pbSrc, std::size_t cbSrc, str * psDst, bool bOneLine
 ) :
    m_ptbbr(ptbbr),
 
@@ -348,7 +348,7 @@ std::size_t binbuf_reader::detect_encoding(std::uint8_t const * pb, std::size_t 
    return cbBom;
 }
 
-/*virtual*/ bool binbuf_reader::read_line_or_all(mstr * psDst, bool bOneLine) /*override*/ {
+/*virtual*/ bool binbuf_reader::read_line_or_all(str * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
    // Only continue if we didn’t reach EOF in the past.

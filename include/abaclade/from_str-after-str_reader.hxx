@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc {
 
 template <typename T>
-inline T from_str(istr const & s, istr const & sFormat /*= istr::empty*/) {
+inline T from_str(str const & s, str const & sFormat /*= str::empty*/) {
    io::text::str_reader tsr(external_buffer, &s);
    from_str_backend<T> fsb;
    fsb.set_format(sFormat);

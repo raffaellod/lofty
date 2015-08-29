@@ -55,7 +55,7 @@ std::size_t get_encoding_size(encoding enc) {
    ABC_THROW(domain_error, ());
 }
 
-istr get_line_terminator_str(line_terminator lterm) {
+str get_line_terminator_str(line_terminator lterm) {
    ABC_TRACE_FUNC(lterm);
 
    if (lterm == line_terminator::any || lterm == line_terminator::convert_any_to_lf) {
@@ -63,11 +63,11 @@ istr get_line_terminator_str(line_terminator lterm) {
    }
    switch (lterm.base()) {
       case abc::text::line_terminator::cr:
-         return istr(ABC_SL("\r"));
+         return str(ABC_SL("\r"));
       case abc::text::line_terminator::lf:
-         return istr(ABC_SL("\n"));
+         return str(ABC_SL("\n"));
       case abc::text::line_terminator::cr_lf:
-         return istr(ABC_SL("\r\n"));
+         return str(ABC_SL("\r\n"));
       default:
          // TODO: provide more information in the exception.
          ABC_THROW(domain_error, ());
@@ -723,7 +723,7 @@ decode_error & decode_error::operator=(decode_error const & x) {
 }
 
 void decode_error::init(
-   istr const & sDescription /*= istr::empty*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
+   str const & sDescription /*= str::empty*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
    std::uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
 ) {
    error::init(err ? err : os_error_mapping<decode_error>::mapped_error);
@@ -733,7 +733,7 @@ void decode_error::init(
 
 /*virtual*/ void decode_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    error::write_extended_info(ptwOut);
-   istr sFormat;
+   str sFormat;
    if (m_sDescription) {
       if (m_viInvalid) {
          sFormat = ABC_SL("{0}; byte dump: {1}");
@@ -779,7 +779,7 @@ encode_error & encode_error::operator=(encode_error const & x) {
 }
 
 void encode_error::init(
-   istr const & sDescription /*= istr::empty*/, char32_t chInvalid /*= 0xffffff*/,
+   str const & sDescription /*= str::empty*/, char32_t chInvalid /*= 0xffffff*/,
    errint_t err /*= 0*/
 ) {
    error::init(err ? err : os_error_mapping<encode_error>::mapped_error);
@@ -789,7 +789,7 @@ void encode_error::init(
 
 /*virtual*/ void encode_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    error::write_extended_info(ptwOut);
-   istr sFormat;
+   str sFormat;
    if (m_sDescription) {
       if (m_iInvalidCodePoint != 0xffffff) {
          sFormat = ABC_SL("{0}; code point: {1}");

@@ -251,7 +251,7 @@ to_str_backend<coroutine>::to_str_backend() {
 to_str_backend<coroutine>::~to_str_backend() {
 }
 
-void to_str_backend<coroutine>::set_format(istr const & sFormat) {
+void to_str_backend<coroutine>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -270,10 +270,10 @@ void to_str_backend<coroutine>::write(coroutine const & coro, io::text::writer *
    ABC_TRACE_FUNC(this/*, coro*/, ptwOut);
 
    if (coroutine::id_type id = coro.id()) {
-      m_tsbStr.write(istr(ABC_SL("CRID:")), ptwOut);
+      m_tsbStr.write(str(ABC_SL("CRID:")), ptwOut);
       m_tsbId.write(id, ptwOut);
    } else {
-      m_tsbStr.write(istr(ABC_SL("CRID:-")), ptwOut);
+      m_tsbStr.write(str(ABC_SL("CRID:-")), ptwOut);
    }
 }
 

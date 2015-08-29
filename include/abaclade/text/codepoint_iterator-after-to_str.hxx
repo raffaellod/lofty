@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014
+Copyright 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -27,10 +27,17 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace text { namespace detail {
 
 inline codepoint_proxy<false> & codepoint_proxy<false>::operator=(char_t ch) {
-   static_cast<mstr *>(const_cast<str_base *>(mc_ps))->_replace_codepoint(
-      const_cast<char_t *>(m_pch), ch
-   );
+   mc_ps->_replace_codepoint(const_cast<char_t *>(mc_ps->chars_begin()) + m_ich, ch);
    return *this;
+}
+
+inline codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t cp) {
+   mc_ps->_replace_codepoint(const_cast<char_t *>(mc_ps->chars_begin()) + m_ich, cp);
+   return *this;
+}
+
+inline codepoint_proxy<true>::operator char32_t() const {
+   return host_char_traits::chars_to_codepoint(mc_ps->chars_begin() + m_ich);
 }
 
 }}} //namespace abc::text::detail
@@ -39,8 +46,18 @@ inline codepoint_proxy<false> & codepoint_proxy<false>::operator=(char_t ch) {
 
 namespace abc { namespace text { namespace detail {
 
-inline char_t const * codepoint_iterator_impl<true>::advance(std::ptrdiff_t i, bool bIndex) const {
-   return m_ps->_advance_char_ptr(m_pch, i, bIndex);
+inline std::size_t codepoint_iterator_impl<true>::advance(
+   std::ptrdiff_t iDelta, bool bIndex
+) const {
+   return m_ps->_advance_char_index(m_ich, iDelta, bIndex);
+}
+
+inline char_t const * codepoint_iterator_impl<true>::base() const {
+   return m_ps->chars_begin() + m_ich;
+}
+
+inline char_t * codepoint_iterator_impl<false>::base() const {
+   return const_cast<char_t *>(m_ps->chars_begin()) + m_ich;
 }
 
 }}} //namespace abc::text::detail
