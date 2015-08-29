@@ -115,12 +115,8 @@ extern ABACLADE_SYM external_buffer_t const external_buffer;
 
 namespace abc { namespace text {
 
-/*! Base class for strings. Unlike C or STL strings, instances do not implcitly have an accessible
-trailing NUL character.
-
-See @ref vextr-design for implementation details for this and derived classes, such as
-abc::text::sstr. */
-class ABACLADE_SYM str :
+template <>
+class ABACLADE_SYM sstr<0> :
    protected collections::detail::raw_trivial_vextr_impl,
    public support_explicit_operator_bool<str> {
 private:
@@ -144,11 +140,11 @@ public:
 
 public:
    //! Empty string constant.
-   static str const & empty;
+   static sstr const & empty;
 
 public:
    //! Default constructor.
-   str() :
+   sstr() :
       vextr_impl(0) {
    }
 
@@ -157,7 +153,7 @@ public:
    @param s
       Source object.
    */
-   str(str && s) :
+   sstr(str && s) :
       vextr_impl(0) {
       vextr_impl::assign_move_desc_or_move_items(_std::move(s));
    }
@@ -167,7 +163,7 @@ public:
    @param s
       Source object.
    */
-   str(str const & s) :
+   sstr(str const & s) :
       vextr_impl(0) {
       vextr_impl::assign_share_raw_or_copy_desc(s);
    }
@@ -178,7 +174,7 @@ public:
       Source NUL-terminated string literal.
    */
    template <std::size_t t_cch>
-   str(char_t const (& ach)[t_cch]) :
+   sstr(char_t const (& ach)[t_cch]) :
       vextr_impl(
          0, &ach[0], &ach[t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')], ach[t_cch - 1 /*NUL*/] == '\0'
       ) {
@@ -191,7 +187,7 @@ public:
    @param pchEnd
       Pointer to the end of the source stirng.
    */
-   str(char_t const * pchBegin, char_t const * pchEnd) :
+   sstr(char_t const * pchBegin, char_t const * pchEnd) :
       vextr_impl(0) {
       vextr_impl::assign_copy(pchBegin, pchEnd);
    }
@@ -207,7 +203,7 @@ public:
    @param pch2End
       Pointer to the end of the right source stirng.
    */
-   str(
+   sstr(
       char_t const * pch1Begin, char_t const * pch1End,
       char_t const * pch2Begin, char_t const * pch2End
    ) :
@@ -220,7 +216,7 @@ public:
    @param psz
       Pointer to the source NUL-terminated string literal.
    */
-   str(external_buffer_t const &, char_t const * psz) :
+   sstr(external_buffer_t const &, char_t const * psz) :
       vextr_impl(0, psz, psz + text::size_in_chars(psz), true) {
    }
 
@@ -231,7 +227,7 @@ public:
    @param cch
       Count of characters in the array pointed to be psz.
    */
-   str(external_buffer_t const &, char_t const * pch, std::size_t cch) :
+   sstr(external_buffer_t const &, char_t const * pch, std::size_t cch) :
       vextr_impl(0, pch, pch + cch, false) {
    }
 
@@ -963,7 +959,7 @@ protected:
    @param cbEmbeddedCapacity
       Size of the embedded character array, in bytes.
    */
-   str(std::size_t cbEmbeddedCapacity) :
+   sstr(std::size_t cbEmbeddedCapacity) :
       vextr_impl(cbEmbeddedCapacity) {
    }
 
@@ -974,7 +970,7 @@ protected:
    @param s
       Source object.
    */
-   str(std::size_t cbEmbeddedCapacity, str && s) :
+   sstr(std::size_t cbEmbeddedCapacity, str && s) :
       vextr_impl(cbEmbeddedCapacity) {
       vextr_impl::assign_move_desc_or_move_items(_std::move(s));
    }
@@ -986,7 +982,7 @@ protected:
    @param s
       Source object.
    */
-   str(std::size_t cbEmbeddedCapacity, str const & s) :
+   sstr(std::size_t cbEmbeddedCapacity, str const & s) :
       vextr_impl(cbEmbeddedCapacity) {
       vextr_impl::assign_share_raw_or_copy_desc(s);
    }
@@ -999,7 +995,7 @@ protected:
       Source NUL-terminated string literal.
    */
    template <std::size_t t_cch>
-   str(std::size_t cbEmbeddedCapacity, char_t const (& ach)[t_cch]) :
+   sstr(std::size_t cbEmbeddedCapacity, char_t const (& ach)[t_cch]) :
       vextr_impl(
          cbEmbeddedCapacity, &ach[0], &ach[t_cch - (ach[t_cch - 1 /*NUL*/] == '\0')],
          ach[t_cch - 1 /*NUL*/] == '\0'
@@ -1015,7 +1011,7 @@ protected:
    @param bNulT
       true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
    */
-   str(char_t const * pchConstSrc, std::size_t cchSrc, bool bNulT) :
+   sstr(char_t const * pchConstSrc, std::size_t cchSrc, bool bNulT) :
       vextr_impl(0, pchConstSrc, pchConstSrc + cchSrc, bNulT) {
    }
 
@@ -1083,137 +1079,6 @@ protected:
    ) const;
 };
 
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-   inline bool operator op(str const & s1, str const & s2) { \
-      return str_traits::compare( \
-         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
-      ) op 0; \
-   } \
-   template <std::size_t t_cch> \
-   inline bool operator op(str const & s, char_t const (& ach)[t_cch]) { \
-      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return str_traits::compare(s.chars_begin(), s.chars_end(), ach, pchEnd) op 0; \
-   } \
-   template <std::size_t t_cch> \
-   inline bool operator op(char_t const (& ach)[t_cch], str const & s) { \
-      char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
-      return str_traits::compare(ach, pchEnd, s.chars_begin(), s.chars_end()) op 0; \
-   }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-ABC_RELOP_IMPL(>)
-ABC_RELOP_IMPL(>=)
-ABC_RELOP_IMPL(<)
-ABC_RELOP_IMPL(<=)
-#undef ABC_RELOP_IMPL
-
-/*! Concatenation operator.
-
-@param sL
-   Left string operand.
-@param sR
-   Right string operand.
-@param chL
-   Left character operand.
-@param chR
-   Right character operand.
-@return
-   Resulting string.
-*/
-inline str operator+(str const & sL, str const & sR) {
-   return str(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
-}
-inline str operator+(str && sL, str const & sR) {
-   sL += sR;
-   return _std::move(sL);
-}
-
-// Overloads taking a character literal as right operand.
-inline str operator+(str && sL, char_t chR) {
-   sL += chR;
-   return _std::move(sL);
-}
-inline str operator+(str const & sL, char_t chR) {
-   return str(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
-}
-#if ABC_HOST_UTF > 8
-inline str operator+(str && sL, char chR) {
-   return operator+(_std::move(sL), host_char(chR));
-}
-inline str operator+(str const & sL, char chR) {
-   return operator+(sL, host_char(chR));
-}
-#endif
-inline str operator+(str && sL, char32_t chR) {
-   sL += chR;
-   return _std::move(sL);
-}
-inline str operator+(str const & sL, char32_t chR) {
-   char_t achR[host_char_traits::max_codepoint_length];
-   return str(
-      sL.chars_begin(), sL.chars_end(), achR, host_char_traits::codepoint_to_chars(chR, achR)
-   );
-}
-
-// Overloads taking a character literal as left operand.
-inline str operator+(char_t chL, str && sR) {
-   sR.insert(0, chL);
-   return _std::move(sR);
-}
-inline str operator+(char_t chL, str const & sR) {
-   return str(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
-}
-#if ABC_HOST_UTF > 8
-inline str operator+(char chL, str && sR) {
-   return operator+(host_char(chL), _std::move(sR));
-}
-inline str operator+(char chL, str const & sR) {
-   return operator+(host_char(chL), sR);
-}
-#endif
-inline str operator+(char32_t chL, str && sR) {
-   sR.insert(0, chL);
-   return _std::move(sR);
-}
-inline str operator+(char32_t chL, str const & sR) {
-   char_t achL[host_char_traits::max_codepoint_length];
-   return str(
-      achL, host_char_traits::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
-   );
-}
-
-}} //namespace abc::text
-
-namespace std {
-
-template <>
-struct ABACLADE_SYM hash<abc::text::str> {
-   std::size_t operator()(abc::text::str const & s) const;
-};
-
-} //namespace std
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace text {
-
-/*! abc::text::str subclass that includes a fixed-size character array.
-
-This class offers clients the option to avoid dynamic memory allocation when then strings to be
-manipulated are expected to be of a known small size. If the string expands to more than what the
-fixed-size character array can hold, the object will seamlessly switch to behaving like
-abc::text::str.
-
-The abc::text::sstr class derives from abc::text::str, but the inheritance is private to prevent
-sstr instances from being accidentally passed as abc::text::str && arguments, which would be a
-problem since moving an sstr object to a str object may throw exceptions due to potentially having
-to allocate dynamic memory.
-
-To enable using an sstr object as a str instance, the accessor methods sstr::str() and
-sstr::str_ptr() are provided. Note that while either method may be indirectly used to get an r-value
-reference to the object as an abc::text::str instance, doing so is discouraged, for the reasons
-explained above. */
 template <std::size_t t_cchEmbeddedCapacity>
 class sstr :
    private str,
@@ -1416,18 +1281,6 @@ public:
          s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
       ) op 0; \
    } \
-   template <std::size_t t_cchEmbeddedCapacity> \
-   inline bool operator op(sstr<t_cchEmbeddedCapacity> const & s1, str const & s2) { \
-      return str_traits::compare( \
-         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
-      ) op 0; \
-   } \
-   template <std::size_t t_cchEmbeddedCapacity> \
-   inline bool operator op(str const & s1, sstr<t_cchEmbeddedCapacity> const & s2) { \
-      return str_traits::compare( \
-         s1.chars_begin(), s1.chars_end(), s2.chars_begin(), s2.chars_end() \
-      ) op 0; \
-   } \
    template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch> \
    inline bool operator op(sstr<t_cchEmbeddedCapacity> const & s, char_t const (& ach)[t_cch]) { \
       char_t const * pchEnd = ach + t_cch - (ach[t_cch - 1 /*NUL*/] == '\0'); \
@@ -1446,9 +1299,89 @@ ABC_RELOP_IMPL(<)
 ABC_RELOP_IMPL(<=)
 #undef ABC_RELOP_IMPL
 
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param sR
+   Right string operand.
+@param chL
+   Left character operand.
+@param chR
+   Right character operand.
+@return
+   Resulting string.
+*/
+inline str operator+(str const & sL, str const & sR) {
+   return str(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
+}
+inline str operator+(str && sL, str const & sR) {
+   sL += sR;
+   return _std::move(sL);
+}
+
+// Overloads taking a character literal as right operand.
+inline str operator+(str && sL, char_t chR) {
+   sL += chR;
+   return _std::move(sL);
+}
+inline str operator+(str const & sL, char_t chR) {
+   return str(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
+}
+#if ABC_HOST_UTF > 8
+inline str operator+(str && sL, char chR) {
+   return operator+(_std::move(sL), host_char(chR));
+}
+inline str operator+(str const & sL, char chR) {
+   return operator+(sL, host_char(chR));
+}
+#endif
+inline str operator+(str && sL, char32_t chR) {
+   sL += chR;
+   return _std::move(sL);
+}
+inline str operator+(str const & sL, char32_t chR) {
+   char_t achR[host_char_traits::max_codepoint_length];
+   return str(
+      sL.chars_begin(), sL.chars_end(), achR, host_char_traits::codepoint_to_chars(chR, achR)
+   );
+}
+
+// Overloads taking a character literal as left operand.
+inline str operator+(char_t chL, str && sR) {
+   sR.insert(0, chL);
+   return _std::move(sR);
+}
+inline str operator+(char_t chL, str const & sR) {
+   return str(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
+}
+#if ABC_HOST_UTF > 8
+inline str operator+(char chL, str && sR) {
+   return operator+(host_char(chL), _std::move(sR));
+}
+inline str operator+(char chL, str const & sR) {
+   return operator+(host_char(chL), sR);
+}
+#endif
+inline str operator+(char32_t chL, str && sR) {
+   sR.insert(0, chL);
+   return _std::move(sR);
+}
+inline str operator+(char32_t chL, str const & sR) {
+   char_t achL[host_char_traits::max_codepoint_length];
+   return str(
+      achL, host_char_traits::codepoint_to_chars(chL, achL), sR.chars_begin(), sR.chars_end()
+   );
+}
+
 }} //namespace abc::text
 
 namespace std {
+
+template <>
+struct ABACLADE_SYM hash<abc::text::str> {
+   std::size_t operator()(abc::text::str const & s) const;
+};
 
 template <std::size_t t_cchEmbeddedCapacity>
 struct hash<abc::text::sstr<t_cchEmbeddedCapacity>> : public hash<abc::text::str> {

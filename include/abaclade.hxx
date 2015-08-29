@@ -459,9 +459,31 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 namespace abc { namespace text {
 
-class str;
+/*! abc::text::str subclass that includes a fixed-size character array.
+
+This class offers clients the option to avoid dynamic memory allocation when then strings to be
+manipulated are expected to be of a known small size. If the string expands to more than what the
+fixed-size character array can hold, the object will seamlessly switch to behaving like
+abc::text::str.
+
+The abc::text::sstr class derives from abc::text::str, but the inheritance is private to prevent
+sstr instances from being accidentally passed as abc::text::str && arguments, which would be a
+problem since moving an sstr object to a str object may throw exceptions due to potentially having
+to allocate dynamic memory.
+
+To enable using an sstr object as a str instance, the accessor methods sstr::str() and
+sstr::str_ptr() are provided. Note that while either method may be indirectly used to get an r-value
+reference to the object as an abc::text::str instance, doing so is discouraged, for the reasons
+explained above. */
 template <std::size_t t_cchEmbeddedCapacity>
 class sstr;
+
+/*! Abaclade’s memory-efficient string class.
+
+Unlike C or STL strings, instances do not implcitly have an accessible trailing NUL character.
+
+See @ref vextr-design for implementation details of this class and abc::text::sstr. */
+typedef sstr<0> str;
 
 }} //namespace abc::text
 
