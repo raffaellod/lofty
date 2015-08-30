@@ -98,13 +98,12 @@ static _std::shared_ptr<binbuf_base> _construct_stdio(
       enc = abc::text::encoding::host;
    } else {
       // In all other cases, allow selecting the encoding via environment variable.
+      sstr<64> sEnc;
 #if ABC_HOST_API_POSIX
-      str sEnc;
       if (char_t const * pszEnvVarValue = std::getenv(pszEnvVarName)) {
          sEnc = str(external_buffer, pszEnvVarValue);
       }
 #elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-      sstr<64> sEnc;
       sEnc.set_from([pszEnvVarName] (char_t * pch, std::size_t cchMax) -> std::size_t {
          /* ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
          enough, or the required size (length including NUL) otherwise. */
