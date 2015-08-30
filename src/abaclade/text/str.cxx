@@ -107,7 +107,7 @@ std::size_t str::const_iterator::throw_if_end(std::size_t ich) const {
 }
 
 
-std::size_t str::_advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const {
+std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const {
    ABC_TRACE_FUNC(this, ich, iDelta, bIndex);
 
    char_t const * pchBegin = chars_begin(), * pch = pchBegin + ich, * pchEnd = chars_end();
@@ -299,7 +299,7 @@ void str::replace(char32_t cpSearch, char32_t cpReplacement) {
    }
 }
 
-void str::_replace_codepoint(char_t * pch, char_t chNew) {
+void str::replace_codepoint(char_t * pch, char_t chNew) {
    ABC_TRACE_FUNC(this, pch, chNew);
 
    std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
@@ -314,7 +314,7 @@ void str::_replace_codepoint(char_t * pch, char_t chNew) {
    *pch = chNew;
 }
 
-void str::_replace_codepoint(char_t * pch, char32_t cpNew) {
+void str::replace_codepoint(char_t * pch, char32_t cpNew) {
    ABC_TRACE_FUNC(this, pch, cpNew);
 
    std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(cpNew);

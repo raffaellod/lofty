@@ -125,7 +125,18 @@ private:
 public:
    //! Presents an abc::text::str character(s) as a char32_t const &.
    class const_codepoint_proxy {
+   private:
+      friend class sstr;
+
    public:
+      /*! Implicit conversion to a code point.
+
+      @return
+         Code point that the proxy is currently referencing.
+      */
+      operator char32_t() const;
+
+   private:
       /*! Constructor.
 
       @param ps
@@ -138,13 +149,6 @@ public:
          mc_ich(ich) {
       }
 
-      /*! Implicit conversion to a code point.
-
-      @return
-         Code point that the proxy is currently referencing.
-      */
-      operator char32_t() const;
-
    protected:
       //! Pointer to the containing string.
       str const * const mc_ps;
@@ -154,18 +158,10 @@ public:
 
    //! Presents an abc::text::str character(s) as a char32_t &.
    class codepoint_proxy : public const_codepoint_proxy {
+   private:
+      friend class sstr;
+
    public:
-      /*! Constructor.
-
-      @param ps
-         Pointer to the containing string.
-      @param ich
-         Index of the character(s) that this proxy will present as char32_t.
-      */
-      codepoint_proxy(str * ps, std::size_t ich) :
-         const_codepoint_proxy(ps, ich) {
-      }
-
       /*! Assignment operator.
 
       @param ch
@@ -197,8 +193,9 @@ public:
       */
       codepoint_proxy & operator=(char32_t cp);
 
-      /*! Copy-assignment operator. This copies the char32_t value, not the internal data members; this
-      allows writing expressions like *itDst = *itSrc to copy code points from one iterator to another.
+      /*! Copy-assignment operator. This copies the char32_t value, not the internal data members;
+      this allows writing expressions like *itDst = *itSrc to copy code points from one iterator to
+      another.
 
       @param cpp
          Source object to copy a code point from.
@@ -209,9 +206,10 @@ public:
          return operator=(cpp.operator char32_t());
       }
 
-      /*! Copy-assignment operator. This copies the char32_t value, not the internal data members; this
-      allows writing expressions like *itDst = *itSrc to copy code points from one iterator to another.
-      This overload supports copying a code point from a const iterator to a non-const iterator.
+      /*! Copy-assignment operator. This copies the char32_t value, not the internal data members;
+      this allows writing expressions like *itDst = *itSrc to copy code points from one iterator to
+      another. This overload supports copying a code point from a const iterator to a non-const
+      iterator.
 
       @param cpp
          Source object to copy a code point from.
@@ -220,6 +218,18 @@ public:
       */
       codepoint_proxy & operator=(const_codepoint_proxy const & cpp) {
          return operator=(cpp.operator char32_t());
+      }
+
+   private:
+      /*! Constructor.
+
+      @param ps
+         Pointer to the containing string.
+      @param ich
+         Index of the character(s) that this proxy will present as char32_t.
+      */
+      codepoint_proxy(str * ps, std::size_t ich) :
+         const_codepoint_proxy(ps, ich) {
       }
    };
 
@@ -234,6 +244,9 @@ public:
    /*! Code point iterator that hides the underlying encoded representation, presenting a string as
    an array of code points (char32_t). Pointers/references are still char_t. */
    class ABACLADE_SYM const_iterator {
+   private:
+      friend class sstr;
+
    public:
       typedef char32_t value_type;
       typedef char_t const * pointer;
@@ -246,18 +259,6 @@ public:
       /*constexpr*/ const_iterator() :
          m_ps(nullptr),
          m_ich(0) {
-      }
-
-      /*! Constructor.
-
-      @param ps
-         Pointer to the string that is creating the iterator.
-      @param ich
-         Character index to set the iterator to.
-      */
-      const_iterator(str const * ps, std::size_t ich) :
-         m_ps(ps),
-         m_ich(ich) {
       }
 
       /*! Dereferencing operator.
@@ -404,7 +405,7 @@ public:
       char_t const * base() const;
 
    protected:
-      //! Invokes m_ps->_advance_char_index(). See str::_advance_char_index().
+      //! Invokes m_ps->advance_char_index(). See str::advance_char_index().
       std::size_t advance(std::ptrdiff_t iDelta, bool bIndex) const;
 
       /*! Computes the distance from another iterator/index.
@@ -426,6 +427,19 @@ public:
       std::size_t throw_if_end(std::size_t ich) const;
 
    protected:
+      /*! Constructor.
+
+      @param ps
+         Pointer to the string that is creating the iterator.
+      @param ich
+         Character index to set the iterator to.
+      */
+      const_iterator(str const * ps, std::size_t ich) :
+         m_ps(ps),
+         m_ich(ich) {
+      }
+
+   protected:
       //! Pointer to the source string.
       str const * m_ps;
       //! Index of the current character.
@@ -435,6 +449,9 @@ public:
    /*! Character iterator that hides the underlying encoded representation, presenting a string as
    an array of code points (char32_t). Pointers/references are still char_t. */
    class iterator : public const_iterator {
+   private:
+      friend class sstr;
+
    public:
       typedef char_t * pointer;
       typedef codepoint_proxy reference;
@@ -442,17 +459,6 @@ public:
    public:
       //! Default constructor.
       /*constexpr*/ iterator() {
-      }
-
-      /*! Constructor.
-
-      @param ps
-         Pointer to the string that is creating the iterator.
-      @param ich
-         Character index to set the iterator to.
-      */
-      iterator(str * ps, std::size_t ich) :
-         const_iterator(ps, ich) {
       }
 
       /*! Dereferencing operator.
@@ -525,6 +531,17 @@ public:
       }
 
    private:
+      /*! Constructor.
+
+      @param ps
+         Pointer to the string that is creating the iterator.
+      @param ich
+         Character index to set the iterator to.
+      */
+      iterator(str * ps, std::size_t ich) :
+         const_iterator(ps, ich) {
+      }
+
       /*! Copy constructor. Allows to convert from non-const to const iterator types.
 
       @param it
@@ -676,7 +693,7 @@ public:
       Character at index i.
    */
    codepoint_proxy operator[](std::ptrdiff_t i) {
-      return codepoint_proxy(this, _advance_char_index(0, i, true));
+      return codepoint_proxy(this, advance_char_index(0, i, true));
    }
 
    /*! Const haracter access operator.
@@ -688,7 +705,7 @@ public:
       Character at index i.
    */
    const_codepoint_proxy operator[](std::ptrdiff_t i) const {
-      return const_codepoint_proxy(this, _advance_char_index(0, i, true));
+      return const_codepoint_proxy(this, advance_char_index(0, i, true));
    }
 
    /*! Boolean evaluation operator.
@@ -752,22 +769,6 @@ public:
       append(s.chars_begin(), s.size_in_chars());
       return *this;
    }
-
-   /*! Advances or backs up a character index by the specified number of code points, returning the
-   resulting pointer. If the index is moved outside of the buffer, an index_error or
-   iterator_error exception (depending on bIndex) is thrown.
-
-   @param ich
-      Initial index.
-   @param iDelta
-      Count of code points to move from ich by.
-   @param bIndex
-      If true, a movement to outside of [begin, end) will cause an index_error to be thrown; if
-      false, a movement to outside of [begin, end] will cause an iterator_error to be thrown.
-   @return
-      Resulting pointer.
-   */
-   std::size_t _advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const;
 
    /*! Same as operator+=(), but for multi-argument overloads.
 
@@ -1412,6 +1413,22 @@ protected:
       vextr_impl(0, pchConstSrc, pchConstSrc + cchSrc, bNulT) {
    }
 
+   /*! Advances or backs up a character index by the specified number of code points, returning the
+   resulting pointer. If the index is moved outside of the buffer, an index_error or
+   iterator_error exception (depending on bIndex) is thrown.
+
+   @param ich
+      Initial index.
+   @param iDelta
+      Count of code points to move from ich by.
+   @param bIndex
+      If true, a movement to outside of [begin, end) will cause an index_error to be thrown; if
+      false, a movement to outside of [begin, end] will cause an iterator_error to be thrown.
+   @return
+      Resulting pointer.
+   */
+   std::size_t advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const;
+
    //! Prepares the character array to be modified.
    void prepare_for_writing();
 
@@ -1422,7 +1439,7 @@ protected:
    @param chNew
       Character that will be written at *pch.
    */
-   void _replace_codepoint(char_t * pch, char_t chNew);
+   void replace_codepoint(char_t * pch, char_t chNew);
 
 #if ABC_HOST_UTF > 8
    /*! Replaces a single ASCII character with another ASCII character.
@@ -1432,8 +1449,8 @@ protected:
    @param chNew
       Character that will be written at *pch.
    */
-   void _replace_codepoint(char_t * pch, char chNew) {
-      _replace_codepoint(pch, host_char(chNew));
+   void replace_codepoint(char_t * pch, char chNew) {
+      replace_codepoint(pch, host_char(chNew));
    }
 #endif
 
@@ -1444,7 +1461,7 @@ protected:
    @param cpNew
       Code point that will be encoded starting at at *pch.
    */
-   void _replace_codepoint(char_t * pch, char32_t cpNew);
+   void replace_codepoint(char_t * pch, char32_t cpNew);
 
    /*! Converts a possibly negative character index into an iterator.
 
@@ -1678,21 +1695,21 @@ inline str::const_codepoint_proxy::operator char32_t() const {
 }
 
 inline str::codepoint_proxy & str::codepoint_proxy::operator=(char_t ch) {
-   const_cast<str *>(mc_ps)->_replace_codepoint(
+   const_cast<str *>(mc_ps)->replace_codepoint(
       const_cast<str *>(mc_ps)->chars_begin() + mc_ich, ch
    );
    return *this;
 }
 
 inline str::codepoint_proxy & str::codepoint_proxy::operator=(char32_t cp) {
-   const_cast<str *>(mc_ps)->_replace_codepoint(
+   const_cast<str *>(mc_ps)->replace_codepoint(
       const_cast<str *>(mc_ps)->chars_begin() + mc_ich, cp
    );
    return *this;
 }
 
 inline std::size_t str::const_iterator::advance(std::ptrdiff_t iDelta, bool bIndex) const {
-   return m_ps->_advance_char_index(m_ich, iDelta, bIndex);
+   return m_ps->advance_char_index(m_ich, iDelta, bIndex);
 }
 
 inline char_t const * str::const_iterator::base() const {
