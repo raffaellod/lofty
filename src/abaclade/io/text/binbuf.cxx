@@ -129,7 +129,7 @@ std::size_t reader_read_helper::consume_used_bytes() {
    m_cchReadTotal += cchUsed;
    std::size_t cbUsed;
    if (mc_enc == abc::text::encoding::host) {
-      cbUsed = cchUsed * sizeof(char_t);
+      cbUsed = sizeof(char_t) * cchUsed;
    } else {
       if (m_pchTranscoded == m_pchTranscodedEnd) {
          // We used all the bytes we transcoded.
@@ -139,7 +139,7 @@ std::size_t reader_read_helper::consume_used_bytes() {
          destination size to the consumed range of characters; this will yield the count of bytes to
          consume. */
          void const * pbSrc = m_pbSrc;
-         std::size_t cbSrc = m_cbSrcTranscoded, cbTranscodedRemaining = cchUsed * sizeof(char_t);
+         std::size_t cbSrc = m_cbSrcTranscoded, cbTranscodedRemaining = sizeof(char_t) * cchUsed;
          abc::text::transcode(
             true, mc_enc, &pbSrc, &cbSrc, abc::text::encoding::host, nullptr, &cbTranscodedRemaining
          );

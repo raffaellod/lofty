@@ -325,7 +325,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
       }
    }
    this_coroutine::interruption_point();
-   return cchRead * sizeof(char_t);
+   return sizeof(char_t) * cchRead;
 }
 #endif //if ABC_HOST_API_WIN32
 

@@ -178,7 +178,7 @@ public:
       Newly allocated storage for c T objects.
    */
    pointer allocate(size_type c, allocator<void>::const_pointer pHint = nullptr) {
-      return reinterpret_cast<T *>(::new max_align_t[ABC_ALIGNED_SIZE(c * sizeof(T))]);
+      return reinterpret_cast<T *>(::new max_align_t[ABC_ALIGNED_SIZE(sizeof(T) * c)]);
    }
 
    /*! Releases memory obtained through allocate().
