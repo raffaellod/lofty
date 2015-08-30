@@ -384,7 +384,7 @@ void writer_print_helper_impl::write_format_up_to(str::const_iterator itUpTo) {
    if (itUpTo > m_itFormatToWriteBegin) {
       m_ptw->write_binary(
          m_itFormatToWriteBegin.ptr(),
-         itUpTo.index() - m_itFormatToWriteBegin.index(),
+         sizeof(char_t) * (itUpTo.index() - m_itFormatToWriteBegin.index()),
          abc::text::encoding::host
       );
       m_itFormatToWriteBegin = itUpTo;
