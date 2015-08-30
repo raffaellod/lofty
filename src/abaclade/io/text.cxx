@@ -116,7 +116,7 @@ static _std::shared_ptr<binbuf_base> _construct_stdio(
       enc = abc::text::encoding::unknown;
       if (sEnc) {
          try {
-            enc = abc::text::encoding(sEnc);
+            enc = abc::text::encoding(sEnc.str());
          } catch (domain_error const &) {
             // Ignore this invalid encoding setting, and default to auto-detection.
             // TODO: display a warning about ABC_STD*_ENCODING being ignored.

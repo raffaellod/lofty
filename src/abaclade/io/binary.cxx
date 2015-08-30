@@ -385,7 +385,7 @@ pipe_ends pipe() {
       static long s_iSerial = 0;
       // Generate the pipe name.
       sstr<128> sPipeName;
-      io::text::str_writer(external_buffer, &sPipeName).print(
+      io::text::str_writer(external_buffer, sPipeName.str_ptr()).print(
          ABC_SL("\\\\.\\pipe\\abc::io::binary::pipe\\{}\\{}"),
          ::GetCurrentProcessId(), ::InterlockedIncrement(&s_iSerial)
       );

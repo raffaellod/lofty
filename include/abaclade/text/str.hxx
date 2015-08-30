@@ -1479,7 +1479,7 @@ protected:
       Character that will be written at index ich.
    */
    void replace_codepoint(std::size_t ich, char chNew) {
-      replace_codepoint(pch, host_char(chNew));
+      replace_codepoint(ich, host_char(chNew));
    }
 #endif
 
@@ -1605,15 +1605,11 @@ public:
    }
 
    using text::str::operator[];
-
-   /*! Boolean evaluation operator.
-
-   @return
-      true if the string is not empty, or false otherwise.
-   */
-   ABC_EXPLICIT_OPERATOR_BOOL() const {
-      return *static_cast<text::str *>(this) ? true : false;
-   }
+#ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
+   using text::str::operator bool;
+#else
+   using text::str::operator abc::detail::explob_helper::bool_type;
+#endif
 
    /*! Concatenation-assignment operator.
 
