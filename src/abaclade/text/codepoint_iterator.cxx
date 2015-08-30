@@ -22,15 +22,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text {
 
-std::ptrdiff_t codepoint_iterator_impl<true>::distance(std::size_t ich) const {
+std::ptrdiff_t const_codepoint_iterator::distance(std::size_t ich) const {
    ABC_TRACE_FUNC(this, ich);
 
    if (ich == m_ich) {
       return 0;
    } else {
-      auto pchBegin = m_ps->chars_begin();
+      char_t const * pchBegin = m_ps->chars_begin();
       if (ich < m_ich) {
          return static_cast<std::ptrdiff_t>(
             str_traits::size_in_codepoints(pchBegin + ich, pchBegin + m_ich)
@@ -43,7 +43,7 @@ std::ptrdiff_t codepoint_iterator_impl<true>::distance(std::size_t ich) const {
    }
 }
 
-std::size_t codepoint_iterator_impl<true>::throw_if_end(std::size_t ich) const {
+std::size_t const_codepoint_iterator::throw_if_end(std::size_t ich) const {
    ABC_TRACE_FUNC(this, ich);
 
    char_t const * pchBegin = m_ps->chars_begin(), * pch = pchBegin + ich;
@@ -53,4 +53,4 @@ std::size_t codepoint_iterator_impl<true>::throw_if_end(std::size_t ich) const {
    return ich;
 }
 
-}}} //namespace abc::text::detail
+}} //namespace abc::text

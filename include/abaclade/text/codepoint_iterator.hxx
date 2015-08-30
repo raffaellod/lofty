@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text {
 
 //! Presents an abc::text::str character(s) as a char32_t const &.
 class const_codepoint_proxy {
@@ -171,22 +171,41 @@ ABC_RELOP_IMPL(<=)
    #undef ABC_RELOP_IMPL
 #endif
 
-}}} //namespace abc::text::detail
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text {
 
-/*! Base class for codepoint_iterator. Its specializations include all the members that don’t return
-an iterator or a reference to one, so that those are only defined once in the “real” template
-codepoint_iterator instead of once for each specialization. */
-template <bool t_bConst>
-class codepoint_iterator_impl;
-
-// Const specialization.
-template <>
-class ABACLADE_SYM codepoint_iterator_impl<true> {
+/*! Character iterator that hides the underlying encoded representation, presenting a string as an
+array of code points (char32_t). Pointers/references are still char_t. */
+class ABACLADE_SYM const_codepoint_iterator {
 public:
+   typedef char32_t value_type;
+   typedef char_t const * pointer;
+   typedef const_codepoint_proxy reference;
+   typedef std::ptrdiff_t difference_type;
+   typedef _std::random_access_iterator_tag iterator_category;
+
+public:
+   //! Default constructor.
+   /*constexpr*/ const_codepoint_iterator() :
+      m_ps(nullptr),
+      m_ich(0) {
+   }
+
+   /*! Constructor.
+
+   @param ps
+      Pointer to the string that is creating the iterator.
+   @param ich
+      Character index to set the iterator to.
+   */
+   const_codepoint_iterator(str const * ps, std::size_t ich) :
+      m_ps(ps),
+      m_ich(ich) {
+   }
+
    /*! Dereferencing operator.
 
    @return
@@ -208,6 +227,121 @@ public:
       return const_codepoint_proxy(m_ps, throw_if_end(advance(i, true)));
    }
 
+   /*! Addition-assignment operator.
+
+   @param i
+      Count of positions by which to advance the iterator. If the resulting iterator is outside of
+      the string’s [begin, end] range, an iterator_error exception will be thrown.
+   @return
+      *this after it’s moved forward by i positions.
+   */
+   const_codepoint_iterator & operator+=(std::ptrdiff_t i) {
+      m_ich = advance(i, false);
+      return *this;
+   }
+
+   /*! Subtraction-assignment operator.
+
+   @param i
+      Count of positions by which to rewind the iterator. If the resulting iterator is outside of
+      the string’s [begin, end] range, an iterator_error exception will be thrown.
+   @return
+      *this after it’s moved backwards by i positions.
+   */
+   const_codepoint_iterator & operator-=(std::ptrdiff_t i) {
+      m_ich = advance(-i, false);
+      return *this;
+   }
+
+   /*! Addition operator.
+
+   @param i
+      Count of positions by which to advance the iterator. If the resulting iterator is outside of
+      the string’s [begin, end] range, an iterator_error exception will be thrown.
+   @return
+      Iterator that’s i items ahead of *this.
+   */
+   const_codepoint_iterator operator+(std::ptrdiff_t i) const {
+      return const_codepoint_iterator(m_ps, advance(i, false));
+   }
+
+   /*! Subtraction/difference operator.
+
+   @param i
+      Count of positions by which to rewind the iterator. If the resulting iterator is outside of
+      the string’s [begin, end] range, an iterator_error exception will be thrown.
+   @param it
+      Iterator from which to calculate the distance.
+   @return
+      Iterator that’s i items behind *this (subtraction) or distance between *this and it, in code
+      points (difference).
+   */
+   const_codepoint_iterator operator-(std::ptrdiff_t i) const {
+      return const_codepoint_iterator(m_ps, advance(-i, false));
+   }
+   std::ptrdiff_t operator-(const_codepoint_iterator it) const {
+      return distance(it.m_ich);
+   }
+
+   /*! Preincrement operator. If the resulting iterator was already at the string’s end, an
+   iterator_error exception will be thrown.
+
+   @return
+      *this after it’s moved to the value following the one currently pointed to.
+   */
+   const_codepoint_iterator & operator++() {
+      m_ich = advance(1, false);
+      return *this;
+   }
+
+   /*! Postincrement operator. If the resulting iterator was already at the string’s end, an
+   iterator_error exception will be thrown.
+
+   @return
+      Iterator pointing to the value following the one pointed to by this iterator.
+   */
+   const_codepoint_iterator operator++(int) {
+      std::size_t ich = m_ich;
+      m_ich = advance(1, false);
+      return const_codepoint_iterator(m_ps, ich);
+   }
+
+   /*! Predecrement operator. If the resulting iterator was already at the string’s beginning, an
+   iterator_error exception will be thrown.
+
+   @return
+      *this after it’s moved to the value preceding the one currently pointed to.
+   */
+   const_codepoint_iterator & operator--() {
+      m_ich = advance(-1, false);
+      return *this;
+   }
+
+   /*! Postdecrement operator. If the resulting iterator was already at the string’s beginning, an
+   iterator_error exception will be thrown.
+
+   @return
+      Iterator pointing to the value preceding the one pointed to by this iterator.
+   */
+   const_codepoint_iterator operator--(int) {
+      std::size_t ich = m_ich;
+      m_ich = advance(-1, false);
+      return const_codepoint_iterator(m_ps, ich);
+   }
+
+// Relational operators.
+#define ABC_RELOP_IMPL(op) \
+   bool operator op(const_codepoint_iterator const & it) const { \
+      return base() op it.base(); \
+   }
+ABC_RELOP_IMPL(==)
+ABC_RELOP_IMPL(!=)
+ABC_RELOP_IMPL(>)
+ABC_RELOP_IMPL(>=)
+ABC_RELOP_IMPL(<)
+ABC_RELOP_IMPL(<=)
+#undef ABC_RELOP_IMPL
+
    /*! Returns the underlying iterator type.
 
    @return
@@ -216,18 +350,6 @@ public:
    char_t const * base() const;
 
 protected:
-   /*! Constructor.
-
-   @param ich
-      Index to set the iterator to.
-   @param ps
-      Pointer to the string that is creating the iterator.
-   */
-   codepoint_iterator_impl(std::size_t ich, str const * ps) :
-      m_ich(ich),
-      m_ps(const_cast<str *>(ps)) {
-   }
-
    //! Invokes m_ps->_advance_char_index(). See str::_advance_char_index().
    std::size_t advance(std::ptrdiff_t iDelta, bool bIndex) const;
 
@@ -249,40 +371,14 @@ protected:
    */
    std::size_t throw_if_end(std::size_t ich) const;
 
-public:
+protected:
+   //! Pointer to the source string.
+   str const * m_ps;
    //! Index of the current character.
    std::size_t m_ich;
-   //! Pointer to the source string.
-   str * m_ps;
 };
 
-// Non-const specialization.
-template <>
-class codepoint_iterator_impl<false> : public codepoint_iterator_impl<true> {
-public:
-   //! See codepoint_iterator_impl<true>::operator*().
-   using codepoint_iterator_impl<true>::operator*;
-   codepoint_proxy operator*() {
-      return codepoint_proxy(const_cast<str *>(m_ps), throw_if_end(m_ich));
-   }
-
-   //! See codepoint_iterator_impl<true>::operator[]().
-   using codepoint_iterator_impl<true>::operator[];
-   codepoint_proxy operator[](std::ptrdiff_t i) {
-      return codepoint_proxy(const_cast<str *>(m_ps), throw_if_end(advance(i, true)));
-   }
-
-   //! See codepoint_iterator_impl<true>::base().
-   char_t * base() const;
-
-protected:
-   //! See codepoint_iterator_impl<true>::codepoint_iterator_impl().
-   codepoint_iterator_impl(std::size_t ich, str const * ps) :
-      codepoint_iterator_impl<true>(ich, const_cast<str *>(ps)) {
-   }
-};
-
-}}} //namespace abc::text::detail
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -290,158 +386,105 @@ namespace abc { namespace text {
 
 /*! Character iterator that hides the underlying encoded representation, presenting a string as an
 array of code points (char32_t). Pointers/references are still char_t. */
-template <bool t_bConst>
-class codepoint_iterator :
-   public detail::codepoint_iterator_impl<t_bConst>,
-   public _std::iterator<
-      _std::random_access_iterator_tag,
-      typename _std::conditional<t_bConst, char_t const, char_t>::type
-   > {
+class codepoint_iterator : public const_codepoint_iterator {
+public:
+   typedef char_t * pointer;
+   typedef codepoint_proxy reference;
+
 public:
    //! Default constructor.
-   /*constexpr*/ codepoint_iterator() :
-      detail::codepoint_iterator_impl<t_bConst>(0, nullptr) {
+   /*constexpr*/ codepoint_iterator() {
    }
 
    /*! Constructor.
 
-   @param ich
-      Character index to set the iterator to.
    @param ps
       Pointer to the string that is creating the iterator.
+   @param ich
+      Character index to set the iterator to.
    */
-   codepoint_iterator(
-      std::size_t ich, typename _std::conditional<t_bConst, str const, str>::type * ps
-   ) :
-      detail::codepoint_iterator_impl<t_bConst>(ich, ps) {
+   codepoint_iterator(str * ps, std::size_t ich) :
+      const_codepoint_iterator(ps, ich) {
    }
 
+   /*! Dereferencing operator.
+
+   @return
+      Reference to the current character.
+   */
+   codepoint_proxy operator*() const {
+      return codepoint_proxy(const_cast<str *>(m_ps), throw_if_end(m_ich));
+   }
+
+   /*! Element access operator.
+
+   @param i
+      Index relative to *this. If the resulting index is outside of the string’s [begin, end) range,
+      an index_error exception will be thrown.
+   @return
+      Reference to the specified item.
+   */
+   codepoint_proxy operator[](std::ptrdiff_t i) const {
+      return codepoint_proxy(const_cast<str *>(m_ps), throw_if_end(advance(i, true)));
+   }
+
+   /*! Returns the underlying iterator type.
+
+   @return
+      Pointer to the value pointed to by this iterator.
+   */
+   char_t * base() const;
+
+   //! See const_codepoint_iterator::operator+=().
+   codepoint_iterator & operator+=(std::ptrdiff_t i) {
+      return static_cast<codepoint_iterator &>(const_codepoint_iterator::operator+=(i));
+   }
+
+   //! See const_codepoint_iterator::operator-=().
+   codepoint_iterator & operator-=(std::ptrdiff_t i) {
+      return static_cast<codepoint_iterator &>(const_codepoint_iterator::operator-=(i));
+   }
+
+   //! See const_codepoint_iterator::operator+();
+   codepoint_iterator operator+(std::ptrdiff_t i) const {
+      return const_codepoint_iterator::operator+(i);
+   }
+
+   //! See const_codepoint_iterator::operator-();
+   using const_codepoint_iterator::operator-;
+   codepoint_iterator operator-(std::ptrdiff_t i) const {
+      return const_codepoint_iterator::operator-(i);
+   }
+
+   //! See const_codepoint_iterator::operator++().
+   codepoint_iterator & operator++() {
+      return static_cast<codepoint_iterator &>(const_codepoint_iterator::operator++());
+   }
+
+   //! See const_codepoint_iterator::operator++(int).
+   codepoint_iterator operator++(int) {
+      return const_codepoint_iterator::operator++(0);
+   }
+
+   //! See const_codepoint_iterator::operator--().
+   codepoint_iterator & operator--() {
+      return static_cast<codepoint_iterator &>(const_codepoint_iterator::operator--());
+   }
+
+   //! See const_codepoint_iterator::operator--(int).
+   codepoint_iterator operator--(int) {
+      return const_codepoint_iterator::operator--(0);
+   }
+
+private:
    /*! Copy constructor. Allows to convert from non-const to const iterator types.
 
    @param it
       Source object.
    */
-   template <bool t_bConst2>
-   codepoint_iterator(codepoint_iterator<t_bConst2> const & it) :
-      detail::codepoint_iterator_impl<t_bConst>(it) {
+   codepoint_iterator(const_codepoint_iterator const & it) :
+      const_codepoint_iterator(it) {
    }
-
-   /*! Addition-assignment operator.
-
-   @param i
-      Count of positions by which to advance the iterator. If the resulting iterator is outside of
-      the string’s [begin, end] range, an iterator_error exception will be thrown.
-   @return
-      *this after it’s moved forward by i positions.
-   */
-   codepoint_iterator & operator+=(std::ptrdiff_t i) {
-      this->m_ich = this->advance(i, false);
-      return *this;
-   }
-
-   /*! Subtraction-assignment operator.
-
-   @param i
-      Count of positions by which to rewind the iterator. If the resulting iterator is outside of
-      the string’s [begin, end] range, an iterator_error exception will be thrown.
-   @return
-      *this after it’s moved backwards by i positions.
-   */
-   codepoint_iterator & operator-=(std::ptrdiff_t i) {
-      this->m_ich = this->advance(-i, false);
-      return *this;
-   }
-
-   /*! Addition operator.
-
-   @param i
-      Count of positions by which to advance the iterator. If the resulting iterator is outside of
-      the string’s [begin, end] range, an iterator_error exception will be thrown.
-   @return
-      Iterator that’s i items ahead of *this.
-   */
-   codepoint_iterator operator+(std::ptrdiff_t i) const {
-      return codepoint_iterator(this->advance(i, false), this->m_ps);
-   }
-
-   /*! Subtraction/difference operator.
-
-   @param i
-      Count of positions by which to rewind the iterator. If the resulting iterator is outside of
-      the string’s [begin, end] range, an iterator_error exception will be thrown.
-   @param it
-      Iterator from which to calculate the distance.
-   @return
-      Iterator that’s i items behind *this (subtraction) or distance between *this and it, in code
-      points (difference).
-   */
-   codepoint_iterator operator-(std::ptrdiff_t i) const {
-      return codepoint_iterator(this->advance(-i, false), this->m_ps);
-   }
-   template <bool t_bConst2>
-   std::ptrdiff_t operator-(codepoint_iterator<t_bConst2> it) const {
-      return this->distance(it.m_ich);
-   }
-
-   /*! Preincrement operator. If the resulting iterator was already at the string’s end, an
-   iterator_error exception will be thrown.
-
-   @return
-      *this after it’s moved to the value following the one currently pointed to.
-   */
-   codepoint_iterator & operator++() {
-      this->m_ich = this->advance(1, false);
-      return *this;
-   }
-
-   /*! Postincrement operator. If the resulting iterator was already at the string’s end, an
-   iterator_error exception will be thrown.
-
-   @return
-      Iterator pointing to the value following the one pointed to by this iterator.
-   */
-   codepoint_iterator operator++(int) {
-      auto ich(this->m_ich);
-      this->m_ich = this->advance(1, false);
-      return codepoint_iterator(ich, this->m_ps);
-   }
-
-   /*! Predecrement operator. If the resulting iterator was already at the string’s beginning, an
-   iterator_error exception will be thrown.
-
-   @return
-      *this after it’s moved to the value preceding the one currently pointed to.
-   */
-   codepoint_iterator & operator--() {
-      this->m_ich = this->advance(-1, false);
-      return *this;
-   }
-
-   /*! Postdecrement operator. If the resulting iterator was already at the string’s beginning, an
-   iterator_error exception will be thrown.
-
-   @return
-      Iterator pointing to the value preceding the one pointed to by this iterator.
-   */
-   codepoint_iterator operator--(int) {
-      auto ich(this->m_ich);
-      this->m_ich = this->advance(-1, false);
-      return codepoint_iterator(ich, this->m_ps);
-   }
-
-// Relational operators.
-#define ABC_RELOP_IMPL(op) \
-   template <bool t_bConst2> \
-   bool operator op(codepoint_iterator<t_bConst2> const & it) const { \
-      return this->base() op it.base(); \
-   }
-ABC_RELOP_IMPL(==)
-ABC_RELOP_IMPL(!=)
-ABC_RELOP_IMPL(>)
-ABC_RELOP_IMPL(>=)
-ABC_RELOP_IMPL(<)
-ABC_RELOP_IMPL(<=)
-#undef ABC_RELOP_IMPL
 };
 
 }} //namespace abc::text

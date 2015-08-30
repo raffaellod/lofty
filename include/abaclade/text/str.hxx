@@ -120,8 +120,8 @@ class ABACLADE_SYM sstr<0> :
    protected collections::detail::raw_trivial_vextr_impl,
    public support_explicit_operator_bool<str> {
 private:
-   friend detail::codepoint_proxy & detail::codepoint_proxy::operator=(char_t ch);
-   friend detail::codepoint_proxy & detail::codepoint_proxy::operator=(char32_t cp);
+   friend codepoint_proxy & codepoint_proxy::operator=(char_t ch);
+   friend codepoint_proxy & codepoint_proxy::operator=(char32_t cp);
 
    typedef collections::detail::raw_trivial_vextr_impl vextr_impl;
 
@@ -133,8 +133,8 @@ public:
    typedef char_t const & const_reference;
    typedef std::size_t size_type;
    typedef std::ptrdiff_t difference_type;
-   typedef codepoint_iterator<false> iterator;
-   typedef codepoint_iterator<true> const_iterator;
+   typedef codepoint_iterator iterator;
+   typedef const_codepoint_iterator const_iterator;
    typedef _std::reverse_iterator<iterator> reverse_iterator;
    typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -275,8 +275,8 @@ public:
    @return
       Character at index i.
    */
-   detail::codepoint_proxy operator[](std::ptrdiff_t i) {
-      return detail::codepoint_proxy(this, _advance_char_index(0, i, true));
+   codepoint_proxy operator[](std::ptrdiff_t i) {
+      return codepoint_proxy(this, _advance_char_index(0, i, true));
    }
 
    /*! Const haracter access operator.
@@ -287,8 +287,8 @@ public:
    @return
       Character at index i.
    */
-   detail::const_codepoint_proxy operator[](std::ptrdiff_t i) const {
-      return detail::const_codepoint_proxy(this, _advance_char_index(0, i, true));
+   const_codepoint_proxy operator[](std::ptrdiff_t i) const {
+      return const_codepoint_proxy(this, _advance_char_index(0, i, true));
    }
 
    /*! Boolean evaluation operator.
@@ -389,7 +389,7 @@ public:
       Iterator to the first character.
    */
    iterator begin() {
-      return iterator(0, this);
+      return iterator(this, 0);
    }
 
    /*! Returns a const iterator set to the first character.
@@ -514,7 +514,7 @@ public:
       Iterator to the first character.
    */
    iterator end() {
-      return iterator(size_in_chars(), this);
+      return iterator(this, size_in_chars());
    }
 
    /*! Returns a const iterator set beyond the last character.
@@ -748,7 +748,7 @@ public:
       Reverse iterator to the last character.
    */
    reverse_iterator rbegin() {
-      return reverse_iterator(iterator(size_in_chars(), this));
+      return reverse_iterator(iterator(this, size_in_chars()));
    }
 
    /*! Returns a const reverse iterator set to the last character.
@@ -766,7 +766,7 @@ public:
       Reverse iterator to before the first character.
    */
    reverse_iterator rend() {
-      return reverse_iterator(iterator(0, this));
+      return reverse_iterator(iterator(this, 0));
    }
 
    /*! Returns a const reverse iterator set to before the first character.

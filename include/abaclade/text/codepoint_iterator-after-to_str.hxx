@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text {
 
 inline const_codepoint_proxy::operator char32_t() const {
    return host_char_traits::chars_to_codepoint(mc_ps->chars_begin() + mc_ich);
@@ -32,46 +32,44 @@ inline const_codepoint_proxy::operator char32_t() const {
 
 inline codepoint_proxy & codepoint_proxy::operator=(char_t ch) {
    const_cast<str *>(mc_ps)->_replace_codepoint(
-      const_cast<char_t *>(mc_ps->chars_begin()) + mc_ich, ch
+      const_cast<str *>(mc_ps)->chars_begin() + mc_ich, ch
    );
    return *this;
 }
 
 inline codepoint_proxy & codepoint_proxy::operator=(char32_t cp) {
    const_cast<str *>(mc_ps)->_replace_codepoint(
-      const_cast<char_t *>(mc_ps->chars_begin()) + mc_ich, cp
+      const_cast<str *>(mc_ps)->chars_begin() + mc_ich, cp
    );
    return *this;
 }
 
-}}} //namespace abc::text::detail
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text {
 
-inline std::size_t codepoint_iterator_impl<true>::advance(
-   std::ptrdiff_t iDelta, bool bIndex
-) const {
+inline std::size_t const_codepoint_iterator::advance(std::ptrdiff_t iDelta, bool bIndex) const {
    return m_ps->_advance_char_index(m_ich, iDelta, bIndex);
 }
 
-inline char_t const * codepoint_iterator_impl<true>::base() const {
+inline char_t const * const_codepoint_iterator::base() const {
    return m_ps->chars_begin() + m_ich;
 }
 
-inline char_t * codepoint_iterator_impl<false>::base() const {
-   return const_cast<char_t *>(m_ps->chars_begin()) + m_ich;
+inline char_t * codepoint_iterator::base() const {
+   return const_cast<str *>(m_ps)->chars_begin() + m_ich;
 }
 
-}}} //namespace abc::text::detail
+}} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc {
 
 template <>
-class to_str_backend<text::detail::const_codepoint_proxy> : public to_str_backend<char32_t> {
+class to_str_backend<text::const_codepoint_proxy> : public to_str_backend<char32_t> {
 public:
    /*! Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
 
@@ -80,14 +78,13 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(text::detail::const_codepoint_proxy const & cpp, io::text::writer * ptwOut) {
+   void write(text::const_codepoint_proxy const & cpp, io::text::writer * ptwOut) {
       to_str_backend<char32_t>::write(cpp.operator char32_t(), ptwOut);
    }
 };
 
 template <>
-class to_str_backend<text::detail::codepoint_proxy> :
-   public to_str_backend<text::detail::const_codepoint_proxy> {
+class to_str_backend<text::codepoint_proxy> : public to_str_backend<text::const_codepoint_proxy> {
 };
 
 } //namespace abc
@@ -96,22 +93,24 @@ class to_str_backend<text::detail::codepoint_proxy> :
 
 namespace abc {
 
-template <bool t_bConst>
-class to_str_backend<text::codepoint_iterator<t_bConst>> :
-   public to_str_backend<typename text::codepoint_iterator<t_bConst>::pointer> {
+template <>
+class to_str_backend<text::const_codepoint_iterator> : public to_str_backend<text::char_t const *> {
 public:
-   /*! Writes a code point iterator as a pointer, applying the formatting options.
+   /*! Writes a code point iterator as a character index, applying the formatting options.
 
    @param it
       Iterator to write.
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(text::codepoint_iterator<t_bConst> const & it, io::text::writer * ptwOut) {
-      to_str_backend<typename text::codepoint_iterator<t_bConst>::pointer>::write(
-         it.base(), ptwOut
-      );
+   void write(text::const_codepoint_iterator const & it, io::text::writer * ptwOut) {
+      to_str_backend<text::char_t const *>::write(it.base(), ptwOut);
    }
+};
+
+template <>
+class to_str_backend<text::codepoint_iterator> :
+   public to_str_backend<text::const_codepoint_iterator> {
 };
 
 } //namespace abc
