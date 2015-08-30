@@ -132,7 +132,9 @@ path path::absolute() const {
       } else if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == '\\') {
          /* The path is in the form “\a”: make it absolute by prepending to it the volume designator
          of the current directory. */
-         opAbsolute = current_dir().m_s.substr(0, ABC_SL_SIZE(smc_szRoot) + 2 /*"X:"*/) + m_s;
+         opAbsolute = current_dir().m_s.substr(
+            0, ABC_COUNTOF(smc_szRoot) - 1 /*NUL*/ + 2 /*"X:"*/
+         ) + m_s;
       } else {
          /* None of the above patterns applies: prepend the current directory to make the path
          absolute. */
@@ -175,7 +177,7 @@ path path::base_name() const {
    while advancing the buffer pointer we pass to ::GetCurrentDirectory() in order to reserve space
    for the root prefix. */
    s.set_from([] (char_t * pch, std::size_t cchMax) -> std::size_t {
-      static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_szRoot);
+      static std::size_t const sc_cchRoot = ABC_COUNTOF(smc_szRoot) - 1 /*NUL*/;
       if (sc_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
@@ -189,7 +191,7 @@ path path::base_name() const {
       return cch + sc_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.data(), smc_szRoot, ABC_SL_SIZE(smc_szRoot));
+   memory::copy(s.data(), smc_szRoot, ABC_COUNTOF(smc_szRoot) - 1 /*NUL*/);
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -204,7 +206,7 @@ path path::base_name() const {
    char_t achDummyPath[4] = { chVolume, ':', 'a', '\0' };
    str s;
    s.set_from([&achDummyPath] (char_t * pch, std::size_t cchMax) -> std::size_t {
-      static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_szRoot);
+      static std::size_t const sc_cchRoot = ABC_COUNTOF(smc_szRoot) - 1 /*NUL*/;
       if (sc_cchRoot >= cchMax) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
          return cchMax;
@@ -218,7 +220,7 @@ path path::base_name() const {
       return cch + sc_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.data(), smc_szRoot, ABC_SL_SIZE(smc_szRoot));
+   memory::copy(s.data(), smc_szRoot, ABC_COUNTOF(smc_szRoot) - 1 /*NUL*/);
    // Remove the last character, the “a” from achDummyPath.
    s.set_size_in_chars(s.size_in_chars() - 1 /*“a”*/);
    return _std::move(s);
@@ -379,7 +381,7 @@ str::const_iterator path::base_name_start() const {
    ABC_TRACE_FUNC(s);
 #endif
 
-   static std::size_t const sc_cchRoot = ABC_SL_SIZE(smc_szRoot);
+   static std::size_t const sc_cchRoot = ABC_COUNTOF(smc_szRoot) - 1 /*NUL*/;
 
 #if ABC_HOST_API_POSIX
    if (s.starts_with(smc_szRoot)) {
@@ -387,7 +389,7 @@ str::const_iterator path::base_name_start() const {
       return sc_cchRoot;
    }
 #elif ABC_HOST_API_WIN32
-   static std::size_t const sc_cchUNCRoot = ABC_SL_SIZE(smc_szUNCRoot);
+   static std::size_t const sc_cchUNCRoot = ABC_COUNTOF(smc_szUNCRoot) - 1 /*NUL*/;
    static std::size_t const sc_cchVolumeRoot = sc_cchRoot + 3; //“X:\”
    static std::size_t const sc_ichVolumeColon = 1; // “:” in “X:”
    static std::size_t const sc_ichLeadingSep = 0; // “\” in “\”
