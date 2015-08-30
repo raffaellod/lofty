@@ -221,23 +221,26 @@ bool str::ends_with(str const & s) const {
 str::const_iterator str::find(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
-   validate_pointer(itWhence.base());
-   auto pch = str_traits::find_char(itWhence.base(), chars_end(), chNeedle);
+   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   validate_pointer(pchWhence);
+   auto pch = str_traits::find_char(pchWhence, chars_end(), chNeedle);
    return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
 }
 str::const_iterator str::find(char32_t cpNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, cpNeedle, itWhence);
 
-   validate_pointer(itWhence.base());
-   auto pch = str_traits::find_char(itWhence.base(), chars_end(), cpNeedle);
+   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   validate_pointer(pchWhence);
+   auto pch = str_traits::find_char(pchWhence, chars_end(), cpNeedle);
    return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
 }
 str::const_iterator str::find(str const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
-   validate_pointer(itWhence.base());
+   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   validate_pointer(pchWhence);
    auto pch = str_traits::find_substr(
-      itWhence.base(), chars_end(), sNeedle.chars_begin(), sNeedle.chars_end()
+      pchWhence, chars_end(), sNeedle.chars_begin(), sNeedle.chars_end()
    );
    return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
 }
@@ -245,23 +248,26 @@ str::const_iterator str::find(str const & sNeedle, const_iterator itWhence) cons
 str::const_iterator str::find_last(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
-   validate_pointer(itWhence.base());
-   auto pch = str_traits::find_char_last(chars_begin(), itWhence.base(), chNeedle);
+   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   validate_pointer(pchWhence);
+   auto pch = str_traits::find_char_last(chars_begin(), pchWhence, chNeedle);
    return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
 }
 str::const_iterator str::find_last(char32_t cpNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, cpNeedle, itWhence);
 
-   validate_pointer(itWhence.base());
-   auto pch = str_traits::find_char_last(chars_begin(), itWhence.base(), cpNeedle);
+   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   validate_pointer(pchWhence);
+   auto pch = str_traits::find_char_last(chars_begin(), pchWhence, cpNeedle);
    return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
 }
 str::const_iterator str::find_last(str const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
-   validate_pointer(itWhence.base());
+   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   validate_pointer(pchWhence);
    auto pch = str_traits::find_substr_last(
-      chars_begin(), itWhence.base(), sNeedle.chars_begin(), sNeedle.chars_end()
+      chars_begin(), pchWhence, sNeedle.chars_begin(), sNeedle.chars_end()
    );
    return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
 }

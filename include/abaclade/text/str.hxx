@@ -387,7 +387,7 @@ public:
    // Relational operators.
    #define ABC_RELOP_IMPL(op) \
       bool operator op(const_iterator const & it) const { \
-         return base() op it.base(); \
+         return m_ich op it.m_ich; \
       }
    ABC_RELOP_IMPL(==)
    ABC_RELOP_IMPL(!=)
@@ -1322,7 +1322,9 @@ public:
    */
    str substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
       auto range(translate_range(ichBegin, ichEnd));
-      return str(_std::get<0>(range).base(), _std::get<1>(range).base());
+      char_t const * pchBegin = chars_begin() + _std::get<0>(range).m_ich;
+      char_t const * pchEnd = chars_begin() + _std::get<1>(range).m_ich;
+      return str(pchBegin, pchEnd);
    }
 
    /*! Returns a portion of the string from the specified iterator to the end of the string.
@@ -1333,8 +1335,9 @@ public:
       Substring of *this.
    */
    str substr(const_iterator itBegin) const {
-      validate_pointer(itBegin.base());
-      return str(itBegin.base(), chars_end());
+      char_t const * pchBegin = chars_begin() + itBegin.m_ich;
+      validate_pointer(pchBegin);
+      return str(pchBegin, chars_end());
    }
 
    /*! Returns a portion of the string.
@@ -1347,9 +1350,11 @@ public:
       Substring of *this.
    */
    str substr(const_iterator itBegin, const_iterator itEnd) const {
-      validate_pointer(itBegin.base());
-      validate_pointer(itEnd.base());
-      return str(itBegin.base(), itEnd.base());
+      char_t const * pchBegin = chars_begin() + itBegin.m_ich;
+      char_t const * pchEnd = chars_begin() + itEnd.m_ich;
+      validate_pointer(pchBegin);
+      validate_pointer(pchEnd);
+      return str(pchBegin, pchEnd);
    }
 
 protected:
