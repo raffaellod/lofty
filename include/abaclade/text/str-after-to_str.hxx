@@ -165,7 +165,7 @@ public:
       Pointer to the writer to output to.
    */
    void write(text::str::const_iterator const & it, io::text::writer * ptwOut) {
-      to_str_backend<std::size_t>::write(reinterpret_cast<std::size_t>(it.base()), ptwOut);
+      to_str_backend<std::size_t>::write(it.index(), ptwOut);
    }
 };
 

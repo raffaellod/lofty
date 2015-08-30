@@ -232,7 +232,7 @@ void int_to_str_backend_base::add_prefixes_and_write(
    }
    // Write the constructed string.
    ptwOut->write_binary(
-      it.base(), sizeof(char_t) * static_cast<std::size_t>(itEnd - it), text::encoding::host
+      it.ptr(), sizeof(char_t) * static_cast<std::size_t>(itEnd - it), text::encoding::host
    );
 }
 

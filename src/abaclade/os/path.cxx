@@ -308,7 +308,7 @@ path path::normalize() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size_in_chars(static_cast<std::size_t>(itDst.base() - itBegin.base()));
+   s.set_size_in_chars(itDst.index());
    return _std::move(s);
 }
 
@@ -503,7 +503,7 @@ str::const_iterator path::base_name_start() const {
    }
 
    // Adjust the length based on the position of the last character written.
-   s.set_size_in_chars(static_cast<std::size_t>(itDst.base() - itBegin.base()));
+   s.set_size_in_chars(itDst.index());
    return _std::move(s);
 }
 

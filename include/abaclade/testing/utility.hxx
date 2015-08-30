@@ -116,7 +116,7 @@ public:
    */
    container_data_ptr_tracker(T const & t) :
       m_t(t),
-      m_pti(t.cbegin().base()) {
+      m_ptData(t.data()) {
    }
 
    /*! Checks if the monitored object’s data pointer has changed.
@@ -127,11 +127,11 @@ public:
    bool changed() {
       ABC_TRACE_FUNC(this);
 
-      typename T::const_pointer ptiNew(m_t.cbegin().base());
+      auto ptDataNew = m_t.data();
       // Check if the data pointer has changed.
-      if (ptiNew != m_pti) {
+      if (ptDataNew != m_ptData) {
          // Update the data pointer for the next call.
-         m_pti = ptiNew;
+         m_ptData = ptDataNew;
          return true;
       } else {
          return false;
@@ -142,7 +142,7 @@ private:
    //! Reference to the T instance to be monitored.
    T const & m_t;
    //! Pointer to m_t’s data.
-   typename T::const_pointer m_pti;
+   typename T::const_pointer m_ptData;
 };
 
 

@@ -344,13 +344,13 @@ bool writer_print_helper_impl::write_format_up_to_next_repl() {
       if (++it >= itEnd) {
          throw_syntax_error(ABC_SL("expected format specification"), it);
       }
-      m_pchReplFormatSpecBegin = it.base();
+      m_pchReplFormatSpecBegin = it.ptr();
       // Find the end of the replacement field.
       it = m_sFormat.find('}', it);
       if (it == itEnd) {
          throw_syntax_error(ABC_SL("unmatched '{' in format string"), itReplFieldBegin);
       }
-      m_pchReplFormatSpecEnd = it.base();
+      m_pchReplFormatSpecEnd = it.ptr();
    } else {
       // If there’s no format specification, it must be the end of the replacement field.
       if (ch != '}') {
@@ -383,9 +383,8 @@ void writer_print_helper_impl::write_format_up_to(str::const_iterator itUpTo) {
 
    if (itUpTo > m_itFormatToWriteBegin) {
       m_ptw->write_binary(
-         m_itFormatToWriteBegin.base(),
-         reinterpret_cast<std::size_t>(itUpTo.base()) -
-            reinterpret_cast<std::size_t>(m_itFormatToWriteBegin.base()),
+         m_itFormatToWriteBegin.ptr(),
+         itUpTo.index() - m_itFormatToWriteBegin.index(),
          abc::text::encoding::host
       );
       m_itFormatToWriteBegin = itUpTo;

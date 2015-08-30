@@ -397,12 +397,21 @@ public:
    ABC_RELOP_IMPL(<=)
    #undef ABC_RELOP_IMPL
 
-      /*! Returns the underlying iterator type.
+      /*! Returns the referenced character index.
 
       @return
-         Pointer to the value pointed to by this iterator.
+         Pointer to the referenced character index.
       */
-      char_t const * base() const;
+      std::size_t index() const {
+         return m_ich;
+      }
+
+      /*! Returns a pointer to the referenced character.
+
+      @return
+         Pointer to the referenced character.
+      */
+      char_t const * ptr() const;
 
    protected:
       //! Invokes m_ps->advance_char_index(). See str::advance_char_index().
@@ -482,12 +491,12 @@ public:
          return codepoint_proxy(const_cast<str *>(m_ps), throw_if_end(advance(i, true)));
       }
 
-      /*! Returns the underlying iterator type.
+      /*! Returns a pointer to the referenced character.
 
       @return
-         Pointer to the value pointed to by this iterator.
+         Pointer to the referenced character.
       */
-      char_t * base() const;
+      char_t * ptr() const;
 
       //! See const_iterator::operator+=().
       iterator & operator+=(std::ptrdiff_t i) {
@@ -894,6 +903,24 @@ public:
    */
    const_reverse_iterator crend() const {
       return const_cast<str *>(this)->rend();
+   }
+
+   /*! Returns a pointer to the character array.
+
+   @return
+      Pointer to the character array.
+   */
+   char_t * data() {
+      return vextr_impl::begin<char_t>();
+   }
+
+   /*! Returns a const pointer to the character array.
+
+   @return
+      Const pointer to the character array.
+   */
+   char_t const * data() const {
+      return vextr_impl::begin<char_t>();
    }
 
    /*! Returns the string, encoded as requested, into a byte vector.
@@ -1713,11 +1740,11 @@ inline std::size_t str::const_iterator::advance(std::ptrdiff_t iDelta, bool bInd
    return m_ps->advance_char_index(m_ich, iDelta, bIndex);
 }
 
-inline char_t const * str::const_iterator::base() const {
+inline char_t const * str::const_iterator::ptr() const {
    return m_ps->chars_begin() + m_ich;
 }
 
-inline char_t * str::iterator::base() const {
+inline char_t * str::iterator::ptr() const {
    return const_cast<str *>(m_ps)->chars_begin() + m_ich;
 }
 
