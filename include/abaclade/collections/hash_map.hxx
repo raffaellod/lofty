@@ -110,8 +110,6 @@ public:
          }
       };
 
-      typedef std::ptrdiff_t difference_type;
-      typedef _std::forward_iterator_tag iterator_category;
       typedef value_type * pointer;
       typedef value_type & reference;
 

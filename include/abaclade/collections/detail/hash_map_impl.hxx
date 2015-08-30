@@ -52,6 +52,9 @@ protected:
       friend class hash_map_impl;
 
    public:
+      typedef _std::forward_iterator_tag iterator_category;
+
+   public:
       //! Default constructor.
       iterator_base();
 
