@@ -187,9 +187,7 @@ collections::dmvector<std::uint8_t> str::encode(encoding enc, bool bNulT) const 
       cbChar = sizeof(char_t);
       // Enlarge vb as necessary, then copy to it the contents of the string buffer.
       vb.set_capacity(cbStr + (bNulT ? sizeof(char_t) : 0), false);
-      memory::copy(
-         vb.data(), collections::detail::raw_trivial_vextr_impl::begin<std::uint8_t>(), cbStr
-      );
+      memory::copy(vb.data(), vextr_impl::begin<std::uint8_t>(), cbStr);
       cbUsed = cbStr;
    } else {
       cbChar = get_encoding_size(enc);
@@ -307,9 +305,7 @@ void str::replace_codepoint(std::size_t ich, char_t chNew) {
    );
    // Note: either of these two calls may change chars_begin().
    prepare_for_writing();
-   collections::detail::raw_trivial_vextr_impl::insert_remove(
-      ich, nullptr, sizeof(char_t), cbRemove
-   );
+   vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
    chars_begin()[ich] = chNew;
 }
 
@@ -322,9 +318,7 @@ void str::replace_codepoint(std::size_t ich, char32_t cpNew) {
    );
    // Note: either of these two calls may change chars_begin().
    prepare_for_writing();
-   collections::detail::raw_trivial_vextr_impl::insert_remove(
-      sizeof(char_t) * ich, nullptr, cbInsert, cbRemove
-   );
+   vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
    // codepoint_size() validated cpNew, so nothing can go wrong here.
    host_char_traits::traits_base::codepoint_to_chars(cpNew, chars_begin() + ich);
 }
