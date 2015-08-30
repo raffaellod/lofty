@@ -34,12 +34,12 @@ void to_str_backend<text::char_ptr_to_str_adapter>::write(
       p = cs.m_psz;
       std::size_t cch = text::size_in_chars(cs.m_psz);
       enc = text::guess_encoding(cs.m_psz, cs.m_psz + cch);
-      cb = sizeof(char) * cch;
+      cb = sizeof cs.m_psz[0] * cch;
    } else {
       static char_t const sc_szNull[] = ABC_SL("<nullptr>");
       p = sc_szNull;
       enc = text::encoding::host;
-      cb = sizeof(char_t) * ABC_SL_SIZE(sc_szNull);
+      cb = sizeof sc_szNull - sizeof sc_szNull[0] /*NUL*/;
    }
    text::detail::str_to_str_backend::write(p, cb, enc, ptwOut);
 }
