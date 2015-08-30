@@ -299,36 +299,34 @@ void str::replace(char32_t cpSearch, char32_t cpReplacement) {
    }
 }
 
-void str::replace_codepoint(char_t * pch, char_t chNew) {
-   ABC_TRACE_FUNC(this, pch, chNew);
+void str::replace_codepoint(std::size_t ich, char_t chNew) {
+   ABC_TRACE_FUNC(this, ich, chNew);
 
-   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
-   std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
+   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(
+      chars_begin()[ich]
+   );
+   // Note: either of these two calls may change chars_begin().
    prepare_for_writing();
    collections::detail::raw_trivial_vextr_impl::insert_remove(
       ich, nullptr, sizeof(char_t), cbRemove
    );
-   // prepare_for_writing() or insert_remove() may have switched string buffer; recalculate pch.
-   pch = chars_begin() + ich;
-   // At this point, insert_remove() validated pch.
-   *pch = chNew;
+   chars_begin()[ich] = chNew;
 }
 
-void str::replace_codepoint(char_t * pch, char32_t cpNew) {
-   ABC_TRACE_FUNC(this, pch, cpNew);
+void str::replace_codepoint(std::size_t ich, char32_t cpNew) {
+   ABC_TRACE_FUNC(this, ich, cpNew);
 
    std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(cpNew);
-   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(*pch);
-   std::size_t ich = static_cast<std::size_t>(pch - chars_begin());
+   std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(
+      chars_begin()[ich]
+   );
+   // Note: either of these two calls may change chars_begin().
    prepare_for_writing();
    collections::detail::raw_trivial_vextr_impl::insert_remove(
       sizeof(char_t) * ich, nullptr, cbInsert, cbRemove
    );
-   // prepare_for_writing() or insert_remove() may have switched string buffer; recalculate pch.
-   pch = chars_begin() + ich;
-   /* At this point, insert_remove() validated pch and codepoint_size() validated cpNew; this means
-   that there’s nothing that could go wrong here leaving us in an inconsistent state. */
-   host_char_traits::traits_base::codepoint_to_chars(cpNew, pch);
+   // codepoint_size() validated cpNew, so nothing can go wrong here.
+   host_char_traits::traits_base::codepoint_to_chars(cpNew, chars_begin() + ich);
 }
 
 void str::set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {

@@ -1434,34 +1434,34 @@ protected:
 
    /*! Replaces a single character with another character.
 
-   @param pch
-      Pointer to the start of the code point to replace.
+   @param ich
+      Index of the first character making up the code point to replace.
    @param chNew
-      Character that will be written at *pch.
+      Character that will be written at index ich.
    */
-   void replace_codepoint(char_t * pch, char_t chNew);
+   void replace_codepoint(std::size_t ich, char_t chNew);
 
 #if ABC_HOST_UTF > 8
    /*! Replaces a single ASCII character with another ASCII character.
 
-   @param pch
-      Pointer to the start of the code point to replace.
+   @param ich
+      Index of the first character making up the code point to replace.
    @param chNew
-      Character that will be written at *pch.
+      Character that will be written at index ich.
    */
-   void replace_codepoint(char_t * pch, char chNew) {
+   void replace_codepoint(std::size_t ich, char chNew) {
       replace_codepoint(pch, host_char(chNew));
    }
 #endif
 
    /*! Replaces a single code point with another code point.
 
-   @param pch
-      Pointer to the start of the code point to replace.
+   @param ich
+      Index of the first character making up the code point to replace.
    @param cpNew
-      Code point that will be encoded starting at at *pch.
+      Code point that will be encoded starting at character index ich.
    */
-   void replace_codepoint(char_t * pch, char32_t cpNew);
+   void replace_codepoint(std::size_t ich, char32_t cpNew);
 
    /*! Converts a possibly negative character index into an iterator.
 
@@ -1695,16 +1695,12 @@ inline str::const_codepoint_proxy::operator char32_t() const {
 }
 
 inline str::codepoint_proxy & str::codepoint_proxy::operator=(char_t ch) {
-   const_cast<str *>(mc_ps)->replace_codepoint(
-      const_cast<str *>(mc_ps)->chars_begin() + mc_ich, ch
-   );
+   const_cast<str *>(mc_ps)->replace_codepoint(mc_ich, ch);
    return *this;
 }
 
 inline str::codepoint_proxy & str::codepoint_proxy::operator=(char32_t cp) {
-   const_cast<str *>(mc_ps)->replace_codepoint(
-      const_cast<str *>(mc_ps)->chars_begin() + mc_ich, cp
-   );
+   const_cast<str *>(mc_ps)->replace_codepoint(mc_ich, cp);
    return *this;
 }
 
