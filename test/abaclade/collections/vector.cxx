@@ -290,13 +290,13 @@ ABC_TESTING_TEST_CASE_FUNC(
    using testing::utility::make_container_data_ptr_tracker;
 
    collections::dmvector<int> v1;
-   auto cdpt1(make_container_data_ptr_tracker(v1));
+   auto cdpt1(make_container_data_ptr_tracker(&v1));
    // Note: the embedded item array size will probably be > 2.
    collections::smvector<int, 2> v2;
-   auto cdpt2(make_container_data_ptr_tracker(v2));
+   auto cdpt2(make_container_data_ptr_tracker(&v2));
    // Note: the embedded item array size will probably be > 10.
    collections::smvector<int, 10> v3;
-   auto cdpt3(make_container_data_ptr_tracker(v3));
+   auto cdpt3(make_container_data_ptr_tracker(&v3));
 
    /* Add one element to each vector, so they all allocate a new item array or begin using their own
    embedded one. */

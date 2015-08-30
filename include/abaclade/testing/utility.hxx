@@ -44,7 +44,7 @@ class container_data_ptr_tracker;
    Tracker instance.
 */
 template <class T>
-container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t);
+container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const * pt);
 
 }}} //namespace abc::testing::utility
 
@@ -105,18 +105,18 @@ private:
 
 namespace abc { namespace testing { namespace utility {
 
-/*! Tracks changes in the internal data pointer of a container. */
+//! Tracks changes in the data() member of a container.
 template <class T>
 class container_data_ptr_tracker {
 public:
    /*! Constructor. Starts tracking changes in the specified object.
 
-   @param t
+   @param pt
       Object to track.
    */
-   container_data_ptr_tracker(T const & t) :
-      m_t(t),
-      m_ptData(t.data()) {
+   container_data_ptr_tracker(T const * pt) :
+      m_pt(pt),
+      m_ptpData(m_pt->data()) {
    }
 
    /*! Checks if the monitored object’s data pointer has changed.
@@ -127,11 +127,11 @@ public:
    bool changed() {
       ABC_TRACE_FUNC(this);
 
-      auto ptDataNew = m_t.data();
+      auto ptpDataNew = m_pt->data();
       // Check if the data pointer has changed.
-      if (ptDataNew != m_ptData) {
+      if (ptpDataNew != m_ptpData) {
          // Update the data pointer for the next call.
-         m_ptData = ptDataNew;
+         m_ptpData = ptpDataNew;
          return true;
       } else {
          return false;
@@ -139,18 +139,18 @@ public:
    }
 
 private:
-   //! Reference to the T instance to be monitored.
-   T const & m_t;
+   //! Pointer to the T instance to be monitored.
+   T const * m_pt;
    //! Pointer to m_t’s data.
-   typename T::const_pointer m_ptData;
+   typename T::const_pointer m_ptpData;
 };
 
 
 // Now this can be defined.
 
 template <class T>
-inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const & t) {
-   return container_data_ptr_tracker<T>(t);
+inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const * pt) {
+   return container_data_ptr_tracker<T>(pt);
 }
 
 }}} //namespace abc::testing::utility

@@ -60,7 +60,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    str s;
-   auto cdpt(testing::utility::make_container_data_ptr_tracker(s));
+   auto cdpt(testing::utility::make_container_data_ptr_tracker(&s));
 
    s += ABC_SL("ä");
    // true: operator+= must have created an item array (there was none).
