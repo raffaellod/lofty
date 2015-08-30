@@ -134,4 +134,43 @@ public:
    }
 };
 
+template <>
+class to_str_backend<text::str::const_codepoint_proxy> : public to_str_backend<char32_t> {
+public:
+   /*! Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
+
+   @param cpp
+      Code point to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(text::str::const_codepoint_proxy const & cpp, io::text::writer * ptwOut) {
+      to_str_backend<char32_t>::write(cpp.operator char32_t(), ptwOut);
+   }
+};
+
+template <>
+class to_str_backend<text::str::codepoint_proxy> :
+   public to_str_backend<text::str::const_codepoint_proxy> {
+};
+
+template <>
+class to_str_backend<text::str::const_iterator> : public to_str_backend<std::size_t> {
+public:
+   /*! Writes a code point iterator as a character index, applying the formatting options.
+
+   @param it
+      Iterator to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(text::str::const_iterator const & it, io::text::writer * ptwOut) {
+      to_str_backend<std::size_t>::write(reinterpret_cast<std::size_t>(it.base()), ptwOut);
+   }
+};
+
+template <>
+class to_str_backend<text::str::iterator> : public to_str_backend<text::str::const_iterator> {
+};
+
 } //namespace abc

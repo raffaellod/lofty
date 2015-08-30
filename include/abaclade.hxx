@@ -515,7 +515,6 @@ class writer;
 #include <abaclade/text.hxx>
 #include <abaclade/text/char_traits.hxx>
 #include <abaclade/text/str_traits.hxx>
-#include <abaclade/text/codepoint_iterator.hxx>
 #include <abaclade/text/str.hxx>
 #include <abaclade/text-after-str.hxx>
 #include <abaclade/to_str.hxx>
@@ -527,7 +526,6 @@ class writer;
 #include <abaclade/text/char_ptr_to_str_adapter.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/collections/pointer_iterator-after-to_str.hxx>
-#include <abaclade/text/codepoint_iterator-after-to_str.hxx>
 #include <abaclade/collections/vector-after-to_str.hxx>
 
 #include <abaclade/os/path.hxx>
