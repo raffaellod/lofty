@@ -127,9 +127,8 @@ public:
       Pointer to the writer to output to.
    */
    void write(text::sstr<t_cchEmbeddedCapacity> const & s, io::text::writer * ptwOut) {
-      text::detail::str_to_str_backend::write(s.chars_begin(), static_cast<std::size_t>(
-         reinterpret_cast<std::uintptr_t>(s.chars_end()) -
-         reinterpret_cast<std::uintptr_t>(s.chars_begin())
+      text::detail::str_to_str_backend::write(s.data(), static_cast<std::size_t>(
+         reinterpret_cast<std::uintptr_t>(s.data_end()) - reinterpret_cast<std::uintptr_t>(s.data())
       ), text::encoding::host, ptwOut);
    }
 };

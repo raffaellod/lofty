@@ -775,7 +775,7 @@ public:
       *this.
    */
    str & operator+=(str const & s) {
-      append(s.chars_begin(), s.size_in_chars());
+      append(s.data(), s.size_in_chars());
       return *this;
    }
 
@@ -862,26 +862,6 @@ public:
       return const_cast<str *>(this)->end();
    }
 
-   //! See vextr_impl::begin().
-   char_t * chars_begin() {
-      return vextr_impl::begin<char_t>();
-   }
-
-   //! See vextr_impl::begin().
-   char_t const * chars_begin() const {
-      return vextr_impl::begin<char_t>();
-   }
-
-   //! See vextr_impl::end().
-   char_t * chars_end() {
-      return vextr_impl::end<char_t>();
-   }
-
-   //! See vextr_impl::end().
-   char_t const * chars_end() const {
-      return vextr_impl::end<char_t>();
-   }
-
    //! Truncates the string to zero length, without deallocating the internal buffer.
    void clear() {
       set_size(0);
@@ -921,6 +901,24 @@ public:
    */
    char_t const * data() const {
       return vextr_impl::begin<char_t>();
+   }
+
+   /*! Returns a pointer to the end of the character array.
+
+   @return
+      Pointer to the end of the character array.
+   */
+   char_t * data_end() {
+      return vextr_impl::end<char_t>();
+   }
+
+   /*! Returns a const pointer to the end of the character array.
+
+   @return
+      Const pointer to the end of the character array.
+   */
+   char_t const * data_end() const {
+      return vextr_impl::end<char_t>();
    }
 
    /*! Returns the string, encoded as requested, into a byte vector.
@@ -1101,7 +1099,7 @@ public:
       undefined.
    */
    std::size_t index_from_char_index(std::size_t ich) const {
-      return str_traits::size_in_codepoints(chars_begin(), chars_begin() + ich);
+      return str_traits::size_in_codepoints(data(), data() + ich);
    }
 
    /*! Inserts a character into the string at a specific character (not code point) offset.
@@ -1152,7 +1150,7 @@ public:
       String to insert.
    */
    void insert(std::size_t ichOffset, str const & s) {
-      insert(ichOffset, s.chars_begin(), s.size_in_chars());
+      insert(ichOffset, s.data(), s.size_in_chars());
    }
 
    /*! Inserts characters into the string at a specific character (not code point) offset.
@@ -1284,7 +1282,7 @@ public:
       vextr_impl::set_size(sizeof(char_t) * cch);
       if (bClear) {
          prepare_for_writing();
-         memory::clear(chars_begin(), cch);
+         memory::clear(data(), cch);
       }
    }
 
@@ -1294,7 +1292,7 @@ public:
       Size of the string.
    */
    std::size_t size() const {
-      return str_traits::size_in_codepoints(chars_begin(), chars_end());
+      return str_traits::size_in_codepoints(data(), data_end());
    }
 
    /*! Returns size of the string, in bytes.
@@ -1349,8 +1347,8 @@ public:
    */
    str substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
       auto range(translate_range(ichBegin, ichEnd));
-      char_t const * pchBegin = chars_begin() + _std::get<0>(range).m_ich;
-      char_t const * pchEnd = chars_begin() + _std::get<1>(range).m_ich;
+      char_t const * pchBegin = data() + _std::get<0>(range).m_ich;
+      char_t const * pchEnd = data() + _std::get<1>(range).m_ich;
       return str(pchBegin, pchEnd);
    }
 
@@ -1362,9 +1360,9 @@ public:
       Substring of *this.
    */
    str substr(const_iterator itBegin) const {
-      char_t const * pchBegin = chars_begin() + itBegin.m_ich;
+      char_t const * pchBegin = data() + itBegin.m_ich;
       validate_pointer(pchBegin);
-      return str(pchBegin, chars_end());
+      return str(pchBegin, data_end());
    }
 
    /*! Returns a portion of the string.
@@ -1377,8 +1375,7 @@ public:
       Substring of *this.
    */
    str substr(const_iterator itBegin, const_iterator itEnd) const {
-      char_t const * pchBegin = chars_begin() + itBegin.m_ich;
-      char_t const * pchEnd = chars_begin() + itEnd.m_ich;
+      char_t const * pchBegin = data() + itBegin.m_ich, * pchEnd = data() + itEnd.m_ich;
       validate_pointer(pchBegin);
       validate_pointer(pchEnd);
       return str(pchBegin, pchEnd);
@@ -1675,11 +1672,11 @@ public:
    using text::str::capacity;
    using text::str::cbegin;
    using text::str::cend;
-   using text::str::chars_begin;
-   using text::str::chars_end;
    using text::str::clear;
    using text::str::crbegin;
    using text::str::crend;
+   using text::str::data;
+   using text::str::data_end;
    using text::str::encode;
    using text::str::end;
    using text::str::ends_with;
@@ -1723,7 +1720,7 @@ public:
 // Now these can be defined.
 
 inline str::const_codepoint_proxy::operator char32_t() const {
-   return host_char_traits::chars_to_codepoint(mc_ps->chars_begin() + mc_ich);
+   return host_char_traits::chars_to_codepoint(mc_ps->data() + mc_ich);
 }
 
 inline str::codepoint_proxy & str::codepoint_proxy::operator=(char_t ch) {
@@ -1741,11 +1738,11 @@ inline std::size_t str::const_iterator::advance(std::ptrdiff_t iDelta, bool bInd
 }
 
 inline char_t const * str::const_iterator::ptr() const {
-   return m_ps->chars_begin() + m_ich;
+   return m_ps->data() + m_ich;
 }
 
 inline char_t * str::iterator::ptr() const {
-   return const_cast<str *>(m_ps)->chars_begin() + m_ich;
+   return const_cast<str *>(m_ps)->data() + m_ich;
 }
 
 // Relational operators for str.
@@ -1754,21 +1751,15 @@ inline char_t * str::iterator::ptr() const {
    inline bool operator op( \
       sstr<t_cchEmbeddedCapacityL> const & sL, sstr<t_cchEmbeddedCapacityR> const & sR \
    ) { \
-      return str_traits::compare( \
-         sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end() \
-      ) op 0; \
+      return str_traits::compare(sL.data(), sL.data_end(), sR.data(), sR.data_end()) op 0; \
    } \
    template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch> \
    inline bool operator op(sstr<t_cchEmbeddedCapacity> const & s, char_t const (& ach)[t_cch]) { \
-      return str_traits::compare( \
-         s.chars_begin(), s.chars_end(), &ach[0], &ach[ABC_SL_SIZE(ach)] \
-      ) op 0; \
+      return str_traits::compare(s.data(), s.data_end(), &ach[0], &ach[ABC_SL_SIZE(ach)]) op 0; \
    } \
    template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity> \
    inline bool operator op(char_t const (& ach)[t_cch], sstr<t_cchEmbeddedCapacity> const & s) { \
-      return str_traits::compare( \
-         &ach[0], &ach[ABC_SL_SIZE(ach)], s.chars_begin(), s.chars_end() \
-      ) op 0; \
+      return str_traits::compare(&ach[0], &ach[ABC_SL_SIZE(ach)], s.data(), s.data_end()) op 0; \
    }
 ABC_RELOP_IMPL(==)
 ABC_RELOP_IMPL(!=)
@@ -1840,7 +1831,7 @@ template <std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR
 inline str operator+(
    sstr<t_cchEmbeddedCapacityL> const & sL, sstr<t_cchEmbeddedCapacityR> const & sR
 ) {
-   return str(sL.chars_begin(), sL.chars_end(), sR.chars_begin(), sR.chars_end());
+   return str(sL.data(), sL.data_end(), sR.data(), sR.data_end());
 }
 
 template <std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR>
@@ -1862,7 +1853,7 @@ inline sstr<t_cchEmbeddedCapacity> operator+(
 
 template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch>
 inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char_t const (& achR)[t_cch]) {
-   return str(sL.chars_begin(), sL.chars_end(), &achR[0], &achR[ABC_SL_SIZE(achR)]);
+   return str(sL.data(), sL.data_end(), &achR[0], &achR[ABC_SL_SIZE(achR)]);
 }
 
 template <std::size_t t_cchEmbeddedCapacity>
@@ -1873,7 +1864,7 @@ inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, 
 
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char_t chR) {
-   return str(sL.chars_begin(), sL.chars_end(), &chR, &chR + 1);
+   return str(sL.data(), sL.data_end(), &chR, &chR + 1);
 }
 
 #if ABC_HOST_UTF > 8
@@ -1897,9 +1888,7 @@ inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, 
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char32_t cpR) {
    char_t achR[host_char_traits::max_codepoint_length];
-   return str(
-      sL.chars_begin(), sL.chars_end(), achR, host_char_traits::codepoint_to_chars(cpR, achR)
-   );
+   return str(sL.data(), sL.data_end(), achR, host_char_traits::codepoint_to_chars(cpR, achR));
 }
 
 // Overloads taking a string or character literal as left operand.
@@ -1913,7 +1902,7 @@ inline sstr<t_cchEmbeddedCapacity> operator+(
 
 template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity>
 inline str operator+(char_t const (& achL)[t_cch], sstr<t_cchEmbeddedCapacity> const & sR) {
-   return str(&achL[0], &achL[ABC_SL_SIZE(achL)], sR.chars_begin(), sR.chars_end());
+   return str(&achL[0], &achL[ABC_SL_SIZE(achL)], sR.data(), sR.data_end());
 }
 
 template <std::size_t t_cchEmbeddedCapacity>
@@ -1924,7 +1913,7 @@ inline sstr<t_cchEmbeddedCapacity> operator+(char_t chL, sstr<t_cchEmbeddedCapac
 
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(char_t chL, sstr<t_cchEmbeddedCapacity> const & sR) {
-   return str(&chL, &chL + 1, sR.chars_begin(), sR.chars_end());
+   return str(&chL, &chL + 1, sR.data(), sR.data_end());
 }
 
 #if ABC_HOST_UTF > 8
@@ -1948,9 +1937,7 @@ inline sstr<t_cchEmbeddedCapacity> operator+(char32_t cpL, sstr<t_cchEmbeddedCap
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(char32_t cpL, sstr<t_cchEmbeddedCapacity> const & sR) {
    char_t achL[host_char_traits::max_codepoint_length];
-   return str(
-      achL, host_char_traits::codepoint_to_chars(cpL, achL), sR.chars_begin(), sR.chars_end()
-   );
+   return str(achL, host_char_traits::codepoint_to_chars(cpL, achL), sR.data(), sR.data_end());
 }
 
 }} //namespace abc::text

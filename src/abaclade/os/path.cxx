@@ -123,7 +123,7 @@ path path::absolute() const {
       and be relative to the current directory in that volume. Either way, these two formats don’t
       qualify as absolute (which is why we’re here), and can be recognized as follows. */
       std::size_t cch = m_s.size_in_chars();
-      char_t const * pch = m_s.chars_begin();
+      char_t const * pch = m_s.data();
       if (cch > sc_ichVolumeColon && *(pch + sc_ichVolumeColon) == ':') {
          /* The path is in the form “X:a”: get the current directory for that volume and prepend it
          to the path to make it absolute. */
@@ -189,7 +189,7 @@ path path::base_name() const {
       return cch + sc_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.chars_begin(), smc_szRoot, ABC_SL_SIZE(smc_szRoot));
+   memory::copy(s.data(), smc_szRoot, ABC_SL_SIZE(smc_szRoot));
 #else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
@@ -218,7 +218,7 @@ path path::base_name() const {
       return cch + sc_cchRoot;
    });
    // Now that the current directory has been retrieved, prepend the root prefix.
-   memory::copy(s.chars_begin(), smc_szRoot, ABC_SL_SIZE(smc_szRoot));
+   memory::copy(s.data(), smc_szRoot, ABC_SL_SIZE(smc_szRoot));
    // Remove the last character, the “a” from achDummyPath.
    s.set_size_in_chars(s.size_in_chars() - 1 /*“a”*/);
    return _std::move(s);
@@ -393,7 +393,7 @@ str::const_iterator path::base_name_start() const {
    static std::size_t const sc_ichLeadingSep = 0; // “\” in “\”
 
    std::size_t cch = s.size_in_chars();
-   char_t const * pch = s.chars_begin();
+   char_t const * pch = s.data();
    if (s.starts_with(smc_szRoot)) {
       if (s.starts_with(smc_szUNCRoot)) {
          // Return the index of “a” in “\\?\UNC\a”.
@@ -451,7 +451,7 @@ str::const_iterator path::base_name_start() const {
          s = smc_szUNCRoot + s.substr(2 /*“\\”*/);
       } else {
          std::size_t cch = s.size_in_chars();
-         char_t * pch = s.chars_begin();
+         char_t * pch = s.data();
          if (cch >= 2 && *(pch + 1) == ':') {
             char_t chVolume = *pch;
             // If the path is in the form “x:”, normalize the volume designator to uppercase.

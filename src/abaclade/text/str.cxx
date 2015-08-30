@@ -83,7 +83,7 @@ std::ptrdiff_t str::const_iterator::distance(std::size_t ich) const {
    if (ich == m_ich) {
       return 0;
    } else {
-      char_t const * pchBegin = m_ps->chars_begin();
+      char_t const * pchBegin = m_ps->data();
       if (ich < m_ich) {
          return static_cast<std::ptrdiff_t>(
             str_traits::size_in_codepoints(pchBegin + ich, pchBegin + m_ich)
@@ -99,9 +99,9 @@ std::ptrdiff_t str::const_iterator::distance(std::size_t ich) const {
 std::size_t str::const_iterator::throw_if_end(std::size_t ich) const {
    ABC_TRACE_FUNC(this, ich);
 
-   char_t const * pchBegin = m_ps->chars_begin(), * pch = pchBegin + ich;
-   if (pch >= m_ps->chars_end()) {
-      ABC_THROW(pointer_iterator_error, (pchBegin, m_ps->chars_end(), pch));
+   char_t const * pchBegin = m_ps->data(), * pch = pchBegin + ich;
+   if (pch >= m_ps->data_end()) {
+      ABC_THROW(pointer_iterator_error, (pchBegin, m_ps->data_end(), pch));
    }
    return ich;
 }
@@ -110,7 +110,7 @@ std::size_t str::const_iterator::throw_if_end(std::size_t ich) const {
 std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const {
    ABC_TRACE_FUNC(this, ich, iDelta, bIndex);
 
-   char_t const * pchBegin = chars_begin(), * pch = pchBegin + ich, * pchEnd = chars_end();
+   char_t const * pchBegin = data(), * pch = pchBegin + ich, * pchEnd = data_end();
    std::ptrdiff_t iDeltaOrig = iDelta;
 
    // If i is positive, move forward.
@@ -149,13 +149,13 @@ detail::c_str_ptr str::c_str() {
       // The string is not empty but lacks a NUL terminator: enlarge the string to include one.
       prepare_for_writing();
       set_capacity(cch + 1, true);
-      *chars_end() = '\0';
+      *data_end() = '\0';
       m_bNulT = true;
    } else {
       // The string is empty, so a static NUL character will suffice.
       return detail::c_str_ptr(&gc_chNul, false);
    }
-   return detail::c_str_ptr(chars_begin(), false);
+   return detail::c_str_ptr(data(), false);
 }
 
 detail::c_str_ptr str::c_str() const {
@@ -163,12 +163,12 @@ detail::c_str_ptr str::c_str() const {
 
    if (m_bNulT) {
       // The string already includes a NUL terminator, so we can simply return the same array.
-      return detail::c_str_ptr(chars_begin(), false);
+      return detail::c_str_ptr(data(), false);
    } else if (std::size_t cch = size_in_chars()) {
       /* The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       NUL, and return it. */
       auto psz(memory::alloc<char_t[]>(cch + 1 /*NUL*/));
-      memory::copy(psz.get(), chars_begin(), cch);
+      memory::copy(psz.get(), data(), cch);
       psz[cch] = '\0';
       return detail::c_str_ptr(psz.release(), true);
    } else {
@@ -191,7 +191,7 @@ collections::dmvector<std::uint8_t> str::encode(encoding enc, bool bNulT) const 
       cbUsed = cbStr;
    } else {
       cbChar = get_encoding_size(enc);
-      void const * pStr = chars_begin();
+      void const * pStr = data();
       // Calculate the size required, then resize vb accorgingly.
       cbUsed = transcode(true, encoding::host, &pStr, &cbStr, enc);
       vb.set_capacity(cbUsed + (bNulT ? cbChar : 0), false);
@@ -212,71 +212,67 @@ collections::dmvector<std::uint8_t> str::encode(encoding enc, bool bNulT) const 
 bool str::ends_with(str const & s) const {
    ABC_TRACE_FUNC(this, s);
 
-   char_t const * pchStart = chars_end() - s.size_in_chars();
-   return pchStart >= chars_begin() && str_traits::compare(
-      pchStart, chars_end(), s.chars_begin(), s.chars_end()
+   char_t const * pchStart = data_end() - s.size_in_chars();
+   return pchStart >= data() && str_traits::compare(
+      pchStart, data_end(), s.data(), s.data_end()
    ) == 0;
 }
 
 str::const_iterator str::find(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
-   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   char_t const * pchWhence = data() + itWhence.m_ich;
    validate_pointer(pchWhence);
-   auto pch = str_traits::find_char(pchWhence, chars_end(), chNeedle);
-   return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
+   auto pch = str_traits::find_char(pchWhence, data_end(), chNeedle);
+   return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
 str::const_iterator str::find(char32_t cpNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, cpNeedle, itWhence);
 
-   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   char_t const * pchWhence = data() + itWhence.m_ich;
    validate_pointer(pchWhence);
-   auto pch = str_traits::find_char(pchWhence, chars_end(), cpNeedle);
-   return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
+   auto pch = str_traits::find_char(pchWhence, data_end(), cpNeedle);
+   return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
 str::const_iterator str::find(str const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
-   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   char_t const * pchWhence = data() + itWhence.m_ich;
    validate_pointer(pchWhence);
-   auto pch = str_traits::find_substr(
-      pchWhence, chars_end(), sNeedle.chars_begin(), sNeedle.chars_end()
-   );
-   return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
+   auto pch = str_traits::find_substr(pchWhence, data_end(), sNeedle.data(), sNeedle.data_end());
+   return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
 
 str::const_iterator str::find_last(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
-   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   char_t const * pchWhence = data() + itWhence.m_ich;
    validate_pointer(pchWhence);
-   auto pch = str_traits::find_char_last(chars_begin(), pchWhence, chNeedle);
-   return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
+   auto pch = str_traits::find_char_last(data(), pchWhence, chNeedle);
+   return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
 str::const_iterator str::find_last(char32_t cpNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, cpNeedle, itWhence);
 
-   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   char_t const * pchWhence = data() + itWhence.m_ich;
    validate_pointer(pchWhence);
-   auto pch = str_traits::find_char_last(chars_begin(), pchWhence, cpNeedle);
-   return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
+   auto pch = str_traits::find_char_last(data(), pchWhence, cpNeedle);
+   return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
 str::const_iterator str::find_last(str const & sNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
-   char_t const * pchWhence = chars_begin() + itWhence.m_ich;
+   char_t const * pchWhence = data() + itWhence.m_ich;
    validate_pointer(pchWhence);
-   auto pch = str_traits::find_substr_last(
-      chars_begin(), pchWhence, sNeedle.chars_begin(), sNeedle.chars_end()
-   );
-   return const_iterator(this, static_cast<std::size_t>(pch - chars_begin()));
+   auto pch = str_traits::find_substr_last(data(), pchWhence, sNeedle.data(), sNeedle.data_end());
+   return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
 
 void str::prepare_for_writing() {
    if (!m_bPrefixedItemArray) {
       /* Copying from itself is safe because the new character array will necessarily not overlap
       the old, non-prefixed one. */
-      assign_copy(chars_begin(), chars_end());
+      assign_copy(data(), data_end());
    }
 }
 
@@ -284,7 +280,7 @@ void str::replace(char_t chSearch, char_t chReplacement) {
    ABC_TRACE_FUNC(this, chSearch, chReplacement);
 
    prepare_for_writing();
-   for (char_t * pch = chars_begin(), * pchEnd = chars_end(); pch != pchEnd; ++pch) {
+   for (char_t * pch = data(), * pchEnd = data_end(); pch != pchEnd; ++pch) {
       if (*pch == chSearch) {
          *pch = chReplacement;
       }
@@ -307,12 +303,12 @@ void str::replace_codepoint(std::size_t ich, char_t chNew) {
    ABC_TRACE_FUNC(this, ich, chNew);
 
    std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(
-      chars_begin()[ich]
+      data()[ich]
    );
-   // Note: either of these two calls may change chars_begin().
+   // Note: either of these two calls may change data().
    prepare_for_writing();
    vextr_impl::insert_remove(ich, nullptr, sizeof(char_t), cbRemove);
-   chars_begin()[ich] = chNew;
+   data()[ich] = chNew;
 }
 
 void str::replace_codepoint(std::size_t ich, char32_t cpNew) {
@@ -320,13 +316,13 @@ void str::replace_codepoint(std::size_t ich, char32_t cpNew) {
 
    std::size_t cbInsert = sizeof(char_t) * host_char_traits::codepoint_size(cpNew);
    std::size_t cbRemove = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(
-      chars_begin()[ich]
+      data()[ich]
    );
-   // Note: either of these two calls may change chars_begin().
+   // Note: either of these two calls may change data().
    prepare_for_writing();
    vextr_impl::insert_remove(sizeof(char_t) * ich, nullptr, cbInsert, cbRemove);
    // codepoint_size() validated cpNew, so nothing can go wrong here.
-   host_char_traits::traits_base::codepoint_to_chars(cpNew, chars_begin() + ich);
+   host_char_traits::traits_base::codepoint_to_chars(cpNew, data() + ich);
 }
 
 void str::set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)> const & fnRead) {
@@ -340,7 +336,7 @@ void str::set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)
    do {
       cchMax *= smc_iGrowthRate;
       set_capacity(cchMax, false);
-      cchRet = fnRead(chars_begin(), cchMax);
+      cchRet = fnRead(data(), cchMax);
    } while (cchRet >= cchMax);
    // Finalize the length.
    set_size_in_chars(cchRet);
@@ -349,10 +345,8 @@ void str::set_from(_std::function<std::size_t (char_t * pch, std::size_t cchMax)
 bool str::starts_with(str const & s) const {
    ABC_TRACE_FUNC(this, s);
 
-   char_t const * pchEnd = chars_begin() + s.size_in_chars();
-   return pchEnd <= chars_end() && str_traits::compare(
-      chars_begin(), pchEnd, s.chars_begin(), s.chars_end()
-   ) == 0;
+   char_t const * pchEnd = data() + s.size_in_chars();
+   return pchEnd <= data_end() && str_traits::compare(data(), pchEnd, s.data(), s.data_end()) == 0;
 }
 
 str::const_iterator str::translate_index(std::ptrdiff_t ich) const {

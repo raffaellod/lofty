@@ -102,7 +102,7 @@ reader_read_helper::reader_read_helper(
          true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host
       );
       m_psDst->set_capacity(cbTranscoded / sizeof(char_t), false);
-      m_pchTranscodedBegin = m_psDst->chars_begin();
+      m_pchTranscodedBegin = m_psDst->data();
       // Transcode *pbSrc. This will move m_pchTranscodedEnd to the end of the transcoded string.
       m_pchTranscodedEnd = m_pchTranscodedBegin;
       std::size_t cbTranscodedRemaining = cbTranscoded;
@@ -114,7 +114,7 @@ reader_read_helper::reader_read_helper(
       m_cbSrcTranscoded = m_cbSrc - cbSrc;
    }
    m_pchTranscoded = m_pchTranscodedBegin;
-   m_pchDst = m_psDst->chars_begin();
+   m_pchDst = m_psDst->data();
 }
 
 reader_read_helper::~reader_read_helper() {
@@ -227,7 +227,7 @@ bool reader_read_helper::replenish_transcoded_buffer() {
    ABC_TRACE_FUNC(this);
 
    // Calculate sizes from the current pointers, since the string buffer might be reallocated.
-   std::size_t cchDstUsed = static_cast<std::size_t>(m_pchDst - m_psDst->chars_begin());
+   std::size_t cchDstUsed = static_cast<std::size_t>(m_pchDst - m_psDst->data());
    /* If we already transcoded all the peeked bytes (and we’re here, so we used all the transcoded
    characters), get more. */
    if (m_cbSrcTranscoded == m_cbSrc) {
@@ -261,7 +261,7 @@ bool reader_read_helper::replenish_transcoded_buffer() {
       m_cbSrcTranscoded = m_cbSrc - cbSrc;
       m_psDst->set_capacity(cchDstUsed + cbTranscoded / sizeof(char_t), true);
       // Use the part of the string beyond cchDstUsed as the transcoding destination buffer.
-      m_pchTranscodedBegin = m_psDst->chars_begin() + cchDstUsed;
+      m_pchTranscodedBegin = m_psDst->data() + cchDstUsed;
       // Transcode *pbSrc. This will move m_pchTranscodedEnd to the end of the transcoded string.
       m_pchTranscodedEnd = m_pchTranscodedBegin;
       std::size_t cbTranscodedRemaining = cbTranscoded;
@@ -273,7 +273,7 @@ bool reader_read_helper::replenish_transcoded_buffer() {
    }
    m_pchTranscoded = m_pchTranscodedBegin;
    // Rebase this pointer onto the (possibly) newly-reallocated string.
-   m_pchDst = m_psDst->chars_begin() + cchDstUsed;
+   m_pchDst = m_psDst->data() + cchDstUsed;
    return true;
 }
 
@@ -289,7 +289,7 @@ bool reader_read_helper::run() {
       m_pchDst -= m_cchLTerm;
    }
    // Calculate the length of the string and truncate it to that.
-   std::size_t cchDstTotal = static_cast<std::size_t>(m_pchDst - m_psDst->chars_begin());
+   std::size_t cchDstTotal = static_cast<std::size_t>(m_pchDst - m_psDst->data());
    m_psDst->set_size_in_chars(cchDstTotal);
    if (m_pchTranscoded != m_pchTranscodedBegin) {
       // Calculate how many bytes were used from the last buffer peek and consume them.
