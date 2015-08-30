@@ -26,18 +26,22 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace text { namespace detail {
 
-inline codepoint_proxy<false> & codepoint_proxy<false>::operator=(char_t ch) {
-   mc_ps->_replace_codepoint(const_cast<char_t *>(mc_ps->chars_begin()) + m_ich, ch);
+inline const_codepoint_proxy::operator char32_t() const {
+   return host_char_traits::chars_to_codepoint(mc_ps->chars_begin() + mc_ich);
+}
+
+inline codepoint_proxy & codepoint_proxy::operator=(char_t ch) {
+   const_cast<str *>(mc_ps)->_replace_codepoint(
+      const_cast<char_t *>(mc_ps->chars_begin()) + mc_ich, ch
+   );
    return *this;
 }
 
-inline codepoint_proxy<false> & codepoint_proxy<false>::operator=(char32_t cp) {
-   mc_ps->_replace_codepoint(const_cast<char_t *>(mc_ps->chars_begin()) + m_ich, cp);
+inline codepoint_proxy & codepoint_proxy::operator=(char32_t cp) {
+   const_cast<str *>(mc_ps)->_replace_codepoint(
+      const_cast<char_t *>(mc_ps->chars_begin()) + mc_ich, cp
+   );
    return *this;
-}
-
-inline codepoint_proxy<true>::operator char32_t() const {
-   return host_char_traits::chars_to_codepoint(mc_ps->chars_begin() + m_ich);
 }
 
 }}} //namespace abc::text::detail
@@ -66,8 +70,8 @@ inline char_t * codepoint_iterator_impl<false>::base() const {
 
 namespace abc {
 
-template <bool t_bConst>
-class to_str_backend<text::detail::codepoint_proxy<t_bConst>> : public to_str_backend<char32_t> {
+template <>
+class to_str_backend<text::detail::const_codepoint_proxy> : public to_str_backend<char32_t> {
 public:
    /*! Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
 
@@ -76,9 +80,14 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(text::detail::codepoint_proxy<t_bConst> const & cpp, io::text::writer * ptwOut) {
+   void write(text::detail::const_codepoint_proxy const & cpp, io::text::writer * ptwOut) {
       to_str_backend<char32_t>::write(cpp.operator char32_t(), ptwOut);
    }
+};
+
+template <>
+class to_str_backend<text::detail::codepoint_proxy> :
+   public to_str_backend<text::detail::const_codepoint_proxy> {
 };
 
 } //namespace abc

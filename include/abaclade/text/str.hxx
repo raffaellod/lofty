@@ -120,8 +120,8 @@ class ABACLADE_SYM sstr<0> :
    protected collections::detail::raw_trivial_vextr_impl,
    public support_explicit_operator_bool<str> {
 private:
-   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char_t ch);
-   friend detail::codepoint_proxy<false> & detail::codepoint_proxy<false>::operator=(char32_t cp);
+   friend detail::codepoint_proxy & detail::codepoint_proxy::operator=(char_t ch);
+   friend detail::codepoint_proxy & detail::codepoint_proxy::operator=(char32_t cp);
 
    typedef collections::detail::raw_trivial_vextr_impl vextr_impl;
 
@@ -275,8 +275,8 @@ public:
    @return
       Character at index i.
    */
-   detail::codepoint_proxy<false> operator[](std::ptrdiff_t i) {
-      return detail::codepoint_proxy<false>(_advance_char_index(0, i, true), this);
+   detail::codepoint_proxy operator[](std::ptrdiff_t i) {
+      return detail::codepoint_proxy(this, _advance_char_index(0, i, true));
    }
 
    /*! Const haracter access operator.
@@ -287,8 +287,8 @@ public:
    @return
       Character at index i.
    */
-   detail::codepoint_proxy<true> operator[](std::ptrdiff_t i) const {
-      return detail::codepoint_proxy<true>(_advance_char_index(0, i, true), this);
+   detail::const_codepoint_proxy operator[](std::ptrdiff_t i) const {
+      return detail::const_codepoint_proxy(this, _advance_char_index(0, i, true));
    }
 
    /*! Boolean evaluation operator.
