@@ -24,69 +24,19 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/type_void_adapter.hxx>
 
 /*! @page vextr-design High-efficiency strings and vectors
-Design of abc::text::istr, abc::collections::mvector, and related classes.
+Design of abc::text::str and abc::collections::mvector.
 
 Abaclade’s string and vector classes are intelligent wrappers around C arrays; they are able to
 dynamically adjust the size of the underlying array, while also taking advantage of an optional
 fixed-size array embedded into the string/vector object.
 
-This table illustrates the best type of string to use for each use scenario:
-
-   @verbatim
-   ┌───────────────────────────────────────────────────────┬──────────────────────┐
-   │ Functional need                                       │ Suggested type       │
-   ├───────────────────────────────────────────────────────┼──────────────────────┤
-   │ Local/member constant                                 │ istr const           │
-   │                                                       │                      │
-   │ Local/member immutable variable                       │ istr                 │
-   │ (can be assigned to, but not modified)                │                      │
-   │                                                       │                      │
-   │ Local/member variable                                 │ smstr<expected size> │
-   │                                                       │                      │
-   │ Function argument                                     │                      │
-   │ •  Input-only, temporary usage                        │ istr const &         │
-   │ •  Input-only, to be moved to dmstr with longer scope │ dmstr                │
-   │ •  Output-only (value on input ignored)               │ mstr *               │
-   │ •  Non-const input                                    │ mstr &               │
-   │                                                       │                      │
-   │ Function return value                                 │                      │
-   │ •  From string literal                                │ istr                 │
-   │ •  Read-only reference to non-local variable          │ istr const &         │
-   │ •  From local temporary string                        │ dmstr                │
-   │ •  Reference to non-local variable                    │ mstr &               │
-   │                                                       │                      │
-   │ Value in container classes                            │ any except mstr      │
-   │                                                       │                      │
-   │ Key in hash-based container classes                   │ istr const           │
-   └───────────────────────────────────────────────────────┴──────────────────────┘
-   @endverbatim
-
 Data-wise (see abc::collections::detail::raw_vextr_impl_data), the implementation stores two
-pointers, one to the first item and one to beyond the last item, instead of the more common start
-pointer/length pair of variables. This makes checking an iterator against the end of the array a
-matter of a simple load/compare in terms of machine level instructions, as opposed to load/load/add/
-compare as it’s necessary for the pointer/length pair. The item array pointed to by the begin/end
-pointers can be part of a prefixed item array
-(abc::collections::detail::raw_vextr_prefixed_item_array), which includes information such as the
-total capacity of the item array, which is used to find out when the item array needs to be
+pointers, one to the first item and one to beyond the last item; this makes checking an iterator
+against the end of the array a matter of a simple load/compare in terms of machine level
+instructions. The item array pointed to by the begin/end pointers can be part of a prefixed item
+array (abc::collections::detail::raw_vextr_prefixed_item_array), which includes information such as
+the total capacity of the item array, which is used to find out when the item array needs to be
 reallocated to make room for more items.
-
-While there are several implementations of these classes, they can all be grouped in two clades:
-immutable and mutable/modifiable. The firsts behave much like Python’s strings or tuples, in that
-they only expose observers; the seconds offer the entire range of modifiers as well, making them
-more like strings/vectors in most other languages, but at the cost of a restricted range of options
-for the allocation of their internal arrays.
-
-The implementation of strings and vectors revolves around two class hierarchies: the lower-level
-hierarchy creates a code path split between trivial (e.g. integral) types to exploit the inherent
-exception safety of these without breaking the transactional guarantee for complex types; the upper-
-level hierarchies hide parts of the lower-level classes’ interface so that transitions between their
-different possible semantic statuses (e.g. mutable/immutable) have to be validated via the C++ type
-system.
-
-For vectors, the leaf-most classes have two implementations: one for movable-only types, and one for
-copyable types.
-
 
 The lower-level hierarchy consists in these non-template classes:
 
@@ -122,53 +72,26 @@ The complete lower-level class hierarchy is therefore:
 
          •  collections::detail::vector_base: base for the upper-level vector class hierarchy.
 
-      •  str_base: always derives from detail::raw_trivial_vextr_impl, it’s the base for the upper-
-         level string class hierarchy.
+      •  str: always derives from detail::raw_trivial_vextr_impl.
 
 
 The upper-level class hierarchies consist in these classes:
 
-•  collections::detail::vector_base/str_base
+•  collections::detail::vector_base
 
-   •  collections::ivector (TODO: if the need arises)/istr: immutable (assign-only) vector/string;
-      uses a read-only (possibly shared) or dynamically-allocated item array, and as a consequence
-      does not offer any modifier methods or operators beyond operator==(). Only class in its
-      hierarchy that can be constructed from a C++ literal without creating a copy of the
-      constructor argument.
-
-   •  collections::mvector/mstr: mutable (fully modifiable) vector/string; always uses a writable,
+   •  collections::mvector: mutable (fully modifiable) vector/string; always uses a writable,
       embedded or dynamically-allocated prefixed item array (never a non-prefixed, read-only item
       array), and provides an abstraction for its derived classes.
 
-      •  collections::dmvector/dmstr: mutable vector/string that always uses a dynamically-allocated
-         item array.
+      •  collections::dmvector: mutable vector that always uses a dynamically-allocated item array.
 
-      •  collections::smvector/smstr: mutable vector/string that can use an internal embedded
-         prefixed item array and will switch to a dynamically-allocated one only if necessary.
-         Nearly as fast as the C-style direct manipulation of an array, only wasting a very small
-         amount of space, and providing the ability to switch to a dynamically-allocated item array
-         on-the-fly in case the client needs to store in it more items than are available.
+      •  collections::smvector: mutable vector that can use an internal embedded prefixed item array
+         and will switch to a dynamically-allocated one only if necessary. Nearly as fast as the
+         C-style direct manipulation of an array, only wasting a very small amount of space, and
+         providing the ability to switch to a dynamically-allocated item array on-the-fly in case
+         the client needs to store in it more items than are available.
 
-The upper-level class hierarchy is arranged so that the compiler will prevent implicit cast of mstr
-or smstr to istr &/dmstr &; allowing this would allow the istr/dmstr move constructor/assignment
-operator to be invoked to transfer ownership of an embedded prefixed item array, which is wrong, or
-(if falling back to copying the embedded item array into a new dynamically-allocated one) would
-result in memory allocation and items being copied, which would violate the “nothrow” requirement
-for the move constructor/assignment operator.
-
-All string (TODO: and vector) types can be implicitly cast as istr const &; this makes istr const &
-the lowest common denominator for string exchange, much like str is in Python. Because of this, an
-istr const & can be using an embedded prefixed item array (because it can be a smstr), while any
-other istr will always use either a read-only, non-prefixed item array or a dynamic prefixed item
-array.
-
-collections::mvector/mstr cannot have a “nothrow” move constructor or assignment operator from
-itself, because the two underlying objects might have embedded item arrays of different sizes. This
-isn’t a huge deal-breaker because of the intended limited usage for mstr and smstr, but it’s
-something to watch out for, and it means that mstr should not be used in container classes.
-
-Last but not least, let’s look at the underlying data storage in some of the possible semantic
-statuses.
+Let’s look at the underlying data storage in some of the possible semantic statuses.
 
 Key:
 
@@ -184,21 +107,21 @@ Key:
    the implementation it’s actually a byte count).
 
 
-1. istr() or dmstr(): no item array.
+1. str s1(): no item array.
    @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───┐
    │ nullptr │ nullptr │ - │ - │ - │ - │
    └─────────┴─────────┴───┴───┴───┴───┘
    @endverbatim
 
-2. smstr<4>(): has an embedded prefixed fixed-size array, but does not use it yet.
+2. sstr<4> s2(): has an embedded prefixed fixed-size array, but does not use it yet.
    @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
    │ nullptr │ nullptr │ - │ - │ E │ - ║ 4 │ - - - - │
    └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
    @endverbatim
 
-3. istr("abc"): points to a non-prefixed item array in read-only memory, which also has a NUL
+3. str s3("abc"): points to a non-prefixed item array in read-only memory, which also has a NUL
    terminator.
    @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───┐                    ┌──────────┐
@@ -209,18 +132,17 @@ Key:
      └──────────────────────────────────────────────────────┘
    @endverbatim
 
-4. dmstr("abc"): points to a dynamically-allocated prefixed copy of the source string literal.
+4. s3 += "def": switches to a dynamically-allocated prefixed array to perform the concatenation.
    @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───┐                ┌───┬─────────────────┐
-   │ 0xptr   │ 0xptr   │ P │ - │ - │ D │                │ 8 │ a b c - - - - - │
+   │ 0xptr   │ 0xptr   │ P │ - │ - │ D │                │ 8 │ a b c d e f - - │
    └─────────┴─────────┴───┴───┴───┴───┘                └───┴─────────────────┘
-     │         │                                            ▲       ▲
-     │         └────────────────────────────────────────────│───────┘
+     │         │                                            ▲             ▲
+     │         └────────────────────────────────────────────│─────────────┘
      └──────────────────────────────────────────────────────┘
    @endverbatim
 
-5. smstr<4> s4("abc"): copies the source string literal to the embedded prefixed item array, and
-   points to it.
+5. s2 += "abc": starts using the embedded prefixed fixed-size array to perform the concatenation.
    @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
    │ 0xptr   │ 0xptr   │ P │ - │ E │ - ║ 4 │ a b c - │
@@ -230,11 +152,11 @@ Key:
      └─────────────────────────────────────┘
    @endverbatim
 
-7. s4 += "abc": switches to a dynamically-allocated prefixed array because the embedded one is not
+7. s2 += "def": switches to a dynamically-allocated prefixed array because the embedded one is not
    large enough.
    @verbatim
    ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐  ┌───┬─────────────────┐
-   │ 0xptr   │ 0xptr   │ P │ - │ E │ D ║ 4 │ - - - - │  │ 8 │ a b c a b c - - │
+   │ 0xptr   │ 0xptr   │ P │ - │ E │ D ║ 4 │ - - - - │  │ 8 │ a b c d e f - - │
    └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘  └───┴─────────────────┘
      │         │                                            ▲             ▲
      │         └────────────────────────────────────────────│─────────────┘
