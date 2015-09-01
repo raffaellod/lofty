@@ -1429,19 +1429,6 @@ protected:
       ) {
    }
 
-   /*! Constructor from string literals.
-
-   @param pchConstSrc
-      Pointer to a string that will be adopted by the str as read-only.
-   @param cchSrc
-      Count of characters in the string pointed to by pchConstSrc.
-   @param bNulT
-      true if the array pointed to by pchConstSrc is a NUL-terminated string, or false otherwise.
-   */
-   sstr(char_t const * pchConstSrc, std::size_t cchSrc, bool bNulT) :
-      vextr_impl(0, pchConstSrc, pchConstSrc + cchSrc, bNulT) {
-   }
-
    /*! Advances or backs up a character index by the specified number of code points, returning the
    resulting pointer. If the index is moved outside of the buffer, an index_error or
    iterator_error exception (depending on bIndex) is thrown.
