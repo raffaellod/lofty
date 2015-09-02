@@ -775,8 +775,22 @@ public:
    @return
       *this.
    */
-   str & operator+=(str const & s) {
+   template <std::size_t t_cchEmbeddedCapacity2>
+   str & operator+=(sstr<t_cchEmbeddedCapacity2> const & s) {
       append(s.data(), s.size_in_chars());
+      return *this;
+   }
+
+   /*! Concatenation-assignment operator.
+
+   @param ch
+      Character to append.
+   @return
+      *this.
+   */
+   template <std::size_t t_cch>
+   str & operator+=(char_t const (& ach)[t_cch]) {
+      append(ach, ABC_SL_SIZE(ach));
       return *this;
    }
 
