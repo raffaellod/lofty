@@ -323,24 +323,6 @@ void raw_complex_vextr_impl::assign_concat(
    trn.commit();
 }
 
-void raw_complex_vextr_impl::assign_move(
-   type_void_adapter const & type, raw_complex_vextr_impl && rcvi
-) {
-   ABC_TRACE_FUNC(this/*, type, rcvi*/);
-
-   if (rcvi.m_pBegin == m_pBegin) {
-      return;
-   }
-   ABC_ASSERT(rcvi.m_bDynamic, ABC_SL("cannot move an embedded item array"));
-   // Discard the current contents.
-   destruct_items(type);
-   this->~raw_complex_vextr_impl();
-   // Take over the item array.
-   assign_shallow(rcvi);
-   // And now empty the source.
-   rcvi.assign_empty();
-}
-
 void raw_complex_vextr_impl::assign_move_desc_or_move_items(
    type_void_adapter const & type, raw_complex_vextr_impl && rcvi
 ) {
@@ -350,15 +332,19 @@ void raw_complex_vextr_impl::assign_move_desc_or_move_items(
       return;
    }
    if (rcvi.m_bDynamic) {
-      assign_move(type, _std::move(rcvi));
+      // Discard the current contents.
+      destruct_items(type);
+      this->~raw_complex_vextr_impl();
+      // Take over the item array.
+      assign_shallow(rcvi);
    } else {
       /* Can’t move the item array, so move the items instead. assign_concat() is fast enough; pass
       the source as the second argument pair, because its code path is faster. */
       assign_concat(type, nullptr, nullptr, rcvi.m_pBegin, rcvi.m_pEnd, 2);
       // And now empty the source.
       rcvi.destruct_items(type);
-      rcvi.assign_empty();
    }
+   rcvi.assign_empty();
 }
 
 /*! Safely moves a range of items to another position in the same array, carefully moving items in
@@ -586,25 +572,6 @@ void raw_trivial_vextr_impl::assign_concat(
    trn.commit();
 }
 
-void raw_trivial_vextr_impl::assign_move(raw_trivial_vextr_impl && rtvi) {
-   ABC_TRACE_FUNC(this/*, rtvi*/);
-
-   /* This also checks that the source pointer (&rtvi) is safe to dereference, so the following code
-   can proceed safely. */
-   if (rtvi.m_pBegin == m_pBegin) {
-      return;
-   }
-   ABC_ASSERT(
-      !rtvi.m_bPrefixedItemArray || rtvi.m_bDynamic,
-      ABC_SL("cannot transfer ownership of a non-dynamic prefixed item array")
-   );
-   // Discard the current contents.
-   this->~raw_trivial_vextr_impl();
-   // Transfer ownership of the source prefixed item array.
-   assign_shallow(rtvi);
-   rtvi.assign_empty();
-}
-
 void raw_trivial_vextr_impl::assign_move_desc_or_move_items(raw_trivial_vextr_impl && rtvi) {
    ABC_TRACE_FUNC(this/*, rtvi*/);
 
@@ -620,7 +587,6 @@ void raw_trivial_vextr_impl::assign_move_desc_or_move_items(raw_trivial_vextr_im
       its items instead. */
       assign_copy(rtvi.m_pBegin, rtvi.m_pEnd);
    }
-   // And now empty the source.
    rtvi.assign_empty();
 }
 

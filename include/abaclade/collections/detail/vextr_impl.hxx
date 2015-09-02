@@ -594,16 +594,6 @@ public:
       assign_concat(type, nullptr, nullptr, pBegin, pEnd, 0);
    }
 
-   /*! Moves the contents of the source to *this, taking ownership of the whole item array (items
-   are not moved nor copied).
-
-   @param type
-      Adapter for the items’ type.
-   @param rcvi
-      Source vextr.
-   */
-   void assign_move(type_void_adapter const & type, raw_complex_vextr_impl && rcvi);
-
    /*! Moves the source’s item array if dynamically-allocated or not prefixed, else copies it to
    *this, moving the items instead.
 
@@ -737,15 +727,6 @@ public:
       code path is faster. */
       assign_concat(nullptr, nullptr, pBegin, pEnd);
    }
-
-   /*! Moves the source’s item array to *this. This must be called with rtvi being in control of a
-   non-prefixed item array, or a dynamic prefixed item array; see @ref vextr-design to see how *str
-   and *vector ensure this.
-
-   @param rtvi
-      Source vextr.
-   */
-   void assign_move(raw_trivial_vextr_impl && rtvi);
 
    /*! Moves the source’s item array if dynamically-allocated or not prefixed, else copies its items
    (not move – items are trivial) to *this.
