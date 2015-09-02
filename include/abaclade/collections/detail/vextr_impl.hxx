@@ -177,7 +177,7 @@ public:
 namespace abc { namespace collections { namespace detail {
 
 /*! Data members of raw_vextr_impl_base, as a plain old struct. This is the most basic
-implementation block for all abc::text::*str and abc::collections::*vector classes. */
+implementation block for all abc::text::str and abc::collections::vector classes. */
 struct raw_vextr_impl_data {
    //! Pointer to the start of the item array.
    void * m_pBegin;
