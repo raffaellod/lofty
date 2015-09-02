@@ -398,12 +398,13 @@ public:
    ABC_RELOP_IMPL(<=)
    #undef ABC_RELOP_IMPL
 
-      /*! Returns the referenced character index.
+      /*! Returns the referenced character index. Note that that’s not a code point index, i.e. two
+      consecutive iterators may differ in char_index() by more than 1.
 
       @return
          Pointer to the referenced character index.
       */
-      std::size_t index() const {
+      std::size_t char_index() const {
          return m_ich;
       }
 
@@ -1117,69 +1118,81 @@ public:
       return str_traits::size_in_codepoints(data(), data() + ich);
    }
 
-   /*! Inserts a character into the string at a specific character (not code point) offset.
+   /*! Inserts a character into the string at a specific offset.
 
-   @param ichOffset
-      0-based offset at which to insert the character.
+   @param itOffset
+      Offset at which to insert the character.
    @param ch
       Character to insert.
    */
-   void insert(std::size_t ichOffset, char_t ch) {
-      insert(ichOffset, &ch, 1);
+   void insert(const_iterator itOffset, char_t ch) {
+      insert(itOffset, &ch, 1);
    }
 
 #if ABC_HOST_UTF > 8
-   /*! Inserts an ASCII character into the string at a specific character (not code point) offset.
+   /*! Inserts an ASCII character into the string at a specific offset.
 
-   @param ichOffset
-      0-based offset at which to insert the character.
+   @param itOffset
+      Offset at which to insert the character.
    @param ch
       ASCII character to insert.
    */
-   void insert(std::size_t ichOffset, char ch) {
-      insert(ichOffset, host_char(ch));
+   void insert(const_iterator itOffset, char ch) {
+      insert(itOffset, host_char(ch));
    }
 #endif
 
-   /*! Inserts a code point into the string at a specific character (not code point) offset.
+   /*! Inserts a code point into the string at a specific offset.
 
-   @param ichOffset
-      0-based offset at which to insert the character.
+   @param itOffset
+      Offset at which to insert the character.
    @param cp
       Code point to insert.
    */
-   void insert(std::size_t ichOffset, char32_t cp) {
+   void insert(const_iterator itOffset, char32_t cp) {
       char_t ach[host_char_traits::max_codepoint_length];
       insert(
-         ichOffset, ach,
+         itOffset, ach,
          static_cast<std::size_t>(host_char_traits::codepoint_to_chars(cp, ach) - ach)
       );
    }
 
-   /*! Inserts characters from a string into the string at a specific character (not code point)
-   offset.
+   /*! Inserts characters from a string into the string at a specific offset.
 
-   @param ichOffset
-      0-based offset at which to insert the characters.
+   @param itOffset
+      Offset at which to insert the string.
    @param s
       String to insert.
    */
-   void insert(std::size_t ichOffset, str const & s) {
-      insert(ichOffset, s.data(), s.size_in_chars());
+   template <std::size_t t_cchEmbeddedCapacity2>
+   void insert(const_iterator itOffset, sstr<t_cchEmbeddedCapacity2> const & s) {
+      insert(itOffset, s.data(), s.size_in_chars());
    }
 
-   /*! Inserts characters into the string at a specific character (not code point) offset.
+   /*! Inserts characters from a static string into the string at a specific offset.
 
-   @param ichOffset
-      0-based offset at which to insert the characters.
+   @param itOffset
+      Offset at which to insert the string.
+   @param ach
+      String to insert.
+   */
+   template <std::size_t t_cch>
+   void insert(const_iterator itOffset, char_t const (& ach)[t_cch]) {
+      insert(itOffset, ach, ABC_SL_SIZE(ach));
+   }
+
+   /*! Inserts characters into the string at a specific character offset.
+
+   @param itOffset
+      Offset at which to insert the character.
    @param pchInsert
       Pointer to an array of characters to insert.
    @param cchInsert
       Count of characters in the array pointed to by pchInsert.
    */
-   void insert(std::size_t ichOffset, char_t const * pchInsert, std::size_t cchInsert) {
+   void insert(const_iterator itOffset, char_t const * pchInsert, std::size_t cchInsert) {
       vextr_impl::insert_remove(
-         sizeof(char_t) * ichOffset, pchInsert, sizeof(char_t) * cchInsert, 0
+         sizeof(char_t) * itOffset.char_index(), pchInsert, sizeof(char_t) * cchInsert, 0
       );
    }
 
@@ -1895,7 +1908,7 @@ template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(
    char_t const (& achL)[t_cch], sstr<t_cchEmbeddedCapacity> && sR
 ) {
-   sR.insert(0, achL);
+   sR.insert(sR.cbegin(), achL);
    return _std::move(sR);
 }
 
@@ -1906,7 +1919,7 @@ inline str operator+(char_t const (& achL)[t_cch], sstr<t_cchEmbeddedCapacity> c
 
 template <std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(char_t chL, sstr<t_cchEmbeddedCapacity> && sR) {
-   sR.insert(0, chL);
+   sR.insert(sR.cbegin(), chL);
    return _std::move(sR);
 }
 
@@ -1929,7 +1942,7 @@ inline str operator+(char chL, sstr<t_cchEmbeddedCapacity> const & sR) {
 
 template <std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(char32_t cpL, sstr<t_cchEmbeddedCapacity> && sR) {
-   sR.insert(0, cpL);
+   sR.insert(sR.cbegin(), cpL);
    return _std::move(sR);
 }
 
