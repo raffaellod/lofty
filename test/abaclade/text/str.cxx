@@ -238,11 +238,11 @@ ABC_TESTING_TEST_CASE_FUNC(
    s += char32_t(0x0000a2);
    s += char32_t(0x0020ac);
    s += char32_t(0x024b62);
-   collections::dmvector<std::uint8_t> vb;
+   collections::vector<std::uint8_t> vb;
 
    vb = s.encode(text::encoding::utf8, false);
    {
-      collections::smvector<std::uint8_t, 16> vbUtf8;
+      collections::vector<std::uint8_t, 16> vbUtf8;
       vbUtf8.push_back(0x24);
       vbUtf8.push_back(0xc2);
       vbUtf8.push_back(0xa2);
@@ -258,7 +258,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    vb = s.encode(text::encoding::utf16be, false);
    {
-      collections::smvector<std::uint8_t, 16> vbUtf16;
+      collections::vector<std::uint8_t, 16> vbUtf16;
       vbUtf16.push_back(0x00);
       vbUtf16.push_back(0x24);
       vbUtf16.push_back(0x00);
@@ -274,7 +274,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    vb = s.encode(text::encoding::utf32le, false);
    {
-      collections::smvector<std::uint8_t, 16> vbUtf32;
+      collections::vector<std::uint8_t, 16> vbUtf32;
       vbUtf32.push_back(0x24);
       vbUtf32.push_back(0x00);
       vbUtf32.push_back(0x00);

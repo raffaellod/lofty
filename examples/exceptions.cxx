@@ -43,13 +43,13 @@ public:
    @return
       Return value of this program.
    */
-   virtual int main(collections::mvector<str> & vsArgs) override {
+   virtual int main(collections::vector<str> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
       ABC_UNUSED_ARG(vsArgs);
       str s(ABC_SL("Test String"));
 
-      collections::smvector<int, 5> vi;
+      collections::vector<int> vi;
       vi.push_back(101);
       vi.push_back(102);
 
@@ -75,7 +75,7 @@ public:
       (four,  4)
    );
 
-   void first_function(str const & s, collections::mvector<int> const & vi) const {
+   void first_function(str const & s, collections::vector<int> const & vi) const {
       ABC_TRACE_FUNC(this, s, vi);
 
       exception::write_with_scope_trace(io::text::stdout.get());

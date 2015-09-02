@@ -84,7 +84,7 @@ public:
    @return
       Return code of the program.
    */
-   virtual int main(collections::mvector<str> & vsArgs) = 0;
+   virtual int main(collections::vector<str> & vsArgs) = 0;
 
    /*! @cond
    Runs the application, instantiating an app subclass and calling app::main().

@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/type_void_adapter.hxx>
 
 /*! @page vextr-design High-efficiency strings and vectors
-Design of abc::text::str and abc::collections::mvector.
+Design of abc::text::str and abc::collections::vector.
 
 Abaclade’s string and vector classes are intelligent wrappers around C arrays; they are able to
 dynamically adjust the size of the underlying array, while also taking advantage of an optional
@@ -74,22 +74,6 @@ The complete lower-level class hierarchy is therefore:
 
       •  str: always derives from detail::raw_trivial_vextr_impl.
 
-
-The upper-level class hierarchies consist in these classes:
-
-•  collections::detail::vector_base
-
-   •  collections::mvector: mutable (fully modifiable) vector/string; always uses a writable,
-      embedded or dynamically-allocated prefixed item array (never a non-prefixed, read-only item
-      array), and provides an abstraction for its derived classes.
-
-      •  collections::dmvector: mutable vector that always uses a dynamically-allocated item array.
-
-      •  collections::smvector: mutable vector that can use an internal embedded prefixed item array
-         and will switch to a dynamically-allocated one only if necessary. Nearly as fast as the
-         C-style direct manipulation of an array, only wasting a very small amount of space, and
-         providing the ability to switch to a dynamically-allocated item array on-the-fly in case
-         the client needs to store in it more items than are available.
 
 Let’s look at the underlying data storage in some of the possible semantic statuses.
 

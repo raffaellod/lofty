@@ -232,7 +232,7 @@ private:
    //! Character that started the current sequence. Can be ‘[’, ‘]’ or ‘?’ (for “[?”).
    char_t m_chSeqStart;
    //! Numeric arguments parsed from the current sequence.
-   collections::smvector<std::int16_t, 4> m_viCmdArgs;
+   collections::vector<std::int16_t, 4> m_viCmdArgs;
    //! String argument parsed from the current sequence.
    str m_sCmdArg;
    //! Stores the row number for the Save/Restore Cursor Position command.

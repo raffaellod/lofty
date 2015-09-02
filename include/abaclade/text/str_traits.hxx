@@ -51,7 +51,7 @@ public:
    */
    static void _build_find_failure_restart_table(
       char_t const * pchNeedleBegin, char_t const * pchNeedleEnd,
-      collections::mvector<std::size_t> * pvcchFailNext
+      collections::vector<std::size_t> * pvcchFailNext
    );
 
    /*! Compares two strings.

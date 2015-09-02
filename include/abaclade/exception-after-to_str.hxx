@@ -79,7 +79,7 @@ protected:
 private:
 #if ABC_HOST_UTF > 8
    //! Same data as m_sWhat but in ASCII, pointed to by abc::exception::m_pszWhat.
-   collections::dmvector<std::uint8_t> m_vchWhat;
+   collections::vector<std::uint8_t> m_vchWhat;
 #endif
    //! Pointer to and type of the object that was not finalized.
    str m_sWhat;

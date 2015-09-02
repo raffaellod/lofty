@@ -80,7 +80,7 @@ private:
    //! Description of the encountered problem.
    str m_sDescription;
    //! Bytes that caused the error.
-   collections::smvector<std::uint8_t, 16> m_viInvalid;
+   collections::vector<std::uint8_t, 16> m_viInvalid;
 };
 
 }} //namespace abc::text

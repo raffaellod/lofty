@@ -109,7 +109,7 @@ public:
 
 private:
    //! Vector of loaded test test cases to be executed.
-   collections::dmvector<_std::unique_ptr<test_case>> m_vptc;
+   collections::vector<_std::unique_ptr<test_case>> m_vptc;
    //! Output writer.
    _std::shared_ptr<io::text::writer> m_ptwOut;
    //! Total count of failed assertions.

@@ -29,17 +29,17 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    collections_vector_basic,
-   "abc::collections::*vector classes – basic operations"
+   "abc::collections::vector – basic operations"
 ) {
    ABC_TRACE_FUNC(this);
 
-   collections::dmvector<int> v;
+   collections::vector<int> v;
 
    /* Note: do not replace the item-by-item assertions with comparisons against manually-populated
    vectors as here we’re also guaranteeing that we can prepare a manually-populated vector. For
    example:
 
-      collections::dmvector<int> v1, v2;
+      collections::vector<int> v1, v2;
       v1.push_back(1);
       v1.push_back(2);
       v2.push_back(1);
@@ -47,9 +47,9 @@ ABC_TESTING_TEST_CASE_FUNC(
       ABC_TESTING_ASSERT_EQUAL(v1, v2);
 
    The assertion above will succeed if any of these error conditions is true:
-   •  dmvector<int>::operator==() always returns true;
-   •  dmvector<int>::push_back() never appends any elements;
-   •  dmvector<int>::push_back() always appends more elements than it should. */
+   •  vector<int>::operator==() always returns true;
+   •  vector<int>::push_back() never appends any elements;
+   •  vector<int>::push_back() always appends more elements than it should. */
 
    ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
    ABC_TESTING_ASSERT_THROWS(exception, v.front());
@@ -116,11 +116,11 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    collections_vector_relational_operators,
-   "abc::collections::*vector classes – relational operators"
+   "abc::collections::vector – relational operators"
 ) {
    ABC_TRACE_FUNC(this);
 
-   collections::dmvector<int> v1a, v1b, v2, v3;
+   collections::vector<int> v1a, v1b, v2, v3;
    v1a.push_back(1);
    v1a.push_back(2);
    v1b.push_back(1);
@@ -155,11 +155,11 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    collections_vector_iterators,
-   "abc::collections::*vector classes – operations with iterators"
+   "abc::collections::vector – operations with iterators"
 ) {
    ABC_TRACE_FUNC(this);
 
-   collections::dmvector<int> v;
+   collections::vector<int> v;
    v.push_back(1);
    v.push_back(2);
    v.push_back(3);
@@ -183,11 +183,11 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    collections_vector_trivial_removal,
-   "abc::collections::*vector classes – removal of trivial elements"
+   "abc::collections::vector – removal of trivial elements"
 ) {
    ABC_TRACE_FUNC(this);
 
-   collections::dmvector<int> v, vZero, vOne, vTwo, vOneTwo;
+   collections::vector<int> v, vZero, vOne, vTwo, vOneTwo;
    vOne.push_back(1);
    vTwo.push_back(2);
    vOneTwo.push_back(1);
@@ -199,17 +199,6 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(-1));
    ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(0));
    ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(1));
-
-   // Remove from empty vector by range.
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, -1));
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 0));
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(-1, 1));
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, -1));
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 0));
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(0, 1));
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, -1));
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 0));
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.remove_range(1, 1));
 
    v = vOneTwo;
 
@@ -224,55 +213,6 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL((v.remove_at(1), v), vOne);
    v = vOneTwo;
    ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(2));
-
-   // Remove from 2-element vector by range.
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, -3), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, -2), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, -1), v), vTwo);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, 0), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, 1), v), vTwo);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-3, 2), v), vZero);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, -3), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, -2), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, -1), v), vTwo);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, 0), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, 1), v), vTwo);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-2, 2), v), vZero);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, -3), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, -2), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, -1), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, 0), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, 1), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(-1, 2), v), vOne);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, -3), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, -2), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, -1), v), vTwo);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, 0), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, 1), v), vTwo);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(0, 2), v), vZero);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, -3), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, -2), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, -1), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, 0), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, 1), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(1, 2), v), vOne);
-   v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, -3), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, -2), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, -1), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, 0), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, 1), v), vOneTwo);
-   ABC_TESTING_ASSERT_EQUAL((v.remove_range(2, 2), v), vOneTwo);
 }
 
 }} //namespace abc::test
@@ -283,19 +223,19 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    collections_vector_memory,
-   "abc::collections::*vector classes – memory management"
+   "abc::collections::vector – memory management"
 ) {
    ABC_TRACE_FUNC(this);
 
    using testing::utility::make_container_data_ptr_tracker;
 
-   collections::dmvector<int> v1;
+   collections::vector<int> v1;
    auto cdpt1(make_container_data_ptr_tracker(&v1));
    // Note: the embedded item array size will probably be > 2.
-   collections::smvector<int, 2> v2;
+   collections::vector<int, 2> v2;
    auto cdpt2(make_container_data_ptr_tracker(&v2));
    // Note: the embedded item array size will probably be > 10.
-   collections::smvector<int, 10> v3;
+   collections::vector<int, 10> v3;
    auto cdpt3(make_container_data_ptr_tracker(&v3));
 
    /* Add one element to each vector, so they all allocate a new item array or begin using their own
@@ -381,7 +321,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    // Check assignment from larger to smaller embedded vectors.
 
    // Should keep the current item array, copying v2’s items over.
-   v1 = v2;
+   v1 = v2.vector0();
    ABC_TESTING_ASSERT_FALSE(cdpt1.changed());
    ABC_TESTING_ASSERT_EQUAL(v1.size(), 10u);
    ABC_TESTING_ASSERT_EQUAL(v1[0], 20);
@@ -396,7 +336,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(v1[9], 29);
 
    // Should return to using the embedded item array, copying v3’s items over.
-   v2 = v3;
+   v2 = v3.vector0();
    ABC_TESTING_ASSERT_EQUAL(v2.data(), p2Static);
    ABC_TESTING_ASSERT_TRUE(cdpt2.changed());
    ABC_TESTING_ASSERT_EQUAL(v2.size(), 2u);
@@ -464,10 +404,10 @@ Additional copies/moved may occur upon return.
 return
    Newly-instantiated dynamic vector.
 */
-static collections::dmvector<testing::utility::instances_counter> return_dmvector() {
+static collections::vector<testing::utility::instances_counter> return_vector() {
    ABC_TRACE_FUNC();
 
-   collections::dmvector<testing::utility::instances_counter> v;
+   collections::vector<testing::utility::instances_counter> v;
    // New instance, immediately moved.
    v.push_back(testing::utility::instances_counter());
    /* This will move the item array or the items in it, depending on the destination type (embedded
@@ -477,15 +417,15 @@ static collections::dmvector<testing::utility::instances_counter> return_dmvecto
 
 ABC_TESTING_TEST_CASE_FUNC(
    collections_vector_movement,
-   "abc::collections::*vector classes – item and item array movement"
+   "abc::collections::vector – item and item array movement"
 ) {
    ABC_TRACE_FUNC(this);
 
    typedef testing::utility::instances_counter instances_counter;
    {
       /* This will move the item array from the returned vector to v1, so no item copies or moves
-      will occur other than the ones in return_dmvector(). */
-      collections::dmvector<instances_counter> v(return_dmvector());
+      will occur other than the ones in return_vector(). */
+      collections::vector<instances_counter> v(return_vector());
       ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
       ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
       ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
@@ -501,12 +441,12 @@ ABC_TESTING_TEST_CASE_FUNC(
    }
 
    {
-      collections::smvector<instances_counter, 9> v;
+      collections::vector<instances_counter, 9> v;
       /* This will move the individual items from the returned vector to v2’s embedded item array.
-      Can’t just construct v2 with return_dmvector() because v2 would merely use that item array
+      Can’t just construct v2 with return_vector() because v2 would merely use that item array
       instead of its own embedded one, resulting in no additional moves other than the one in
-      return_dmvector(). */
-      v += return_dmvector();
+      return_vector(). */
+      v += return_vector();
       ABC_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
       ABC_TESTING_ASSERT_EQUAL(instances_counter::moves(), 2u);
       ABC_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);

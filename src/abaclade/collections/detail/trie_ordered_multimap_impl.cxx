@@ -230,7 +230,7 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr
 bitwise_trie_ordered_multimap_impl::find_next_key(std::uintmax_t iPrevKey) const {
    ABC_TRACE_FUNC(this, iPrevKey);
 
-   smvector<tree_node_slot, sizeof(std::uintmax_t) * CHAR_BIT / smc_cBitsPerLevel> vtnsPath;
+   vector<tree_node_slot, sizeof(std::uintmax_t) * CHAR_BIT / smc_cBitsPerLevel> vtnsPath;
 
    tree_node * ptnParent = m_pnRoot.tn;
    std::uintmax_t iKey = 0, iPrevKeyRemaining = iPrevKey << mc_iKeyPadding;

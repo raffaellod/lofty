@@ -43,7 +43,7 @@ app::app() {
 /*static*/ int app::call_main(app * papp, _args_t * pargs) {
    ABC_TRACE_FUNC(papp, pargs);
 
-   collections::smvector<str, 8> vsArgs;
+   collections::vector<str, 8> vsArgs;
 // TODO: find a way to define ABC_HOST_API_WIN32_GUI, and maybe come up with a better name.
 #if ABC_HOST_API_WIN32 && defined(ABC_HOST_API_WIN32_GUI)
    // TODO: call ::GetCommandLine() and parse its result.
@@ -56,7 +56,8 @@ app::app() {
 #endif
 
    // Invoke the program-defined main().
-   return papp->main(vsArgs);
+   // TODO: find a way to avoid this (mis)use of vector0_ptr().
+   return papp->main(*vsArgs.vector0_ptr());
 }
 
 /*static*/ bool app::deinitialize_stdio() {

@@ -24,7 +24,7 @@ using namespace abc;
 
 class test_app : public app {
 public:
-   virtual int main(mvector<str> & vsArgs) override {
+   virtual int main(vector<str> & vsArgs) override {
       ABC_TRACE_FUNC(this, vsArgs);
 
       ABC_UNUSED_ARG(vsArgs);

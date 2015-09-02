@@ -177,10 +177,10 @@ detail::c_str_ptr str::c_str() const {
    }
 }
 
-collections::dmvector<std::uint8_t> str::encode(encoding enc, bool bNulT) const {
+collections::vector<std::uint8_t> str::encode(encoding enc, bool bNulT) const {
    ABC_TRACE_FUNC(this, enc, bNulT);
 
-   collections::dmvector<std::uint8_t> vb;
+   collections::vector<std::uint8_t> vb;
    std::size_t cbChar, cbUsed, cbStr = size_in_bytes();
    if (enc == encoding::host) {
       // Optimal case: no transcoding necessary.

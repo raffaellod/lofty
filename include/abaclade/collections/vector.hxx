@@ -42,33 +42,44 @@ public:
       destruct_items(type);
    }
 
-   /*! Moves the contents of the two sources to *this.
+   /*! Ensures that the vector has at least ciMin of actual item space. If this causes *this to
+   switch to using a different item array, any elements in the current one will be destructed unless
+   bPreserve == true, which will cause them to be moved to the new item array.
 
-   @param p1Begin
-      Pointer to the start of the first source array.
-   @param p1End
-      Pointer to the end of the first source array.
-   @param p2Begin
-      Pointer to the start of the second source array.
-   @param p2End
-      Pointer to the end of the second source array.
+   @param ciMin
+      Minimum count of elements requested.
+   @param bPreserve
+      If true, the previous contents of the vector will be preserved even if the reallocation causes
+      the vector to switch to a different item array.
    */
-   void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
+   void set_capacity(std::size_t ciMin, bool bPreserve) {
       type_void_adapter type;
       type.set_destruct<T>();
       type.set_move_construct<T>();
-      raw_complex_vextr_impl::assign_concat(type, p1Begin, p1End, p2Begin, p2End, 1 + 2);
+      raw_complex_vextr_impl::set_capacity(type, sizeof(T) * ciMin, bPreserve);
    }
 
-   //! See raw_complex_vextr_impl::assign_move().
-   void assign_move(raw_complex_vextr_impl && rcvi) {
+   /*! Changes the count of items in the vector. If the new item count is greater than the current
+   one, the added elements will be left uninitialized; it’s up to the caller to make sure that these
+   elements are properly constructed, or problems will arise when the destructor will attempt to
+   destruct these elements.
+
+   TODO: destruct in raw_complex_vextr_impl::set_size() any elements being taken out, and default-
+   construct the newly-created elements here.
+
+   @param ci
+      New vector size.
+   */
+   void set_size(std::size_t ci) {
       type_void_adapter type;
       type.set_destruct<T>();
-      raw_complex_vextr_impl::assign_move(type, _std::move(rcvi));
+      type.set_move_construct<T>();
+      raw_complex_vextr_impl::set_size(type, sizeof(T) * ci);
    }
 
+protected:
    //! See raw_complex_vextr_impl::assign_move_desc_or_move_items().
-   void assign_move_dynamic_or_move_items(raw_complex_vextr_impl && rcvi) {
+   void assign_move_desc_or_move_items(raw_complex_vextr_impl && rcvi) {
       type_void_adapter type;
       type.set_destruct<T>();
       type.set_move_construct<T>();
@@ -121,36 +132,6 @@ public:
       );
    }
 
-   /*! See raw_complex_vextr_impl::set_capacity().
-
-   @param ciMin
-      Minimum count of elements requested.
-   @param bPreserve
-      If true, the previous contents of the vector will be preserved even if the reallocation causes
-      the vector to switch to a different item array.
-   */
-   void set_capacity(std::size_t ciMin, bool bPreserve) {
-      type_void_adapter type;
-      type.set_destruct<T>();
-      type.set_move_construct<T>();
-      raw_complex_vextr_impl::set_capacity(type, sizeof(T) * ciMin, bPreserve);
-   }
-
-   /*! See raw_complex_vextr_impl::set_capacity().
-
-   TODO: destruct in raw_complex_vextr_impl::set_size() any elements being taken out, and default-
-   construct the newly-created elements here.
-
-   @param ci
-      New element count, in bytes.
-   */
-   void set_size(std::size_t ci) {
-      type_void_adapter type;
-      type.set_destruct<T>();
-      type.set_move_construct<T>();
-      raw_complex_vextr_impl::set_size(type, sizeof(T) * ci);
-   }
-
 protected:
    //! See raw_complex_vextr_impl::raw_complex_vextr_impl().
    raw_vector(std::size_t cbEmbeddedCapacity) :
@@ -171,7 +152,7 @@ private:
 // Partial specialization for copyable, non-trivial types.
 template <typename T>
 class raw_vector<T, true, false> : public raw_vector<T, false, false> {
-public:
+protected:
    //! See raw_complex_vextr_impl::assign_copy().
    void assign_copy(T const * ptBegin, T const * ptEnd) {
       type_void_adapter type;
@@ -224,8 +205,8 @@ protected:
    }
 
    //! See raw_vector<T, false, false>::raw_vector<T, false, false>().
-   raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
-      raw_vector<T, false, false>(ptConstSrc, ciSrc) {
+   raw_vector(std::size_t cbEmbeddedCapacity, T const * ptConstSrc, std::size_t ciSrc) :
+      raw_vector<T, false, false>(cbEmbeddedCapacity, ptConstSrc, ciSrc) {
    }
 };
 
@@ -235,6 +216,36 @@ for the individual elements, because move semantics don’t apply (trivial value
 template <typename T>
 class raw_vector<T, true, true> : public raw_trivial_vextr_impl {
 public:
+   /*! Ensures that the vector has at least ciMin of actual item space. If this causes *this to
+   switch to using a different item array, any elements in the current one will be destructed unless
+   bPreserve == true, which will cause them to be moved to the new item array.
+
+   @param ciMin
+      Minimum count of elements requested.
+   @param bPreserve
+      If true, the previous contents of the vector will be preserved even if the reallocation causes
+      the vector to switch to a different item array.
+   */
+   void set_capacity(std::size_t ciMin, bool bPreserve) {
+      raw_trivial_vextr_impl::set_capacity(sizeof(T) * ciMin, bPreserve);
+   }
+
+   /*! Changes the count of items in the vector. If the new item count is greater than the current
+   one, the added elements will be left uninitialized; it’s up to the caller to make sure that these
+   elements are properly constructed, or problems will arise when the destructor will attempt to
+   destruct these elements.
+
+   TODO: maybe default-construct the newly-created elements here for consistency with the non-
+   trivial specialization?
+
+   @param ci
+      New vector size.
+   */
+   void set_size(std::size_t ci) {
+      raw_trivial_vextr_impl::set_size(sizeof(T) * ci);
+   }
+
+protected:
    //! See raw_trivial_vextr_impl::assign_copy().
    void assign_copy(T const * ptBegin, T const * ptEnd) {
       raw_trivial_vextr_impl::assign_copy(ptBegin, ptEnd);
@@ -248,28 +259,8 @@ public:
       raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
    }
 
-   /*! Moves the contents of the two sources to *this.
-
-   @param p1Begin
-      Pointer to the start of the first source array.
-   @param p1End
-      Pointer to the end of the first source array.
-   @param p2Begin
-      Pointer to the start of the second source array.
-   @param p2End
-      Pointer to the end of the second source array.
-   */
-   void assign_concat_move(T * p1Begin, T * p1End, T * p2Begin, T * p2End) {
-      raw_trivial_vextr_impl::assign_concat(p1Begin, p1End, p2Begin, p2End);
-   }
-
-   //! See raw_trivial_vextr_impl::assign_move().
-   void assign_move(raw_trivial_vextr_impl && rtvi) {
-      raw_trivial_vextr_impl::assign_move(_std::move(rtvi));
-   }
-
    //! See raw_trivial_vextr_impl::assign_move_desc_or_move_items().
-   void assign_move_dynamic_or_move_items(raw_trivial_vextr_impl && rtvi) {
+   void assign_move_desc_or_move_items(raw_trivial_vextr_impl && rtvi) {
       raw_trivial_vextr_impl::assign_move_desc_or_move_items(_std::move(rtvi));
    }
 
@@ -330,30 +321,6 @@ public:
       );
    }
 
-   /*! See raw_trivial_vextr_impl::set_capacity().
-
-   @param ciMin
-      Minimum count of elements requested.
-   @param bPreserve
-      If true, the previous contents of the vector will be preserved even if the reallocation causes
-      the vector to switch to a different item array.
-   */
-   void set_capacity(std::size_t ciMin, bool bPreserve) {
-      raw_trivial_vextr_impl::set_capacity(sizeof(T) * ciMin, bPreserve);
-   }
-
-   /*! See raw_complex_vextr_impl::set_capacity().
-
-   TODO: maybe default-construct the newly-created elements here for consistency with the non-
-   trivial specialization?
-
-   @param ci
-      New element count, in bytes.
-   */
-   void set_size(std::size_t ci) {
-      raw_trivial_vextr_impl::set_size(sizeof(T) * ci);
-   }
-
 protected:
    //! See raw_trivial_vextr_impl::raw_trivial_vextr_impl().
    raw_vector(std::size_t cbEmbeddedCapacity) :
@@ -361,8 +328,8 @@ protected:
    }
 
    //! See raw_trivial_vextr_impl::raw_trivial_vextr_impl().
-   raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
-      raw_trivial_vextr_impl(ptConstSrc, ciSrc) {
+   raw_vector(std::size_t cbEmbeddedCapacity, T const * ptConstSrc, std::size_t ciSrc) :
+      raw_trivial_vextr_impl(cbEmbeddedCapacity, ptConstSrc, ciSrc) {
    }
 };
 
@@ -370,33 +337,25 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Forward declarations.
 namespace abc { namespace collections {
 
-template <typename T, bool t_bCopyConstructible = _std::is_copy_constructible<T>::value>
-class mvector;
-template <typename T, bool t_bCopyConstructible = _std::is_copy_constructible<T>::value>
-class dmvector;
-
-}} //namespace abc::collections
-
-namespace abc { namespace collections { namespace detail {
-
-/*! Base class for vectors. See @ref vextr-design for implementation details for this and derived
-classes, such as abc::collections::mvector. */
-template <typename T, bool t_bCopyConstructible = _std::is_copy_constructible<T>::value>
-class vector_base;
+template <
+   typename T, std::size_t t_ciEmbeddedCapacity = 0,
+   bool t_bCopyConstructible = _std::is_copy_constructible<T>::value
+>
+class vector;
 
 /* Partial specialization for non-copyable types. Note that it doesn’t force t_bCopyConstructible to
-false on raw_vector, so that vector_base<T, true> can inherit from this and still get all the
-copyable-only members of raw_vector<T, true>. */
+false on raw_vector, so that vector<T, t_ciEmbeddedCapacity, true> can inherit from this and still
+get all the copyable-only members of raw_vector<T, true>. */
 template <typename T>
-class vector_base<T, false> :
-   protected raw_vector<T, _std::is_copy_constructible<T>::value>,
-   public support_explicit_operator_bool<vector_base<T, _std::is_copy_constructible<T>::value>> {
+class vector<T, 0, false> :
+   public detail::raw_vector<T, _std::is_copy_constructible<T>::value>,
+   public support_explicit_operator_bool<vector<T, 0, _std::is_copy_constructible<T>::value>> {
 private:
    //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = _std::is_copy_constructible<T>::value;
+   typedef detail::raw_vector<T, smc_bCopyConstructible> vector_impl;
 
 public:
    typedef T value_type;
@@ -406,23 +365,64 @@ public:
    typedef T const & const_reference;
    typedef std::size_t size_type;
    typedef std::ptrdiff_t difference_type;
-   typedef pointer_iterator<vector_base<T, _std::is_copy_constructible<T>::value>, T> iterator;
-   typedef pointer_iterator<
-      vector_base<T, _std::is_copy_constructible<T>::value
-   >, T const> const_iterator;
+   typedef pointer_iterator<vector<T, 0, smc_bCopyConstructible>, T> iterator;
+   typedef pointer_iterator<vector<T, 0, smc_bCopyConstructible>, T const> const_iterator;
    typedef _std::reverse_iterator<iterator> reverse_iterator;
    typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 public:
+   //! Default constructor.
+   vector() :
+      vector_impl(0) {
+   }
+
+   /*! Move constructor.
+
+   @param v
+      Source object.
+   */
+   vector(vector && v) :
+      vector_impl(0) {
+      vector_impl::assign_move_desc_or_move_items(_std::move(v));
+   }
+
+   /*! Move-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
+   vector & operator=(vector && v) {
+      vector_impl::assign_move_desc_or_move_items(_std::move(v));
+      return *this;
+   }
+
+   /*! Concatenation-assignment operator that moves elements from the source.
+
+   @param v
+      Vector to concatenate.
+   @return
+      *this.
+   */
+   template <std::size_t t_ciEmbeddedCapacity2>
+   vector & operator+=(vector<T, t_ciEmbeddedCapacity2> && v) {
+      this->insert_move(cend(), v.data(), v.size());
+      return *this;
+   }
+
    /*! Element access operator.
 
    @param i
-      Element index. See abc::collections::vector_base::translate_index() for allowed index values.
+      Element index. See translate_index() for allowed index values.
    @return
       Element at index i.
    */
+   T & operator[](std::ptrdiff_t i) {
+      return *translate_index(i);
+   }
    T const & operator[](std::ptrdiff_t i) const {
-      return *this->translate_index(i);
+      return const_cast<vector *>(this)->operator[](i);
    }
 
    /*! Boolean evaluation operator.
@@ -432,50 +432,7 @@ public:
    */
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       // Use std::int8_t to avoid multiplying by sizeof(T) when all we need is a greater-than check.
-      return raw_vextr_impl_base::end<std::int8_t>() > raw_vextr_impl_base::begin<std::int8_t>();
-   }
-
-   /*! Equality relational operator.
-
-   @param v
-      Object to compare to *this.
-   @return
-      true if *this has the same count and value of elements as v, or false otherwise.
-   */
-   bool operator==(vector_base const & v) const {
-      if (size() != v.size()) {
-         return false;
-      }
-      for (auto it1(cbegin()), it2(v.cbegin()), it1End(cend()); it1 != it1End; ++it1, ++it2) {
-         if (*it1 != *it2) {
-            return false;
-         }
-      }
-      return true;
-   }
-   template <std::size_t t_ci>
-   bool operator==(T const (& at)[t_ci]) const {
-      if (size() != t_ci) {
-         return false;
-      }
-      T const * pt(at);
-      for (auto it(cbegin()), itEnd(cend()); it != itEnd; ++it, ++pt) {
-         if (*it != *pt) {
-            return false;
-         }
-      }
-      return true;
-   }
-
-   /*! Inequality relational operator.
-
-   @param v
-      Object to compare to *this.
-   @return
-      true if *this has different count or value of elements as v, or false otherwise.
-   */
-   bool operator!=(vector_base const & v) const {
-      return !operator==(v);
+      return vector_impl::template end<std::int8_t>() > vector_impl::template begin<std::int8_t>();
    }
 
    /*! Returns a reference to the last element.
@@ -487,7 +444,7 @@ public:
       if (!*this) {
          ABC_THROW(lookup_error, ());
       }
-      return *(raw_vextr_impl_base::end<T>() - 1);
+      return *(vector_impl::template end<T>() - 1);
    }
 
    /*! Returns a const reference to the last element.
@@ -496,19 +453,25 @@ public:
       Const reference to the last element.
    */
    T const & back() const {
-      if (!*this) {
-         ABC_THROW(lookup_error, ());
-      }
-      return *(raw_vextr_impl_base::end<T>() - 1);
+      return const_cast<vector *>(this)->back();
    }
 
-   /*! Returns a forward iterator set to the first element.
+   /*! Returns an iterator set to the first element.
 
    @return
-      Forward iterator to the first element.
+      Iterator to the first element.
+   */
+   iterator begin() {
+      return iterator(vector_impl::template begin<T>());
+   }
+
+   /*! Returns a const iterator set to the first element.
+
+   @return
+      Const iterator to the first element.
    */
    const_iterator begin() const {
-      return cbegin();
+      return const_cast<vector *>(this)->begin();
    }
 
    /*! Returns the maximum number of elements the array can currently hold.
@@ -517,7 +480,7 @@ public:
       Current size of the item array storage, in elements.
    */
    std::size_t capacity() const {
-      return raw_vextr_impl_base::capacity<T>();
+      return vector_impl::template capacity<T>();
    }
 
    /*! Returns a const forward iterator set to the first element.
@@ -526,7 +489,7 @@ public:
       Forward iterator to the first element.
    */
    const_iterator cbegin() const {
-      return const_iterator(raw_vextr_impl_base::begin<T>());
+      return const_cast<vector *>(this)->begin();
    }
 
    /*! Returns a const forward iterator set beyond the last element.
@@ -535,7 +498,13 @@ public:
       Forward iterator to beyond the last element.
    */
    const_iterator cend() const {
-      return const_iterator(raw_vextr_impl_base::end<T>());
+      return const_cast<vector *>(this)->end();
+   }
+
+   //! Removes all elements from the vector.
+   void clear() {
+      static_cast<vector_impl *>(this)->~vector_impl();
+      this->assign_empty();
    }
 
    /*! Returns a const reverse iterator set to the last element.
@@ -544,7 +513,7 @@ public:
       Reverse iterator to the last element.
    */
    const_reverse_iterator crbegin() const {
-      return const_reverse_iterator(cend());
+      return const_cast<vector *>(this)->rbegin();
    }
 
    /*! Returns a const reverse iterator set to before the first element.
@@ -553,7 +522,7 @@ public:
       Reverse iterator to before the first element.
    */
    const_reverse_iterator crend() const {
-      return const_reverse_iterator(cbegin());
+      return const_cast<vector *>(this)->rend();
    }
 
    /*! Returns a pointer to the first element.
@@ -562,7 +531,7 @@ public:
       Pointer to the first element.
    */
    T * data() {
-      return raw_vextr_impl_base::begin<T>();
+      return vector_impl::template begin<T>();
    }
 
    /*! Returns a const pointer to the first element.
@@ -571,16 +540,25 @@ public:
       Const pointer to the first element.
    */
    T const * data() const {
-      return raw_vextr_impl_base::begin<T>();
+      return const_cast<vector *>(this)->data();
    }
 
-   /*! Returns a forward iterator set beyond the last element.
+   /*! Returns an iterator set beyond the last element.
 
    @return
-      Forward iterator to the first element.
+      Iterator to the first element.
+   */
+   iterator end() {
+      return iterator(vector_impl::template end<T>());
+   }
+
+   /*! Returns a const iterator set beyond the last element.
+
+   @return
+      Const iterator to the first element.
    */
    const_iterator end() const {
-      return cend();
+      return const_cast<vector *>(this)->end();
    }
 
    /*! Returns a reference to the first element.
@@ -592,7 +570,7 @@ public:
       if (!*this) {
          ABC_THROW(lookup_error, ());
       }
-      return *raw_vextr_impl_base::begin<T>();
+      return *vector_impl::template begin<T>();
    }
 
    /*! Returns a const reference to the first element.
@@ -601,279 +579,18 @@ public:
       Const reference to the first element.
    */
    T const & front() const {
-      if (!*this) {
-         ABC_THROW(lookup_error, ());
-      }
-      return *raw_vextr_impl_base::begin<T>();
+      return const_cast<vector *>(this)->front();
    }
-
-   /*! Returns the count of elements in the array.
-
-   @return
-      Count of elements.
-   */
-   std::size_t size() const {
-      return raw_vextr_impl_base::size<T>();
-   }
-
-   /*! Returns a reverse iterator set to the last element.
-
-   @return
-      Reverse iterator to the last element.
-   */
-   const_reverse_iterator rbegin() const {
-      return crbegin();
-   }
-
-   /*! Returns a reverse iterator set to before the first element.
-
-   @return
-      Reverse iterator to before the first element.
-   */
-   const_reverse_iterator rend() const {
-      return crend();
-   }
-
-protected:
-   /*! Constructor that makes the object empty, setting m_p to nullptr or an empty vector.
-
-   @param ciEmbedded
-      Count of slots in the embedded item array, or 0 if no embedded item array is present.
-   */
-   vector_base(std::size_t ciEmbedded) :
-      raw_vector<T, smc_bCopyConstructible>(ciEmbedded) {
-   }
-
-   /*! Constructor that assigns an item array.
-
-   @param pt
-      Pointer to an array that will be adopted by the vector as read-only.
-   @param ci
-      Count of items in the array pointed to by pt.
-   */
-   vector_base(T const * pt, std::size_t ci) :
-      raw_vector<T, smc_bCopyConstructible>(pt, ci) {
-   }
-
-   /*! See raw_vector<T>::assign_move().
-
-   @param v
-      Source vector.
-   */
-   void assign_move(vector_base && v) {
-      raw_vector<T, smc_bCopyConstructible>::assign_move(
-         static_cast<raw_vector<T, smc_bCopyConstructible> &&>(v)
-      );
-   }
-
-   /*! See raw_vector<T>::assign_move_desc_or_move_items().
-
-   @param v
-      Source vector.
-   */
-   void assign_move_dynamic_or_move_items(vector_base && v) {
-      raw_vector<T, smc_bCopyConstructible>::assign_move_desc_or_move_items(
-         static_cast<raw_vector<T, smc_bCopyConstructible> &&>(v)
-      );
-   }
-
-   /*! Converts a possibly negative item index into a pointer into the item array, throwing an
-   exception if the result is out of bounds for the item array.
-
-   @param i
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the item array by adding this->size() to it.
-   @return
-      Pointer to the element.
-   */
-   T const * translate_index(std::ptrdiff_t i) const {
-      return static_cast<T const *>(raw_vector<T, smc_bCopyConstructible>::translate_offset(
-         static_cast<std::ptrdiff_t>(sizeof(T)) * i
-      ));
-   }
-
-   /*! Converts a left-closed, right-open interval with possibly negative element indices into one
-   consisting of two pointers into the item array.
-
-   @param iBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
-      this->size() to it.
-   @param iEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
-      adding this->size() to it.
-   @return
-      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
-      interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
-   */
-   _std::tuple<T const *, T const *> translate_range(
-      std::ptrdiff_t iBegin, std::ptrdiff_t iEnd
-   ) const {
-      auto range(raw_trivial_vextr_impl::translate_byte_range(
-         static_cast<std::ptrdiff_t>(sizeof(T)) * iBegin,
-         static_cast<std::ptrdiff_t>(sizeof(T)) * iEnd
-      ));
-      return _std::make_tuple(
-         static_cast<T const *>(_std::get<0>(range)), static_cast<T const *>(_std::get<1>(range))
-      );
-   }
-};
-
-// Partial specialization for copyable types.
-template <typename T>
-class vector_base<T, true> : public vector_base<T, false> {
-public:
-   /*! Returns a slice of the vector from iBegin to the end of the vector.
-
-   @param iBegin
-      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
-      begin index values.
-   */
-   dmvector<T, true> slice(std::ptrdiff_t iBegin) const {
-      return slice(iBegin, this->size());
-   }
-
-   /*! Returns a slice of the vector.
-
-   @param iBegin
-      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
-      begin index values.
-   @param iEnd
-      Index of the last element, exclusive. See abc::collections::vector_base::translate_range() for
-      allowed end index values.
-   */
-   dmvector<T, true> slice(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) const {
-      auto range(this->translate_range(iBegin, iEnd));
-      return dmvector<T, true>(_std::get<0>(range), _std::get<1>(range));
-   }
-
-protected:
-   /*! Constructor that makes the object empty, setting m_p to nullptr or an empty vector.
-
-   @param ciEmbedded
-      Count of slots in the embedded item array, or 0 if no embedded item array is present.
-   */
-   vector_base(std::size_t ciEmbedded) :
-      vector_base<T, false>(ciEmbedded) {
-   }
-
-   /*! Constructor that assigns an item array.
-
-   @param pt
-      Pointer to an array that will be adopted by the vector as read-only.
-   @param ci
-      Count of items in the array pointed to by pt.
-   */
-   vector_base(T const * pt, std::size_t ci) :
-      vector_base<T, false>(pt, ci) {
-   }
-};
-
-}}} //namespace abc::collections::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace collections {
-
-/*! Class to be used as argument type for functions that want to modify a vector argument, since
-this allows for in-place alterations to the vector. Both smvector and dmvector are automatically
-converted to this. */
-template <typename T, bool t_bCopyConstructible /*= _std::is_copy_constructible<T>::value*/>
-class mvector;
-
-/* Partial specialization for non-copyable types. Note that it doesn’t force t_bCopyConstructible to
-false on vector_base, so that mvector<T, true> can inherit from this and still get all the copyable-
-only members of vector_base<T, true>. */
-template <typename T>
-class mvector<T, false> : public detail::vector_base<T, _std::is_copy_constructible<T>::value> {
-private:
-   //! true if T is copy constructible, or false otherwise.
-   static bool const smc_bCopyConstructible = _std::is_copy_constructible<T>::value;
-   //! Shortcut to access the base class.
-   typedef detail::vector_base<T, smc_bCopyConstructible> vector_base_;
-
-public:
-   //! See detail::vector_base::iterator.
-   typedef typename vector_base_::iterator iterator;
-   //! See detail::vector_base::const_iterator.
-   typedef typename vector_base_::const_iterator const_iterator;
-   //! See detail::vector_base::reverse_iterator.
-   typedef typename vector_base_::reverse_iterator reverse_iterator;
-   //! See detail::vector_base::const_reverse_iterator.
-   typedef typename vector_base_::const_reverse_iterator const_reverse_iterator;
-
-public:
-   /*! Assignment operator. R-value-reference arguments will have their contents transferred to
-   *this.
-
-   @param v
-      Source vector.
-   @return
-      *this.
-   */
-   mvector & operator=(dmvector<T> && v) {
-      this->assign_move(_std::move(v));
-      return *this;
-   }
-
-   /*! Concatenation-assignment operator.
-
-   @param v
-      Vector to concatenate.
-   @return
-      *this.
-   */
-   mvector & operator+=(mvector && v) {
-      this->insert_move(this->cend(), v.data(), v.size());
-      return *this;
-   }
-
-   //! See detail::vector_base::operator[]().
-   T & operator[](std::ptrdiff_t i) {
-      return const_cast<T &>(vector_base_::operator[](i));
-   }
-   T const & operator[](std::ptrdiff_t i) const {
-      return vector_base_::operator[](i);
-   }
-
-   /*! Adds elements at the end of the vector.
-
-   @param t
-      Element to add.
-   */
-   void push_back(typename _std::remove_const<T>::type && t) {
-      insert(this->cend(), _std::move(t));
-   }
-
-   //! See detail::vector_base::begin(). Here also available in non-const overload.
-   iterator begin() {
-      return iterator(detail::raw_vextr_impl_base::begin<T>());
-   }
-   using vector_base_::begin;
-
-   //! Removes all elements from the vector.
-   void clear() {
-      static_cast<vector_base_ *>(this)->~vector_base_();
-      this->assign_empty();
-   }
-
-   //! See detail::vector_base::end(). Here also available in non-const overload.
-   iterator end() {
-      return iterator(detail::raw_vextr_impl_base::end<T>());
-   }
-   using vector_base_::end;
 
    /*! Inserts elements at a specific position in the vector.
 
    @param iOffset
-      Index at which the element should be inserted. See detail::vector_base::translate_index() for
-      allowed index values.
+      Index at which the element should be inserted. See translate_index() for allowed index values.
    @param t
       Element to insert.
    */
    void insert(std::ptrdiff_t iOffset, typename _std::remove_const<T>::type && t) {
-      this->insert_move(this->translate_index(iOffset), &t, 1);
+      this->insert_move(translate_index(iOffset), &t, 1);
    }
 
    /*! Inserts elements at a specific position in the vector.
@@ -894,27 +611,47 @@ public:
       Former last element of the vector.
    */
    T pop_back() {
-      T * ptBack = &this->back();
+      T * ptBack = &back();
       T tBack(std::move(*ptBack));
-      this->remove(ptBack, ptBack + 1);
+      vector_impl::remove(ptBack, ptBack + 1);
       return std::move(tBack);
    }
 
-   //! See detail::vector_base::rbegin(). Here also available in non-const overload.
-   reverse_iterator rbegin() {
-      return reverse_iterator(iterator(detail::raw_vextr_impl_base::end<T>()));
+   /*! Adds elements at the end of the vector.
+
+   @param t
+      Element to add.
+   */
+   void push_back(typename _std::remove_const<T>::type && t) {
+      insert(cend(), _std::move(t));
    }
-   using vector_base_::rbegin;
+
+   /*! Returns a reverse iterator set to the last element.
+
+   @return
+      Reverse iterator to the last element.
+   */
+   reverse_iterator rbegin() {
+      return reverse_iterator(iterator(vector_impl::template end<T>()));
+   }
+
+   /*! Returns a const reverse iterator set to the last element.
+
+   @return
+      Const reverse iterator to the last element.
+   */
+   const_reverse_iterator rbegin() const {
+      return const_cast<vector *>(this)->rbegin();
+   }
 
    /*! Removes a single element from the vector.
 
    @param i
-      Index of the element to remove. See detail::vector_base::translate_index() for allowed index
-      values.
+      Index of the element to remove. See translate_index() for allowed index values.
    */
    void remove_at(std::ptrdiff_t i) {
-      T const * pt = this->translate_index(i);
-      this->remove(pt, pt + 1);
+      T const * pt = translate_index(i);
+      vector_impl::remove(pt, pt + 1);
    }
 
    /*! Removes a single element from the vector.
@@ -924,70 +661,25 @@ public:
    */
    void remove_at(const_iterator it) {
       this->validate_pointer_noend(it.base());
-      this->remove(it.base(), (it + 1).base());
+      vector_impl::remove(it.base(), (it + 1).base());
    }
 
-   //! See detail::vector_base::rend(). Here also available in non-const overload.
+   /*! Returns a reverse iterator set to before the first element.
+
+   @return
+      Reverse iterator to before the first element.
+   */
    reverse_iterator rend() {
-      return reverse_iterator(iterator(detail::raw_vextr_impl_base::begin<T>()));
+      return reverse_iterator(iterator(vector_impl::template begin<T>()));
    }
-   using vector_base_::rend;
 
-   /*! Removes a range of elements from the vector.
+   /*! Returns a const reverse iterator set to before the first element.
 
-   @param iBegin
-      Index of the first element. See detail::vector_base::translate_range() for allowed begin index
-      values.
-   @param itBegin
-      Iterator to the first element to remove.
-   @param iEnd
-      Index of the last element, exclusive. See detail::vector_base::translate_range() for allowed
-      end index values.
-   @param itEnd
-      Iterator to beyond the last element to remove.
+   @return
+      Const reverse iterator to before the first element.
    */
-   void remove_range(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) {
-      auto range(this->translate_range(iBegin, iEnd));
-      this->remove(_std::get<0>(range), _std::get<1>(range));
-   }
-   void remove_range(std::ptrdiff_t iBegin, const_iterator itEnd) {
-      auto range(this->translate_range(iBegin, itEnd - this->cbegin()));
-      this->remove(_std::get<0>(range), _std::get<1>(range));
-   }
-   void remove_range(const_iterator itBegin, std::ptrdiff_t iEnd) {
-      auto range(this->translate_range(itBegin - this->cbegin(), iEnd));
-      this->remove(_std::get<0>(range), _std::get<1>(range));
-   }
-   void remove_range(const_iterator itBegin, const_iterator itEnd) {
-      this->validate_pointer(itBegin.base());
-      this->validate_pointer(itEnd.base());
-      this->remove(itBegin.base(), itEnd.base());
-   }
-
-   /*! Ensures that the item array has at least ciMin of actual item space. If this causes *this to
-   switch to using a different item array, any elements in the current one will be destructed unless
-   bPreserve == true, which will cause them to be moved to the new item array.
-
-   @param ciMin
-      Minimum count of elements requested.
-   @param bPreserve
-      If true, the previous contents of the item array will be preserved even if the reallocation
-      causes the vector to switch to a different item array.
-   */
-   void set_capacity(std::size_t ciMin, bool bPreserve) {
-      vector_base_::set_capacity(ciMin, bPreserve);
-   }
-
-   /*! Changes the count of items in the vector. If the new item count is greater than the current
-   one, the added elements will be left uninitialized; it’s up to the caller to make sure that these
-   elements are properly constructed, or problems will arise when the destructor will attempt to
-   destruct these elements.
-
-   @param ci
-      New vector size.
-   */
-   void set_size(std::size_t ci) {
-      vector_base_::set_size(ci);
+   const_reverse_iterator rend() const {
+      return const_cast<vector *>(this)->rend();
    }
 
    //! Resizes the vector so that it only takes up as much memory as strictly necessary.
@@ -995,143 +687,96 @@ public:
       // TODO: implement this.
    }
 
+   /*! Returns the count of elements in the array.
+
+   @return
+      Count of elements.
+   */
+   std::size_t size() const {
+      return vector_impl::template size<T>();
+   }
+
 protected:
-   /*! Constructor. Constructs the object as empty, setting m_p to nullptr.
+   /*! Constructor for subclasses with an embedded item array.
 
    @param cbEmbeddedCapacity
-      Size of the embedded item array, in bytes, or 0 if no embedded item array is present.
+      Size of the embedded character array, in bytes.
    */
-   mvector(std::size_t cbEmbeddedCapacity) :
-      vector_base_(cbEmbeddedCapacity) {
+   vector(std::size_t cbEmbeddedCapacity) :
+      vector_impl(cbEmbeddedCapacity) {
+   }
+
+   /*! Move constructor.
+
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes.
+   @param v
+      Source object.
+   */
+   vector(std::size_t cbEmbeddedCapacity, vector && v) :
+      vector_impl(cbEmbeddedCapacity) {
+      vector_impl::assign_move_desc_or_move_items(_std::move(v));
+   }
+
+   /*! Converts a possibly negative item index into a pointer into the item array, throwing an
+   exception if the result is out of bounds for the item array.
+
+   @param i
+      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
+      1-based index from the end of the item array by adding this->size() to it.
+   @return
+      Pointer to the element.
+   */
+   T * translate_index(std::ptrdiff_t i) const {
+      return static_cast<T *>(const_cast<void *>(vector_impl::translate_offset(
+         static_cast<std::ptrdiff_t>(sizeof(T)) * i
+      )));
+   }
+
+   /*! Converts a left-closed, right-open interval with possibly negative element indices into one
+   consisting of two pointers into the item array.
+
+   @param iBegin
+      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
+      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
+      this->size() to it.
+   @param iEnd
+      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
+      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
+      adding this->size() to it.
+   @return
+      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
+      interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
+   */
+   _std::tuple<T const *, T const *> translate_range(
+      std::ptrdiff_t iBegin, std::ptrdiff_t iEnd
+   ) const {
+      auto range(vector_impl::translate_byte_range(
+         static_cast<std::ptrdiff_t>(sizeof(T)) * iBegin,
+         static_cast<std::ptrdiff_t>(sizeof(T)) * iEnd
+      ));
+      return _std::make_tuple(
+         static_cast<T const *>(_std::get<0>(range)), static_cast<T const *>(_std::get<1>(range))
+      );
    }
 };
 
 // Partial specialization for copyable types.
 template <typename T>
-class mvector<T, true> : public mvector<T, false> {
-public:
-   //! See detail::vector_base::iterator.
-   typedef typename mvector<T, false>::iterator iterator;
-   //! See detail::vector_base::const_iterator.
-   typedef typename mvector<T, false>::const_iterator const_iterator;
-   //! See detail::vector_base::reverse_iterator.
-   typedef typename mvector<T, false>::reverse_iterator reverse_iterator;
-   //! See detail::vector_base::const_reverse_iterator.
-   typedef typename mvector<T, false>::const_reverse_iterator const_reverse_iterator;
+class vector<T, 0, true> : public vector<T, 0, false> {
+private:
+   //! Alias for the non-copyable specialization, base class of this one.
+   typedef vector<T, 0, false> vector_nc;
+   typedef detail::raw_vector<T, true> vector_impl;
 
 public:
-   /*! Assignment operator. R-value-reference arguments will have their contents transferred to
-   *this.
+   // Shortcuts.
+   typedef typename vector_nc::const_iterator const_iterator;
 
-   @param v
-      Source vector.
-   @return
-      *this.
-   */
-   mvector & operator=(mvector const & v) {
-      this->assign_copy(v.data(), v.cend().base());
-      return *this;
-   }
-   mvector & operator=(dmvector<T> && v) {
-      this->assign_move(_std::move(v));
-      return *this;
-   }
-
-   /*! Concatenation-assignment operator.
-
-   @param v
-      Vector to concatenate.
-   @return
-      *this.
-   */
-   mvector & operator+=(mvector const & v) {
-      this->insert_copy(this->cend().base(), v.data(), v.size());
-      return *this;
-   }
-   mvector & operator+=(mvector && v) {
-      this->insert_move(this->cend().base(), v.data(), v.size());
-      return *this;
-   }
-
-   /*! Adds elements at the end of the vector.
-
-   @param t
-      Element to copy (const &) or move (&&) to the end of the vector.
-   @param pt
-      Pointer to an array of elements to copy to the end of the vector.
-   @param ci
-      Count of elements in the array pointed to by pt.
-   */
-   void push_back(T const & t) {
-      this->insert_copy(this->cend().base(), &t, 1);
-   }
-   void push_back(typename _std::remove_const<T>::type && t) {
-      this->insert_move(this->cend().base(), &t, 1);
-   }
-   void push_back(T const * pt, std::size_t ci) {
-      this->insert_copy(this->cend().base(), pt, ci);
-   }
-
-   /*! Inserts elements at a specific position in the vector.
-
-   @param iOffset
-      Index at which the element should be inserted. See detail::vector_base::translate_index() for
-      allowed index values.
-   @param itOffset
-      Iterator at which the element should be inserted.
-   @param t
-      Element to insert.
-   @param pt
-      Pointer to the first element to insert.
-   @param ci
-      Count of elements in the array pointed to by pt.
-   */
-   void insert(std::ptrdiff_t iOffset, T const & t) {
-      this->insert_copy(this->translate_index(iOffset), &t, 1);
-   }
-   void insert(std::ptrdiff_t iOffset, typename _std::remove_const<T>::type && t) {
-      this->insert_move(this->translate_index(iOffset), &t, 1);
-   }
-   void insert(std::ptrdiff_t iOffset, T const * pt, std::size_t ci) {
-      this->insert_copy(this->translate_index(iOffset), pt, ci);
-   }
-   void insert(const_iterator itOffset, T const & t) {
-      this->validate_pointer(itOffset.base());
-      this->insert_copy(itOffset.base(), &t, 1);
-   }
-   void insert(const_iterator itOffset, typename _std::remove_const<T>::type && t) {
-      this->validate_pointer(itOffset.base());
-      this->insert_move(itOffset.base(), &t, 1);
-   }
-   void insert(const_iterator itOffset, T const * pt, std::size_t ci) {
-      this->validate_pointer(itOffset.base());
-      this->insert_copy(itOffset.base(), pt, ci);
-   }
-
-protected:
-   //! See mvector<T, false>::mvector().
-   mvector(std::size_t cbEmbeddedCapacity) :
-      mvector<T, false>(cbEmbeddedCapacity) {
-   }
-};
-
-}} //namespace abc::collections
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace collections {
-
-//! Dynamically-allocated mutable vector.
-template <typename T, bool t_bCopyConstructible /*= _std::is_copy_constructible<T>::value*/>
-class dmvector;
-
-// Partial specialization for non-copyable types.
-template <typename T>
-class dmvector<T, false> : public mvector<T, false> {
 public:
    //! Default constructor.
-   dmvector() :
-      mvector<T, false>(0) {
+   vector() :
+      vector_nc() {
    }
 
    /*! Move constructor.
@@ -1139,105 +784,31 @@ public:
    @param v
       Source object.
    */
-   dmvector(dmvector && v) :
-      mvector<T, false>(0) {
-      this->assign_move(_std::move(v));
+   vector(vector && v) :
+      vector_nc(_std::move(v)) {
    }
 
-   /*! Move constructor.
+   /*! Copy constructor.
 
    @param v
       Source object.
    */
-   dmvector(mvector<T, false> && v) :
-      mvector<T, false>(0) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
+   vector(vector const & v) :
+      vector_nc() {
+      vector_impl::assign_copy(v.data(), v.cend().base());
    }
 
-   /*! Constructor that concatenates two arrays by moving elements out of them.
+   /*! Constructor that concatenates two vectors, copying elements from the first and moving
+   elements from the second.
 
    @param v1
       First source vector.
    @param v2
       Second source vector.
    */
-   dmvector(mvector<T, false> && v1, mvector<T, false> && v2) :
-      mvector<T, false>(0) {
-      this->assign_concat_move(v1.data(), v1.size(), v2.data(), v2.size());
-   }
-
-   /*! Move-assignment operator.
-
-   @param v
-      Source object.
-   @return
-      *this.
-   */
-   dmvector & operator=(dmvector && v) {
-      this->assign_move(_std::move(v));
-      return *this;
-   }
-
-   /*! Move-assignment operator.
-
-   @param v
-      Source object.
-   @return
-      *this.
-   */
-   dmvector & operator=(mvector<T, false> && v) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-      return *this;
-   }
-};
-
-// Partial specialization for copyable types.
-template <typename T>
-class dmvector<T, true> : public mvector<T, true> {
-public:
-   //! Default constructor.
-   dmvector() :
-      mvector<T, true>(0) {
-   }
-
-   /*! Copy constructor.
-
-   @param v
-      Source object.
-   */
-   dmvector(dmvector const & v) :
-      mvector<T, true>(0) {
-      this->assign_copy(v.data(), v.cend().base());
-   }
-
-   /*! Move constructor.
-
-   @param v
-      Source object.
-   */
-   dmvector(dmvector && v) :
-      mvector<T, true>(0) {
-      this->assign_move(_std::move(v));
-   }
-
-   /*! Copy constructor.
-
-   @param v
-      Source object.
-   */
-   dmvector(mvector<T, true> const & v) :
-      mvector<T, true>(0) {
-      this->assign_copy(v.data(), v.cend().base());
-   }
-
-   /*! Move constructor.
-
-   @param v
-      Source object.
-   */
-   dmvector(mvector<T, true> && v) :
-      mvector<T, true>(0) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
+   template <std::size_t t_ciEmbeddedCapacity1, std::size_t t_ciEmbeddedCapacity2>
+   vector(vector<T, t_ciEmbeddedCapacity1> const & v1, vector<T, t_ciEmbeddedCapacity2> && v2) {
+      vector_impl::assign_concat(v1.data(), v1.cend().base(), v2.data(), v2.end().base(), 2);
    }
 
    /*! Constructor that concatenates two vectors, copying elements from both.
@@ -1247,58 +818,21 @@ public:
    @param v2
       Second source vector.
    */
-   dmvector(mvector<T, true> const & v1, mvector<T, true> const & v2) :
-      mvector<T, true>(0) {
-      this->assign_concat(v1.data(), v1.cend().base(), v2.data(), v2.cend().base(), 0);
+   template <std::size_t t_ciEmbeddedCapacity1, std::size_t t_ciEmbeddedCapacity2>
+   vector(
+      vector<T, t_ciEmbeddedCapacity1> const & v1, vector<T, t_ciEmbeddedCapacity2> const & v2
+   ) {
+      vector_impl::assign_concat(v1.data(), v1.cend().base(), v2.data(), v2.cend().base(), 0);
    }
 
-   /*! Constructor that concatenates two vectors, moving elements from one and copying elements from
-   another one.
-
-   @param v1
-      First source vector.
-   @param v2
-      Second source vector.
-   */
-   dmvector(mvector<T, true> && v1, mvector<T, true> const & v2) :
-      mvector<T, true>(0) {
-      this->assign_concat(v1.data(), v1.end().base(), v2.data(), v2.cend().base(), 1);
-   }
-
-   /*! Constructor that concatenates two vectors, copying elements from one and moving elements from
-   another one.
-
-   @param v1
-      First source vector.
-   @param v2
-      Second source vector.
-   */
-   dmvector(mvector<T, true> const & v1, mvector<T, true> && v2) :
-      mvector<T, true>(0) {
-      this->assign_concat(v1.data(), v1.cend().base(), v2.data(), v2.end().base(), 2);
-   }
-
-   /*! Constructor that concatenates two vectors, moving elements from both.
-
-   @param v1
-      First source vector.
-   @param v2
-      Second source vector.
-   */
-   dmvector(mvector<T, true> && v1, mvector<T, true> && v2) :
-      mvector<T, true>(0) {
-      this->assign_concat_move(v1.data(), v1.end().base(), v2.data(), v2.end().base());
-   }
-
-   /*! Constructor that copies elements from a static array.
+   /*! Constructor that copies elements from a C array.
 
    @param at
       Source array whose elements should be copied.
    */
    template <std::size_t t_ci>
-   explicit dmvector(T const (& at)[t_ci]) :
-      mvector<T, true>(0) {
-      this->assign_copy(at, at + t_ci);
+   explicit vector(T const (& at)[t_ci]) {
+      vector_impl::assign_copy(at, at + t_ci);
    }
 
    /*! Constructor that copies elements from an array.
@@ -1308,9 +842,8 @@ public:
    @param ptEnd
       Pointer to the end of the source array.
    */
-   dmvector(T const * ptBegin, T const * ptEnd) :
-      mvector<T, true>(0) {
-      this->assign_copy(ptBegin, ptEnd);
+   vector(T const * ptBegin, T const * ptEnd) {
+      vector_impl::assign_copy(ptBegin, ptEnd);
    }
 
    /*! Constructor that concatenates two arrays, copying elements from both.
@@ -1324,21 +857,8 @@ public:
    @param p2End
       Pointer to the end of the second source array.
    */
-   dmvector(T const * pt1Begin, T const * pt1End, T const * pt2Begin, T const * pt2End) :
-      mvector<T, true>(0) {
-      this->assign_concat(pt1Begin, pt1End, pt2Begin, pt2End, 0);
-   }
-
-   /*! Copy-assignment operator.
-
-   @param v
-      Source object.
-   @return
-      *this.
-   */
-   dmvector & operator=(dmvector const & v) {
-      this->assign_copy(v.data(), v.cend().base());
-      return *this;
+   vector(T const * pt1Begin, T const * pt1End, T const * pt2Begin, T const * pt2End) {
+      vector_impl::assign_concat(pt1Begin, pt1End, pt2Begin, pt2End, 0);
    }
 
    /*! Move-assignment operator.
@@ -1348,8 +868,8 @@ public:
    @return
       *this.
    */
-   dmvector & operator=(dmvector && v) {
-      this->assign_move(_std::move(v));
+   vector & operator=(vector && v) {
+      vector_nc::operator=(_std::move(v));
       return *this;
    }
 
@@ -1360,263 +880,516 @@ public:
    @return
       *this.
    */
-   dmvector & operator=(mvector<T, true> const & v) {
-      this->assign_copy(v.data(), v.cend().base());
+   vector & operator=(vector const & v) {
+      vector_impl::assign_copy(v.data(), v.cend().base());
       return *this;
    }
 
-   /*! Move-assignment operator.
+   /*! Concatenation-assignment operator that moves items from the source.
 
    @param v
-      Source object.
+      Vector to concatenate.
    @return
       *this.
    */
-   dmvector & operator=(mvector<T, true> && v) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
+   template <std::size_t t_ciEmbeddedCapacity2>
+   vector & operator+=(vector<T, t_ciEmbeddedCapacity2> && v) {
+      vector_impl::insert_move(this->cend().base(), v.data(), v.size());
       return *this;
    }
-};
 
-
-/*! Concatenation operator.
-
-@param v1
-   Left operand.
-@param v2
-   Right operand.
-@return
-   Vector resulting from the concatenation of v1 and v2.
-*/
-template <typename T>
-inline typename _std::enable_if<_std::is_copy_constructible<T>::value, dmvector<T, true>>::type
-operator+(detail::vector_base<T, true> const & v1, detail::vector_base<T, true> const & v2) {
-   return dmvector<T, true>(
-      static_cast<mvector<T, true> const &>(v1), static_cast<mvector<T, true> const &>(v2)
-   );
-}
-/* Overloads taking an mvector r-value-reference as either or both operands; they can avoid creating
-intermediate copies of the elements from one or both source vectors. */
-template <typename T>
-inline typename _std::enable_if<_std::is_copy_constructible<T>::value, dmvector<T, true>>::type
-operator+(mvector<T, true> && v1, mvector<T, true> const & v2) {
-   return dmvector<T, true>(_std::move(v1), v2);
-}
-template <typename T>
-inline typename _std::enable_if<_std::is_copy_constructible<T>::value, dmvector<T, true>>::type
-operator+(mvector<T, true> const & v1, mvector<T, true> && v2) {
-   return dmvector<T, true>(v1, _std::move(v2));
-}
-template <typename T, bool t_bCopyConstructible>
-inline dmvector<T, t_bCopyConstructible> operator+(
-   mvector<T, t_bCopyConstructible> && v1, mvector<T, t_bCopyConstructible> && v2
-) {
-   return dmvector<T, t_bCopyConstructible>(_std::move(v1), _std::move(v2));
-}
-
-}} //namespace abc::collections
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace collections {
-
-/*! mvector_-derived class, good for clients that need in-place manipulation of vectors that are
-most likely to be shorter than a known small size. */
-template <
-   typename T, std::size_t t_ciEmbeddedCapacity,
-   bool t_bCopyConstructible = _std::is_copy_constructible<T>::value
->
-class smvector;
-
-// Partial specialization for non-copyable types.
-template <typename T, std::size_t t_ciEmbeddedCapacity>
-class smvector<T, t_ciEmbeddedCapacity, false> :
-   public mvector<T, false>,
-   private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
-private:
-   using detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
-
-public:
-   /*! Constructor. The individual items or the entire source item array will be moved to *this.
+   /*! Concatenation-assignment operator that copies items from the source.
 
    @param v
-      Source vector.
-   */
-   smvector() :
-      mvector<T, false>(smc_cbEmbeddedCapacity) {
-   }
-   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
-   one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
-   smvector(smvector && v) :
-      mvector<T, false>(smc_cbEmbeddedCapacity) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-   }
-   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
-   one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
-   way, this won’t throw. */
-   template <std::size_t t_ciEmbeddedCapacity2>
-   smvector(typename _std::enable_if<
-      (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, false> &&
-   >::type v) :
-      mvector<T, false>(smc_cbEmbeddedCapacity) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-   }
-   /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
-   also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
-   smvector(mvector<T, false> && v) :
-      mvector<T, false>(smc_cbEmbeddedCapacity) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-   }
-   smvector(dmvector<T, false> && v) :
-      mvector<T, false>(smc_cbEmbeddedCapacity) {
-      this->assign_move(_std::move(v));
-   }
-
-   /*! Assignment operator. The individual items or the entire source item array will be moved to
-   *this.
-
-   @param v
-      Source vector.
+      Vector to concatenate.
    @return
       *this.
    */
-   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
-   one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
-   smvector & operator=(smvector && v) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-      return *this;
-   }
-   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
-   one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
-   way, this won’t throw. */
    template <std::size_t t_ciEmbeddedCapacity2>
-   smvector & operator=(typename _std::enable_if<
-      (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, false> &&
-   >::type v) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
+   vector & operator+=(vector<T, t_ciEmbeddedCapacity2> const & v) {
+      vector_impl::insert_copy(this->cend().base(), v.data(), v.size());
       return *this;
    }
-   /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
-   also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
-   smvector & operator=(mvector<T, false> && v) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-      return *this;
-   }
-   smvector & operator=(dmvector<T, false> && v) {
-      this->assign_move(_std::move(v));
-      return *this;
-   }
-};
 
-// Partial specialization for copyable types.
-template <typename T, std::size_t t_ciEmbeddedCapacity>
-class smvector<T, t_ciEmbeddedCapacity, true> :
-   public mvector<T, true>,
-   private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
-private:
-   using detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
+   using vector_nc::insert;
 
-public:
-   /*! Constructor. R-value-reference arguments will have their contents transferred to *this.
+   /*! Inserts elements at a specific position in the vector.
 
-   @param v
-      Source vector.
-   @param at
-      Source array whose elements should be copied.
+   @param iOffset
+      Index at which the element should be inserted. See translate_index() for allowed index values.
+   @param itOffset
+      Iterator at which the element should be inserted.
+   @param t
+      Element to insert.
    @param pt
-      Pointer to an array whose elements should be copied.
+      Pointer to the first element to insert.
+   @param ci
+      Count of elements in the array pointed to by pt.
+   */
+   void insert(std::ptrdiff_t iOffset, T const & t) {
+      this->insert_copy(this->translate_index(iOffset), &t, 1);
+   }
+
+   void insert(std::ptrdiff_t iOffset, typename _std::remove_const<T>::type && t) {
+      this->insert_move(this->translate_index(iOffset), &t, 1);
+   }
+
+   void insert(std::ptrdiff_t iOffset, T const * pt, std::size_t ci) {
+      this->insert_copy(this->translate_index(iOffset), pt, ci);
+   }
+
+   void insert(const_iterator itOffset, T const & t) {
+      this->validate_pointer(itOffset.base());
+      this->insert_copy(itOffset.base(), &t, 1);
+   }
+
+   void insert(const_iterator itOffset, typename _std::remove_const<T>::type && t) {
+      this->validate_pointer(itOffset.base());
+      this->insert_move(itOffset.base(), &t, 1);
+   }
+
+   void insert(const_iterator itOffset, T const * pt, std::size_t ci) {
+      this->validate_pointer(itOffset.base());
+      this->insert_copy(itOffset.base(), pt, ci);
+   }
+
+   using vector_nc::push_back;
+
+   /*! Adds elements at the end of the vector.
+
+   @param t
+      Element to copy (const &) or move (&&) to the end of the vector.
+   @param pt
+      Pointer to an array of elements to copy to the end of the vector.
+   @param ci
+      Count of elements in the array pointed to by pt.
+   */
+   void push_back(T const & t) {
+      this->insert_copy(this->cend().base(), &t, 1);
+   }
+
+   void push_back(typename _std::remove_const<T>::type && t) {
+      this->insert_move(this->cend().base(), &t, 1);
+   }
+
+   void push_back(T const * pt, std::size_t ci) {
+      this->insert_copy(this->cend().base(), pt, ci);
+   }
+
+   /*! Returns a slice of the vector from iBegin to the end of the vector.
+
+   @param iBegin
+      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
+      begin index values.
+   */
+   vector slice(std::ptrdiff_t iBegin) const {
+      return slice(iBegin, this->size());
+   }
+
+   /*! Returns a slice of the vector.
+
+   @param iBegin
+      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
+      begin index values.
+   @param iEnd
+      Index of the last element, exclusive. See abc::collections::vector_base::translate_range() for
+      allowed end index values.
+   */
+   vector slice(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) const {
+      auto range(this->translate_range(iBegin, iEnd));
+      return vector(_std::get<0>(range), _std::get<1>(range));
+   }
+
+protected:
+   /*! Constructor for subclasses with an embedded item array.
+
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes.
+   */
+   vector(std::size_t cbEmbeddedCapacity) :
+      vector_nc(cbEmbeddedCapacity) {
+   }
+
+   /*! Move constructor for subclasses with an embedded item array.
+
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes.
+   @param v
+      Source object.
+   */
+   vector(std::size_t cbEmbeddedCapacity, vector && v) :
+      vector_nc(cbEmbeddedCapacity, _std::move(v)) {
+   }
+
+   /*! Copy constructor for subclasses with an embedded item array.
+
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes.
+   @param v
+      Source object.
+   */
+   vector(std::size_t cbEmbeddedCapacity, vector const & v) :
+      vector_nc(cbEmbeddedCapacity) {
+      vector_impl::assign_copy(v.data(), v.cend().base());
+   }
+
+   /*! Copy constructor from C arrays for subclasses with an embedded item array.
+
+   @param pt
+      Pointer to a C array that will be copied to the vector.
    @param ci
       Count of items in the array pointed to by pt.
    */
-   smvector() :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
+   vector(std::size_t cbEmbeddedCapacity, T const * pt, std::size_t ci) :
+      vector_nc(cbEmbeddedCapacity) {
+      vector_impl::assign_copy(pt, pt + ci);
    }
-   smvector(smvector const & v) :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_copy(v.data(), v.cend().base());
-   }
-   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
-   one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
-   smvector(smvector && v) :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-   }
-   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
-   one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
-   way, this won’t throw. */
-   template <std::size_t t_ciEmbeddedCapacity2>
-   smvector(typename _std::enable_if<
-      (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, true> &&
-   >::type v) :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-   }
-   smvector(mvector<T, true> const & v) :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_copy(v.data(), v.cend().base());
-   }
-   /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
-   also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
-   smvector(mvector<T, true> && v) :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-   }
-   smvector(dmvector<T, true> && v) :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_move(_std::move(v));
-   }
-   template <std::size_t t_ci>
-   explicit smvector(T const (& at)[t_ci]) :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_copy(at, at + t_ci);
-   }
-   smvector(T const * ptBegin, T const * ptEnd) :
-      mvector<T, true>(smc_cbEmbeddedCapacity) {
-      this->assign_copy(ptBegin, ptEnd);
+};
+
+/*! Concatenation operator.
+
+@param vL
+   Left operand.
+@param vR
+   Right operand.
+@return
+   Vector resulting from the concatenation of vL and vR.
+*/
+template <typename T, std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR>
+inline vector<T, t_cchEmbeddedCapacityL> operator+(
+   vector<T, t_cchEmbeddedCapacityL> && vL, vector<T, t_cchEmbeddedCapacityR> && vR
+) {
+   vL += vR;
+   return _std::move(vL);
+}
+
+/*! Concatenation operator.
+
+@param vL
+   Left operand.
+@param vR
+   Right operand.
+@return
+   Vector resulting from the concatenation of vL and vR.
+*/
+template <typename T, std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR>
+inline typename _std::enable_if<
+   _std::is_copy_constructible<T>::value, vector<T, t_cchEmbeddedCapacityL>
+>::type operator+(
+   vector<T, t_cchEmbeddedCapacityL> && vL, vector<T, t_cchEmbeddedCapacityR> const & vR
+) {
+   vL += vR;
+   return _std::move(vL);
+}
+
+/*! Concatenation operator that copies elements from the first and moving elements from the second.
+
+@param vL
+   Left operand.
+@param vR
+   Right operand.
+@return
+   Vector resulting from the concatenation of vL and vR.
+*/
+template <typename T, std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR>
+inline typename _std::enable_if<_std::is_copy_constructible<T>::value, vector<T>>::type operator+(
+   vector<T, t_cchEmbeddedCapacityL> const & vL, vector<T, t_cchEmbeddedCapacityR> && vR
+) {
+   return vector<T>(vL, _std::move(vR));
+}
+
+/*! Concatenation operator.
+
+@param vL
+   Left operand.
+@param vR
+   Right operand.
+@return
+   Vector resulting from the concatenation of vL and vR.
+*/
+template <typename T, std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR>
+inline typename _std::enable_if<_std::is_copy_constructible<T>::value, vector<T>>::type operator+(
+   vector<T, t_cchEmbeddedCapacityL> const & vL, vector<T, t_cchEmbeddedCapacityR> const & vR
+) {
+   return vector<T>(vL, vR);
+}
+
+// Partial specialization with embedded item array, for non-copyable types.
+template <typename T, std::size_t t_ciEmbeddedCapacity>
+class vector<T, t_ciEmbeddedCapacity, false> :
+   private vector<T, 0, false>,
+   private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
+private:
+   //! true if T is copy constructible, or false otherwise.
+   using detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
+   typedef vector<T, 0, false> vector_0;
+
+public:
+   typedef typename vector_0::value_type             value_type;
+   typedef typename vector_0::pointer                pointer;
+   typedef typename vector_0::const_pointer          const_pointer;
+   typedef typename vector_0::reference              reference;
+   typedef typename vector_0::const_reference        const_reference;
+   typedef typename vector_0::size_type              size_type;
+   typedef typename vector_0::difference_type        difference_type;
+   typedef typename vector_0::iterator               iterator;
+   typedef typename vector_0::const_iterator         const_iterator;
+   typedef typename vector_0::reverse_iterator       reverse_iterator;
+   typedef typename vector_0::const_reverse_iterator const_reverse_iterator;
+
+public:
+   //! Default constructor.
+   vector() :
+      vector_0(smc_cbEmbeddedCapacity) {
    }
 
-   /*! Assignment operator. R-value-reference arguments will have their contents transferred to
-   *this.
+   /*! Move constructor.
 
    @param v
-      Source vector.
+      Source object.
+   */
+   vector(vector_0 && v) :
+      vector_0(smc_cbEmbeddedCapacity, _std::move(v)) {
+   }
+
+   /*! Move-assignment operator.
+
+   @param v
+      Source object.
    @return
       *this.
    */
-   smvector & operator=(smvector const & v) {
-      this->assign_copy(v.data(), v.cend().base());
+   vector & operator=(vector_0 && v) {
+      vector_0::operator=(_std::move(v));
       return *this;
    }
-   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
-   one; if the source is dynamic, it will be moved. Either way, this won’t throw. */
-   smvector & operator=(smvector && v) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
+
+   using vector_0::operator+=;
+   using vector_0::operator[];
+#ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
+   using vector_0::operator bool;
+#else
+   using vector_0::operator abc::detail::explob_helper::bool_type;
+#endif
+   using vector_0::back;
+   using vector_0::begin;
+   using vector_0::capacity;
+   using vector_0::cbegin;
+   using vector_0::cend;
+   using vector_0::clear;
+   using vector_0::crbegin;
+   using vector_0::crend;
+   using vector_0::data;
+   using vector_0::end;
+   using vector_0::front;
+   using vector_0::insert;
+   using vector_0::pop_back;
+   using vector_0::push_back;
+   using vector_0::rbegin;
+   using vector_0::remove_at;
+   using vector_0::rend;
+   using vector_0::set_capacity;
+   using vector_0::set_size;
+   using vector_0::shrink_to_fit;
+   using vector_0::size;
+
+   /*! Allows using the object as a vector<T, 0> const instance.
+
+   @return
+      *this.
+   */
+   vector_0 const & vector0() const {
       return *this;
    }
-   /* If the source is using its embedded item array, it will be copied without allocating a dynamic
-   one since it’s smaller than this object’s; if the source is dynamic, it will be moved. Either
-   way, this won’t throw. */
-   template <std::size_t t_ciEmbeddedCapacity2>
-   smvector & operator=(typename _std::enable_if<
-      (t_ciEmbeddedCapacity > t_ciEmbeddedCapacity2), smvector<T, t_ciEmbeddedCapacity2, true> &&
-   >::type v) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-      return *this;
-   }
-   smvector & operator=(mvector<T, true> const & v) {
-      this->assign_copy(v.data(), v.cend().base());
-      return *this;
-   }
-   /* This can throw exceptions, but it’s allowed to since it’s not the smvector && overload. This
-   also covers smvector of different embedded fixed size > t_ciEmbeddedCapacity. */
-   smvector & operator=(mvector<T, true> && v) {
-      this->assign_move_dynamic_or_move_items(_std::move(v));
-      return *this;
-   }
-   smvector & operator=(dmvector<T, true> && v) {
-      this->assign_move(_std::move(v));
-      return *this;
+
+   /*! Returns a pointer to the object as a vector<T, 0> instance.
+
+   @return
+      this.
+   */
+   vector_0 * vector0_ptr() {
+      return this;
    }
 };
+
+// Partial specialization with embedded item array, for copyable types.
+template <typename T, std::size_t t_ciEmbeddedCapacity>
+class vector<T, t_ciEmbeddedCapacity, true> :
+   private vector<T, 0, true>,
+   private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
+private:
+   using detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
+   typedef vector<T, 0, true> vector_0;
+
+public:
+   typedef typename vector_0::value_type             value_type;
+   typedef typename vector_0::pointer                pointer;
+   typedef typename vector_0::const_pointer          const_pointer;
+   typedef typename vector_0::reference              reference;
+   typedef typename vector_0::const_reference        const_reference;
+   typedef typename vector_0::size_type              size_type;
+   typedef typename vector_0::difference_type        difference_type;
+   typedef typename vector_0::iterator               iterator;
+   typedef typename vector_0::const_iterator         const_iterator;
+   typedef typename vector_0::reverse_iterator       reverse_iterator;
+   typedef typename vector_0::const_reverse_iterator const_reverse_iterator;
+
+public:
+   //! Default constructor.
+   vector() :
+      vector_0(smc_cbEmbeddedCapacity) {
+   }
+
+   /*! Move constructor.
+
+   @param v
+      Source object.
+   */
+   vector(vector_0 && v) :
+      vector_0(smc_cbEmbeddedCapacity, _std::move(v)) {
+   }
+
+   /*! Copy constructor.
+
+   @param v
+      Source object.
+   */
+   vector(vector_0 const & v) :
+      vector_0(smc_cbEmbeddedCapacity, v) {
+   }
+
+   /*! Constructor that copies elements from a C array.
+
+   @param at
+      Source array.
+   */
+   template <std::size_t t_ci>
+   explicit vector(T const (& at)[t_ci]) :
+      vector_0(smc_cbEmbeddedCapacity, at, at + t_ci) {
+   }
+
+   /*! Constructor that copies elements from an array.
+
+   @param pt
+      Pointer to an array.
+   @param ci
+      Count of items in *pt.
+   */
+   vector(T const * ptBegin, T const * ptEnd) :
+      vector_0(smc_cbEmbeddedCapacity, ptBegin, ptEnd) {
+   }
+
+   /*! Move-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
+   vector & operator=(vector_0 && v) {
+      vector_0::operator=(_std::move(v));
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
+   vector & operator=(vector_0 const & v) {
+      vector_0::operator=(v);
+      return *this;
+   }
+
+   using vector_0::operator+=;
+   using vector_0::operator[];
+#ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
+   using vector_0::operator bool;
+#else
+   using vector_0::operator abc::detail::explob_helper::bool_type;
+#endif
+   using vector_0::back;
+   using vector_0::begin;
+   using vector_0::capacity;
+   using vector_0::cbegin;
+   using vector_0::cend;
+   using vector_0::clear;
+   using vector_0::crbegin;
+   using vector_0::crend;
+   using vector_0::data;
+   using vector_0::end;
+   using vector_0::front;
+   using vector_0::insert;
+   using vector_0::pop_back;
+   using vector_0::push_back;
+   using vector_0::rbegin;
+   using vector_0::remove_at;
+   using vector_0::rend;
+   using vector_0::set_capacity;
+   using vector_0::set_size;
+   using vector_0::shrink_to_fit;
+   using vector_0::size;
+   using vector_0::slice;
+
+   /*! Allows using the object as a vector<T, 0> const instance.
+
+   @return
+      *this.
+   */
+   vector_0 const & vector0() const {
+      return *this;
+   }
+
+   /*! Returns a pointer to the object as a vector<T, 0> instance.
+
+   @return
+      this.
+   */
+   vector_0 * vector0_ptr() {
+      return this;
+   }
+};
+
+/*! Equality relational operator.
+
+@param vL
+   Left comparand.
+@param vR
+   Right comparand.
+@return
+   true if vL and vR have the same element count and values, or false otherwise.
+*/
+template <typename T, std::size_t t_ciEmbeddedCapacityL, std::size_t t_ciEmbeddedCapacityR>
+bool operator==(
+   vector<T, t_ciEmbeddedCapacityL> const & vL, vector<T, t_ciEmbeddedCapacityR> const & vR
+) {
+   if (vL.size() != vR.size()) {
+      return false;
+   }
+   for (auto itL(vL.cbegin()), itR(vR.cbegin()), itLEnd(vL.cend()); itL != itLEnd; ++itL, ++itR) {
+      if (*itL != *itR) {
+         return false;
+      }
+   }
+   return true;
+}
+
+/*! Inequality relational operator.
+
+@param vL
+   Left comparand.
+@param vR
+   Right comparand.
+@return
+   true if vL and vR have a different element count or values, or false otherwise.
+*/
+template <typename T, std::size_t t_ciEmbeddedCapacityL, std::size_t t_ciEmbeddedCapacityR>
+bool operator!=(
+   vector<T, t_ciEmbeddedCapacityL> const & vL, vector<T, t_ciEmbeddedCapacityR> const & vR
+) {
+   return !operator==(vL, vR);
+}
 
 }} //namespace abc::collections

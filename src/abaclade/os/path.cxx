@@ -254,7 +254,7 @@ path path::normalize() const {
    •  Upon encountering the second “/” in “a/../”, roll back to index 0 (itRootEnd);
    •  Upon encountering the second “/” in “/../a”, roll back to index 1 (itRootEnd).
    */
-   collections::smvector<str::iterator, 5> vitSeps;
+   collections::vector<str::iterator, 5> vitSeps;
    std::size_t cDots = 0;
    auto itDst(itRootEnd);
    for (auto itSrc(itRootEnd); itSrc < itEnd; ++itSrc) {

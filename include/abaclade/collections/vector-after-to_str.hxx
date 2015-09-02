@@ -49,8 +49,8 @@ protected:
 namespace abc {
 
 // Specialization of to_str_backend.
-template <typename T>
-class to_str_backend<collections::detail::vector_base<T>> :
+template <typename T, std::size_t t_ciEmbeddedCapacity>
+class to_str_backend<collections::vector<T, t_ciEmbeddedCapacity>> :
    public collections::detail::vector_to_str_backend {
 public:
    /*! Changes the output format.
@@ -72,7 +72,7 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(collections::detail::vector_base<T> const & v, io::text::writer * ptwOut) {
+   void write(collections::vector<T, t_ciEmbeddedCapacity> const & v, io::text::writer * ptwOut) {
 //    ABC_TRACE_FUNC(this/*, v*/, ptwOut);
 
       _write_start(ptwOut);
@@ -90,27 +90,6 @@ public:
 protected:
    //! Backend for the individual elements.
    to_str_backend<T> m_tsbElt;
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-template <typename T>
-class to_str_backend<collections::mvector<T>> :
-   public to_str_backend<collections::detail::vector_base<T>> {
-};
-
-template <typename T>
-class to_str_backend<collections::dmvector<T>> :
-   public to_str_backend<collections::detail::vector_base<T>> {
-};
-
-template <typename T, std::size_t t_ciStatic>
-class to_str_backend<collections::smvector<T, t_ciStatic>> :
-   public to_str_backend<collections::detail::vector_base<T>> {
 };
 
 } //namespace abc

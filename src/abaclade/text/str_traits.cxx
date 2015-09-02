@@ -26,7 +26,7 @@ namespace abc { namespace text {
 
 /*static*/ void str_traits::_build_find_failure_restart_table(
    char_t const * pchNeedleBegin, char_t const * pchNeedleEnd,
-   collections::mvector<std::size_t> * pvcchFailNext
+   collections::vector<std::size_t> * pvcchFailNext
 ) {
    ABC_TRACE_FUNC(pchNeedleBegin, pchNeedleEnd, pvcchFailNext);
 
@@ -196,8 +196,8 @@ namespace abc { namespace text {
    char_t const * pchNeedle = pchNeedleBegin;
    try {
       // Build the failure restart table.
-      collections::smvector<std::size_t, 64> vcchFailNext;
-      _build_find_failure_restart_table(pchNeedleBegin, pchNeedleEnd, &vcchFailNext);
+      collections::vector<std::size_t, 64> vcchFailNext;
+      _build_find_failure_restart_table(pchNeedleBegin, pchNeedleEnd, vcchFailNext.vector0_ptr());
 
       std::size_t iFailNext = 0;
       while (pchHaystack < pchHaystackEnd) {

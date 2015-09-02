@@ -115,6 +115,7 @@ extern ABACLADE_SYM external_buffer_t const external_buffer;
 
 namespace abc { namespace text {
 
+// Specialization with no embedded character array: this is the plain abc::text::str.
 template <>
 class ABACLADE_SYM sstr<0> :
    protected collections::detail::raw_trivial_vextr_impl,
@@ -932,7 +933,7 @@ public:
    @return
       Resulting byte vector.
    */
-   collections::dmvector<std::uint8_t> encode(encoding enc, bool bNulT) const;
+   collections::vector<std::uint8_t> encode(encoding enc, bool bNulT) const;
 
    /*! Returns an iterator set beyond the last character.
 
@@ -1509,6 +1510,7 @@ protected:
    ) const;
 };
 
+// General definition, with embedded character array.
 template <std::size_t t_cchEmbeddedCapacity>
 class sstr :
    private str,
