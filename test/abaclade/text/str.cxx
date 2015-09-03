@@ -83,7 +83,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
    ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("äbä"));
 
-   s = s.substr(1, 3);
+   s = s.substr(s.cbegin() + 1, s.cbegin() + 3);
    // true: s got replaced by operator=.
    ABC_TESTING_ASSERT_TRUE(cdpt.changed());
    ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
@@ -97,7 +97,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 3u);
    ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("bäc"));
 
-   s = s.substr(0, -1);
+   s = s.substr(s.cbegin(), s.cend() - 1);
    // true: s got replaced by operator=.
    ABC_TESTING_ASSERT_TRUE(cdpt.changed());
    ABC_TESTING_ASSERT_EQUAL(s.size(), 2u);
@@ -115,7 +115,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(s[2], 'b');
    ABC_TESTING_ASSERT_EQUAL(s[3], ABC_CHAR('ä'));
 
-   s = s.substr(-3, -2);
+   s = s.substr(s.cend() - 3, s.cend() - 2);
    // true: s got replaced by operator=.
    ABC_TESTING_ASSERT_TRUE(cdpt.changed());
    ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
@@ -326,70 +326,6 @@ ABC_TESTING_TEST_CASE_FUNC(
          replace(gc_cpP2, char32_t('a')), s),
       ABC_SL("aaaaa")
    );
-}
-
-}} //namespace abc::test
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace test {
-
-ABC_TESTING_TEST_CASE_FUNC(
-   text_str_range_permutations,
-   "abc::text::str – range() permutations"
-) {
-   ABC_TRACE_FUNC(this);
-
-   str sAB(ABC_SL("äb"));
-
-   // Substring of empty string.
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(-1, -1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(-1, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(-1, 1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(0, -1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(0, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(0, 1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(1, -1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(1, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(str::empty.substr(1, 1), str::empty);
-
-   // Substring of a 2-characer string.
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -3), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -2), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, -1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-3, 2), ABC_SL("äb"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -3), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -2), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, -1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-2, 2), ABC_SL("äb"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -3), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -2), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, -1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(-1, 2), ABC_SL("b"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -3), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -2), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, -1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 1), ABC_SL("ä"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(0, 2), ABC_SL("äb"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -3), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -2), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, -1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(1, 2), ABC_SL("b"));
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -3), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -2), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, -1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 0), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 1), str::empty);
-   ABC_TESTING_ASSERT_EQUAL(sAB.substr(2, 2), str::empty);
 }
 
 }} //namespace abc::test

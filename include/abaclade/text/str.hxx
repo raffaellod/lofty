@@ -1350,36 +1350,6 @@ public:
    */
    bool starts_with(str const & s) const;
 
-   /*! Returns a portion of the string from the specified index to the end of the string.
-
-   @param ichBegin
-      Index of the first character of the substring. See str::translate_range() for allowed begin
-      index values.
-   @return
-      Substring of *this.
-   */
-   str substr(std::ptrdiff_t ichBegin) const {
-      return substr(ichBegin, static_cast<std::ptrdiff_t>(size_in_chars()));
-   }
-
-   /*! Returns a portion of the string.
-
-   @param ichBegin
-      Index of the first character of the substring. See str::translate_range() for allowed begin
-      index values.
-   @param ichEnd
-      Index of the last character of the substring, exclusive. See str::translate_range() for
-      allowed end index values.
-   @return
-      Substring of *this.
-   */
-   str substr(std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd) const {
-      auto range(translate_range(ichBegin, ichEnd));
-      char_t const * pchBegin = data() + _std::get<0>(range).m_ich;
-      char_t const * pchEnd = data() + _std::get<1>(range).m_ich;
-      return str(pchBegin, pchEnd);
-   }
-
    /*! Returns a portion of the string from the specified iterator to the end of the string.
 
    @param itBegin
