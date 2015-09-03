@@ -65,7 +65,6 @@ protected:
 
 namespace abc {
 
-// Specialization of to_str_backend.
 template <class T>
 class to_str_backend<enum_impl<T>> : public detail::enum_to_str_backend_impl {
 public:

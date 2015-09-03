@@ -26,14 +26,17 @@ Facilities to create smart enumerations, as described in @ref enumeration-classe
 */
 
 /*! @page enumeration-classes Enumeration classes
-Support for advanced enumeration classes. These are the features that set them apart from C++11
-“enum class” enumerations:
+Support for advanced enumeration classes. These are the features that set them apart from pre-C++11
+“enum” types:
 
 •  Strong typing: constants from one enumeration are not implicitly converted to a different
    enumeration type;
 •  Scoped constants: the enumeration members are members of the enumeration class, not of its
    containing scope; different classes can therefore use constants of the same name because their
-   usage will need to be qualified with the enumeration type name;
+   usage will need to be qualified with the enumeration type name.
+
+In addition, these features are not found even in the newer C++11 “enum class” types:
+
 •  Conversion from/to string: instances of an Abaclade enumeration class can be serialized and
    de-serialized as strings with no additional code.
 
@@ -236,7 +239,8 @@ public:
    //! Underlying C++ enum type.
    typedef typename T::enum_type enum_type;
 
-   /*! Constructor.
+public:
+   /*! Default constructor.
 
    @param e
       Source value.
@@ -349,8 +353,7 @@ protected:
 
 public:
    /*! Count of the members of the enumeration. Same as the value returned by size(), but this can
-   be used in constant contexts, such as the size of an array.
-   */
+   be used in constant contexts, such as the size of an array. */
    static std::size_t const size_const = T::smc_cMembers;
 
 private:
