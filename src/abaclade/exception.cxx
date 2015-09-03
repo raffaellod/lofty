@@ -896,51 +896,6 @@ void overflow_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-pointer_iterator_error::pointer_iterator_error() :
-   iterator_error() {
-   m_pszWhat = "abc::pointer_iterator_error";
-}
-pointer_iterator_error::pointer_iterator_error(pointer_iterator_error const & x) :
-   generic_error(x),
-   iterator_error(x),
-   m_pContBegin(x.m_pContBegin),
-   m_pContEnd(x.m_pContEnd),
-   m_pInvalid(x.m_pInvalid) {
-}
-
-pointer_iterator_error & pointer_iterator_error::operator=(pointer_iterator_error const & x) {
-   iterator_error::operator=(x);
-   m_pContBegin = x.m_pContBegin;
-   m_pContEnd = x.m_pContEnd;
-   m_pInvalid = x.m_pInvalid;
-   return *this;
-}
-
-void pointer_iterator_error::init(
-   void const * pContBegin, void const * pContEnd, void const * pInvalid, errint_t err /*= 0*/
-) {
-   iterator_error::init(err ? err : os_error_mapping<pointer_iterator_error>::mapped_error);
-   m_pContBegin = pContBegin;
-   m_pContEnd = pContEnd;
-   m_pInvalid = pInvalid;
-}
-
-/*virtual*/ void pointer_iterator_error::write_extended_info(
-   io::text::writer * ptwOut
-) const /*override*/ {
-   iterator_error::write_extended_info(ptwOut);
-   ptwOut->print(
-      ABC_SL(" invalid iterator: {} (container begin/end range: [{}, {}])"),
-      m_pInvalid, m_pContBegin, m_pContEnd
-   );
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 security_error::security_error() :
    environment_error() {
    m_pszWhat = "abc::security_error";

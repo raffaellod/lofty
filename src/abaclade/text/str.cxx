@@ -101,7 +101,7 @@ std::size_t str::const_iterator::throw_if_end(std::size_t ich) const {
 
    char_t const * pchBegin = m_ps->data(), * pch = pchBegin + ich;
    if (pch >= m_ps->data_end()) {
-      ABC_THROW(pointer_iterator_error, (pchBegin, m_ps->data_end(), pch));
+      ABC_THROW(iterator_error, ());
    }
    return ich;
 }
@@ -132,7 +132,7 @@ std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool
       if (bIndex) {
          ABC_THROW(index_error, (iDeltaOrig, 0, pchEnd - pchBegin - 1));
       } else {
-         ABC_THROW(pointer_iterator_error, (pchBegin, pchEnd, pch));
+         ABC_THROW(iterator_error, ());
       }
    }
 
