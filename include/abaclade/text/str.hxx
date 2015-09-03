@@ -24,82 +24,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
-
-/*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
-abc::text::*str instance. */
-class c_str_ptr {
-private:
-   //! Internal conditionally-deleting pointer type.
-   typedef _std::unique_ptr<
-      char_t const [], memory::conditional_deleter<char_t const [], memory::freeing_deleter>
-   > pointer;
-
-public:
-   /*! Constructor.
-
-   @param pch
-      Pointer to the character array.
-   @param bOwn
-      If true, the pointer will own the character array; if false, it won’t try to deallocate it.
-   */
-   c_str_ptr(char_t const * pch, bool bOwn) :
-      m_p(pch, pointer::deleter_type(bOwn)) {
-   }
-
-   /*! Move constructor.
-
-   @param p
-      Source object.
-   */
-   c_str_ptr(c_str_ptr && p) :
-      m_p(_std::move(p.m_p)) {
-   }
-
-   /*! Move-assignment operator.
-
-   @param p
-      Source object.
-   @return
-      *this.
-   */
-   c_str_ptr & operator=(c_str_ptr && p) {
-      m_p = _std::move(p.m_p);
-      return *this;
-   }
-
-   /*! Implicit conversion to char_t const *.
-
-   @return
-      Pointer to the character array.
-   */
-   operator char_t const *() const {
-      return m_p.get();
-   }
-
-   /*! Enables access to the internal pointer.
-
-   @return
-      Reference to the internal pointer.
-   */
-   pointer const & _get() const {
-      return m_p;
-   }
-
-private:
-   //! Conditionally-deleting pointer.
-   pointer m_p;
-};
-
-}}} //namespace abc::text::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace abc {
 
-//! See abc::external_buffer.
+//! Type of abc::external_buffer.
 struct external_buffer_t {
-   //! Constructor. Required to instantiate a const instance.
+   //! Default constructor. Required to instantiate a const instance.
    external_buffer_t() {
    }
 };
@@ -124,6 +53,71 @@ private:
    typedef collections::detail::raw_trivial_vextr_impl vextr_impl;
 
 public:
+   /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
+   abc::text::*str instance. */
+   class c_str_ptr {
+   private:
+      //! Internal conditionally-deleting pointer type.
+      typedef _std::unique_ptr<
+         char_t const [], memory::conditional_deleter<char_t const [], memory::freeing_deleter>
+      > pointer;
+
+   public:
+      /*! Constructor.
+
+      @param pch
+         Pointer to the character array.
+      @param bOwn
+         If true, the pointer will own the character array; if false, it won’t try to deallocate it.
+      */
+      c_str_ptr(char_t const * pch, bool bOwn) :
+         m_p(pch, pointer::deleter_type(bOwn)) {
+      }
+
+      /*! Move constructor.
+
+      @param p
+         Source object.
+      */
+      c_str_ptr(c_str_ptr && p) :
+         m_p(_std::move(p.m_p)) {
+      }
+
+      /*! Move-assignment operator.
+
+      @param p
+         Source object.
+      @return
+         *this.
+      */
+      c_str_ptr & operator=(c_str_ptr && p) {
+         m_p = _std::move(p.m_p);
+         return *this;
+      }
+
+      /*! Implicit conversion to char_t const *.
+
+      @return
+         Pointer to the character array.
+      */
+      operator char_t const *() const {
+         return m_p.get();
+      }
+
+      /*! Enables access to the internal pointer.
+
+      @return
+         Reference to the internal pointer.
+      */
+      pointer const & _get() const {
+         return m_p;
+      }
+
+   private:
+      //! Conditionally-deleting pointer.
+      pointer m_p;
+   };
+
    //! Presents an abc::text::str character(s) as a char32_t const &.
    class const_codepoint_proxy {
    private:
@@ -837,7 +831,7 @@ public:
       Pointer to the NUL-terminated string. Only valid as long as *this is, and only until the next
       change to *this.
    */
-   detail::c_str_ptr c_str();
+   c_str_ptr c_str();
 
    /*! Returns a pointer to a NUL-terminated version of the string.
 
@@ -849,7 +843,7 @@ public:
       Pointer to the NUL-terminated string. Only valid as long as *this is, and only until the next
       change to *this.
    */
-   detail::c_str_ptr c_str() const;
+   c_str_ptr c_str() const;
 
    /*! Returns the maximum number of characters the string buffer can currently hold.
 

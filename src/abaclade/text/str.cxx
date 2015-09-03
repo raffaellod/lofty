@@ -140,7 +140,7 @@ std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool
    return static_cast<std::size_t>(pch - pchBegin);
 }
 
-detail::c_str_ptr str::c_str() {
+str::c_str_ptr str::c_str() {
    ABC_TRACE_FUNC(this);
 
    if (m_bNulT) {
@@ -153,27 +153,27 @@ detail::c_str_ptr str::c_str() {
       m_bNulT = true;
    } else {
       // The string is empty, so a static NUL character will suffice.
-      return detail::c_str_ptr(&gc_chNul, false);
+      return c_str_ptr(&gc_chNul, false);
    }
-   return detail::c_str_ptr(data(), false);
+   return c_str_ptr(data(), false);
 }
 
-detail::c_str_ptr str::c_str() const {
+str::c_str_ptr str::c_str() const {
    ABC_TRACE_FUNC(this);
 
    if (m_bNulT) {
       // The string already includes a NUL terminator, so we can simply return the same array.
-      return detail::c_str_ptr(data(), false);
+      return c_str_ptr(data(), false);
    } else if (std::size_t cch = size_in_chars()) {
       /* The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       NUL, and return it. */
       auto psz(memory::alloc<char_t[]>(cch + 1 /*NUL*/));
       memory::copy(psz.get(), data(), cch);
       psz[cch] = '\0';
-      return detail::c_str_ptr(psz.release(), true);
+      return c_str_ptr(psz.release(), true);
    } else {
       // The string is empty, so a static NUL character will suffice.
-      return detail::c_str_ptr(&gc_chNul, false);
+      return c_str_ptr(&gc_chNul, false);
    }
 }
 
