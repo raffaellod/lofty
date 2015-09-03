@@ -224,7 +224,7 @@ namespace abc { namespace io { namespace binary {
 //! Base interface for binary (non-text) I/O.
 class ABACLADE_SYM base {
 public:
-   //! Destructor. Also needed to make the class polymorphic (have a vtable).
+   //! Destructor. Needed to make the class polymorphic (have a vtable).
    virtual ~base();
 };
 

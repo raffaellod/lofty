@@ -97,7 +97,7 @@ public:
    //! Default constructor.
    syntax_error();
 
-   /*! Constructor.
+   /*! Copy constructor.
 
    @param x
       Source object.

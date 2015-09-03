@@ -174,7 +174,7 @@ public:
    }
 
 protected:
-   //! Constructor.
+   //! Default constructor.
    base();
 
 protected:
@@ -375,7 +375,7 @@ public:
    bool read_line(str * psDst);
 
 protected:
-   //! See base::base().
+   //! Default constructor.
    reader();
 
    /*! Reads data into the specified mutable string, invoking a callback function to determine how

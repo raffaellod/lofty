@@ -29,7 +29,11 @@ namespace abc { namespace io { namespace text {
 //! Implementation of text (character-based) I/O from/to a string.
 class ABACLADE_SYM str_base : public virtual base, public noncopyable {
 public:
-   //! See base::base().
+   /*! Move constructor.
+
+   @param sb
+      Source object.
+   */
    str_base(str_base && sb);
 
    //! Destructor.
@@ -39,7 +43,7 @@ public:
    virtual abc::text::encoding get_encoding() const override;
 
 protected:
-   //! See base::base().
+   //! Default constructor.
    str_base();
 
 protected:
@@ -56,16 +60,32 @@ namespace abc { namespace io { namespace text {
 //! Implementation of text (character-based) input from a string.
 class ABACLADE_SYM str_reader : public virtual str_base, public virtual reader {
 public:
-   /*! Constructor.
+   /*! Move constructor.
+
+   @param sr
+      Source object.
+   */
+   str_reader(str_reader && sr);
+
+   /*! Constructor that assigns a string to read from.
 
    @param s
-      Source string to be copied or moved to the internal buffer.
+      Source string to be copied to the internal buffer.
+   */
+   explicit str_reader(str const & s);
+
+   /*! Constructor that move-assigns a string to read from.
+
+   @param s
+      Source string to be moved to the internal buffer.
+   */
+   explicit str_reader(str && s);
+
+   /*! Constructor that associates an external string to read from.
+
    @param ps
       Pointer to the source string to be used as external_buffer.
    */
-   str_reader(str_reader && sr);
-   explicit str_reader(str const & s);
-   explicit str_reader(str && s);
    str_reader(external_buffer_t const &, str const * ps);
 
    //! Destructor.
@@ -100,14 +120,21 @@ namespace abc { namespace io { namespace text {
 //! Implementation of text (character-based) output into a string.
 class ABACLADE_SYM str_writer : public virtual str_base, public virtual writer {
 public:
-   /*! Constructor.
+   //! Default constructor.
+   str_writer();
+
+   /*! Move constructor.
+
+   @param sw
+      Source object.
+   */
+   str_writer(str_writer && sw);
+
+   /*! Constructor that associates an external string to write to.
 
    @param psBuf
-      Pointer to a mutable string to use as the destination of all writes; otherwise an internal
-      dynamically-allocated string will be used.
+      Pointer to a mutable string to use as the destination of all writes.
    */
-   str_writer();
-   str_writer(str_writer && sw);
    str_writer(external_buffer_t const &, str * psBuf);
 
    //! Destructor.

@@ -389,7 +389,7 @@ public:
    //! Default Constructor.
    exception();
 
-   /*! Constructor.
+   /*! Copy constructor.
 
    @param x
       Source object.
@@ -630,7 +630,7 @@ public:
    //! Default constructor.
    generic_error();
 
-   /*! Constructor.
+   /*! Copy constructor.
 
    @param x
       Source object.
@@ -879,7 +879,7 @@ public:
    //! Default constructor.
    index_error();
 
-   /*! Constructor.
+   /*! Copy constructor.
 
    @param x
       Source object.
@@ -984,7 +984,7 @@ public:
    //! Default constructor.
    memory_address_error();
 
-   /*! Constructor.
+   /*! Copy constructor.
 
    @param x
       Source object.
