@@ -129,7 +129,10 @@ public:
       @return
          Code point that the proxy is currently referencing.
       */
-      operator char32_t() const;
+      operator char32_t() const {
+         return host_char_traits::chars_to_codepoint(mc_ps->data() + mc_ich);
+      }
+
 
    private:
       /*! Constructor.
@@ -164,7 +167,10 @@ public:
       @return
          *this.
       */
-      codepoint_proxy & operator=(char_t ch);
+      codepoint_proxy & operator=(char_t ch) {
+         const_cast<str *>(mc_ps)->replace_codepoint(mc_ich, ch);
+         return *this;
+      }
 
    #if ABC_HOST_UTF > 8
       /*! Assignment operator that accepts ASCII characters.
@@ -186,7 +192,10 @@ public:
       @return
          *this.
       */
-      codepoint_proxy & operator=(char32_t cp);
+      codepoint_proxy & operator=(char32_t cp) {
+         const_cast<str *>(mc_ps)->replace_codepoint(mc_ich, cp);
+         return *this;
+      }
 
       /*! Copy-assignment operator. This copies the char32_t value, not the internal data members;
       this allows writing expressions like *itDst = *itSrc to copy code points from one iterator to
@@ -407,11 +416,15 @@ public:
       @return
          Pointer to the referenced character.
       */
-      char_t const * ptr() const;
+      char_t const * ptr() const {
+         return m_ps->data() + m_ich;
+      }
 
    protected:
       //! Invokes m_ps->advance_char_index(). See str::advance_char_index().
-      std::size_t advance(std::ptrdiff_t iDelta, bool bIndex) const;
+      std::size_t advance(std::ptrdiff_t iDelta, bool bIndex) const {
+         return m_ps->advance_char_index(m_ich, iDelta, bIndex);
+      }
 
       /*! Computes the distance from another iterator/index.
 
@@ -492,7 +505,9 @@ public:
       @return
          Pointer to the referenced character.
       */
-      char_t * ptr() const;
+      char_t * ptr() const {
+         return const_cast<str *>(m_ps)->data() + m_ich;
+      }
 
       //! See const_iterator::operator+=().
       iterator & operator+=(std::ptrdiff_t i) {
@@ -1663,34 +1678,6 @@ public:
 
    using text::str::substr;
 };
-
-// Now these can be defined.
-
-inline str::const_codepoint_proxy::operator char32_t() const {
-   return host_char_traits::chars_to_codepoint(mc_ps->data() + mc_ich);
-}
-
-inline str::codepoint_proxy & str::codepoint_proxy::operator=(char_t ch) {
-   const_cast<str *>(mc_ps)->replace_codepoint(mc_ich, ch);
-   return *this;
-}
-
-inline str::codepoint_proxy & str::codepoint_proxy::operator=(char32_t cp) {
-   const_cast<str *>(mc_ps)->replace_codepoint(mc_ich, cp);
-   return *this;
-}
-
-inline std::size_t str::const_iterator::advance(std::ptrdiff_t iDelta, bool bIndex) const {
-   return m_ps->advance_char_index(m_ich, iDelta, bIndex);
-}
-
-inline char_t const * str::const_iterator::ptr() const {
-   return m_ps->data() + m_ich;
-}
-
-inline char_t * str::iterator::ptr() const {
-   return const_cast<str *>(m_ps)->data() + m_ich;
-}
 
 // Relational operators for str.
 #define ABC_RELOP_IMPL(op) \
