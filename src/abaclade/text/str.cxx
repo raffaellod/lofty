@@ -349,46 +349,6 @@ bool str::starts_with(str const & s) const {
    return pchEnd <= data_end() && str_traits::compare(data(), pchEnd, s.data(), s.data_end()) == 0;
 }
 
-str::const_iterator str::translate_index(std::ptrdiff_t ich) const {
-   ABC_TRACE_FUNC(this, ich);
-
-   const_iterator it, itLoopEnd;
-   int iDelta;
-   if (ich >= 0) {
-      /* The character index is non-negative: assume it’s faster to reach the corresponding code
-      point index by starting from the beginning. */
-      it = begin();
-      itLoopEnd = end();
-      iDelta = 1;
-   } else {
-      /* The character index is negative: assume it’s faster to reach the corresponding code point
-      index by starting from the end. */
-      it = end();
-      itLoopEnd = begin();
-      iDelta = -1;
-   }
-   while (ich && it != itLoopEnd) {
-      ich -= iDelta;
-      it += iDelta;
-   }
-   return _std::move(it);
-}
-
-_std::tuple<str::const_iterator, str::const_iterator> str::translate_range(
-   std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
-) const {
-   ABC_TRACE_FUNC(this, ichBegin, ichEnd);
-
-   auto itBegin(translate_index(ichBegin));
-   auto itEnd(translate_index(ichEnd));
-   // If the interval is empty, return [end(), end()) .
-   if (itBegin >= itEnd) {
-      return _std::make_tuple(end(), end());
-   }
-   // Return the constructed interval.
-   return _std::make_tuple(itBegin, itEnd);
-}
-
 }} //namespace abc::text
 
 namespace std {

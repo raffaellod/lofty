@@ -1470,35 +1470,6 @@ protected:
       Code point that will be encoded starting at character index ich.
    */
    void replace_codepoint(std::size_t ich, char32_t cpNew);
-
-   /*! Converts a possibly negative character index into an iterator.
-
-   @param ich
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the character array by adding this->size() to it.
-   @return
-      Resulting iterator.
-   */
-   const_iterator translate_index(std::ptrdiff_t ich) const;
-
-   /*! Converts a left-closed, right-open interval with possibly negative character indices into one
-   consisting of two iterators.
-
-   @param ichBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the character array by adding
-      this->size() to it.
-   @param ichEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the character array by
-      adding this->size() to it.
-   @return
-      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
-      interval [end(), end()) if the indices represent an empty interval after being adjusted.
-   */
-   _std::tuple<const_iterator, const_iterator> translate_range(
-      std::ptrdiff_t ichBegin, std::ptrdiff_t ichEnd
-   ) const;
 };
 
 // General definition, with embedded character array.
