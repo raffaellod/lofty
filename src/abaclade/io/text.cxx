@@ -269,12 +269,13 @@ void writer_print_helper_impl::run() {
    /* Since this specialization has no replacements, verify that the format string doesn’t specify
    any either. */
    if (write_format_up_to_next_repl()) {
-      ABC_THROW(index_error, (static_cast<std::ptrdiff_t>(m_iSubstArg)));
+      throw_index_error();
    }
 }
 
 void writer_print_helper_impl::throw_index_error() {
-   ABC_THROW(index_error, (static_cast<std::ptrdiff_t>(m_iSubstArg)));
+   std::ptrdiff_t iSubstArg = static_cast<std::ptrdiff_t>(m_iSubstArg);
+   ABC_THROW(index_error, (iSubstArg, 0, iSubstArg - 1));
 }
 
 bool writer_print_helper_impl::write_format_up_to_next_repl() {

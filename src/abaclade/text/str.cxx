@@ -130,7 +130,7 @@ std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool
    before i reached 0, or if the pointer was invalid on entry (e.g. accessing str()[0]). */
    if (iDelta != 0 || pch < pchBegin || pch > pchEnd || (bIndex && pch == pchEnd)) {
       if (bIndex) {
-         ABC_THROW(index_error, (iDeltaOrig));
+         ABC_THROW(index_error, (iDeltaOrig, 0, pchEnd - pchBegin - 1));
       } else {
          ABC_THROW(pointer_iterator_error, (pchBegin, pchEnd, pch));
       }

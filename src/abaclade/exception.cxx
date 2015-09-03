@@ -648,14 +648,18 @@ index_error & index_error::operator=(index_error const & x) {
    return *this;
 }
 
-void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
+void index_error::init(
+   std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err /*= 0*/
+) {
    lookup_error::init(err ? err : os_error_mapping<index_error>::mapped_error);
    m_iInvalid = iInvalid;
+   m_iMin = iMin;
+   m_iMax = iMax;
 }
 
 /*virtual*/ void index_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    lookup_error::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL(" invalid index: {}"), m_iInvalid);
+   ptwOut->print(ABC_SL(" invalid index: {}; valid range: [{}, {}]"), m_iInvalid, m_iMin, m_iMax);
 }
 
 } //namespace abc

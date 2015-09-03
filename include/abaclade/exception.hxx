@@ -902,10 +902,14 @@ public:
 
    @param iInvalid
       Index that caused the error.
+   @param iMin
+      Minimum allowed index value.
+   @param iMax
+      Maximum allowed index value.
    @param err
       OS-defined error number associated to the exception.
    */
-   void init(std::ptrdiff_t iInvalid, errint_t err = 0);
+   void init(std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err = 0);
 
 protected:
    //! See lookup_error::write_extended_info().
@@ -914,6 +918,10 @@ protected:
 private:
    //! Index that caused the error.
    std::ptrdiff_t m_iInvalid;
+   //! Minimum allowed index value.
+   std::ptrdiff_t m_iMin;
+   //! Maximum allowed index value.
+   std::ptrdiff_t m_iMax;
 };
 
 } //namespace abc

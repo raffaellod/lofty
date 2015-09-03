@@ -94,7 +94,7 @@ void const * raw_vextr_impl_base::translate_offset(std::ptrdiff_t ib) const {
       return pb;
    }
    // TODO: use the index, not the offset.
-   ABC_THROW(index_error, (ib));
+   ABC_THROW(index_error, (ib, 0, static_cast<std::ptrdiff_t>(size<std::int8_t>()) - 1));
 }
 
 _std::tuple<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
@@ -133,7 +133,10 @@ void raw_vextr_impl_base::validate_pointer(void const * p) const {
 
    if (p < m_pBegin || p > m_pEnd) {
       // TODO: use the index, not the offset.
-      ABC_THROW(index_error, (static_cast<std::int8_t const *>(p) - begin<std::int8_t>()));
+      ABC_THROW(index_error, (
+         static_cast<std::int8_t const *>(p) - begin<std::int8_t>(),
+         0, static_cast<std::ptrdiff_t>(size<std::int8_t>()) - 1
+      ));
    }
 }
 
@@ -142,7 +145,10 @@ void raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
 
    if (p < m_pBegin || p >= m_pEnd) {
       // TODO: use the index, not the offset.
-      ABC_THROW(index_error, (static_cast<std::int8_t const *>(p) - begin<std::int8_t>()));
+      ABC_THROW(index_error, (
+         static_cast<std::int8_t const *>(p) - begin<std::int8_t>(),
+         0, static_cast<std::ptrdiff_t>(size<std::int8_t>())
+      ));
    }
 }
 
