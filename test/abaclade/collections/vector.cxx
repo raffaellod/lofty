@@ -68,13 +68,13 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(v[0], 1);
    ABC_TESTING_ASSERT_EQUAL(v[1], 1);
 
-   v.insert(1, 2);
+   v.insert(v.cbegin() + 1, 2);
    ABC_TESTING_ASSERT_EQUAL(v.size(), 3u);
    ABC_TESTING_ASSERT_EQUAL(v[0], 1);
    ABC_TESTING_ASSERT_EQUAL(v[1], 2);
    ABC_TESTING_ASSERT_EQUAL(v[2], 1);
 
-   v = v.slice(1, 3);
+   v = v.slice(v.cbegin() + 1, v.cbegin() + 3);
    ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(v[0], 2);
    ABC_TESTING_ASSERT_EQUAL(v[1], 1);
@@ -85,7 +85,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(v[1], 1);
    ABC_TESTING_ASSERT_EQUAL(v[2], 3);
 
-   v.remove_at(1);
+   v.remove_at(v.cbegin() + 1);
    ABC_TESTING_ASSERT_EQUAL(v.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(&v.front(), v.data());
    ABC_TESTING_ASSERT_EQUAL(v.front(), 2);
@@ -196,23 +196,23 @@ ABC_TESTING_TEST_CASE_FUNC(
    v = vZero;
 
    // Remove from empty vector by index.
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(-1));
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(0));
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(1));
+   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cend() - 1));
+   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cbegin()));
+   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cbegin() + 1));
 
    v = vOneTwo;
 
    // Remove from 2-element vector by index.
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(-3));
-   ABC_TESTING_ASSERT_EQUAL((v.remove_at(-2), v), vTwo);
+   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cend() - 3));
+   ABC_TESTING_ASSERT_EQUAL((v.remove_at(v.cend() - 2), v), vTwo);
    v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_at(-1), v), vOne);
+   ABC_TESTING_ASSERT_EQUAL((v.remove_at(v.cend() - 1), v), vOne);
    v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_at(0), v), vTwo);
+   ABC_TESTING_ASSERT_EQUAL((v.remove_at(v.cbegin()), v), vTwo);
    v = vOneTwo;
-   ABC_TESTING_ASSERT_EQUAL((v.remove_at(1), v), vOne);
+   ABC_TESTING_ASSERT_EQUAL((v.remove_at(v.cbegin() + 1), v), vOne);
    v = vOneTwo;
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(2));
+   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cbegin() + 2));
 }
 
 }} //namespace abc::test

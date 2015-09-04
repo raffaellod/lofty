@@ -888,17 +888,6 @@ public:
 
    /*! Inserts elements at a specific position in the vector.
 
-   @param iOffset
-      Index at which the element should be inserted. See translate_index() for allowed index values.
-   @param t
-      Element to insert.
-   */
-   void insert(std::ptrdiff_t iOffset, typename _std::remove_const<T>::type && t) {
-      this->insert_move(translate_index(iOffset), &t, 1);
-   }
-
-   /*! Inserts elements at a specific position in the vector.
-
    @param itOffset
       Iterator at which the element should be inserted.
    @param t
@@ -946,16 +935,6 @@ public:
    */
    const_reverse_iterator rbegin() const {
       return const_cast<vector *>(this)->rbegin();
-   }
-
-   /*! Removes a single element from the vector.
-
-   @param i
-      Index of the element to remove. See translate_index() for allowed index values.
-   */
-   void remove_at(std::ptrdiff_t i) {
-      T const * pt = translate_index(i);
-      vector_impl::remove(pt, pt + 1);
    }
 
    /*! Removes a single element from the vector.
@@ -1219,8 +1198,6 @@ public:
 
    /*! Inserts elements at a specific position in the vector.
 
-   @param iOffset
-      Index at which the element should be inserted. See translate_index() for allowed index values.
    @param itOffset
       Iterator at which the element should be inserted.
    @param t
@@ -1230,17 +1207,6 @@ public:
    @param ci
       Count of elements in the array pointed to by pt.
    */
-   void insert(std::ptrdiff_t iOffset, T const & t) {
-      this->insert_copy(this->translate_index(iOffset), &t, 1);
-   }
-
-   void insert(std::ptrdiff_t iOffset, typename _std::remove_const<T>::type && t) {
-      this->insert_move(this->translate_index(iOffset), &t, 1);
-   }
-
-   void insert(std::ptrdiff_t iOffset, T const * pt, std::size_t ci) {
-      this->insert_copy(this->translate_index(iOffset), pt, ci);
-   }
 
    void insert(const_iterator itOffset, T const & t) {
       this->validate_pointer(itOffset.m_pt);
@@ -1280,28 +1246,24 @@ public:
       this->insert_copy(this->data_end(), pt, ci);
    }
 
-   /*! Returns a slice of the vector from iBegin to the end of the vector.
+   /*! Returns a slice of the vector up to its end.
 
-   @param iBegin
-      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
-      begin index values.
+   @param itBegin
+      Iterator to the first element to return.
    */
-   vector slice(std::ptrdiff_t iBegin) const {
-      return slice(iBegin, this->size());
+   vector slice(const_iterator itBegin) const {
+      return vector(itBegin.m_pt, this->data_end());
    }
 
    /*! Returns a slice of the vector.
 
-   @param iBegin
-      Index of the first element. See abc::collections::vector_base::translate_range() for allowed
-      begin index values.
-   @param iEnd
-      Index of the last element, exclusive. See abc::collections::vector_base::translate_range() for
-      allowed end index values.
+   @param itBegin
+      Iterator to the first element to return.
+   @param itEnd
+      Iterator to the element after the last one to return.
    */
-   vector slice(std::ptrdiff_t iBegin, std::ptrdiff_t iEnd) const {
-      auto range(this->translate_range(iBegin, iEnd));
-      return vector(_std::get<0>(range), _std::get<1>(range));
+   vector slice(const_iterator itBegin, const_iterator itEnd) const {
+      return vector(itBegin.m_pt, itEnd.m_pt);
    }
 
 protected:
