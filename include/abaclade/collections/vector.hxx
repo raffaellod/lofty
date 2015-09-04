@@ -809,22 +809,40 @@ public:
       return const_cast<vector *>(this)->rend();
    }
 
-   /*! Returns a pointer to the first element.
+   /*! Returns a pointer to the element array.
 
    @return
-      Pointer to the first element.
+      Pointer to the element array.
    */
    T * data() {
       return vector_impl::template begin<T>();
    }
 
-   /*! Returns a const pointer to the first element.
+   /*! Returns a const pointer to the element array.
 
    @return
-      Const pointer to the first element.
+      Const pointer to the element array.
    */
    T const * data() const {
       return const_cast<vector *>(this)->data();
+   }
+
+   /*! Returns a pointer to the end of the element array.
+
+   @return
+      Pointer to the end of the element array.
+   */
+   T * data_end() {
+      return vector_impl::template end<T>();
+   }
+
+   /*! Returns a const pointer to the end of the element array.
+
+   @return
+      Const pointer to the end of the element array.
+   */
+   T const * data_end() const {
+      return const_cast<vector *>(this)->data_end();
    }
 
    /*! Returns an iterator set beyond the last element.
@@ -1079,7 +1097,7 @@ public:
    */
    vector(vector const & v) :
       vector_nc() {
-      vector_impl::assign_copy(v.data(), v.cend().base());
+      vector_impl::assign_copy(v.data(), v.data_end());
    }
 
    /*! Constructor that concatenates two vectors, copying elements from the first and moving
@@ -1092,7 +1110,7 @@ public:
    */
    template <std::size_t t_ciEmbeddedCapacity1, std::size_t t_ciEmbeddedCapacity2>
    vector(vector<T, t_ciEmbeddedCapacity1> const & v1, vector<T, t_ciEmbeddedCapacity2> && v2) {
-      vector_impl::assign_concat(v1.data(), v1.cend().base(), v2.data(), v2.end().base(), 2);
+      vector_impl::assign_concat(v1.data(), v1.data_end(), v2.data(), v2.data_end(), 2);
    }
 
    /*! Constructor that concatenates two vectors, copying elements from both.
@@ -1106,7 +1124,7 @@ public:
    vector(
       vector<T, t_ciEmbeddedCapacity1> const & v1, vector<T, t_ciEmbeddedCapacity2> const & v2
    ) {
-      vector_impl::assign_concat(v1.data(), v1.cend().base(), v2.data(), v2.cend().base(), 0);
+      vector_impl::assign_concat(v1.data(), v1.data_end(), v2.data(), v2.data_end(), 0);
    }
 
    /*! Constructor that copies elements from a C array.
@@ -1165,7 +1183,7 @@ public:
       *this.
    */
    vector & operator=(vector const & v) {
-      vector_impl::assign_copy(v.data(), v.cend().base());
+      vector_impl::assign_copy(v.data(), v.data_end());
       return *this;
    }
 
@@ -1178,7 +1196,7 @@ public:
    */
    template <std::size_t t_ciEmbeddedCapacity2>
    vector & operator+=(vector<T, t_ciEmbeddedCapacity2> && v) {
-      vector_impl::insert_move(this->cend().base(), v.data(), v.size());
+      vector_impl::insert_move(this->data_end(), v.data(), v.size());
       return *this;
    }
 
@@ -1191,7 +1209,7 @@ public:
    */
    template <std::size_t t_ciEmbeddedCapacity2>
    vector & operator+=(vector<T, t_ciEmbeddedCapacity2> const & v) {
-      vector_impl::insert_copy(this->cend().base(), v.data(), v.size());
+      vector_impl::insert_copy(this->data_end(), v.data(), v.size());
       return *this;
    }
 
@@ -1249,15 +1267,15 @@ public:
       Count of elements in the array pointed to by pt.
    */
    void push_back(T const & t) {
-      this->insert_copy(this->cend().base(), &t, 1);
+      this->insert_copy(this->data_end(), &t, 1);
    }
 
    void push_back(typename _std::remove_const<T>::type && t) {
-      this->insert_move(this->cend().base(), &t, 1);
+      this->insert_move(this->data_end(), &t, 1);
    }
 
    void push_back(T const * pt, std::size_t ci) {
-      this->insert_copy(this->cend().base(), pt, ci);
+      this->insert_copy(this->data_end(), pt, ci);
    }
 
    /*! Returns a slice of the vector from iBegin to the end of the vector.
@@ -1314,7 +1332,7 @@ protected:
    */
    vector(std::size_t cbEmbeddedCapacity, vector const & v) :
       vector_nc(cbEmbeddedCapacity) {
-      vector_impl::assign_copy(v.data(), v.cend().base());
+      vector_impl::assign_copy(v.data(), v.data_end());
    }
 
    /*! Copy constructor from C arrays for subclasses with an embedded item array.
@@ -1464,6 +1482,7 @@ public:
    using vector_0::crbegin;
    using vector_0::crend;
    using vector_0::data;
+   using vector_0::data_end;
    using vector_0::end;
    using vector_0::front;
    using vector_0::insert;
@@ -1603,6 +1622,7 @@ public:
    using vector_0::crbegin;
    using vector_0::crend;
    using vector_0::data;
+   using vector_0::data_end;
    using vector_0::end;
    using vector_0::front;
    using vector_0::insert;
