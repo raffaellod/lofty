@@ -42,13 +42,28 @@ protected:
    str m_sEltFormat;
 };
 
+//! Extracts the iterator type from the collections::vector specialization for a given T.
+template <typename T>
+typename collections::vector<T, 0>::iterator vector_iterator_type_extractor();
+
+//! Extracts the pointer type from the collections::vector specialization for a given T.
+template <typename T>
+typename collections::vector<T, 0>::pointer vector_pointer_type_extractor();
+
+//! Extracts the const_iterator type from the collections::vector specialization for a given T.
+template <typename T>
+typename collections::vector<T, 0>::const_iterator vector_const_iterator_type_extractor();
+
+//! Extracts the const_pointer type from the collections::vector specialization for a given T.
+template <typename T>
+typename collections::vector<T, 0>::const_pointer vector_const_pointer_type_extractor();
+
 }}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc {
 
-// Specialization of to_str_backend.
 template <typename T, std::size_t t_ciEmbeddedCapacity>
 class to_str_backend<collections::vector<T, t_ciEmbeddedCapacity>> :
    public collections::detail::vector_to_str_backend {
@@ -90,6 +105,32 @@ public:
 protected:
    //! Backend for the individual elements.
    to_str_backend<T> m_tsbElt;
+};
+
+template <typename T>
+class to_str_backend<decltype(collections::detail::vector_const_iterator_type_extractor<T>())> :
+   public to_str_backend<decltype(collections::detail::vector_const_pointer_type_extractor<T>())> {
+public:
+   /*! Writes an iterator as a pointer, applying the formatting options.
+
+   @param it
+      Iterator to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(
+      decltype(collections::detail::vector_const_iterator_type_extractor<T>()) const & it,
+      io::text::writer * ptwOut
+   ) {
+      to_str_backend<
+         decltype(collections::detail::vector_const_pointer_type_extractor<T>())
+      >::write(it.base(), ptwOut);
+   }
+};
+
+template <typename T>
+class to_str_backend<decltype(collections::detail::vector_iterator_type_extractor<T>())> :
+   public to_str_backend<decltype(collections::detail::vector_pointer_type_extractor<T>())> {
 };
 
 } //namespace abc

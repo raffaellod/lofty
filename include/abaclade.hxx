@@ -508,7 +508,6 @@ class writer;
 #include <abaclade/thread_local.hxx>
 #include <abaclade/enum.hxx>
 #include <abaclade/exception.hxx>
-#include <abaclade/collections/pointer_iterator.hxx>
 //#include <abaclade/type_void_adapter.hxx>
 #include <abaclade/collections/detail/vextr_impl.hxx>
 #include <abaclade/collections/vector.hxx>
@@ -525,7 +524,6 @@ class writer;
 #include <abaclade/text/str-after-to_str.hxx>
 #include <abaclade/text/char_ptr_to_str_adapter.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
-#include <abaclade/collections/pointer_iterator-after-to_str.hxx>
 #include <abaclade/collections/vector-after-to_str.hxx>
 
 #include <abaclade/os/path.hxx>

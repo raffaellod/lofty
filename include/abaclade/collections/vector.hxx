@@ -365,8 +365,292 @@ public:
    typedef T const & const_reference;
    typedef std::size_t size_type;
    typedef std::ptrdiff_t difference_type;
-   typedef pointer_iterator<vector<T, 0, smc_bCopyConstructible>, T> iterator;
-   typedef pointer_iterator<vector<T, 0, smc_bCopyConstructible>, T const> const_iterator;
+
+   //! Const iterator for vector elements.
+   class const_iterator {
+   private:
+      friend class vector;
+
+   public:
+      typedef T const value_type;
+      typedef T const * pointer;
+      typedef T const & reference;
+      typedef std::ptrdiff_t difference_type;
+      typedef _std::random_access_iterator_tag iterator_category;
+
+   public:
+      //! Default constructor.
+      /*constexpr*/ const_iterator() :
+         m_pt(nullptr) {
+      }
+
+      /*! Copy constructor.
+
+      @param it
+         Source object.
+      */
+      const_iterator(const_iterator const & it) :
+         m_pt(it.m_pt) {
+      }
+
+      /*! Dereferencing operator.
+
+      @return
+         Reference to the current item.
+      */
+      T const & operator*() const {
+         return *m_pt;
+      }
+
+      /*! Dereferencing member access operator.
+
+      @return
+         Pointer to the current item.
+      */
+      T const * operator->() const {
+         return m_pt;
+      }
+
+      /*! Element access operator.
+
+      @param i
+         Index relative to *this.
+      @return
+         Reference to the specified item.
+      */
+      T const & operator[](std::ptrdiff_t i) const {
+         // TODO: validate!
+         return m_pt[i];
+      }
+
+      /*! Addition-assignment operator.
+
+      @param i
+         Count of positions by which to advance the iterator.
+      @return
+         *this after it’s moved forward by i positions.
+      */
+      const_iterator & operator+=(std::ptrdiff_t i) {
+         m_pt += i;
+         return *this;
+      }
+
+      /*! Subtraction-assignment operator.
+
+      @param i
+         Count of positions by which to rewind the iterator.
+      @return
+         *this after it’s moved backwards by i positions.
+      */
+      const_iterator & operator-=(std::ptrdiff_t i) {
+         m_pt -= i;
+         return *this;
+      }
+
+      /*! Addition operator.
+
+      @param i
+         Count of positions by which to advance the iterator.
+      @return
+         Iterator that’s i items ahead of *this.
+      */
+      const_iterator operator+(std::ptrdiff_t i) const {
+         return const_iterator(m_pt + i);
+      }
+
+      /*! Subtraction/difference operator.
+
+      @param i
+         Count of positions by which to rewind the iterator.
+      @param it
+         Iterator from which to calculate the distance.
+      @return
+         Iterator that’s i items behind *this (subtraction) or distance between *this and it
+         (difference).
+      */
+      const_iterator operator-(std::ptrdiff_t i) const {
+         return const_iterator(m_pt - i);
+      }
+      std::ptrdiff_t operator-(const_iterator it) const {
+         return m_pt - it.m_pt;
+      }
+
+      /*! Preincrement operator.
+
+      @return
+         *this after it’s moved to the value following the one currently pointed to.
+      */
+      const_iterator & operator++() {
+         ++m_pt;
+         return *this;
+      }
+
+      /*! Postincrement operator.
+
+      @return
+         Iterator pointing to the value following the one pointed to by this iterator.
+      */
+      const_iterator operator++(int) {
+         return const_iterator(m_pt++);
+      }
+
+      /*! Predecrement operator.
+
+      @return
+         *this after it’s moved to the value preceding the one currently pointed to.
+      */
+      const_iterator & operator--() {
+         --m_pt;
+         return *this;
+      }
+
+      /*! Postdecrement operator.
+
+      @return
+         Iterator pointing to the value preceding the one pointed to by this iterator.
+      */
+      const_iterator operator--(int) {
+         return const_iterator(m_pt--);
+      }
+
+   // Relational operators.
+   #define ABC_RELOP_IMPL(op) \
+      bool operator op(const_iterator const & it) const { \
+         return m_pt op it.m_pt; \
+      }
+   ABC_RELOP_IMPL(==)
+   ABC_RELOP_IMPL(!=)
+   ABC_RELOP_IMPL(>)
+   ABC_RELOP_IMPL(>=)
+   ABC_RELOP_IMPL(<)
+   ABC_RELOP_IMPL(<=)
+   #undef ABC_RELOP_IMPL
+
+      /*! Returns the underlying iterator type.
+
+      @return
+         Pointer to the value pointed to by this iterator.
+      */
+      T const * base() const {
+         return m_pt;
+      }
+
+   protected:
+      /*! Constructor.
+
+      @param pt
+         Pointer to set the iterator to.
+      */
+      explicit const_iterator(T const * pt) :
+         m_pt(pt) {
+      }
+
+   protected:
+      //! Underlying pointer to the current item.
+      T const * m_pt;
+   };
+
+   //! Non-const iterator for vector elements.
+   class iterator : public const_iterator {
+   private:
+      friend class vector;
+
+   public:
+      typedef T value_type;
+      typedef T * pointer;
+      typedef T & reference;
+
+   public:
+      //! Default constructor.
+      /*constexpr*/ iterator() {
+      }
+
+      //! See const_iterator::operator*().
+      T & operator*() const {
+         return const_cast<T &>(const_iterator::operator*());
+      }
+
+      //! See const_iterator::operator->().
+      T * operator->() const {
+         return const_cast<T *>(const_iterator::operator->());
+      }
+
+      //! See const_iterator::operator[]().
+      T & operator[](std::ptrdiff_t i) const {
+         return const_cast<T &>(const_iterator::operator[](i));
+      }
+
+      //! See const_iterator::operator+=().
+      iterator & operator+=(std::ptrdiff_t i) {
+         const_iterator::operator+=(i);
+         return *this;
+      }
+
+      //! See const_iterator::operator-=().
+      iterator & operator-=(std::ptrdiff_t i) {
+         const_iterator::operator-=(i);
+         return *this;
+      }
+
+      //! See const_iterator::operator+().
+      iterator operator+(std::ptrdiff_t i) const {
+         return const_iterator::operator+(i);
+      }
+
+      using const_iterator::operator-;
+
+      //! See const_iterator::operator-().
+      iterator operator-(std::ptrdiff_t i) const {
+         return const_iterator::operator-(i);
+      }
+
+      //! See const_iterator::operator++().
+      iterator & operator++() {
+         const_iterator::operator++();
+         return *this;
+      }
+
+      //! See const_iterator::operator++().
+      iterator operator++(int) {
+         return const_iterator::operator++(0);
+      }
+
+      //! See const_iterator::operator--().
+      iterator & operator--() {
+         const_iterator::operator--();
+         return *this;
+      }
+
+      //! See const_iterator::operator--().
+      iterator operator--(int) {
+         return const_iterator::operator--(0);
+      }
+
+      //! See const_iterator::base().
+      T * base() const {
+         return const_cast<T *>(const_iterator::base());
+      }
+
+   protected:
+      /*! Constructor.
+
+      @param pt
+         Pointer to set the iterator to.
+      */
+      explicit iterator(T * pt) :
+         const_iterator(pt) {
+      }
+
+      /*! Copy constructor.
+
+      @param it
+         Source object.
+      */
+      iterator(const_iterator const & it) :
+         const_iterator(it) {
+      }
+   };
+
    typedef _std::reverse_iterator<iterator> reverse_iterator;
    typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
