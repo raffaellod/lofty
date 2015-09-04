@@ -903,8 +903,8 @@ public:
       Element to insert.
    */
    void insert(const_iterator itOffset, typename _std::remove_const<T>::type && t) {
-      this->validate_pointer(itOffset.base());
-      this->insert_move(itOffset.base(), &t, 1);
+      this->validate_pointer(itOffset.m_pt);
+      this->insert_move(itOffset.m_pt, &t, 1);
    }
 
    /*! Removes and returns the last element in the vector.
@@ -962,8 +962,8 @@ public:
       Iterator to the element to remove.
    */
    void remove_at(const_iterator it) {
-      this->validate_pointer_noend(it.base());
-      vector_impl::remove(it.base(), (it + 1).base());
+      this->validate_pointer_noend(it.m_pt);
+      vector_impl::remove(it.m_pt, it.m_pt + 1);
    }
 
    /*! Returns a reverse iterator set to before the first element.
@@ -1241,18 +1241,18 @@ public:
    }
 
    void insert(const_iterator itOffset, T const & t) {
-      this->validate_pointer(itOffset.base());
-      this->insert_copy(itOffset.base(), &t, 1);
+      this->validate_pointer(itOffset.m_pt);
+      this->insert_copy(itOffset.m_pt, &t, 1);
    }
 
    void insert(const_iterator itOffset, typename _std::remove_const<T>::type && t) {
-      this->validate_pointer(itOffset.base());
-      this->insert_move(itOffset.base(), &t, 1);
+      this->validate_pointer(itOffset.m_pt);
+      this->insert_move(itOffset.m_pt, &t, 1);
    }
 
    void insert(const_iterator itOffset, T const * pt, std::size_t ci) {
-      this->validate_pointer(itOffset.base());
-      this->insert_copy(itOffset.base(), pt, ci);
+      this->validate_pointer(itOffset.m_pt);
+      this->insert_copy(itOffset.m_pt, pt, ci);
    }
 
    using vector_nc::push_back;

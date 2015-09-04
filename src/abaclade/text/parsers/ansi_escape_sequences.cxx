@@ -94,10 +94,8 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
 
       case state::numeric_arg:
          if (ch >= '0' && ch <= '9') {
-            std::int16_t * piLastCmdArg = (m_viCmdArgs.end() - 1).base();
-            *piLastCmdArg = static_cast<std::int16_t>(
-               *piLastCmdArg * std::int16_t(10) + (ch - '0')
-            );
+            std::int16_t & iLastCmdArg = m_viCmdArgs.back();
+            iLastCmdArg = static_cast<std::int16_t>(iLastCmdArg * std::int16_t(10) + (ch - '0'));
          } else if (ch == ';') {
             m_viCmdArgs.push_back(0);
             if (m_chSeqStart == ']') {

@@ -124,7 +124,7 @@ public:
    ) {
       to_str_backend<
          decltype(collections::detail::vector_const_pointer_type_extractor<T>())
-      >::write(it.base(), ptwOut);
+      >::write(&*it, ptwOut);
    }
 };
 
