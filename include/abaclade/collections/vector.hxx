@@ -369,6 +369,7 @@ public:
    //! Const iterator for vector elements.
    class const_iterator {
    private:
+      template <typename T2, std::size_t t_ciEmbeddedCapacity, bool t_bCopyConstructible>
       friend class vector;
 
    public:
@@ -553,6 +554,7 @@ public:
    //! Non-const iterator for vector elements.
    class iterator : public const_iterator {
    private:
+      template <typename T2, std::size_t t_ciEmbeddedCapacity, bool t_bCopyConstructible>
       friend class vector;
 
    public:
