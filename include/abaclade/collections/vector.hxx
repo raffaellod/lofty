@@ -1196,28 +1196,39 @@ public:
 
    using vector_nc::insert;
 
-   /*! Inserts elements at a specific position in the vector.
+   /*! Inserts an element at a specific position in the vector.
 
    @param itOffset
       Iterator at which the element should be inserted.
    @param t
       Element to insert.
-   @param pt
-      Pointer to the first element to insert.
-   @param ci
-      Count of elements in the array pointed to by pt.
    */
-
    void insert(const_iterator itOffset, T const & t) {
       this->validate_pointer(itOffset.m_pt);
       this->insert_copy(itOffset.m_pt, &t, 1);
    }
 
+   /*! Inserts an element at a specific position in the vector.
+
+   @param itOffset
+      Iterator at which the element should be inserted.
+   @param t
+      Element to insert.
+   */
    void insert(const_iterator itOffset, typename _std::remove_const<T>::type && t) {
       this->validate_pointer(itOffset.m_pt);
       this->insert_move(itOffset.m_pt, &t, 1);
    }
 
+   /*! Inserts elements at a specific position in the vector.
+
+   @param itOffset
+      Iterator at which the element should be inserted.
+   @param pt
+      Pointer to the first element to insert.
+   @param ci
+      Count of elements in the array pointed to by pt.
+   */
    void insert(const_iterator itOffset, T const * pt, std::size_t ci) {
       this->validate_pointer(itOffset.m_pt);
       this->insert_copy(itOffset.m_pt, pt, ci);
@@ -1225,23 +1236,31 @@ public:
 
    using vector_nc::push_back;
 
-   /*! Adds elements at the end of the vector.
+   /*! Adds an element at the end of the vector.
 
    @param t
-      Element to copy (const &) or move (&&) to the end of the vector.
-   @param pt
-      Pointer to an array of elements to copy to the end of the vector.
-   @param ci
-      Count of elements in the array pointed to by pt.
+      Element to copy to the end of the vector.
    */
    void push_back(T const & t) {
       this->insert_copy(this->data_end(), &t, 1);
    }
 
+   /*! Adds an element at the end of the vector.
+
+   @param t
+      Element to move to the end of the vector.
+   */
    void push_back(typename _std::remove_const<T>::type && t) {
       this->insert_move(this->data_end(), &t, 1);
    }
 
+   /*! Adds elements at the end of the vector.
+
+   @param pt
+      Pointer to an array of elements to copy to the end of the vector.
+   @param ci
+      Count of elements in the array pointed to by pt.
+   */
    void push_back(T const * pt, std::size_t ci) {
       this->insert_copy(this->data_end(), pt, ci);
    }

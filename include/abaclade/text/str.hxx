@@ -986,74 +986,195 @@ public:
    */
    bool ends_with(str const & s) const;
 
-   /*! Searches for and returns the first occurrence of the specified character or substring.
+   /*! Searches for and returns the first occurrence of the specified character.
 
    @param chNeedle
       Character to search for.
-   @param sNeedle
-      String to search for.
-   @param itWhence
-      Iterator to the first character whence the search should start. When not specified, it
-      defaults to cbegin().
    @return
-      Iterator to the first occurrence of the character/string, or cend() when no matches are found.
+      Iterator to the first occurrence of the character, or cend() when no matches are found.
    */
    const_iterator find(char_t chNeedle) const {
       return find(chNeedle, cbegin());
    }
+
 #if ABC_HOST_UTF > 8
+   /*! Searches for and returns the first occurrence of the specified ASCII character.
+
+   @param chNeedle
+      ASCII character to search for.
+   @return
+      Iterator to the first occurrence of the character, or cend() when no matches are found.
+   */
    const_iterator find(char chNeedle) const {
       return find(host_char(chNeedle));
    }
 #endif
+
+   /*! Searches for and returns the first occurrence of the specified code point.
+
+   @param cpNeedle
+      Code point to search for.
+   @return
+      Iterator to the first occurrence of the code point, or cend() when no matches are found.
+   */
    const_iterator find(char32_t cpNeedle) const {
       return find(cpNeedle, cbegin());
    }
+
+   /*! Searches for and returns the first occurrence after itWhence of the specified character.
+
+   @param chNeedle
+      Character to search for.
+   @param itWhence
+      Iterator to the first character whence the search should start.
+   @return
+      Iterator to the first occurrence of the character, or cend() when no matches are found.
+   */
    const_iterator find(char_t chNeedle, const_iterator itWhence) const;
+
 #if ABC_HOST_UTF > 8
+   /*! Searches for and returns the first occurrence after itWhence of the specified ASCII
+   character.
+
+   @param chNeedle
+      ASCII character to search for.
+   @param itWhence
+      Iterator to the first character whence the search should start.
+   @return
+      Iterator to the first occurrence of the character, or cend() when no matches are found.
+   */
    const_iterator find(char chNeedle, const_iterator itWhence) const {
       return find(host_char(chNeedle), itWhence);
    }
 #endif
+
+   /*! Searches for and returns the first occurrence after itWhence of the specified code point.
+
+   @param cpNeedle
+      Code point to search for.
+   @param itWhence
+      Iterator to the first character whence the search should start.
+   @return
+      Iterator to the first occurrence of the code point, or cend() when no matches are found.
+   */
    const_iterator find(char32_t cpNeedle, const_iterator itWhence) const;
+
+   /*! Searches for and returns the first occurrence of the specified substring.
+
+   @param sNeedle
+      Substring to search for.
+   @param itWhence
+      Iterator to the first character whence the search should start.
+   @return
+      Iterator to the first occurrence of the substring, or cend() when no matches are found.
+   */
    const_iterator find(str const & sNeedle) const {
       return find(sNeedle, cbegin());
    }
+
+   /*! Searches for and returns the first occurrence after itWhence of the specified substring.
+
+   @param sNeedle
+      Substring to search for.
+   @param itWhence
+      Iterator to the first character whence the search should start.
+   @return
+      Iterator to the first occurrence of the substring, or cend() when no matches are found.
+   */
    const_iterator find(str const & sNeedle, const_iterator itWhence) const;
 
-   /*! Searches for and returns the last occurrence of the specified character or substring.
+   /*! Searches for and returns the last occurrence of the specified character.
 
    @param chNeedle
       Character to search for.
-   @param sNeedle
-      String to search for.
-   @param itWhence
-      Iterator to the last character whence the search should start. When not specified, it
-      defaults to cend().
    @return
-      Iterator to the first occurrence of the character/string, or cend() when no matches are found.
+      Iterator to the last occurrence of the character, or cend() when no matches are found.
    */
    const_iterator find_last(char_t chNeedle) const {
       return find_last(chNeedle, cend());
    }
+
 #if ABC_HOST_UTF > 8
+   /*! Searches for and returns the last occurrence of the specified ASCII character.
+
+   @param chNeedle
+      ASCII character to search for.
+   @return
+      Iterator to the last occurrence of the character, or cend() when no matches are found.
+   */
    const_iterator find_last(char chNeedle) const {
       return find_last(host_char(chNeedle));
    }
 #endif
+
+   /*! Searches for and returns the last occurrence of the specified code point.
+
+   @param cpNeedle
+      Code point to search for.
+   @return
+      Iterator to the last occurrence of the code point, or cend() when no matches are found.
+   */
    const_iterator find_last(char32_t cpNeedle) const {
       return find_last(cpNeedle, cend());
    }
+
+   /*! Searches for and returns the last occurrence of the specified character.
+
+   @param chNeedle
+      Character to search for.
+   @param itWhence
+      Iterator to the last character whence the search should start.
+   @return
+      Iterator to the last occurrence of the character, or cend() when no matches are found.
+   */
    const_iterator find_last(char_t chNeedle, const_iterator itWhence) const;
+
 #if ABC_HOST_UTF > 8
+   /*! Searches for and returns the last occurrence of the specified ASCII character.
+
+   @param chNeedle
+      ASCII character to search for.
+   @param itWhence
+      Iterator to the last character whence the search should start.
+   @return
+      Iterator to the last occurrence of the character, or cend() when no matches are found.
+   */
    const_iterator find_last(char chNeedle, const_iterator itWhence) const {
       return find_last(host_char(chNeedle), itWhence);
    }
 #endif
+
+   /*! Searches for and returns the last occurrence before itWhence of the specified code point.
+
+   @param cpNeedle
+      Code point to search for.
+   @param itWhence
+      Iterator to the last character whence the search should start.
+   @return
+      Iterator to the last occurrence of the code point, or cend() when no matches are found.
+   */
    const_iterator find_last(char32_t cpNeedle, const_iterator itWhence) const;
+
+   /*! Searches for and returns the last occurrence of the specified substring.
+
+   @param sNeedle
+      Substring to search for.
+   @return
+      Iterator to the last occurrence of the substring, or cend() when no matches are found.
+   */
    const_iterator find_last(str const & sNeedle) const {
       return find_last(sNeedle, cend());
    }
+
+   /*! Searches for and returns the last occurrence before itWhence of the specified substring.
+
+   @param sNeedle
+      Substring to search for.
+   @param itWhence
+      Iterator to the last character whence the search should start.
+   @return
+      Iterator to the last occurrence of the substring, or cend() when no matches are found.
+   */
    const_iterator find_last(str const & sNeedle, const_iterator itWhence) const;
 
    /*! Uses the current content of the string to generate a new one using io::text::writer::print().
