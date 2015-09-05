@@ -659,7 +659,7 @@ private:
 namespace abc { namespace os {
 
 //! A path could not be found on the file system.
-class ABACLADE_SYM path_not_found : public virtual environment_error {
+class ABACLADE_SYM path_not_found : public virtual generic_error {
 public:
    //! Default constructor.
    path_not_found();
@@ -692,7 +692,7 @@ public:
       return m_opNotFound;
    }
 
-   /*! See abc::environment_error::init().
+   /*! See abc::generic_error::init().
 
    @param opNotFound
       Path that couldn’t be found.
@@ -702,7 +702,7 @@ public:
    void init(abc::os::path const & opNotFound, errint_t err = 0);
 
 protected:
-   //! See environment_error::write_extended_info().
+   //! See generic_error::write_extended_info().
    virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:

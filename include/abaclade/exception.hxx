@@ -944,41 +944,6 @@ public:
 
 namespace abc {
 
-//! Base for errors that occur in the outer system.
-class ABACLADE_SYM environment_error : public virtual generic_error {
-public:
-   //! Default constructor.
-   environment_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   environment_error(environment_error const & x);
-
-   //! Destructor.
-   virtual ~environment_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   environment_error & operator=(environment_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 //! A floating point operation failed.
 class ABACLADE_SYM floating_point_error : public virtual arithmetic_error {
 public:
@@ -1205,7 +1170,7 @@ public:
 namespace abc {
 
 //! An I/O operation failed for an I/O-related reason.
-class ABACLADE_SYM io_error : public virtual environment_error {
+class ABACLADE_SYM io_error : public virtual generic_error {
 public:
    //! Default constructor.
    io_error();
@@ -1229,7 +1194,7 @@ public:
    */
    io_error & operator=(io_error const & x);
 
-   //! See abc::environment_error::init().
+   //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
 
@@ -1376,7 +1341,7 @@ public:
 namespace abc {
 
 //! A network-related error occurred.
-class ABACLADE_SYM network_error : public virtual environment_error {
+class ABACLADE_SYM network_error : public virtual generic_error {
 public:
    //! Default constructor.
    network_error();
@@ -1400,7 +1365,7 @@ public:
    */
    network_error & operator=(network_error const & x);
 
-   //! See abc::environment_error::init().
+   //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
 
@@ -1554,7 +1519,7 @@ public:
 namespace abc {
 
 //! An operation failed to prevent a security hazard.
-class ABACLADE_SYM security_error : public virtual environment_error {
+class ABACLADE_SYM security_error : public virtual generic_error {
 public:
    //! Default constructor.
    security_error();
@@ -1578,7 +1543,7 @@ public:
    */
    security_error & operator=(security_error const & x);
 
-   //! See abc::environment_error::init().
+   //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
 

@@ -663,33 +663,6 @@ void domain_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-environment_error::environment_error() :
-   generic_error() {
-   m_pszWhat = "abc::environment_error";
-}
-
-environment_error::environment_error(environment_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ environment_error::~environment_error() {
-}
-
-environment_error & environment_error::operator=(environment_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void environment_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 floating_point_error::floating_point_error() :
    generic_error(),
    arithmetic_error() {
@@ -809,26 +782,24 @@ void index_error::init(
 namespace abc {
 
 io_error::io_error() :
-   generic_error(),
-   environment_error() {
+   generic_error() {
    m_pszWhat = "abc::io_error";
 }
 
 io_error::io_error(io_error const & x) :
-   generic_error(x),
-   environment_error(x) {
+   generic_error(x) {
 }
 
 /*virtual*/ io_error::~io_error() {
 }
 
 io_error & io_error::operator=(io_error const & x) {
-   environment_error::operator=(x);
+   generic_error::operator=(x);
    return *this;
 }
 
 void io_error::init(errint_t err /*= 0*/) {
-   environment_error::init(err ? err :
+   generic_error::init(err ? err :
 #if ABC_HOST_API_POSIX
       EIO
 #else
@@ -1042,26 +1013,24 @@ void memory_allocation_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 network_error::network_error() :
-   generic_error(),
-   environment_error() {
+   generic_error() {
    m_pszWhat = "abc::network_error";
 }
 
 network_error::network_error(network_error const & x) :
-   generic_error(x),
-   environment_error(x) {
+   generic_error(x) {
 }
 
 /*virtual*/ network_error::~network_error() {
 }
 
 network_error & network_error::operator=(network_error const & x) {
-   environment_error::operator=(x);
+   generic_error::operator=(x);
    return *this;
 }
 
 void network_error::init(errint_t err /*= 0*/) {
-   environment_error::init(err);
+   generic_error::init(err);
 }
 
 } //namespace abc
@@ -1079,7 +1048,6 @@ network_io_error::network_io_error() :
 
 network_io_error::network_io_error(network_io_error const & x) :
    generic_error(x),
-   environment_error(x),
    io_error(x),
    network_error(x) {
 }
@@ -1204,26 +1172,24 @@ void overflow_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 security_error::security_error() :
-   generic_error(),
-   environment_error() {
+   generic_error() {
    m_pszWhat = "abc::security_error";
 }
 
 security_error::security_error(security_error const & x) :
-   generic_error(x),
-   environment_error(x) {
+   generic_error(x) {
 }
 
 /*virtual*/ security_error::~security_error() {
 }
 
 security_error & security_error::operator=(security_error const & x) {
-   environment_error::operator=(x);
+   generic_error::operator=(x);
    return *this;
 }
 
 void security_error::init(errint_t err /*= 0*/) {
-   environment_error::init(err);
+   generic_error::init(err);
 }
 
 } //namespace abc

@@ -72,16 +72,14 @@ void exception::throw_os_error(errint_t err) {
 
       case ECHILD: // No child processes (POSIX.1-2001)
       case EDEADLK: // Resource deadlock avoided (POSIX.1-2001)
-      case EINTR: // Interrupted function call (POSIX.1-2001)
-      case ENOEXEC: // Exec format error (POSIX.1-2001)
-      case ENOLCK: // No locks available (POSIX.1-2001)
-      case ESRCH: // No such process (POSIX.1-2001)
-         ABC_THROW(environment_error, (err));
-
       case EIDRM: // Identifier removed (POSIX.1-2001)
       case EILSEQ: // Illegal byte sequence (POSIX.1-2001, C99)
+      case EINTR: // Interrupted function call (POSIX.1-2001)
       case EMULTIHOP: // Multihop attempted (POSIX.1-2001)
+      case ENOEXEC: // Exec format error (POSIX.1-2001)
+      case ENOLCK: // No locks available (POSIX.1-2001)
       case ENOPROTOOPT: // Protocol not available (POSIX.1-2001)
+      case ESRCH: // No such process (POSIX.1-2001)
       default:
          ABC_THROW(generic_error, (err));
 

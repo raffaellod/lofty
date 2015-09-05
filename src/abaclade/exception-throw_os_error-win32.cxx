@@ -141,29 +141,6 @@ void exception::throw_os_error(errint_t err) {
          // operation.
          ABC_THROW(buffer_error, (err));
 
-      case ERROR_CHILD_MUST_BE_VOLATILE: // Cannot create a stable subkey under a volatile parent
-         // key.
-      case ERROR_INVALID_DLL: // One of the library files needed to run this application is damaged.
-      case ERROR_INVALID_MINALLOCSIZE: // The operating system cannot run %1.
-      case ERROR_INVALID_MODULETYPE: // The operating system cannot run %1.
-      case ERROR_INVALID_ORDINAL: // The operating system cannot run %1.
-      case ERROR_INVALID_PRINTER_STATE: // The state of the printer is invalid.
-      case ERROR_INVALID_SEGDPL: // The operating system cannot run %1.
-      case ERROR_INVALID_STACKSEG: // The operating system cannot run %1.
-      case ERROR_INVALID_STARTING_CODESEG: // The operating system cannot run %1.
-      case ERROR_SET_POWER_STATE_VETOED: // An attempt to change the system power state was vetoed
-         // by another application or driver.
-      case ERROR_THREAD_1_INACTIVE: // The signal handler cannot be set.
-      case ERROR_TOO_MANY_CMDS: // The network BIOS command limit has been reached.
-      case ERROR_TOO_MANY_CONTEXT_IDS: // During a logon attempt, the user's security context
-         // accumulated too many security IDs.
-      case ERROR_TOO_MANY_LUIDS_REQUESTED: // Too many LUIDs were requested at one time.
-      case ERROR_TOO_MANY_SEM_REQUESTS: // The semaphore cannot be set again.
-      case ERROR_TOO_MANY_SEMAPHORES: // Cannot create another system semaphore.
-      case ERROR_TOO_MANY_TCBS: // Cannot create another thread.
-      case ERROR_WAIT_NO_CHILDREN: // There are no child processes to wait for.
-         ABC_THROW(environment_error, (err));
-
       case ERROR_ALREADY_INITIALIZED: // An attempt was made to perform an initialization operation
          // when initialization has already been completed.
       case ERROR_ALREADY_REGISTERED: // The service is already registered.
@@ -199,6 +176,8 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_CANT_ACCESS_DOMAIN_INFO: // Indicates that a Windows NT Server could not be
          // contacted or that objects within the domain are protected such that necessary
          // information could not be retrieved.
+      case ERROR_CHILD_MUST_BE_VOLATILE: // Cannot create a stable subkey under a volatile parent
+         // key.
       case ERROR_CHILD_NOT_COMPLETE: // The %1 application cannot be run in Windows NT mode.
       case ERROR_CHILD_WINDOW_MENU: // Child windows cannot have menus.
       case ERROR_CIRCULAR_DEPENDENCY: // Circular service dependency was specified.
@@ -263,6 +242,15 @@ void exception::throw_os_error(errint_t err) {
          // inconsistency.
       case ERROR_INTERNAL_ERROR: // The security account database contains an internal
          // inconsistency.
+      case ERROR_INVALID_DLL: // One of the library files needed to run this application is damaged.
+      case ERROR_INVALID_EXE_SIGNATURE: // Cannot run %1 in Windows NT mode.
+      case ERROR_INVALID_MINALLOCSIZE: // The operating system cannot run %1.
+      case ERROR_INVALID_MODULETYPE: // The operating system cannot run %1.
+      case ERROR_INVALID_ORDINAL: // The operating system cannot run %1.
+      case ERROR_INVALID_PRINTER_STATE: // The state of the printer is invalid.
+      case ERROR_INVALID_SEGDPL: // The operating system cannot run %1.
+      case ERROR_INVALID_STACKSEG: // The operating system cannot run %1.
+      case ERROR_INVALID_STARTING_CODESEG: // The operating system cannot run %1.
       case ERROR_IOPL_NOT_ENABLED: // The operating system is not presently configured to run this
          // application.
       case ERROR_ITERATED_DATA_EXCEEDS_64k: // The operating system cannot run %1.
@@ -319,6 +307,7 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_POSSIBLE_DEADLOCK: // A potential deadlock condition has been detected.
       case ERROR_PRIVATE_DIALOG_INDEX: // Using private DIALOG window words.
       case ERROR_PRIVILEGE_NOT_HELD: // A required privilege is not held by the client.
+      case ERROR_PROC_NOT_FOUND: // The specified procedure could not be found.
       case ERROR_PROCESS_ABORTED: // The process terminated unexpectedly.
       case ERROR_PROTOCOL_UNREACHABLE: // The remote system does not support the transport protocol.
       case ERROR_REC_NON_EXISTENT: // The name does not exist in the WINS database.
@@ -378,6 +367,8 @@ void exception::throw_os_error(errint_t err) {
          // set of credentials.
       case ERROR_SET_POWER_STATE_FAILED: // The basic input/output system (BIOS) failed an attempt
          // to change the system power state.
+      case ERROR_SET_POWER_STATE_VETOED: // An attempt to change the system power state was vetoed
+         // by another application or driver.
       case ERROR_SHUTDOWN_IN_PROGRESS: // A system shutdown is in progress.
       case ERROR_SIGNAL_PENDING: // A signal is already pending.
       case ERROR_SIGNAL_REFUSED: // The recipient process has refused the signal.
@@ -388,13 +379,20 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_SWAPERROR: // Error performing inpage operation.
       case ERROR_SYSTEM_TRACE: // System trace information was not specified in your Config.sys
          // file, or tracing is disallowed.
-      case ERROR_INVALID_EXE_SIGNATURE: // Cannot run %1 in Windows NT mode.
-      case ERROR_PROC_NOT_FOUND: // The specified procedure could not be found.
       case ERROR_SOME_NOT_MAPPED: // Some mapping between account names and security IDs was not
          // done.
       case ERROR_TIMEOUT: // This operation returned because the time-out period expired.
+      case ERROR_THREAD_1_INACTIVE: // The signal handler cannot be set.
+      case ERROR_TOO_MANY_CMDS: // The network BIOS command limit has been reached.
+      case ERROR_TOO_MANY_CONTEXT_IDS: // During a logon attempt, the user's security context
+         // accumulated too many security IDs.
+      case ERROR_TOO_MANY_LUIDS_REQUESTED: // Too many LUIDs were requested at one time.
+      case ERROR_TOO_MANY_SEM_REQUESTS: // The semaphore cannot be set again.
+      case ERROR_TOO_MANY_SEMAPHORES: // Cannot create another system semaphore.
+      case ERROR_TOO_MANY_TCBS: // Cannot create another thread.
       case ERROR_TRANSFORM_NOT_SUPPORTED: // The requested transformation operation is not
          // supported.
+      case ERROR_WAIT_NO_CHILDREN: // There are no child processes to wait for.
       default:
          ABC_THROW(generic_error, (err));
 
