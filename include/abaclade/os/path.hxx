@@ -598,23 +598,84 @@ inline _path_iterator path::find(str const & sPattern) const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
+namespace abc { namespace os {
 
-//! A file could not be found.
-class ABACLADE_SYM file_not_found_error : public virtual environment_error {
+//! A path failed validation. Path validation is typically file system- or OS-dependent.
+class ABACLADE_SYM invalid_path : public virtual generic_error {
 public:
    //! Default constructor.
-   file_not_found_error();
+   invalid_path();
 
-   /*! Constructor.
+   /*! Copy onstructor.
 
    @param x
       Source object.
    */
-   file_not_found_error(file_not_found_error const & x);
+   invalid_path(invalid_path const & x);
 
-   //! Assignment operator. See abc::environment_error::operator=().
-   file_not_found_error & operator=(file_not_found_error const & x);
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   invalid_path & operator=(invalid_path const & x);
+
+   /*! Returns the path that couldn’t be found.
+
+   @return
+      Path that couldn’t be found at the moment it was accessed.
+   */
+   os::path const & path() const {
+      return m_opInvalid;
+   }
+
+   /*! See abc::generic_error::init().
+
+   @param opInvalid
+      Path that failed validation.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   void init(abc::os::path const & opInvalid, errint_t err = 0);
+
+protected:
+   //! See generic_error::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
+
+private:
+   //! Path that caused the error.
+   os::path m_opInvalid;
+};
+
+}} //namespace abc::os
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace os {
+
+//! A path could not be found on the file system.
+class ABACLADE_SYM path_not_found : public virtual environment_error {
+public:
+   //! Default constructor.
+   path_not_found();
+
+   /*! Copy onstructor.
+
+   @param x
+      Source object.
+   */
+   path_not_found(path_not_found const & x);
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   path_not_found & operator=(path_not_found const & x);
 
    /*! Returns the path that couldn’t be found.
 
@@ -643,4 +704,4 @@ private:
    os::path m_opNotFound;
 };
 
-} //namespace abc
+}} //namespace abc::os

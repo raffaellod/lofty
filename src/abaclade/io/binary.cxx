@@ -263,9 +263,12 @@ _std::shared_ptr<file_base> open(
          case EINTR:
             this_coroutine::interruption_point();
             break;
+         case ENAMETOOLONG: // File name too long (POSIX.1-2001)
+         case ENOTDIR: // Not a directory (POSIX.1-2001)
+            ABC_THROW(os::invalid_path, (op, iErr));
          case ENODEV: // No such device (POSIX.1-2001)
          case ENOENT: // No such file or directory (POSIX.1-2001)
-            ABC_THROW(file_not_found_error, (op, iErr));
+            ABC_THROW(os::path_not_found, (op, iErr));
          default:
             exception::throw_os_error(iErr);
       }
@@ -322,9 +325,18 @@ _std::shared_ptr<file_base> open(
    if (h == INVALID_HANDLE_VALUE) {
       ::DWORD iErr = ::GetLastError();
       switch (iErr) {
+         case ERROR_BAD_PATHNAME: // The specified path is invalid.
+         case ERROR_DIRECTORY: // The directory name is invalid.
+         case ERROR_INVALID_NAME: // The file name, directory name, or volume label syntax is
+            // incorrect.
+            ABC_THROW(os::invalid_path, (op, iErr));
+         case ERROR_BAD_NETPATH: // The network path was not found.
+         case ERROR_BAD_UNIT: // The system cannot find the specified device .
+         case ERROR_NO_NET_OR_BAD_PATH: // No network provider accepted the given network path.
+         case ERROR_INVALID_DRIVE: // The system cannot find the drive specified.
          case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
          case ERROR_UNKNOWN_PORT: // The specified port is unknown.
-            ABC_THROW(file_not_found_error, (op, iErr));
+            ABC_THROW(os::path_not_found, (op, iErr));
          default:
             exception::throw_os_error(iErr);
       }

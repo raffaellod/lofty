@@ -53,7 +53,6 @@ void exception::throw_os_error(errint_t err) {
       case EDESTADDRREQ: // Destination address required (POSIX.1-2001)
       case EINVAL: // Invalid argument (POSIX.1-2001)
       case EMSGSIZE: // Message too long (POSIX.1-2001)
-      case ENAMETOOLONG: // File name too long (POSIX.1-2001)
 #ifdef ENOTBLK
       case ENOTBLK: // Block device required (Linux)
 #endif
@@ -78,10 +77,6 @@ void exception::throw_os_error(errint_t err) {
       case ENOLCK: // No locks available (POSIX.1-2001)
       case ESRCH: // No such process (POSIX.1-2001)
          ABC_THROW(environment_error, (err));
-
-      case ENODEV: // No such device (POSIX.1-2001)
-      case ENOENT: // No such file or directory (POSIX.1-2001)
-         ABC_THROW(file_not_found_error, (os::path(), err));
 
       case EIDRM: // Identifier removed (POSIX.1-2001)
       case EILSEQ: // Illegal byte sequence (POSIX.1-2001, C99)
@@ -117,7 +112,6 @@ void exception::throw_os_error(errint_t err) {
       case ENOMEDIUM: // No medium found (Linux)
 #endif
       case ENOSPC: // No space left on device (POSIX.1-2001)
-      case ENOTDIR: // Not a directory (POSIX.1-2001)
       case ENOTEMPTY: // Directory not empty (POSIX.1-2001)
       case ENOTTY: // Not a typewriter (POSIX.1-2001)
       case ENXIO: // No such device or address (POSIX.1-2001)
@@ -195,6 +189,14 @@ void exception::throw_os_error(errint_t err) {
 
       case ENOSYS: // Function not implemented (POSIX.1-2001)
          ABC_THROW(not_implemented_error, (err));
+
+      case ENAMETOOLONG: // File name too long (POSIX.1-2001)
+      case ENOTDIR: // Not a directory (POSIX.1-2001)
+         ABC_THROW(os::invalid_path, (os::path(ABC_SL("<not available>")), err));
+
+      case ENODEV: // No such device (POSIX.1-2001)
+      case ENOENT: // No such file or directory (POSIX.1-2001)
+         ABC_THROW(os::path_not_found, (os::path(ABC_SL("<not available>")), err));
 
       case EOVERFLOW: // Value too large for defined data type (POSIX.1-2001)
          ABC_THROW(overflow_error, (err));

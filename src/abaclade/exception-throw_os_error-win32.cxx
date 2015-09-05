@@ -94,8 +94,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_INVALID_MESSAGEDEST: // The format of the specified message destination is invalid.
       case ERROR_INVALID_MESSAGENAME: // The format of the specified message name is invalid.
       case ERROR_INVALID_MSGBOX_STYLE: // Invalid message box style.
-      case ERROR_INVALID_NAME: // The file name, directory name, or volume label syntax is
-         // incorrect.
       case ERROR_INVALID_NETNAME: // The format of the specified network name is invalid.
       case ERROR_INVALID_PARAMETER: // The parameter is incorrect.
       case ERROR_INVALID_PASSWORDNAME: // The format of the specified password is invalid.
@@ -165,10 +163,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_TOO_MANY_TCBS: // Cannot create another thread.
       case ERROR_WAIT_NO_CHILDREN: // There are no child processes to wait for.
          ABC_THROW(environment_error, (err));
-
-      case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
-      case ERROR_UNKNOWN_PORT: // The specified port is unknown.
-         ABC_THROW(file_not_found_error, (os::path(), err));
 
       case ERROR_ALREADY_INITIALIZED: // An attempt was made to perform an initialization operation
          // when initialization has already been completed.
@@ -404,19 +398,13 @@ void exception::throw_os_error(errint_t err) {
       default:
          ABC_THROW(generic_error, (err));
 
-      case ERROR_BAD_PATHNAME: // The specified path is invalid.
-      case ERROR_INVALID_DRIVE: // The system cannot find the drive specified.
-         ABC_THROW(invalid_path_error, (err));
-
       case ERROR_ALREADY_ASSIGNED: // The local device name is already in use.
       case ERROR_ALREADY_EXISTS: // Cannot create a file when that file already exists.
       case ERROR_ATOMIC_LOCKS_NOT_SUPPORTED: // The file system does not support atomic changes to
          // the lock type.
       case ERROR_BADDB: // The configuration registry database is corrupt.
       case ERROR_BADKEY: // The configuration registry key is invalid.
-      case ERROR_BAD_NETPATH: // The network path was not found.
       case ERROR_BAD_PIPE: // The pipe state is invalid.
-      case ERROR_BAD_UNIT: // The system cannot find the specified device .
       case ERROR_BEGINNING_OF_MEDIA: // The beginning of the tape or partition was encountered.
       case ERROR_BROKEN_PIPE: // The pipe has been ended.
       case ERROR_BUS_RESET: // The I/O bus was reset.
@@ -443,7 +431,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_DIR_NOT_ROOT: // The directory is not a subdirectory of the root directory.
       case ERROR_DIRECT_ACCESS_HANDLE: // Attempt to use a file handle to an open disk partition for
          // an operation other than raw disk I/O.
-      case ERROR_DIRECTORY: // The directory name is invalid.
       case ERROR_DISK_CHANGE: // The program stopped because an alternate diskette was not inserted.
       case ERROR_DISK_CORRUPT: // The disk structure is corrupted and non-readable.
       case ERROR_DISK_FULL: // There is not enough space on the disk.
@@ -654,7 +641,6 @@ void exception::throw_os_error(errint_t err) {
          // currently available
       case ERROR_NO_LOGON_SERVERS: // There are currently no logon servers available to service the
          // logon request.
-      case ERROR_NO_NET_OR_BAD_PATH: // No network provider accepted the given network path.
       case ERROR_NO_NETWORK: // The network is not present or not started.
       case ERROR_NOT_LOGGED_ON: // The operation being requested was not performed because the user
          // has not logged on to the network. The specified service does not exist.
@@ -683,6 +669,20 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_NETWORK_UNREACHABLE: // The remote network is not reachable by the transport.
       case ERROR_REQUEST_ABORTED: // The request was aborted.
          ABC_THROW(network_io_error, (err));
+
+      case ERROR_BAD_PATHNAME: // The specified path is invalid.
+      case ERROR_DIRECTORY: // The directory name is invalid.
+      case ERROR_INVALID_NAME: // The file name, directory name, or volume label syntax is
+         // incorrect.
+         ABC_THROW(os::invalid_path, (os::path(ABC_SL("<not available>")), err));
+
+      case ERROR_BAD_NETPATH: // The network path was not found.
+      case ERROR_BAD_UNIT: // The system cannot find the specified device .
+      case ERROR_NO_NET_OR_BAD_PATH: // No network provider accepted the given network path.
+      case ERROR_INVALID_DRIVE: // The system cannot find the drive specified.
+      case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
+      case ERROR_UNKNOWN_PORT: // The specified port is unknown.
+         ABC_THROW(os::path_not_found, (os::path(ABC_SL("<not available>")), err));
 
       case ERROR_ARITHMETIC_OVERFLOW: // Arithmetic result exceeded 32 bits.
          ABC_THROW(overflow_error, (err));

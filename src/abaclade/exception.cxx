@@ -42,14 +42,11 @@ namespace abc {
 #if ABC_HOST_API_POSIX
    ABC_MAP_ERROR_CLASS_TO_ERRINT(argument_error, EINVAL);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(domain_error, EDOM);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(file_not_found_error, ENOENT);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(io_error, EIO);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_address_error, EFAULT);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(overflow_error, EOVERFLOW);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(null_pointer_error, EFAULT);
 #elif ABC_HOST_API_WIN32
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(file_not_found_error, ERROR_PATH_NOT_FOUND);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(invalid_path_error, ERROR_BAD_PATHNAME);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_address_error, ERROR_INVALID_ADDRESS);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_allocation_error, ERROR_NOT_ENOUGH_MEMORY);
    ABC_MAP_ERROR_CLASS_TO_ERRINT(null_pointer_error, ERROR_INVALID_ADDRESS);
@@ -679,21 +676,6 @@ void index_error::init(
       sFormat = ABC_SL(" invalid index: {0}");
    }
    ptwOut->print(sFormat, m_iInvalid, m_iMin, m_iMax);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-invalid_path_error::invalid_path_error() :
-   generic_error() {
-   m_pszWhat = "abc::invalid_path_error";
-}
-
-void invalid_path_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<invalid_path_error>::mapped_error);
 }
 
 } //namespace abc

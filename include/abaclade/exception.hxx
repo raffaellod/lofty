@@ -957,22 +957,6 @@ public:
 
 namespace abc {
 
-//! The specified path is not valid.
-class ABACLADE_SYM invalid_path_error : public virtual generic_error {
-public:
-   //! Default constructor.
-   invalid_path_error();
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 //! An I/O operation failed for an I/O-related reason.
 class ABACLADE_SYM io_error : public virtual environment_error {
 public:

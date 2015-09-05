@@ -542,33 +542,76 @@ void to_str_backend<os::path>::write(os::path const & op, io::text::writer * ptw
 
 namespace abc {
 
-file_not_found_error::file_not_found_error() :
+#if ABC_HOST_API_WIN32
+   ABC_MAP_ERROR_CLASS_TO_ERRINT(os::invalid_path, ERROR_BAD_PATHNAME);
+#endif
+
+namespace os {
+
+invalid_path::invalid_path() :
+   generic_error() {
+   m_pszWhat = "abc::invalid_path";
+}
+invalid_path::invalid_path(invalid_path const & x) :
+   generic_error(x),
+   m_opInvalid(x.m_opInvalid) {
+}
+
+invalid_path & invalid_path::operator=(invalid_path const & x) {
+   generic_error::operator=(x);
+   m_opInvalid = x.m_opInvalid;
+   return *this;
+}
+
+void invalid_path::init(os::path const & opInvalid, errint_t err /*= 0*/) {
+   generic_error::init(err ? err : os_error_mapping<invalid_path>::mapped_error);
+   m_opInvalid = opInvalid;
+}
+
+/*virtual*/ void invalid_path::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
+   generic_error::write_extended_info(ptwOut);
+   ptwOut->print(ABC_SL("not a valid path: \"{}\""), m_opInvalid);
+}
+
+}} //namespace abc::os
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+#if ABC_HOST_API_POSIX
+   ABC_MAP_ERROR_CLASS_TO_ERRINT(os::path_not_found, ENOENT);
+#elif ABC_HOST_API_WIN32
+   ABC_MAP_ERROR_CLASS_TO_ERRINT(os::path_not_found, ERROR_PATH_NOT_FOUND);
+#endif
+
+namespace os {
+
+path_not_found::path_not_found() :
    generic_error(),
    environment_error() {
-   m_pszWhat = "abc::file_not_found_error";
+   m_pszWhat = "abc::path_not_found";
 }
-file_not_found_error::file_not_found_error(file_not_found_error const & x) :
+path_not_found::path_not_found(path_not_found const & x) :
    generic_error(x),
    environment_error(x),
    m_opNotFound(x.m_opNotFound) {
 }
 
-file_not_found_error & file_not_found_error::operator=(file_not_found_error const & x) {
+path_not_found & path_not_found::operator=(path_not_found const & x) {
    environment_error::operator=(x);
    m_opNotFound = x.m_opNotFound;
    return *this;
 }
 
-void file_not_found_error::init(os::path const & opNotFound, errint_t err /*= 0*/) {
-   environment_error::init(err ? err : os_error_mapping<file_not_found_error>::mapped_error);
+void path_not_found::init(os::path const & opNotFound, errint_t err /*= 0*/) {
+   environment_error::init(err ? err : os_error_mapping<path_not_found>::mapped_error);
    m_opNotFound = opNotFound;
 }
 
-/*virtual*/ void file_not_found_error::write_extended_info(
-   io::text::writer * ptwOut
-) const /*override*/ {
+/*virtual*/ void path_not_found::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    environment_error::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL("couldn’t find path: “{}”"), m_opNotFound);
+   ptwOut->print(ABC_SL("path not found: \"{}\""), m_opNotFound);
 }
 
-} //namespace abc
+}} //namespace abc::os
