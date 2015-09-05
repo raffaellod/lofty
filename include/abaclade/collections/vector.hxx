@@ -527,15 +527,6 @@ public:
    ABC_RELOP_IMPL(<=)
    #undef ABC_RELOP_IMPL
 
-      /*! Returns the underlying iterator type.
-
-      @return
-         Pointer to the value pointed to by this iterator.
-      */
-      T const * base() const {
-         return m_pt;
-      }
-
    protected:
       /*! Constructor.
 
@@ -628,11 +619,6 @@ public:
          return const_iterator::operator--(0);
       }
 
-      //! See const_iterator::base().
-      T * base() const {
-         return const_cast<T *>(const_iterator::base());
-      }
-
    protected:
       /*! Constructor.
 
@@ -700,12 +686,14 @@ public:
    /*! Element access operator.
 
    @param i
-      Element index. See translate_index() for allowed index values.
+      Element index.
    @return
       Element at index i.
    */
    T & operator[](std::ptrdiff_t i) {
-      return *translate_index(i);
+      return *static_cast<T *>(const_cast<void *>(vector_impl::translate_offset(
+         static_cast<std::ptrdiff_t>(sizeof(T)) * i
+      )));
    }
    T const & operator[](std::ptrdiff_t i) const {
       return const_cast<vector *>(this)->operator[](i);
@@ -999,48 +987,6 @@ protected:
    vector(std::size_t cbEmbeddedCapacity, vector && v) :
       vector_impl(cbEmbeddedCapacity) {
       vector_impl::assign_move_desc_or_move_items(_std::move(v));
-   }
-
-   /*! Converts a possibly negative item index into a pointer into the item array, throwing an
-   exception if the result is out of bounds for the item array.
-
-   @param i
-      If positive, this is interpreted as a 0-based index; if negative, it’s interpreted as a
-      1-based index from the end of the item array by adding this->size() to it.
-   @return
-      Pointer to the element.
-   */
-   T * translate_index(std::ptrdiff_t i) const {
-      return static_cast<T *>(const_cast<void *>(vector_impl::translate_offset(
-         static_cast<std::ptrdiff_t>(sizeof(T)) * i
-      )));
-   }
-
-   /*! Converts a left-closed, right-open interval with possibly negative element indices into one
-   consisting of two pointers into the item array.
-
-   @param iBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based index;
-      if negative, it’s interpreted as a 1-based index from the end of the item array by adding
-      this->size() to it.
-   @param iEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based
-      index; if negative, it’s interpreted as a 1-based index from the end of the item array by
-      adding this->size() to it.
-   @return
-      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
-      interval [nullptr, nullptr) if the indices represent an empty interval after being adjusted.
-   */
-   _std::tuple<T const *, T const *> translate_range(
-      std::ptrdiff_t iBegin, std::ptrdiff_t iEnd
-   ) const {
-      auto range(vector_impl::translate_byte_range(
-         static_cast<std::ptrdiff_t>(sizeof(T)) * iBegin,
-         static_cast<std::ptrdiff_t>(sizeof(T)) * iEnd
-      ));
-      return _std::make_tuple(
-         static_cast<T const *>(_std::get<0>(range)), static_cast<T const *>(_std::get<1>(range))
-      );
    }
 };
 
