@@ -718,7 +718,7 @@ public:
       if (!*this) {
          ABC_THROW(lookup_error, ());
       }
-      return *(vector_impl::template end<T>() - 1);
+      return *(data_end() - 1);
    }
 
    /*! Returns a const reference to the last element.
@@ -736,7 +736,7 @@ public:
       Iterator to the first element.
    */
    iterator begin() {
-      return iterator(vector_impl::template begin<T>());
+      return iterator(data());
    }
 
    /*! Returns a const iterator set to the first element.
@@ -841,7 +841,7 @@ public:
       Iterator to the first element.
    */
    iterator end() {
-      return iterator(vector_impl::template end<T>());
+      return iterator(data_end());
    }
 
    /*! Returns a const iterator set beyond the last element.
@@ -862,7 +862,7 @@ public:
       if (!*this) {
          ABC_THROW(lookup_error, ());
       }
-      return *vector_impl::template begin<T>();
+      return *data();
    }
 
    /*! Returns a const reference to the first element.
@@ -913,7 +913,7 @@ public:
       Reverse iterator to the last element.
    */
    reverse_iterator rbegin() {
-      return reverse_iterator(iterator(vector_impl::template end<T>()));
+      return reverse_iterator(iterator(data_end()));
    }
 
    /*! Returns a const reverse iterator set to the last element.
@@ -941,7 +941,7 @@ public:
       Reverse iterator to before the first element.
    */
    reverse_iterator rend() {
-      return reverse_iterator(iterator(vector_impl::template begin<T>()));
+      return reverse_iterator(iterator(data()));
    }
 
    /*! Returns a const reverse iterator set to before the first element.
