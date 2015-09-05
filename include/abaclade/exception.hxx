@@ -399,7 +399,13 @@ public:
    //! Destructor.
    virtual ~exception();
 
-   //! See std::exception::operator=().
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
    exception & operator=(exception const & x);
 
    /*! Stores context information to be displayed if the exception is not caught.
@@ -563,8 +569,24 @@ public:
    //! Default constructor.
    execution_interruption(/*source?*/);
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   execution_interruption(execution_interruption const & x);
+
    //! Destructor.
    virtual ~execution_interruption();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   execution_interruption & operator=(execution_interruption const & x);
 };
 
 } //namespace abc
@@ -580,8 +602,24 @@ public:
    //! Default constructor.
    app_execution_interruption();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   app_execution_interruption(app_execution_interruption const & x);
+
    //! Destructor.
    virtual ~app_execution_interruption();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   app_execution_interruption & operator=(app_execution_interruption const & x);
 };
 
 } //namespace abc
@@ -597,8 +635,24 @@ public:
    //! Default constructor.
    app_exit_interruption();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   app_exit_interruption(app_exit_interruption const & x);
+
    //! Destructor.
    virtual ~app_exit_interruption();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   app_exit_interruption & operator=(app_exit_interruption const & x);
 };
 
 } //namespace abc
@@ -614,8 +668,24 @@ public:
    //! Default constructor.
    user_forced_interruption();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   user_forced_interruption(user_forced_interruption const & x);
+
    //! Destructor.
    virtual ~user_forced_interruption();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   user_forced_interruption & operator=(user_forced_interruption const & x);
 };
 
 } //namespace abc
@@ -637,7 +707,16 @@ public:
    */
    generic_error(generic_error const & x);
 
-   //! Assignment operator. See abc::exception::operator=().
+   //! Destructor.
+   virtual ~generic_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
    generic_error & operator=(generic_error const & x);
 
    /*! See abc::exception::init().
@@ -685,11 +764,27 @@ public:
 #endif
 
 public:
-   /*! Default constructor.
-
-   TODO: add arguments name/value, to be passed by macro ABC_THROW_ARGUMENT_ERROR(argname).
-   */
+   //! Default constructor.
    argument_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   argument_error(argument_error const & x);
+
+   //! Destructor.
+   virtual ~argument_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   argument_error & operator=(argument_error const & x);
 
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
@@ -707,6 +802,25 @@ public:
    //! Default constructor.
    arithmetic_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   arithmetic_error(arithmetic_error const & x);
+
+   //! Destructor.
+   virtual ~arithmetic_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   arithmetic_error & operator=(arithmetic_error const & x);
+
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
@@ -723,6 +837,25 @@ public:
    //! Default constructor.
    buffer_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   buffer_error(buffer_error const & x);
+
+   //! Destructor.
+   virtual ~buffer_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   buffer_error & operator=(buffer_error const & x);
+
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
@@ -738,6 +871,25 @@ class ABACLADE_SYM division_by_zero_error : public virtual arithmetic_error {
 public:
    //! Default constructor.
    division_by_zero_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   division_by_zero_error(division_by_zero_error const & x);
+
+   //! Destructor.
+   virtual ~division_by_zero_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   division_by_zero_error & operator=(division_by_zero_error const & x);
 
    //! See abc::arithmetic_error::init().
    void init(errint_t err = 0);
@@ -763,6 +915,25 @@ public:
    //! Default constructor.
    domain_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   domain_error(domain_error const & x);
+
+   //! Destructor.
+   virtual ~domain_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   domain_error & operator=(domain_error const & x);
+
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
@@ -778,6 +949,25 @@ class ABACLADE_SYM environment_error : public virtual generic_error {
 public:
    //! Default constructor.
    environment_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   environment_error(environment_error const & x);
+
+   //! Destructor.
+   virtual ~environment_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   environment_error & operator=(environment_error const & x);
 
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
@@ -795,6 +985,25 @@ public:
    //! Default constructor.
    floating_point_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   floating_point_error(floating_point_error const & x);
+
+   //! Destructor.
+   virtual ~floating_point_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   floating_point_error & operator=(floating_point_error const & x);
+
    //! See abc::arithmetic_error::init().
    void init(errint_t err = 0);
 };
@@ -811,6 +1020,25 @@ public:
    //! Default constructor.
    iterator_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   iterator_error(iterator_error const & x);
+
+   //! Destructor.
+   virtual ~iterator_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   iterator_error & operator=(iterator_error const & x);
+
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
@@ -826,6 +1054,25 @@ class ABACLADE_SYM lookup_error : public virtual generic_error {
 public:
    //! Default constructor.
    lookup_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   lookup_error(lookup_error const & x);
+
+   //! Destructor.
+   virtual ~lookup_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   lookup_error & operator=(lookup_error const & x);
 
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
@@ -858,7 +1105,16 @@ public:
    */
    index_error(index_error const & x);
 
-   //! See abc::lookup_error::operator=().
+   //! Destructor.
+   virtual ~index_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
    index_error & operator=(index_error const & x);
 
    /*! Returns the invalid index.
@@ -919,6 +1175,25 @@ public:
    //! Default constructor.
    key_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   key_error(key_error const & x);
+
+   //! Destructor.
+   virtual ~key_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   key_error & operator=(key_error const & x);
+
    //! See abc::lookup_error::init().
    void init(errint_t err = 0);
 };
@@ -934,6 +1209,25 @@ class ABACLADE_SYM io_error : public virtual environment_error {
 public:
    //! Default constructor.
    io_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   io_error(io_error const & x);
+
+   //! Destructor.
+   virtual ~io_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   io_error & operator=(io_error const & x);
 
    //! See abc::environment_error::init().
    void init(errint_t err = 0);
@@ -958,7 +1252,16 @@ public:
    */
    memory_address_error(memory_address_error const & x);
 
-   //! See abc::generic_error::operator=().
+   //! Destructor.
+   virtual ~memory_address_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
    memory_address_error & operator=(memory_address_error const & x);
 
    /*! Returns the faulty address.
@@ -1005,6 +1308,25 @@ public:
    //! Default constructor.
    memory_access_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   memory_access_error(memory_access_error const & x);
+
+   //! Destructor.
+   virtual ~memory_access_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   memory_access_error & operator=(memory_access_error const & x);
+
    //! See abc::memory_address_error::init().
    void init(void const * pInvalid, errint_t err = 0);
 };
@@ -1024,6 +1346,25 @@ public:
    //! Default constructor.
    memory_allocation_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   memory_allocation_error(memory_allocation_error const & x);
+
+   //! Destructor.
+   virtual ~memory_allocation_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   memory_allocation_error & operator=(memory_allocation_error const & x);
+
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
@@ -1040,6 +1381,25 @@ public:
    //! Default constructor.
    network_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   network_error(network_error const & x);
+
+   //! Destructor.
+   virtual ~network_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   network_error & operator=(network_error const & x);
+
    //! See abc::environment_error::init().
    void init(errint_t err = 0);
 };
@@ -1055,6 +1415,25 @@ class ABACLADE_SYM network_io_error : public virtual io_error, public virtual ne
 public:
    //! Default constructor.
    network_io_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   network_io_error(network_io_error const & x);
+
+   //! Destructor.
+   virtual ~network_io_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   network_io_error & operator=(network_io_error const & x);
 
    //! See abc::io_error::init() and abc::network_error::init().
    void init(errint_t err = 0);
@@ -1073,6 +1452,25 @@ public:
    //! Default constructor.
    not_implemented_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   not_implemented_error(not_implemented_error const & x);
+
+   //! Destructor.
+   virtual ~not_implemented_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   not_implemented_error & operator=(not_implemented_error const & x);
+
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
@@ -1088,6 +1486,25 @@ class ABACLADE_SYM null_pointer_error : public virtual memory_address_error {
 public:
    //! Default constructor.
    null_pointer_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   null_pointer_error(null_pointer_error const & x);
+
+   //! Destructor.
+   virtual ~null_pointer_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   null_pointer_error & operator=(null_pointer_error const & x);
 
    //! See abc::memory_address_error::init().
    void init(errint_t err = 0);
@@ -1107,6 +1524,25 @@ public:
    //! Default constructor.
    overflow_error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   overflow_error(overflow_error const & x);
+
+   //! Destructor.
+   virtual ~overflow_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   overflow_error & operator=(overflow_error const & x);
+
    //! See abc::arithmetic_error::init().
    void init(errint_t err = 0);
 };
@@ -1122,6 +1558,25 @@ class ABACLADE_SYM security_error : public virtual environment_error {
 public:
    //! Default constructor.
    security_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   security_error(security_error const & x);
+
+   //! Destructor.
+   virtual ~security_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   security_error & operator=(security_error const & x);
 
    //! See abc::environment_error::init().
    void init(errint_t err = 0);

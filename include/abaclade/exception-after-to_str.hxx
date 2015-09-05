@@ -104,7 +104,16 @@ public:
    */
    syntax_error(syntax_error const & x);
 
-   //! See abc::generic_error::operator=().
+   //! Destructor.
+   virtual ~syntax_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
    syntax_error & operator=(syntax_error const & x);
 
    /*! See abc::generic_error::init().

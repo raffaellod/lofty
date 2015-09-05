@@ -613,6 +613,9 @@ public:
    */
    invalid_path(invalid_path const & x);
 
+   //! Destructor.
+   virtual ~invalid_path();
+
    /*! Copy-assignment operator.
 
    @param x
@@ -667,6 +670,9 @@ public:
       Source object.
    */
    path_not_found(path_not_found const & x);
+
+   //! Destructor.
+   virtual ~path_not_found();
 
    /*! Copy-assignment operator.
 

@@ -32,6 +32,25 @@ public:
    //! Default constructor.
    error();
 
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   error(error const & x);
+
+   //! Destructor.
+   virtual ~error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   error & operator=(error const & x);
+
    //! See abc::generic_error::init().
    void init(errint_t err = 0);
 };
@@ -55,7 +74,16 @@ public:
    */
    decode_error(decode_error const & x);
 
-   //! See abc::text::error::operator=().
+   //! Destructor.
+   virtual ~decode_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
    decode_error & operator=(decode_error const & x);
 
    /*! See abc::text::error::init().
@@ -95,14 +123,23 @@ public:
    //! Default constructor.
    encode_error();
 
-   /*! Constructor.
+   /*! Copy constructor.
 
    @param x
       Source object.
    */
    encode_error(encode_error const & x);
 
-   //! See abc::text::error::operator=().
+   //! Destructor.
+   virtual ~encode_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
    encode_error & operator=(encode_error const & x);
 
    /*! See abc::text::error::init().

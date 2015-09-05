@@ -401,7 +401,16 @@ execution_interruption::execution_interruption(/*source?*/) {
    m_pszWhat = "abc::execution_interruption";
 }
 
+execution_interruption::execution_interruption(execution_interruption const & x) :
+   exception(x) {
+}
+
 /*virtual*/ execution_interruption::~execution_interruption() {
+}
+
+execution_interruption & execution_interruption::operator=(execution_interruption const & x) {
+   exception::operator=(x);
+   return *this;
 }
 
 } //namespace abc
@@ -414,7 +423,18 @@ app_execution_interruption::app_execution_interruption() {
    m_pszWhat = "abc::app_execution_interruption";
 }
 
+app_execution_interruption::app_execution_interruption(app_execution_interruption const & x) :
+   execution_interruption(x) {
+}
+
 /*virtual*/ app_execution_interruption::~app_execution_interruption() {
+}
+
+app_execution_interruption & app_execution_interruption::operator=(
+   app_execution_interruption const & x
+) {
+   execution_interruption::operator=(x);
+   return *this;
 }
 
 } //namespace abc
@@ -427,7 +447,16 @@ app_exit_interruption::app_exit_interruption() {
    m_pszWhat = "abc::app_exit_interruption";
 }
 
+app_exit_interruption::app_exit_interruption(app_exit_interruption const & x) :
+   execution_interruption(x) {
+}
+
 /*virtual*/ app_exit_interruption::~app_exit_interruption() {
+}
+
+app_exit_interruption & app_exit_interruption::operator=(app_exit_interruption const & x) {
+   execution_interruption::operator=(x);
+   return *this;
 }
 
 } //namespace abc
@@ -440,7 +469,16 @@ user_forced_interruption::user_forced_interruption() {
    m_pszWhat = "abc::user_forced_interruption";
 }
 
+user_forced_interruption::user_forced_interruption(user_forced_interruption const & x) :
+   app_execution_interruption(x) {
+}
+
 /*virtual*/ user_forced_interruption::~user_forced_interruption() {
+}
+
+user_forced_interruption & user_forced_interruption::operator=(user_forced_interruption const & x) {
+   app_execution_interruption::operator=(x);
+   return *this;
 }
 
 } //namespace abc
@@ -452,6 +490,18 @@ namespace abc {
 argument_error::argument_error() :
    generic_error() {
    m_pszWhat = "abc::argument_error";
+}
+
+argument_error::argument_error(argument_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ argument_error::~argument_error() {
+}
+
+argument_error & argument_error::operator=(argument_error const & x) {
+   generic_error::operator=(x);
+   return *this;
 }
 
 void argument_error::init(errint_t err /*= 0*/) {
@@ -473,6 +523,18 @@ namespace abc {
 arithmetic_error::arithmetic_error() :
    generic_error() {
    m_pszWhat = "abc::arithmetic_error";
+}
+
+arithmetic_error::arithmetic_error(arithmetic_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ arithmetic_error::~arithmetic_error() {
+}
+
+arithmetic_error & arithmetic_error::operator=(arithmetic_error const & x) {
+   generic_error::operator=(x);
+   return *this;
 }
 
 void arithmetic_error::init(errint_t err /*= 0*/) {
@@ -517,6 +579,18 @@ buffer_error::buffer_error() :
    m_pszWhat = "abc::buffer_error";
 }
 
+buffer_error::buffer_error(buffer_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ buffer_error::~buffer_error() {
+}
+
+buffer_error & buffer_error::operator=(buffer_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
 void buffer_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
 }
@@ -528,8 +602,22 @@ void buffer_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 division_by_zero_error::division_by_zero_error() :
+   generic_error(),
    arithmetic_error() {
    m_pszWhat = "abc::division_by_zero_error";
+}
+
+division_by_zero_error::division_by_zero_error(division_by_zero_error const & x) :
+   generic_error(x),
+   arithmetic_error(x) {
+}
+
+/*virtual*/ division_by_zero_error::~division_by_zero_error() {
+}
+
+division_by_zero_error & division_by_zero_error::operator=(division_by_zero_error const & x) {
+   arithmetic_error::operator=(x);
+   return *this;
 }
 
 void division_by_zero_error::init(errint_t err /*= 0*/) {
@@ -545,6 +633,18 @@ namespace abc {
 domain_error::domain_error() :
    generic_error() {
    m_pszWhat = "abc::domain_error";
+}
+
+domain_error::domain_error(domain_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ domain_error::~domain_error() {
+}
+
+domain_error & domain_error::operator=(domain_error const & x) {
+   generic_error::operator=(x);
+   return *this;
 }
 
 void domain_error::init(errint_t err /*= 0*/) {
@@ -568,6 +668,18 @@ environment_error::environment_error() :
    m_pszWhat = "abc::environment_error";
 }
 
+environment_error::environment_error(environment_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ environment_error::~environment_error() {
+}
+
+environment_error & environment_error::operator=(environment_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
 void environment_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
 }
@@ -579,8 +691,22 @@ void environment_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 floating_point_error::floating_point_error() :
+   generic_error(),
    arithmetic_error() {
    m_pszWhat = "abc::floating_point_error";
+}
+
+floating_point_error::floating_point_error(floating_point_error const & x) :
+   generic_error(x),
+   arithmetic_error(x) {
+}
+
+/*virtual*/ floating_point_error::~floating_point_error() {
+}
+
+floating_point_error & floating_point_error::operator=(floating_point_error const & x) {
+   arithmetic_error::operator=(x);
+   return *this;
 }
 
 void floating_point_error::init(errint_t err /*= 0*/) {
@@ -600,6 +726,9 @@ generic_error::generic_error() :
 generic_error::generic_error(generic_error const & x) :
    exception(x),
    m_err(x.m_err) {
+}
+
+/*virtual*/ generic_error::~generic_error() {
 }
 
 generic_error & generic_error::operator=(generic_error const & x) {
@@ -632,6 +761,9 @@ index_error::index_error(index_error const & x) :
    m_iMin(x.m_iMin),
    m_iMax(x.m_iMax),
    m_bMinMaxProvided(x.m_bMinMaxProvided) {
+}
+
+/*virtual*/ index_error::~index_error() {
 }
 
 index_error & index_error::operator=(index_error const & x) {
@@ -677,8 +809,22 @@ void index_error::init(
 namespace abc {
 
 io_error::io_error() :
+   generic_error(),
    environment_error() {
    m_pszWhat = "abc::io_error";
+}
+
+io_error::io_error(io_error const & x) :
+   generic_error(x),
+   environment_error(x) {
+}
+
+/*virtual*/ io_error::~io_error() {
+}
+
+io_error & io_error::operator=(io_error const & x) {
+   environment_error::operator=(x);
+   return *this;
 }
 
 void io_error::init(errint_t err /*= 0*/) {
@@ -702,6 +848,18 @@ iterator_error::iterator_error() :
    m_pszWhat = "abc::iterator_error";
 }
 
+iterator_error::iterator_error(iterator_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ iterator_error::~iterator_error() {
+}
+
+iterator_error & iterator_error::operator=(iterator_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
 void iterator_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
 }
@@ -713,8 +871,22 @@ void iterator_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 key_error::key_error() :
+   generic_error(),
    lookup_error() {
    m_pszWhat = "abc::key_error";
+}
+
+key_error::key_error(key_error const & x) :
+   generic_error(x),
+   lookup_error(x) {
+}
+
+/*virtual*/ key_error::~key_error() {
+}
+
+key_error & key_error::operator=(key_error const & x) {
+   lookup_error::operator=(x);
+   return *this;
 }
 
 void key_error::init(errint_t err /*= 0*/) {
@@ -732,6 +904,18 @@ lookup_error::lookup_error() :
    m_pszWhat = "abc::lookup_error";
 }
 
+lookup_error::lookup_error(lookup_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ lookup_error::~lookup_error() {
+}
+
+lookup_error & lookup_error::operator=(lookup_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
 void lookup_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
 }
@@ -743,8 +927,22 @@ void lookup_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 memory_access_error::memory_access_error() :
+   generic_error(),
    memory_address_error() {
    m_pszWhat = "abc::memory_access_error";
+}
+
+memory_access_error::memory_access_error(memory_access_error const & x) :
+   generic_error(x),
+   memory_address_error(x) {
+}
+
+/*virtual*/ memory_access_error::~memory_access_error() {
+}
+
+memory_access_error & memory_access_error::operator=(memory_access_error const & x) {
+   memory_address_error::operator=(x);
+   return *this;
 }
 
 void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
@@ -763,9 +961,13 @@ memory_address_error::memory_address_error() :
    generic_error() {
    m_pszWhat = "abc::memory_address_error";
 }
+
 memory_address_error::memory_address_error(memory_address_error const & x) :
    generic_error(x),
    m_pInvalid(x.m_pInvalid) {
+}
+
+/*virtual*/ memory_address_error::~memory_address_error() {
 }
 
 memory_address_error & memory_address_error::operator=(memory_address_error const & x) {
@@ -809,6 +1011,18 @@ memory_allocation_error::memory_allocation_error() :
    m_pszWhat = "abc::memory_allocation_error";
 }
 
+memory_allocation_error::memory_allocation_error(memory_allocation_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ memory_allocation_error::~memory_allocation_error() {
+}
+
+memory_allocation_error & memory_allocation_error::operator=(memory_allocation_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
 void memory_allocation_error::init(errint_t err /*= 0*/) {
    generic_error::init(err ? err :
 #if ABC_HOST_API_POSIX
@@ -828,8 +1042,22 @@ void memory_allocation_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 network_error::network_error() :
+   generic_error(),
    environment_error() {
    m_pszWhat = "abc::network_error";
+}
+
+network_error::network_error(network_error const & x) :
+   generic_error(x),
+   environment_error(x) {
+}
+
+/*virtual*/ network_error::~network_error() {
+}
+
+network_error & network_error::operator=(network_error const & x) {
+   environment_error::operator=(x);
+   return *this;
 }
 
 void network_error::init(errint_t err /*= 0*/) {
@@ -843,9 +1071,26 @@ void network_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 network_io_error::network_io_error() :
+   generic_error(),
    io_error(),
    network_error() {
    m_pszWhat = "abc::network_io_error";
+}
+
+network_io_error::network_io_error(network_io_error const & x) :
+   generic_error(x),
+   environment_error(x),
+   io_error(x),
+   network_error(x) {
+}
+
+/*virtual*/ network_io_error::~network_io_error() {
+}
+
+network_io_error & network_io_error::operator=(network_io_error const & x) {
+   io_error::operator=(x);
+   network_error::operator=(x);
+   return *this;
 }
 
 void network_io_error::init(errint_t err /*= 0*/) {
@@ -864,6 +1109,18 @@ not_implemented_error::not_implemented_error() :
    m_pszWhat = "abc::not_implemented_error";
 }
 
+not_implemented_error::not_implemented_error(not_implemented_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ not_implemented_error::~not_implemented_error() {
+}
+
+not_implemented_error & not_implemented_error::operator=(not_implemented_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
 void not_implemented_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
 }
@@ -875,8 +1132,22 @@ void not_implemented_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 null_pointer_error::null_pointer_error() :
+   generic_error(),
    memory_address_error() {
    m_pszWhat = "abc::null_pointer_error";
+}
+
+null_pointer_error::null_pointer_error(null_pointer_error const & x) :
+   generic_error(x),
+   memory_address_error(x) {
+}
+
+/*virtual*/ null_pointer_error::~null_pointer_error() {
+}
+
+null_pointer_error & null_pointer_error::operator=(null_pointer_error const & x) {
+   memory_address_error::operator=(x);
+   return *this;
 }
 
 void null_pointer_error::init(errint_t err /*= 0*/) {
@@ -898,8 +1169,22 @@ void null_pointer_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 overflow_error::overflow_error() :
+   generic_error(),
    arithmetic_error() {
    m_pszWhat = "abc::overflow_error";
+}
+
+overflow_error::overflow_error(overflow_error const & x) :
+   generic_error(x),
+   arithmetic_error(x) {
+}
+
+/*virtual*/ overflow_error::~overflow_error() {
+}
+
+overflow_error & overflow_error::operator=(overflow_error const & x) {
+   arithmetic_error::operator=(x);
+   return *this;
 }
 
 void overflow_error::init(errint_t err /*= 0*/) {
@@ -919,8 +1204,22 @@ void overflow_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 security_error::security_error() :
+   generic_error(),
    environment_error() {
    m_pszWhat = "abc::security_error";
+}
+
+security_error::security_error(security_error const & x) :
+   generic_error(x),
+   environment_error(x) {
+}
+
+/*virtual*/ security_error::~security_error() {
+}
+
+security_error & security_error::operator=(security_error const & x) {
+   environment_error::operator=(x);
+   return *this;
 }
 
 void security_error::init(errint_t err /*= 0*/) {
@@ -937,12 +1236,16 @@ syntax_error::syntax_error() :
    generic_error() {
    m_pszWhat = "abc::syntax_error";
 }
+
 syntax_error::syntax_error(syntax_error const & x) :
    generic_error(x),
    m_sDescription(x.m_sDescription),
    m_sSource(x.m_sSource),
    m_iChar(x.m_iChar),
    m_iLine(x.m_iLine) {
+}
+
+/*virtual*/ syntax_error::~syntax_error() {
 }
 
 syntax_error & syntax_error::operator=(syntax_error const & x) {

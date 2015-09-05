@@ -691,6 +691,18 @@ error::error() :
    m_pszWhat = "abc::text::error";
 }
 
+error::error(error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ error::~error() {
+}
+
+error & error::operator=(error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
 void error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
 }
@@ -706,11 +718,15 @@ decode_error::decode_error() :
    error() {
    m_pszWhat = "abc::decode_error";
 }
+
 decode_error::decode_error(decode_error const & x) :
    generic_error(x),
    error(x),
    m_sDescription(x.m_sDescription),
    m_viInvalid(x.m_viInvalid) {
+}
+
+/*virtual*/ decode_error::~decode_error() {
 }
 
 decode_error & decode_error::operator=(decode_error const & x) {
@@ -762,11 +778,15 @@ encode_error::encode_error() :
    error() {
    m_pszWhat = "abc::encode_error";
 }
+
 encode_error::encode_error(encode_error const & x) :
    generic_error(x),
    error(x),
    m_sDescription(x.m_sDescription),
    m_iInvalidCodePoint(x.m_iInvalidCodePoint) {
+}
+
+/*virtual*/ encode_error::~encode_error() {
 }
 
 encode_error & encode_error::operator=(encode_error const & x) {

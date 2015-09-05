@@ -551,6 +551,9 @@ invalid_path::invalid_path(invalid_path const & x) :
    m_opInvalid(x.m_opInvalid) {
 }
 
+/*virtual*/ invalid_path::~invalid_path() {
+}
+
 invalid_path & invalid_path::operator=(invalid_path const & x) {
    generic_error::operator=(x);
    m_opInvalid = x.m_opInvalid;
@@ -584,10 +587,14 @@ path_not_found::path_not_found() :
    environment_error() {
    m_pszWhat = "abc::path_not_found";
 }
+
 path_not_found::path_not_found(path_not_found const & x) :
    generic_error(x),
    environment_error(x),
    m_opNotFound(x.m_opNotFound) {
+}
+
+/*virtual*/ path_not_found::~path_not_found() {
 }
 
 path_not_found & path_not_found::operator=(path_not_found const & x) {
