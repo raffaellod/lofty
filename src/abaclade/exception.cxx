@@ -639,13 +639,25 @@ index_error::index_error() :
 index_error::index_error(index_error const & x) :
    generic_error(x),
    lookup_error(x),
-   m_iInvalid(x.m_iInvalid) {
+   m_iInvalid(x.m_iInvalid),
+   m_iMin(x.m_iMin),
+   m_iMax(x.m_iMax),
+   m_bMinMaxProvided(x.m_bMinMaxProvided) {
 }
 
 index_error & index_error::operator=(index_error const & x) {
    lookup_error::operator=(x);
    m_iInvalid = x.m_iInvalid;
+   m_iMin = x.m_iMin;
+   m_iMax = x.m_iMax;
+   m_bMinMaxProvided = x.m_bMinMaxProvided;
    return *this;
+}
+
+void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
+   lookup_error::init(err ? err : os_error_mapping<index_error>::mapped_error);
+   m_iInvalid = iInvalid;
+   m_bMinMaxProvided = false;
 }
 
 void index_error::init(
@@ -655,11 +667,18 @@ void index_error::init(
    m_iInvalid = iInvalid;
    m_iMin = iMin;
    m_iMax = iMax;
+   m_bMinMaxProvided = true;
 }
 
 /*virtual*/ void index_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    lookup_error::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL(" invalid index: {}; valid range: [{}, {}]"), m_iInvalid, m_iMin, m_iMax);
+   str sFormat;
+   if (m_bMinMaxProvided) {
+      sFormat = ABC_SL(" invalid index: {0}; valid range: [{1}, {2}]");
+   } else {
+      sFormat = ABC_SL(" invalid index: {0}");
+   }
+   ptwOut->print(sFormat, m_iInvalid, m_iMin, m_iMax);
 }
 
 } //namespace abc

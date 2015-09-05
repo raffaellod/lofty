@@ -902,6 +902,15 @@ public:
 
    @param iInvalid
       Index that caused the error.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   void init(std::ptrdiff_t iInvalid, errint_t err = 0);
+
+   /*! See abc::lookup_error::init().
+
+   @param iInvalid
+      Index that caused the error.
    @param iMin
       Minimum allowed index value.
    @param iMax
@@ -922,6 +931,8 @@ private:
    std::ptrdiff_t m_iMin;
    //! Maximum allowed index value.
    std::ptrdiff_t m_iMax;
+   //! true if m_iMin and m_iMax have been provided.
+   bool m_bMinMaxProvided;
 };
 
 } //namespace abc
