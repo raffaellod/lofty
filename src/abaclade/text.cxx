@@ -692,7 +692,7 @@ error::error() :
 }
 
 void error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<error>::mapped_error);
+   generic_error::init(err);
 }
 
 }} //namespace abc::text
@@ -726,7 +726,7 @@ void decode_error::init(
    str const & sDescription /*= str::empty*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
    std::uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
 ) {
-   error::init(err ? err : os_error_mapping<decode_error>::mapped_error);
+   error::init(err);
    m_sDescription = sDescription;
    m_viInvalid.push_back(pbInvalidBegin, static_cast<std::size_t>(pbInvalidEnd - pbInvalidBegin));
 }
@@ -782,7 +782,7 @@ void encode_error::init(
    str const & sDescription /*= str::empty*/, char32_t chInvalid /*= 0xffffff*/,
    errint_t err /*= 0*/
 ) {
-   error::init(err ? err : os_error_mapping<encode_error>::mapped_error);
+   error::init(err);
    m_sDescription = sDescription;
    m_iInvalidCodePoint = static_cast<std::uint32_t>(chInvalid);
 }

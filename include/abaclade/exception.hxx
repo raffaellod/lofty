@@ -674,34 +674,6 @@ protected:
 
 namespace abc {
 
-/*! Defines a member mapped_error to the default OS-specific error code associated to an exception
-class. */
-template <class TError>
-struct os_error_mapping {
-   //! Default error code the class errclass maps from.
-   static errint_t const mapped_error = 0;
-};
-
-/*! Defines an OS-specific error code to be the default for an exception class.
-
-@param errclass
-   generic_error-derived class.
-@param err
-   OS-specific error code.
-*/
-#define ABC_MAP_ERROR_CLASS_TO_ERRINT(errclass, err) \
-   template <> \
-   class os_error_mapping<errclass> { \
-   public: \
-      static errint_t const mapped_error = err; \
-   }
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 //! A function/method received an argument that had an inappropriate value.
 class ABACLADE_SYM argument_error : public virtual generic_error {
 public:

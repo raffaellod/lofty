@@ -38,26 +38,6 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc {
 
-// Default translations between exception class to OS-specific error code.
-#if ABC_HOST_API_POSIX
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(argument_error, EINVAL);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(domain_error, EDOM);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(io_error, EIO);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_address_error, EFAULT);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(overflow_error, EOVERFLOW);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(null_pointer_error, EFAULT);
-#elif ABC_HOST_API_WIN32
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_address_error, ERROR_INVALID_ADDRESS);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(memory_allocation_error, ERROR_NOT_ENOUGH_MEMORY);
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(null_pointer_error, ERROR_INVALID_ADDRESS);
-#endif
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 void to_str_backend<source_location>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
@@ -475,7 +455,13 @@ argument_error::argument_error() :
 }
 
 void argument_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<argument_error>::mapped_error);
+   generic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      EINVAL
+#else
+      0
+#endif
+   );
 }
 
 } //namespace abc
@@ -490,7 +476,7 @@ arithmetic_error::arithmetic_error() :
 }
 
 void arithmetic_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<arithmetic_error>::mapped_error);
+   generic_error::init(err);
 }
 
 } //namespace abc
@@ -532,7 +518,7 @@ buffer_error::buffer_error() :
 }
 
 void buffer_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<buffer_error>::mapped_error);
+   generic_error::init(err);
 }
 
 } //namespace abc
@@ -547,7 +533,7 @@ division_by_zero_error::division_by_zero_error() :
 }
 
 void division_by_zero_error::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err ? err : os_error_mapping<division_by_zero_error>::mapped_error);
+   arithmetic_error::init(err);
 }
 
 } //namespace abc
@@ -562,7 +548,13 @@ domain_error::domain_error() :
 }
 
 void domain_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<domain_error>::mapped_error);
+   generic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      EDOM
+#else
+      0
+#endif
+   );
 }
 
 } //namespace abc
@@ -577,7 +569,7 @@ environment_error::environment_error() :
 }
 
 void environment_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<environment_error>::mapped_error);
+   generic_error::init(err);
 }
 
 } //namespace abc
@@ -592,7 +584,7 @@ floating_point_error::floating_point_error() :
 }
 
 void floating_point_error::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err ? err : os_error_mapping<floating_point_error>::mapped_error);
+   arithmetic_error::init(err);
 }
 
 } //namespace abc
@@ -652,7 +644,7 @@ index_error & index_error::operator=(index_error const & x) {
 }
 
 void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
-   lookup_error::init(err ? err : os_error_mapping<index_error>::mapped_error);
+   lookup_error::init(err);
    m_iInvalid = iInvalid;
    m_bMinMaxProvided = false;
 }
@@ -660,7 +652,7 @@ void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
 void index_error::init(
    std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err /*= 0*/
 ) {
-   lookup_error::init(err ? err : os_error_mapping<index_error>::mapped_error);
+   lookup_error::init(err);
    m_iInvalid = iInvalid;
    m_iMin = iMin;
    m_iMax = iMax;
@@ -690,7 +682,13 @@ io_error::io_error() :
 }
 
 void io_error::init(errint_t err /*= 0*/) {
-   environment_error::init(err ? err : os_error_mapping<io_error>::mapped_error);
+   environment_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      EIO
+#else
+      0
+#endif
+   );
 }
 
 } //namespace abc
@@ -705,7 +703,7 @@ iterator_error::iterator_error() :
 }
 
 void iterator_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<iterator_error>::mapped_error);
+   generic_error::init(err);
 }
 
 } //namespace abc
@@ -720,7 +718,7 @@ key_error::key_error() :
 }
 
 void key_error::init(errint_t err /*= 0*/) {
-   lookup_error::init(err ? err : os_error_mapping<key_error>::mapped_error);
+   lookup_error::init(err);
 }
 
 } //namespace abc
@@ -735,7 +733,7 @@ lookup_error::lookup_error() :
 }
 
 void lookup_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<lookup_error>::mapped_error);
+   generic_error::init(err);
 }
 
 } //namespace abc
@@ -750,9 +748,7 @@ memory_access_error::memory_access_error() :
 }
 
 void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
-   memory_address_error::init(
-      pInvalid, err ? err : os_error_mapping<memory_access_error>::mapped_error
-   );
+   memory_address_error::init(pInvalid, err);
 }
 
 } //namespace abc
@@ -779,7 +775,15 @@ memory_address_error & memory_address_error::operator=(memory_address_error cons
 }
 
 void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<memory_address_error>::mapped_error);
+   generic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      EFAULT
+#elif ABC_HOST_API_WIN32
+      ERROR_INVALID_ADDRESS
+#else
+      0
+#endif
+   );
    m_pInvalid = pInvalid;
 }
 
@@ -806,7 +810,15 @@ memory_allocation_error::memory_allocation_error() :
 }
 
 void memory_allocation_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<memory_allocation_error>::mapped_error);
+   generic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      ENOMEM
+#elif ABC_HOST_API_WIN32
+      ERROR_NOT_ENOUGH_MEMORY
+#else
+      0
+#endif
+   );
 }
 
 } //namespace abc
@@ -821,7 +833,7 @@ network_error::network_error() :
 }
 
 void network_error::init(errint_t err /*= 0*/) {
-   environment_error::init(err ? err : os_error_mapping<network_error>::mapped_error);
+   environment_error::init(err);
 }
 
 } //namespace abc
@@ -837,9 +849,6 @@ network_io_error::network_io_error() :
 }
 
 void network_io_error::init(errint_t err /*= 0*/) {
-   if (!err) {
-      err = os_error_mapping<network_io_error>::mapped_error;
-   }
    io_error::init(err);
    network_error::init(err);
 }
@@ -856,7 +865,7 @@ not_implemented_error::not_implemented_error() :
 }
 
 void not_implemented_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<not_implemented_error>::mapped_error);
+   generic_error::init(err);
 }
 
 } //namespace abc
@@ -871,8 +880,14 @@ null_pointer_error::null_pointer_error() :
 }
 
 void null_pointer_error::init(errint_t err /*= 0*/) {
-   memory_address_error::init(
-      nullptr, err ? err : os_error_mapping<null_pointer_error>::mapped_error
+   memory_address_error::init(nullptr, err ? err :
+#if ABC_HOST_API_POSIX
+      EFAULT
+#elif ABC_HOST_API_WIN32
+      ERROR_INVALID_ADDRESS
+#else
+      0
+#endif
    );
 }
 
@@ -888,7 +903,13 @@ overflow_error::overflow_error() :
 }
 
 void overflow_error::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err ? err : os_error_mapping<overflow_error>::mapped_error);
+   arithmetic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      EOVERFLOW
+#else
+      0
+#endif
+   );
 }
 
 } //namespace abc
@@ -903,7 +924,7 @@ security_error::security_error() :
 }
 
 void security_error::init(errint_t err /*= 0*/) {
-   environment_error::init(err ? err : os_error_mapping<security_error>::mapped_error);
+   environment_error::init(err);
 }
 
 } //namespace abc
@@ -937,7 +958,7 @@ void syntax_error::init(
    str const & sDescription /*= str::empty*/, str const & sSource /*= str::empty*/,
    unsigned iChar /*= 0*/, unsigned iLine /*= 0*/, errint_t err /*= 0*/
 ) {
-   generic_error::init(err ? err : os_error_mapping<syntax_error>::mapped_error);
+   generic_error::init(err);
    m_sDescription = sDescription;
    m_sSource = sSource;
    m_iChar = iChar;

@@ -540,13 +540,7 @@ void to_str_backend<os::path>::write(os::path const & op, io::text::writer * ptw
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-
-#if ABC_HOST_API_WIN32
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(os::invalid_path, ERROR_BAD_PATHNAME);
-#endif
-
-namespace os {
+namespace abc { namespace os {
 
 invalid_path::invalid_path() :
    generic_error() {
@@ -564,7 +558,13 @@ invalid_path & invalid_path::operator=(invalid_path const & x) {
 }
 
 void invalid_path::init(os::path const & opInvalid, errint_t err /*= 0*/) {
-   generic_error::init(err ? err : os_error_mapping<invalid_path>::mapped_error);
+   generic_error::init(err ? err :
+#if ABC_HOST_API_WIN32
+      ERROR_BAD_PATHNAME
+#else
+      0
+#endif
+   );
    m_opInvalid = opInvalid;
 }
 
@@ -577,15 +577,7 @@ void invalid_path::init(os::path const & opInvalid, errint_t err /*= 0*/) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-
-#if ABC_HOST_API_POSIX
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(os::path_not_found, ENOENT);
-#elif ABC_HOST_API_WIN32
-   ABC_MAP_ERROR_CLASS_TO_ERRINT(os::path_not_found, ERROR_PATH_NOT_FOUND);
-#endif
-
-namespace os {
+namespace abc { namespace os {
 
 path_not_found::path_not_found() :
    generic_error(),
@@ -605,7 +597,15 @@ path_not_found & path_not_found::operator=(path_not_found const & x) {
 }
 
 void path_not_found::init(os::path const & opNotFound, errint_t err /*= 0*/) {
-   environment_error::init(err ? err : os_error_mapping<path_not_found>::mapped_error);
+   environment_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      ENOENT
+#elif ABC_HOST_API_WIN32
+      ERROR_PATH_NOT_FOUND
+#else
+      0
+#endif
+   );
    m_opNotFound = opNotFound;
 }
 
