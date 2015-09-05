@@ -691,9 +691,9 @@ public:
       Element at index i.
    */
    T & operator[](std::ptrdiff_t i) {
-      return *static_cast<T *>(const_cast<void *>(vector_impl::translate_offset(
-         static_cast<std::ptrdiff_t>(sizeof(T)) * i
-      )));
+      T * pt = data() + i;
+      vector_impl::validate_pointer_noend(pt);
+      return *pt;
    }
    T const & operator[](std::ptrdiff_t i) const {
       return const_cast<vector *>(this)->operator[](i);

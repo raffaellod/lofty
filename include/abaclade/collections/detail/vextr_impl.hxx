@@ -389,36 +389,6 @@ protected:
       }
    }
 
-   /*! Converts a possibly negative item byte offset into a pointer into the item array, throwing an
-   index_error exception if the result is out of bounds for the item array.
-
-   @param ib
-      If positive, this is interpreted as a 0-based byte offset; if negative, it’s interpreted as a
-      1-based byte offset from the end of the item array by adding this->size<std::int8_t>() to it.
-   @return
-      Pointer to the item.
-   */
-   void const * translate_offset(std::ptrdiff_t ib) const;
-
-   /*! Converts a left-closed, right-open interval with possibly negative byte offsets into one
-   consisting of two pointers into the item array.
-
-   @param ibBegin
-      Left endpoint of the interval, inclusive. If positive, this is interpreted as a 0-based byte
-      offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
-      by adding this->size<std::int8_t>() to it.
-   @param ibEnd
-      Right endpoint of the interval, exclusive. If positive, this is interpreted as a 0-based byte
-      offset; if negative, it’s interpreted as a 1-based byte offset from the end of the item array
-      by adding this->size<std::int8_t>() to it.
-   @return
-      Left-closed, right-open interval such that get<0>(return) <= i < get<1>(return), or the empty
-      interval [nullptr, nullptr) if the offsets represent an empty interval after being adjusted.
-   */
-   _std::tuple<void const *, void const *> translate_byte_range(
-      std::ptrdiff_t ibBegin, std::ptrdiff_t ibEnd
-   ) const;
-
    /*! Validates that the specified pointer references an item within or at the end of the item
    array, throwing an index_error exception if it doesn’t. Similar to validate_pointer_noend(), but
    it accepts a pointer to the end of the item array.

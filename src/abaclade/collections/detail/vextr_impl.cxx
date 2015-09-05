@@ -85,49 +85,6 @@ raw_vextr_impl_base::raw_vextr_impl_base(
    return cbNewCapacity;
 }
 
-void const * raw_vextr_impl_base::translate_offset(std::ptrdiff_t ib) const {
-   ABC_TRACE_FUNC(this, ib);
-
-   std::int8_t const * pb = ib >= 0 ? begin<std::int8_t>() : end<std::int8_t>();
-   pb += ib;
-   if (begin<std::int8_t>() <= pb && pb < end<std::int8_t>()) {
-      return pb;
-   }
-   // TODO: use the index, not the offset.
-   ABC_THROW(index_error, (ib, 0, static_cast<std::ptrdiff_t>(size<std::int8_t>()) - 1));
-}
-
-_std::tuple<void const *, void const *> raw_vextr_impl_base::translate_byte_range(
-   std::ptrdiff_t ibBegin, std::ptrdiff_t ibEnd
-) const {
-   ABC_TRACE_FUNC(this, ibBegin, ibEnd);
-
-   std::ptrdiff_t cb = static_cast<std::ptrdiff_t>(size<std::int8_t>());
-   if (ibBegin < 0) {
-      ibBegin += cb;
-      if (ibBegin < 0) {
-         // If the start of the interval is still negative, clip it to 0.
-         ibBegin = 0;
-      }
-   }
-   if (ibEnd < 0) {
-      ibEnd += cb;
-      if (ibEnd < 0) {
-         // If the end of the interval is still negative, clip it to 0.
-         ibEnd = 0;
-      }
-   } else if (ibEnd > cb) {
-      // If the end of the interval is beyond the end of the item array, clip it to the latter.
-      ibEnd = cb;
-   }
-   // If the interval is empty, return [0, 0) .
-   if (ibBegin >= ibEnd) {
-      return _std::make_tuple(nullptr, nullptr);
-   }
-   // Return the constructed interval.
-   return _std::make_tuple(begin<std::int8_t>() + ibBegin, begin<std::int8_t>() + ibEnd);
-}
-
 void raw_vextr_impl_base::validate_pointer(void const * p) const {
    ABC_TRACE_FUNC(this, p);
 
