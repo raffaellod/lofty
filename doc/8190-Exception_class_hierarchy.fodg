@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:smil="urn:oasis:names:tc:opendocument:xmlns:smil-compatible:1.0" xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:officeooo="http://openoffice.org/2009/office" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" office:version="1.2" office:mimetype="application/vnd.oasis.opendocument.graphics">
- <office:meta><meta:creation-date>2010-01-27T10:40:34</meta:creation-date><dc:date>2014-09-20T12:23:27.633851322</dc:date><meta:editing-duration>P41DT14H10M41S</meta:editing-duration><meta:editing-cycles>381</meta:editing-cycles><meta:generator>LibreOffice/4.4.4.3$Linux_X86_64 LibreOffice_project/40m0$Build-3</meta:generator><dc:title>IMG:8190 Exception class hierarchy</dc:title><meta:document-statistic meta:object-count="79"/></office:meta>
+ <office:meta><meta:creation-date>2010-01-27T10:40:34</meta:creation-date><dc:date>2014-09-20T12:23:27.633851322</dc:date><meta:editing-duration>P41DT14H10M41S</meta:editing-duration><meta:editing-cycles>381</meta:editing-cycles><meta:generator>LibreOffice/4.4.4.3$Linux_X86_64 LibreOffice_project/40m0$Build-3</meta:generator><dc:title>IMG:8190 Exception class hierarchy</dc:title><meta:document-statistic meta:object-count="84"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
-   <config:config-item config:name="VisibleAreaTop" config:type="int">13573</config:config-item>
-   <config:config-item config:name="VisibleAreaLeft" config:type="int">6563</config:config-item>
-   <config:config-item config:name="VisibleAreaWidth" config:type="int">73649</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">39200</config:config-item>
+   <config:config-item config:name="VisibleAreaTop" config:type="int">8151</config:config-item>
+   <config:config-item config:name="VisibleAreaLeft" config:type="int">-5377</config:config-item>
+   <config:config-item config:name="VisibleAreaWidth" config:type="int">58282</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">25870</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
@@ -37,10 +37,10 @@
      <config:config-item config:name="EditModeStandard" config:type="int">0</config:config-item>
      <config:config-item config:name="EditModeNotes" config:type="int">0</config:config-item>
      <config:config-item config:name="EditModeHandout" config:type="int">1</config:config-item>
-     <config:config-item config:name="VisibleAreaTop" config:type="int">13573</config:config-item>
-     <config:config-item config:name="VisibleAreaLeft" config:type="int">6563</config:config-item>
-     <config:config-item config:name="VisibleAreaWidth" config:type="int">54498</config:config-item>
-     <config:config-item config:name="VisibleAreaHeight" config:type="int">24191</config:config-item>
+     <config:config-item config:name="VisibleAreaTop" config:type="int">8151</config:config-item>
+     <config:config-item config:name="VisibleAreaLeft" config:type="int">-5377</config:config-item>
+     <config:config-item config:name="VisibleAreaWidth" config:type="int">67683</config:config-item>
+     <config:config-item config:name="VisibleAreaHeight" config:type="int">30044</config:config-item>
      <config:config-item config:name="GridCoarseWidth" config:type="int">500</config:config-item>
      <config:config-item config:name="GridCoarseHeight" config:type="int">500</config:config-item>
      <config:config-item config:name="GridFineWidth" config:type="int">250</config:config-item>
@@ -99,7 +99,7 @@
    <config:config-item config:name="PrintQuality" config:type="int">0</config:config-item>
    <config:config-item config:name="PrinterIndependentLayout" config:type="string">low-resolution</config:config-item>
    <config:config-item config:name="PrinterName" config:type="string">Generic Printer</config:config-item>
-   <config:config-item config:name="PrinterSetup" config:type="base64Binary">jAH+/0dlbmVyaWMgUHJpbnRlcgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU0dFTlBSVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAAMAsgAAAAAAAAAEAAhSAAAEdAAASm9iRGF0YSAxCnByaW50ZXI9R2VuZXJpYyBQcmludGVyCm9yaWVudGF0aW9uPVBvcnRyYWl0CmNvcGllcz0xCm1hcmdpbmRhanVzdG1lbnQ9MCwwLDAsMApjb2xvcmRlcHRoPTI0CnBzbGV2ZWw9MApwZGZkZXZpY2U9MApjb2xvcmRldmljZT0wClBQRENvbnRleERhdGEKRHVwbGV4Ok5vbmUAUGFnZVNpemU6QTQAABIAQ09NUEFUX0RVUExFWF9NT0RFCgBEVVBMRVhfT0ZG</config:config-item>
+   <config:config-item config:name="PrinterSetup" config:type="base64Binary">jAH+/0dlbmVyaWMgUHJpbnRlcgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU0dFTlBSVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAAMAsgAAAAAAAAAEAAhSAAAEdAAASm9iRGF0YSAxCnByaW50ZXI9R2VuZXJpYyBQcmludGVyCm9yaWVudGF0aW9uPVBvcnRyYWl0CmNvcGllcz0xCm1hcmdpbmRhanVzdG1lbnQ9MCwwLDAsMApjb2xvcmRlcHRoPTI0CnBzbGV2ZWw9MApwZGZkZXZpY2U9MApjb2xvcmRldmljZT0wClBQRENvbnRleERhdGEKUGFnZVNpemU6QTQARHVwbGV4Ok5vbmUAABIAQ09NUEFUX0RVUExFWF9NT0RFCgBEVVBMRVhfT0ZG</config:config-item>
    <config:config-item config:name="SaveVersionOnClose" config:type="boolean">false</config:config-item>
    <config:config-item config:name="ScaleDenominator" config:type="int">1</config:config-item>
    <config:config-item config:name="ScaleNumerator" config:type="int">1</config:config-item>
@@ -253,40 +253,61 @@
   </style:style>
   <style:style style:name="dp2" style:family="drawing-page"/>
   <style:style style:name="gr1" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="4.786cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="4.79cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
   </style:style>
   <style:style style:name="gr2" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.679cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.68cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
   </style:style>
   <style:style style:name="gr3" style:family="graphic" style:parent-style-name="standard">
    <style:graphic-properties draw:marker-end="Arrow" draw:marker-end-width="0.2cm" draw:textarea-horizontal-align="center" draw:textarea-vertical-align="middle"/>
   </style:style>
   <style:style style:name="gr4" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="1.321cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.679cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
   </style:style>
   <style:style style:name="gr5" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.946cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="1.321cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
   </style:style>
   <style:style style:name="gr6" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="1.816cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.946cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
   </style:style>
   <style:style style:name="gr7" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.412cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
-  </style:style>
-  <style:style style:name="gr8" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="dash" draw:stroke-dash="Ultrafine_20_Dashed" draw:marker-end="Arrow" draw:marker-end-width="0.2cm" draw:textarea-horizontal-align="center" draw:textarea-vertical-align="middle"/>
-  </style:style>
-  <style:style style:name="gr9" style:family="graphic" style:parent-style-name="standard">
    <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="2.806cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
   </style:style>
+  <style:style style:name="gr8" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.95cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
+  </style:style>
+  <style:style style:name="gr9" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.41cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
+  </style:style>
   <style:style style:name="gr10" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.331cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+   <style:graphic-properties draw:stroke="dash" draw:stroke-dash="Ultrafine_20_Dashed" draw:marker-end="Arrow" draw:marker-end-width="0.2cm" draw:textarea-horizontal-align="center" draw:textarea-vertical-align="middle"/>
   </style:style>
   <style:style style:name="gr11" style:family="graphic" style:parent-style-name="standard">
-   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="3.301cm" fo:min-width="0cm" fo:padding-top="0.2cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="1.82cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
   </style:style>
   <style:style style:name="gr12" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="2.81cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+  </style:style>
+  <style:style style:name="gr13" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.39cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
+  </style:style>
+  <style:style style:name="gr14" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.412cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
+  </style:style>
+  <style:style style:name="gr15" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.33cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+  </style:style>
+  <style:style style:name="gr16" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="3.301cm" fo:min-width="0cm" fo:padding-top="0.2cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+  </style:style>
+  <style:style style:name="gr17" style:family="graphic" style:parent-style-name="standard">
    <style:graphic-properties draw:stroke="none" svg:stroke-color="#000000" draw:fill="none" draw:fill-color="#ffffff" draw:textarea-horizontal-align="center" draw:textarea-vertical-align="middle" draw:auto-grow-height="true" draw:auto-grow-width="true" fo:min-height="0.331cm" fo:min-width="1.602cm" fo:padding-top="0cm" fo:padding-bottom="0cm" fo:padding-left="0cm" fo:padding-right="0cm"/>
+  </style:style>
+  <style:style style:name="gr18" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#ffffff" draw:textarea-horizontal-align="left" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="1.815cm" fo:min-width="0cm" fo:padding-top="1.1cm" fo:padding-bottom="0.2cm" fo:padding-left="0.2cm" fo:padding-right="0.2cm"/>
+  </style:style>
+  <style:style style:name="gr19" style:family="graphic" style:parent-style-name="standard">
+   <style:graphic-properties draw:stroke="solid" svg:stroke-width="0.01cm" svg:stroke-color="#000000" draw:marker-start-width="0.215cm" draw:marker-end-width="0.215cm" draw:fill="solid" draw:fill-color="#e6e6e6" draw:textarea-horizontal-align="center" draw:auto-grow-height="true" draw:auto-grow-width="false" fo:min-height="0.539cm" fo:min-width="0cm" fo:padding-top="0.105cm" fo:padding-bottom="0.105cm" fo:padding-left="0.105cm" fo:padding-right="0.105cm"/>
   </style:style>
   <style:style style:name="P1" style:family="paragraph">
    <style:paragraph-properties fo:line-height="150%" fo:text-align="start"/>
@@ -419,7 +440,7 @@
  <office:body>
   <office:drawing>
    <draw:page draw:name="1" draw:style-name="dp2" draw:master-page-name="Predefinito">
-    <draw:frame draw:style-name="gr1" draw:text-style-name="P2" draw:layer="layout" svg:width="4.5cm" svg:height="6.086cm" svg:x="13cm" svg:y="24.15cm">
+    <draw:frame draw:style-name="gr1" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="6.09cm" svg:x="12cm" svg:y="21.3cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_bInFlight</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_pszSourceFunction</text:span></text:p>
@@ -433,7 +454,7 @@
       <text:p text:style-name="P1"><text:span text:style-name="T1">what()</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P4" xml:id="id2" draw:id="id2" draw:layer="layout" svg:width="4.5cm" svg:height="0.889cm" svg:x="13cm" svg:y="24.15cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P4" xml:id="id2" draw:id="id2" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="12cm" svg:y="21.3cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">exception</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Base class for exceptions</text:span></text:p>
@@ -441,10 +462,10 @@
      <draw:glue-point draw:id="4" svg:x="5cm" svg:y="2.5cm"/>
      <draw:glue-point draw:id="5" svg:x="5cm" svg:y="-2.5cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="20cm" svg:y1="24.594cm" svg:x2="17.5cm" svg:y2="24.594cm" draw:start-shape="id1" draw:start-glue-point="3" draw:end-shape="id2" draw:end-glue-point="1" svg:d="M20000 24594h-2500" svg:viewBox="0 0 2501 1">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="22cm" svg:y1="21.744cm" svg:x2="18cm" svg:y2="21.745cm" draw:start-shape="id1" draw:start-glue-point="3" draw:end-shape="id2" draw:end-glue-point="1" svg:d="M22000 21744c-3000 0-1000 1-4000 1" svg:viewBox="0 0 4001 2">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id3" draw:id="id3" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="11.055cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id3" draw:id="id3" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="32cm" svg:y="7.7cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">arithmetic_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Arithmetic exceptions</text:span></text:p>
@@ -452,79 +473,55 @@
      <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
      <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
-    <draw:frame draw:style-name="gr4" draw:text-style-name="P2" draw:layer="layout" svg:width="3.75cm" svg:height="2.621cm" svg:x="20cm" svg:y="24.15cm">
+    <draw:frame draw:style-name="gr5" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="2.621cm" svg:x="22cm" svg:y="21.3cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_err</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">init() +</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">os_error()</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id1" draw:id="id1" draw:layer="layout" svg:width="3.75cm" svg:height="0.889cm" svg:x="20cm" svg:y="24.15cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id1" draw:id="id1" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="22cm" svg:y="21.3cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">generic_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Error-related exception</text:span></text:p>
      </draw:text-box>
-     <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-4.239cm"/>
-     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="-2.853cm" draw:escape-direction="right"/>
-     <draw:glue-point draw:id="6" svg:x="5cm" svg:y="-3.777cm"/>
-     <draw:glue-point draw:id="7" svg:x="5cm" svg:y="-3.315cm"/>
-     <draw:glue-point draw:id="8" svg:x="5cm" svg:y="-1.467cm"/>
-     <draw:glue-point draw:id="9" svg:x="5cm" svg:y="-1.005cm"/>
-     <draw:glue-point draw:id="10" svg:x="5cm" svg:y="0.38cm"/>
-     <draw:glue-point draw:id="11" svg:x="5cm" svg:y="1.304cm"/>
-     <draw:glue-point draw:id="12" svg:x="5cm" svg:y="1.766cm"/>
-     <draw:glue-point draw:id="13" svg:x="5cm" svg:y="2.228cm"/>
-     <draw:glue-point draw:id="14" svg:x="5cm" svg:y="3.614cm"/>
-     <draw:glue-point draw:id="15" svg:x="5cm" svg:y="4.076cm"/>
-     <draw:glue-point draw:id="16" svg:x="5cm" svg:y="-2.391cm"/>
-     <draw:glue-point draw:id="17" svg:x="5cm" svg:y="-1.929cm"/>
-     <draw:glue-point draw:id="18" svg:x="5cm" svg:y="-0.543cm"/>
-     <draw:glue-point draw:id="19" svg:x="5cm" svg:y="-0.081cm"/>
-     <draw:glue-point draw:id="20" svg:x="5cm" svg:y="0.842cm"/>
-     <draw:glue-point draw:id="21" svg:x="5cm" svg:y="2.69cm"/>
-     <draw:glue-point draw:id="22" svg:x="5cm" svg:y="3.152cm"/>
-     <draw:glue-point draw:id="23" svg:x="5cm" svg:y="4.538cm"/>
+     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
+     <draw:glue-point draw:id="6" svg:x="5cm" svg:y="-2.5cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="11.499cm" svg:x2="23.75cm" svg:y2="24.423cm" draw:start-shape="id3" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="17" svg:d="M27000 11499c-2437 0-813 12924-3250 12924" svg:viewBox="0 0 3251 12925">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="8.144cm" svg:x2="28cm" svg:y2="21.522cm" draw:start-shape="id3" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="6" svg:d="M32000 8144c-3000 0-1000 13378-4000 13378" svg:viewBox="0 0 4001 13379">
      <text:p/>
     </draw:connector>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="20cm" svg:y1="28.494cm" svg:x2="17.5cm" svg:y2="24.816cm" draw:start-shape="id4" draw:start-glue-point="3" draw:end-shape="id2" draw:end-glue-point="4" svg:d="M20000 28494c-1875 0-625-3678-2500-3678" svg:viewBox="0 0 2501 3679">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="22cm" svg:y1="41.381cm" svg:x2="18cm" svg:y2="21.967cm" draw:start-shape="id4" draw:start-glue-point="3" draw:end-shape="id2" draw:end-glue-point="4" svg:d="M22000 41381c-3000 0-1000-19414-4000-19414" svg:viewBox="0 0 4001 19415">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id4" draw:id="id4" draw:layer="layout" svg:width="3.75cm" svg:height="0.889cm" svg:x="20cm" svg:y="28.05cm">
-     <draw:text-box>
-      <text:p text:style-name="P3"><text:span text:style-name="T2">user_interrupt</text:span></text:p>
-      <text:p text:style-name="P3"><text:span text:style-name="T3">The user hit an interrupt key</text:span></text:p>
-     </draw:text-box>
-    </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id5" draw:id="id5" draw:layer="layout" svg:width="5.5cm" svg:height="0.889cm" svg:x="35.25cm" svg:y="9.544cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id5" draw:id="id5" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="42cm" svg:y="6cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T4">division_by_zero_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Divisor of div/mod is zero</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="9.988cm" svg:x2="32.25cm" svg:y2="11.277cm" draw:start-shape="id5" draw:start-glue-point="3" draw:end-shape="id3" draw:end-glue-point="4" svg:d="M35250 9988c-2250 0-750 1289-3000 1289" svg:viewBox="0 0 3001 1290">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="6.444cm" svg:x2="38cm" svg:y2="7.922cm" draw:start-shape="id5" draw:start-glue-point="3" draw:end-shape="id3" draw:end-glue-point="4" svg:d="M42000 6444c-3000 0-1000 1478-4000 1478" svg:viewBox="0 0 4001 1479">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id6" draw:id="id6" draw:layer="layout" svg:width="5.5cm" svg:height="0.889cm" svg:x="35.25cm" svg:y="11.044cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id6" draw:id="id6" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="42cm" svg:y="7.4cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T4">floating_point_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">A floating point operation failed</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="11.488cm" svg:x2="32.25cm" svg:y2="11.499cm" draw:start-shape="id6" draw:start-glue-point="3" draw:end-shape="id3" draw:end-glue-point="1" svg:d="M35250 11488c-2250 0-750 11-3000 11" svg:viewBox="0 0 3001 12">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="7.844cm" svg:x2="38cm" svg:y2="8.144cm" draw:start-shape="id6" draw:start-glue-point="3" draw:end-shape="id3" draw:end-glue-point="1" svg:d="M42000 7844c-3000 0-1000 300-4000 300" svg:viewBox="0 0 4001 301">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr5" draw:text-style-name="P5" xml:id="id7" draw:id="id7" draw:layer="layout" svg:width="5.5cm" svg:height="1.156cm" svg:x="35.25cm" svg:y="12.544cm">
+    <draw:frame draw:style-name="gr6" draw:text-style-name="P5" xml:id="id7" draw:id="id7" draw:layer="layout" svg:width="6cm" svg:height="1.156cm" svg:x="42cm" svg:y="8.8cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T4">overflow_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Result of arithmetic operation too large to be represented</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="13.122cm" svg:x2="32.25cm" svg:y2="11.721cm" draw:start-shape="id7" draw:start-glue-point="3" draw:end-shape="id3" draw:end-glue-point="5" svg:d="M35250 13122c-2250 0-750-1401-3000-1401" svg:viewBox="0 0 3001 1402">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="9.378cm" svg:x2="38cm" svg:y2="8.366cm" draw:start-shape="id7" draw:start-glue-point="3" draw:end-shape="id3" draw:end-glue-point="5" svg:d="M42000 9378c-3000 0-1000-1012-4000-1012" svg:viewBox="0 0 4001 1013">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id8" draw:id="id8" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="25.55cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id8" draw:id="id8" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="32cm" svg:y="15cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">lookup_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Invalid index or key</text:span></text:p>
@@ -532,23 +529,10 @@
      <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
      <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="25.994cm" svg:x2="23.75cm" svg:y2="24.668cm" draw:start-shape="id8" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="20" svg:d="M27000 25994c-2437 0-813-1326-3250-1326" svg:viewBox="0 0 3251 1327">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="15.445cm" svg:x2="28cm" svg:y2="21.744cm" draw:start-shape="id8" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="1" svg:d="M32000 15445c-3000 0-1000 6299-4000 6299" svg:viewBox="0 0 4001 6300">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id9" draw:id="id9" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="16.866cm">
-     <draw:text-box>
-      <text:p text:style-name="P3"><text:span text:style-name="T2">environment_error</text:span></text:p>
-      <text:p text:style-name="P3"><text:span text:style-name="T3">Application-independent error</text:span></text:p>
-     </draw:text-box>
-     <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-3.333cm" draw:escape-direction="right"/>
-     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="3.333cm"/>
-     <draw:glue-point draw:id="6" svg:x="5cm" svg:y="-1.666cm"/>
-     <draw:glue-point draw:id="7" svg:x="5cm" svg:y="1.666cm"/>
-    </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="17.31cm" svg:x2="23.75cm" svg:y2="24.546cm" draw:start-shape="id9" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="18" svg:d="M27000 17310c-2437 0-813 7236-3250 7236" svg:viewBox="0 0 3251 7237">
-     <text:p/>
-    </draw:connector>
-    <draw:frame draw:style-name="gr6" draw:text-style-name="P2" draw:layer="layout" svg:width="5.5cm" svg:height="4.106cm" svg:x="35.25cm" svg:y="22.9cm">
+    <draw:frame draw:style-name="gr7" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="4.106cm" svg:x="42cm" svg:y="10.5cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_iInvalid</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_iMin</text:span></text:p>
@@ -558,36 +542,34 @@
       <text:p text:style-name="P1"><text:span text:style-name="T1">_print_extended_info() +</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id10" draw:id="id10" draw:layer="layout" svg:width="5.5cm" svg:height="0.889cm" svg:x="35.25cm" svg:y="22.9cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id9" draw:id="id9" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="42cm" svg:y="10.5cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">index_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Sequence subscript out of range</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="23.344cm" svg:x2="32.25cm" svg:y2="25.772cm" draw:start-shape="id10" draw:start-glue-point="3" draw:end-shape="id8" draw:end-glue-point="4" svg:d="M35250 23344c-2250 0-750 2428-3000 2428" svg:viewBox="0 0 3001 2429">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="10.944cm" svg:x2="38cm" svg:y2="15.223cm" draw:start-shape="id9" draw:start-glue-point="3" draw:end-shape="id8" draw:end-glue-point="4" svg:d="M42000 10944c-3000 0-1000 4279-4000 4279" svg:viewBox="0 0 4001 4280">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id11" draw:id="id11" draw:layer="layout" svg:width="5.5cm" svg:height="0.889cm" svg:x="35.25cm" svg:y="27.844cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id10" draw:id="id10" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="42cm" svg:y="15.1cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">key_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Mapping key not in the set</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="28.288cm" svg:x2="32.25cm" svg:y2="26.216cm" draw:start-shape="id11" draw:start-glue-point="3" draw:end-shape="id8" draw:end-glue-point="5" svg:d="M35250 28288c-2250 0-750-2072-3000-2072" svg:viewBox="0 0 3001 2073">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="15.544cm" svg:x2="38cm" svg:y2="15.667cm" draw:start-shape="id10" draw:start-glue-point="3" draw:end-shape="id8" draw:end-glue-point="5" svg:d="M42000 15544c-3000 0-1000 123-4000 123" svg:viewBox="0 0 4001 124">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id12" draw:id="id12" draw:layer="layout" svg:width="5.5cm" svg:height="0.889cm" svg:x="35.25cm" svg:y="18.127cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id11" draw:id="id11" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="32cm" svg:y="12.2cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">io_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">I/O-related failure of I/O operation</text:span></text:p>
      </draw:text-box>
-     <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
-     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="18.571cm" svg:x2="32.25cm" svg:y2="17.162cm" draw:start-shape="id12" draw:start-glue-point="3" draw:end-shape="id9" draw:end-glue-point="6" svg:d="M35250 18571c-2250 0-750-1409-3000-1409" svg:viewBox="0 0 3001 1410">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="12.644cm" svg:x2="28cm" svg:y2="21.522cm" draw:start-shape="id11" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="6" svg:d="M32000 12644c-3000 0-1000 8878-4000 8878" svg:viewBox="0 0 4001 8879">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id13" draw:id="id13" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="33cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id12" draw:id="id12" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="32cm" svg:y="20cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">memory_allocation_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Failed memory allocation request</text:span></text:p>
@@ -595,22 +577,22 @@
      <draw:glue-point draw:id="4" svg:x="-5cm" svg:y="-1.666cm"/>
      <draw:glue-point draw:id="5" svg:x="-5cm" svg:y="1.666cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="33.296cm" svg:x2="23.75cm" svg:y2="24.75cm" draw:start-shape="id13" draw:start-glue-point="4" draw:end-shape="id1" draw:end-glue-point="12" svg:d="M27000 33296c-2437 0-813-8546-3250-8546" svg:viewBox="0 0 3251 8547">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="20.593cm" svg:x2="28cm" svg:y2="21.744cm" draw:start-shape="id12" draw:start-glue-point="5" draw:end-shape="id1" svg:d="M32000 20593c-3000 0-1000 1151-4000 1151" svg:viewBox="0 0 4001 1152">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id14" draw:id="id14" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="34.5cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id13" draw:id="id13" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="32cm" svg:y="22.8cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">not_implemented_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Functionality not implemented</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="34.944cm" svg:x2="23.75cm" svg:y2="24.833cm" draw:start-shape="id14" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="21" svg:d="M27000 34944c-2437 0-813-10111-3250-10111" svg:viewBox="0 0 3251 10112">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="23.245cm" svg:x2="28cm" svg:y2="21.744cm" draw:start-shape="id13" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="1" svg:d="M32000 23245c-3000 0-1000-1501-4000-1501" svg:viewBox="0 0 4001 1502">
      <text:p/>
     </draw:connector>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="14.794cm" svg:x2="32.25cm" svg:y2="17.014cm" draw:start-shape="id15" draw:start-glue-point="3" draw:end-shape="id9" draw:end-glue-point="4" svg:d="M35250 14794c-2250 0-750 2220-3000 2220" svg:viewBox="0 0 3001 2221">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="28.244cm" svg:x2="28cm" svg:y2="21.744cm" draw:start-shape="id14" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="1" svg:d="M32000 28244c-3000 0-1000-6500-4000-6500" svg:viewBox="0 0 4001 6501">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id16" draw:id="id16" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="12.901cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id15" draw:id="id15" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="32cm" svg:y="9.101cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">buffer_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Buffer-related error (overflow)</text:span></text:p>
@@ -618,10 +600,10 @@
      <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
      <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="13.345cm" svg:x2="23.75cm" svg:y2="24.464cm" draw:start-shape="id16" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="8" svg:d="M27000 13345c-2437 0-813 11119-3250 11119" svg:viewBox="0 0 3251 11120">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="9.545cm" svg:x2="28cm" svg:y2="21.522cm" draw:start-shape="id15" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="6" svg:d="M32000 9545c-3000 0-1000 11977-4000 11977" svg:viewBox="0 0 4001 11978">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id17" draw:id="id17" draw:layer="layout" svg:width="5.5cm" svg:height="0.889cm" svg:x="35.25cm" svg:y="21.266cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id16" draw:id="id16" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="32cm" svg:y="31.399cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">security_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Security violation</text:span></text:p>
@@ -629,67 +611,69 @@
      <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
      <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="21.71cm" svg:x2="32.25cm" svg:y2="17.606cm" draw:start-shape="id17" draw:start-glue-point="3" draw:end-shape="id9" draw:end-glue-point="5" svg:d="M35250 21710c-2250 0-750-4104-3000-4104" svg:viewBox="0 0 3001 4105">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="31.843cm" svg:x2="28cm" svg:y2="21.966cm" draw:start-shape="id16" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="5" svg:d="M32000 31843c-3000 0-1000-9877-4000-9877" svg:viewBox="0 0 4001 9878">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr5" draw:text-style-name="P5" xml:id="id18" draw:id="id18" draw:layer="layout" svg:width="5.25cm" svg:height="1.156cm" svg:x="27cm" svg:y="9.094cm">
+    <draw:frame draw:style-name="gr8" draw:text-style-name="P5" xml:id="id17" draw:id="id17" draw:layer="layout" svg:width="6cm" svg:height="1.16cm" svg:x="32cm" svg:y="6cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T4">argument_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Inappropriate value passed as argument to function/method</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="9.672cm" svg:x2="23.75cm" svg:y2="24.259cm" draw:start-shape="id18" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="6" svg:d="M27000 9672c-2437 0-813 14587-3250 14587" svg:viewBox="0 0 3251 14588">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="6.58cm" svg:x2="28cm" svg:y2="21.522cm" draw:start-shape="id17" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="6" svg:d="M32000 6580c-3000 0-1000 14942-4000 14942" svg:viewBox="0 0 4001 14943">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id19" draw:id="id19" draw:layer="layout" svg:width="4.25cm" svg:height="0.889cm" svg:x="42.75cm" svg:y="18.877cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id18" draw:id="id18" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="42cm" svg:y="19.3cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">network_io_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Network-related I/O error</text:span></text:p>
      </draw:text-box>
-     <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
-     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
      <draw:glue-point draw:id="6" svg:x="-5cm" svg:y="-2.142cm"/>
      <draw:glue-point draw:id="7" svg:x="-5cm" svg:y="2.142cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42.75cm" svg:y1="19.131cm" svg:x2="40.75cm" svg:y2="18.793cm" draw:start-shape="id19" draw:start-glue-point="6" draw:end-shape="id12" draw:end-glue-point="5" svg:d="M42750 19131c-1500 0-500-338-2000-338" svg:viewBox="0 0 2001 339">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="19.555cm" svg:x2="38cm" svg:y2="12.644cm" draw:start-shape="id18" draw:start-glue-point="6" draw:end-shape="id11" draw:end-glue-point="1" svg:d="M42000 19555c-3000 0-1000-6911-4000-6911" svg:viewBox="0 0 4001 6912">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id20" draw:id="id20" draw:layer="layout" svg:width="5.5cm" svg:height="0.889cm" svg:x="35.25cm" svg:y="19.711cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id19" draw:id="id19" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="32cm" svg:y="21.4cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">network_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Network-related error</text:span></text:p>
      </draw:text-box>
-     <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
-     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.25cm" svg:y1="20.155cm" svg:x2="32.25cm" svg:y2="17.31cm" draw:start-shape="id20" draw:start-glue-point="3" draw:end-shape="id9" svg:d="M35250 20155c-2250 0-750-2845-3000-2845" svg:viewBox="0 0 3001 2846">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="21.844cm" svg:x2="28cm" svg:y2="21.744cm" draw:start-shape="id19" draw:start-glue-point="3" draw:end-shape="id1" svg:d="M32000 21844c-3000 0-1000-100-4000-100" svg:viewBox="0 0 4001 101">
      <text:p/>
     </draw:connector>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42.75cm" svg:y1="19.511cm" svg:x2="40.75cm" svg:y2="19.933cm" draw:start-shape="id19" draw:start-glue-point="7" draw:end-shape="id20" draw:end-glue-point="4" svg:d="M42750 19511c-1500 0-500 422-2000 422" svg:viewBox="0 0 2001 423">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="19.935cm" svg:x2="38cm" svg:y2="21.844cm" draw:start-shape="id18" draw:start-glue-point="7" draw:end-shape="id19" draw:end-glue-point="1" svg:d="M42000 19935c-3000 0-1000 1909-4000 1909" svg:viewBox="0 0 4001 1910">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr7" draw:text-style-name="P4" xml:id="id21" draw:id="id21" draw:layer="layout" svg:width="4cm" svg:height="0.622cm" svg:x="1.5cm" svg:y="24.28cm">
+    <draw:frame draw:style-name="gr9" draw:text-style-name="P4" xml:id="id20" draw:id="id20" draw:layer="layout" svg:width="6cm" svg:height="0.622cm" svg:x="2cm" svg:y="21.2cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">std::exception</text:span></text:p>
      </draw:text-box>
-     <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-3.562cm"/>
-     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="-1.849cm"/>
-     <draw:glue-point draw:id="6" svg:x="5cm" svg:y="1.575cm"/>
-     <draw:glue-point draw:id="7" svg:x="5cm" svg:y="3.288cm"/>
+     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="-2.333cm"/>
+     <draw:glue-point draw:id="7" svg:x="5cm" svg:y="2.666cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr8" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="13cm" svg:y1="24.594cm" svg:x2="5.5cm" svg:y2="24.591cm" draw:start-shape="id2" draw:start-glue-point="3" draw:end-shape="id21" draw:end-glue-point="1" svg:d="M13000 24594c-5625 0-1875-3-7500-3" svg:viewBox="0 0 7501 4">
+    <draw:connector draw:style-name="gr10" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="12cm" svg:y1="21.745cm" svg:x2="8cm" svg:y2="21.676cm" draw:start-shape="id2" draw:start-glue-point="3" draw:end-shape="id20" draw:end-glue-point="7" svg:d="M12000 21745c-3000 0-1000-69-4000-69" svg:viewBox="0 0 4001 70">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id22" draw:id="id22" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="20.7cm">
+    <draw:frame draw:style-name="gr11" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="3.12cm" svg:x="32cm" svg:y="24.2cm">
      <draw:text-box>
-      <text:p text:style-name="P3"><text:span text:style-name="T2">invalid_path_error</text:span></text:p>
+      <text:p text:style-name="P1"><text:span text:style-name="T1">m_opInvalid</text:span></text:p>
+      <text:p text:style-name="P1"><text:span text:style-name="T1">init() +</text:span></text:p>
+      <text:p text:style-name="P1"><text:span text:style-name="T1">path()</text:span></text:p>
+      <text:p text:style-name="P1"><text:span text:style-name="T1">_print_extended_info() +</text:span></text:p>
+     </draw:text-box>
+    </draw:frame>
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id21" draw:id="id21" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="32cm" svg:y="24.2cm">
+     <draw:text-box>
+      <text:p text:style-name="P3"><text:span text:style-name="T2">os::invalid_path</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">A provided path is not valid</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="21.144cm" svg:x2="23.75cm" svg:y2="24.587cm" draw:start-shape="id22" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="19" svg:d="M27000 21144c-2437 0-813 3443-3250 3443" svg:viewBox="0 0 3251 3444">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="24.645cm" svg:x2="28cm" svg:y2="21.744cm" draw:start-shape="id21" draw:start-glue-point="3" draw:end-shape="id1" svg:d="M32000 24645c-3000 0-1000-2901-4000-2901" svg:viewBox="0 0 4001 2902">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr9" draw:text-style-name="P2" draw:layer="layout" svg:width="5.25cm" svg:height="4.106cm" svg:x="27cm" svg:y="36cm">
+    <draw:frame draw:style-name="gr12" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="4.11cm" svg:x="32cm" svg:y="32.799cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_pszDescription</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_pszSource</text:span></text:p>
@@ -699,16 +683,16 @@
       <text:p text:style-name="P1"><text:span text:style-name="T1">_print_extended_info() +</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id23" draw:id="id23" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="36cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id22" draw:id="id22" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="32cm" svg:y="32.799cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">syntax_error</text:span></text:p>
-      <text:p text:style-name="P3"><text:span text:style-name="T3">Invalid syntax in the specified expression</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T3">Invalid syntax encountered by a parser</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="36.444cm" svg:x2="23.75cm" svg:y2="24.915cm" draw:start-shape="id23" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="14" svg:d="M27000 36444c-2437 0-813-11529-3250-11529" svg:viewBox="0 0 3251 11530">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="33.244cm" svg:x2="28cm" svg:y2="21.966cm" draw:start-shape="id22" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="5" svg:d="M32000 33244c-3000 0-1000-11278-4000-11278" svg:viewBox="0 0 4001 11279">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr6" draw:text-style-name="P2" draw:layer="layout" svg:width="5.25cm" svg:height="3.116cm" svg:x="27cm" svg:y="29.1cm">
+    <draw:frame draw:style-name="gr11" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="3.12cm" svg:x="32cm" svg:y="16.4cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_pInvalid</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">address()</text:span></text:p>
@@ -716,10 +700,10 @@
       <text:p text:style-name="P1"><text:span text:style-name="T1">_print_extended_info() +</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="41.445cm" svg:x2="23.75cm" svg:y2="24.956cm" draw:start-shape="id24" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="15" svg:d="M27000 41445c-2437 0-813-16489-3250-16489" svg:viewBox="0 0 3251 16490">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="37.844cm" svg:x2="28cm" svg:y2="21.966cm" draw:start-shape="id23" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="5" svg:d="M32000 37844c-3000 0-1000-15878-4000-15878" svg:viewBox="0 0 4001 15879">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id24" draw:id="id24" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="41.001cm">
+    <draw:frame draw:style-name="gr13" draw:text-style-name="P5" xml:id="id23" draw:id="id23" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="32cm" svg:y="37.4cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">text::error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Text encoding/decoding error</text:span></text:p>
@@ -727,10 +711,10 @@
      <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
      <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.3cm" svg:y1="39.305cm" svg:x2="32.25cm" svg:y2="41.223cm" draw:start-shape="id25" draw:start-glue-point="3" draw:end-shape="id24" draw:end-glue-point="4" svg:d="M35300 39305c-2287 0-763 1918-3050 1918" svg:viewBox="0 0 3051 1919">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="32.145cm" svg:x2="38cm" svg:y2="37.622cm" draw:start-shape="id24" draw:start-glue-point="3" draw:end-shape="id23" draw:end-glue-point="4" svg:d="M42000 32145c-3000 0-1000 5477-4000 5477" svg:viewBox="0 0 4001 5478">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr6" draw:text-style-name="P2" draw:layer="layout" svg:width="5.25cm" svg:height="3.116cm" svg:x="35.3cm" svg:y="42.75cm">
+    <draw:frame draw:style-name="gr11" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="3.12cm" svg:x="42cm" svg:y="35.3cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_sDescription</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_iInvalidCodePoint</text:span></text:p>
@@ -738,64 +722,64 @@
       <text:p text:style-name="P1"><text:span text:style-name="T1">_print_extended_info() +</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id26" draw:id="id26" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="35.3cm" svg:y="42.75cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id25" draw:id="id25" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="42cm" svg:y="35.3cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">text::encode_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Text encoding error</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.3cm" svg:y1="43.194cm" svg:x2="32.25cm" svg:y2="41.667cm" draw:start-shape="id26" draw:start-glue-point="3" draw:end-shape="id24" draw:end-glue-point="5" svg:d="M35300 43194c-2287 0-763-1527-3050-1527" svg:viewBox="0 0 3051 1528">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="35.745cm" svg:x2="38cm" svg:y2="38.066cm" draw:start-shape="id25" draw:start-glue-point="3" draw:end-shape="id23" draw:end-glue-point="5" svg:d="M42000 35745c-3000 0-1000 2321-4000 2321" svg:viewBox="0 0 4001 2322">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr7" draw:text-style-name="P4" xml:id="id27" draw:id="id27" draw:layer="layout" svg:width="4cm" svg:height="0.622cm" svg:x="7.8cm" svg:y="33.3cm">
+    <draw:frame draw:style-name="gr14" draw:text-style-name="P4" xml:id="id26" draw:id="id26" draw:layer="layout" svg:width="6cm" svg:height="0.622cm" svg:x="12cm" svg:y="20cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">std::bad_alloc</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr8" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="33.592cm" svg:x2="11.8cm" svg:y2="33.611cm" draw:start-shape="id13" draw:start-glue-point="5" draw:end-shape="id27" draw:end-glue-point="1" svg:d="M27000 33592c-11400 0-3800 19-15200 19" svg:viewBox="0 0 15201 20">
+    <draw:connector draw:style-name="gr10" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="20.297cm" svg:x2="18cm" svg:y2="20.311cm" draw:start-shape="id12" draw:start-glue-point="4" draw:end-shape="id26" draw:end-glue-point="1" svg:d="M32000 20297c-10500 0-3500 14-14000 14" svg:viewBox="0 0 14001 15">
      <text:p/>
     </draw:connector>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="7.8cm" svg:y1="33.611cm" svg:x2="5.5cm" svg:y2="24.688cm" draw:start-shape="id27" draw:start-glue-point="3" draw:end-shape="id21" draw:end-glue-point="6" svg:d="M7800 33611c-1725 0-575-8923-2300-8923" svg:viewBox="0 0 2301 8924">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="12cm" svg:y1="20.311cm" svg:x2="8cm" svg:y2="21.366cm" draw:start-shape="id26" draw:start-glue-point="3" draw:end-shape="id20" draw:end-glue-point="5" svg:d="M12000 20311c-3000 0-1000 1055-4000 1055" svg:viewBox="0 0 4001 1056">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr10" draw:text-style-name="P2" draw:layer="layout" svg:width="3.75cm" svg:height="1.631cm" svg:x="20cm" svg:y="20.99cm">
+    <draw:frame draw:style-name="gr15" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="1.631cm" svg:x="22cm" svg:y="12.29cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">sm_bReentering</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="20cm" svg:y1="21.444cm" svg:x2="17.5cm" svg:y2="24.372cm" draw:start-shape="id28" draw:start-glue-point="3" draw:end-shape="id2" draw:end-glue-point="5" svg:d="M20000 21444c-1875 0-625 2928-2500 2928" svg:viewBox="0 0 2501 2929">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="22cm" svg:y1="12.744cm" svg:x2="18cm" svg:y2="21.523cm" draw:start-shape="id27" draw:start-glue-point="3" draw:end-shape="id2" draw:end-glue-point="5" svg:d="M22000 12744c-3000 0-1000 8779-4000 8779" svg:viewBox="0 0 4001 8780">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id28" draw:id="id28" draw:layer="layout" svg:width="3.75cm" svg:height="0.889cm" svg:x="20cm" svg:y="21cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id27" draw:id="id27" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="22cm" svg:y="12.3cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">assertion_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">An assertion failed</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr11" draw:text-style-name="P7" draw:layer="layout" svg:width="7.75cm" svg:height="3.701cm" svg:x="62.25cm" svg:y="0.002cm">
+    <draw:frame draw:style-name="gr16" draw:text-style-name="P7" draw:layer="layout" svg:width="7.75cm" svg:height="3.701cm" svg:x="62.25cm" svg:y="0.002cm">
      <draw:text-box>
       <text:p text:style-name="P6"><text:span text:style-name="T5">Key</text:span></text:p>
       <text:p text:style-name="P6"><text:span text:style-name="T6">member</text:span><text:span text:style-name="T6"><text:tab/></text:span><text:span text:style-name="T6">Regular member</text:span></text:p>
       <text:p text:style-name="P6"><text:span text:style-name="T7">member</text:span><text:span text:style-name="T6"><text:tab/></text:span><text:span text:style-name="T6">Abstract member</text:span></text:p>
       <text:p text:style-name="P6"><text:span text:style-name="T6">member +</text:span><text:span text:style-name="T6"><text:tab/></text:span><text:span text:style-name="T6">Override</text:span></text:p>
-      <text:p text:style-name="P6"><text:span text:style-name="T8">member </text:span><text:span text:style-name="T9">X+</text:span><text:span text:style-name="T8"><text:tab/></text:span><text:span text:style-name="T6">Override for Linux</text:span></text:p>
+      <text:p text:style-name="P6"><text:span text:style-name="T8">member </text:span><text:span text:style-name="T9">L+</text:span><text:span text:style-name="T8"><text:tab/></text:span><text:span text:style-name="T6">Override for Linux</text:span></text:p>
       <text:p text:style-name="P6"><text:span text:style-name="T9">member</text:span><text:span text:style-name="T8"><text:tab/></text:span><text:span text:style-name="T8">Member o</text:span><text:span text:style-name="T6">nly defined for Linux</text:span></text:p>
-      <text:p text:style-name="P6"><text:span text:style-name="T9">member X+</text:span><text:span text:style-name="T8"><text:tab/></text:span><text:span text:style-name="T6">Override only defined for Linux</text:span></text:p>
+      <text:p text:style-name="P6"><text:span text:style-name="T9">member L+</text:span><text:span text:style-name="T8"><text:tab/></text:span><text:span text:style-name="T6">Override only defined for Linux</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="29.544cm" svg:x2="23.75cm" svg:y2="24.709cm" draw:start-shape="id29" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="11" svg:d="M27000 29544c-2437 0-813-4835-3250-4835" svg:viewBox="0 0 3251 4836">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="16.845cm" svg:x2="28cm" svg:y2="21.744cm" draw:start-shape="id28" draw:start-glue-point="3" draw:end-shape="id1" svg:d="M32000 16845c-3000 0-1000 4899-4000 4899" svg:viewBox="0 0 4001 4900">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id30" draw:id="id30" draw:layer="layout" svg:width="5.45cm" svg:height="0.889cm" svg:x="35.3cm" svg:y="30.902cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id29" draw:id="id29" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="42cm" svg:y="17.902cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">null_pointer_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Attempt to dereference a NULL pointer</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.3cm" svg:y1="31.346cm" svg:x2="32.25cm" svg:y2="29.766cm" draw:start-shape="id30" draw:start-glue-point="3" draw:end-shape="id29" draw:end-glue-point="5" svg:d="M35300 31346c-2287 0-763-1580-3050-1580" svg:viewBox="0 0 3051 1581">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="18.347cm" svg:x2="38cm" svg:y2="17.067cm" draw:start-shape="id29" draw:start-glue-point="3" draw:end-shape="id28" draw:end-glue-point="5" svg:d="M42000 18347c-3000 0-1000-1280-4000-1280" svg:viewBox="0 0 4001 1281">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id29" draw:id="id29" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="29.1cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id28" draw:id="id28" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="32cm" svg:y="16.4cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T4">memory_address_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Memory access violation (segfault)</text:span></text:p>
@@ -803,44 +787,41 @@
      <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
      <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id31" draw:id="id31" draw:layer="layout" svg:width="5.45cm" svg:height="0.889cm" svg:x="35.3cm" svg:y="29.403cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id30" draw:id="id30" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="42cm" svg:y="16.503cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">memory_access_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Invalid memory access (misaligned pointer)</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="35.3cm" svg:y1="29.847cm" svg:x2="32.25cm" svg:y2="29.322cm" draw:start-shape="id31" draw:end-shape="id29" draw:end-glue-point="4" svg:d="M35300 29847c-2287 0-763-525-3050-525" svg:viewBox="0 0 3051 526">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="42cm" svg:y1="16.948cm" svg:x2="38cm" svg:y2="16.623cm" draw:start-shape="id30" draw:end-shape="id28" draw:end-glue-point="4" svg:d="M42000 16948c-3000 0-1000-325-4000-325" svg:viewBox="0 0 4001 326">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr5" draw:text-style-name="P5" xml:id="id32" draw:id="id32" draw:layer="layout" svg:width="5.25cm" svg:height="1.156cm" svg:x="27cm" svg:y="14.794cm">
+    <draw:frame draw:style-name="gr8" draw:text-style-name="P5" xml:id="id31" draw:id="id31" draw:layer="layout" svg:width="6cm" svg:height="1.16cm" svg:x="32cm" svg:y="10.5cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T4">domain_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Attempt to assign a value not in the domain of the target type</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="15.372cm" svg:x2="23.75cm" svg:y2="24.505cm" draw:start-shape="id32" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="9" svg:d="M27000 15372c-2437 0-813 9133-3250 9133" svg:viewBox="0 0 3251 9134">
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="32cm" svg:y1="11.08cm" svg:x2="28cm" svg:y2="21.522cm" draw:start-shape="id31" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="6" svg:d="M32000 11080c-3000 0-1000 10442-4000 10442" svg:viewBox="0 0 4001 10443">
      <text:p/>
     </draw:connector>
-    <draw:frame draw:style-name="gr12" draw:text-style-name="P9" draw:layer="layout" svg:width="1.602cm" svg:height="0.331cm" svg:x="10.646cm" svg:y="24.169cm">
+    <draw:frame draw:style-name="gr17" draw:text-style-name="P9" draw:layer="layout" svg:width="1.602cm" svg:height="0.331cm" svg:x="10.2cm" svg:y="21.2cm">
      <draw:text-box>
       <text:p text:style-name="P8"><text:span text:style-name="T10">related_std</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr12" draw:text-style-name="P9" draw:layer="layout" svg:width="1.602cm" svg:height="0.331cm" svg:x="22.896cm" svg:y="37.85cm">
+    <draw:frame draw:style-name="gr17" draw:text-style-name="P9" draw:layer="layout" svg:width="1.602cm" svg:height="0.331cm" svg:x="30.2cm" svg:y="19.8cm">
      <draw:text-box>
       <text:p text:style-name="P8"><text:span text:style-name="T10">related_std</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id33" draw:id="id33" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="27cm" svg:y="22.901cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id35" draw:id="id35" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="32cm" svg:y="13.601cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">iterator_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Invalid iterator operation</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="layout" draw:type="curve" svg:x1="27cm" svg:y1="23.345cm" svg:x2="23.75cm" svg:y2="24.627cm" draw:start-shape="id33" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="10" svg:d="M27000 23345c-2437 0-813 1282-3250 1282" svg:viewBox="0 0 3251 1283">
-     <text:p/>
-    </draw:connector>
-    <draw:frame draw:style-name="gr6" draw:text-style-name="P2" draw:layer="layout" svg:width="5.25cm" svg:height="3.116cm" svg:x="35.3cm" svg:y="38.856cm">
+    <draw:frame draw:style-name="gr11" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="3.12cm" svg:x="42cm" svg:y="31.7cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_sDescription</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_viInvalid</text:span></text:p>
@@ -848,13 +829,13 @@
       <text:p text:style-name="P1"><text:span text:style-name="T1">_print_extended_info() +</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id25" draw:id="id25" draw:layer="layout" svg:width="5.25cm" svg:height="0.889cm" svg:x="35.3cm" svg:y="38.861cm">
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id24" draw:id="id24" draw:layer="layout" svg:width="6cm" svg:height="0.89cm" svg:x="42cm" svg:y="31.7cm">
      <draw:text-box>
       <text:p text:style-name="P3"><text:span text:style-name="T2">text::decode_error</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Text decoding error</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr6" draw:text-style-name="P2" draw:layer="layout" svg:width="5.5cm" svg:height="3.116cm" svg:x="35.25cm" svg:y="14.35cm">
+    <draw:frame draw:style-name="gr18" draw:text-style-name="P2" draw:layer="layout" svg:width="6cm" svg:height="3.116cm" svg:x="32cm" svg:y="27.8cm">
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">m_opNotFound</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">init() +</text:span></text:p>
@@ -862,14 +843,52 @@
       <text:p text:style-name="P1"><text:span text:style-name="T1">_print_extended_info() +</text:span></text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id15" draw:id="id15" draw:layer="layout" svg:width="5.5cm" svg:height="0.889cm" svg:x="35.25cm" svg:y="14.35cm">
+    <draw:frame draw:style-name="gr4" draw:text-style-name="P5" xml:id="id14" draw:id="id14" draw:layer="layout" svg:width="6cm" svg:height="0.889cm" svg:x="32cm" svg:y="27.8cm">
      <draw:text-box>
-      <text:p text:style-name="P3"><text:span text:style-name="T2">file_not_found_error</text:span></text:p>
-      <text:p text:style-name="P3"><text:span text:style-name="T3">File not found</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T2">os::path_not_found</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T3">File or directory not found</text:span></text:p>
      </draw:text-box>
      <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
      <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
     </draw:frame>
+    <draw:frame draw:style-name="gr8" draw:text-style-name="P5" xml:id="id4" draw:id="id4" draw:layer="measurelines" svg:width="6cm" svg:height="1.16cm" svg:x="22cm" svg:y="40.801cm">
+     <draw:text-box>
+      <text:p text:style-name="P3"><text:span text:style-name="T2">execution_interruption</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T3">Execution of coroutine/thread/process was interrupted</text:span></text:p>
+     </draw:text-box>
+     <draw:glue-point draw:id="4" svg:x="5cm" svg:y="-2.5cm"/>
+     <draw:glue-point draw:id="5" svg:x="5cm" svg:y="2.5cm"/>
+    </draw:frame>
+    <draw:frame draw:style-name="gr19" draw:text-style-name="P5" xml:id="id32" draw:id="id32" draw:layer="measurelines" svg:width="5.997cm" svg:height="0.889cm" svg:x="32cm" svg:y="41.701cm">
+     <draw:text-box>
+      <text:p text:style-name="P3"><text:span text:style-name="T2">app_execution_interruption</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T3">External request to interrupt the process</text:span></text:p>
+     </draw:text-box>
+    </draw:frame>
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="measurelines" draw:type="curve" svg:x1="32cm" svg:y1="42.145cm" svg:x2="28cm" svg:y2="41.671cm" draw:start-shape="id32" draw:start-glue-point="3" draw:end-shape="id4" draw:end-glue-point="5" svg:d="M32000 42145c-3000 0-1000-474-4000-474" svg:viewBox="0 0 4001 475">
+     <text:p/>
+    </draw:connector>
+    <draw:frame draw:style-name="gr19" draw:text-style-name="P5" xml:id="id33" draw:id="id33" draw:layer="measurelines" svg:width="5.997cm" svg:height="1.156cm" svg:x="32.003cm" svg:y="40.001cm">
+     <draw:text-box>
+      <text:p text:style-name="P3"><text:span text:style-name="T2">app_exit_interruption</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T3">Thrown after abc::app:main() in any remaining threads/coroutines</text:span></text:p>
+     </draw:text-box>
+    </draw:frame>
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="measurelines" draw:type="curve" svg:x1="32.003cm" svg:y1="40.579cm" svg:x2="28cm" svg:y2="41.091cm" draw:start-shape="id33" draw:start-glue-point="3" draw:end-shape="id4" draw:end-glue-point="4" svg:d="M32003 40579c-3001 0-1000 512-4003 512" svg:viewBox="0 0 4004 513">
+     <text:p/>
+    </draw:connector>
+    <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id34" draw:id="id34" draw:layer="measurelines" svg:width="6cm" svg:height="0.89cm" svg:x="42cm" svg:y="41.7cm">
+     <draw:text-box>
+      <text:p text:style-name="P3"><text:span text:style-name="T2">user_forced_interruption</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T3">Execution interruption requested by the user</text:span></text:p>
+     </draw:text-box>
+    </draw:frame>
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="measurelines" draw:type="curve" svg:x1="42cm" svg:y1="42.145cm" svg:x2="37.997cm" svg:y2="42.145cm" draw:start-shape="id34" draw:start-glue-point="3" draw:end-shape="id32" draw:end-glue-point="1" svg:d="M42000 42145h-4003" svg:viewBox="0 0 4004 1">
+     <text:p/>
+    </draw:connector>
+    <draw:connector draw:style-name="gr3" draw:text-style-name="P3" draw:layer="measurelines" draw:type="curve" svg:x1="32cm" svg:y1="14.046cm" svg:x2="28cm" svg:y2="21.744cm" draw:start-shape="id35" draw:start-glue-point="3" draw:end-shape="id1" draw:end-glue-point="1" svg:d="M32000 14046c-3000 0-1000 7698-4000 7698" svg:viewBox="0 0 4001 7699">
+     <text:p/>
+    </draw:connector>
    </draw:page>
   </office:drawing>
  </office:body>
