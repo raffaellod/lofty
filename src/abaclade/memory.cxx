@@ -28,6 +28,156 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace memory {
+
+access_error::access_error() :
+   generic_error(),
+   address_error() {
+   m_pszWhat = "abc::memory::access_error";
+}
+
+access_error::access_error(access_error const & x) :
+   generic_error(x),
+   address_error(x) {
+}
+
+/*virtual*/ access_error::~access_error() {
+}
+
+access_error & access_error::operator=(access_error const & x) {
+   address_error::operator=(x);
+   return *this;
+}
+
+void access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
+   address_error::init(pInvalid, err);
+}
+
+}} //namespace abc::memory
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace memory {
+
+char_t const address_error::smc_szUnknownAddress[] = ABC_SL(" unknown memory address");
+
+address_error::address_error() :
+   generic_error() {
+   m_pszWhat = "abc::memory::address_error";
+}
+
+address_error::address_error(address_error const & x) :
+   generic_error(x),
+   m_pInvalid(x.m_pInvalid) {
+}
+
+/*virtual*/ address_error::~address_error() {
+}
+
+address_error & address_error::operator=(address_error const & x) {
+   generic_error::operator=(x);
+   m_pInvalid = x.m_pInvalid;
+   return *this;
+}
+
+void address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
+   generic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      EFAULT
+#elif ABC_HOST_API_WIN32
+      ERROR_INVALID_ADDRESS
+#else
+      0
+#endif
+   );
+   m_pInvalid = pInvalid;
+}
+
+/*virtual*/ void address_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
+   generic_error::write_extended_info(ptwOut);
+   if (m_pInvalid != smc_szUnknownAddress) {
+      ptwOut->print(ABC_SL(" invalid address: {}"), m_pInvalid);
+   } else {
+      ptwOut->write(smc_szUnknownAddress);
+   }
+}
+
+}} //namespace abc::memory
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace memory {
+
+allocation_error::allocation_error() :
+   generic_error() {
+   m_pszWhat = "abc::memory::allocation_error";
+}
+
+allocation_error::allocation_error(allocation_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ allocation_error::~allocation_error() {
+}
+
+allocation_error & allocation_error::operator=(allocation_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
+void allocation_error::init(errint_t err /*= 0*/) {
+   generic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      ENOMEM
+#elif ABC_HOST_API_WIN32
+      ERROR_NOT_ENOUGH_MEMORY
+#else
+      0
+#endif
+   );
+}
+
+}} //namespace abc::memory
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace memory {
+
+null_pointer_error::null_pointer_error() :
+   generic_error(),
+   address_error() {
+   m_pszWhat = "abc::memory::null_pointer_error";
+}
+
+null_pointer_error::null_pointer_error(null_pointer_error const & x) :
+   generic_error(x),
+   address_error(x) {
+}
+
+/*virtual*/ null_pointer_error::~null_pointer_error() {
+}
+
+null_pointer_error & null_pointer_error::operator=(null_pointer_error const & x) {
+   address_error::operator=(x);
+   return *this;
+}
+
+void null_pointer_error::init(errint_t err /*= 0*/) {
+   address_error::init(nullptr, err ? err :
+#if ABC_HOST_API_POSIX
+      EFAULT
+#elif ABC_HOST_API_WIN32
+      ERROR_INVALID_ADDRESS
+#else
+      0
+#endif
+   );
+}
+
+}} //namespace abc::memory
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #if ABC_HOST_CXX_MSC
    #pragma warning(push)
    // “'operator': exception specification does not match previous declaration”
@@ -81,7 +231,7 @@ void * alloc<void>(std::size_t cb) {
    if (void * p = std::malloc(cb)) {
       return p;
    }
-   ABC_THROW(memory_allocation_error, ());
+   ABC_THROW(memory::allocation_error, ());
 }
 
 void free(void const * p) {
@@ -93,7 +243,7 @@ void realloc<void>(void ** pp, std::size_t cb) {
    if (void * p = std::realloc(*pp, cb)) {
       *pp = p;
    } else {
-      ABC_THROW(memory_allocation_error, ());
+      ABC_THROW(memory::allocation_error, ());
    }
 }
 

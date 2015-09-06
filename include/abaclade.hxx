@@ -508,6 +508,7 @@ class writer;
 #include <abaclade/thread_local.hxx>
 #include <abaclade/enum.hxx>
 #include <abaclade/exception.hxx>
+#include <abaclade/memory-after-exception.hxx>
 //#include <abaclade/type_void_adapter.hxx>
 #include <abaclade/collections/detail/vextr_impl.hxx>
 #include <abaclade/collections/vector.hxx>

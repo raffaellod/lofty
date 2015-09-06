@@ -156,10 +156,10 @@ void exception::throw_os_error(errint_t err) {
          ABC_THROW(io::error, (err));
 
       case ENOMEM: // Out of memory (POSIX.1-2001)
-         ABC_THROW(memory_allocation_error, (err));
+         ABC_THROW(memory::allocation_error, (err));
 
       case EFAULT: // Bad address (POSIX.1-2001)
-         ABC_THROW(memory_address_error, (err));
+         ABC_THROW(memory::address_error, (err));
 
       case EADDRINUSE: // Address already in use (POSIX.1-2001).
       case EADDRNOTAVAIL: // Cannot assign requested address (POSIX.1-2001)

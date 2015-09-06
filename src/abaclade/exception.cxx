@@ -243,14 +243,14 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          _ABC_THROW_FROM(srcloc, sc_szOS, floating_point_error, ());
       case common_type::memory_access_error:
          _ABC_THROW_FROM(
-            srcloc, sc_szOS, memory_access_error, (reinterpret_cast<void const *>(iArg0))
+            srcloc, sc_szOS, memory::access_error, (reinterpret_cast<void const *>(iArg0))
          );
       case common_type::memory_address_error:
          _ABC_THROW_FROM(
-            srcloc, sc_szOS, memory_address_error, (reinterpret_cast<void const *>(iArg0))
+            srcloc, sc_szOS, memory::address_error, (reinterpret_cast<void const *>(iArg0))
          );
       case common_type::null_pointer_error:
-         _ABC_THROW_FROM(srcloc, sc_szOS, null_pointer_error, ());
+         _ABC_THROW_FROM(srcloc, sc_szOS, memory::null_pointer_error, ());
       case common_type::overflow_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, overflow_error, ());
       default:
@@ -864,121 +864,6 @@ void lookup_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-memory_access_error::memory_access_error() :
-   generic_error(),
-   memory_address_error() {
-   m_pszWhat = "abc::memory_access_error";
-}
-
-memory_access_error::memory_access_error(memory_access_error const & x) :
-   generic_error(x),
-   memory_address_error(x) {
-}
-
-/*virtual*/ memory_access_error::~memory_access_error() {
-}
-
-memory_access_error & memory_access_error::operator=(memory_access_error const & x) {
-   memory_address_error::operator=(x);
-   return *this;
-}
-
-void memory_access_error::init(void const * pInvalid, errint_t err /*= 0*/) {
-   memory_address_error::init(pInvalid, err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-char_t const memory_address_error::smc_szUnknownAddress[] = ABC_SL(" unknown memory address");
-
-memory_address_error::memory_address_error() :
-   generic_error() {
-   m_pszWhat = "abc::memory_address_error";
-}
-
-memory_address_error::memory_address_error(memory_address_error const & x) :
-   generic_error(x),
-   m_pInvalid(x.m_pInvalid) {
-}
-
-/*virtual*/ memory_address_error::~memory_address_error() {
-}
-
-memory_address_error & memory_address_error::operator=(memory_address_error const & x) {
-   generic_error::operator=(x);
-   m_pInvalid = x.m_pInvalid;
-   return *this;
-}
-
-void memory_address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      EFAULT
-#elif ABC_HOST_API_WIN32
-      ERROR_INVALID_ADDRESS
-#else
-      0
-#endif
-   );
-   m_pInvalid = pInvalid;
-}
-
-/*virtual*/ void memory_address_error::write_extended_info(
-   io::text::writer * ptwOut
-) const /*override*/ {
-   generic_error::write_extended_info(ptwOut);
-   if (m_pInvalid != smc_szUnknownAddress) {
-      ptwOut->print(ABC_SL(" invalid address: {}"), m_pInvalid);
-   } else {
-      ptwOut->write(smc_szUnknownAddress);
-   }
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-memory_allocation_error::memory_allocation_error() :
-   generic_error() {
-   m_pszWhat = "abc::memory_allocation_error";
-}
-
-memory_allocation_error::memory_allocation_error(memory_allocation_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ memory_allocation_error::~memory_allocation_error() {
-}
-
-memory_allocation_error & memory_allocation_error::operator=(memory_allocation_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void memory_allocation_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      ENOMEM
-#elif ABC_HOST_API_WIN32
-      ERROR_NOT_ENOUGH_MEMORY
-#else
-      0
-#endif
-   );
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 network_error::network_error() :
    generic_error() {
    m_pszWhat = "abc::network_error";
@@ -1025,43 +910,6 @@ not_implemented_error & not_implemented_error::operator=(not_implemented_error c
 
 void not_implemented_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-null_pointer_error::null_pointer_error() :
-   generic_error(),
-   memory_address_error() {
-   m_pszWhat = "abc::null_pointer_error";
-}
-
-null_pointer_error::null_pointer_error(null_pointer_error const & x) :
-   generic_error(x),
-   memory_address_error(x) {
-}
-
-/*virtual*/ null_pointer_error::~null_pointer_error() {
-}
-
-null_pointer_error & null_pointer_error::operator=(null_pointer_error const & x) {
-   memory_address_error::operator=(x);
-   return *this;
-}
-
-void null_pointer_error::init(errint_t err /*= 0*/) {
-   memory_address_error::init(nullptr, err ? err :
-#if ABC_HOST_API_POSIX
-      EFAULT
-#elif ABC_HOST_API_WIN32
-      ERROR_INVALID_ADDRESS
-#else
-      0
-#endif
-   );
 }
 
 } //namespace abc

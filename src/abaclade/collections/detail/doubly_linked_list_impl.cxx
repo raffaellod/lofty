@@ -127,7 +127,7 @@ doubly_linked_list_impl & doubly_linked_list_impl::operator=(doubly_linked_list_
 
 doubly_linked_list_impl::node * doubly_linked_list_impl::back() const {
    if (!m_pnLast) {
-      ABC_THROW(null_pointer_error, ());
+      ABC_THROW(lookup_error, ());
    }
    return m_pnLast;
 }
@@ -154,7 +154,7 @@ void doubly_linked_list_impl::clear(type_void_adapter const & type) {
 
 doubly_linked_list_impl::node * doubly_linked_list_impl::front() const {
    if (!m_pnFirst) {
-      ABC_THROW(null_pointer_error, ());
+      ABC_THROW(lookup_error, ());
    }
    return m_pnFirst;
 }
