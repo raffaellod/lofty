@@ -195,155 +195,70 @@ namespace abc {
 Abaclade provides a diverse and semantically-rich exception class hierarchy that parallels and
 extends that provided by the STL.
 
-Due to the fact that both class hierarchies extend in both width and depth, and since the STL
-hierarchy does not use virtual base classes, they have to be kept completely separated until the
-most-derived classes, which is the only way the guarantee can be provided that no leaf class will
-derive twice from std::exception, yielding two instances with two separate, ambiguous, sets of
-std::exception members. See for example this fictional hierarchy, displaying an early tentative
-Abaclade design having a single class hierarchy where each class would derive individually from a
-std::exception-derived class:
+Classes in Abaclade’s exception class hierarchy inherit from different STL exception classes, to
+facilitate interoperability between the two hierarchies.
+
+The STL hierarchy does not use virtual inheritance. In earlier versions of Abaclade, this would mean
+that, since some Abaclade exception classes have an as-is relationship with an STL exception class
+that’s not std::exception, in some cases this inheritance scenario would occur:
 
    @verbatim
-   class abc::exception : public std::exception {};
+   class abc::exception :          class abc::domain_error :
+      public std::exception {         public abc::exception,
+   };                                 public std::domain_error {
+                                   };
 
-       abc::exception
-      ┌────────────────┐
-      │ std::exception │
-      └────────────────┘
+   throw abc::exception();         throw abc::domain_error();
+
+   ┌────────────────┐              ┌────────────────────┐
+   │ std::exception │              │┌──────────────────┐│
+   └────────────────┘              ││ abc::exception   ││
+                                   ││┌────────────────┐││
+                                   │││ std::exception │││
+                                   ││└────────────────┘││
+                                   │└──────────────────┘│
+                                   │ std::domain_error  │
+                                   │┌──────────────────┐│
+                                   ││ std::exception   ││
+                                   │└──────────────────┘│
+                                   └────────────────────┘
    @endverbatim
 
-   @verbatim
-   class abc::network_error : public virtual abc::exception {};
+As visible on the right side of the diagram, an abc::domain_error would include two distinct copies
+of std::exception, which leads to ambiguity: for example, abc::domain_error may be cast as both
+abc::exception → std:exception or as std::domain_error → std::exception. While this does not trigger
+any warnings in GCC, MSC16 warns that the resulting object (e.g. an abc::domain_error instance) will
+not be caught by a std::exception catch block, arguably due to said casting ambiguity – the MSC
+exception handling implementation might not know which of the two casts to favor.
 
-       abc::network_error
-      ┌──────────────────┐
-      │ abc::exception   │
-      │┌────────────────┐│
-      ││ std::exception ││
-      │└────────────────┘│
-      └──────────────────┘
-   @endverbatim
-
-   @verbatim
-   class abc::io::error : public virtual abc::exception, public std::ios_base::failure {};
-
-       abc::io::error
-      ┌────────────────────────┐
-      │ abc::exception         │
-      │┌──────────────────────┐│
-      ││ std::exception       ││
-      │└──────────────────────┘│
-      ├────────────────────────┤
-      │ std::ios_base::failure │
-      │┌──────────────────────┐│
-      ││ std::exception       ││
-      │└──────────────────────┘│
-      └────────────────────────┘
-   @endverbatim
-
-   @verbatim
-   class abc::io::network_error :
-      public virtual abc::io::error, public virtual abc::network_error {};
-
-       abc::io::network_error
-      ┌──────────────────────────┬────────────────────┐
-      │ abc::io::error           │ abc::network_error │
-      │┌─────────────────────────┴───────────────────┐│
-      ││ abc::exception                              ││
-      ││┌───────────────────────────────────────────┐││
-      │││ std::exception                            │││
-      ││└───────────────────────────────────────────┘││
-      │└─────────────────────────┬───────────────────┘│
-      │┌────────────────────────┐│                    │
-      ││ std::ios_base::failure ││                    │
-      ││┌──────────────────────┐││                    │
-      │││ std::exception       │││                    │
-      ││└──────────────────────┘││                    │
-      │└────────────────────────┘│                    │
-      └──────────────────────────┴────────────────────┘
-   @endverbatim
-
-As visible in the last two class data representations, objects can include multiple distinct copies
-of std::exception, which leads to ambiguity: for example, abc::io::error may be cast as both
-abc::exception → std:exception or as std::ios_base::failure → std::exception. While this does not
-trigger any warnings in GCC, MSC16 warns that the resulting object (e.g. an abc::io::error instance)
-will not be caught by a std::exception catch block, arguably due to said casting ambiguity – the
-MSVCRT might not know which of the two casts to favor.
-
-In the current implementation of the exception class hierarchy instead, the Abaclade and the STL
+Instead, in the current implementation of the exception class hierarchy, the Abaclade and the STL
 hierarchies are kept completely separated; they are only combined when an exception is thrown, by
 instantiating the class template abc::detail::exception_aggregator, specializations of which create
-the leaf classes mentioned earlier; this is conveniently handled in the ABC_THROW() statement. See
-this example based on the previous one:
+the leaf classes mentioned earlier.
+
+The instantiation of a specialization of abc::detail::exception_aggregator is conveniently handled
+by the ABC_THROW() statement; see this example, based on the previous one:
 
    @verbatim
-   class abc::exception {
-      typedef std::exception related_std;
-   };
+   class abc::exception {                      class abc::domain_error :
+   public:                                        public abc::exception {
+      typedef std::exception related_std;      public:
+   };                                             typedef std::domain_error related_std;
+                                               };
 
-       ABC_THROW(abc::exception, ())
-      ┌────────────────┐
-      │ std::exception │
-      ├────────────────┤
-      │ abc::exception │
-      └────────────────┘
+   ABC_THROW(abc::exception, ())               ABC_THROW(abc::domain_error, ())
+   ┌────────────────┐                          ┌───────────────────┐
+   │ std::exception │                          │ std::domain_error │
+   ├────────────────┤                          │┌─────────────────┐│
+   │ abc::exception │                          ││ std::exception  ││
+   └────────────────┘                          │└─────────────────┘│
+                                               ├───────────────────┤
+                                               │ abc::domain_error │
+                                               │┌─────────────────┐│
+                                               ││ abc::exception  ││
+                                               │└─────────────────┘│
+                                               └───────────────────┘
    @endverbatim
-
-   @verbatim
-   class abc::network_error : public virtual abc::exception {};
-
-       ABC_THROW(abc::network_error, ())
-      ┌────────────────────┐
-      │ std::exception     │
-      ├────────────────────┤
-      │ abc::network_error │
-      │┌──────────────────┐│
-      ││ abc::exception   ││
-      │└──────────────────┘│
-      └────────────────────┘
-   @endverbatim
-
-   @verbatim
-   class abc::io::error : public virtual abc::exception {
-      typedef std::ios_base::failure related_std;
-   };
-
-       ABC_THROW(abc::io::error, ())
-      ┌────────────────────────┐
-      │ std::ios_base::failure │
-      │┌──────────────────────┐│
-      ││ std::exception       ││
-      │└──────────────────────┘│
-      ├────────────────────────┤
-      │ abc::io::error         │
-      │┌──────────────────────┐│
-      ││ abc::exception       ││
-      │└──────────────────────┘│
-      └────────────────────────┘
-   @endverbatim
-
-   @verbatim
-   class abc::io::network_error : public virtual abc::io::error, public virtual abc::network_error {
-      typedef std::ios_base::failure related_std;
-   };
-
-       ABC_THROW(abc::io::network_error, ())
-      ┌───────────────────────────────────────┐
-      │ std::ios_base::failure                │
-      │┌─────────────────────────────────────┐│
-      ││ std::exception                      ││
-      │└─────────────────────────────────────┘│
-      ├───────────────────────────────────────┤
-      │ abc::io::network_error                │
-      │┌────────────────┬────────────────────┐│
-      ││ abc::io::error │ abc::network_error ││
-      ││┌───────────────┴───────────────────┐││
-      │││ abc::exception                    │││
-      ││└───────────────┬───────────────────┘││
-      │└────────────────┴────────────────────┘│
-      └───────────────────────────────────────┘
-   @endverbatim
-
 
 Note: multiple vtables (and therefore typeid and identifiers) can and will be generated for
 abc::detail::exception_aggregator (with identical template arguments) across all binaries, because
@@ -354,9 +269,6 @@ abc::detail::exception_aggregator instance; clients will instead catch the appro
 STL exception class, and these are indeed defined once for all binaries, and are therefore unique.
 
 See also ABC_THROW() for more information.
-
-Most of the exception class hierarchy is based on Python’s, which was chosen as model because of its
-breadth and depth.
 
 See [IMG:8190 Exception class hierarchy] for a diagram of the entire Abaclade exception class
 hierarchy, including the relations with the STL hierarchy.
