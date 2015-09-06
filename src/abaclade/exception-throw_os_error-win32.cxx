@@ -396,6 +396,9 @@ void exception::throw_os_error(errint_t err) {
       default:
          ABC_THROW(generic_error, (err));
 
+      case ERROR_ADAP_HDW_ERR: // A network adapter hardware error occurred.
+      case ERROR_ADDRESS_NOT_ASSOCIATED: // An address has not yet been associated with the network
+         // endpoint.
       case ERROR_ALREADY_ASSIGNED: // The local device name is already in use.
       case ERROR_ALREADY_EXISTS: // Cannot create a file when that file already exists.
       case ERROR_ATOMIC_LOCKS_NOT_SUPPORTED: // The file system does not support atomic changes to
@@ -414,10 +417,15 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_CANTOPEN: // The configuration registry key could not be opened.
       case ERROR_CANTREAD: // The configuration registry key could not be read.
       case ERROR_CANTWRITE: // The configuration registry key could not be written.
+      case ERROR_CONNECTION_ABORTED: // The network connection was aborted by the local system.
+      case ERROR_CONNECTION_INVALID: // An operation was attempted on a nonexistent network
+         // connection.
+      case ERROR_CONNECTION_REFUSED: // The remote system refused the network connection.
       case ERROR_COUNTER_TIMEOUT: // A serial I/O operation completed because the time-out period
          // expired. In other words, the IOCTL_SERIAL_XOFF_COUNTER did not reach zero.
       case ERROR_CRC: // Data error (cyclic redundancy check).
       case ERROR_CURRENT_DIRECTORY: // The directory cannot be removed.
+      case ERROR_DEV_NOT_EXIST: // The specified network resource or device is no longer available.
       case ERROR_DEVICE_ALREADY_REMEMBERED: // An attempt was made to remember a device that had
          // previously been remembered.
       case ERROR_DEVICE_IN_USE: // The device is in use by an active process and cannot be
@@ -498,6 +506,9 @@ void exception::throw_os_error(errint_t err) {
          // port. The IOCTL_SERIAL_XOFF_COUNTER reached zero.
       case ERROR_NEGATIVE_SEEK: // An attempt was made to move the file pointer before the beginning
          // of the file.
+      case ERROR_NET_WRITE_FAULT: // A write fault occurred on the network.
+      case ERROR_NETWORK_BUSY: // The network is busy.
+      case ERROR_NETWORK_UNREACHABLE: // The remote network is not reachable by the transport.
       case ERROR_NO_DATA: // The pipe is being closed.
       case ERROR_NO_DATA_DETECTED: // No more data is on the tape.
       case ERROR_NO_LOG_SPACE: // System could not allocate the required space in a registry log.
@@ -559,6 +570,7 @@ void exception::throw_os_error(errint_t err) {
          // that contain the system's image of the registry.
       case ERROR_REGISTRY_RECOVERED: // One of the files in the registry database had to be
          // recovered by use of a log or alternate copy. The recovery was successful.
+      case ERROR_REQUEST_ABORTED: // The request was aborted.
       case ERROR_RXACT_COMMIT_FAILURE: // An internal security database corruption has been
          // encountered.
       case ERROR_RXACT_INVALID_STATE: // The transaction state of a registry subtree is incompatible
@@ -596,20 +608,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_WRONG_DISK: // The wrong diskette is in the drive. Insert %2 (Volume Serial Number:
          // %3) into drive %1.
          ABC_THROW(io::error, (err));
-
-      case ERROR_ADAP_HDW_ERR: // A network adapter hardware error occurred.
-      case ERROR_ADDRESS_NOT_ASSOCIATED: // An address has not yet been associated with the network
-         // endpoint.
-      case ERROR_CONNECTION_ABORTED: // The network connection was aborted by the local system.
-      case ERROR_CONNECTION_INVALID: // An operation was attempted on a nonexistent network
-         // connection.
-      case ERROR_CONNECTION_REFUSED: // The remote system refused the network connection.
-      case ERROR_DEV_NOT_EXIST: // The specified network resource or device is no longer available.
-      case ERROR_NET_WRITE_FAULT: // A write fault occurred on the network.
-      case ERROR_NETWORK_BUSY: // The network is busy.
-      case ERROR_NETWORK_UNREACHABLE: // The remote network is not reachable by the transport.
-      case ERROR_REQUEST_ABORTED: // The request was aborted.
-         ABC_THROW(io::network_error, (err));
 
       case ERROR_CANNOT_FIND_WND_CLASS: // Cannot find window class.
       case ERROR_CLASS_ALREADY_EXISTS: // Class already exists.

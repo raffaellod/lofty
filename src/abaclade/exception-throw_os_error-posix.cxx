@@ -87,9 +87,19 @@ void exception::throw_os_error(errint_t err) {
       case EALREADY: // Operation already in progress (POSIX.1-2001)
       case EBUSY: // Device or resource busy (POSIX.1-2001)
       case ECANCELED: // Operation canceled (POSIX.1-2001)
+#ifdef ECOMM
+      case ECOMM: // Communication error on send (Linux)
+#endif
+      case ECONNABORTED: // Connection aborted (POSIX.1-2001)
+      case ECONNREFUSED: // Connection refused (POSIX.1-2001)
+      case ECONNRESET: // Connection reset by peer (POSIX.1-2001)
       case EDQUOT: // Quota exceeded (POSIX.1-2001)
       case EEXIST: // File exists (POSIX.1-2001)
       case EFBIG: // File too large (POSIX.1-2001)
+#ifdef EHOSTDOWN
+      case EHOSTDOWN: // Host is down (Linux)
+#endif
+      case EHOSTUNREACH: // No route to host (POSIX.1-2001)
       case EINPROGRESS: // Operation now in progress (POSIX.1-2001)
       case EIO: // I/O error (POSIX.1-2001)
       case EISDIR: // Is a directory (POSIX.1-2001)
@@ -102,26 +112,41 @@ void exception::throw_os_error(errint_t err) {
 #endif
       case EMFILE: // Too many open files (POSIX.1-2001)
       case EMLINK: // Too many links (POSIX.1-2001)
+      case ENETDOWN: // Network is down (POSIX.1-2001)
+      case ENETRESET: // Connection aborted by network (POSIX.1-2001)
+      case ENETUNREACH: // Network is unreachable (POSIX.1-2001)
       case ENFILE: // Too many open files in system (POSIX.1-2001)
 #ifdef ENODATA
       case ENODATA: // No data available (POSIX.1-2001)
 #endif
+      case ENOLINK: // Link has been severed (POSIX.1-2001)
 #ifdef ENOMEDIUM
       case ENOMEDIUM: // No medium found (Linux)
 #endif
       case ENOSPC: // No space left on device (POSIX.1-2001)
+      case ENOTCONN: // Transport endpoint is not connected (POSIX.1-2001)
       case ENOTEMPTY: // Directory not empty (POSIX.1-2001)
       case ENOTTY: // Not a typewriter (POSIX.1-2001)
       case ENXIO: // No such device or address (POSIX.1-2001)
       case ENOMSG: // No message of the desired type (POSIX.1-2001)
       case ENOTSUP: // Operation not supported (POSIX.1-2001)
       case EPIPE: // Broken pipe (POSIX.1-2001)
+#ifdef EREMCHG
+      case EREMCHG: // Remote address changed (Linux)
+#endif
+#ifdef EREMOTEIO
+      case EREMOTEIO: // Remote I/O error (Linux)
+#endif
       case EROFS: // Read-only file system (POSIX.1-2001)
+#ifdef ESHUTDOWN
+      case ESHUTDOWN: // Cannot send after socket shutdown (Linux)
+#endif
       case ESPIPE: // Illegal seek (POSIX.1-2001)
       case ESTALE: // Stale NFS file handle (POSIX.1-2001)
 #ifdef ESTRPIPE
       case ESTRPIPE: // Streams pipe error (Linux)
 #endif
+      case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
       case ETXTBSY: // Text file busy (POSIX.1-2001)
 // These two values may or may not be different.
 #if EWOULDBLOCK != EAGAIN
@@ -129,33 +154,6 @@ void exception::throw_os_error(errint_t err) {
 #endif
       case EXDEV: // Improper link (POSIX.1-2001)
          ABC_THROW(io::error, (err));
-
-#ifdef ECOMM
-      case ECOMM: // Communication error on send (Linux)
-#endif
-      case ECONNABORTED: // Connection aborted (POSIX.1-2001)
-      case ECONNREFUSED: // Connection refused (POSIX.1-2001)
-      case ECONNRESET: // Connection reset by peer (POSIX.1-2001)
-#ifdef EHOSTDOWN
-      case EHOSTDOWN: // Host is down (Linux)
-#endif
-      case EHOSTUNREACH: // No route to host (POSIX.1-2001)
-      case ENETDOWN: // Network is down (POSIX.1-2001)
-      case ENETRESET: // Connection aborted by network (POSIX.1-2001)
-      case ENETUNREACH: // Network is unreachable (POSIX.1-2001)
-      case ENOLINK: // Link has been severed (POSIX.1-2001)
-      case ENOTCONN: // Transport endpoint is not connected (POSIX.1-2001)
-#ifdef EREMCHG
-      case EREMCHG: // Remote address changed (Linux)
-#endif
-#ifdef EREMOTEIO
-      case EREMOTEIO: // Remote I/O error (Linux)
-#endif
-#ifdef ESHUTDOWN
-      case ESHUTDOWN: // Cannot send after socket shutdown (Linux)
-#endif
-      case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
-         ABC_THROW(io::network_error, (err));
 
       case ENOMEM: // Out of memory (POSIX.1-2001)
          ABC_THROW(memory_allocation_error, (err));
