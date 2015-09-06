@@ -102,12 +102,9 @@ public:
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(
-      decltype(collections::detail::vector_const_iterator_type_extractor<T>()) const & it,
-      io::text::writer * ptwOut
-   ) {
+   void write(collections::detail::vector_const_iterator<T> const & it, io::text::writer * ptwOut) {
       to_str_backend<
-         decltype(collections::detail::vector_const_pointer_type_extractor<T>())
+         typename collections::detail::vector_const_iterator<T>::pointer
       >::write(&*it, ptwOut);
    }
 };

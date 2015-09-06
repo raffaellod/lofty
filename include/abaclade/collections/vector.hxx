@@ -622,7 +622,7 @@ protected:
    @param it
       Source object.
    */
-   vector_iterator(vector_const_iterator const & it) :
+   vector_iterator(vci const & it) :
       vci(it) {
    }
 };
