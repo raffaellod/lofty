@@ -128,12 +128,14 @@ path path::absolute() const {
          /* The path is in the form “X:a”: get the current directory for that volume and prepend it
          to the path to make it absolute. */
          opAbsolute = current_dir_for_volume(*(pch + sc_ichVolume)) /
-                      m_s.substr(sc_ichVolumeColon + 1 /*“:”*/);
+                      m_s.substr(m_s.cbegin() + sc_ichVolumeColon + 1 /*“:”*/);
       } else if (cch > sc_ichLeadingSep && *(pch + sc_ichLeadingSep) == '\\') {
          /* The path is in the form “\a”: make it absolute by prepending to it the volume designator
          of the current directory. */
-         opAbsolute = current_dir().m_s.substr(
-            0, ABC_COUNTOF(smc_szRoot) - 1 /*NUL*/ + 2 /*"X:"*/
+         path opCurrDir(current_dir());
+         auto itCurrDirBegin(opCurrDir.m_s.cbegin());
+         opAbsolute = opCurrDir.m_s.substr(
+            itCurrDirBegin, itCurrDirBegin + ABC_COUNTOF(smc_szRoot) - 1 /*NUL*/ + 2 /*"X:"*/
          ) + m_s;
       } else {
          /* None of the above patterns applies: prepend the current directory to make the path
@@ -450,7 +452,7 @@ str::const_iterator path::base_name_start() const {
 
       if (s.starts_with(ABC_SL("\\\\"))) {
          // This is an UNC path; prepend to it the Win32 File Namespace prefix for UNC paths.
-         s = smc_szUNCRoot + s.substr(2 /*“\\”*/);
+         s = smc_szUNCRoot + s.substr(s.cbegin() + 2 /*“\\”*/);
       } else {
          std::size_t cch = s.size_in_chars();
          char_t * pch = s.data();
