@@ -28,7 +28,11 @@ namespace abc { namespace collections { namespace detail {
 
 /*! Thin templated wrapper for raw_*_vextr_impl to make the interface of those two classes
 consistent, so vector doesn’t need specializations. */
-template <typename T, bool t_bCopyConstructible, bool t_bTrivial = _std::is_trivial<T>::value>
+template <
+   typename T,
+   bool t_bCopyConstructible = _std::is_copy_constructible<T>::value,
+   bool t_bTrivial = _std::is_trivial<T>::value
+>
 class raw_vector;
 
 // Partial specialization for non-copyable, non-trivial types.
@@ -211,8 +215,8 @@ protected:
 };
 
 /* Partial specialization for trivial (and copyable) types. Methods here ignore the bMove argument
-for the individual elements, because move semantics don’t apply (trivial values are always copied).
-*/
+for the individual elements, because move semantics don’t apply (trivial values are always
+copied). */
 template <typename T>
 class raw_vector<T, true, true> : public raw_trivial_vextr_impl {
 public:
@@ -339,23 +343,305 @@ protected:
 
 namespace abc { namespace collections {
 
-template <
-   typename T, std::size_t t_ciEmbeddedCapacity = 0,
-   bool t_bCopyConstructible = _std::is_copy_constructible<T>::value
->
+// TODO: comment.
+template <typename T, std::size_t t_ciEmbeddedCapacity = 0>
 class vector;
 
-/* Partial specialization for non-copyable types. Note that it doesn’t force t_bCopyConstructible to
-false on raw_vector, so that vector<T, t_ciEmbeddedCapacity, true> can inherit from this and still
-get all the copyable-only members of raw_vector<T, true>. */
+}} //namespace abc::collections
+
+namespace abc { namespace collections { namespace detail {
+
+//! Const iterator for vector elements.
 template <typename T>
-class vector<T, 0, false> :
-   public detail::raw_vector<T, _std::is_copy_constructible<T>::value>,
-   public support_explicit_operator_bool<vector<T, 0, _std::is_copy_constructible<T>::value>> {
+class vector_const_iterator {
+private:
+   template <typename T2, std::size_t t_ciEmbeddedCapacity>
+   friend class vector;
+
+public:
+   typedef T const value_type;
+   typedef T const * pointer;
+   typedef T const & reference;
+   typedef std::ptrdiff_t difference_type;
+   typedef _std::random_access_iterator_tag iterator_category;
+
+public:
+   //! Default constructor.
+   /*constexpr*/ vector_const_iterator() :
+      m_pt(nullptr) {
+   }
+
+   /*! Copy constructor.
+
+   @param it
+      Source object.
+   */
+   vector_const_iterator(vector_const_iterator const & it) :
+      m_pt(it.m_pt) {
+   }
+
+   /*! Dereferencing operator.
+
+   @return
+      Reference to the current item.
+   */
+   T const & operator*() const {
+      return *m_pt;
+   }
+
+   /*! Dereferencing member access operator.
+
+   @return
+      Pointer to the current item.
+   */
+   T const * operator->() const {
+      return m_pt;
+   }
+
+   /*! Element access operator.
+
+   @param i
+      Index relative to *this.
+   @return
+      Reference to the specified item.
+   */
+   T const & operator[](std::ptrdiff_t i) const {
+      // TODO: validate!
+      return m_pt[i];
+   }
+
+   /*! Addition-assignment operator.
+
+   @param i
+      Count of positions by which to advance the iterator.
+   @return
+      *this after it’s moved forward by i positions.
+   */
+   vector_const_iterator & operator+=(std::ptrdiff_t i) {
+      m_pt += i;
+      return *this;
+   }
+
+   /*! Subtraction-assignment operator.
+
+   @param i
+      Count of positions by which to rewind the iterator.
+   @return
+      *this after it’s moved backwards by i positions.
+   */
+   vector_const_iterator & operator-=(std::ptrdiff_t i) {
+      m_pt -= i;
+      return *this;
+   }
+
+   /*! Addition operator.
+
+   @param i
+      Count of positions by which to advance the iterator.
+   @return
+      Iterator that’s i items ahead of *this.
+   */
+   vector_const_iterator operator+(std::ptrdiff_t i) const {
+      return vector_const_iterator(m_pt + i);
+   }
+
+   /*! Subtraction/difference operator.
+
+   @param i
+      Count of positions by which to rewind the iterator.
+   @param it
+      Iterator from which to calculate the distance.
+   @return
+      Iterator that’s i items behind *this (subtraction) or distance between *this and it
+      (difference).
+   */
+   vector_const_iterator operator-(std::ptrdiff_t i) const {
+      return vector_const_iterator(m_pt - i);
+   }
+   std::ptrdiff_t operator-(vector_const_iterator it) const {
+      return m_pt - it.m_pt;
+   }
+
+   /*! Preincrement operator.
+
+   @return
+      *this after it’s moved to the value following the one currently pointed to.
+   */
+   vector_const_iterator & operator++() {
+      ++m_pt;
+      return *this;
+   }
+
+   /*! Postincrement operator.
+
+   @return
+      Iterator pointing to the value following the one pointed to by this iterator.
+   */
+   vector_const_iterator operator++(int) {
+      return vector_const_iterator(m_pt++);
+   }
+
+   /*! Predecrement operator.
+
+   @return
+      *this after it’s moved to the value preceding the one currently pointed to.
+   */
+   vector_const_iterator & operator--() {
+      --m_pt;
+      return *this;
+   }
+
+   /*! Postdecrement operator.
+
+   @return
+      Iterator pointing to the value preceding the one pointed to by this iterator.
+   */
+   vector_const_iterator operator--(int) {
+      return vector_const_iterator(m_pt--);
+   }
+
+// Relational operators.
+#define ABC_RELOP_IMPL(op) \
+   bool operator op(vector_const_iterator const & it) const { \
+      return m_pt op it.m_pt; \
+   }
+ABC_RELOP_IMPL(==)
+ABC_RELOP_IMPL(!=)
+ABC_RELOP_IMPL(>)
+ABC_RELOP_IMPL(>=)
+ABC_RELOP_IMPL(<)
+ABC_RELOP_IMPL(<=)
+#undef ABC_RELOP_IMPL
+
+protected:
+   /*! Constructor.
+
+   @param pt
+      Pointer to set the iterator to.
+   */
+   explicit vector_const_iterator(T const * pt) :
+      m_pt(pt) {
+   }
+
+protected:
+   //! Underlying pointer to the current item.
+   T const * m_pt;
+};
+
+//! Non-const iterator for vector elements.
+template <typename T>
+class vector_iterator : public vector_const_iterator<T> {
+private:
+   template <typename T2, std::size_t t_ciEmbeddedCapacity>
+   friend class vector;
+   typedef vector_const_iterator<T> vci;
+
+public:
+   typedef T value_type;
+   typedef T * pointer;
+   typedef T & reference;
+
+public:
+   //! Default constructor.
+   /*constexpr*/ vector_iterator() {
+   }
+
+   //! See vector_const_iterator::operator*().
+   T & operator*() const {
+      return const_cast<T &>(vci::operator*());
+   }
+
+   //! See vector_const_iterator::operator->().
+   T * operator->() const {
+      return const_cast<T *>(vci::operator->());
+   }
+
+   //! See vector_const_iterator::operator[]().
+   T & operator[](std::ptrdiff_t i) const {
+      return const_cast<T &>(vci::operator[](i));
+   }
+
+   //! See vector_const_iterator::operator+=().
+   vector_iterator & operator+=(std::ptrdiff_t i) {
+      vci::operator+=(i);
+      return *this;
+   }
+
+   //! See vector_const_iterator::operator-=().
+   vector_iterator & operator-=(std::ptrdiff_t i) {
+      vci::operator-=(i);
+      return *this;
+   }
+
+   //! See vector_const_iterator::operator+().
+   vector_iterator operator+(std::ptrdiff_t i) const {
+      return vci::operator+(i);
+   }
+
+   using vci::operator-;
+
+   //! See vector_const_iterator::operator-().
+   vector_iterator operator-(std::ptrdiff_t i) const {
+      return vci::operator-(i);
+   }
+
+   //! See vector_const_iterator::operator++().
+   vector_iterator & operator++() {
+      vci::operator++();
+      return *this;
+   }
+
+   //! See vector_const_iterator::operator++().
+   vector_iterator operator++(int) {
+      return vci::operator++(0);
+   }
+
+   //! See vector_const_iterator::operator--().
+   vector_iterator & operator--() {
+      vci::operator--();
+      return *this;
+   }
+
+   //! See vector_const_iterator::operator--().
+   vector_iterator operator--(int) {
+      return vci::operator--(0);
+   }
+
+protected:
+   /*! Constructor.
+
+   @param pt
+      Pointer to set the iterator to.
+   */
+   explicit vector_iterator(T * pt) :
+      vci(pt) {
+   }
+
+   /*! Copy constructor.
+
+   @param it
+      Source object.
+   */
+   vector_iterator(vector_const_iterator const & it) :
+      vci(it) {
+   }
+};
+
+}}} //namespace abc::collections::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace collections {
+
+// Partial specialization for non-copyable types.
+template <typename T>
+class vector<T, 0> :
+   public detail::raw_vector<T>,
+   public support_explicit_operator_bool<vector<T, 0>> {
 private:
    //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = _std::is_copy_constructible<T>::value;
-   typedef detail::raw_vector<T, smc_bCopyConstructible> vector_impl;
+   typedef detail::raw_vector<T> vector_impl;
 
 public:
    typedef T value_type;
@@ -365,280 +651,8 @@ public:
    typedef T const & const_reference;
    typedef std::size_t size_type;
    typedef std::ptrdiff_t difference_type;
-
-   //! Const iterator for vector elements.
-   class const_iterator {
-   private:
-      template <typename T2, std::size_t t_ciEmbeddedCapacity, bool t_bCopyConstructible>
-      friend class vector;
-
-   public:
-      typedef T const value_type;
-      typedef T const * pointer;
-      typedef T const & reference;
-      typedef std::ptrdiff_t difference_type;
-      typedef _std::random_access_iterator_tag iterator_category;
-
-   public:
-      //! Default constructor.
-      /*constexpr*/ const_iterator() :
-         m_pt(nullptr) {
-      }
-
-      /*! Copy constructor.
-
-      @param it
-         Source object.
-      */
-      const_iterator(const_iterator const & it) :
-         m_pt(it.m_pt) {
-      }
-
-      /*! Dereferencing operator.
-
-      @return
-         Reference to the current item.
-      */
-      T const & operator*() const {
-         return *m_pt;
-      }
-
-      /*! Dereferencing member access operator.
-
-      @return
-         Pointer to the current item.
-      */
-      T const * operator->() const {
-         return m_pt;
-      }
-
-      /*! Element access operator.
-
-      @param i
-         Index relative to *this.
-      @return
-         Reference to the specified item.
-      */
-      T const & operator[](std::ptrdiff_t i) const {
-         // TODO: validate!
-         return m_pt[i];
-      }
-
-      /*! Addition-assignment operator.
-
-      @param i
-         Count of positions by which to advance the iterator.
-      @return
-         *this after it’s moved forward by i positions.
-      */
-      const_iterator & operator+=(std::ptrdiff_t i) {
-         m_pt += i;
-         return *this;
-      }
-
-      /*! Subtraction-assignment operator.
-
-      @param i
-         Count of positions by which to rewind the iterator.
-      @return
-         *this after it’s moved backwards by i positions.
-      */
-      const_iterator & operator-=(std::ptrdiff_t i) {
-         m_pt -= i;
-         return *this;
-      }
-
-      /*! Addition operator.
-
-      @param i
-         Count of positions by which to advance the iterator.
-      @return
-         Iterator that’s i items ahead of *this.
-      */
-      const_iterator operator+(std::ptrdiff_t i) const {
-         return const_iterator(m_pt + i);
-      }
-
-      /*! Subtraction/difference operator.
-
-      @param i
-         Count of positions by which to rewind the iterator.
-      @param it
-         Iterator from which to calculate the distance.
-      @return
-         Iterator that’s i items behind *this (subtraction) or distance between *this and it
-         (difference).
-      */
-      const_iterator operator-(std::ptrdiff_t i) const {
-         return const_iterator(m_pt - i);
-      }
-      std::ptrdiff_t operator-(const_iterator it) const {
-         return m_pt - it.m_pt;
-      }
-
-      /*! Preincrement operator.
-
-      @return
-         *this after it’s moved to the value following the one currently pointed to.
-      */
-      const_iterator & operator++() {
-         ++m_pt;
-         return *this;
-      }
-
-      /*! Postincrement operator.
-
-      @return
-         Iterator pointing to the value following the one pointed to by this iterator.
-      */
-      const_iterator operator++(int) {
-         return const_iterator(m_pt++);
-      }
-
-      /*! Predecrement operator.
-
-      @return
-         *this after it’s moved to the value preceding the one currently pointed to.
-      */
-      const_iterator & operator--() {
-         --m_pt;
-         return *this;
-      }
-
-      /*! Postdecrement operator.
-
-      @return
-         Iterator pointing to the value preceding the one pointed to by this iterator.
-      */
-      const_iterator operator--(int) {
-         return const_iterator(m_pt--);
-      }
-
-   // Relational operators.
-   #define ABC_RELOP_IMPL(op) \
-      bool operator op(const_iterator const & it) const { \
-         return m_pt op it.m_pt; \
-      }
-   ABC_RELOP_IMPL(==)
-   ABC_RELOP_IMPL(!=)
-   ABC_RELOP_IMPL(>)
-   ABC_RELOP_IMPL(>=)
-   ABC_RELOP_IMPL(<)
-   ABC_RELOP_IMPL(<=)
-   #undef ABC_RELOP_IMPL
-
-   protected:
-      /*! Constructor.
-
-      @param pt
-         Pointer to set the iterator to.
-      */
-      explicit const_iterator(T const * pt) :
-         m_pt(pt) {
-      }
-
-   protected:
-      //! Underlying pointer to the current item.
-      T const * m_pt;
-   };
-
-   //! Non-const iterator for vector elements.
-   class iterator : public const_iterator {
-   private:
-      template <typename T2, std::size_t t_ciEmbeddedCapacity, bool t_bCopyConstructible>
-      friend class vector;
-
-   public:
-      typedef T value_type;
-      typedef T * pointer;
-      typedef T & reference;
-
-   public:
-      //! Default constructor.
-      /*constexpr*/ iterator() {
-      }
-
-      //! See const_iterator::operator*().
-      T & operator*() const {
-         return const_cast<T &>(const_iterator::operator*());
-      }
-
-      //! See const_iterator::operator->().
-      T * operator->() const {
-         return const_cast<T *>(const_iterator::operator->());
-      }
-
-      //! See const_iterator::operator[]().
-      T & operator[](std::ptrdiff_t i) const {
-         return const_cast<T &>(const_iterator::operator[](i));
-      }
-
-      //! See const_iterator::operator+=().
-      iterator & operator+=(std::ptrdiff_t i) {
-         const_iterator::operator+=(i);
-         return *this;
-      }
-
-      //! See const_iterator::operator-=().
-      iterator & operator-=(std::ptrdiff_t i) {
-         const_iterator::operator-=(i);
-         return *this;
-      }
-
-      //! See const_iterator::operator+().
-      iterator operator+(std::ptrdiff_t i) const {
-         return const_iterator::operator+(i);
-      }
-
-      using const_iterator::operator-;
-
-      //! See const_iterator::operator-().
-      iterator operator-(std::ptrdiff_t i) const {
-         return const_iterator::operator-(i);
-      }
-
-      //! See const_iterator::operator++().
-      iterator & operator++() {
-         const_iterator::operator++();
-         return *this;
-      }
-
-      //! See const_iterator::operator++().
-      iterator operator++(int) {
-         return const_iterator::operator++(0);
-      }
-
-      //! See const_iterator::operator--().
-      iterator & operator--() {
-         const_iterator::operator--();
-         return *this;
-      }
-
-      //! See const_iterator::operator--().
-      iterator operator--(int) {
-         return const_iterator::operator--(0);
-      }
-
-   protected:
-      /*! Constructor.
-
-      @param pt
-         Pointer to set the iterator to.
-      */
-      explicit iterator(T * pt) :
-         const_iterator(pt) {
-      }
-
-      /*! Copy constructor.
-
-      @param it
-         Source object.
-      */
-      iterator(const_iterator const & it) :
-         const_iterator(it) {
-      }
-   };
-
+   typedef detail::vector_iterator<T> iterator;
+   typedef detail::vector_const_iterator<T> const_iterator;
    typedef _std::reverse_iterator<iterator> reverse_iterator;
    typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -658,6 +672,84 @@ public:
       vector_impl::assign_move_desc_or_move_items(_std::move(v));
    }
 
+   /*! Copy constructor.
+
+   @param v
+      Source object.
+   */
+   vector(vector const & v) :
+      vector_impl(0) {
+      vector_impl::assign_copy(v.data(), v.data_end());
+   }
+
+   /*! Constructor that concatenates two vectors, copying elements from the first and moving
+   elements from the second.
+
+   @param v1
+      First source vector.
+   @param v2
+      Second source vector.
+   */
+   template <std::size_t t_ciEmbeddedCapacity1, std::size_t t_ciEmbeddedCapacity2>
+   vector(vector<T, t_ciEmbeddedCapacity1> const & v1, vector<T, t_ciEmbeddedCapacity2> && v2) :
+      vector_impl(0) {
+      vector_impl::assign_concat(v1.data(), v1.data_end(), v2.data(), v2.data_end(), 2);
+   }
+
+   /*! Constructor that concatenates two vectors, copying elements from both.
+
+   @param v1
+      First source vector.
+   @param v2
+      Second source vector.
+   */
+   template <std::size_t t_ciEmbeddedCapacity1, std::size_t t_ciEmbeddedCapacity2>
+   vector(
+      vector<T, t_ciEmbeddedCapacity1> const & v1, vector<T, t_ciEmbeddedCapacity2> const & v2
+   ) :
+      vector_impl(0) {
+      vector_impl::assign_concat(v1.data(), v1.data_end(), v2.data(), v2.data_end(), 0);
+   }
+
+   /*! Constructor that copies elements from a C array.
+
+   @param at
+      Source array whose elements should be copied.
+   */
+   template <std::size_t t_ci>
+   explicit vector(T const (& at)[t_ci]) :
+      vector_impl(0) {
+      vector_impl::assign_copy(at, at + t_ci);
+   }
+
+   /*! Constructor that copies elements from an array.
+
+   @param ptBegin
+      Pointer to the beginning of the source array.
+   @param ptEnd
+      Pointer to the end of the source array.
+   */
+   vector(T const * ptBegin, T const * ptEnd) :
+      vector_impl(0) {
+      vector_impl::assign_copy(ptBegin, ptEnd);
+   }
+
+   /*! Constructor that concatenates two arrays, copying elements from both.
+
+   @param p1Begin
+      Pointer to the start of the first source array.
+   @param p1End
+      Pointer to the end of the first source array.
+   @param p2Begin
+      Pointer to the start of the second source array.
+   @param p2End
+      Pointer to the end of the second source array.
+   */
+   vector(T const * pt1Begin, T const * pt1End, T const * pt2Begin, T const * pt2End) :
+      vector_impl(0) {
+      vector_impl::assign_concat(pt1Begin, pt1End, pt2Begin, pt2End, 0);
+   }
+
    /*! Move-assignment operator.
 
    @param v
@@ -670,6 +762,18 @@ public:
       return *this;
    }
 
+   /*! Copy-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
+   vector & operator=(vector const & v) {
+      vector_impl::assign_copy(v.data(), v.data_end());
+      return *this;
+   }
+
    /*! Concatenation-assignment operator that moves elements from the source.
 
    @param v
@@ -679,7 +783,20 @@ public:
    */
    template <std::size_t t_ciEmbeddedCapacity2>
    vector & operator+=(vector<T, t_ciEmbeddedCapacity2> && v) {
-      this->insert_move(cend(), v.data(), v.size());
+      vector_impl::insert_move(data_end(), v.data(), v.size());
+      return *this;
+   }
+
+   /*! Concatenation-assignment operator that copies elements from the source.
+
+   @param v
+      Vector to concatenate.
+   @return
+      *this.
+   */
+   template <std::size_t t_ciEmbeddedCapacity2>
+   vector & operator+=(vector<T, t_ciEmbeddedCapacity2> const & v) {
+      vector_impl::insert_copy(data_end(), v.data(), v.size());
       return *this;
    }
 
@@ -778,7 +895,7 @@ public:
    //! Removes all elements from the vector.
    void clear() {
       static_cast<vector_impl *>(this)->~vector_impl();
-      this->assign_empty();
+      vector_impl::assign_empty();
    }
 
    /*! Returns a const reverse iterator set to the last element.
@@ -882,8 +999,34 @@ public:
       Element to insert.
    */
    void insert(const_iterator itOffset, typename _std::remove_const<T>::type && t) {
-      this->validate_pointer(itOffset.m_pt);
-      this->insert_move(itOffset.m_pt, &t, 1);
+      vector_impl::validate_pointer(itOffset.m_pt);
+      vector_impl::insert_move(itOffset.m_pt, &t, 1);
+   }
+
+   /*! Inserts an element at a specific position in the vector.
+
+   @param itOffset
+      Iterator at which the element should be inserted.
+   @param t
+      Element to insert.
+   */
+   void insert(const_iterator itOffset, T const & t) {
+      vector_impl::validate_pointer(itOffset.m_pt);
+      vector_impl::insert_copy(itOffset.m_pt, &t, 1);
+   }
+
+   /*! Inserts elements at a specific position in the vector.
+
+   @param itOffset
+      Iterator at which the element should be inserted.
+   @param pt
+      Pointer to the first element to insert.
+   @param ci
+      Count of elements in the array pointed to by pt.
+   */
+   void insert(const_iterator itOffset, T const * pt, std::size_t ci) {
+      vector_impl::validate_pointer(itOffset.m_pt);
+      vector_impl::insert_copy(itOffset.m_pt, pt, ci);
    }
 
    /*! Removes and returns the last element in the vector.
@@ -898,13 +1041,33 @@ public:
       return std::move(tBack);
    }
 
-   /*! Adds elements at the end of the vector.
+   /*! Adds an element at the end of the vector.
 
    @param t
       Element to add.
    */
    void push_back(typename _std::remove_const<T>::type && t) {
-      insert(cend(), _std::move(t));
+      vector_impl::insert_move(data_end(), &t, 1);
+   }
+
+   /*! Adds an element at the end of the vector.
+
+   @param t
+      Element to copy to the end of the vector.
+   */
+   void push_back(T const & t) {
+      vector_impl::insert_copy(data_end(), &t, 1);
+   }
+
+   /*! Adds elements at the end of the vector.
+
+   @param pt
+      Pointer to an array of elements to copy to the end of the vector.
+   @param ci
+      Count of elements in the array pointed to by pt.
+   */
+   void push_back(T const * pt, std::size_t ci) {
+      vector_impl::insert_copy(data_end(), pt, ci);
    }
 
    /*! Returns a reverse iterator set to the last element.
@@ -931,7 +1094,7 @@ public:
       Iterator to the element to remove.
    */
    void remove_at(const_iterator it) {
-      this->validate_pointer_noend(it.m_pt);
+      vector_impl::validate_pointer_noend(it.m_pt);
       vector_impl::remove(it.m_pt, it.m_pt + 1);
    }
 
@@ -967,6 +1130,26 @@ public:
       return vector_impl::template size<T>();
    }
 
+   /*! Returns a slice of the vector up to its end.
+
+   @param itBegin
+      Iterator to the first element to return.
+   */
+   vector slice(const_iterator itBegin) const {
+      return vector(itBegin.m_pt, data_end());
+   }
+
+   /*! Returns a slice of the vector.
+
+   @param itBegin
+      Iterator to the first element to return.
+   @param itEnd
+      Iterator to the element after the last one to return.
+   */
+   vector slice(const_iterator itBegin, const_iterator itEnd) const {
+      return vector(itBegin.m_pt, itEnd.m_pt);
+   }
+
 protected:
    /*! Constructor for subclasses with an embedded item array.
 
@@ -988,269 +1171,6 @@ protected:
       vector_impl(cbEmbeddedCapacity) {
       vector_impl::assign_move_desc_or_move_items(_std::move(v));
    }
-};
-
-// Partial specialization for copyable types.
-template <typename T>
-class vector<T, 0, true> : public vector<T, 0, false> {
-private:
-   //! Alias for the non-copyable specialization, base class of this one.
-   typedef vector<T, 0, false> vector_nc;
-   typedef detail::raw_vector<T, true> vector_impl;
-
-public:
-   // Shortcuts.
-   typedef typename vector_nc::const_iterator const_iterator;
-
-public:
-   //! Default constructor.
-   vector() :
-      vector_nc() {
-   }
-
-   /*! Move constructor.
-
-   @param v
-      Source object.
-   */
-   vector(vector && v) :
-      vector_nc(_std::move(v)) {
-   }
-
-   /*! Copy constructor.
-
-   @param v
-      Source object.
-   */
-   vector(vector const & v) :
-      vector_nc() {
-      vector_impl::assign_copy(v.data(), v.data_end());
-   }
-
-   /*! Constructor that concatenates two vectors, copying elements from the first and moving
-   elements from the second.
-
-   @param v1
-      First source vector.
-   @param v2
-      Second source vector.
-   */
-   template <std::size_t t_ciEmbeddedCapacity1, std::size_t t_ciEmbeddedCapacity2>
-   vector(vector<T, t_ciEmbeddedCapacity1> const & v1, vector<T, t_ciEmbeddedCapacity2> && v2) {
-      vector_impl::assign_concat(v1.data(), v1.data_end(), v2.data(), v2.data_end(), 2);
-   }
-
-   /*! Constructor that concatenates two vectors, copying elements from both.
-
-   @param v1
-      First source vector.
-   @param v2
-      Second source vector.
-   */
-   template <std::size_t t_ciEmbeddedCapacity1, std::size_t t_ciEmbeddedCapacity2>
-   vector(
-      vector<T, t_ciEmbeddedCapacity1> const & v1, vector<T, t_ciEmbeddedCapacity2> const & v2
-   ) {
-      vector_impl::assign_concat(v1.data(), v1.data_end(), v2.data(), v2.data_end(), 0);
-   }
-
-   /*! Constructor that copies elements from a C array.
-
-   @param at
-      Source array whose elements should be copied.
-   */
-   template <std::size_t t_ci>
-   explicit vector(T const (& at)[t_ci]) {
-      vector_impl::assign_copy(at, at + t_ci);
-   }
-
-   /*! Constructor that copies elements from an array.
-
-   @param ptBegin
-      Pointer to the beginning of the source array.
-   @param ptEnd
-      Pointer to the end of the source array.
-   */
-   vector(T const * ptBegin, T const * ptEnd) {
-      vector_impl::assign_copy(ptBegin, ptEnd);
-   }
-
-   /*! Constructor that concatenates two arrays, copying elements from both.
-
-   @param p1Begin
-      Pointer to the start of the first source array.
-   @param p1End
-      Pointer to the end of the first source array.
-   @param p2Begin
-      Pointer to the start of the second source array.
-   @param p2End
-      Pointer to the end of the second source array.
-   */
-   vector(T const * pt1Begin, T const * pt1End, T const * pt2Begin, T const * pt2End) {
-      vector_impl::assign_concat(pt1Begin, pt1End, pt2Begin, pt2End, 0);
-   }
-
-   /*! Move-assignment operator.
-
-   @param v
-      Source object.
-   @return
-      *this.
-   */
-   vector & operator=(vector && v) {
-      vector_nc::operator=(_std::move(v));
-      return *this;
-   }
-
-   /*! Copy-assignment operator.
-
-   @param v
-      Source object.
-   @return
-      *this.
-   */
-   vector & operator=(vector const & v) {
-      vector_impl::assign_copy(v.data(), v.data_end());
-      return *this;
-   }
-
-   /*! Concatenation-assignment operator that moves items from the source.
-
-   @param v
-      Vector to concatenate.
-   @return
-      *this.
-   */
-   template <std::size_t t_ciEmbeddedCapacity2>
-   vector & operator+=(vector<T, t_ciEmbeddedCapacity2> && v) {
-      vector_impl::insert_move(this->data_end(), v.data(), v.size());
-      return *this;
-   }
-
-   /*! Concatenation-assignment operator that copies items from the source.
-
-   @param v
-      Vector to concatenate.
-   @return
-      *this.
-   */
-   template <std::size_t t_ciEmbeddedCapacity2>
-   vector & operator+=(vector<T, t_ciEmbeddedCapacity2> const & v) {
-      vector_impl::insert_copy(this->data_end(), v.data(), v.size());
-      return *this;
-   }
-
-   using vector_nc::insert;
-
-   /*! Inserts an element at a specific position in the vector.
-
-   @param itOffset
-      Iterator at which the element should be inserted.
-   @param t
-      Element to insert.
-   */
-   void insert(const_iterator itOffset, T const & t) {
-      this->validate_pointer(itOffset.m_pt);
-      this->insert_copy(itOffset.m_pt, &t, 1);
-   }
-
-   /*! Inserts an element at a specific position in the vector.
-
-   @param itOffset
-      Iterator at which the element should be inserted.
-   @param t
-      Element to insert.
-   */
-   void insert(const_iterator itOffset, typename _std::remove_const<T>::type && t) {
-      this->validate_pointer(itOffset.m_pt);
-      this->insert_move(itOffset.m_pt, &t, 1);
-   }
-
-   /*! Inserts elements at a specific position in the vector.
-
-   @param itOffset
-      Iterator at which the element should be inserted.
-   @param pt
-      Pointer to the first element to insert.
-   @param ci
-      Count of elements in the array pointed to by pt.
-   */
-   void insert(const_iterator itOffset, T const * pt, std::size_t ci) {
-      this->validate_pointer(itOffset.m_pt);
-      this->insert_copy(itOffset.m_pt, pt, ci);
-   }
-
-   using vector_nc::push_back;
-
-   /*! Adds an element at the end of the vector.
-
-   @param t
-      Element to copy to the end of the vector.
-   */
-   void push_back(T const & t) {
-      this->insert_copy(this->data_end(), &t, 1);
-   }
-
-   /*! Adds an element at the end of the vector.
-
-   @param t
-      Element to move to the end of the vector.
-   */
-   void push_back(typename _std::remove_const<T>::type && t) {
-      this->insert_move(this->data_end(), &t, 1);
-   }
-
-   /*! Adds elements at the end of the vector.
-
-   @param pt
-      Pointer to an array of elements to copy to the end of the vector.
-   @param ci
-      Count of elements in the array pointed to by pt.
-   */
-   void push_back(T const * pt, std::size_t ci) {
-      this->insert_copy(this->data_end(), pt, ci);
-   }
-
-   /*! Returns a slice of the vector up to its end.
-
-   @param itBegin
-      Iterator to the first element to return.
-   */
-   vector slice(const_iterator itBegin) const {
-      return vector(itBegin.m_pt, this->data_end());
-   }
-
-   /*! Returns a slice of the vector.
-
-   @param itBegin
-      Iterator to the first element to return.
-   @param itEnd
-      Iterator to the element after the last one to return.
-   */
-   vector slice(const_iterator itBegin, const_iterator itEnd) const {
-      return vector(itBegin.m_pt, itEnd.m_pt);
-   }
-
-protected:
-   /*! Constructor for subclasses with an embedded item array.
-
-   @param cbEmbeddedCapacity
-      Size of the embedded character array, in bytes.
-   */
-   vector(std::size_t cbEmbeddedCapacity) :
-      vector_nc(cbEmbeddedCapacity) {
-   }
-
-   /*! Move constructor for subclasses with an embedded item array.
-
-   @param cbEmbeddedCapacity
-      Size of the embedded character array, in bytes.
-   @param v
-      Source object.
-   */
-   vector(std::size_t cbEmbeddedCapacity, vector && v) :
-      vector_nc(cbEmbeddedCapacity, _std::move(v)) {
-   }
 
    /*! Copy constructor for subclasses with an embedded item array.
 
@@ -1260,7 +1180,7 @@ protected:
       Source object.
    */
    vector(std::size_t cbEmbeddedCapacity, vector const & v) :
-      vector_nc(cbEmbeddedCapacity) {
+      vector_impl(cbEmbeddedCapacity) {
       vector_impl::assign_copy(v.data(), v.data_end());
    }
 
@@ -1272,7 +1192,7 @@ protected:
       Count of items in the array pointed to by pt.
    */
    vector(std::size_t cbEmbeddedCapacity, T const * pt, std::size_t ci) :
-      vector_nc(cbEmbeddedCapacity) {
+      vector_impl(cbEmbeddedCapacity) {
       vector_impl::assign_copy(pt, pt + ci);
    }
 };
@@ -1345,15 +1265,16 @@ inline typename _std::enable_if<_std::is_copy_constructible<T>::value, vector<T>
    return vector<T>(vL, vR);
 }
 
-// Partial specialization with embedded item array, for non-copyable types.
+// General definition, with embedded item array.
 template <typename T, std::size_t t_ciEmbeddedCapacity>
-class vector<T, t_ciEmbeddedCapacity, false> :
-   private vector<T, 0, false>,
+class vector :
+   private vector<T, 0>,
    private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
 private:
-   //! true if T is copy constructible, or false otherwise.
    using detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
-   typedef vector<T, 0, false> vector_0;
+   //! true if T is copy constructible, or false otherwise.
+   static bool const smc_bCopyConstructible = _std::is_copy_constructible<T>::value;
+   typedef vector<T, 0> vector_0;
 
 public:
    typedef typename vector_0::value_type             value_type;
@@ -1379,97 +1300,17 @@ public:
    @param v
       Source object.
    */
-   vector(vector_0 && v) :
+   vector(vector && v) :
       vector_0(smc_cbEmbeddedCapacity, _std::move(v)) {
    }
 
-   /*! Move-assignment operator.
+   /*! Copy constructor.
 
    @param v
       Source object.
-   @return
-      *this.
    */
-   vector & operator=(vector_0 && v) {
-      vector_0::operator=(_std::move(v));
-      return *this;
-   }
-
-   using vector_0::operator+=;
-   using vector_0::operator[];
-#ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-   using vector_0::operator bool;
-#else
-   using vector_0::operator abc::detail::explob_helper::bool_type;
-#endif
-   using vector_0::back;
-   using vector_0::begin;
-   using vector_0::capacity;
-   using vector_0::cbegin;
-   using vector_0::cend;
-   using vector_0::clear;
-   using vector_0::crbegin;
-   using vector_0::crend;
-   using vector_0::data;
-   using vector_0::data_end;
-   using vector_0::end;
-   using vector_0::front;
-   using vector_0::insert;
-   using vector_0::pop_back;
-   using vector_0::push_back;
-   using vector_0::rbegin;
-   using vector_0::remove_at;
-   using vector_0::rend;
-   using vector_0::set_capacity;
-   using vector_0::set_size;
-   using vector_0::shrink_to_fit;
-   using vector_0::size;
-
-   /*! Allows using the object as a vector<T, 0> const instance.
-
-   @return
-      *this.
-   */
-   vector_0 const & vector0() const {
-      return *this;
-   }
-
-   /*! Returns a pointer to the object as a vector<T, 0> instance.
-
-   @return
-      this.
-   */
-   vector_0 * vector0_ptr() {
-      return this;
-   }
-};
-
-// Partial specialization with embedded item array, for copyable types.
-template <typename T, std::size_t t_ciEmbeddedCapacity>
-class vector<T, t_ciEmbeddedCapacity, true> :
-   private vector<T, 0, true>,
-   private detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
-private:
-   using detail::raw_vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
-   typedef vector<T, 0, true> vector_0;
-
-public:
-   typedef typename vector_0::value_type             value_type;
-   typedef typename vector_0::pointer                pointer;
-   typedef typename vector_0::const_pointer          const_pointer;
-   typedef typename vector_0::reference              reference;
-   typedef typename vector_0::const_reference        const_reference;
-   typedef typename vector_0::size_type              size_type;
-   typedef typename vector_0::difference_type        difference_type;
-   typedef typename vector_0::iterator               iterator;
-   typedef typename vector_0::const_iterator         const_iterator;
-   typedef typename vector_0::reverse_iterator       reverse_iterator;
-   typedef typename vector_0::const_reverse_iterator const_reverse_iterator;
-
-public:
-   //! Default constructor.
-   vector() :
-      vector_0(smc_cbEmbeddedCapacity) {
+   vector(vector const & v) :
+      vector_0(smc_cbEmbeddedCapacity, v) {
    }
 
    /*! Move constructor.
@@ -1486,7 +1327,8 @@ public:
    @param v
       Source object.
    */
-   vector(vector_0 const & v) :
+   template <std::size_t t_ciEmbeddedCapacity2>
+   vector(vector<T, t_ciEmbeddedCapacity2> const & v) :
       vector_0(smc_cbEmbeddedCapacity, v) {
    }
 
@@ -1518,6 +1360,30 @@ public:
    @return
       *this.
    */
+   vector & operator=(vector && v) {
+      vector_0::operator=(_std::move(v));
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
+   vector & operator=(vector const & v) {
+      vector_0::operator=(v);
+      return *this;
+   }
+
+   /*! Move-assignment operator.
+
+   @param v
+      Source object.
+   @return
+      *this.
+   */
    vector & operator=(vector_0 && v) {
       vector_0::operator=(_std::move(v));
       return *this;
@@ -1530,12 +1396,38 @@ public:
    @return
       *this.
    */
-   vector & operator=(vector_0 const & v) {
+   template <std::size_t t_ciEmbeddedCapacity2>
+   vector & operator=(vector<T, t_ciEmbeddedCapacity2> const & v) {
       vector_0::operator=(v);
       return *this;
    }
 
-   using vector_0::operator+=;
+   /*! Concatenation-assignment operator that moves elements from the source.
+
+   @param v
+      Vector to concatenate.
+   @return
+      *this.
+   */
+   template <std::size_t t_ciEmbeddedCapacity2>
+   vector & operator+=(vector<T, t_ciEmbeddedCapacity2> && v) {
+      vector_0::operator+=(_std::move(v));
+      return *this;
+   }
+
+   /*! Concatenation-assignment operator that copies elements from the source.
+
+   @param v
+      Vector to concatenate.
+   @return
+      *this.
+   */
+   template <std::size_t t_ciEmbeddedCapacity2>
+   vector & operator+=(vector<T, t_ciEmbeddedCapacity2> const & v) {
+      vector_0::operator+=(_std::move(v));
+      return *this;
+   }
+
    using vector_0::operator[];
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
    using vector_0::operator bool;

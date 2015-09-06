@@ -42,22 +42,6 @@ protected:
    str m_sEltFormat;
 };
 
-//! Extracts the iterator type from the collections::vector specialization for a given T.
-template <typename T>
-typename collections::vector<T, 0>::iterator vector_iterator_type_extractor();
-
-//! Extracts the pointer type from the collections::vector specialization for a given T.
-template <typename T>
-typename collections::vector<T, 0>::pointer vector_pointer_type_extractor();
-
-//! Extracts the const_iterator type from the collections::vector specialization for a given T.
-template <typename T>
-typename collections::vector<T, 0>::const_iterator vector_const_iterator_type_extractor();
-
-//! Extracts the const_pointer type from the collections::vector specialization for a given T.
-template <typename T>
-typename collections::vector<T, 0>::const_pointer vector_const_pointer_type_extractor();
-
 }}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,8 +92,8 @@ protected:
 };
 
 template <typename T>
-class to_str_backend<decltype(collections::detail::vector_const_iterator_type_extractor<T>())> :
-   public to_str_backend<decltype(collections::detail::vector_const_pointer_type_extractor<T>())> {
+class to_str_backend<collections::detail::vector_const_iterator<T>> :
+   public to_str_backend<typename collections::detail::vector_const_iterator<T>::pointer> {
 public:
    /*! Writes an iterator as a pointer, applying the formatting options.
 
@@ -129,8 +113,8 @@ public:
 };
 
 template <typename T>
-class to_str_backend<decltype(collections::detail::vector_iterator_type_extractor<T>())> :
-   public to_str_backend<decltype(collections::detail::vector_pointer_type_extractor<T>())> {
+class to_str_backend<collections::detail::vector_iterator<T>> :
+   public to_str_backend<collections::detail::vector_const_iterator<T>> {
 };
 
 } //namespace abc

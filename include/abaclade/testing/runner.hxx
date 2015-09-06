@@ -50,7 +50,7 @@ namespace abc { namespace testing {
 class test_case;
 
 //! Executes test cases.
-class ABACLADE_TESTING_SYM runner {
+class ABACLADE_TESTING_SYM runner : public noncopyable {
 public:
    /*! Constructor.
 
