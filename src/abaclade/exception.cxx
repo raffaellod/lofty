@@ -781,39 +781,6 @@ void index_error::init(
 
 namespace abc {
 
-io_error::io_error() :
-   generic_error() {
-   m_pszWhat = "abc::io_error";
-}
-
-io_error::io_error(io_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ io_error::~io_error() {
-}
-
-io_error & io_error::operator=(io_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void io_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      EIO
-#else
-      0
-#endif
-   );
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 iterator_error::iterator_error() :
    generic_error() {
    m_pszWhat = "abc::iterator_error";
@@ -1031,39 +998,6 @@ network_error & network_error::operator=(network_error const & x) {
 
 void network_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-network_io_error::network_io_error() :
-   generic_error(),
-   io_error(),
-   network_error() {
-   m_pszWhat = "abc::network_io_error";
-}
-
-network_io_error::network_io_error(network_io_error const & x) :
-   generic_error(x),
-   io_error(x),
-   network_error(x) {
-}
-
-/*virtual*/ network_io_error::~network_io_error() {
-}
-
-network_io_error & network_io_error::operator=(network_io_error const & x) {
-   io_error::operator=(x);
-   network_error::operator=(x);
-   return *this;
-}
-
-void network_io_error::init(errint_t err /*= 0*/) {
-   io_error::init(err);
-   network_error::init(err);
 }
 
 } //namespace abc

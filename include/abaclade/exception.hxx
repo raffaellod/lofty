@@ -225,9 +225,9 @@ std::exception-derived class:
    @endverbatim
 
    @verbatim
-   class abc::io_error : public virtual abc::exception, public std::ios_base::failure {};
+   class abc::io::error : public virtual abc::exception, public std::ios_base::failure {};
 
-       abc::io_error
+       abc::io::error
       ┌────────────────────────┐
       │ abc::exception         │
       │┌──────────────────────┐│
@@ -242,30 +242,31 @@ std::exception-derived class:
    @endverbatim
 
    @verbatim
-   class abc::network_io_error : public virtual abc::network_error, public virtual abc::io_error {};
+   class abc::io::network_error :
+      public virtual abc::io::error, public virtual abc::network_error {};
 
-       abc::network_io_error
-      ┌────────────────────┬──────────────────────────┐
-      │ abc::network_error │ abc::io_error            │
-      │┌───────────────────┴─────────────────────────┐│
+       abc::io::network_error
+      ┌──────────────────────────┬────────────────────┐
+      │ abc::io::error           │ abc::network_error │
+      │┌─────────────────────────┴───────────────────┐│
       ││ abc::exception                              ││
       ││┌───────────────────────────────────────────┐││
       │││ std::exception                            │││
       ││└───────────────────────────────────────────┘││
-      │└───────────────────┬─────────────────────────┘│
-      │                    │┌────────────────────────┐│
-      │                    ││ std::ios_base::failure ││
-      │                    ││┌──────────────────────┐││
-      │                    │││ std::exception       │││
-      │                    ││└──────────────────────┘││
-      │                    │└────────────────────────┘│
-      └────────────────────┴──────────────────────────┘
+      │└─────────────────────────┬───────────────────┘│
+      │┌────────────────────────┐│                    │
+      ││ std::ios_base::failure ││                    │
+      ││┌──────────────────────┐││                    │
+      │││ std::exception       │││                    │
+      ││└──────────────────────┘││                    │
+      │└────────────────────────┘│                    │
+      └──────────────────────────┴────────────────────┘
    @endverbatim
 
 As visible in the last two class data representations, objects can include multiple distinct copies
-of std::exception, which leads to ambiguity: for example, abc::io_error may be cast as both
+of std::exception, which leads to ambiguity: for example, abc::io::error may be cast as both
 abc::exception → std:exception or as std::ios_base::failure → std::exception. While this does not
-trigger any warnings in GCC, MSC16 warns that the resulting object (e.g. an abc::io_error instance)
+trigger any warnings in GCC, MSC16 warns that the resulting object (e.g. an abc::io::error instance)
 will not be caught by a std::exception catch block, arguably due to said casting ambiguity – the
 MSVCRT might not know which of the two casts to favor.
 
@@ -303,18 +304,18 @@ this example based on the previous one:
    @endverbatim
 
    @verbatim
-   class abc::io_error : public virtual abc::exception {
+   class abc::io::error : public virtual abc::exception {
       typedef std::ios_base::failure related_std;
    };
 
-       ABC_THROW(abc::io_error, ())
+       ABC_THROW(abc::io::error, ())
       ┌────────────────────────┐
       │ std::ios_base::failure │
       │┌──────────────────────┐│
       ││ std::exception       ││
       │└──────────────────────┘│
       ├────────────────────────┤
-      │ abc::io_error          │
+      │ abc::io::error         │
       │┌──────────────────────┐│
       ││ abc::exception       ││
       │└──────────────────────┘│
@@ -322,25 +323,25 @@ this example based on the previous one:
    @endverbatim
 
    @verbatim
-   class abc::network_io_error : public virtual abc::network_error, public virtual abc::io_error {
+   class abc::io::network_error : public virtual abc::io::error, public virtual abc::network_error {
       typedef std::ios_base::failure related_std;
    };
 
-       ABC_THROW(abc::network_io_error, ())
-      ┌──────────────────────────────────────┐
-      │ std::ios_base::failure               │
-      │┌────────────────────────────────────┐│
-      ││ std::exception                     ││
-      │└────────────────────────────────────┘│
-      ├──────────────────────────────────────┤
-      │ abc::network_io_error                │
-      │┌────────────────────┬───────────────┐│
-      ││ abc::network_error │ abc::io_error ││
-      ││┌───────────────────┴──────────────┐││
-      │││ abc::exception                   │││
-      ││└───────────────────┬──────────────┘││
-      │└────────────────────┴───────────────┘│
-      └──────────────────────────────────────┘
+       ABC_THROW(abc::io::network_error, ())
+      ┌───────────────────────────────────────┐
+      │ std::ios_base::failure                │
+      │┌─────────────────────────────────────┐│
+      ││ std::exception                      ││
+      │└─────────────────────────────────────┘│
+      ├───────────────────────────────────────┤
+      │ abc::io::network_error                │
+      │┌────────────────┬────────────────────┐│
+      ││ abc::io::error │ abc::network_error ││
+      ││┌───────────────┴───────────────────┐││
+      │││ abc::exception                    │││
+      ││└───────────────┬───────────────────┘││
+      │└────────────────┴────────────────────┘│
+      └───────────────────────────────────────┘
    @endverbatim
 
 
@@ -1169,41 +1170,6 @@ public:
 
 namespace abc {
 
-//! An I/O operation failed for an I/O-related reason.
-class ABACLADE_SYM io_error : public virtual generic_error {
-public:
-   //! Default constructor.
-   io_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   io_error(io_error const & x);
-
-   //! Destructor.
-   virtual ~io_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   io_error & operator=(io_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 //! An attempt was made to access an invalid memory location.
 class ABACLADE_SYM memory_address_error : public virtual generic_error {
 public:
@@ -1366,41 +1332,6 @@ public:
    network_error & operator=(network_error const & x);
 
    //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-//! An I/O operation failed for a network-related reason.
-class ABACLADE_SYM network_io_error : public virtual io_error, public virtual network_error {
-public:
-   //! Default constructor.
-   network_io_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   network_io_error(network_io_error const & x);
-
-   //! Destructor.
-   virtual ~network_io_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   network_io_error & operator=(network_io_error const & x);
-
-   //! See abc::io_error::init() and abc::network_error::init().
    void init(errint_t err = 0);
 };
 

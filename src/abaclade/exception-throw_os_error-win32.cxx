@@ -595,7 +595,21 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_WRITE_PROTECT: // The media is write protected.
       case ERROR_WRONG_DISK: // The wrong diskette is in the drive. Insert %2 (Volume Serial Number:
          // %3) into drive %1.
-         ABC_THROW(io_error, (err));
+         ABC_THROW(io::error, (err));
+
+      case ERROR_ADAP_HDW_ERR: // A network adapter hardware error occurred.
+      case ERROR_ADDRESS_NOT_ASSOCIATED: // An address has not yet been associated with the network
+         // endpoint.
+      case ERROR_CONNECTION_ABORTED: // The network connection was aborted by the local system.
+      case ERROR_CONNECTION_INVALID: // An operation was attempted on a nonexistent network
+         // connection.
+      case ERROR_CONNECTION_REFUSED: // The remote system refused the network connection.
+      case ERROR_DEV_NOT_EXIST: // The specified network resource or device is no longer available.
+      case ERROR_NET_WRITE_FAULT: // A write fault occurred on the network.
+      case ERROR_NETWORK_BUSY: // The network is busy.
+      case ERROR_NETWORK_UNREACHABLE: // The remote network is not reachable by the transport.
+      case ERROR_REQUEST_ABORTED: // The request was aborted.
+         ABC_THROW(io::network_error, (err));
 
       case ERROR_CANNOT_FIND_WND_CLASS: // Cannot find window class.
       case ERROR_CLASS_ALREADY_EXISTS: // Class already exists.
@@ -653,20 +667,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_UNEXP_NET_ERR: // An unexpected network error occurred.
       case ERROR_WINS_INTERNAL: // WINS encountered an error while processing the command.
          ABC_THROW(network_error, (err));
-
-      case ERROR_ADAP_HDW_ERR: // A network adapter hardware error occurred.
-      case ERROR_ADDRESS_NOT_ASSOCIATED: // An address has not yet been associated with the network
-         // endpoint.
-      case ERROR_CONNECTION_ABORTED: // The network connection was aborted by the local system.
-      case ERROR_CONNECTION_INVALID: // An operation was attempted on a nonexistent network
-         // connection.
-      case ERROR_CONNECTION_REFUSED: // The remote system refused the network connection.
-      case ERROR_DEV_NOT_EXIST: // The specified network resource or device is no longer available.
-      case ERROR_NET_WRITE_FAULT: // A write fault occurred on the network.
-      case ERROR_NETWORK_BUSY: // The network is busy.
-      case ERROR_NETWORK_UNREACHABLE: // The remote network is not reachable by the transport.
-      case ERROR_REQUEST_ABORTED: // The request was aborted.
-         ABC_THROW(network_io_error, (err));
 
       case ERROR_BAD_PATHNAME: // The specified path is invalid.
       case ERROR_DIRECTORY: // The directory name is invalid.

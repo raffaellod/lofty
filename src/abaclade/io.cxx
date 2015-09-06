@@ -166,3 +166,69 @@ namespace abc { namespace io {
 
 }} //namespace abc::io
 #endif //if ABC_HOST_API_WIN32
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io {
+
+error::error() :
+   generic_error() {
+   m_pszWhat = "abc::io::error";
+}
+
+error::error(error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ error::~error() {
+}
+
+error & error::operator=(error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
+void error::init(errint_t err /*= 0*/) {
+   generic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      EIO
+#else
+      0
+#endif
+   );
+}
+
+}} //namespace abc::io
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io {
+
+network_error::network_error() :
+   generic_error(),
+   error(),
+   abc::network_error() {
+   m_pszWhat = "abc::io::network_error";
+}
+
+network_error::network_error(network_error const & x) :
+   generic_error(x),
+   error(x),
+   abc::network_error(x) {
+}
+
+/*virtual*/ network_error::~network_error() {
+}
+
+network_error & network_error::operator=(network_error const & x) {
+   error::operator=(x);
+   abc::network_error::operator=(x);
+   return *this;
+}
+
+void network_error::init(errint_t err /*= 0*/) {
+   error::init(err);
+   abc::network_error::init(err);
+}
+
+}} //namespace abc::io

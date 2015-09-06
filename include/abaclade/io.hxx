@@ -261,3 +261,73 @@ struct overlapped : public ::OVERLAPPED {
 
 }} //namespace abc::io
 #endif //if ABC_HOST_API_WIN32
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io {
+
+//! An I/O operation failed for an I/O-related reason.
+class ABACLADE_SYM error : public virtual generic_error {
+public:
+   //! Default constructor.
+   error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   error(error const & x);
+
+   //! Destructor.
+   virtual ~error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   error & operator=(error const & x);
+
+   //! See abc::generic_error::init().
+   void init(errint_t err = 0);
+};
+
+}} //namespace abc::io
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io {
+
+//! An I/O operation failed for a network-related reason.
+class ABACLADE_SYM network_error : public virtual error, public virtual abc::network_error {
+public:
+   //! Default constructor.
+   network_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   network_error(network_error const & x);
+
+   //! Destructor.
+   virtual ~network_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   network_error & operator=(network_error const & x);
+
+   //! See abc::error::init() and abc::network_error::init().
+   void init(errint_t err = 0);
+};
+
+}} //namespace abc::io

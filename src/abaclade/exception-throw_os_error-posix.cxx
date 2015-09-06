@@ -128,7 +128,34 @@ void exception::throw_os_error(errint_t err) {
       case EWOULDBLOCK: // Operation would block (POSIX.1-2001)
 #endif
       case EXDEV: // Improper link (POSIX.1-2001)
-         ABC_THROW(io_error, (err));
+         ABC_THROW(io::error, (err));
+
+#ifdef ECOMM
+      case ECOMM: // Communication error on send (Linux)
+#endif
+      case ECONNABORTED: // Connection aborted (POSIX.1-2001)
+      case ECONNREFUSED: // Connection refused (POSIX.1-2001)
+      case ECONNRESET: // Connection reset by peer (POSIX.1-2001)
+#ifdef EHOSTDOWN
+      case EHOSTDOWN: // Host is down (Linux)
+#endif
+      case EHOSTUNREACH: // No route to host (POSIX.1-2001)
+      case ENETDOWN: // Network is down (POSIX.1-2001)
+      case ENETRESET: // Connection aborted by network (POSIX.1-2001)
+      case ENETUNREACH: // Network is unreachable (POSIX.1-2001)
+      case ENOLINK: // Link has been severed (POSIX.1-2001)
+      case ENOTCONN: // Transport endpoint is not connected (POSIX.1-2001)
+#ifdef EREMCHG
+      case EREMCHG: // Remote address changed (Linux)
+#endif
+#ifdef EREMOTEIO
+      case EREMOTEIO: // Remote I/O error (Linux)
+#endif
+#ifdef ESHUTDOWN
+      case ESHUTDOWN: // Cannot send after socket shutdown (Linux)
+#endif
+      case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
+         ABC_THROW(io::network_error, (err));
 
       case ENOMEM: // Out of memory (POSIX.1-2001)
          ABC_THROW(memory_allocation_error, (err));
@@ -157,33 +184,6 @@ void exception::throw_os_error(errint_t err) {
       case ESOCKTNOSUPPORT: // Socket type not supported (Linux)
 #endif
          ABC_THROW(network_error, (err));
-
-#ifdef ECOMM
-      case ECOMM: // Communication error on send (Linux)
-#endif
-      case ECONNABORTED: // Connection aborted (POSIX.1-2001)
-      case ECONNREFUSED: // Connection refused (POSIX.1-2001)
-      case ECONNRESET: // Connection reset by peer (POSIX.1-2001)
-#ifdef EHOSTDOWN
-      case EHOSTDOWN: // Host is down (Linux)
-#endif
-      case EHOSTUNREACH: // No route to host (POSIX.1-2001)
-      case ENETDOWN: // Network is down (POSIX.1-2001)
-      case ENETRESET: // Connection aborted by network (POSIX.1-2001)
-      case ENETUNREACH: // Network is unreachable (POSIX.1-2001)
-      case ENOLINK: // Link has been severed (POSIX.1-2001)
-      case ENOTCONN: // Transport endpoint is not connected (POSIX.1-2001)
-#ifdef EREMCHG
-      case EREMCHG: // Remote address changed (Linux)
-#endif
-#ifdef EREMOTEIO
-      case EREMOTEIO: // Remote I/O error (Linux)
-#endif
-#ifdef ESHUTDOWN
-      case ESHUTDOWN: // Cannot send after socket shutdown (Linux)
-#endif
-      case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
-         ABC_THROW(network_io_error, (err));
 
       case ENOSYS: // Function not implemented (POSIX.1-2001)
          ABC_THROW(not_implemented_error, (err));
