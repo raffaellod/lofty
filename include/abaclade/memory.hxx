@@ -52,16 +52,6 @@ You should have received a copy of the GNU General Public License along with Aba
    } //extern "C"
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
 
-//! TODO: comment or remove.
-#if ABC_HOST_CXX_GCC
-   #define _abc_alloca(cb) \
-      __builtin_alloca((cb))
-#elif ABC_HOST_CXX_MSC
-   extern "C" void * ABC_STL_CALLCONV _alloca(std::size_t cb);
-   #define _abc_alloca(cb) \
-      _alloca(cb)
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,12 +61,8 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma warning(disable: 4986)
 #endif
 
-void * ABC_STL_CALLCONV operator new(
-   std::size_t cb
-) ABC_STL_NOEXCEPT_FALSE((abc::_std::bad_alloc));
-void * ABC_STL_CALLCONV operator new[](
-   std::size_t cb
-) ABC_STL_NOEXCEPT_FALSE((abc::_std::bad_alloc));
+void * ABC_STL_CALLCONV operator new(std::size_t cb);
+void * ABC_STL_CALLCONV operator new[](std::size_t cb);
 void * ABC_STL_CALLCONV operator new(
    std::size_t cb, abc::_std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE();
@@ -108,25 +94,33 @@ namespace abc { namespace memory {
 @return
    Pointer to the allocated memory block.
 */
-ABACLADE_SYM void * _raw_alloc(std::size_t cb);
+template <typename T>
+T * alloc(std::size_t cb) {
+   return static_cast<T *>(alloc<void>(cb));
+}
+template <>
+ABACLADE_SYM void * alloc<void>(std::size_t cb);
 
 /*! Releases a block of dynamically allocated memory.
 
 @param p
    Pointer to the memory block to be released.
 */
-ABACLADE_SYM void _raw_free(void const * p);
+ABACLADE_SYM void free(void const * p);
 
 /*! Resizes a dynamically allocated memory block.
 
-@param p
-   Pointer to the memory block to resize.
+@param pp
+   Pointer to the caller’s pointer to the memory block to resize.
 @param cb
-   Count of bytes to resize *p to.
-@return
-   Pointer to the resized memory block. May or may not be the same as p.
+   Count of bytes to resize **pp to.
 */
-ABACLADE_SYM void * _raw_realloc(void * p, std::size_t cb);
+template <typename T>
+void realloc(T ** ppt, std::size_t cb) {
+   realloc<void>(reinterpret_cast<void **>(ppt), cb);
+}
+template <>
+ABACLADE_SYM void realloc(void ** pp, std::size_t cb);
 
 }} //namespace abc::memory
 
@@ -223,7 +217,7 @@ struct freeing_deleter {
       Pointer to the object to deallocate.
    */
    void operator()(void const * p) const {
-      _raw_free(p);
+      free(p);
    }
 };
 
@@ -247,17 +241,17 @@ plus additional cbExtra bytes.
    the pointer is destructed.
 */
 template <typename T>
-inline _std::unique_ptr<T, freeing_deleter> alloc(std::size_t c = 1, std::size_t cbExtra = 0) {
+inline _std::unique_ptr<T, freeing_deleter> alloc_unique(
+   std::size_t c = 1, std::size_t cbExtra = 0
+) {
    typedef typename _std::unique_ptr<T, freeing_deleter>::element_type TElt;
-   return _std::unique_ptr<T, freeing_deleter>(
-      static_cast<TElt *>(_raw_alloc(sizeof(TElt) * c + cbExtra))
-   );
+   return _std::unique_ptr<T, freeing_deleter>(alloc<TElt>(sizeof(TElt) * c + cbExtra));
 }
 template <>
-inline _std::unique_ptr<void, freeing_deleter> alloc<void>(
+inline _std::unique_ptr<void, freeing_deleter> alloc_unique<void>(
    std::size_t cb, std::size_t cbExtra /*= 0*/
 ) {
-   return _std::unique_ptr<void, freeing_deleter>(_raw_alloc(cb + cbExtra));
+   return _std::unique_ptr<void, freeing_deleter>(alloc<void>(cb + cbExtra));
 }
 
 /*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing
@@ -273,21 +267,22 @@ it in case a new memory block is needed.
    Count of bytes of additional storage to allocate at the end of the requested items.
 */
 template <typename T>
-inline void realloc(
+inline void realloc_unique(
    _std::unique_ptr<T, freeing_deleter> * ppt, std::size_t c, std::size_t cbExtra = 0
 ) {
-   typedef typename _std::unique_ptr<T, freeing_deleter>::element_type TElt;
-   TElt * pt = static_cast<TElt *>(_raw_realloc(ppt->get(), sizeof(TElt) * c + cbExtra));
+   auto pt = ppt->get();
+   realloc(&pt, sizeof(*pt) * c + cbExtra);
    ppt->release();
    ppt->reset(pt);
 }
 template <>
-inline void realloc(
-   _std::unique_ptr<void, freeing_deleter> * ppt, std::size_t cb, std::size_t cbExtra /*= 0*/
+inline void realloc_unique(
+   _std::unique_ptr<void, freeing_deleter> * pp, std::size_t cb, std::size_t cbExtra /*= 0*/
 ) {
-   void * pt = _raw_realloc(ppt->get(), cb + cbExtra);
-   ppt->release();
-   ppt->reset(pt);
+   auto p = pp->get();
+   realloc(&p, cb + cbExtra);
+   pp->release();
+   pp->reset(p);
 }
 
 }} //namespace abc::memory

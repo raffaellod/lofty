@@ -167,7 +167,7 @@ str::c_str_ptr str::c_str() const {
    } else if (std::size_t cch = size_in_chars()) {
       /* The string is not empty but lacks a NUL terminator: create a temporary copy that includes a
       NUL, and return it. */
-      auto psz(memory::alloc<char_t[]>(cch + 1 /*NUL*/));
+      auto psz(memory::alloc_unique<char_t[]>(cch + 1 /*NUL*/));
       memory::copy(psz.get(), data(), cch);
       psz[cch] = '\0';
       return c_str_ptr(psz.release(), true);

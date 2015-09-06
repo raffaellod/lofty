@@ -139,7 +139,7 @@ public:
       m_ibAvailableOffset(0) {
    }
 
-   /*! Move-constructor.
+   /*! Move constructor.
 
    @param buf
       Source object.

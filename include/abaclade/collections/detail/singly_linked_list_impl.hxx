@@ -58,7 +58,7 @@ protected:
          Pointer to free.
       */
       void operator delete(void * p) {
-         memory::_raw_free(p);
+         memory::free(p);
       }
 
       /*! Matches the custom operator new().

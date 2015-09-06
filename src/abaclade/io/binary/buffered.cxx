@@ -47,7 +47,7 @@ _std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb) {
 namespace abc { namespace io { namespace binary { namespace detail {
 
 buffer::buffer(std::size_t cb) :
-   m_p(memory::alloc<void>(cb)),
+   m_p(memory::alloc_unique<void>(cb)),
    m_cb(cb),
    m_ibUsedOffset(0),
    m_ibAvailableOffset(0) {
@@ -81,7 +81,7 @@ buffer & buffer::operator=(buffer && buf) {
 void buffer::expand(std::size_t cb) {
    ABC_TRACE_FUNC(this, cb);
 
-   memory::realloc(&m_p, cb);
+   memory::realloc_unique(&m_p, cb);
    m_cb = cb;
 }
 

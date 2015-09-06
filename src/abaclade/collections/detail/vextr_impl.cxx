@@ -188,15 +188,13 @@ void raw_vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
             effective immediately, which means that m_prvib must be updated now – if no exceptions
             are thrown, that is. */
             ppia = m_prvib->prefixed_item_array();
-            ppia = static_cast<prefixed_item_array *>(
-               memory::_raw_realloc(ppia, cbNewItemArrayDesc)
-            );
+            memory::realloc(&ppia, cbNewItemArrayDesc);
             m_prvib->m_pBegin = ppia->m_at;
             m_prvib->m_pEnd = m_prvib->begin<std::int8_t>() + cbOrig;
          } else {
             /* Allocate a new item array. This is the only option for non-trivial types because they
             must be moved using their move constructor. */
-            ppia = static_cast<prefixed_item_array *>(memory::_raw_alloc(cbNewItemArrayDesc));
+            ppia = memory::alloc<prefixed_item_array>(cbNewItemArrayDesc);
             m_bFree = true;
          }
          ppia->m_cbCapacity = cbNewCapacity;

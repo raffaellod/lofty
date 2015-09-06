@@ -216,7 +216,7 @@ public:
    //! Destructor.
    ~raw_vextr_impl_base() {
       if (m_bDynamic) {
-         memory::_raw_free(prefixed_item_array());
+         memory::free(prefixed_item_array());
       }
    }
 
