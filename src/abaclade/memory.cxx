@@ -285,7 +285,7 @@ pages_ptr::pages_ptr(std::size_t cb) :
    if (!m_p) {
       ::DWORD iErr = ::GetLastError();
       if (iErr == ERROR_NOT_ENOUGH_MEMORY) {
-         ABC_THROW(allocation_error, (cb, iErr));
+         ABC_THROW(allocation_error, (m_cb, iErr));
       } else {
          exception::throw_os_error(iErr);
       }
