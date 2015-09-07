@@ -26,6 +26,67 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace memory {
 
+//! A memory allocation request could not be satisfied.
+class ABACLADE_SYM bad_alloc : public generic_error {
+public:
+   //! See abc::generic_error::related_std.
+   typedef _std::bad_alloc related_std;
+
+   //! Default constructor.
+   bad_alloc();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   bad_alloc(bad_alloc const & x);
+
+   //! Destructor.
+   virtual ~bad_alloc();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   bad_alloc & operator=(bad_alloc const & x);
+
+   /*! Returns the amount of memory that could not be allocated.
+
+   @return
+      Amount of requested memory, in bytes.
+   */
+   std::size_t allocation_size() const {
+      return m_cbFailed;
+   }
+
+   /*! See abc::generic_error::init().
+
+   @param cbFailed
+      Amount of memory that could not be allocated.
+   @param err
+      OS-defined error number associated to the error.
+   */
+   void init(std::size_t cbFailed, errint_t err = 0);
+
+protected:
+   //! See generic_error::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
+
+private:
+   //! Amount of memory that could not be allocated.
+   std::size_t m_cbFailed;
+};
+
+}} //namespace abc::memory
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace memory {
+
 //! An attempt was made to access an invalid memory location.
 class ABACLADE_SYM bad_pointer : public generic_error {
 public:
@@ -141,67 +202,6 @@ protected:
 private:
    //! Address that could not be dereferenced.
    void const * m_pInvalid;
-};
-
-}} //namespace abc::memory
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace memory {
-
-//! A memory allocation request could not be satisfied.
-class ABACLADE_SYM bad_alloc : public generic_error {
-public:
-   //! See abc::generic_error::related_std.
-   typedef _std::bad_alloc related_std;
-
-   //! Default constructor.
-   bad_alloc();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   bad_alloc(bad_alloc const & x);
-
-   //! Destructor.
-   virtual ~bad_alloc();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   bad_alloc & operator=(bad_alloc const & x);
-
-   /*! Returns the amount of memory that could not be allocated.
-
-   @return
-      Amount of requested memory, in bytes.
-   */
-   std::size_t allocation_size() const {
-      return m_cbFailed;
-   }
-
-   /*! See abc::generic_error::init().
-
-   @param cbFailed
-      Amount of memory that could not be allocated.
-   @param err
-      OS-defined error number associated to the error.
-   */
-   void init(std::size_t cbFailed, errint_t err = 0);
-
-protected:
-   //! See generic_error::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
-
-private:
-   //! Amount of memory that could not be allocated.
-   std::size_t m_cbFailed;
 };
 
 }} //namespace abc::memory

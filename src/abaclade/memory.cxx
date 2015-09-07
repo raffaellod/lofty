@@ -30,6 +30,51 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace memory {
 
+bad_alloc::bad_alloc() :
+   generic_error() {
+   m_pszWhat = "abc::memory::bad_alloc";
+}
+
+bad_alloc::bad_alloc(bad_alloc const & x) :
+   generic_error(x),
+   m_cbFailed(x.m_cbFailed) {
+}
+
+/*virtual*/ bad_alloc::~bad_alloc() {
+}
+
+bad_alloc & bad_alloc::operator=(bad_alloc const & x) {
+   generic_error::operator=(x);
+   m_cbFailed = x.m_cbFailed;
+   return *this;
+}
+
+void bad_alloc::init(std::size_t cbFailed, errint_t err /*= 0*/) {
+   generic_error::init(err ? err :
+#if ABC_HOST_API_POSIX
+      ENOMEM
+#elif ABC_HOST_API_WIN32
+      ERROR_NOT_ENOUGH_MEMORY
+#else
+      0
+#endif
+   );
+   m_cbFailed = cbFailed;
+}
+
+/*virtual*/ void bad_alloc::write_extended_info(
+   io::text::writer * ptwOut
+) const /*override*/ {
+   generic_error::write_extended_info(ptwOut);
+   ptwOut->print(ABC_SL(" requested allocation size={} B"), m_cbFailed);
+}
+
+}} //namespace abc::memory
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace memory {
+
 char_t const bad_pointer::smc_szUnknownAddress[] = ABC_SL(" unknown memory address");
 
 bad_pointer::bad_pointer() :
@@ -116,51 +161,6 @@ void bad_pointer_alignment::init(void const * pInvalid, errint_t err /*= 0*/) {
 ) const /*override*/ {
    generic_error::write_extended_info(ptwOut);
    ptwOut->print(ABC_SL(" misaligned pointer={}"), m_pInvalid);
-}
-
-}} //namespace abc::memory
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace memory {
-
-bad_alloc::bad_alloc() :
-   generic_error() {
-   m_pszWhat = "abc::memory::bad_alloc";
-}
-
-bad_alloc::bad_alloc(bad_alloc const & x) :
-   generic_error(x),
-   m_cbFailed(x.m_cbFailed) {
-}
-
-/*virtual*/ bad_alloc::~bad_alloc() {
-}
-
-bad_alloc & bad_alloc::operator=(bad_alloc const & x) {
-   generic_error::operator=(x);
-   m_cbFailed = x.m_cbFailed;
-   return *this;
-}
-
-void bad_alloc::init(std::size_t cbFailed, errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      ENOMEM
-#elif ABC_HOST_API_WIN32
-      ERROR_NOT_ENOUGH_MEMORY
-#else
-      0
-#endif
-   );
-   m_cbFailed = cbFailed;
-}
-
-/*virtual*/ void bad_alloc::write_extended_info(
-   io::text::writer * ptwOut
-) const /*override*/ {
-   generic_error::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL(" requested allocation size={} B"), m_cbFailed);
 }
 
 }} //namespace abc::memory
