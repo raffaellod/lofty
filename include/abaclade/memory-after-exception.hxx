@@ -182,38 +182,3 @@ private:
 };
 
 }} //namespace abc::memory
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace memory {
-
-//! An attempt was made to access the memory location 0 (nullptr).
-class ABACLADE_SYM null_pointer_error : public virtual address_error {
-public:
-   //! Default constructor.
-   null_pointer_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   null_pointer_error(null_pointer_error const & x);
-
-   //! Destructor.
-   virtual ~null_pointer_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   null_pointer_error & operator=(null_pointer_error const & x);
-
-   //! See abc::address_error::init().
-   void init(errint_t err = 0);
-};
-
-}} //namespace abc::memory

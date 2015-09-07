@@ -151,43 +151,6 @@ void allocation_error::init(std::size_t cbFailed, errint_t err /*= 0*/) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace memory {
-
-null_pointer_error::null_pointer_error() :
-   generic_error(),
-   address_error() {
-   m_pszWhat = "abc::memory::null_pointer_error";
-}
-
-null_pointer_error::null_pointer_error(null_pointer_error const & x) :
-   generic_error(x),
-   address_error(x) {
-}
-
-/*virtual*/ null_pointer_error::~null_pointer_error() {
-}
-
-null_pointer_error & null_pointer_error::operator=(null_pointer_error const & x) {
-   address_error::operator=(x);
-   return *this;
-}
-
-void null_pointer_error::init(errint_t err /*= 0*/) {
-   address_error::init(nullptr, err ? err :
-#if ABC_HOST_API_POSIX
-      EFAULT
-#elif ABC_HOST_API_WIN32
-      ERROR_INVALID_ADDRESS
-#else
-      0
-#endif
-   );
-}
-
-}} //namespace abc::memory
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #if ABC_HOST_CXX_MSC
    #pragma warning(push)
    // “'operator': exception specification does not match previous declaration”

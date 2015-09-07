@@ -103,26 +103,22 @@ You should have received a copy of the GNU General Public License along with Aba
 
          switch (exctype) {
             case EXC_BAD_ACCESS:
+               xct = abc::exception::common_type::memory_address_error;
    #if ABC_HOST_ARCH_X86_64
                iArg0 = static_cast<std::intptr_t>(excst.__faultvaddr);
    #else
       #error "TODO: HOST_ARCH"
    #endif
-               if (iArg0 == 0) {
-                  xct = abc::exception::common_type::null_pointer_error;
-               } else {
-                  xct = abc::exception::common_type::memory_address_error;
-               }
                break;
 
             case EXC_BAD_INSTRUCTION:
+               // TODO: use a better exception class.
+               xct = abc::exception::common_type::memory_access_error;
    #if ABC_HOST_ARCH_X86_64
                iArg0 = static_cast<std::intptr_t>(excst.__faultvaddr);
    #else
       #error "TODO: HOST_ARCH"
    #endif
-               // TODO: use a better exception class.
-               xct = abc::exception::common_type::memory_access_error;
                break;
 
             case EXC_ARITHMETIC:
@@ -423,12 +419,8 @@ signal_dispatcher::~signal_dispatcher() {
             break;
 
          case SIGSEGV:
-            if (psi->si_addr == nullptr) {
-               xct = exception::common_type::null_pointer_error;
-            } else {
-               xct = exception::common_type::memory_address_error;
-               iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
-            }
+            xct = exception::common_type::memory_address_error;
+            iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
             break;
       }
       if (xct != exception::common_type::none) {
@@ -474,14 +466,8 @@ signal_dispatcher::~signal_dispatcher() {
             inaccessible address. If this value is 8, the thread caused a user-mode data execution
             prevention (DEP) violation.
             ExceptionInformation[1] specifies the virtual address of the inaccessible data. */
-            if (void const * pAddr = reinterpret_cast<void const *>(
-               pxpInfo->ExceptionRecord->ExceptionInformation[1]
-            )) {
-               xct = exception::common_type::memory_address_error;
-               iArg0 = reinterpret_cast<std::intptr_t>(pAddr);
-            } else {
-               xct = exception::common_type::null_pointer_error;
-            }
+            xct = exception::common_type::memory_address_error;
+            iArg0 = pxpInfo->ExceptionRecord->ExceptionInformation[1];
             break;
 
 //       case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:

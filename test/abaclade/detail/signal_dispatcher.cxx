@@ -35,9 +35,9 @@ ABC_TESTING_TEST_CASE_FUNC(
    // Validate generation of invalid pointer dereference errors.
    {
       int * p = nullptr;
-      ABC_TESTING_ASSERT_THROWS(memory::null_pointer_error, *p = 1);
+      ABC_TESTING_ASSERT_THROWS(memory::address_error, *p = 1);
       // Check that the handler is still in place after its first activation above.
-      ABC_TESTING_ASSERT_THROWS(memory::null_pointer_error, *p = 2);
+      ABC_TESTING_ASSERT_THROWS(memory::address_error, *p = 2);
 
       ABC_TESTING_ASSERT_THROWS(memory::address_error, *++p = 1);
    }

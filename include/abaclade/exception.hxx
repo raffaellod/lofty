@@ -291,8 +291,7 @@ public:
       math_floating_point_error,
       math_overflow,
       memory_access_error,
-      memory_address_error,
-      null_pointer_error
+      memory_address_error
    );
 
    //! Related STL exception class.

@@ -250,8 +250,6 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          _ABC_THROW_FROM(
             srcloc, sc_szOS, memory::address_error, (reinterpret_cast<void const *>(iArg0))
          );
-      case common_type::null_pointer_error:
-         _ABC_THROW_FROM(srcloc, sc_szOS, memory::null_pointer_error, ());
       case common_type::math_overflow:
          _ABC_THROW_FROM(srcloc, sc_szOS, math::overflow, ());
       default:
