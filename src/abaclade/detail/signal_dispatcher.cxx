@@ -103,7 +103,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
          switch (exctype) {
             case EXC_BAD_ACCESS:
-               xct = abc::exception::common_type::memory_address_error;
+               xct = abc::exception::common_type::memory_bad_pointer;
    #if ABC_HOST_ARCH_X86_64
                iArg0 = static_cast<std::intptr_t>(excst.__faultvaddr);
    #else
@@ -113,7 +113,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
             case EXC_BAD_INSTRUCTION:
                // TODO: use a better exception class.
-               xct = abc::exception::common_type::memory_access_error;
+               xct = abc::exception::common_type::memory_bad_pointer_alignment;
    #if ABC_HOST_ARCH_X86_64
                iArg0 = static_cast<std::intptr_t>(excst.__faultvaddr);
    #else
@@ -388,7 +388,7 @@ signal_dispatcher::~signal_dispatcher() {
             keep on going – even the code to throw an exception could be compromised. */
             switch (psi->si_code) {
                case BUS_ADRALN: // Invalid address alignment.
-                  xct = exception::common_type::memory_access_error;
+                  xct = exception::common_type::memory_bad_pointer_alignment;
                   iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
                   break;
             }
@@ -419,7 +419,7 @@ signal_dispatcher::~signal_dispatcher() {
             break;
 
          case SIGSEGV:
-            xct = exception::common_type::memory_address_error;
+            xct = exception::common_type::memory_bad_pointer;
             iArg0 = reinterpret_cast<std::intptr_t>(psi->si_addr);
             break;
       }
@@ -466,7 +466,7 @@ signal_dispatcher::~signal_dispatcher() {
             inaccessible address. If this value is 8, the thread caused a user-mode data execution
             prevention (DEP) violation.
             ExceptionInformation[1] specifies the virtual address of the inaccessible data. */
-            xct = exception::common_type::memory_address_error;
+            xct = exception::common_type::memory_bad_pointer;
             iArg0 = pxpInfo->ExceptionRecord->ExceptionInformation[1];
             break;
 
@@ -477,7 +477,7 @@ signal_dispatcher::~signal_dispatcher() {
 
          case EXCEPTION_DATATYPE_MISALIGNMENT:
             // Attempt to read or write data that is misaligned on hardware that requires alignment.
-            xct = exception::common_type::memory_access_error;
+            xct = exception::common_type::memory_bad_pointer_alignment;
             iArg0 = reinterpret_cast<std::intptr_t>(nullptr);
             break;
 

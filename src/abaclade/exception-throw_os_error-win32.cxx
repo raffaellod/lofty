@@ -624,11 +624,11 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_OUTOFMEMORY: // Not enough storage is available to complete this operation.
       case ERROR_PAGED_SYSTEM_RESOURCES: // Insufficient system resources exist to complete the
          // requested service.
-         ABC_THROW(memory::allocation_error, (0, err));
+         ABC_THROW(memory::bad_alloc, (0, err));
 
       case ERROR_INVALID_ADDRESS: // Attempt to access invalid address.
       case ERROR_NOACCESS: // Invalid access to memory location.
-         ABC_THROW(memory::address_error, (err));
+         ABC_THROW(memory::bad_pointer, (err));
 
       case ERROR_ACTIVE_CONNECTIONS: // Active connections still exist.
       case ERROR_ADDRESS_ALREADY_ASSOCIATED: // The network transport endpoint already has an

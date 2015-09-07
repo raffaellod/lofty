@@ -35,11 +35,11 @@ ABC_TESTING_TEST_CASE_FUNC(
    // Validate generation of invalid pointer dereference errors.
    {
       int * p = nullptr;
-      ABC_TESTING_ASSERT_THROWS(memory::address_error, *p = 1);
+      ABC_TESTING_ASSERT_THROWS(memory::bad_pointer, *p = 1);
       // Check that the handler is still in place after its first activation above.
-      ABC_TESTING_ASSERT_THROWS(memory::address_error, *p = 2);
+      ABC_TESTING_ASSERT_THROWS(memory::bad_pointer, *p = 2);
 
-      ABC_TESTING_ASSERT_THROWS(memory::address_error, *++p = 1);
+      ABC_TESTING_ASSERT_THROWS(memory::bad_pointer, *++p = 1);
    }
 
    // Validate generation of other pointer dereference errors.
@@ -52,7 +52,7 @@ ABC_TESTING_TEST_CASE_FUNC(
       void * p = &i[0];
       // Misalign the pointer, partly entering the second int.
       p = static_cast<std::int8_t *>(p) + 1;
-      ABC_TESTING_ASSERT_THROWS(memory::access_error, *static_cast<int *>(p) = 1);
+      ABC_TESTING_ASSERT_THROWS(memory::bad_pointer_alignment, *static_cast<int *>(p) = 1);
 #endif
    }
 

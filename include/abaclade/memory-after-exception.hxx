@@ -27,20 +27,20 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace memory {
 
 //! An attempt was made to access an invalid memory location.
-class ABACLADE_SYM address_error : public generic_error {
+class ABACLADE_SYM bad_pointer : public generic_error {
 public:
    //! Default constructor.
-   address_error();
+   bad_pointer();
 
    /*! Copy constructor.
 
    @param x
       Source object.
    */
-   address_error(address_error const & x);
+   bad_pointer(bad_pointer const & x);
 
    //! Destructor.
-   virtual ~address_error();
+   virtual ~bad_pointer();
 
    /*! Copy-assignment operator.
 
@@ -49,14 +49,14 @@ public:
    @return
       *this.
    */
-   address_error & operator=(address_error const & x);
+   bad_pointer & operator=(bad_pointer const & x);
 
-   /*! Returns the faulty address.
+   /*! Returns the faulty pointer.
 
    @return
-      Value of the pointer that was dereferenced.
+      Pointer that was dereferenced.
    */
-   void const * address() const {
+   void const * pointer() const {
       return m_pInvalid;
    }
 
@@ -92,20 +92,20 @@ private:
 namespace abc { namespace memory {
 
 //! An invalid memory access (e.g. misaligned pointer) was detected.
-class ABACLADE_SYM access_error : public address_error {
+class ABACLADE_SYM bad_pointer_alignment : public generic_error {
 public:
    //! Default constructor.
-   access_error();
+   bad_pointer_alignment();
 
    /*! Copy constructor.
 
    @param x
       Source object.
    */
-   access_error(access_error const & x);
+   bad_pointer_alignment(bad_pointer_alignment const & x);
 
    //! Destructor.
-   virtual ~access_error();
+   virtual ~bad_pointer_alignment();
 
    /*! Copy-assignment operator.
 
@@ -114,10 +114,33 @@ public:
    @return
       *this.
    */
-   access_error & operator=(access_error const & x);
+   bad_pointer_alignment & operator=(bad_pointer_alignment const & x);
 
-   //! See abc::address_error::init().
+   /*! Returns the faulty pointer.
+
+   @return
+      Pointer that was dereferenced.
+   */
+   void const * pointer() const {
+      return m_pInvalid;
+   }
+
+   /*! See abc::generic_error::init().
+
+   @param pInvalid
+      Pointer that could not be dereferenced.
+   @param err
+      OS-defined error number associated to the error.
+   */
    void init(void const * pInvalid, errint_t err = 0);
+
+protected:
+   //! See generic_error::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
+
+private:
+   //! Address that could not be dereferenced.
+   void const * m_pInvalid;
 };
 
 }} //namespace abc::memory
@@ -127,23 +150,23 @@ public:
 namespace abc { namespace memory {
 
 //! A memory allocation request could not be satisfied.
-class ABACLADE_SYM allocation_error : public generic_error {
+class ABACLADE_SYM bad_alloc : public generic_error {
 public:
    //! See abc::generic_error::related_std.
    typedef _std::bad_alloc related_std;
 
    //! Default constructor.
-   allocation_error();
+   bad_alloc();
 
    /*! Copy constructor.
 
    @param x
       Source object.
    */
-   allocation_error(allocation_error const & x);
+   bad_alloc(bad_alloc const & x);
 
    //! Destructor.
-   virtual ~allocation_error();
+   virtual ~bad_alloc();
 
    /*! Copy-assignment operator.
 
@@ -152,7 +175,7 @@ public:
    @return
       *this.
    */
-   allocation_error & operator=(allocation_error const & x);
+   bad_alloc & operator=(bad_alloc const & x);
 
    /*! Returns the amount of memory that could not be allocated.
 

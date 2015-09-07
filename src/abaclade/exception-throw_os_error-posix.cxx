@@ -159,10 +159,10 @@ void exception::throw_os_error(errint_t err) {
          ABC_THROW(math::overflow, (err));
 
       case ENOMEM: // Out of memory (POSIX.1-2001)
-         ABC_THROW(memory::allocation_error, (0, err));
+         ABC_THROW(memory::bad_alloc, (0, err));
 
       case EFAULT: // Bad address (POSIX.1-2001)
-         ABC_THROW(memory::address_error, (err));
+         ABC_THROW(memory::bad_pointer, (err));
 
       case EADDRINUSE: // Address already in use (POSIX.1-2001).
       case EADDRNOTAVAIL: // Cannot assign requested address (POSIX.1-2001)

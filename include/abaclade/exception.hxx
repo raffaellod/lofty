@@ -298,8 +298,8 @@ public:
       math_division_by_zero,
       math_floating_point_error,
       math_overflow,
-      memory_access_error,
-      memory_address_error
+      memory_bad_pointer,
+      memory_bad_pointer_alignment
    );
 
    //! Related STL exception class.

@@ -242,13 +242,13 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          ABC_THROW_FROM(srcloc, sc_szOS, math::division_by_zero, ());
       case common_type::math_floating_point_error:
          ABC_THROW_FROM(srcloc, sc_szOS, math::floating_point_error, ());
-      case common_type::memory_access_error:
+      case common_type::memory_bad_pointer:
          ABC_THROW_FROM(
-            srcloc, sc_szOS, memory::access_error, (reinterpret_cast<void const *>(iArg0))
+            srcloc, sc_szOS, memory::bad_pointer, (reinterpret_cast<void const *>(iArg0))
          );
-      case common_type::memory_address_error:
+      case common_type::memory_bad_pointer_alignment:
          ABC_THROW_FROM(
-            srcloc, sc_szOS, memory::address_error, (reinterpret_cast<void const *>(iArg0))
+            srcloc, sc_szOS, memory::bad_pointer_alignment, (reinterpret_cast<void const *>(iArg0))
          );
       case common_type::math_overflow:
          ABC_THROW_FROM(srcloc, sc_szOS, math::overflow, ());
