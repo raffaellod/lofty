@@ -1,11 +1,11 @@
 {
    accessing manipulated mcontext_t
-   Memcheck:Addr4
-   fun:*throw_common_type*
+   Memcheck:Addr8
+   fun:*abc*exception*throw_common_type*
    ...
 }
 {
-   intentional nullptr dereference
+   intentional dereference of invalid pointer
    Memcheck:Addr4
    fun:*detail_signal_dispatcher_os_errors_to_cxx_exceptions*
    ...
