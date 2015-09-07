@@ -54,6 +54,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/math.cxx"/>
       <source path="src/abaclade/memory.cxx"/>
       <source path="src/abaclade/net.cxx"/>
+      <source path="src/abaclade/os.cxx"/>
       <source path="src/abaclade/os/path.cxx"/>
       <source path="src/abaclade/perf/stopwatch.cxx"/>
       <source path="src/abaclade/process.cxx"/>
