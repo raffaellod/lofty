@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace text {
 
 //! A text encoding or decoding error occurred.
-class ABACLADE_SYM error : public virtual generic_error {
+class ABACLADE_SYM error : public generic_error {
 public:
    //! Default constructor.
    error();
@@ -62,7 +62,7 @@ public:
 namespace abc { namespace text {
 
 //! A text decoding error occurred.
-class ABACLADE_SYM decode_error : public virtual error {
+class ABACLADE_SYM decode_error : public error {
 public:
    //! Default constructor.
    decode_error();
@@ -118,7 +118,7 @@ private:
 namespace abc { namespace text {
 
 //! A text encoding error occurred.
-class ABACLADE_SYM encode_error : public virtual error {
+class ABACLADE_SYM encode_error : public error {
 public:
    //! Default constructor.
    encode_error();

@@ -58,13 +58,11 @@ void arithmetic_error::init(errint_t err /*= 0*/) {
 namespace abc { namespace math {
 
 division_by_zero::division_by_zero() :
-   generic_error(),
    arithmetic_error() {
    m_pszWhat = "abc::math::division_by_zero";
 }
 
 division_by_zero::division_by_zero(division_by_zero const & x) :
-   generic_error(x),
    arithmetic_error(x) {
 }
 
@@ -87,13 +85,11 @@ void division_by_zero::init(errint_t err /*= 0*/) {
 namespace abc { namespace math {
 
 floating_point_error::floating_point_error() :
-   generic_error(),
    arithmetic_error() {
    m_pszWhat = "abc::math::floating_point_error";
 }
 
 floating_point_error::floating_point_error(floating_point_error const & x) :
-   generic_error(x),
    arithmetic_error(x) {
 }
 
@@ -116,13 +112,11 @@ void floating_point_error::init(errint_t err /*= 0*/) {
 namespace abc { namespace math {
 
 overflow::overflow() :
-   generic_error(),
    arithmetic_error() {
    m_pszWhat = "abc::math::overflow";
 }
 
 overflow::overflow(overflow const & x) :
-   generic_error(x),
    arithmetic_error(x) {
 }
 

@@ -28,7 +28,7 @@ namespace abc { namespace test {
 class exception_polymorphism : public testing::test_case {
 protected:
    //! First-level abc::generic_error subclass.
-   class derived1_error : public virtual generic_error {
+   class derived1_error : public generic_error {
    public:
       //! Constructor.
       derived1_error() :
@@ -38,23 +38,12 @@ protected:
    };
 
    //! Second-level abc::generic_error subclass.
-   class derived2_error : public virtual derived1_error {
+   class derived2_error : public derived1_error {
    public:
       //! Constructor.
       derived2_error() :
          derived1_error() {
          m_pszWhat = "abc::test::exception_polymorphism::derived2_error";
-      }
-   };
-
-   //! Diamond-inheritance abc::generic_error subclass.
-   class derived3_error : public virtual derived1_error, public virtual derived2_error {
-   public:
-      //! Constructor.
-      derived3_error() :
-         derived1_error(),
-         derived2_error() {
-         m_pszWhat = "abc::test::exception_polymorphism::derived3_error";
       }
    };
 
@@ -73,9 +62,6 @@ public:
       ABC_TESTING_ASSERT_THROWS(derived1_error, throw_derived1_error());
       ABC_TESTING_ASSERT_THROWS(derived1_error, throw_derived2_error());
       ABC_TESTING_ASSERT_THROWS(derived2_error, throw_derived2_error());
-      ABC_TESTING_ASSERT_THROWS(derived1_error, throw_derived3_error(2351));
-      ABC_TESTING_ASSERT_THROWS(derived2_error, throw_derived3_error(3512));
-      ABC_TESTING_ASSERT_THROWS(derived3_error, throw_derived3_error(5123));
    }
 
    void throw_exception() {
@@ -100,12 +86,6 @@ public:
       ABC_TRACE_FUNC(this);
 
       ABC_THROW(derived2_error, ());
-   }
-
-   void throw_derived3_error(int i) {
-      ABC_TRACE_FUNC(this, i);
-
-      ABC_THROW(derived3_error, ());
    }
 };
 

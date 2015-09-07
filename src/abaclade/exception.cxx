@@ -642,7 +642,6 @@ index_error::index_error() :
    m_pszWhat = "abc::index_error";
 }
 index_error::index_error(index_error const & x) :
-   generic_error(x),
    lookup_error(x),
    m_iInvalid(x.m_iInvalid),
    m_iMin(x.m_iMin),
@@ -723,13 +722,11 @@ void iterator_error::init(errint_t err /*= 0*/) {
 namespace abc {
 
 key_error::key_error() :
-   generic_error(),
    lookup_error() {
    m_pszWhat = "abc::key_error";
 }
 
 key_error::key_error(key_error const & x) :
-   generic_error(x),
    lookup_error(x) {
 }
 

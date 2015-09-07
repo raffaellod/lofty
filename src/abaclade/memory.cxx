@@ -31,13 +31,11 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace memory {
 
 access_error::access_error() :
-   generic_error(),
    address_error() {
    m_pszWhat = "abc::memory::access_error";
 }
 
 access_error::access_error(access_error const & x) :
-   generic_error(x),
    address_error(x) {
 }
 

@@ -34,7 +34,7 @@ namespace abc { namespace testing {
 
 /*! Thrown to indicate that a test assertion failed, and the execution of the test case must be
 halted. */
-class ABACLADE_TESTING_SYM assertion_error : public virtual exception {
+class ABACLADE_TESTING_SYM assertion_error : public exception {
 public:
    //! Default constructor.
    assertion_error();

@@ -33,7 +33,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace math {
 
 //! Thrown in case of generic arithmetic errors.
-class ABACLADE_SYM arithmetic_error : public virtual generic_error {
+class ABACLADE_SYM arithmetic_error : public generic_error {
 public:
    //! Default constructor.
    arithmetic_error();
@@ -68,7 +68,7 @@ public:
 namespace abc { namespace math {
 
 //! Thrown when the divisor of a division or modulo operation was zero.
-class ABACLADE_SYM division_by_zero : public virtual arithmetic_error {
+class ABACLADE_SYM division_by_zero : public arithmetic_error {
 public:
    //! Default constructor.
    division_by_zero();
@@ -103,7 +103,7 @@ public:
 namespace abc { namespace math {
 
 //! Thrown upon failure of a floating point operation.
-class ABACLADE_SYM floating_point_error : public virtual arithmetic_error {
+class ABACLADE_SYM floating_point_error : public arithmetic_error {
 public:
    //! Default constructor.
    floating_point_error();
@@ -140,7 +140,7 @@ namespace abc { namespace math {
 /*! Thrown when the result of an arithmetic operation is too large to be represented in the target
 data type. Because of the lack of standardization of floating point exception handling in C, most
 floating point operations are also not checked. */
-class ABACLADE_SYM overflow : public virtual arithmetic_error {
+class ABACLADE_SYM overflow : public arithmetic_error {
 public:
    //! Default constructor.
    overflow();

@@ -267,7 +267,7 @@ struct overlapped : public ::OVERLAPPED {
 namespace abc { namespace io {
 
 //! An I/O operation failed for an I/O-related reason.
-class ABACLADE_SYM error : public virtual generic_error {
+class ABACLADE_SYM error : public generic_error {
 public:
    //! Default constructor.
    error();

@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace memory {
 
 //! An attempt was made to access an invalid memory location.
-class ABACLADE_SYM address_error : public virtual generic_error {
+class ABACLADE_SYM address_error : public generic_error {
 public:
    //! Default constructor.
    address_error();
@@ -92,7 +92,7 @@ private:
 namespace abc { namespace memory {
 
 //! An invalid memory access (e.g. misaligned pointer) was detected.
-class ABACLADE_SYM access_error : public virtual address_error {
+class ABACLADE_SYM access_error : public address_error {
 public:
    //! Default constructor.
    access_error();
@@ -127,7 +127,7 @@ public:
 namespace abc { namespace memory {
 
 //! A memory allocation request could not be satisfied.
-class ABACLADE_SYM allocation_error : public virtual generic_error {
+class ABACLADE_SYM allocation_error : public generic_error {
 public:
    //! See abc::generic_error::related_std.
    typedef _std::bad_alloc related_std;

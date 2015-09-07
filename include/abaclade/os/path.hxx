@@ -601,7 +601,7 @@ inline _path_iterator path::find(str const & sPattern) const {
 namespace abc { namespace os {
 
 //! A path failed validation. Path validation is typically file system- or OS-dependent.
-class ABACLADE_SYM invalid_path : public virtual generic_error {
+class ABACLADE_SYM invalid_path : public generic_error {
 public:
    //! Default constructor.
    invalid_path();
@@ -659,7 +659,7 @@ private:
 namespace abc { namespace os {
 
 //! A path could not be found on the file system.
-class ABACLADE_SYM path_not_found : public virtual generic_error {
+class ABACLADE_SYM path_not_found : public generic_error {
 public:
    //! Default constructor.
    path_not_found();

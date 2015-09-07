@@ -92,7 +92,7 @@ private:
 namespace abc {
 
 //! The syntax for the specified expression is invalid.
-class ABACLADE_SYM syntax_error : public virtual generic_error {
+class ABACLADE_SYM syntax_error : public generic_error {
 public:
    //! Default constructor.
    syntax_error();

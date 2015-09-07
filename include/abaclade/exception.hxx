@@ -666,7 +666,7 @@ protected:
 namespace abc {
 
 //! A function/method received an argument that had an inappropriate value.
-class ABACLADE_SYM argument_error : public virtual generic_error {
+class ABACLADE_SYM argument_error : public generic_error {
 public:
 #if 0
    // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
@@ -709,7 +709,7 @@ public:
 namespace abc {
 
 //! A buffer operation could not be performed.
-class ABACLADE_SYM buffer_error : public virtual generic_error {
+class ABACLADE_SYM buffer_error : public generic_error {
 public:
    //! Default constructor.
    buffer_error();
@@ -744,7 +744,7 @@ public:
 namespace abc {
 
 //! Invalid value provided for a variable/argument.
-class ABACLADE_SYM domain_error : public virtual generic_error {
+class ABACLADE_SYM domain_error : public generic_error {
 public:
 #if 0
    // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
@@ -787,7 +787,7 @@ public:
 namespace abc {
 
 //! Invalid iterator operation, such as moving an iterator to outside the container’s range.
-class ABACLADE_SYM iterator_error : public virtual generic_error {
+class ABACLADE_SYM iterator_error : public generic_error {
 public:
    //! Default constructor.
    iterator_error();
@@ -822,7 +822,7 @@ public:
 namespace abc {
 
 //! Base for errors due to an invalid key or index being used on a mapping or sequence.
-class ABACLADE_SYM lookup_error : public virtual generic_error {
+class ABACLADE_SYM lookup_error : public generic_error {
 public:
    //! Default constructor.
    lookup_error();
@@ -857,7 +857,7 @@ public:
 namespace abc {
 
 //! Sequence subscript out of range.
-class ABACLADE_SYM index_error : public virtual lookup_error {
+class ABACLADE_SYM index_error : public lookup_error {
 public:
 #if 0
    // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
@@ -942,7 +942,7 @@ private:
 namespace abc {
 
 //! Mapping (dictionary) key not found in the set of existing keys.
-class ABACLADE_SYM key_error : public virtual lookup_error {
+class ABACLADE_SYM key_error : public lookup_error {
 public:
    //! Default constructor.
    key_error();
@@ -977,7 +977,7 @@ public:
 namespace abc {
 
 //! A network-related error occurred.
-class ABACLADE_SYM network_error : public virtual generic_error {
+class ABACLADE_SYM network_error : public generic_error {
 public:
    //! Default constructor.
    network_error();
@@ -1013,7 +1013,7 @@ namespace abc {
 
 /*! Method not implemented for this class. Usually thrown when a class is not able to provide a full
 implementation of an interface; in practice, this should be avoided. */
-class ABACLADE_SYM not_implemented_error : public virtual generic_error {
+class ABACLADE_SYM not_implemented_error : public generic_error {
 public:
    //! Default constructor.
    not_implemented_error();
@@ -1048,7 +1048,7 @@ public:
 namespace abc {
 
 //! An operation failed to prevent a security hazard.
-class ABACLADE_SYM security_error : public virtual generic_error {
+class ABACLADE_SYM security_error : public generic_error {
 public:
    //! Default constructor.
    security_error();

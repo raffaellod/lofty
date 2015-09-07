@@ -714,13 +714,11 @@ void error::init(errint_t err /*= 0*/) {
 namespace abc { namespace text {
 
 decode_error::decode_error() :
-   generic_error(),
    error() {
-   m_pszWhat = "abc::decode_error";
+   m_pszWhat = "abc::text::decode_error";
 }
 
 decode_error::decode_error(decode_error const & x) :
-   generic_error(x),
    error(x),
    m_sDescription(x.m_sDescription),
    m_viInvalid(x.m_viInvalid) {
@@ -774,13 +772,11 @@ void decode_error::init(
 namespace abc { namespace text {
 
 encode_error::encode_error() :
-   generic_error(),
    error() {
-   m_pszWhat = "abc::encode_error";
+   m_pszWhat = "abc::text::encode_error";
 }
 
 encode_error::encode_error(encode_error const & x) :
-   generic_error(x),
    error(x),
    m_sDescription(x.m_sDescription),
    m_iInvalidCodePoint(x.m_iInvalidCodePoint) {
