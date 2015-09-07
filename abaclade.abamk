@@ -51,6 +51,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/io/text.cxx"/>
       <source path="src/abaclade/io/text/binbuf.cxx"/>
       <source path="src/abaclade/io/text/str.cxx"/>
+      <source path="src/abaclade/math.cxx"/>
       <source path="src/abaclade/memory.cxx"/>
       <source path="src/abaclade/net.cxx"/>
       <source path="src/abaclade/os/path.cxx"/>

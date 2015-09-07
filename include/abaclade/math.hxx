@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -27,6 +27,148 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace math {
+
+//! Thrown in case of generic arithmetic errors.
+class ABACLADE_SYM arithmetic_error : public virtual generic_error {
+public:
+   //! Default constructor.
+   arithmetic_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   arithmetic_error(arithmetic_error const & x);
+
+   //! Destructor.
+   virtual ~arithmetic_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   arithmetic_error & operator=(arithmetic_error const & x);
+
+   //! See abc::generic_error::init().
+   void init(errint_t err = 0);
+};
+
+}} //namespace abc::math
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace math {
+
+//! Thrown when the divisor of a division or modulo operation was zero.
+class ABACLADE_SYM division_by_zero : public virtual arithmetic_error {
+public:
+   //! Default constructor.
+   division_by_zero();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   division_by_zero(division_by_zero const & x);
+
+   //! Destructor.
+   virtual ~division_by_zero();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   division_by_zero & operator=(division_by_zero const & x);
+
+   //! See abc::arithmetic_error::init().
+   void init(errint_t err = 0);
+};
+
+}} //namespace abc::math
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace math {
+
+//! Thrown upon failure of a floating point operation.
+class ABACLADE_SYM floating_point_error : public virtual arithmetic_error {
+public:
+   //! Default constructor.
+   floating_point_error();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   floating_point_error(floating_point_error const & x);
+
+   //! Destructor.
+   virtual ~floating_point_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   floating_point_error & operator=(floating_point_error const & x);
+
+   //! See abc::arithmetic_error::init().
+   void init(errint_t err = 0);
+};
+
+}} //namespace abc::matg
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace math {
+
+/*! Thrown when the result of an arithmetic operation is too large to be represented in the target
+data type. Because of the lack of standardization of floating point exception handling in C, most
+floating point operations are also not checked. */
+class ABACLADE_SYM overflow : public virtual arithmetic_error {
+public:
+   //! Default constructor.
+   overflow();
+
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   overflow(overflow const & x);
+
+   //! Destructor.
+   virtual ~overflow();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   overflow & operator=(overflow const & x);
+
+   //! See abc::arithmetic_error::init().
+   void init(errint_t err = 0);
+};
+
+}} //namespace abc::math
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

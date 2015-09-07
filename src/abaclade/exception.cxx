@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/math.hxx>
 #include <abaclade/process.hxx>
 #include <abaclade/thread.hxx>
 #include "thread-impl.hxx"
@@ -235,12 +236,12 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
             }
          }
          break;
-      case common_type::arithmetic_error:
-         _ABC_THROW_FROM(srcloc, sc_szOS, arithmetic_error, ());
-      case common_type::division_by_zero_error:
-         _ABC_THROW_FROM(srcloc, sc_szOS, division_by_zero_error, ());
-      case common_type::floating_point_error:
-         _ABC_THROW_FROM(srcloc, sc_szOS, floating_point_error, ());
+      case common_type::math_arithmetic_error:
+         _ABC_THROW_FROM(srcloc, sc_szOS, math::arithmetic_error, ());
+      case common_type::math_division_by_zero:
+         _ABC_THROW_FROM(srcloc, sc_szOS, math::division_by_zero, ());
+      case common_type::math_floating_point_error:
+         _ABC_THROW_FROM(srcloc, sc_szOS, math::floating_point_error, ());
       case common_type::memory_access_error:
          _ABC_THROW_FROM(
             srcloc, sc_szOS, memory::access_error, (reinterpret_cast<void const *>(iArg0))
@@ -251,8 +252,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          );
       case common_type::null_pointer_error:
          _ABC_THROW_FROM(srcloc, sc_szOS, memory::null_pointer_error, ());
-      case common_type::overflow_error:
-         _ABC_THROW_FROM(srcloc, sc_szOS, overflow_error, ());
+      case common_type::math_overflow:
+         _ABC_THROW_FROM(srcloc, sc_szOS, math::overflow, ());
       default:
          // Unexpected exception type. Should never happen.
          std::abort();
@@ -520,33 +521,6 @@ void argument_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-arithmetic_error::arithmetic_error() :
-   generic_error() {
-   m_pszWhat = "abc::arithmetic_error";
-}
-
-arithmetic_error::arithmetic_error(arithmetic_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ arithmetic_error::~arithmetic_error() {
-}
-
-arithmetic_error & arithmetic_error::operator=(arithmetic_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void arithmetic_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
 
 /*static*/ void assertion_error::_assertion_failed(
@@ -601,35 +575,6 @@ void buffer_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-division_by_zero_error::division_by_zero_error() :
-   generic_error(),
-   arithmetic_error() {
-   m_pszWhat = "abc::division_by_zero_error";
-}
-
-division_by_zero_error::division_by_zero_error(division_by_zero_error const & x) :
-   generic_error(x),
-   arithmetic_error(x) {
-}
-
-/*virtual*/ division_by_zero_error::~division_by_zero_error() {
-}
-
-division_by_zero_error & division_by_zero_error::operator=(division_by_zero_error const & x) {
-   arithmetic_error::operator=(x);
-   return *this;
-}
-
-void division_by_zero_error::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 domain_error::domain_error() :
    generic_error() {
    m_pszWhat = "abc::domain_error";
@@ -655,35 +600,6 @@ void domain_error::init(errint_t err /*= 0*/) {
       0
 #endif
    );
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-floating_point_error::floating_point_error() :
-   generic_error(),
-   arithmetic_error() {
-   m_pszWhat = "abc::floating_point_error";
-}
-
-floating_point_error::floating_point_error(floating_point_error const & x) :
-   generic_error(x),
-   arithmetic_error(x) {
-}
-
-/*virtual*/ floating_point_error::~floating_point_error() {
-}
-
-floating_point_error & floating_point_error::operator=(floating_point_error const & x) {
-   arithmetic_error::operator=(x);
-   return *this;
-}
-
-void floating_point_error::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err);
 }
 
 } //namespace abc
@@ -910,41 +826,6 @@ not_implemented_error & not_implemented_error::operator=(not_implemented_error c
 
 void not_implemented_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-overflow_error::overflow_error() :
-   generic_error(),
-   arithmetic_error() {
-   m_pszWhat = "abc::overflow_error";
-}
-
-overflow_error::overflow_error(overflow_error const & x) :
-   generic_error(x),
-   arithmetic_error(x) {
-}
-
-/*virtual*/ overflow_error::~overflow_error() {
-}
-
-overflow_error & overflow_error::operator=(overflow_error const & x) {
-   arithmetic_error::operator=(x);
-   return *this;
-}
-
-void overflow_error::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      EOVERFLOW
-#else
-      0
-#endif
-   );
 }
 
 } //namespace abc

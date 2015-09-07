@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/math.hxx>
 #include <abaclade/testing/test_case.hxx>
 
 
@@ -60,7 +61,7 @@ ABC_TESTING_TEST_CASE_FUNC(
       // Non-obvious division by zero that can’t be detected at compile time.
       str sEmpty;
       int iZero = static_cast<int>(sEmpty.size_in_chars()), iOne = 1;
-      ABC_TESTING_ASSERT_THROWS(division_by_zero_error, iOne /= iZero);
+      ABC_TESTING_ASSERT_THROWS(math::division_by_zero, iOne /= iZero);
       // The call to str::format() makes use of the quotient, so it shouldn’t be optimized away.
       str(ABC_SL("{}")).format(iOne);
    }

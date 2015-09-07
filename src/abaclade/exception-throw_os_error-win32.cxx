@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 // #include <abaclade.hxx> already done in throw_os_error.cxx.
+#include <abaclade/math.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -614,6 +615,9 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_CLASS_DOES_NOT_EXIST: // Class does not exist.
          ABC_THROW(key_error, (err));
 
+      case ERROR_ARITHMETIC_OVERFLOW: // Arithmetic result exceeded 32 bits.
+         ABC_THROW(math::overflow, (err));
+
       case ERROR_NO_SYSTEM_RESOURCES: // Insufficient system resources exist to complete the
          // requested service.
       case ERROR_NONPAGED_SYSTEM_RESOURCES: // Insufficient system resources exist to complete the
@@ -679,9 +683,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_PATH_NOT_FOUND: // The system cannot find the path specified.
       case ERROR_UNKNOWN_PORT: // The specified port is unknown.
          ABC_THROW(os::path_not_found, (os::path(ABC_SL("<not available>")), err));
-
-      case ERROR_ARITHMETIC_OVERFLOW: // Arithmetic result exceeded 32 bits.
-         ABC_THROW(overflow_error, (err));
 
       case ERROR_ACCESS_DENIED: // Access is denied.
       case ERROR_ACCOUNT_DISABLED: // Logon failure - account currently disabled.

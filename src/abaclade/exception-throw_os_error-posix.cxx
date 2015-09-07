@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 // #include <abaclade.hxx> already done in throw_os_error.cxx.
+#include <abaclade/math.hxx>
 
 #include <errno.h> // errno E*
 
@@ -60,7 +61,7 @@ void exception::throw_os_error(errint_t err) {
          ABC_THROW(argument_error, (err));
 
       case ERANGE: // Math result not representable (POSIX.1-2001, C99)
-         ABC_THROW(arithmetic_error, (err));
+         ABC_THROW(math::arithmetic_error, (err));
 
 #ifdef ENOBUFS
       case ENOBUFS: // No buffer space available (Linux)
@@ -155,6 +156,9 @@ void exception::throw_os_error(errint_t err) {
       case EXDEV: // Improper link (POSIX.1-2001)
          ABC_THROW(io::error, (err));
 
+      case EOVERFLOW: // Value too large for defined data type (POSIX.1-2001)
+         ABC_THROW(math::overflow, (err));
+
       case ENOMEM: // Out of memory (POSIX.1-2001)
          ABC_THROW(memory::allocation_error, (0, err));
 
@@ -193,9 +197,6 @@ void exception::throw_os_error(errint_t err) {
       case ENODEV: // No such device (POSIX.1-2001)
       case ENOENT: // No such file or directory (POSIX.1-2001)
          ABC_THROW(os::path_not_found, (os::path(ABC_SL("<not available>")), err));
-
-      case EOVERFLOW: // Value too large for defined data type (POSIX.1-2001)
-         ABC_THROW(overflow_error, (err));
 
       case EACCES: // Permission denied (POSIX.1-2001)
       case EPERM: // Operation not permitted (POSIX.1-2001)

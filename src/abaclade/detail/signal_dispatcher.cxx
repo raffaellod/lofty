@@ -126,35 +126,35 @@ You should have received a copy of the GNU General Public License along with Aba
                break;
 
             case EXC_ARITHMETIC:
-               xct = abc::exception::common_type::arithmetic_error;
+               xct = abc::exception::common_type::math_arithmetic_error;
                if (cExcCodes) {
                   // TODO: can there be more than one exception code passed to a single call?
                   switch (piExcCodes[0]) {
    #if ABC_HOST_ARCH_X86_64
                      case EXC_I386_DIV:
-                        xct = abc::exception::common_type::division_by_zero_error;
+                        xct = abc::exception::common_type::math_division_by_zero;
                         break;
 /*
                      case EXC_I386_INTO:
-                        xct = abc::exception::common_type::arithmetic_error;
+                        xct = abc::exception::common_type::math_arithmetic_error;
                         break;
                      case EXC_I386_NOEXT:
-                        xct = abc::exception::common_type::arithmetic_error;
+                        xct = abc::exception::common_type::math_arithmetic_error;
                         break;
                      case EXC_I386_EXTOVR:
-                        xct = abc::exception::common_type::arithmetic_error;
+                        xct = abc::exception::common_type::math_arithmetic_error;
                         break;
                      case EXC_I386_EXTERR:
-                        xct = abc::exception::common_type::arithmetic_error;
+                        xct = abc::exception::common_type::math_arithmetic_error;
                         break;
                      case EXC_I386_EMERR:
-                        xct = abc::exception::common_type::arithmetic_error;
+                        xct = abc::exception::common_type::math_arithmetic_error;
                         break;
                      case EXC_I386_BOUND:
-                        xct = abc::exception::common_type::arithmetic_error;
+                        xct = abc::exception::common_type::math_arithmetic_error;
                         break;
                      case EXC_I386_SSEEXTERR:
-                        xct = abc::exception::common_type::arithmetic_error;
+                        xct = abc::exception::common_type::math_arithmetic_error;
                         break;
 */
    #else
@@ -401,10 +401,10 @@ signal_dispatcher::~signal_dispatcher() {
          case SIGFPE:
             switch (psi->si_code) {
                case FPE_INTDIV: // Integer divide by zero.
-                  xct = exception::common_type::division_by_zero_error;
+                  xct = exception::common_type::math_division_by_zero;
                   break;
                case FPE_INTOVF: // Integer overflow.
-                  xct = exception::common_type::overflow_error;
+                  xct = exception::common_type::math_overflow;
                   break;
                case FPE_FLTDIV: // Floating-point divide by zero.
                case FPE_FLTOVF: // Floating-point overflow.
@@ -412,12 +412,12 @@ signal_dispatcher::~signal_dispatcher() {
                case FPE_FLTRES: // Floating-point inexact result.
                case FPE_FLTINV: // Floating-point invalid operation.
                case FPE_FLTSUB: // Subscript out of range.
-                  xct = exception::common_type::floating_point_error;
+                  xct = exception::common_type::math_floating_point_error;
                   break;
                default:
                   /* At the time of writing, the above case labels don’t leave out any values, but
                   that’s not necessarily going to be true in 5 years, so… */
-                  xct = exception::common_type::arithmetic_error;
+                  xct = exception::common_type::math_arithmetic_error;
                   break;
             }
             break;
@@ -519,7 +519,7 @@ signal_dispatcher::~signal_dispatcher() {
          case EXCEPTION_FLT_UNDERFLOW:
             /* The exponent of a floating-point operation is less than the magnitude allowed by the
             corresponding type. */
-            xct = exception::common_type::floating_point_error;
+            xct = exception::common_type::math_floating_point_error;
             break;
 
          case EXCEPTION_ILLEGAL_INSTRUCTION:
@@ -534,13 +534,13 @@ signal_dispatcher::~signal_dispatcher() {
 
          case EXCEPTION_INT_DIVIDE_BY_ZERO:
             // The thread attempted to divide an integer value by an integer divisor of zero.
-            xct = exception::common_type::division_by_zero_error;
+            xct = exception::common_type::math_division_by_zero;
             break;
 
          case EXCEPTION_INT_OVERFLOW:
             /* The result of an integer operation caused a carry out of the most significant bit of
             the result. */
-            xct = exception::common_type::overflow_error;
+            xct = exception::common_type::math_overflow;
             break;
 
          case EXCEPTION_PRIV_INSTRUCTION:

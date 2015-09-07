@@ -286,13 +286,13 @@ public:
       execution_interruption,
       user_forced_interruption,
 
-      arithmetic_error,
-      division_by_zero_error,
-      floating_point_error,
+      math_arithmetic_error,
+      math_division_by_zero,
+      math_floating_point_error,
+      math_overflow,
       memory_access_error,
       memory_address_error,
-      null_pointer_error,
-      overflow_error
+      null_pointer_error
    );
 
    //! Related STL exception class.
@@ -709,41 +709,6 @@ public:
 
 namespace abc {
 
-//! Base for arithmetic errors.
-class ABACLADE_SYM arithmetic_error : public virtual generic_error {
-public:
-   //! Default constructor.
-   arithmetic_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   arithmetic_error(arithmetic_error const & x);
-
-   //! Destructor.
-   virtual ~arithmetic_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   arithmetic_error & operator=(arithmetic_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 //! A buffer operation could not be performed.
 class ABACLADE_SYM buffer_error : public virtual generic_error {
 public:
@@ -770,41 +735,6 @@ public:
    buffer_error & operator=(buffer_error const & x);
 
    //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-//! The divisor of a division or modulo operation was zero.
-class ABACLADE_SYM division_by_zero_error : public virtual arithmetic_error {
-public:
-   //! Default constructor.
-   division_by_zero_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   division_by_zero_error(division_by_zero_error const & x);
-
-   //! Destructor.
-   virtual ~division_by_zero_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   division_by_zero_error & operator=(division_by_zero_error const & x);
-
-   //! See abc::arithmetic_error::init().
    void init(errint_t err = 0);
 };
 
@@ -848,41 +778,6 @@ public:
    domain_error & operator=(domain_error const & x);
 
    //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-//! A floating point operation failed.
-class ABACLADE_SYM floating_point_error : public virtual arithmetic_error {
-public:
-   //! Default constructor.
-   floating_point_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   floating_point_error(floating_point_error const & x);
-
-   //! Destructor.
-   virtual ~floating_point_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   floating_point_error & operator=(floating_point_error const & x);
-
-   //! See abc::arithmetic_error::init().
    void init(errint_t err = 0);
 };
 
@@ -1144,43 +1039,6 @@ public:
    not_implemented_error & operator=(not_implemented_error const & x);
 
    //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-/*! Result of an arithmetic operation too large to be represented. Because of the lack of
-standardization of floating point exception handling in C, most floating point operations are also
-not checked. */
-class ABACLADE_SYM overflow_error : public virtual arithmetic_error {
-public:
-   //! Default constructor.
-   overflow_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   overflow_error(overflow_error const & x);
-
-   //! Destructor.
-   virtual ~overflow_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   overflow_error & operator=(overflow_error const & x);
-
-   //! See abc::arithmetic_error::init().
    void init(errint_t err = 0);
 };
 
