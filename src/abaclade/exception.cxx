@@ -223,13 +223,13 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          if (!this_thread::get_impl()->terminating()) {
             switch (xct) {
                case common_type::app_execution_interruption:
-                  _ABC_THROW_FROM(srcloc, sc_szInternal, app_execution_interruption, ());
+                  ABC_THROW_FROM(srcloc, sc_szInternal, app_execution_interruption, ());
                case common_type::app_exit_interruption:
-                  _ABC_THROW_FROM(srcloc, sc_szInternal, app_exit_interruption, ());
+                  ABC_THROW_FROM(srcloc, sc_szInternal, app_exit_interruption, ());
                case common_type::execution_interruption:
-                  _ABC_THROW_FROM(srcloc, sc_szInternal, execution_interruption, ());
+                  ABC_THROW_FROM(srcloc, sc_szInternal, execution_interruption, ());
                case common_type::user_forced_interruption:
-                  _ABC_THROW_FROM(srcloc, sc_szInternal, user_forced_interruption, ());
+                  ABC_THROW_FROM(srcloc, sc_szInternal, user_forced_interruption, ());
                default:
                   // Silence compiler warnings.
                   break;
@@ -237,21 +237,21 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          }
          break;
       case common_type::math_arithmetic_error:
-         _ABC_THROW_FROM(srcloc, sc_szOS, math::arithmetic_error, ());
+         ABC_THROW_FROM(srcloc, sc_szOS, math::arithmetic_error, ());
       case common_type::math_division_by_zero:
-         _ABC_THROW_FROM(srcloc, sc_szOS, math::division_by_zero, ());
+         ABC_THROW_FROM(srcloc, sc_szOS, math::division_by_zero, ());
       case common_type::math_floating_point_error:
-         _ABC_THROW_FROM(srcloc, sc_szOS, math::floating_point_error, ());
+         ABC_THROW_FROM(srcloc, sc_szOS, math::floating_point_error, ());
       case common_type::memory_access_error:
-         _ABC_THROW_FROM(
+         ABC_THROW_FROM(
             srcloc, sc_szOS, memory::access_error, (reinterpret_cast<void const *>(iArg0))
          );
       case common_type::memory_address_error:
-         _ABC_THROW_FROM(
+         ABC_THROW_FROM(
             srcloc, sc_szOS, memory::address_error, (reinterpret_cast<void const *>(iArg0))
          );
       case common_type::math_overflow:
-         _ABC_THROW_FROM(srcloc, sc_szOS, math::overflow, ());
+         ABC_THROW_FROM(srcloc, sc_szOS, math::overflow, ());
       default:
          // Unexpected exception type. Should never happen.
          std::abort();

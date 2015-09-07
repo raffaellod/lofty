@@ -229,7 +229,7 @@ public:
    Parentheses-enclosed list of data that will be associated to the exception, as accepted by
    x::init().
 */
-#define _ABC_THROW_FROM(srcloc, pszFunction, x, info) \
+#define ABC_THROW_FROM(srcloc, pszFunction, x, info) \
    do { \
       ::abc::detail::exception_aggregator<x> _x; \
       _x.init info; \
@@ -243,15 +243,15 @@ public:
    not the preprocessor; this causes ABC_SL(__PRETTY_FUNCTION__) to incorrectly expand to
    u8__PRETTY_FUNCTION__. However these compilers will encode __PRETTY_FUNCTION__ using UTF-8, which
    makes ABC_SL() unnecessary, so just avoid using it here. */
-   #define _ABC_THIS_FUNC \
+   #define ABC_THIS_FUNC \
       __PRETTY_FUNCTION__
 #elif ABC_HOST_CXX_MSC
    /* __FUNCSIG__ is expanded after preprocessing like __PRETTY_FUNCTION__, but for some reason this
    works just fine. */
-   #define _ABC_THIS_FUNC \
+   #define ABC_THIS_FUNC \
       ABC_SL(__FUNCSIG__)
 #else
-   #define _ABC_THIS_FUNC \
+   #define ABC_THIS_FUNC \
       nullptr
 #endif
 
@@ -276,7 +276,7 @@ because it’s the only class involved that’s not in a detail namespace.
    x::init().
 */
 #define ABC_THROW(x, info) \
-   _ABC_THROW_FROM(ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, x, info)
+   ABC_THROW_FROM(ABC_SOURCE_LOCATION(), ABC_THIS_FUNC, x, info)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -453,7 +453,7 @@ to be incorrect.
       do { \
          if (!(expr)) { \
             abc::assertion_error::_assertion_failed( \
-               ABC_SOURCE_LOCATION(), _ABC_THIS_FUNC, ABC_SL(#expr), sMsg \
+               ABC_SOURCE_LOCATION(), ABC_THIS_FUNC, ABC_SL(#expr), sMsg \
             ); \
          } \
       } while (false)

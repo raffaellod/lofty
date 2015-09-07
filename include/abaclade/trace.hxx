@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -102,7 +102,7 @@ Currently unsupported:
 Implementation of ABC_TRACE_FUNC() and similar macros. */
 #define _ABC_TRACE_SCOPE_IMPL(st, tuple, srcloc, ...) \
    static ::abc::detail::scope_trace_source_location const srcloc = { \
-      _ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__ \
+      ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__ \
    }; \
    auto tuple(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
    ::abc::detail::scope_trace st(&srcloc, &tuple)
