@@ -96,7 +96,7 @@ void address_error::init(void const * pInvalid, errint_t err /*= 0*/) {
 /*virtual*/ void address_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
    generic_error::write_extended_info(ptwOut);
    if (m_pInvalid != smc_szUnknownAddress) {
-      ptwOut->print(ABC_SL(" invalid address: {}"), m_pInvalid);
+      ptwOut->print(ABC_SL(" invalid address={}"), m_pInvalid);
    } else {
       ptwOut->write(smc_szUnknownAddress);
    }
@@ -114,7 +114,8 @@ allocation_error::allocation_error() :
 }
 
 allocation_error::allocation_error(allocation_error const & x) :
-   generic_error(x) {
+   generic_error(x),
+   m_cbFailed(x.m_cbFailed) {
 }
 
 /*virtual*/ allocation_error::~allocation_error() {
@@ -122,10 +123,11 @@ allocation_error::allocation_error(allocation_error const & x) :
 
 allocation_error & allocation_error::operator=(allocation_error const & x) {
    generic_error::operator=(x);
+   m_cbFailed = x.m_cbFailed;
    return *this;
 }
 
-void allocation_error::init(errint_t err /*= 0*/) {
+void allocation_error::init(std::size_t cbFailed, errint_t err /*= 0*/) {
    generic_error::init(err ? err :
 #if ABC_HOST_API_POSIX
       ENOMEM
@@ -135,6 +137,14 @@ void allocation_error::init(errint_t err /*= 0*/) {
       0
 #endif
    );
+   m_cbFailed = cbFailed;
+}
+
+/*virtual*/ void allocation_error::write_extended_info(
+   io::text::writer * ptwOut
+) const /*override*/ {
+   generic_error::write_extended_info(ptwOut);
+   ptwOut->print(ABC_SL(" requested allocation size={} B"), m_cbFailed);
 }
 
 }} //namespace abc::memory
@@ -231,7 +241,7 @@ void * alloc<void>(std::size_t cb) {
    if (void * p = std::malloc(cb)) {
       return p;
    }
-   ABC_THROW(memory::allocation_error, ());
+   ABC_THROW(memory::allocation_error, (cb));
 }
 
 void free(void const * p) {
@@ -243,7 +253,7 @@ void realloc<void>(void ** pp, std::size_t cb) {
    if (void * p = std::realloc(*pp, cb)) {
       *pp = p;
    } else {
-      ABC_THROW(memory::allocation_error, ());
+      ABC_THROW(memory::allocation_error, (cb));
    }
 }
 
@@ -262,13 +272,23 @@ pages_ptr::pages_ptr(std::size_t cb) :
    std::size_t cbPage = page_size();
    m_cb = bitmanip::ceiling_to_pow2_multiple(cb, cbPage);
 #if ABC_HOST_API_POSIX
-   if (int iRet = ::posix_memalign(&m_p, cbPage, m_cb)) {
-      exception::throw_os_error(iRet);
+   if (int iErr = ::posix_memalign(&m_p, cbPage, m_cb)) {
+      switch (iErr) {
+         case ENOMEM:
+            ABC_THROW(allocation_error, (cb, iErr));
+         default:
+            exception::throw_os_error(iErr);
+      }
    }
 #elif ABC_HOST_API_WIN32
    m_p = ::VirtualAlloc(nullptr, m_cb, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
    if (!m_p) {
-      exception::throw_os_error();
+      ::DWORD iErr = ::GetLastError();
+      if (iErr == ERROR_NOT_ENOUGH_MEMORY) {
+         ABC_THROW(allocation_error, (cb, iErr));
+      } else {
+         exception::throw_os_error(iErr);
+      }
    }
 #else
    #error "TODO: HOST_API"

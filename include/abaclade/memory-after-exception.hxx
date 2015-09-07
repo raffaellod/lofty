@@ -60,6 +60,11 @@ public:
       return m_pInvalid;
    }
 
+   //! See abc::generic_error::init().
+   void init(errint_t err = 0) {
+      init(smc_szUnknownAddress, err);
+   }
+
    /*! See abc::generic_error::init().
 
    @param pInvalid
@@ -67,9 +72,6 @@ public:
    @param err
       OS-defined error number associated to the error.
    */
-   void init(errint_t err = 0) {
-      init(smc_szUnknownAddress, err);
-   }
    void init(void const * pInvalid, errint_t err = 0);
 
 protected:
@@ -152,8 +154,31 @@ public:
    */
    allocation_error & operator=(allocation_error const & x);
 
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
+   /*! Returns the amount of memory that could not be allocated.
+
+   @return
+      Amount of requested memory, in bytes.
+   */
+   std::size_t allocation_size() const {
+      return m_cbFailed;
+   }
+
+   /*! See abc::generic_error::init().
+
+   @param cbFailed
+      Amount of memory that could not be allocated.
+   @param err
+      OS-defined error number associated to the error.
+   */
+   void init(std::size_t cbFailed, errint_t err = 0);
+
+protected:
+   //! See generic_error::write_extended_info().
+   virtual void write_extended_info(io::text::writer * ptwOut) const override;
+
+private:
+   //! Amount of memory that could not be allocated.
+   std::size_t m_cbFailed;
 };
 
 }} //namespace abc::memory
