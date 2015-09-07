@@ -232,7 +232,7 @@ struct ABACLADE_SYM enum_member {
 namespace abc {
 
 /*! Implementation of enumeration classes. Not to be used directly; to implement an enumeration, use
-ABC_ENUM() and ABC_ENUM_AUTO_VALUES() instead. */
+ABC_ENUM() or ABC_ENUM_AUTO_VALUES() instead. See @ref enumeration-classes. */
 template <class T>
 class enum_impl : public T {
 public:

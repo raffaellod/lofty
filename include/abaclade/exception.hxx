@@ -21,6 +21,98 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
+/*! @file
+Facilities to create smart enumerations, as described in @ref enumeration-classes
+*/
+
+/*! @page exception-classes Exception classes
+Abaclade’s exception class hierarchy. These classes provide diverse and semantically-rich types that
+complement the hirearchy provided by the STL.
+
+Classes in Abaclade’s exception class hierarchy inherit from different STL exception classes, to
+facilitate interoperability between the two hierarchies.
+
+The STL hierarchy does not use virtual inheritance. In earlier versions of Abaclade, this would mean
+that, since some Abaclade exception classes have an as-is relationship with an STL exception class
+that’s not std::exception, in some cases this inheritance scenario would occur:
+
+   @code
+   class abc::exception :          class abc::domain_error :
+      public std::exception {         public abc::exception,
+   };                                 public std::domain_error {
+                                   };
+
+   throw abc::exception();         throw abc::domain_error();
+   @endcode
+   @verbatim
+   ┌────────────────┐              ┌────────────────────┐
+   │ std::exception │              │┌──────────────────┐│
+   └────────────────┘              ││ abc::exception   ││
+                                   ││┌────────────────┐││
+                                   │││ std::exception │││
+                                   ││└────────────────┘││
+                                   │└──────────────────┘│
+                                   │ std::domain_error  │
+                                   │┌──────────────────┐│
+                                   ││ std::exception   ││
+                                   │└──────────────────┘│
+                                   └────────────────────┘
+   @endverbatim
+
+As visible on the right side of the diagram, an abc::domain_error would include two distinct copies
+of std::exception, which leads to ambiguity: for example, abc::domain_error may be cast as both
+abc::exception → std::exception or as std::domain_error → std::exception. While this does not
+trigger any warnings in GCC, MSC16 warns that the resulting object (e.g. an abc::domain_error
+instance) will not be caught by a std::exception catch block, arguably due to said casting ambiguity
+– the MSC exception handling implementation might not know which of the two casts to favor.
+
+Instead, in the current implementation of the exception class hierarchy, the Abaclade and the STL
+hierarchies are kept completely separated; they are only combined when an exception is thrown, by
+instantiating the class template abc::detail::exception_aggregator, specializations of which create
+the leaf classes mentioned earlier.
+
+The instantiation of a specialization of abc::detail::exception_aggregator is conveniently handled
+by the ABC_THROW() statement; see this example, based on the previous one:
+
+   @code
+   class abc::exception {                      class abc::domain_error :
+   public:                                        public abc::exception {
+      typedef std::exception related_std;      public:
+   };                                             typedef std::domain_error related_std;
+                                               };
+
+   ABC_THROW(abc::exception, ())               ABC_THROW(abc::domain_error, ())
+   @endcode
+   @verbatim
+   ┌────────────────┐                          ┌───────────────────┐
+   │ std::exception │                          │ std::domain_error │
+   ├────────────────┤                          │┌─────────────────┐│
+   │ abc::exception │                          ││ std::exception  ││
+   └────────────────┘                          │└─────────────────┘│
+                                               ├───────────────────┤
+                                               │ abc::domain_error │
+                                               │┌─────────────────┐│
+                                               ││ abc::exception  ││
+                                               │└─────────────────┘│
+                                               └───────────────────┘
+   @endverbatim
+
+Note: multiple vtables (and therefore typeid and identifiers) can and will be generated for
+abc::detail::exception_aggregator (with identical template arguments) across all binaries, because
+no exported definition of it is available; this could be a problem if any code were to catch
+instances of abc::detail::exception_aggregator, because exceptions thrown in one library wouldn’t be
+caught by a catch block in another. However, this is not an issue because no code should be catching
+abc::detail::exception_aggregator instance; clients will instead catch the appropriate Abaclade or
+STL exception class, and these are indeed defined once for all binaries, and are therefore unique.
+
+See also ABC_THROW() for more information.
+
+See [IMG:8190 Exception class hierarchy] for a diagram of the entire Abaclade exception class
+hierarchy, including the relations with the STL hierarchy.
+
+Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/library/
+exceptions.html>.
+*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -190,91 +282,7 @@ because it’s the only class involved that’s not in a detail namespace.
 
 namespace abc {
 
-/*! Base for all of Abaclade’s exceptions classes.
-
-Abaclade provides a diverse and semantically-rich exception class hierarchy that parallels and
-extends that provided by the STL.
-
-Classes in Abaclade’s exception class hierarchy inherit from different STL exception classes, to
-facilitate interoperability between the two hierarchies.
-
-The STL hierarchy does not use virtual inheritance. In earlier versions of Abaclade, this would mean
-that, since some Abaclade exception classes have an as-is relationship with an STL exception class
-that’s not std::exception, in some cases this inheritance scenario would occur:
-
-   @verbatim
-   class abc::exception :          class abc::domain_error :
-      public std::exception {         public abc::exception,
-   };                                 public std::domain_error {
-                                   };
-
-   throw abc::exception();         throw abc::domain_error();
-
-   ┌────────────────┐              ┌────────────────────┐
-   │ std::exception │              │┌──────────────────┐│
-   └────────────────┘              ││ abc::exception   ││
-                                   ││┌────────────────┐││
-                                   │││ std::exception │││
-                                   ││└────────────────┘││
-                                   │└──────────────────┘│
-                                   │ std::domain_error  │
-                                   │┌──────────────────┐│
-                                   ││ std::exception   ││
-                                   │└──────────────────┘│
-                                   └────────────────────┘
-   @endverbatim
-
-As visible on the right side of the diagram, an abc::domain_error would include two distinct copies
-of std::exception, which leads to ambiguity: for example, abc::domain_error may be cast as both
-abc::exception → std:exception or as std::domain_error → std::exception. While this does not trigger
-any warnings in GCC, MSC16 warns that the resulting object (e.g. an abc::domain_error instance) will
-not be caught by a std::exception catch block, arguably due to said casting ambiguity – the MSC
-exception handling implementation might not know which of the two casts to favor.
-
-Instead, in the current implementation of the exception class hierarchy, the Abaclade and the STL
-hierarchies are kept completely separated; they are only combined when an exception is thrown, by
-instantiating the class template abc::detail::exception_aggregator, specializations of which create
-the leaf classes mentioned earlier.
-
-The instantiation of a specialization of abc::detail::exception_aggregator is conveniently handled
-by the ABC_THROW() statement; see this example, based on the previous one:
-
-   @verbatim
-   class abc::exception {                      class abc::domain_error :
-   public:                                        public abc::exception {
-      typedef std::exception related_std;      public:
-   };                                             typedef std::domain_error related_std;
-                                               };
-
-   ABC_THROW(abc::exception, ())               ABC_THROW(abc::domain_error, ())
-   ┌────────────────┐                          ┌───────────────────┐
-   │ std::exception │                          │ std::domain_error │
-   ├────────────────┤                          │┌─────────────────┐│
-   │ abc::exception │                          ││ std::exception  ││
-   └────────────────┘                          │└─────────────────┘│
-                                               ├───────────────────┤
-                                               │ abc::domain_error │
-                                               │┌─────────────────┐│
-                                               ││ abc::exception  ││
-                                               │└─────────────────┘│
-                                               └───────────────────┘
-   @endverbatim
-
-Note: multiple vtables (and therefore typeid and identifiers) can and will be generated for
-abc::detail::exception_aggregator (with identical template arguments) across all binaries, because
-no exported definition of it is available; this could be a problem if any code were to catch
-instances of abc::detail::exception_aggregator, because exceptions thrown in one library wouldn’t be
-caught by a catch block in another. However, this is not an issue because no code should be catching
-abc::detail::exception_aggregator instance; clients will instead catch the appropriate Abaclade or
-STL exception class, and these are indeed defined once for all binaries, and are therefore unique.
-
-See also ABC_THROW() for more information.
-
-See [IMG:8190 Exception class hierarchy] for a diagram of the entire Abaclade exception class
-hierarchy, including the relations with the STL hierarchy.
-
-Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/library/
-exceptions.html>. */
+//! Base for all of Abaclade’s exceptions classes. See @see exception-classes.
 class ABACLADE_SYM exception {
 public:
    //! List of common exception types, used by several static methods.

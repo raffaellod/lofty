@@ -149,7 +149,6 @@ protected:
 
 private:
    // Hide these raw_complex_vextr_impl methods to trigger errors as a debugging aid.
-
    void assign_copy(type_void_adapter const & type, T const * ptBegin, T const * ptEnd);
 };
 
