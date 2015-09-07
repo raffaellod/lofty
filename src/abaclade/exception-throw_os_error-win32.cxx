@@ -43,6 +43,7 @@ void exception::throw_os_error(errint_t err) {
          // (absolute or self-relative).
       case ERROR_BAD_DEVICE: // The specified device name is invalid.
       case ERROR_BAD_DRIVER: // The specified driver is invalid.
+      case ERROR_INSUFFICIENT_BUFFER: // The data area passed to a system call is too small.
       case ERROR_INVALID_ACCEL_HANDLE: // Invalid accelerator table handle.
       case ERROR_INVALID_ACCESS: // The access code is invalid.
       case ERROR_INVALID_ACCOUNT_NAME: // The name provided is not a properly formed account name.
@@ -135,12 +136,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_WINDOW_NOT_DIALOG: // The window is not a valid dialog window.
       case ERROR_WINDOW_OF_OTHER_THREAD: // Invalid window; it belongs to another thread.
          ABC_THROW(argument_error, (err));
-
-      case ERROR_BUFFER_OVERFLOW: // The file name is too long.
-      case ERROR_INSUFFICIENT_BUFFER: // The data area passed to a system call is too small.
-      case ERROR_INVALID_USER_BUFFER: // The supplied user buffer is not valid for the requested
-         // operation.
-         ABC_THROW(buffer_error, (err));
 
       case ERROR_ALREADY_INITIALIZED: // An attempt was made to perform an initialization operation
          // when initialization has already been completed.
@@ -475,6 +470,8 @@ void exception::throw_os_error(errint_t err) {
          // database.
       case ERROR_HANDLE_DISK_FULL: // The disk is full.
       case ERROR_HANDLE_EOF: // Reached the end of the file.
+      case ERROR_INVALID_USER_BUFFER: // The supplied user buffer is not valid for the requested
+         // operation.
       case ERROR_IO_DEVICE: // The request could not be performed because of an I/O device error.
       case ERROR_IO_INCOMPLETE: // Overlapped I/O event is not in a signaled state.
       case ERROR_IO_PENDING: // Overlapped I/O operation is in progress.
@@ -671,6 +668,7 @@ void exception::throw_os_error(errint_t err) {
          ABC_THROW(network_error, (err));
 
       case ERROR_BAD_PATHNAME: // The specified path is invalid.
+      case ERROR_BUFFER_OVERFLOW: // The file name is too long.
       case ERROR_DIRECTORY: // The directory name is invalid.
       case ERROR_INVALID_NAME: // The file name, directory name, or volume label syntax is
          // incorrect.

@@ -708,41 +708,6 @@ public:
 
 namespace abc {
 
-//! A buffer operation could not be performed.
-class ABACLADE_SYM buffer_error : public generic_error {
-public:
-   //! Default constructor.
-   buffer_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   buffer_error(buffer_error const & x);
-
-   //! Destructor.
-   virtual ~buffer_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   buffer_error & operator=(buffer_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 //! Invalid value provided for a variable/argument.
 class ABACLADE_SYM domain_error : public generic_error {
 public:
@@ -1000,42 +965,6 @@ public:
       *this.
    */
    network_error & operator=(network_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
-};
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-/*! Method not implemented for this class. Usually thrown when a class is not able to provide a full
-implementation of an interface; in practice, this should be avoided. */
-class ABACLADE_SYM not_implemented_error : public generic_error {
-public:
-   //! Default constructor.
-   not_implemented_error();
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   not_implemented_error(not_implemented_error const & x);
-
-   //! Destructor.
-   virtual ~not_implemented_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   not_implemented_error & operator=(not_implemented_error const & x);
 
    //! See abc::generic_error::init().
    void init(errint_t err = 0);

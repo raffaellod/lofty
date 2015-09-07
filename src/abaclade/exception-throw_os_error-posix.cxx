@@ -63,11 +63,6 @@ void exception::throw_os_error(errint_t err) {
       case ERANGE: // Math result not representable (POSIX.1-2001, C99)
          ABC_THROW(math::arithmetic_error, (err));
 
-#ifdef ENOBUFS
-      case ENOBUFS: // No buffer space available (Linux)
-         ABC_THROW(buffer_error, (err));
-#endif
-
       case EDOM: // Math argument out of domain of func (POSIX.1-2001, C99)
          ABC_THROW(domain_error, (err));
 
@@ -80,6 +75,7 @@ void exception::throw_os_error(errint_t err) {
       case ENOEXEC: // Exec format error (POSIX.1-2001)
       case ENOLCK: // No locks available (POSIX.1-2001)
       case ENOPROTOOPT: // Protocol not available (POSIX.1-2001)
+      case ENOSYS: // Function not implemented (POSIX.1-2001)
       case ESRCH: // No such process (POSIX.1-2001)
       default:
          ABC_THROW(generic_error, (err));
@@ -117,6 +113,9 @@ void exception::throw_os_error(errint_t err) {
       case ENETRESET: // Connection aborted by network (POSIX.1-2001)
       case ENETUNREACH: // Network is unreachable (POSIX.1-2001)
       case ENFILE: // Too many open files in system (POSIX.1-2001)
+#ifdef ENOBUFS
+      case ENOBUFS: // No buffer space available (Linux)
+#endif
 #ifdef ENODATA
       case ENODATA: // No data available (POSIX.1-2001)
 #endif
@@ -186,9 +185,6 @@ void exception::throw_os_error(errint_t err) {
       case ESOCKTNOSUPPORT: // Socket type not supported (Linux)
 #endif
          ABC_THROW(network_error, (err));
-
-      case ENOSYS: // Function not implemented (POSIX.1-2001)
-         ABC_THROW(not_implemented_error, (err));
 
       case ENAMETOOLONG: // File name too long (POSIX.1-2001)
       case ENOTDIR: // Not a directory (POSIX.1-2001)

@@ -546,33 +546,6 @@ coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
 
 namespace abc {
 
-buffer_error::buffer_error() :
-   generic_error() {
-   m_pszWhat = "abc::buffer_error";
-}
-
-buffer_error::buffer_error(buffer_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ buffer_error::~buffer_error() {
-}
-
-buffer_error & buffer_error::operator=(buffer_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void buffer_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 domain_error::domain_error() :
    generic_error() {
    m_pszWhat = "abc::domain_error";
@@ -793,33 +766,6 @@ network_error & network_error::operator=(network_error const & x) {
 }
 
 void network_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-not_implemented_error::not_implemented_error() :
-   generic_error() {
-   m_pszWhat = "abc::not_implemented_error";
-}
-
-not_implemented_error::not_implemented_error(not_implemented_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ not_implemented_error::~not_implemented_error() {
-}
-
-not_implemented_error & not_implemented_error::operator=(not_implemented_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void not_implemented_error::init(errint_t err /*= 0*/) {
    generic_error::init(err);
 }
 
