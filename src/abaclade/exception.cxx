@@ -374,7 +374,7 @@ destructing_unfinalized_object & destructing_unfinalized_object::operator=(
 }
 
 void destructing_unfinalized_object::init(void const * pObj, _std::type_info const & ti) {
-   m_sWhat = str(ABC_SL("object being destructed: {} @ {}")).format(ti, pObj);
+   m_sWhat = str(ABC_SL("object being destructed={} @ {}")).format(ti, pObj);
 #if ABC_HOST_UTF > 8
    // TODO: abc::text::encoding::ascii.
    m_vchWhat = m_sWhat.encode(text::encoding::utf8, true);
@@ -768,9 +768,9 @@ void index_error::init(
    lookup_error::write_extended_info(ptwOut);
    str sFormat;
    if (m_bMinMaxProvided) {
-      sFormat = ABC_SL(" invalid index: {0}; valid range: [{1}, {2}]");
+      sFormat = ABC_SL(" invalid index={0}; valid range=[{1}, {2}]");
    } else {
-      sFormat = ABC_SL(" invalid index: {0}");
+      sFormat = ABC_SL(" invalid index={0}");
    }
    ptwOut->print(sFormat, m_iInvalid, m_iMin, m_iMax);
 }

@@ -752,13 +752,13 @@ void decode_error::init(
    str sFormat;
    if (m_sDescription) {
       if (m_viInvalid) {
-         sFormat = ABC_SL("{0}; byte dump: {1}");
+         sFormat = ABC_SL("{0}; bytes={1}");
       } else {
          sFormat = ABC_SL("{0}");
       }
    } else {
       if (m_viInvalid) {
-         sFormat = ABC_SL("byte dump: {1}");
+         sFormat = ABC_SL("bytes={1}");
       }
    }
 
@@ -812,13 +812,13 @@ void encode_error::init(
    str sFormat;
    if (m_sDescription) {
       if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = ABC_SL("{0}; code point: {1}");
+         sFormat = ABC_SL("{0}; code point={1}");
       } else {
          sFormat = ABC_SL("{0}");
       }
    } else {
       if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = ABC_SL("code point: {1}");
+         sFormat = ABC_SL("code point={1}");
       }
    }
 
