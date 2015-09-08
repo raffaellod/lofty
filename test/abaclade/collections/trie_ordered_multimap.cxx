@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/collections/trie_ordered_multimap.hxx>
 #include <abaclade/testing/test_case.hxx>
 
@@ -37,6 +38,14 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
    ABC_TESTING_ASSERT_TRUE(tomm.begin() == tomm.cend());
    ABC_TESTING_ASSERT_TRUE(tomm.cbegin() == tomm.end());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++tomm.end());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, tomm.cend()++);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *tomm.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *tomm.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::bad_access, tomm.front());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, tomm.pop(tomm.begin()));
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, tomm.remove(tomm.begin()));
+   ABC_TESTING_ASSERT_THROWS(collections::bad_access, tomm.pop_front());
 
    auto it400(tomm.add(40, 400));
    // {40: 400}
@@ -177,8 +186,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(kvp401.key, 40);
    ABC_TESTING_ASSERT_EQUAL(kvp401.value, 401);
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
-//   ABC_TESTING_ASSERT_THROWS(generic_error, tomm.front().key);
-//   ABC_TESTING_ASSERT_THROWS(generic_error, tomm.front().value);
+   ABC_TESTING_ASSERT_THROWS(collections::bad_access, tomm.front());
 
    tomm.clear();
    ABC_TESTING_ASSERT_EQUAL(tomm.size(), 0u);
