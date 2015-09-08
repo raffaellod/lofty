@@ -196,7 +196,7 @@ bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t iKey) c
 }
 
 bitwise_trie_ordered_multimap_impl::key_value_ptr
-bitwise_trie_ordered_multimap_impl::find_first_key() const {
+bitwise_trie_ordered_multimap_impl::find_first_key(bool bThrowIfEmpty) const {
    ABC_TRACE_FUNC(this);
 
    tree_or_list_node_ptr pnChild;
@@ -207,7 +207,7 @@ bitwise_trie_ordered_multimap_impl::find_first_key() const {
    unsigned iLevel = 0;
    do {
       if (!ptnParent) {
-         return key_value_ptr(0, nullptr);
+         break;
       }
       // Look for the left-most branch to descend into.
       unsigned iChild = 0;
@@ -224,6 +224,9 @@ bitwise_trie_ordered_multimap_impl::find_first_key() const {
    } while (++iLevel <= mc_iTreeAnchorsLevel);
 
    // We got to the leaf level, so we can return pnChild.ln, though it might be nullptr.
+   if (!pnChild.ln && bThrowIfEmpty) {
+      ABC_THROW(collections::bad_access, ());
+   }
    return key_value_ptr(iKey, pnChild.ln);
 }
 

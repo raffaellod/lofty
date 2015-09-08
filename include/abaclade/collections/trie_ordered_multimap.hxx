@@ -428,7 +428,7 @@ public:
       Reference to the first key/value in the map.
    */
    iterator begin() {
-      auto kvp(find_first_key());
+      auto kvp(find_first_key(false));
       return iterator(this, int_to_key(kvp.iKey), kvp.pln);
    }
 
@@ -510,7 +510,7 @@ public:
    reference front() {
       ABC_TRACE_FUNC(this);
 
-      auto kvp(find_first_key());
+      auto kvp(find_first_key(true));
       return reference(int_to_key(kvp.iKey), kvp.pln->template value_ptr<TValue>());
    }
 
@@ -536,9 +536,7 @@ public:
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
-      value_type vRet(
-         it.m_key, _std::move(*static_cast<TValue *>(it.m_pln->value_ptr(typeValue)))
-      );
+      value_type vRet(it.m_key, _std::move(*static_cast<TValue *>(it.m_pln->value_ptr(typeValue))));
       remove_value(typeValue, key_to_int(it.m_key), it.m_pln);
       return _std::move(vRet);
    }
@@ -554,7 +552,7 @@ public:
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
-      auto kvp(find_first_key());
+      auto kvp(find_first_key(true));
       value_type vRet(
          int_to_key(kvp.iKey), _std::move(*static_cast<TValue *>(kvp.pln->value_ptr(typeValue)))
       );

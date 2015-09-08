@@ -355,10 +355,12 @@ public:
 protected:
    /*! Finds the first key in the map, returning a pointer to the first corresponding value.
 
+   @param bThrowIfEmpty
+      If true and the trie is empty, a collections::bad_access exception will be thrown.
    @return
       Pointer to the first key/value pair in the map, or a nullptr value if the map is empty.
    */
-   key_value_ptr find_first_key() const;
+   key_value_ptr find_first_key(bool bThrowIfEmpty) const;
 
    /*! Finds the next key minimally greater than the specified one, returning a pointer to the first
    corresponding value.
