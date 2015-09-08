@@ -232,7 +232,7 @@ public:
          Reference to the current key/value pair.
       */
       value_type operator*() const {
-         // TODO: validate iterator.
+         trie_ordered_multimap::validate_iterator(m_pln);
          return value_type(m_key, m_pln->value_ptr<TValue>());
       }
 
@@ -242,7 +242,7 @@ public:
          Pointer to the current key/value pair.
       */
       pair_ptr<value_type> operator->() const {
-         // TODO: validate iterator.
+         trie_ordered_multimap::validate_iterator(m_pln);
          return pair_ptr<value_type>(m_key, m_pln->value_ptr<TValue>());
       }
 
@@ -252,11 +252,11 @@ public:
          *this after it’s moved to the key/value pair following the one currently referred to.
       */
       const_iterator & operator++() {
-         // TODO: validate iterator.
+         trie_ordered_multimap::validate_iterator(m_pln);
          if (list_node * plnNext = m_pln->next()) {
             m_pln = plnNext;
          } else {
-            auto kvp(m_ptomm->find_next_key(m_ptomm->key_to_int(m_key)));
+            auto kvp(m_ptomm->find_next_key(trie_ordered_multimap::key_to_int(m_key)));
             m_key = int_to_key(kvp.iKey);
             m_pln = kvp.pln;
          }
@@ -533,6 +533,7 @@ public:
    value_type pop(const_iterator it) {
       ABC_TRACE_FUNC(this/*, it*/);
 
+      validate_iterator(it.m_pln);
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
@@ -568,6 +569,7 @@ public:
    void remove(const_iterator it) {
       ABC_TRACE_FUNC(this/*, it*/);
 
+      validate_iterator(it.m_pln);
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();

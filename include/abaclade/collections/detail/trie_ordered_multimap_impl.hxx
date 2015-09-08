@@ -385,6 +385,17 @@ protected:
    */
    void remove_value(type_void_adapter const & typeValue, std::uintmax_t iKey, list_node * pln);
 
+   /*! Validates the members of an iterator so that the latter can be used safely. Throws a
+   collections::out_of_range if the iterator is not referencing a value in the map.
+
+   This method is static so that it can (it will) validate that this is not nullptr before
+   dereferencing it.
+
+   @param pln
+      Pointer to the node the iterator is currently referencing.
+   */
+   static void validate_iterator(list_node * pln);
+
 private:
    /*! Recursively destructs an anchor node and all its child lists.
 

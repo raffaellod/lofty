@@ -343,4 +343,10 @@ void bitwise_trie_ordered_multimap_impl::remove_value(
    --m_cValues;
 }
 
+/*static*/ void bitwise_trie_ordered_multimap_impl::validate_iterator(list_node * pln) {
+   if (!pln) {
+      ABC_THROW(out_of_range, ());
+   }
+}
+
 }}} //namespace abc::collections::detail
