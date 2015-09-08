@@ -151,9 +151,11 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("abcdefghijklmnopqrstuvwxyz"));
 
    s = ABC_SL("a\0b");
+   // true: s got replaced by operator=.
+   ABC_TESTING_ASSERT_TRUE(cdpt.changed());
    s += ABC_SL("\0ç");
-   // false: there should have been plenty of storage allocated.
-   ABC_TESTING_ASSERT_FALSE(cdpt.changed());
+   // true: switched to writable copy.
+   ABC_TESTING_ASSERT_TRUE(cdpt.changed());
    ABC_TESTING_ASSERT_EQUAL(s.size(), 5u);
    ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 5u);
    // Test both ways to make sure that the char_t[] overload is always chosen over char *.
