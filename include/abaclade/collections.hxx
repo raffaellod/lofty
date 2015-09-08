@@ -147,12 +147,7 @@ public:
    @param err
       OS-defined error number associated to the exception.
    */
-   void init(std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err = 0) {
-      init(
-         reinterpret_cast<void *>(iInvalid), reinterpret_cast<void *>(iMin),
-         reinterpret_cast<void *>(iMax), err
-      );
-   }
+   void init(std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err = 0);
 
    /*! See abc::collections::bad_access::init().
 
@@ -179,7 +174,9 @@ private:
    //! Maximum allowed pointer value.
    void const * m_pMax;
    //! true if m_iMin and m_iMax have been provided.
-   bool m_bRangeProvided;
+   bool m_bRangeProvided:1;
+   //! true if m_iMin and m_iMax have been provided.
+   bool m_bWriteAsInts:1;
 };
 
 }} //namespace abc::collections
