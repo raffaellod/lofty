@@ -278,24 +278,24 @@ public:
 
       @param i
          Index relative to *this. If the resulting index is outside of the string’s [begin, end)
-         range, an index_error exception will be thrown.
+         range, a collections::out_of_range exception will be thrown.
       @return
          Reference to the specified item.
       */
       const_codepoint_proxy operator[](std::ptrdiff_t i) const {
-         return const_codepoint_proxy(m_ps, throw_if_end(advance(i, true)));
+         return const_codepoint_proxy(m_ps, advance(i, false));
       }
 
       /*! Addition-assignment operator.
 
       @param i
          Count of positions by which to advance the iterator. If the resulting iterator is outside
-         of the string’s [begin, end] range, an iterator_error exception will be thrown.
+         of the string’s [begin, end] range, a collections::out_of_range exception will be thrown.
       @return
          *this after it’s moved forward by i positions.
       */
       const_iterator & operator+=(std::ptrdiff_t i) {
-         m_ich = advance(i, false);
+         m_ich = advance(i, true);
          return *this;
       }
 
@@ -303,12 +303,12 @@ public:
 
       @param i
          Count of positions by which to rewind the iterator. If the resulting iterator is outside of
-         the string’s [begin, end] range, an iterator_error exception will be thrown.
+         the string’s [begin, end] range, a collections::out_of_range exception will be thrown.
       @return
          *this after it’s moved backwards by i positions.
       */
       const_iterator & operator-=(std::ptrdiff_t i) {
-         m_ich = advance(-i, false);
+         m_ich = advance(-i, true);
          return *this;
       }
 
@@ -316,19 +316,19 @@ public:
 
       @param i
          Count of positions by which to advance the iterator. If the resulting iterator is outside
-         of the string’s [begin, end] range, an iterator_error exception will be thrown.
+         of the string’s [begin, end] range, a collections::out_of_range exception will be thrown.
       @return
          Iterator that’s i items ahead of *this.
       */
       const_iterator operator+(std::ptrdiff_t i) const {
-         return const_iterator(m_ps, advance(i, false));
+         return const_iterator(m_ps, advance(i, true));
       }
 
       /*! Subtraction/difference operator.
 
       @param i
          Count of positions by which to rewind the iterator. If the resulting iterator is outside of
-         the string’s [begin, end] range, an iterator_error exception will be thrown.
+         the string’s [begin, end] range, a collections::out_of_range exception will be thrown.
       @param it
          Iterator from which to calculate the distance.
       @return
@@ -336,55 +336,55 @@ public:
          code points (difference).
       */
       const_iterator operator-(std::ptrdiff_t i) const {
-         return const_iterator(m_ps, advance(-i, false));
+         return const_iterator(m_ps, advance(-i, true));
       }
       std::ptrdiff_t operator-(const_iterator it) const {
          return distance(it.m_ich);
       }
 
-      /*! Preincrement operator. If the resulting iterator was already at the string’s end, an
-      iterator_error exception will be thrown.
+      /*! Preincrement operator. If the resulting iterator was already at the string’s end, a
+      collections::out_of_range exception will be thrown.
 
       @return
          *this after it’s moved to the value following the one currently pointed to.
       */
       const_iterator & operator++() {
-         m_ich = advance(1, false);
+         m_ich = advance(1, true);
          return *this;
       }
 
-      /*! Postincrement operator. If the resulting iterator was already at the string’s end, an
-      iterator_error exception will be thrown.
+      /*! Postincrement operator. If the resulting iterator was already at the string’s end, a
+      collections::out_of_range exception will be thrown.
 
       @return
          Iterator pointing to the value following the one pointed to by this iterator.
       */
       const_iterator operator++(int) {
          std::size_t ich = m_ich;
-         m_ich = advance(1, false);
+         m_ich = advance(1, true);
          return const_iterator(m_ps, ich);
       }
 
-      /*! Predecrement operator. If the resulting iterator was already at the string’s beginning, an
-      iterator_error exception will be thrown.
+      /*! Predecrement operator. If the resulting iterator was already at the string’s beginning, a
+      collections::out_of_range exception will be thrown.
 
       @return
          *this after it’s moved to the value preceding the one currently pointed to.
       */
       const_iterator & operator--() {
-         m_ich = advance(-1, false);
+         m_ich = advance(-1, true);
          return *this;
       }
 
       /*! Postdecrement operator. If the resulting iterator was already at the string’s beginning,
-      an iterator_error exception will be thrown.
+      a collections::out_of_range exception will be thrown.
 
       @return
          Iterator pointing to the value preceding the one pointed to by this iterator.
       */
       const_iterator operator--(int) {
          std::size_t ich = m_ich;
-         m_ich = advance(-1, false);
+         m_ich = advance(-1, true);
          return const_iterator(m_ps, ich);
       }
 
@@ -422,8 +422,8 @@ public:
 
    protected:
       //! Invokes m_ps->advance_char_index(). See str::advance_char_index().
-      std::size_t advance(std::ptrdiff_t iDelta, bool bIndex) const {
-         return m_ps->advance_char_index(m_ich, iDelta, bIndex);
+      std::size_t advance(std::ptrdiff_t iDelta, bool bAllowEnd) const {
+         return m_ps->advance_char_index(m_ich, iDelta, bAllowEnd);
       }
 
       /*! Computes the distance from another iterator/index.
@@ -435,7 +435,8 @@ public:
       */
       std::ptrdiff_t distance(std::size_t ich) const;
 
-      /*! Throws an iterator_error if the specified index is at or beyond the end of the string.
+      /*! Throws a collections::out_of_range if the specified index is at or beyond the end of the
+      string.
 
       @param ich
          Index to validate.
@@ -492,12 +493,12 @@ public:
 
       @param i
          Index relative to *this. If the resulting index is outside of the string’s [begin, end)
-         range, an index_error exception will be thrown.
+         range, a collections::out_of_range exception will be thrown.
       @return
          Reference to the specified item.
       */
       codepoint_proxy operator[](std::ptrdiff_t i) const {
-         return codepoint_proxy(const_cast<str *>(m_ps), throw_if_end(advance(i, true)));
+         return codepoint_proxy(const_cast<str *>(m_ps), advance(i, false));
       }
 
       /*! Returns a pointer to the referenced character.
@@ -707,25 +708,25 @@ public:
    /*! Character access operator.
 
    @param i
-      Character index. If outside of the [begin, end) range, an  index_error exception will be
-      thrown.
+      Character index. If outside of the [begin, end) range, a collections::out_of_range exception
+      will be thrown.
    @return
       Character at index i.
    */
    codepoint_proxy operator[](std::ptrdiff_t i) {
-      return codepoint_proxy(this, advance_char_index(0, i, true));
+      return codepoint_proxy(this, advance_char_index(0, i, false));
    }
 
-   /*! Const haracter access operator.
+   /*! Const character access operator.
 
    @param i
-      Character index. If outside of the [begin, end) range, an  index_error exception will be
-      thrown.
+      Character index. If outside of the [begin, end) range, a collections::out_of_range exception
+      will be thrown.
    @return
       Character at index i.
    */
    const_codepoint_proxy operator[](std::ptrdiff_t i) const {
-      return const_codepoint_proxy(this, advance_char_index(0, i, true));
+      return const_codepoint_proxy(this, advance_char_index(0, i, false));
    }
 
    /*! Boolean evaluation operator.
@@ -1489,7 +1490,7 @@ public:
    */
    str substr(const_iterator itBegin) const {
       char_t const * pchBegin = data() + itBegin.m_ich;
-      validate_pointer(pchBegin);
+      validate_pointer(pchBegin, true);
       return str(pchBegin, data_end());
    }
 
@@ -1504,8 +1505,8 @@ public:
    */
    str substr(const_iterator itBegin, const_iterator itEnd) const {
       char_t const * pchBegin = data() + itBegin.m_ich, * pchEnd = data() + itEnd.m_ich;
-      validate_pointer(pchBegin);
-      validate_pointer(pchEnd);
+      validate_pointer(pchBegin, true);
+      validate_pointer(pchEnd, true);
       return str(pchBegin, pchEnd);
    }
 
@@ -1558,20 +1559,19 @@ protected:
    }
 
    /*! Advances or backs up a character index by the specified number of code points, returning the
-   resulting pointer. If the index is moved outside of the buffer, an index_error or
-   iterator_error exception (depending on bIndex) is thrown.
+   resulting pointer. If the index is moved outside of the characters array, a
+   collections::out_of_range exception is thrown.
 
    @param ich
       Initial index.
    @param iDelta
       Count of code points to move from ich by.
-   @param bIndex
-      If true, a movement to outside of [begin, end) will cause an index_error to be thrown; if
-      false, a movement to outside of [begin, end] will cause an iterator_error to be thrown.
+   @param bAllowEnd
+      If true, end() will be considered a valid result; if false, it won’t.
    @return
       Resulting pointer.
    */
-   std::size_t advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const;
+   std::size_t advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bAllowEnd) const;
 
    //! Prepares the character array to be modified.
    void prepare_for_writing();
@@ -1606,6 +1606,13 @@ protected:
       Code point that will be encoded starting at character index ich.
    */
    void replace_codepoint(std::size_t ich, char32_t cpNew);
+
+   //! TODO: comment.
+   template <typename TPtr>
+   TPtr validate_pointer(TPtr pch, bool bAllowEnd) const {
+      vextr_impl::validate_pointer(sizeof(char_t), pch, bAllowEnd);
+      return pch;
+   }
 };
 
 // General definition, with embedded character array.

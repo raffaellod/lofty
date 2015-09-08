@@ -97,8 +97,8 @@ protected:
       //! Moves the iterator to next used bucket.
       void increment();
 
-      /*! Throws an iterator_error exception if the iterator is at the end of the container or has
-      been invalidated by a change in the container. */
+      /*! Throws a collections::out_of_range exception if the iterator is at the end of the
+      container or has been invalidated by a change in the container. */
       void validate() const;
 
    protected:

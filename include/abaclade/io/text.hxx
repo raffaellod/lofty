@@ -570,9 +570,9 @@ public:
    void run();
 
 protected:
-   /*! Throws an instance of abc::index_error(), providing the invalid replacement index found in
-   the format string. */
-   ABC_FUNC_NORETURN void throw_index_error();
+   /*! Throws an instance of abc::collections::out_of_range, providing the invalid replacement index
+   found in the format string. */
+   ABC_FUNC_NORETURN void throw_collections_out_of_range();
 
    /*! Writes the portion of format string between m_itFormatToWriteBegin and the next replacement
    and returns true, or writes the remaining characters of the format string and returns false if no
@@ -652,7 +652,7 @@ protected:
       /* This is the last recursion stage, with no replacements available, so if we got here
       writer::print() was called with insufficient replacements for the given format string. */
       ABC_UNUSED_ARG(iArg);
-      writer_print_helper_impl::throw_index_error();
+      writer_print_helper_impl::throw_collections_out_of_range();
    }
 };
 
@@ -900,7 +900,7 @@ protected:
       /* This is the last recursion stage, with no replacements available, so if we got here
       writer::print() was called with insufficient replacements for the given format string. */
       ABC_UNUSED_ARG(iArg);
-      writer_print_helper_impl::throw_index_error();
+      writer_print_helper_impl::throw_collections_out_of_range();
    }
 };
 

@@ -242,6 +242,8 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          ABC_THROW_FROM(srcloc, sc_szOS, math::division_by_zero, ());
       case common_type::math_floating_point_error:
          ABC_THROW_FROM(srcloc, sc_szOS, math::floating_point_error, ());
+      case common_type::math_overflow:
+         ABC_THROW_FROM(srcloc, sc_szOS, math::overflow, ());
       case common_type::memory_bad_pointer:
          ABC_THROW_FROM(
             srcloc, sc_szOS, memory::bad_pointer, (reinterpret_cast<void const *>(iArg0))
@@ -250,8 +252,6 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          ABC_THROW_FROM(
             srcloc, sc_szOS, memory::bad_pointer_alignment, (reinterpret_cast<void const *>(iArg0))
          );
-      case common_type::math_overflow:
-         ABC_THROW_FROM(srcloc, sc_szOS, math::overflow, ());
       default:
          // Unexpected exception type. Should never happen.
          std::abort();
@@ -602,144 +602,6 @@ generic_error & generic_error::operator=(generic_error const & x) {
    if (m_err) {
       ptwOut->print(ABC_SL(" OS error={}"), m_err);
    }
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-index_error::index_error() :
-   lookup_error() {
-   m_pszWhat = "abc::index_error";
-}
-index_error::index_error(index_error const & x) :
-   lookup_error(x),
-   m_iInvalid(x.m_iInvalid),
-   m_iMin(x.m_iMin),
-   m_iMax(x.m_iMax),
-   m_bMinMaxProvided(x.m_bMinMaxProvided) {
-}
-
-/*virtual*/ index_error::~index_error() {
-}
-
-index_error & index_error::operator=(index_error const & x) {
-   lookup_error::operator=(x);
-   m_iInvalid = x.m_iInvalid;
-   m_iMin = x.m_iMin;
-   m_iMax = x.m_iMax;
-   m_bMinMaxProvided = x.m_bMinMaxProvided;
-   return *this;
-}
-
-void index_error::init(std::ptrdiff_t iInvalid, errint_t err /*= 0*/) {
-   lookup_error::init(err);
-   m_iInvalid = iInvalid;
-   m_bMinMaxProvided = false;
-}
-
-void index_error::init(
-   std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err /*= 0*/
-) {
-   lookup_error::init(err);
-   m_iInvalid = iInvalid;
-   m_iMin = iMin;
-   m_iMax = iMax;
-   m_bMinMaxProvided = true;
-}
-
-/*virtual*/ void index_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   lookup_error::write_extended_info(ptwOut);
-   str sFormat;
-   if (m_bMinMaxProvided) {
-      sFormat = ABC_SL(" invalid index={0}; valid range=[{1}, {2}]");
-   } else {
-      sFormat = ABC_SL(" invalid index={0}");
-   }
-   ptwOut->print(sFormat, m_iInvalid, m_iMin, m_iMax);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-iterator_error::iterator_error() :
-   generic_error() {
-   m_pszWhat = "abc::iterator_error";
-}
-
-iterator_error::iterator_error(iterator_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ iterator_error::~iterator_error() {
-}
-
-iterator_error & iterator_error::operator=(iterator_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void iterator_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-key_error::key_error() :
-   lookup_error() {
-   m_pszWhat = "abc::key_error";
-}
-
-key_error::key_error(key_error const & x) :
-   lookup_error(x) {
-}
-
-/*virtual*/ key_error::~key_error() {
-}
-
-key_error & key_error::operator=(key_error const & x) {
-   lookup_error::operator=(x);
-   return *this;
-}
-
-void key_error::init(errint_t err /*= 0*/) {
-   lookup_error::init(err);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-lookup_error::lookup_error() :
-   generic_error() {
-   m_pszWhat = "abc::lookup_error";
-}
-
-lookup_error::lookup_error(lookup_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ lookup_error::~lookup_error() {
-}
-
-lookup_error & lookup_error::operator=(lookup_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void lookup_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
 }
 
 } //namespace abc

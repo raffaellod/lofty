@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/collections/detail/doubly_linked_list_impl.hxx>
 
 
@@ -83,17 +84,13 @@ void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) 
 void doubly_linked_list_impl::iterator_base::move_on(bool bForward) {
    ABC_TRACE_FUNC(this, bForward);
 
-   /* Detect attempts to move past the end() of the container, or move a default-constructed
-   iterator. */
-   if (!m_pn) {
-      ABC_THROW(iterator_error, ());
-   }
+   validate();
    m_pn = bForward ? m_pn->next() : m_pn->prev();
 }
 
 void doubly_linked_list_impl::iterator_base::validate() const {
    if (!m_pn) {
-      ABC_THROW(iterator_error, ());
+      ABC_THROW(out_of_range, ());
    }
 }
 
@@ -127,7 +124,7 @@ doubly_linked_list_impl & doubly_linked_list_impl::operator=(doubly_linked_list_
 
 doubly_linked_list_impl::node * doubly_linked_list_impl::back() const {
    if (!m_pnLast) {
-      ABC_THROW(lookup_error, ());
+      ABC_THROW(bad_access, ());
    }
    return m_pnLast;
 }
@@ -154,7 +151,7 @@ void doubly_linked_list_impl::clear(type_void_adapter const & type) {
 
 doubly_linked_list_impl::node * doubly_linked_list_impl::front() const {
    if (!m_pnFirst) {
-      ABC_THROW(lookup_error, ());
+      ABC_THROW(bad_access, ());
    }
    return m_pnFirst;
 }

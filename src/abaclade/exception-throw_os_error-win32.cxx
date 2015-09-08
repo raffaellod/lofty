@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 // #include <abaclade.hxx> already done in throw_os_error.cxx.
 #include <abaclade/math.hxx>
+#include <abaclade/os.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,6 +170,7 @@ void exception::throw_os_error(errint_t err) {
          // be deleted.
       case ERROR_CANCELLED: // The operation was canceled by the user.
       case ERROR_CANNOT_OPEN_PROFILE: // Unable to open the network connection profile.
+      case ERROR_CANNOT_FIND_WND_CLASS: // Cannot find window class.
       case ERROR_CANT_ACCESS_DOMAIN_INFO: // Indicates that a Windows NT Server could not be
          // contacted or that objects within the domain are protected such that necessary
          // information could not be retrieved.
@@ -177,6 +179,8 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_CHILD_NOT_COMPLETE: // The %1 application cannot be run in Windows NT mode.
       case ERROR_CHILD_WINDOW_MENU: // Child windows cannot have menus.
       case ERROR_CIRCULAR_DEPENDENCY: // Circular service dependency was specified.
+      case ERROR_CLASS_ALREADY_EXISTS: // Class already exists.
+      case ERROR_CLASS_DOES_NOT_EXIST: // Class does not exist.
       case ERROR_CLASS_HAS_WINDOWS: // Class still has open windows.
       case ERROR_CLIPBOARD_NOT_OPEN: // Thread does not have a clipboard open.
       case ERROR_CLIPPING_NOT_SUPPORTED: // The requested clipping operation is not supported.
@@ -606,11 +610,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_WRONG_DISK: // The wrong diskette is in the drive. Insert %2 (Volume Serial Number:
          // %3) into drive %1.
          ABC_THROW(io::error, (err));
-
-      case ERROR_CANNOT_FIND_WND_CLASS: // Cannot find window class.
-      case ERROR_CLASS_ALREADY_EXISTS: // Class already exists.
-      case ERROR_CLASS_DOES_NOT_EXIST: // Class does not exist.
-         ABC_THROW(key_error, (err));
 
       case ERROR_ARITHMETIC_OVERFLOW: // Arithmetic result exceeded 32 bits.
          ABC_THROW(math::overflow, (err));

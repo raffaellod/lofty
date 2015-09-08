@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/testing/utility.hxx>
 
@@ -65,13 +66,13 @@ ABC_TESTING_TEST_CASE_FUNC(
    s += ABC_SL("ä");
    // true: operator+= must have created an item array (there was none).
    ABC_TESTING_ASSERT_TRUE(cdpt.changed());
-   ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[-1]);
    ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
-   ABC_TESTING_ASSERT_THROWS(index_error, s[1]);
-   ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[1]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --s.cbegin());
    ABC_TESTING_ASSERT_DOES_NOT_THROW(++s.cbegin());
    ABC_TESTING_ASSERT_DOES_NOT_THROW(--s.cend());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++s.cend());
    ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
    ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
    ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
@@ -206,19 +207,19 @@ ABC_TESTING_TEST_CASE_FUNC(
    str s;
 
    // No accessible characters.
-   ABC_TESTING_ASSERT_THROWS(index_error, s[-1]);
-   ABC_TESTING_ASSERT_THROWS(index_error, s[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[-1]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[0]);
 
    // Should not allow to move an iterator to outside [begin, end].
    ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cbegin());
    ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cend());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cbegin());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cbegin());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, --s.cend());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++s.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --s.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++s.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --s.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++s.cend());
 
    // Should not allow to dereference end().
-   ABC_TESTING_ASSERT_THROWS(iterator_error, *s.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *s.cend());
 }
 
 }} //namespace abc::test

@@ -400,13 +400,14 @@ public:
    /*! Element access operator.
 
    @param i
-      Index relative to *this.
+      Element index.
    @return
-      Reference to the specified item.
+      Reference to the specified element.
    */
    T const & operator[](std::ptrdiff_t i) const {
-      // TODO: validate!
-      return m_pt[i];
+      T * pt = m_pt + i;
+      //this->validate_index(pt);
+      return *pt;
    }
 
    /*! Addition-assignment operator.
@@ -807,9 +808,7 @@ public:
       Element at index i.
    */
    T & operator[](std::ptrdiff_t i) {
-      T * pt = data() + i;
-      vector_impl::validate_pointer_noend(pt);
-      return *pt;
+      return *validate_pointer(data() + i, false);
    }
    T const & operator[](std::ptrdiff_t i) const {
       return const_cast<vector *>(this)->operator[](i);
@@ -831,10 +830,7 @@ public:
       Reference to the last element.
    */
    T & back() {
-      if (!*this) {
-         ABC_THROW(lookup_error, ());
-      }
-      return *(data_end() - 1);
+      return *validate_pointer(data_end() - 1, false);
    }
 
    /*! Returns a const reference to the last element.
@@ -975,10 +971,7 @@ public:
       Reference to the first element.
    */
    T & front() {
-      if (!*this) {
-         ABC_THROW(lookup_error, ());
-      }
-      return *data();
+      return *validate_pointer(data(), false);
    }
 
    /*! Returns a const reference to the first element.
@@ -998,7 +991,7 @@ public:
       Element to insert.
    */
    void insert(const_iterator itOffset, typename _std::remove_const<T>::type && t) {
-      vector_impl::validate_pointer(itOffset.m_pt);
+      validate_pointer(itOffset.m_pt, true);
       vector_impl::insert_move(itOffset.m_pt, &t, 1);
    }
 
@@ -1010,7 +1003,7 @@ public:
       Element to insert.
    */
    void insert(const_iterator itOffset, T const & t) {
-      vector_impl::validate_pointer(itOffset.m_pt);
+      validate_pointer(itOffset.m_pt, true);
       vector_impl::insert_copy(itOffset.m_pt, &t, 1);
    }
 
@@ -1024,7 +1017,7 @@ public:
       Count of elements in the array pointed to by pt.
    */
    void insert(const_iterator itOffset, T const * pt, std::size_t ci) {
-      vector_impl::validate_pointer(itOffset.m_pt);
+      validate_pointer(itOffset.m_pt, true);
       vector_impl::insert_copy(itOffset.m_pt, pt, ci);
    }
 
@@ -1093,7 +1086,7 @@ public:
       Iterator to the element to remove.
    */
    void remove_at(const_iterator it) {
-      vector_impl::validate_pointer_noend(it.m_pt);
+      validate_pointer(it.m_pt, false);
       vector_impl::remove(it.m_pt, it.m_pt + 1);
    }
 
@@ -1193,6 +1186,13 @@ protected:
    vector(std::size_t cbEmbeddedCapacity, T const * pt, std::size_t ci) :
       vector_impl(cbEmbeddedCapacity) {
       vector_impl::assign_copy(pt, pt + ci);
+   }
+
+   //! TODO: comment.
+   template <typename TPtr>
+   TPtr validate_pointer(TPtr pt, bool bAllowEnd) const {
+      vector_impl::validate_pointer(sizeof(T), pt, bAllowEnd);
+      return pt;
    }
 };
 

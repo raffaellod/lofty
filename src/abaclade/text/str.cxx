@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,17 +102,16 @@ std::size_t str::const_iterator::throw_if_end(std::size_t ich) const {
 
    char_t const * pchBegin = m_ps->data(), * pch = pchBegin + ich;
    if (pch >= m_ps->data_end()) {
-      ABC_THROW(iterator_error, ());
+      ABC_THROW(collections::out_of_range, ());
    }
    return ich;
 }
 
 
-std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bIndex) const {
-   ABC_TRACE_FUNC(this, ich, iDelta, bIndex);
+std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bAllowEnd) const {
+   ABC_TRACE_FUNC(this, ich, iDelta, bAllowEnd);
 
    char_t const * pchBegin = data(), * pch = pchBegin + ich, * pchEnd = data_end();
-   std::ptrdiff_t iDeltaOrig = iDelta;
 
    // If i is positive, move forward.
    for (; iDelta > 0 && pch < pchEnd; --iDelta) {
@@ -125,16 +125,11 @@ std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool
          ;
       }
    }
-
-   /* Verify that the pointer is still within range: that’s not the case if we left either for loop
-   before i reached 0, or if the pointer was invalid on entry (e.g. accessing str()[0]). */
-   if (iDelta != 0 || pch < pchBegin || pch > pchEnd || (bIndex && pch == pchEnd)) {
-      if (bIndex) {
-         ABC_THROW(index_error, (iDeltaOrig, 0, pchEnd - pchBegin - 1));
-      } else {
-         ABC_THROW(iterator_error, ());
-      }
-   }
+   // Use the remainder of iDelta. If it was non-zero, this will bring pch out of range.
+   pch += iDelta;
+   /* Verify that pch is still within range: that’s not the case if we left either for loop before
+   iDelta reached 0, or if the pointer was invalid on entry (e.g. accessing str()[0]). */
+   vextr_impl::validate_pointer(sizeof(char_t), pch, bAllowEnd);
 
    // Return the resulting index.
    return static_cast<std::size_t>(pch - pchBegin);
@@ -222,7 +217,7 @@ str::const_iterator str::find(char_t chNeedle, const_iterator itWhence) const {
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    char_t const * pchWhence = data() + itWhence.m_ich;
-   validate_pointer(pchWhence);
+   validate_pointer(pchWhence, true);
    auto pch = str_traits::find_char(pchWhence, data_end(), chNeedle);
    return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
@@ -230,7 +225,7 @@ str::const_iterator str::find(char32_t cpNeedle, const_iterator itWhence) const 
    ABC_TRACE_FUNC(this, cpNeedle, itWhence);
 
    char_t const * pchWhence = data() + itWhence.m_ich;
-   validate_pointer(pchWhence);
+   validate_pointer(pchWhence, true);
    auto pch = str_traits::find_char(pchWhence, data_end(), cpNeedle);
    return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
@@ -238,7 +233,7 @@ str::const_iterator str::find(str const & sNeedle, const_iterator itWhence) cons
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    char_t const * pchWhence = data() + itWhence.m_ich;
-   validate_pointer(pchWhence);
+   validate_pointer(pchWhence, true);
    auto pch = str_traits::find_substr(pchWhence, data_end(), sNeedle.data(), sNeedle.data_end());
    return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
@@ -247,7 +242,7 @@ str::const_iterator str::find_last(char_t chNeedle, const_iterator itWhence) con
    ABC_TRACE_FUNC(this, chNeedle, itWhence);
 
    char_t const * pchWhence = data() + itWhence.m_ich;
-   validate_pointer(pchWhence);
+   validate_pointer(pchWhence, true);
    auto pch = str_traits::find_char_last(data(), pchWhence, chNeedle);
    return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
@@ -255,7 +250,7 @@ str::const_iterator str::find_last(char32_t cpNeedle, const_iterator itWhence) c
    ABC_TRACE_FUNC(this, cpNeedle, itWhence);
 
    char_t const * pchWhence = data() + itWhence.m_ich;
-   validate_pointer(pchWhence);
+   validate_pointer(pchWhence, true);
    auto pch = str_traits::find_char_last(data(), pchWhence, cpNeedle);
    return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }
@@ -263,7 +258,7 @@ str::const_iterator str::find_last(str const & sNeedle, const_iterator itWhence)
    ABC_TRACE_FUNC(this, sNeedle, itWhence);
 
    char_t const * pchWhence = data() + itWhence.m_ich;
-   validate_pointer(pchWhence);
+   validate_pointer(pchWhence, true);
    auto pch = str_traits::find_substr_last(data(), pchWhence, sNeedle.data(), sNeedle.data_end());
    return const_iterator(this, static_cast<std::size_t>(pch - data()));
 }

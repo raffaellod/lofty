@@ -27,6 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <abaclade/collections.hxx>
 #include <abaclade/collections/detail/hash_map_impl.hxx>
 
 
@@ -301,7 +302,7 @@ public:
       std::size_t iBucket = lookup_key(key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
-         ABC_THROW(key_error, ());
+         ABC_THROW(collections::bad_key, ());
       }
       return *value_ptr(iBucket);
    }
@@ -453,7 +454,7 @@ public:
       std::size_t iBucket = lookup_key(key);
       if (iBucket == smc_iNullIndex) {
          // TODO: provide more information in the exception.
-         ABC_THROW(key_error, ());
+         ABC_THROW(collections::bad_key, ());
       }
       TValue value(_std::move(*value_ptr(iBucket)));
       type_void_adapter typeKey, typeValue;
@@ -489,7 +490,7 @@ public:
    void remove(TKey const & key) {
       if (!remove_if_found(key)) {
          // TODO: provide more information in the exception.
-         ABC_THROW(key_error, ());
+         ABC_THROW(collections::bad_key, ());
       }
    }
 

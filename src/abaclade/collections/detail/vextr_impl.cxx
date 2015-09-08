@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/numeric.hxx>
 
 
@@ -85,27 +86,15 @@ raw_vextr_impl_base::raw_vextr_impl_base(
    return cbNewCapacity;
 }
 
-void raw_vextr_impl_base::validate_pointer(void const * p) const {
-   ABC_TRACE_FUNC(this, p);
+void raw_vextr_impl_base::validate_pointer(std::size_t cb, void const * p, bool bAllowEnd) const {
+   ABC_TRACE_FUNC(this, cb, p, bAllowEnd);
 
-   if (p < m_pBegin || p > m_pEnd) {
-      // TODO: use the index, not the offset.
-      ABC_THROW(index_error, (
-         static_cast<std::int8_t const *>(p) - begin<std::int8_t>(),
-         0, static_cast<std::ptrdiff_t>(size<std::int8_t>()) - 1
-      ));
+   auto pEnd = static_cast<std::int8_t const *>(m_pEnd);
+   if (bAllowEnd) {
+      ++pEnd;
    }
-}
-
-void raw_vextr_impl_base::validate_pointer_noend(void const * p) const {
-   ABC_TRACE_FUNC(this, p);
-
-   if (p < m_pBegin || p >= m_pEnd) {
-      // TODO: use the index, not the offset.
-      ABC_THROW(index_error, (
-         static_cast<std::int8_t const *>(p) - begin<std::int8_t>(),
-         0, static_cast<std::ptrdiff_t>(size<std::int8_t>())
-      ));
+   if (p < m_pBegin || static_cast<std::int8_t const *>(p) >= pEnd) {
+      ABC_THROW(out_of_range, (p, m_pBegin, m_pEnd));
    }
 }
 

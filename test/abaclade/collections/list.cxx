@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/collections/list.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/testing/utility.hxx>
@@ -155,11 +156,11 @@ ABC_TESTING_TEST_CASE_FUNC(
    // Should not allow to move an iterator to outside [begin, end].
    ABC_TESTING_ASSERT_DOES_NOT_THROW(l.cbegin());
    ABC_TESTING_ASSERT_DOES_NOT_THROW(l.cend());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++l.cbegin());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++l.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++l.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++l.cend());
 
    // Should not allow to dereference end().
-   ABC_TESTING_ASSERT_THROWS(iterator_error, *l.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *l.cend());
 }
 
 }} //namespace abc::test

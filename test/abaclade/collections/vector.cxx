@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <algorithm>
 #include <abaclade/testing/utility.hxx>
@@ -52,9 +53,9 @@ ABC_TESTING_TEST_CASE_FUNC(
    •  vector<int>::push_back() always appends more elements than it should. */
 
    ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
-   ABC_TESTING_ASSERT_THROWS(exception, v.front());
-   ABC_TESTING_ASSERT_THROWS(exception, v.back());
-   ABC_TESTING_ASSERT_THROWS(index_error, v[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::bad_access, v.front());
+   ABC_TESTING_ASSERT_THROWS(collections::bad_access, v.back());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v[0]);
 
    v.push_back(1);
    ABC_TESTING_ASSERT_EQUAL(v.size(), 1u);
@@ -102,10 +103,10 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    v.clear();
    ABC_TESTING_ASSERT_EQUAL(v.size(), 0u);
-   ABC_TESTING_ASSERT_THROWS(exception, v.front());
-   ABC_TESTING_ASSERT_THROWS(exception, v.back());
-   ABC_TESTING_ASSERT_THROWS(index_error, v[0]);
-   ABC_TESTING_ASSERT_THROWS(exception, v.pop_back());
+   ABC_TESTING_ASSERT_THROWS(collections::bad_access, v.front());
+   ABC_TESTING_ASSERT_THROWS(collections::bad_access, v.back());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::bad_access, v.pop_back());
 }
 
 }} //namespace abc::test
@@ -171,8 +172,8 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_EQUAL(v[1], 3);
 
    // Remove an element with an invalid iterator.
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.begin() - 1));
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.end()));
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.begin() - 1));
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.end()));
 }
 
 }} //namespace abc::test
@@ -196,14 +197,14 @@ ABC_TESTING_TEST_CASE_FUNC(
    v = vZero;
 
    // Remove from empty vector by index.
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cend() - 1));
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cbegin()));
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cbegin() + 1));
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cend() - 1));
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin()));
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin() + 1));
 
    v = vOneTwo;
 
    // Remove from 2-element vector by index.
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cend() - 3));
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cend() - 3));
    ABC_TESTING_ASSERT_EQUAL((v.remove_at(v.cend() - 2), v), vTwo);
    v = vOneTwo;
    ABC_TESTING_ASSERT_EQUAL((v.remove_at(v.cend() - 1), v), vOne);
@@ -212,7 +213,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    v = vOneTwo;
    ABC_TESTING_ASSERT_EQUAL((v.remove_at(v.cbegin() + 1), v), vOne);
    v = vOneTwo;
-   ABC_TESTING_ASSERT_THROWS(index_error, v.remove_at(v.cbegin() + 2));
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin() + 2));
 }
 
 }} //namespace abc::test

@@ -390,22 +390,14 @@ protected:
    }
 
    /*! Validates that the specified pointer references an item within or at the end of the item
-   array, throwing an index_error exception if it doesn’t. Similar to validate_pointer_noend(), but
-   it accepts a pointer to the end of the item array.
+   array, throwing a collections::out_of_range exception if it doesn’t.
 
    @param p
       Pointer to validate.
+   @param bAllowEnd
+      If true, p == m_pEnd is allowed; if false, it isn’t and results in an exception.
    */
-   void validate_pointer(void const * p) const;
-
-   /*! Validates that the specified pointer references an item within the item array, throwing an
-   index_error exception if it doesn’t. Similar to validate_pointer(), but it rejects a pointer to
-   the end of the item array.
-
-   @param p
-      Pointer to validate.
-   */
-   void validate_pointer_noend(void const * p) const;
+   void validate_pointer(std::size_t cb, void const * p, bool bAllowEnd) const;
 
 protected:
    //! The item array size must be no less than this many bytes.

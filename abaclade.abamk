@@ -29,6 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/app.cxx"/>
       <source path="src/abaclade/bitmanip.cxx"/>
       <source path="src/abaclade/byteorder.cxx"/>
+      <source path="src/abaclade/collections.cxx"/>
       <source path="src/abaclade/collections/detail/doubly_linked_list_impl.cxx"/>
       <source path="src/abaclade/collections/detail/hash_map_impl.cxx"/>
       <source path="src/abaclade/collections/detail/singly_linked_list_impl.cxx"/>

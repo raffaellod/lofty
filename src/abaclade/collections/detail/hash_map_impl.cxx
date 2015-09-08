@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/collections/detail/hash_map_impl.hxx>
 
 #include <climits> // CHAR_BIT
@@ -414,6 +415,7 @@ hash_map_impl::iterator_base::iterator_base() :
    m_phm(nullptr),
    m_iBucket(smc_iNullIndex) {
 }
+
 hash_map_impl::iterator_base::iterator_base(hash_map_impl const * phm, std::size_t iBucket) :
    m_phm(phm),
    m_iBucket(iBucket),
@@ -439,7 +441,7 @@ void hash_map_impl::iterator_base::validate() const {
    ABC_TRACE_FUNC(this);
 
    if (m_iBucket == smc_iNullIndex || m_iRev != m_phm->m_iRev) {
-      ABC_THROW(iterator_error, ());
+      ABC_THROW(out_of_range, ());
    }
 }
 

@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 
 #if ABC_HOST_API_POSIX
    #include <cstdlib> // std::getenv()
@@ -269,13 +270,13 @@ void writer_print_helper_impl::run() {
    /* Since this specialization has no replacements, verify that the format string doesn’t specify
    any either. */
    if (write_format_up_to_next_repl()) {
-      throw_index_error();
+      throw_collections_out_of_range();
    }
 }
 
-void writer_print_helper_impl::throw_index_error() {
+void writer_print_helper_impl::throw_collections_out_of_range() {
    std::ptrdiff_t iSubstArg = static_cast<std::ptrdiff_t>(m_iSubstArg);
-   ABC_THROW(index_error, (iSubstArg, 0, iSubstArg - 1));
+   ABC_THROW(collections::out_of_range, (iSubstArg, 0, iSubstArg - 1));
 }
 
 bool writer_print_helper_impl::write_format_up_to_next_repl() {

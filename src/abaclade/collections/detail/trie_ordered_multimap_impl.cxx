@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/bitmanip.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/collections/detail/trie_ordered_multimap_impl.hxx>
 
 #include <climits> // CHAR_BIT
@@ -333,7 +334,7 @@ void bitwise_trie_ordered_multimap_impl::remove_value(
       if (anchor_node_slot ans = find_anchor_node_slot(iKey)) {
          ans.remove(typeValue, pln);
       } else {
-         ABC_THROW(iterator_error, ());
+         ABC_THROW(out_of_range, ());
       }
    }
    --m_cValues;

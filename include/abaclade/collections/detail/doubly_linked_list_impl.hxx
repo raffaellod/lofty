@@ -201,7 +201,7 @@ protected:
       */
       void move_on(bool bForward);
 
-      //! Throws an iterator_error exception if the iterator cannot be dereferenced.
+      //! Throws a collections::out_of_range exception if the iterator cannot be dereferenced.
       void validate() const;
 
    protected:

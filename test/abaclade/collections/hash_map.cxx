@@ -18,8 +18,9 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/testing/test_case.hxx>
+#include <abaclade/collections.hxx>
 #include <abaclade/collections/hash_map.hxx>
+#include <abaclade/testing/test_case.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +59,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    ABC_TESTING_ASSERT_TRUE(hm.remove_if_found(10));
    ABC_TESTING_ASSERT_FALSE(hm.remove_if_found(10));
-   ABC_TESTING_ASSERT_THROWS(key_error, hm.remove(10));
+   ABC_TESTING_ASSERT_THROWS(collections::bad_key, hm.remove(10));
    ABC_TESTING_ASSERT_EQUAL(hm.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(hm[20], 200);
    ABC_TESTING_ASSERT_FALSE(hm.remove_if_found(10));
@@ -190,17 +191,17 @@ ABC_TESTING_TEST_CASE_FUNC(
    // Should not allow to move an iterator to outside [begin, end].
    ABC_TESTING_ASSERT_DOES_NOT_THROW(hm.cbegin());
    ABC_TESTING_ASSERT_DOES_NOT_THROW(hm.cend());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++hm.cbegin());
-   ABC_TESTING_ASSERT_THROWS(iterator_error, ++hm.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++hm.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++hm.cend());
 
    // Should not allow to dereference end().
-   ABC_TESTING_ASSERT_THROWS(iterator_error, *hm.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *hm.cend());
 
    {
       auto it(hm.cbegin());
       hm.add_or_assign(10, 100);
       // it has been invalidated by add_or_assign().
-      ABC_TESTING_ASSERT_THROWS(iterator_error, *it);
+      ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *it);
    }
 
    ABC_FOR_EACH(auto kv, hm) {
@@ -212,7 +213,7 @@ ABC_TESTING_TEST_CASE_FUNC(
       auto it(hm.cbegin());
       hm.remove(10);
       // it has been invalidated by remove().
-      ABC_TESTING_ASSERT_THROWS(iterator_error, *it);
+      ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *it);
    }
 }
 

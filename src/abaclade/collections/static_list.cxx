@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +117,7 @@ void static_list_impl_base::iterator::validate() const {
    // TODO: enable use ABC_TRACE_FUNC(this) by handling reentrancy.
 
    if (!m_pnCurr) {
-      ABC_THROW(iterator_error, ());
+      ABC_THROW(out_of_range, ());
    }
 }
 
