@@ -198,7 +198,7 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_str_iterators,
-   "abc::text::str – iterator-based character access"
+   "abc::text::str – operations with iterators"
 ) {
    ABC_TRACE_FUNC(this);
 

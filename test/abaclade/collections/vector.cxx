@@ -160,8 +160,61 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
+   // Default-constructed iterator.
+   collections::vector<int>::const_iterator it;
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, it[-1]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, it[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, it[1]);
+
    collections::vector<int> v;
+   ABC_TESTING_ASSERT_EQUAL(v.cbegin(), v.end());
+
+   // No accessible elements.
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v[-1]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v[1]);
+
+   // Should not allow to move an iterator to outside [begin, end].
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.cbegin());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --v.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++v.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --v.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++v.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[-1]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[1]);
+
+   // Should not allow to dereference begin() or end() of an empty vector.
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *v.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *v.cend());
+
    v.push_back(1);
+   ABC_TESTING_ASSERT_NOT_EQUAL(v.begin(), v.cend());
+
+   // One accessible element.
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v[-1]);
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(v[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v[1]);
+
+   // Should not allow to move an iterator to outside [begin, end].
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --v.cbegin());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(++v.cbegin());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(--v.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++v.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[-1]);
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(v.cbegin()[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[1]);
+
+   // Should allow to dereference begin(), but not end() of a non-empty vector.
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(*v.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *v.cend());
+
    v.push_back(2);
    v.push_back(3);
 
