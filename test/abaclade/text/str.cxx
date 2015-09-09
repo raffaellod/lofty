@@ -69,10 +69,6 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[-1]);
    ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
    ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[1]);
-   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --s.cbegin());
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(++s.cbegin());
-   ABC_TESTING_ASSERT_DOES_NOT_THROW(--s.cend());
-   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++s.cend());
    ABC_TESTING_ASSERT_EQUAL(s.size(), 1u);
    ABC_TESTING_ASSERT_GREATER_EQUAL(s.capacity(), 1u);
    ABC_TESTING_ASSERT_EQUAL(s[0], ABC_CHAR('ä'));
@@ -206,11 +202,24 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
+   // Default-constructed iterator.
+   str::const_iterator it;
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++it);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, it[-1]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, it[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, it[1]);
+
    str s;
+   ABC_TESTING_ASSERT_EQUAL(s.cbegin(), s.end());
 
    // No accessible characters.
    ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[-1]);
    ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[1]);
 
    // Should not allow to move an iterator to outside [begin, end].
    ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cbegin());
@@ -219,8 +228,33 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++s.cbegin());
    ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --s.cend());
    ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++s.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s.cbegin()[-1]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s.cbegin()[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s.cbegin()[1]);
 
-   // Should not allow to dereference end().
+   // Should not allow to dereference begin() or end() of an empty string.
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *s.cbegin());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *s.cend());
+
+   s += 'a';
+   ABC_TESTING_ASSERT_NOT_EQUAL(s.begin(), s.cend());
+
+   // One accessible character.
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[-1]);
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(s[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s[1]);
+
+   // Should not allow to move an iterator to outside [begin, end].
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, --s.cbegin());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(++s.cbegin());
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(--s.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, ++s.cend());
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s.cbegin()[-1]);
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(s.cbegin()[0]);
+   ABC_TESTING_ASSERT_THROWS(collections::out_of_range, s.cbegin()[1]);
+
+   // Should allow to dereference begin(), but not end() of a non-empty string.
+   ABC_TESTING_ASSERT_DOES_NOT_THROW(*s.cbegin());
    ABC_TESTING_ASSERT_THROWS(collections::out_of_range, *s.cend());
 }
 
