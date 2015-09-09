@@ -1191,7 +1191,7 @@ protected:
    //! TODO: comment.
    template <typename TPtr>
    TPtr validate_pointer(TPtr pt, bool bAllowEnd) const {
-      vector_impl::validate_pointer(sizeof(T), pt, bAllowEnd);
+      vector_impl::validate_pointer(pt, bAllowEnd);
       return pt;
    }
 };

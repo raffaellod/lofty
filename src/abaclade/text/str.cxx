@@ -97,20 +97,9 @@ std::ptrdiff_t str::const_iterator::distance(std::size_t ich) const {
    }
 }
 
-std::size_t str::const_iterator::throw_if_end(std::size_t ich) const {
-   ABC_TRACE_FUNC(this, ich);
-
-   char_t const * pchBegin = m_ps->data(), * pch = pchBegin + ich;
-   if (pch >= m_ps->data_end()) {
-      ABC_THROW(collections::out_of_range, ());
-   }
-   return ich;
-}
-
-
-std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bAllowEnd) const {
-   ABC_TRACE_FUNC(this, ich, iDelta, bAllowEnd);
-
+std::size_t str::advance_index_by_codepoint_delta(
+   std::size_t ich, std::ptrdiff_t iDelta, bool bAllowEnd
+) const {
    char_t const * pchBegin = data(), * pch = pchBegin + ich, * pchEnd = data_end();
 
    // If i is positive, move forward.
@@ -129,10 +118,24 @@ std::size_t str::advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool
    pch += iDelta;
    /* Verify that pch is still within range: that’s not the case if we left either for loop before
    iDelta reached 0, or if the pointer was invalid on entry (e.g. accessing str()[0]). */
-   vextr_impl::validate_pointer(sizeof(char_t), pch, bAllowEnd);
+   if (bAllowEnd) {
+      ++pchEnd;
+   }
+   if (pch < pchBegin || pch >= pchEnd) {
+      ABC_THROW(collections::out_of_range, (pch, pchBegin, pchEnd));
+   }
 
    // Return the resulting index.
    return static_cast<std::size_t>(pch - pchBegin);
+}
+
+/*static*/ std::size_t str::advance_index_by_codepoint_delta(
+   str const * ps, std::size_t ich, std::ptrdiff_t iDelta, bool bAllowEnd
+) {
+   if (!ps) {
+      ABC_THROW(collections::out_of_range, ());
+   }
+   return ps->advance_index_by_codepoint_delta(ich, iDelta, bAllowEnd);
 }
 
 str::c_str_ptr str::c_str() {
@@ -342,6 +345,26 @@ bool str::starts_with(str const & s) const {
 
    char_t const * pchEnd = data() + s.size_in_chars();
    return pchEnd <= data_end() && str_traits::compare(data(), pchEnd, s.data(), s.data_end()) == 0;
+}
+
+char_t const * str::validate_index_to_pointer(std::size_t ich, bool bAllowEnd) const {
+   auto pchBegin = data(), pchEnd = data_end(), pch = pchBegin + ich;
+   if (bAllowEnd) {
+      ++pchEnd;
+   }
+   if (pch < pchBegin || pch >= pchEnd) {
+      ABC_THROW(collections::out_of_range, (pch, pchBegin, m_pEnd));
+   }
+   return pch;
+}
+
+/*static*/ char_t const * str::validate_index_to_pointer(
+   str const * ps, std::size_t ich, bool bAllowEnd
+) {
+   if (!ps) {
+      ABC_THROW(collections::out_of_range, ());
+   }
+   return ps->validate_index_to_pointer(ich, bAllowEnd);
 }
 
 }} //namespace abc::text

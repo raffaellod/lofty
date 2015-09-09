@@ -86,9 +86,7 @@ raw_vextr_impl_base::raw_vextr_impl_base(
    return cbNewCapacity;
 }
 
-void raw_vextr_impl_base::validate_pointer(std::size_t cb, void const * p, bool bAllowEnd) const {
-   ABC_TRACE_FUNC(this, cb, p, bAllowEnd);
-
+void raw_vextr_impl_base::validate_pointer(void const * p, bool bAllowEnd) const {
    auto pEnd = static_cast<std::int8_t const *>(m_pEnd);
    if (bAllowEnd) {
       ++pEnd;

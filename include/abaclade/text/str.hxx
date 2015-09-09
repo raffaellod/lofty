@@ -271,7 +271,8 @@ public:
          Reference to the current character.
       */
       const_codepoint_proxy operator*() const {
-         return const_codepoint_proxy(m_ps, throw_if_end(m_ich));
+         str::validate_index_to_pointer(m_ps, m_ich, false);
+         return const_codepoint_proxy(m_ps, m_ich);
       }
 
       /*! Element access operator.
@@ -283,7 +284,9 @@ public:
          Reference to the specified item.
       */
       const_codepoint_proxy operator[](std::ptrdiff_t i) const {
-         return const_codepoint_proxy(m_ps, advance(i, false));
+         return const_codepoint_proxy(
+            m_ps, str::advance_index_by_codepoint_delta(m_ps, m_ich, i, false)
+         );
       }
 
       /*! Addition-assignment operator.
@@ -295,7 +298,7 @@ public:
          *this after it’s moved forward by i positions.
       */
       const_iterator & operator+=(std::ptrdiff_t i) {
-         m_ich = advance(i, true);
+         m_ich = str::advance_index_by_codepoint_delta(m_ps, m_ich, i, true);
          return *this;
       }
 
@@ -308,7 +311,7 @@ public:
          *this after it’s moved backwards by i positions.
       */
       const_iterator & operator-=(std::ptrdiff_t i) {
-         m_ich = advance(-i, true);
+         m_ich = str::advance_index_by_codepoint_delta(m_ps, m_ich, -i, true);
          return *this;
       }
 
@@ -321,7 +324,7 @@ public:
          Iterator that’s i items ahead of *this.
       */
       const_iterator operator+(std::ptrdiff_t i) const {
-         return const_iterator(m_ps, advance(i, true));
+         return const_iterator(m_ps, str::advance_index_by_codepoint_delta(m_ps, m_ich, i, true));
       }
 
       /*! Subtraction/difference operator.
@@ -336,7 +339,7 @@ public:
          code points (difference).
       */
       const_iterator operator-(std::ptrdiff_t i) const {
-         return const_iterator(m_ps, advance(-i, true));
+         return const_iterator(m_ps, str::advance_index_by_codepoint_delta(m_ps, m_ich, -i, true));
       }
       std::ptrdiff_t operator-(const_iterator it) const {
          return distance(it.m_ich);
@@ -349,7 +352,7 @@ public:
          *this after it’s moved to the value following the one currently pointed to.
       */
       const_iterator & operator++() {
-         m_ich = advance(1, true);
+         m_ich = str::advance_index_by_codepoint_delta(m_ps, m_ich, 1, true);
          return *this;
       }
 
@@ -361,7 +364,7 @@ public:
       */
       const_iterator operator++(int) {
          std::size_t ich = m_ich;
-         m_ich = advance(1, true);
+         m_ich = str::advance_index_by_codepoint_delta(m_ps, m_ich, 1, true);
          return const_iterator(m_ps, ich);
       }
 
@@ -372,7 +375,7 @@ public:
          *this after it’s moved to the value preceding the one currently pointed to.
       */
       const_iterator & operator--() {
-         m_ich = advance(-1, true);
+         m_ich = str::advance_index_by_codepoint_delta(m_ps, m_ich, -1, true);
          return *this;
       }
 
@@ -384,7 +387,7 @@ public:
       */
       const_iterator operator--(int) {
          std::size_t ich = m_ich;
-         m_ich = advance(-1, true);
+         m_ich = str::advance_index_by_codepoint_delta(m_ps, m_ich, -1, true);
          return const_iterator(m_ps, ich);
       }
 
@@ -417,15 +420,10 @@ public:
          Pointer to the referenced character.
       */
       char_t const * ptr() const {
-         return m_ps->data() + m_ich;
+         return str::validate_index_to_pointer(m_ps, m_ich, true);
       }
 
    protected:
-      //! Invokes m_ps->advance_char_index(). See str::advance_char_index().
-      std::size_t advance(std::ptrdiff_t iDelta, bool bAllowEnd) const {
-         return m_ps->advance_char_index(m_ich, iDelta, bAllowEnd);
-      }
-
       /*! Computes the distance from another iterator/index.
 
       @param ich
@@ -434,16 +432,6 @@ public:
          Distance between *this and ich, in code points.
       */
       std::ptrdiff_t distance(std::size_t ich) const;
-
-      /*! Throws a collections::out_of_range if the specified index is at or beyond the end of the
-      string.
-
-      @param ich
-         Index to validate.
-      @return
-         ich.
-      */
-      std::size_t throw_if_end(std::size_t ich) const;
 
    protected:
       /*! Constructor.
@@ -486,7 +474,8 @@ public:
          Reference to the current character.
       */
       codepoint_proxy operator*() const {
-         return codepoint_proxy(const_cast<str *>(m_ps), throw_if_end(m_ich));
+         str::validate_index_to_pointer(m_ps, m_ich, false);
+         return codepoint_proxy(const_cast<str *>(m_ps), m_ich);
       }
 
       /*! Element access operator.
@@ -498,7 +487,9 @@ public:
          Reference to the specified item.
       */
       codepoint_proxy operator[](std::ptrdiff_t i) const {
-         return codepoint_proxy(const_cast<str *>(m_ps), advance(i, false));
+         return codepoint_proxy(
+            const_cast<str *>(m_ps), str::advance_index_by_codepoint_delta(m_ps, m_ich, i, false)
+         );
       }
 
       /*! Returns a pointer to the referenced character.
@@ -714,7 +705,7 @@ public:
       Character at index i.
    */
    codepoint_proxy operator[](std::ptrdiff_t i) {
-      return codepoint_proxy(this, advance_char_index(0, i, false));
+      return codepoint_proxy(this, advance_index_by_codepoint_delta(0, i, false));
    }
 
    /*! Const character access operator.
@@ -726,7 +717,7 @@ public:
       Character at index i.
    */
    const_codepoint_proxy operator[](std::ptrdiff_t i) const {
-      return const_codepoint_proxy(this, advance_char_index(0, i, false));
+      return const_codepoint_proxy(this, advance_index_by_codepoint_delta(0, i, false));
    }
 
    /*! Boolean evaluation operator.
@@ -1489,8 +1480,7 @@ public:
       Substring of *this.
    */
    str substr(const_iterator itBegin) const {
-      char_t const * pchBegin = data() + itBegin.m_ich;
-      validate_pointer(pchBegin, true);
+      char_t const * pchBegin = validate_index_to_pointer(itBegin.m_ich, true);
       return str(pchBegin, data_end());
    }
 
@@ -1504,9 +1494,8 @@ public:
       Substring of *this.
    */
    str substr(const_iterator itBegin, const_iterator itEnd) const {
-      char_t const * pchBegin = data() + itBegin.m_ich, * pchEnd = data() + itEnd.m_ich;
-      validate_pointer(pchBegin, true);
-      validate_pointer(pchEnd, true);
+      char_t const * pchBegin = validate_index_to_pointer(itBegin.m_ich, true);
+      char_t const * pchEnd   = validate_index_to_pointer(itEnd  .m_ich, true);
       return str(pchBegin, pchEnd);
    }
 
@@ -1559,8 +1548,8 @@ protected:
    }
 
    /*! Advances or backs up a character index by the specified number of code points, returning the
-   resulting pointer. If the index is moved outside of the characters array, a
-   collections::out_of_range exception is thrown.
+   resulting pointer. If the resulting index is outside the characters array, a
+   collections::out_of_range exception will be thrown.
 
    @param ich
       Initial index.
@@ -1569,9 +1558,28 @@ protected:
    @param bAllowEnd
       If true, end() will be considered a valid result; if false, it won’t.
    @return
-      Resulting pointer.
+      Resulting character index.
    */
-   std::size_t advance_char_index(std::size_t ich, std::ptrdiff_t iDelta, bool bAllowEnd) const;
+   std::size_t advance_index_by_codepoint_delta(
+      std::size_t ich, std::ptrdiff_t iDelta, bool bAllowEnd
+   ) const;
+
+   /*! Advances or backs up a character index by the specified number of code points, returning the
+   resulting pointer. If the resulting index is outside the characters array, a
+   collections::out_of_range exception will be thrown.
+
+   @param ich
+      Initial index.
+   @param iDelta
+      Count of code points to move from ich by.
+   @param bAllowEnd
+      If true, end() will be considered a valid result; if false, it won’t.
+   @return
+      Resulting character index.
+   */
+   static std::size_t advance_index_by_codepoint_delta(
+      str const * ps, std::size_t ich, std::ptrdiff_t iDelta, bool bAllowEnd
+   );
 
    //! Prepares the character array to be modified.
    void prepare_for_writing();
@@ -1607,12 +1615,28 @@ protected:
    */
    void replace_codepoint(std::size_t ich, char32_t cpNew);
 
-   //! TODO: comment.
-   template <typename TPtr>
-   TPtr validate_pointer(TPtr pch, bool bAllowEnd) const {
-      vextr_impl::validate_pointer(sizeof(char_t), pch, bAllowEnd);
-      return pch;
-   }
+   /*! Throws a collections::out_of_range if a character index is not within bounds.
+
+   @param ich
+      Character index to validate.
+   @return
+      Pointer to the character at index ich.
+   */
+   char_t const * validate_index_to_pointer(std::size_t ich, bool bAllowEnd) const;
+
+   /*! Throws a collections::out_of_range if a character index is not within bounds of *ps.
+
+   This overload is static so that it can (it will) validate that this (ps) is not nullptr before
+   dereferencing it.
+
+   @param ps
+      this.
+   @param ich
+      Character index to validate.
+   @return
+      Pointer to the *ps character at index ich.
+   */
+   static char_t const * validate_index_to_pointer(str const * ps, std::size_t ich, bool bAllowEnd);
 };
 
 // General definition, with embedded character array.

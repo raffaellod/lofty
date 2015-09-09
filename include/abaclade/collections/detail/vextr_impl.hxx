@@ -397,7 +397,7 @@ protected:
    @param bAllowEnd
       If true, p == m_pEnd is allowed; if false, it isn’t and results in an exception.
    */
-   void validate_pointer(std::size_t cb, void const * p, bool bAllowEnd) const;
+   void validate_pointer(void const * p, bool bAllowEnd) const;
 
 protected:
    //! The item array size must be no less than this many bytes.
