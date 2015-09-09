@@ -357,6 +357,9 @@ private:
    template <typename T2, std::size_t t_ciEmbeddedCapacity>
    friend class vector;
 
+protected:
+   typedef vector<T, 0> vector_0;
+
 public:
    typedef T const value_type;
    typedef T const * pointer;
@@ -367,6 +370,7 @@ public:
 public:
    //! Default constructor.
    /*constexpr*/ vector_const_iterator() :
+      m_pv(nullptr),
       m_pt(nullptr) {
    }
 
@@ -376,6 +380,7 @@ public:
       Source object.
    */
    vector_const_iterator(vector_const_iterator const & it) :
+      m_pv(it.m_pv),
       m_pt(it.m_pt) {
    }
 
@@ -385,7 +390,7 @@ public:
       Reference to the current item.
    */
    T const & operator*() const {
-      return *m_pt;
+      return *vector_0::validate_pointer(m_pv, m_pt, false);
    }
 
    /*! Dereferencing member access operator.
@@ -394,7 +399,7 @@ public:
       Pointer to the current item.
    */
    T const * operator->() const {
-      return m_pt;
+      return vector_0::validate_pointer(m_pv, m_pt, false);
    }
 
    /*! Element access operator.
@@ -405,9 +410,7 @@ public:
       Reference to the specified element.
    */
    T const & operator[](std::ptrdiff_t i) const {
-      T * pt = m_pt + i;
-      //this->validate_index(pt);
-      return *pt;
+      return *vector_0::validate_pointer(m_pv, m_pt + i, false);
    }
 
    /*! Addition-assignment operator.
@@ -418,7 +421,7 @@ public:
       *this after it’s moved forward by i positions.
    */
    vector_const_iterator & operator+=(std::ptrdiff_t i) {
-      m_pt += i;
+      m_pt = *vector_0::validate_pointer(m_pv, m_pt + i, true);
       return *this;
    }
 
@@ -430,7 +433,7 @@ public:
       *this after it’s moved backwards by i positions.
    */
    vector_const_iterator & operator-=(std::ptrdiff_t i) {
-      m_pt -= i;
+      m_pt = *vector_0::validate_pointer(m_pv, m_pt - i, true);
       return *this;
    }
 
@@ -442,7 +445,7 @@ public:
       Iterator that’s i items ahead of *this.
    */
    vector_const_iterator operator+(std::ptrdiff_t i) const {
-      return vector_const_iterator(m_pt + i);
+      return vector_const_iterator(m_pv, vector_0::validate_pointer(m_pv, m_pt + i, true));
    }
 
    /*! Subtraction/difference operator.
@@ -456,7 +459,7 @@ public:
       (difference).
    */
    vector_const_iterator operator-(std::ptrdiff_t i) const {
-      return vector_const_iterator(m_pt - i);
+      return vector_const_iterator(m_pv, vector_0::validate_pointer(m_pv, m_pt - i, true));
    }
    std::ptrdiff_t operator-(vector_const_iterator it) const {
       return m_pt - it.m_pt;
@@ -468,7 +471,7 @@ public:
       *this after it’s moved to the value following the one currently pointed to.
    */
    vector_const_iterator & operator++() {
-      ++m_pt;
+      m_pt = vector_0::validate_pointer(m_pv, m_pt + 1, true);
       return *this;
    }
 
@@ -478,7 +481,9 @@ public:
       Iterator pointing to the value following the one pointed to by this iterator.
    */
    vector_const_iterator operator++(int) {
-      return vector_const_iterator(m_pt++);
+      T const * pt = m_pt;
+      m_pt = vector_0::validate_pointer(m_pv, m_pt + 1, true);
+      return vector_const_iterator(m_pv, pt);
    }
 
    /*! Predecrement operator.
@@ -487,7 +492,7 @@ public:
       *this after it’s moved to the value preceding the one currently pointed to.
    */
    vector_const_iterator & operator--() {
-      --m_pt;
+      m_pt = vector_0::validate_pointer(m_pv, m_pt - 1, true);
       return *this;
    }
 
@@ -497,7 +502,9 @@ public:
       Iterator pointing to the value preceding the one pointed to by this iterator.
    */
    vector_const_iterator operator--(int) {
-      return vector_const_iterator(m_pt--);
+      T const * pt = m_pt;
+      m_pt = vector_0::validate_pointer(m_pv, m_pt - 1, true);
+      return vector_const_iterator(m_pv, pt);
    }
 
 // Relational operators.
@@ -516,15 +523,20 @@ ABC_RELOP_IMPL(<=)
 protected:
    /*! Constructor.
 
+   @param pv
+      Pointer to the vector containing *pt.
    @param pt
       Pointer to set the iterator to.
    */
-   explicit vector_const_iterator(T const * pt) :
+   explicit vector_const_iterator(vector_0 const * pv, T const * pt) :
+      m_pv(pv),
       m_pt(pt) {
    }
 
 protected:
-   //! Underlying pointer to the current item.
+   //! Pointer to the vector containing the current element.
+   vector<T, 0> const * m_pv;
+   //! Pointer to the current element.
    T const * m_pt;
 };
 
@@ -610,11 +622,13 @@ public:
 protected:
    /*! Constructor.
 
+   @param pv
+      Pointer to the vector containing *pt.
    @param pt
       Pointer to set the iterator to.
    */
-   explicit vector_iterator(T * pt) :
-      vci(pt) {
+   explicit vector_iterator(typename vci::vector_0 const * pv, T const * pt) :
+      vci(pv, pt) {
    }
 
    /*! Copy constructor.
@@ -639,6 +653,11 @@ class vector<T, 0> :
    public detail::raw_vector<T>,
    public support_explicit_operator_bool<vector<T, 0>> {
 private:
+   template <typename T2>
+   friend class detail::vector_iterator;
+   template <typename T2>
+   friend class detail::vector_const_iterator;
+
    //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = _std::is_copy_constructible<T>::value;
    typedef detail::raw_vector<T> vector_impl;
@@ -848,7 +867,7 @@ public:
       Iterator to the first element.
    */
    iterator begin() {
-      return iterator(data());
+      return iterator(this, data());
    }
 
    /*! Returns a const iterator set to the first element.
@@ -953,7 +972,7 @@ public:
       Iterator to the first element.
    */
    iterator end() {
-      return iterator(data_end());
+      return iterator(this, data_end());
    }
 
    /*! Returns a const iterator set beyond the last element.
@@ -1068,7 +1087,7 @@ public:
       Reverse iterator to the last element.
    */
    reverse_iterator rbegin() {
-      return reverse_iterator(iterator(data_end()));
+      return reverse_iterator(iterator(this, data_end()));
    }
 
    /*! Returns a const reverse iterator set to the last element.
@@ -1096,7 +1115,7 @@ public:
       Reverse iterator to before the first element.
    */
    reverse_iterator rend() {
-      return reverse_iterator(iterator(data()));
+      return reverse_iterator(iterator(this, data()));
    }
 
    /*! Returns a const reverse iterator set to before the first element.
@@ -1188,10 +1207,34 @@ protected:
       vector_impl::assign_copy(pt, pt + ci);
    }
 
-   //! TODO: comment.
+   /*! Throws a collections::out_of_range if a pointer is not within bounds.
+
+   @param pt
+      Pointer to validate.
+   @param bAllowEnd
+      If true, pt == data_end() is allowed; if false, it’s not.
+   */
    template <typename TPtr>
-   TPtr validate_pointer(TPtr pt, bool bAllowEnd) const {
+   TPtr * validate_pointer(TPtr * pt, bool bAllowEnd) const {
       vector_impl::validate_pointer(pt, bAllowEnd);
+      return pt;
+   }
+
+   /*! Throws a collections::out_of_range if a pointer is not within bounds of *pv.
+
+   This overload is static so that it will validate that this (pv) is not nullptr before
+   dereferencing it.
+
+   @param pv
+      this.
+   @param pt
+      Pointer to validate.
+   @param bAllowEnd
+      If true, pt == prvib->data_end() is allowed; if false, it’s not.
+   */
+   template <typename TPtr>
+   static TPtr * validate_pointer(vector const * pv, TPtr * pt, bool bAllowEnd) {
+      vector_impl::validate_pointer(pv, pt, bAllowEnd);
       return pt;
    }
 };

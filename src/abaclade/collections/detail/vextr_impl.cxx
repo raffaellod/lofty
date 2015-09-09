@@ -96,6 +96,15 @@ void raw_vextr_impl_base::validate_pointer(void const * p, bool bAllowEnd) const
    }
 }
 
+/*static*/ void raw_vextr_impl_base::validate_pointer(
+   raw_vextr_impl_base const * prvib, void const * p, bool bAllowEnd
+) {
+   if (!prvib) {
+      ABC_THROW(collections::out_of_range, ());
+   }
+   prvib->validate_pointer(p, bAllowEnd);
+}
+
 }}} //namespace abc::collections::detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

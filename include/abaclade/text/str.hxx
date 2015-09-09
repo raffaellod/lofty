@@ -1619,6 +1619,8 @@ protected:
 
    @param ich
       Character index to validate.
+   @param bAllowEnd
+      If true, data() + ich == data_end() is allowed; if false, it’s not.
    @return
       Pointer to the character at index ich.
    */
@@ -1626,13 +1628,15 @@ protected:
 
    /*! Throws a collections::out_of_range if a character index is not within bounds of *ps.
 
-   This overload is static so that it can (it will) validate that this (ps) is not nullptr before
+   This overload is static so that it will validate that this (ps) is not nullptr before
    dereferencing it.
 
    @param ps
       this.
    @param ich
       Character index to validate.
+   @param bAllowEnd
+      If true, ps->data() + ich == ps->data_end() is allowed; if false, it’s not.
    @return
       Pointer to the *ps character at index ich.
    */

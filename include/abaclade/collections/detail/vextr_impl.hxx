@@ -389,15 +389,28 @@ protected:
       }
    }
 
-   /*! Validates that the specified pointer references an item within or at the end of the item
-   array, throwing a collections::out_of_range exception if it doesn’t.
+   /*! Throws a collections::out_of_range if a pointer is not within bounds.
 
    @param p
       Pointer to validate.
    @param bAllowEnd
-      If true, p == m_pEnd is allowed; if false, it isn’t and results in an exception.
+      If true, p == m_pEnd is allowed; if false, it’s not.
    */
    void validate_pointer(void const * p, bool bAllowEnd) const;
+
+   /*! Throws a collections::out_of_range if a pointer is not within bounds of *prvib.
+
+   This overload is static so that it will validate that this (prvib) is not nullptr before
+   dereferencing it.
+
+   @param ps
+      this.
+   @param p
+      Pointer to validate.
+   @param bAllowEnd
+      If true, p == prvib->m_pEnd is allowed; if false, it’s not.
+   */
+   static void validate_pointer(raw_vextr_impl_base const * prvib, void const * p, bool bAllowEnd);
 
 protected:
    //! The item array size must be no less than this many bytes.

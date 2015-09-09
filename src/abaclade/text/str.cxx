@@ -122,7 +122,7 @@ std::size_t str::advance_index_by_codepoint_delta(
       ++pchEnd;
    }
    if (pch < pchBegin || pch >= pchEnd) {
-      ABC_THROW(collections::out_of_range, (pch, pchBegin, pchEnd));
+      ABC_THROW(collections::out_of_range, (pch, pchBegin, data_end()));
    }
 
    // Return the resulting index.
