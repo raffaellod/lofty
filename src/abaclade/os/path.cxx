@@ -266,9 +266,10 @@ path path::normalize() const {
       } else {
          if (ch == text::codepoint(smc_szSeparator[0])) {
             if (cDots > 0 && cDots <= 2) {
-               // We found “./” or “../”: go back by as many separators as the count of dots.
-               auto itPrevSep(vitSeps.cend() - static_cast<std::ptrdiff_t>(cDots));
-               if (itPrevSep >= vitSeps.cbegin() && itPrevSep < vitSeps.cend()) {
+               /* We found “./” or “../”: go back by as many separators as the count of dots, if we
+               encountered enough separators. */
+               if (vitSeps.size() >= cDots) {
+                  auto itPrevSep(vitSeps.cend() - static_cast<std::ptrdiff_t>(cDots));
                   itDst = *itPrevSep + 1 /*“/”*/;
                   if (cDots > 1) {
                      // We jumped back two separators; discard the one we jumped over (cend() - 1).
@@ -296,11 +297,11 @@ path path::normalize() const {
       ++itDst;
    }
    if (cDots > 0 && cDots <= 2) {
-      // We ended on “.” or “..”, go back by as many separators as the count of dots.
-      auto itPrevSep(vitSeps.cend() - static_cast<std::ptrdiff_t>(cDots));
-      if (itPrevSep >= vitSeps.cbegin() && itPrevSep < vitSeps.cend()) {
+      /* We ended on “.” or “..”, go back by as many separators as the count of dots, if we found
+      enough separators. */
+      if (vitSeps.size() >= cDots) {
          // Place itDst on the separator, so we don’t end up with a traling separator.
-         itDst = *itPrevSep;
+         itDst = *(vitSeps.data_end() - cDots);
       } else {
          /* We don’t have enough separators in vitSeps; resume from the end of the root or the start
          of the path. */
