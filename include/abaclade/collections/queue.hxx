@@ -28,6 +28,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #endif
 
 #include <abaclade/collections/detail/singly_linked_list_impl.hxx>
+#include <abaclade/type_void_adapter.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

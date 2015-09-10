@@ -21,7 +21,9 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
-#include <abaclade/collections/vector.hxx>
+#if ABC_HOST_UTF > 8
+   #include <abaclade/collections/vector.hxx>
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -465,6 +465,18 @@ class vector;
 
 }} //namespace abc::collections
 
+namespace abc { namespace io { namespace text {
+
+class writer;
+
+}}} //namespace abc::io::text
+
+namespace abc { namespace os {
+
+class path;
+
+}} //namespace abc::os
+
 namespace abc { namespace text {
 
 /*! abc::text::str subclass that includes a fixed-size character array.
@@ -497,23 +509,13 @@ typedef sstr<0> str;
 
 namespace abc {
 
+class type_void_adapter;
+
 using text::char_t;
 using text::str;
 using text::sstr;
 
 } //namespace abc
-
-namespace abc { namespace io { namespace text {
-
-class writer;
-
-}}} //namespace abc::io::text
-
-namespace abc { namespace os {
-
-class path;
-
-}} //namespace abc::os
 
 #include <abaclade/_std.hxx>
 #include <abaclade/collections/static_list.hxx>
@@ -523,7 +525,6 @@ class path;
 #include <abaclade/enum.hxx>
 #include <abaclade/exception.hxx>
 #include <abaclade/memory-after-exception.hxx>
-//#include <abaclade/type_void_adapter.hxx>
 #include <abaclade/collections/detail/vextr_impl.hxx>
 #include <abaclade/text-before-str.hxx>
 #include <abaclade/text/char_traits.hxx>
