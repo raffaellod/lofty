@@ -37,19 +37,6 @@ namespace abc { namespace text {
 //! This should be used to replace any invalid char32_t value.
 static char32_t const replacement_char = 0x00fffd;
 
-#if ABC_HOST_UTF > 8
-/*! Casts a single character into a character of the largest native size for the host.
-
-@param ch
-   Character.
-@return
-   Equivalent host character.
-*/
-inline char_t host_char(char ch) {
-   return static_cast<char_t>(static_cast<std::uint8_t>(ch));
-}
-#endif
-
 /*! Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
 encodings (e.g. identity_encoding).
 

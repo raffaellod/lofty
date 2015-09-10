@@ -86,6 +86,19 @@ inline char32_t codepoint(char_t ch) {
 #endif
 }
 
+#if ABC_HOST_UTF > 8
+/*! Casts a single character into a character of the largest native size for the host.
+
+@param ch
+   Character.
+@return
+   Equivalent host character.
+*/
+inline char_t host_char(char ch) {
+   return static_cast<char_t>(static_cast<std::uint8_t>(ch));
+}
+#endif
+
 /*! Calculates the length of a NUL-terminated string, in characters.
 
 @param psz
