@@ -353,7 +353,7 @@ template <typename T>
 class vector_const_iterator {
 private:
    template <typename T2, std::size_t t_ciEmbeddedCapacity>
-   friend class vector;
+   friend class collections::vector;
 
 protected:
    typedef vector<T, 0> vector_0;
@@ -543,7 +543,7 @@ template <typename T>
 class vector_iterator : public vector_const_iterator<T> {
 private:
    template <typename T2, std::size_t t_ciEmbeddedCapacity>
-   friend class vector;
+   friend class collections::vector;
    typedef vector_const_iterator<T> vci;
 
 public:
