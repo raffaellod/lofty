@@ -467,7 +467,7 @@ signal_dispatcher::~signal_dispatcher() {
             prevention (DEP) violation.
             ExceptionInformation[1] specifies the virtual address of the inaccessible data. */
             xct = exception::common_type::memory_bad_pointer;
-            iArg0 = pxpInfo->ExceptionRecord->ExceptionInformation[1];
+            iArg0 = static_cast<std::intptr_t>(pxpInfo->ExceptionRecord->ExceptionInformation[1]);
             break;
 
 //       case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
