@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/numeric.hxx>
-#include <abaclade/text-after-str.hxx>
+#include <abaclade/text.hxx>
 
 #include <algorithm>
 
