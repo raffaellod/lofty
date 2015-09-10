@@ -33,35 +33,6 @@ external_buffer_t const external_buffer;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
-
-void str_to_str_backend::set_format(str const & sFormat) {
-   ABC_TRACE_FUNC(this, sFormat);
-
-   auto it(sFormat.cbegin());
-
-   // Add parsing of the format string here.
-
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cend())
-      ));
-   }
-}
-
-void str_to_str_backend::write(
-   void const * p, std::size_t cb, encoding enc, io::text::writer * ptwOut
-) {
-   ABC_TRACE_FUNC(this, p, cb, enc, ptwOut);
-
-   ptwOut->write_binary(p, cb, enc);
-}
-
-}}} //namespace abc::text::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace abc { namespace text {
 
 //! Single NUL terminator.
@@ -403,3 +374,44 @@ std::size_t hash<abc::text::str>::operator()(abc::text::str const & s) const {
 }
 
 } //namespace std
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace text { namespace detail {
+
+void str_to_str_backend::set_format(str const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   auto it(sFormat.cbegin());
+
+   // Add parsing of the format string here.
+
+   // If we still have any characters, they are garbage.
+   if (it != sFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cend())
+      ));
+   }
+}
+
+void str_to_str_backend::write(
+   void const * p, std::size_t cb, encoding enc, io::text::writer * ptwOut
+) {
+   ABC_TRACE_FUNC(this, p, cb, enc, ptwOut);
+
+   ptwOut->write_binary(p, cb, enc);
+}
+
+}}} //namespace abc::text::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+void to_str_backend<text::str>::write(text::str const & s, io::text::writer * ptwOut) {
+   text::detail::str_to_str_backend::write(s.data(), static_cast<std::size_t>(
+      reinterpret_cast<std::uintptr_t>(s.data_end()) - reinterpret_cast<std::uintptr_t>(s.data())
+   ), text::encoding::host, ptwOut);
+}
+
+} //namespace abc
