@@ -488,7 +488,7 @@ class sstr;
 
 /*! Abaclade’s memory-efficient string class.
 
-Unlike C or STL strings, instances do not implcitly have an accessible trailing NUL character.
+Unlike C or STL strings, instances do not implicitly have an accessible trailing NUL character.
 
 See @ref vextr-design for implementation details of this class and abc::text::sstr. */
 typedef sstr<0> str;
@@ -536,7 +536,6 @@ class path;
 #include <abaclade/enum-after-to_str.hxx>
 #include <abaclade/exception-after-to_str.hxx>
 #include <abaclade/text/str-after-to_str.hxx>
-#include <abaclade/text/char_ptr_to_str_adapter.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/collections/vector-after-to_str.hxx>
 

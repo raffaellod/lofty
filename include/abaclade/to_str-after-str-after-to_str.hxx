@@ -152,10 +152,6 @@ public:
       Pointer to the writer to output to.
    */
    void write(_std::type_info const & ti, io::text::writer * ptwOut);
-
-protected:
-   //! Backend for C strings.
-   to_str_backend<text::char_ptr_to_str_adapter> m_tsbCStr;
 };
 
 } //namespace abc

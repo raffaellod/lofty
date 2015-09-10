@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/text.hxx>
+#include <abaclade/text/char_ptr_to_str_adapter.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

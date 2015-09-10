@@ -17,8 +17,14 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_HXX_INTERNAL
-   #error "Please #include <abaclade.hxx> instead of this file"
+#ifndef _ABACLADE_TEXT_CHAR_PTR_TO_STR_ADAPTER_HXX
+#define _ABACLADE_TEXT_CHAR_PTR_TO_STR_ADAPTER_HXX
+
+#ifndef _ABACLADE_HXX
+   #error "Please #include <abaclade.hxx> before this file"
+#endif
+#ifdef ABC_CXX_PRAGMA_ONCE
+   #pragma once
 #endif
 
 
@@ -75,3 +81,7 @@ public:
 };
 
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _ABACLADE_TEXT_CHAR_PTR_TO_STR_ADAPTER_HXX

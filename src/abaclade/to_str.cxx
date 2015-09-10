@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/math.hxx>
 #include <abaclade/numeric.hxx>
+#include <abaclade/text/char_ptr_to_str_adapter.hxx>
 
 #include <algorithm>
 #include <climits> // CHAR_BIT
@@ -385,7 +386,8 @@ void to_str_backend<_std::type_info>::write(_std::type_info const & ti, io::text
       }
    }
 #endif
-   m_tsbCStr.write(text::char_ptr_to_str_adapter(psz), ptwOut);
+   to_str_backend<text::char_ptr_to_str_adapter> tsbCStr;
+   tsbCStr.write(text::char_ptr_to_str_adapter(psz), ptwOut);
 }
 
 } //namespace abc

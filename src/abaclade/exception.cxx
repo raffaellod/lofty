@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/coroutine.hxx>
 #include <abaclade/math.hxx>
 #include <abaclade/process.hxx>
+#include <abaclade/text/char_ptr_to_str_adapter.hxx>
 #include <abaclade/thread.hxx>
 #include "thread-impl.hxx"
 
