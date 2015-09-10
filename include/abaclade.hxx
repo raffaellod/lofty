@@ -533,9 +533,9 @@ class path;
 #include <abaclade/from_str.hxx>
 
 #include <abaclade/enum-after-to_str.hxx>
-#include <abaclade/exception-after-to_str.hxx>
 #include <abaclade/text/str-after-to_str.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
+#include <abaclade/exception-after-to_str.hxx>
 
 #include <abaclade/io.hxx>
 #include <abaclade/io/binary.hxx>
