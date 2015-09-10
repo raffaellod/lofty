@@ -27,6 +27,7 @@ code for more comments.
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
+#include <abaclade/collections/vector.hxx>
 
 using namespace abc;
 

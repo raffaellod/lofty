@@ -43,7 +43,7 @@ public:
       Return value of this program.
    */
    virtual int main(collections::vector<str> & vsArgs) override {
-      ABC_TRACE_FUNC(this, vsArgs);
+      ABC_TRACE_FUNC(this/*, vsArgs*/);
 
       ABC_UNUSED_ARG(vsArgs);
       // Read one line at a time from stdin…

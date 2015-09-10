@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/bitmanip.hxx>
 #include <abaclade/collections.hxx>
 #include <abaclade/collections/detail/trie_ordered_multimap_impl.hxx>
+#include <abaclade/collections/vector.hxx>
 
 #include <climits> // CHAR_BIT
 

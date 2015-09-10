@@ -17,8 +17,14 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_HXX_INTERNAL
-   #error "Please #include <abaclade.hxx> instead of this file"
+#ifndef _ABACLADE_COLLECTIONS_VECTOR_HXX
+#define _ABACLADE_COLLECTIONS_VECTOR_HXX
+
+#ifndef _ABACLADE_HXX
+   #error "Please #include <abaclade.hxx> before this file"
+#endif
+#ifdef ABC_CXX_PRAGMA_ONCE
+   #pragma once
 #endif
 
 
@@ -1552,3 +1558,101 @@ bool operator!=(
 }
 
 }} //namespace abc::collections
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace collections { namespace detail {
+
+/*! Base class for the specializations of to_str_backend for vector types. Not using templates, so
+the implementation can be in a cxx file. */
+class ABACLADE_SYM vector_to_str_backend : public abc::detail::sequence_to_str_backend {
+public:
+   //! Default constructor.
+   vector_to_str_backend();
+
+   //! Destructor.
+   ~vector_to_str_backend();
+
+protected:
+   /*! Formatting options to be applied to the individual elements, obtained from the constructor
+   argument sFormat. */
+   str m_sEltFormat;
+};
+
+}}} //namespace abc::collections::detail
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+template <typename T, std::size_t t_ciEmbeddedCapacity>
+class to_str_backend<collections::vector<T, t_ciEmbeddedCapacity>> :
+   public collections::detail::vector_to_str_backend {
+public:
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(str const & sFormat) {
+//    ABC_TRACE_FUNC(this, sFormat);
+
+      collections::detail::vector_to_str_backend::set_format(sFormat);
+      m_tsbElt.set_format(m_sEltFormat);
+   }
+
+   /*! Writes a vector, applying the formatting options.
+
+   @param v
+      Vector to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(collections::vector<T, t_ciEmbeddedCapacity> const & v, io::text::writer * ptwOut) {
+//    ABC_TRACE_FUNC(this/*, v*/, ptwOut);
+
+      _write_start(ptwOut);
+      auto it(v.cbegin()), itEnd(v.cend());
+      if (it != itEnd) {
+         m_tsbElt.write(*it, ptwOut);
+         while (++it != itEnd) {
+            _write_separator(ptwOut);
+            m_tsbElt.write(*it, ptwOut);
+         }
+      }
+      _write_end(ptwOut);
+   }
+
+protected:
+   //! Backend for the individual elements.
+   to_str_backend<T> m_tsbElt;
+};
+
+template <typename T>
+class to_str_backend<collections::detail::vector_const_iterator<T>> :
+   public to_str_backend<typename collections::detail::vector_const_iterator<T>::pointer> {
+public:
+   /*! Writes an iterator as a pointer, applying the formatting options.
+
+   @param it
+      Iterator to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(collections::detail::vector_const_iterator<T> const & it, io::text::writer * ptwOut) {
+      to_str_backend<
+         typename collections::detail::vector_const_iterator<T>::pointer
+      >::write(&*it, ptwOut);
+   }
+};
+
+template <typename T>
+class to_str_backend<collections::detail::vector_iterator<T>> :
+   public to_str_backend<collections::detail::vector_const_iterator<T>> {
+};
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _ABACLADE_COLLECTIONS_VECTOR_HXX

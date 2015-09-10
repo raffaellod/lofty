@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/collections/vector.hxx>
 #include <abaclade/os/path.hxx>
 
 #if ABC_HOST_API_POSIX
