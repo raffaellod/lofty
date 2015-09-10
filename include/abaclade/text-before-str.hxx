@@ -21,38 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
-/*! @file
-Globals in the abc::text namespace.
-*/
-
-/*! @page unicode-support Unicode support
-Specification of the level of support for Unicode and UTF encodings.
-
-Abaclade comes with full built-in support for Unicode. The C++11 char32_t type (typedef-ined by
-Abaclade on non-compliant compilers such as MSC16) is the preferred character type across Abaclade;
-this means that the full range of valid Unicode code points is supported through the entire
-framework.
-
-Abaclade-based code should the abc::text::str stirng class. This appears as an array of char32_t
-characters (code points) and can be manipulated as such. The internal representation is in reality
-either UTF-8 or UTF-16, but this is for the most part abstracted away from Abaclade-based code.
-
-While char32_t is the preferred character type, many functions/methods are available with overloads
-accepting C++ single-byte character literals, both for convenience and performance reasons. The
-character type used internally by the abc::text::*str classes is available as abc::text::char_t, and
-the class abc::text::str_traits allows lower-level manipulation of abc::text::char_t character
-arrays.
-
-Abaclade supports two ways of specifying character literals: strictly ASCII, via regular single-
-quoted character literals (e.g. 'a'), and UCS-16, through the use of the ABC_CHAR() macro (e.g.
-ABC_CHAR('ç')). Additionally, all Unicode code points can be expressed as integers cast to char32_t
-(hexadecimal notation is recommended for consistency with the U+nnnnnn syntax for code points; e.g.
-char32_t(0x23456) for U+23456).
-
-String literals should always be defined using the ABC_SL() macro (e.g. ABC_SL("abc")), which
-results in an UTF-8 or UTF-16 string literal depending on the host platform.
-*/
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,9 +71,6 @@ ABC_ENUM(line_terminator,
    (host,              (ABC_HOST_API_WIN32 ? cr_lf : lf))
 );
 
-//! This should be used to replace any invalid char32_t value.
-char32_t const replacement_char(0x00fffd);
-
 /*! Casts a single character into a code point.
 
 @param ch
@@ -121,90 +86,6 @@ inline char32_t codepoint(char_t ch) {
 #endif
 }
 
-#if ABC_HOST_UTF > 8
-/*! Casts a single character into a character of the largest native size for the host.
-
-@param ch
-   Character.
-@return
-   Equivalent host character.
-*/
-inline char_t host_char(char ch) {
-   return static_cast<char_t>(static_cast<std::uint8_t>(ch));
-}
-#endif
-
-/*! Returns the character size, in bytes, for the specified charset encoding, or 0 for non-charset
-encodings (e.g. identity_encoding).
-
-@param enc
-   Desired encoding.
-@return
-   Size of a character (not a code point, which can require more than one character) for the
-   specified encoding, in bytes.
-*/
-ABACLADE_SYM std::size_t get_encoding_size(encoding enc);
-
-/*! Returns a line terminator string corresponding to the specified line_terminator value, or the
-host default if lterm is line_terminator::any or line_terminator::convert_any_to_lf.
-
-@param lterm
-   Desired line terminator.
-@return
-   String with the requested line terminator sequence.
-*/
-ABACLADE_SYM str get_line_terminator_str(line_terminator lterm);
-
-/*! Tries to guess the encoding of a sequence of bytes, optionally also taking into account the
-total number of bytes in the source of which the buffer is the beginning.
-
-While this function can check for validity of some encodings, it does not guarantee that, for
-example, for a return value of utf8_encoding str_traits::validate() will return true for the same
-buffer.
-TODO: why not guarantee validity? It would help weed out more encodings with fewer bytes.
-
-@param pchBegin
-   Pointer to the beginning of the buffer to scan for encoding clues.
-@param pchEnd
-   Pointer to the end of the buffer.
-@param cbSrcTotal
-   Total size, in bytes, of a larger string of which *pBuf is the beginning.
-@param pcbBom
-   Pointer to a variable that will receive the size of the Byte Order Mark if found at the beginning
-   of the string, in bytes, or 0 otherwise.
-@return
-   Detected encoding of the string pointed to by pBuf.
-*/
-ABACLADE_SYM encoding guess_encoding(
-   void const * pBufBegin, void const * pBufEnd, std::size_t cbSrcTotal = 0,
-   std::size_t * pcbBom = nullptr
-);
-
-/*! Tries to guess the line terminator sequence employed in a string.
-
-@param pchBegin
-   Pointer to the first character of the string to scan for a line terminator sequence.
-@param pchEnd
-   Pointer to beyond the last character of the string.
-@return
-   Detected line terminator sequence, or line_terminator::any if the source buffer did not include
-   any known line terminator sequence..
-*/
-ABACLADE_SYM line_terminator guess_line_terminator(char_t const * pchBegin, char_t const * pchEnd);
-
-/*! Checks if a UTF-32 character is a valid Unicode code point, which means that its ordinal value
-must be included in the interval [0, U+10FFFF] (see Unicode Standard 6.2 § 2.4 “Code Points and
-Characters”).
-
-@param cp
-   Code point to validate.
-@return
-   true if the character is a valid code point, or false otherwise.
-*/
-inline /*constexpr*/ bool is_codepoint_valid(char32_t cp) {
-   return cp <= 0x10ffff;
-}
-
 /*! Calculates the length of a NUL-terminated string, in characters.
 
 @param psz
@@ -216,50 +97,5 @@ ABACLADE_SYM std::size_t size_in_chars(char_t const * psz);
 #if ABC_HOST_UTF > 8
 ABACLADE_SYM std::size_t size_in_chars(char const * psz);
 #endif
-
-/*! Converts from one character encoding to another, validating the source as it’s processed.
-
-Call this function omitting the last two arguments (ppDst and pcbDstMax) to have returned the
-calculated size of the buffer necessary to hold the converted characters.
-
-After allocating a buffer of the requested size, call this function again with the same arguments
-(but with valid ppDst and pcbDstMax) to perform the transcoding; all the variables pointed to by the
-pointer arguments will be updated to discard the bytes used in the conversion; otherwise no pointed-
-to variables will be written to.
-
-@param bThrowOnErrors
-   On decoding, if true, an exception of type abc::text::decode_error will be thrown if any invalid
-   characters are found; otherwise invalid characters will be silently replaced with
-   abc::text::replacement_char.
-   On encoding, if true, an exception of type abc::text::encode_error will be thrown if any code
-   points cannot be converted to the destination encoding; otherwise characters that cannot be
-   encoded will be replaced with an encoding-specific replacement character.
-@param encSrc
-   Encoding of the string pointed to by *ppSrc.
-@param ppSrc
-   Pointer to a pointer to the source string; the pointed-to pointer will be incremented as
-   characters are transcoded.
-@param pcbSrc
-   Pointer to a variable that holds the size of the string pointed to by *ppSrc, and that will be
-   decremented by the number of source bytes transcoded.
-@param encDst
-   Encoding of the string pointed to by *ppDst.
-@param ppDst
-   Pointer to a pointer to the destination buffer; the pointed-to pointer will be incremented as
-   characters are stored in the buffer. Passing nullptr is safe and nothing will be written to it,
-   but all the other arguments will be updated regardless.
-@param pcbDstMax
-   Pointer to a variable that holds the size of the buffer pointed to by *ppDst, and that will be
-   decremented by the number of bytes stored in the buffer (or that would be stored, if ppDst is
-   nullptr). If nullptr is passed no writes will be attempted to any of the arguments, but the
-   return value will be correct.
-@return
-   Used destination buffer size, in bytes.
-*/
-ABACLADE_SYM std::size_t transcode(
-   bool bThrowOnErrors,
-   encoding encSrc, void const ** ppSrc, std::size_t * pcbSrc,
-   encoding encDst, void       ** ppDst = nullptr, std::size_t * pcbDstMax = nullptr
-);
 
 }} //namespace abc::text
