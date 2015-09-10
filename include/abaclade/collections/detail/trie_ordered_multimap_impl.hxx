@@ -394,7 +394,7 @@ protected:
    @param pln
       Pointer to the node the iterator is currently referencing.
    */
-   static void validate_iterator(list_node * pln);
+   static void validate_iterator(list_node const * pln);
 
 private:
    /*! Recursively destructs an anchor node and all its child lists.
