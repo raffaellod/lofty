@@ -55,7 +55,7 @@ execution speed.
 Note: vextr is a portmanteau of vector and str(ing), because the overall design is used by both.
 
 For vectors, the two leaf classes above are wrapped by an additional template layer,
-abc::collections::detail::raw_vector, that eliminates any differences between the two interfaces
+abc::collections::detail::vector_impl, that eliminates any differences between the two interfaces
 caused by the need for abc::collections::detail::trivial_vextr_impl to also double as implementation
 of the string classes.
 The complete lower-level class hierarchy is therefore:
@@ -64,7 +64,7 @@ The complete lower-level class hierarchy is therefore:
 
    •  collections::detail::complex_vextr_impl / collections::detail::trivial_vextr_impl
 
-      •  collections::detail::raw_vector: consolidates the trivial and complex interfaces into a
+      •  collections::detail::vector_impl: consolidates the trivial and complex interfaces into a
          single one by having two distinct specializations (trivial/non-trivial);
 
          •  collections::vector: Abaclade’s vector class;

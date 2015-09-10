@@ -41,14 +41,14 @@ template <
    bool t_bCopyConstructible = _std::is_copy_constructible<T>::value,
    bool t_bTrivial = _std::is_trivial<T>::value
 >
-class raw_vector;
+class vector_impl;
 
 // Partial specialization for non-copyable, non-trivial types.
 template <typename T>
-class raw_vector<T, false, false> : public complex_vextr_impl, public noncopyable {
+class vector_impl<T, false, false> : public complex_vextr_impl, public noncopyable {
 public:
    //! Destructor.
-   ~raw_vector() {
+   ~vector_impl() {
       type_void_adapter type;
       type.set_destruct<T>();
       destruct_items(type);
@@ -145,12 +145,12 @@ protected:
 
 protected:
    //! See complex_vextr_impl::complex_vextr_impl().
-   raw_vector(std::size_t cbEmbeddedCapacity) :
+   vector_impl(std::size_t cbEmbeddedCapacity) :
       complex_vextr_impl(cbEmbeddedCapacity) {
    }
 
    //! See complex_vextr_impl::complex_vextr_impl().
-   raw_vector(T const * ptConstSrc, std::size_t ciSrc) :
+   vector_impl(T const * ptConstSrc, std::size_t ciSrc) :
       complex_vextr_impl(ptConstSrc, ciSrc) {
    }
 
@@ -161,7 +161,7 @@ private:
 
 // Partial specialization for copyable, non-trivial types.
 template <typename T>
-class raw_vector<T, true, false> : public raw_vector<T, false, false> {
+class vector_impl<T, true, false> : public vector_impl<T, false, false> {
 protected:
    //! See complex_vextr_impl::assign_copy().
    void assign_copy(T const * ptBegin, T const * ptEnd) {
@@ -208,14 +208,14 @@ protected:
    }
 
 protected:
-   //! See raw_vector<T, false, false>::raw_vector<T, false, false>().
-   raw_vector(std::size_t cbEmbeddedCapacity) :
-      raw_vector<T, false, false>(cbEmbeddedCapacity) {
+   //! See vector_impl<T, false, false>::vector_impl<T, false, false>().
+   vector_impl(std::size_t cbEmbeddedCapacity) :
+      vector_impl<T, false, false>(cbEmbeddedCapacity) {
    }
 
-   //! See raw_vector<T, false, false>::raw_vector<T, false, false>().
-   raw_vector(std::size_t cbEmbeddedCapacity, T const * ptConstSrc, std::size_t ciSrc) :
-      raw_vector<T, false, false>(cbEmbeddedCapacity, ptConstSrc, ciSrc) {
+   //! See vector_impl<T, false, false>::vector_impl<T, false, false>().
+   vector_impl(std::size_t cbEmbeddedCapacity, T const * ptConstSrc, std::size_t ciSrc) :
+      vector_impl<T, false, false>(cbEmbeddedCapacity, ptConstSrc, ciSrc) {
    }
 };
 
@@ -223,7 +223,7 @@ protected:
 for the individual elements, because move semantics don’t apply (trivial values are always
 copied). */
 template <typename T>
-class raw_vector<T, true, true> : public trivial_vextr_impl {
+class vector_impl<T, true, true> : public trivial_vextr_impl {
 public:
    /*! Ensures that the vector has at least ciMin of actual item space. If this causes *this to
    switch to using a different item array, any elements in the current one will be destructed unless
@@ -330,12 +330,12 @@ protected:
 
 protected:
    //! See trivial_vextr_impl::trivial_vextr_impl().
-   raw_vector(std::size_t cbEmbeddedCapacity) :
+   vector_impl(std::size_t cbEmbeddedCapacity) :
       trivial_vextr_impl(cbEmbeddedCapacity) {
    }
 
    //! See trivial_vextr_impl::trivial_vextr_impl().
-   raw_vector(std::size_t cbEmbeddedCapacity, T const * ptConstSrc, std::size_t ciSrc) :
+   vector_impl(std::size_t cbEmbeddedCapacity, T const * ptConstSrc, std::size_t ciSrc) :
       trivial_vextr_impl(cbEmbeddedCapacity, ptConstSrc, ciSrc) {
    }
 };
@@ -646,7 +646,7 @@ namespace abc { namespace collections {
 // Partial specialization for non-copyable types.
 template <typename T>
 class vector<T, 0> :
-   public detail::raw_vector<T>,
+   public detail::vector_impl<T>,
    public support_explicit_operator_bool<vector<T, 0>> {
 private:
    template <typename T2>
@@ -656,7 +656,7 @@ private:
 
    //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = _std::is_copy_constructible<T>::value;
-   typedef detail::raw_vector<T> vector_impl;
+   typedef detail::vector_impl<T> vector_impl;
 
 public:
    typedef T value_type;
