@@ -47,10 +47,10 @@ namespace abc { namespace text {
 // Specialization with no embedded character array: this is the plain abc::text::str.
 template <>
 class ABACLADE_SYM sstr<0> :
-   protected collections::detail::raw_trivial_vextr_impl,
+   protected collections::detail::trivial_vextr_impl,
    public support_explicit_operator_bool<str> {
 private:
-   typedef collections::detail::raw_trivial_vextr_impl vextr_impl;
+   typedef collections::detail::trivial_vextr_impl vextr_impl;
 
 public:
    /*! Pointer to a C-style, NUL-terminated character array that may or may not share memory with an
@@ -728,8 +728,8 @@ public:
    ABC_EXPLICIT_OPERATOR_BOOL() const {
       /* Use std::int8_t to avoid multiplying by sizeof(char_t) when all we need is a greater-than
       check. */
-      return collections::detail::raw_vextr_impl_base::end<std::int8_t>() >
-         collections::detail::raw_vextr_impl_base::begin<std::int8_t>();
+      return collections::detail::vextr_impl_base::end<std::int8_t>() >
+         collections::detail::vextr_impl_base::begin<std::int8_t>();
    }
 
    /*! Concatenation-assignment operator.
@@ -805,7 +805,7 @@ public:
    */
    void append(char_t const * pchAdd, std::size_t cchAdd) {
       vextr_impl::insert_remove(
-         collections::detail::raw_vextr_impl_base::size<std::int8_t>(),
+         collections::detail::vextr_impl_base::size<std::int8_t>(),
          pchAdd, sizeof(char_t) * cchAdd, 0
       );
    }
@@ -858,7 +858,7 @@ public:
       Size of the string buffer, in characters.
    */
    std::size_t capacity() const {
-      return collections::detail::raw_vextr_impl_base::capacity<char_t>();
+      return collections::detail::vextr_impl_base::capacity<char_t>();
    }
 
    /*! Returns a const iterator set to the first character.
@@ -1647,9 +1647,9 @@ protected:
 template <std::size_t t_cchEmbeddedCapacity>
 class sstr :
    private str,
-   private collections::detail::raw_vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
+   private collections::detail::vextr_prefixed_item_array<char_t, t_cchEmbeddedCapacity> {
 private:
-   using collections::detail::raw_vextr_prefixed_item_array<
+   using collections::detail::vextr_prefixed_item_array<
       char_t, t_cchEmbeddedCapacity
    >::smc_cbEmbeddedCapacity;
 

@@ -39,7 +39,7 @@ namespace abc { namespace text {
 static char_t const gc_chNul('\0');
 
 //! Vextr referencing a static, empty, NUL-terminated raw C string.
-static collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
+static collections::detail::vextr_impl_data const gc_vidEmpty = {
    /*m_pBegin                      =*/ const_cast<char_t *>(&gc_chNul),
    /*m_pEnd                        =*/ const_cast<char_t *>(&gc_chNul),
    /*mc_bEmbeddedPrefixedItemArray =*/ false,
@@ -48,7 +48,7 @@ static collections::detail::raw_vextr_impl_data const gc_rvidEmpty = {
    /*m_bNulT                       =*/ true
 };
 
-str const & str::empty = static_cast<str const &>(gc_rvidEmpty);
+str const & str::empty = static_cast<str const &>(gc_vidEmpty);
 
 
 std::ptrdiff_t str::const_iterator::distance(std::size_t ich) const {
