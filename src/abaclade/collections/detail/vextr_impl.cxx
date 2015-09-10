@@ -304,6 +304,10 @@ void raw_complex_vextr_impl::assign_move_desc_or_move_items(
    rcvi.assign_empty();
 }
 
+void raw_complex_vextr_impl::destruct_items(type_void_adapter const & type) {
+   type.destruct(m_pBegin, m_pEnd);
+}
+
 /*! Safely moves a range of items to another position in the same array, carefully moving items in
 case the source and the destination ranges overlap. Note that this will also destruct the source
 items.

@@ -586,9 +586,7 @@ public:
    @param type
       Adapter for the items’ type.
    */
-   void destruct_items(type_void_adapter const & type) {
-      type.destruct(m_pBegin, m_pEnd);
-   }
+   void destruct_items(type_void_adapter const & type);
 
    /*! Inserts items at a specific position in the vextr.
 
