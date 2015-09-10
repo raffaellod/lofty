@@ -457,6 +457,14 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 // Forward declarations.
 
+namespace abc { namespace collections {
+
+//! TODO: comment.
+template <typename T, std::size_t t_ciEmbeddedCapacity = 0>
+class vector;
+
+}} //namespace abc::collections
+
 namespace abc { namespace text {
 
 /*! abc::text::str subclass that includes a fixed-size character array.

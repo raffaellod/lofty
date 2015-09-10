@@ -340,14 +340,6 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections {
-
-// TODO: comment.
-template <typename T, std::size_t t_ciEmbeddedCapacity = 0>
-class vector;
-
-}} //namespace abc::collections
-
 namespace abc { namespace collections { namespace detail {
 
 //! Const iterator for vector elements.
