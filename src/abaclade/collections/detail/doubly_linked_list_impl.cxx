@@ -81,7 +81,7 @@ void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) 
 }
 
 
-void doubly_linked_list_impl::iterator_base::move_on(bool bForward) {
+void doubly_linked_list_impl::iterator_base::advance(bool bForward) {
    ABC_TRACE_FUNC(this, bForward);
 
    validate();

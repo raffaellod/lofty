@@ -199,7 +199,7 @@ protected:
          If true, the iterator will move to the next node; if false, the iterator will move to the
          previous node.
       */
-      void move_on(bool bForward);
+      void advance(bool bForward);
 
       //! Throws a collections::out_of_range exception if the iterator cannot be dereferenced.
       void validate() const;

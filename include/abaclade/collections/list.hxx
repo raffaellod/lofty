@@ -80,7 +80,7 @@ private:
          *this.
       */
       const_bidi_iterator & operator++() {
-         move_on(t_bForward);
+         advance(t_bForward);
          return *this;
       }
 
@@ -101,7 +101,7 @@ private:
          *this.
       */
       const_bidi_iterator & operator--() {
-         move_on(!t_bForward);
+         advance(!t_bForward);
          return *this;
       }
 
