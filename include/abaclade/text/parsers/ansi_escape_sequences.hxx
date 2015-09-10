@@ -227,12 +227,16 @@ protected:
    char_attributes m_chattrCurr;
 
 private:
+   //! Maximum number of arguments needed by any sequence.
+   static std::size_t const smc_cCmdArgsMax = 4;
    //! Current automaton state.
    state m_state;
    //! Character that started the current sequence. Can be ‘[’, ‘]’ or ‘?’ (for “[?”).
    char_t m_chSeqStart;
    //! Numeric arguments parsed from the current sequence.
-   collections::vector<std::int16_t, 4> m_viCmdArgs;
+   std::int16_t m_aiCmdArgs[smc_cCmdArgsMax];
+   //! Count of elements in m_aiCmdArgs.
+   unsigned m_cCmdArgs;
    //! String argument parsed from the current sequence.
    str m_sCmdArg;
    //! Stores the row number for the Save/Restore Cursor Position command.

@@ -26,7 +26,8 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace text { namespace parsers {
 
 ansi_escape_sequences::ansi_escape_sequences() :
-   m_state(state::not_in_sequence) {
+   m_state(state::not_in_sequence),
+   m_cCmdArgs(0) {
 }
 
 ansi_escape_sequences::~ansi_escape_sequences() {
@@ -35,22 +36,22 @@ ansi_escape_sequences::~ansi_escape_sequences() {
 bool ansi_escape_sequences::got_one_argument(std::int16_t iDefault0) {
    ABC_TRACE_FUNC(this, iDefault0);
 
-   if (m_viCmdArgs.size() == 0) {
-      m_viCmdArgs.push_back(iDefault0);
+   if (m_cCmdArgs == 0) {
+      m_aiCmdArgs[m_cCmdArgs++] = iDefault0;
    }
-   return m_viCmdArgs.size() == 1;
+   return m_cCmdArgs == 1;
 }
 
 bool ansi_escape_sequences::got_two_arguments(std::int16_t iDefault0, std::int16_t iDefault1) {
    ABC_TRACE_FUNC(this, iDefault0, iDefault1);
 
-   if (m_viCmdArgs.size() == 0) {
-      m_viCmdArgs.push_back(iDefault0);
+   if (m_cCmdArgs == 0) {
+      m_aiCmdArgs[m_cCmdArgs++] = iDefault0;
    }
-   if (m_viCmdArgs.size() == 1) {
-      m_viCmdArgs.push_back(iDefault1);
+   if (m_cCmdArgs == 1) {
+      m_aiCmdArgs[m_cCmdArgs++] = iDefault1;
    }
-   return m_viCmdArgs.size() == 2;
+   return m_cCmdArgs == 2;
 }
 
 bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
@@ -65,7 +66,7 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
          if (ch == '[' || ch == ']') {
             // Reinitialize the argument storage, preparing to parse the rest of the sequence.
             m_chSeqStart = ch;
-            m_viCmdArgs.clear();
+            m_cCmdArgs = 0;
             m_sCmdArg.clear();
             m_state = state::bracket;
          } else if (ch == ')' || ch == '(') {
@@ -79,10 +80,14 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
 
       case state::bracket:
          if (ch >= '0' && ch <= '9') {
-            m_viCmdArgs.push_back(static_cast<std::int16_t>(ch - '0'));
+            if (m_cCmdArgs < smc_cCmdArgsMax) {
+               m_aiCmdArgs[m_cCmdArgs++] = static_cast<std::int16_t>(ch - '0');
+            }
             m_state = state::numeric_arg;
          } else if (ch == ';') {
-            m_viCmdArgs.push_back(0);
+            if (m_cCmdArgs < smc_cCmdArgsMax) {
+               m_aiCmdArgs[m_cCmdArgs++] = 0;
+            }
          } else if (ch == '?') {
             m_chSeqStart = ch;
          } else {
@@ -94,10 +99,12 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
 
       case state::numeric_arg:
          if (ch >= '0' && ch <= '9') {
-            std::int16_t & iLastCmdArg = m_viCmdArgs.back();
+            std::int16_t & iLastCmdArg = m_aiCmdArgs[m_cCmdArgs];
             iLastCmdArg = static_cast<std::int16_t>(iLastCmdArg * std::int16_t(10) + (ch - '0'));
          } else if (ch == ';') {
-            m_viCmdArgs.push_back(0);
+            if (m_cCmdArgs < smc_cCmdArgsMax) {
+               m_aiCmdArgs[m_cCmdArgs++] = 0;
+            }
             if (m_chSeqStart == ']') {
                m_state = state::string_arg;
             }
@@ -171,68 +178,68 @@ void ansi_escape_sequences::run_sequence(char_t chCmd) {
       switch (chCmd) {
          case 'A': // Move cursor up N rows.
             if (got_one_argument(1)) {
-               safe_set_cursor_pos(-m_viCmdArgs[0], 0);
+               safe_set_cursor_pos(-m_aiCmdArgs[0], 0);
             }
             break;
          case 'B': // Move cursor down N rows.
             if (got_one_argument(1)) {
-               safe_set_cursor_pos(m_viCmdArgs[0], 0);
+               safe_set_cursor_pos(m_aiCmdArgs[0], 0);
             }
             break;
          case 'C': // Move cursor right N columns.
             if (got_one_argument(1)) {
-               safe_set_cursor_pos(0, m_viCmdArgs[0]);
+               safe_set_cursor_pos(0, m_aiCmdArgs[0]);
             }
             break;
          case 'D': // Move cursor left N columns.
             if (got_one_argument(1)) {
-               safe_set_cursor_pos(0, -m_viCmdArgs[0]);
+               safe_set_cursor_pos(0, -m_aiCmdArgs[0]);
             }
             break;
          case 'E': // Move cursor down N rows, column 1.
             if (got_one_argument(1)) {
-               safe_set_cursor_pos(m_viCmdArgs[0], 0, false, true);
+               safe_set_cursor_pos(m_aiCmdArgs[0], 0, false, true);
             }
             break;
          case 'F': // Move cursor up N rows, column 1.
             if (got_one_argument(1)) {
-               safe_set_cursor_pos(-m_viCmdArgs[0], 0, false, true);
+               safe_set_cursor_pos(-m_aiCmdArgs[0], 0, false, true);
             }
             break;
          case 'G': // Move cursor to column N.
             if (got_one_argument(1)) {
-               safe_set_cursor_pos(0, m_viCmdArgs[0] - 1, false, true);
+               safe_set_cursor_pos(0, m_aiCmdArgs[0] - 1, false, true);
             }
             break;
          case 'H': // Move cursor to row N, column M.
          case 'f': // Move cursor to row N, column M.
             if (got_two_arguments(1, 1)) {
-               safe_set_cursor_pos(m_viCmdArgs[0] - 1, m_viCmdArgs[1] - 1, true, true);
+               safe_set_cursor_pos(m_aiCmdArgs[0] - 1, m_aiCmdArgs[1] - 1, true, true);
             }
             break;
          case 'J': // Erase the display from the cursor down (N=0), up (N=1), or everything (N=2).
             if (got_one_argument(0)) {
-               run_erase_display_sequence(m_viCmdArgs[0]);
+               run_erase_display_sequence(m_aiCmdArgs[0]);
             }
             break;
          case 'K': // Erase chars right (N=0), left (N=1) or both (N=2) sides of the current column.
             if (got_one_argument(0)) {
-               run_erase_row_sequence(m_viCmdArgs[0]);
+               run_erase_row_sequence(m_aiCmdArgs[0]);
             }
             break;
          case 'S': // Scroll text up N rows.
             if (got_one_argument(1)) {
-               scroll_text(static_cast<std::int16_t>(-m_viCmdArgs[0]), 0);
+               scroll_text(static_cast<std::int16_t>(-m_aiCmdArgs[0]), 0);
             }
             break;
          case 'T': // Scroll text down N rows.
             if (got_one_argument(1)) {
-               scroll_text(m_viCmdArgs[0], 0);
+               scroll_text(m_aiCmdArgs[0], 0);
             }
             break;
          case 'd': // Move cursor to row N.
             if (got_one_argument(1)) {
-               safe_set_cursor_pos(m_viCmdArgs[0] - 1, 0, true, false);
+               safe_set_cursor_pos(m_aiCmdArgs[0] - 1, 0, true, false);
             }
             break;
          case 'm': // Set character attributes.
@@ -240,22 +247,22 @@ void ansi_escape_sequences::run_sequence(char_t chCmd) {
             run_set_char_attributes_sequence();
             break;
          case 's': // Save cursor position.
-            if (!m_viCmdArgs) {
+            if (m_cCmdArgs == 0) {
                get_cursor_pos_and_display_size(&m_iSavedRow, &m_iSavedCol, nullptr, nullptr);
             }
             break;
          case 'u': // Restore saved cursor position.
-            if (!m_viCmdArgs) {
+            if (m_cCmdArgs == 0) {
                safe_set_cursor_pos(m_iSavedRow, m_iSavedCol, true, true);
             }
             break;
       }
    } else if (m_chSeqStart == ']') {
-      if (m_viCmdArgs.size() == 1 && m_viCmdArgs[0] == 0) {
+      if (m_cCmdArgs == 1 && m_aiCmdArgs[0] == 0) {
          set_window_title(m_sCmdArg);
       }
    } else if (m_chSeqStart == '?') {
-      if ((chCmd == 'h' || chCmd == 'l') && m_viCmdArgs.size() == 1 && m_viCmdArgs[0] == 25) {
+      if ((chCmd == 'h' || chCmd == 'l') && m_cCmdArgs == 1 && m_aiCmdArgs[0] == 25) {
          set_cursor_visibility(chCmd == 'h');
       }
    }
@@ -264,8 +271,8 @@ void ansi_escape_sequences::run_sequence(char_t chCmd) {
 void ansi_escape_sequences::run_set_char_attributes_sequence() {
    ABC_TRACE_FUNC(this);
 
-   for (auto it(m_viCmdArgs.cbegin()); it != m_viCmdArgs.cend(); ++it) {
-      std::int16_t iCmdArg = *it;
+   for (unsigned i = 0; i < m_cCmdArgs; ++i) {
+      std::int16_t iCmdArg = m_aiCmdArgs[i];
       switch (iCmdArg) {
          case 0:
          case 39:
