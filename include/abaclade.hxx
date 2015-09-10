@@ -509,6 +509,12 @@ class writer;
 
 }}} //namespace abc::io::text
 
+namespace abc { namespace os {
+
+class path;
+
+}} //namespace abc::os
+
 #include <abaclade/_std.hxx>
 #include <abaclade/collections/static_list.hxx>
 #include <abaclade/detail/context_local.hxx>
@@ -534,7 +540,6 @@ class writer;
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/collections/vector-after-to_str.hxx>
 
-#include <abaclade/os/path.hxx>
 #include <abaclade/io.hxx>
 #include <abaclade/io/binary.hxx>
 #include <abaclade/io/binary/file.hxx>
