@@ -538,7 +538,6 @@ class writer;
 #include <abaclade/io.hxx>
 #include <abaclade/io/binary.hxx>
 #include <abaclade/io/binary/file.hxx>
-#include <abaclade/collections/list.hxx>
 #include <abaclade/io/binary/buffered.hxx>
 #include <abaclade/io/text.hxx>
 #include <abaclade/io/text/binbuf.hxx>
