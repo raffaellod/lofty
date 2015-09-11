@@ -26,8 +26,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace testing {
 
-assertion_error::assertion_error() :
-   exception() {
+assertion_error::assertion_error() {
    m_pszWhat = "abc::assertion_error";
 }
 

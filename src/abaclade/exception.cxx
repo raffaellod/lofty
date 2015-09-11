@@ -488,8 +488,7 @@ user_forced_interruption & user_forced_interruption::operator=(user_forced_inter
 
 namespace abc {
 
-argument_error::argument_error() :
-   generic_error() {
+argument_error::argument_error() {
    m_pszWhat = "abc::argument_error";
 }
 
@@ -548,8 +547,7 @@ coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
 
 namespace abc {
 
-domain_error::domain_error() :
-   generic_error() {
+domain_error::domain_error() {
    m_pszWhat = "abc::domain_error";
 }
 
@@ -581,8 +579,7 @@ void domain_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-generic_error::generic_error() :
-   exception() {
+generic_error::generic_error() {
    m_pszWhat = "abc::generic_error";
 }
 generic_error::generic_error(generic_error const & x) :
@@ -612,8 +609,7 @@ generic_error & generic_error::operator=(generic_error const & x) {
 
 namespace abc {
 
-network_error::network_error() :
-   generic_error() {
+network_error::network_error() {
    m_pszWhat = "abc::network_error";
 }
 
@@ -639,8 +635,7 @@ void network_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-security_error::security_error() :
-   generic_error() {
+security_error::security_error() {
    m_pszWhat = "abc::security_error";
 }
 
@@ -666,8 +661,7 @@ void security_error::init(errint_t err /*= 0*/) {
 
 namespace abc {
 
-syntax_error::syntax_error() :
-   generic_error() {
+syntax_error::syntax_error() {
    m_pszWhat = "abc::syntax_error";
 }
 

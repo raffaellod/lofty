@@ -171,8 +171,7 @@ namespace abc { namespace io {
 
 namespace abc { namespace io {
 
-error::error() :
-   generic_error() {
+error::error() {
    m_pszWhat = "abc::io::error";
 }
 

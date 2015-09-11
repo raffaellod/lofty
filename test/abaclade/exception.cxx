@@ -31,8 +31,7 @@ protected:
    class derived1_error : public generic_error {
    public:
       //! Constructor.
-      derived1_error() :
-         generic_error() {
+      derived1_error() {
          m_pszWhat = "abc::test::exception_polymorphism::derived1_error";
       }
    };
@@ -41,8 +40,7 @@ protected:
    class derived2_error : public derived1_error {
    public:
       //! Constructor.
-      derived2_error() :
-         derived1_error() {
+      derived2_error() {
          m_pszWhat = "abc::test::exception_polymorphism::derived2_error";
       }
    };

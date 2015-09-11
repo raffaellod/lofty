@@ -25,8 +25,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace collections {
 
-bad_access::bad_access() :
-   generic_error() {
+bad_access::bad_access() {
    m_pszWhat = "abc::collections::bad_access";
 }
 
@@ -48,8 +47,7 @@ bad_access & bad_access::operator=(bad_access const & x) {
 
 namespace abc { namespace collections {
 
-bad_key::bad_key() :
-   bad_access() {
+bad_key::bad_key() {
    m_pszWhat = "abc::collections::bad_key";
 }
 
@@ -75,8 +73,7 @@ void bad_key::init(errint_t err /*= 0*/) {
 
 namespace abc { namespace collections {
 
-out_of_range::out_of_range() :
-   bad_access() {
+out_of_range::out_of_range() {
    m_pszWhat = "abc::collections::out_of_range";
 }
 out_of_range::out_of_range(out_of_range const & x) :

@@ -30,8 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace memory {
 
-bad_alloc::bad_alloc() :
-   generic_error() {
+bad_alloc::bad_alloc() {
    m_pszWhat = "abc::memory::bad_alloc";
 }
 
@@ -77,8 +76,7 @@ namespace abc { namespace memory {
 
 char_t const bad_pointer::smc_szUnknownAddress[] = ABC_SL(" unknown memory address");
 
-bad_pointer::bad_pointer() :
-   generic_error() {
+bad_pointer::bad_pointer() {
    m_pszWhat = "abc::memory::bad_pointer";
 }
 
@@ -124,8 +122,7 @@ void bad_pointer::init(void const * pInvalid, errint_t err /*= 0*/) {
 
 namespace abc { namespace memory {
 
-bad_pointer_alignment::bad_pointer_alignment() :
-   generic_error() {
+bad_pointer_alignment::bad_pointer_alignment() {
    m_pszWhat = "abc::memory::bad_pointer_alignment";
 }
 

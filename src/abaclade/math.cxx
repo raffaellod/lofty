@@ -30,8 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace math {
 
-arithmetic_error::arithmetic_error() :
-   generic_error() {
+arithmetic_error::arithmetic_error() {
    m_pszWhat = "abc::math::arithmetic_error";
 }
 
@@ -57,8 +56,7 @@ void arithmetic_error::init(errint_t err /*= 0*/) {
 
 namespace abc { namespace math {
 
-division_by_zero::division_by_zero() :
-   arithmetic_error() {
+division_by_zero::division_by_zero() {
    m_pszWhat = "abc::math::division_by_zero";
 }
 
@@ -84,8 +82,7 @@ void division_by_zero::init(errint_t err /*= 0*/) {
 
 namespace abc { namespace math {
 
-floating_point_error::floating_point_error() :
-   arithmetic_error() {
+floating_point_error::floating_point_error() {
    m_pszWhat = "abc::math::floating_point_error";
 }
 
@@ -111,8 +108,7 @@ void floating_point_error::init(errint_t err /*= 0*/) {
 
 namespace abc { namespace math {
 
-overflow::overflow() :
-   arithmetic_error() {
+overflow::overflow() {
    m_pszWhat = "abc::math::overflow";
 }
 

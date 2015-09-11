@@ -687,8 +687,7 @@ std::size_t size_in_chars(char const * psz) {
 
 namespace abc { namespace text {
 
-error::error() :
-   generic_error() {
+error::error() {
    m_pszWhat = "abc::text::error";
 }
 
@@ -714,8 +713,7 @@ void error::init(errint_t err /*= 0*/) {
 
 namespace abc { namespace text {
 
-decode_error::decode_error() :
-   error() {
+decode_error::decode_error() {
    m_pszWhat = "abc::text::decode_error";
 }
 
@@ -772,8 +770,7 @@ void decode_error::init(
 
 namespace abc { namespace text {
 
-encode_error::encode_error() :
-   error() {
+encode_error::encode_error() {
    m_pszWhat = "abc::text::encode_error";
 }
 

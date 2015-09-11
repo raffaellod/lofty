@@ -25,8 +25,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace os {
 
-invalid_path::invalid_path() :
-   generic_error() {
+invalid_path::invalid_path() {
    m_pszWhat = "abc::invalid_path";
 }
 invalid_path::invalid_path(invalid_path const & x) :
@@ -65,8 +64,7 @@ void invalid_path::init(os::path const & opInvalid, errint_t err /*= 0*/) {
 
 namespace abc { namespace os {
 
-path_not_found::path_not_found() :
-   generic_error() {
+path_not_found::path_not_found() {
    m_pszWhat = "abc::path_not_found";
 }
 
