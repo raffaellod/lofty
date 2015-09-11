@@ -61,8 +61,16 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma warning(disable: 4986)
 #endif
 
-void * ABC_STL_CALLCONV operator new(std::size_t cb);
-void * ABC_STL_CALLCONV operator new[](std::size_t cb);
+void * ABC_STL_CALLCONV operator new(std::size_t cb)
+#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
+throw(std::bad_alloc)
+#endif
+;
+void * ABC_STL_CALLCONV operator new[](std::size_t cb)
+#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
+throw(std::bad_alloc)
+#endif
+;
 void * ABC_STL_CALLCONV operator new(
    std::size_t cb, abc::_std::nothrow_t const &
 ) ABC_STL_NOEXCEPT_TRUE();
