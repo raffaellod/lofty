@@ -21,10 +21,6 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
-#if ABC_HOST_API_WIN32
-   #include <abaclade/text/parsers/ansi_escape_sequences.hxx>
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
