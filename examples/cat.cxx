@@ -27,6 +27,7 @@ which can be signaled with Ctrl+D in Linux/OS X/FreeBSD or Ctrl+Z followed by En
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>
+#include <abaclade/io/text.hxx>
 
 using namespace abc;
 

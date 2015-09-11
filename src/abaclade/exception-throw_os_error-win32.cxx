@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 // #include <abaclade.hxx> already done in throw_os_error.cxx.
+#include <abaclade/io.hxx>
 #include <abaclade/math.hxx>
 #include <abaclade/os.hxx>
 #include <abaclade/text.hxx>

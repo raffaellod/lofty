@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/app.hxx>
 #include <abaclade/coroutine.hxx>
 #include <abaclade/defer_to_scope_end.hxx>
+#include <abaclade/io/text.hxx>
 #include <abaclade/net.hxx>
 #include <abaclade/thread.hxx>
 

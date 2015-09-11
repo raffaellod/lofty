@@ -30,6 +30,8 @@ then it terminates. See the source code for line-by-line comments.
 see below. */
 #include <abaclade/app.hxx>
 
+#include <abaclade/io/text.hxx>
+
 /* Abaclade does not use “using namespace” directives in its sources or header files; if you want
 such convenience, you have to write it yourself in your own source files. */
 using namespace abc;

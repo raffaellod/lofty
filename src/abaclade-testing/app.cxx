@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with Aba
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/io/text.hxx>
 #include <abaclade/testing/app.hxx>
 #include <abaclade/testing/runner.hxx>
 

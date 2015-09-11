@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 #include <abaclade.hxx>
 #include <abaclade/defer_to_scope_end.hxx>
+#include <abaclade/io/text.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/thread.hxx>
 
