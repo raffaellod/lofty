@@ -33,7 +33,7 @@ void context_local_storage_registrar_impl::add_var(
    pclsni->m_iStorageIndex = m_cVars++;
    // Calculate the offset for *pclsni’s storage and increase cb accordingly.
    pclsni->m_ibStorageOffset = m_cb;
-   m_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t));
+   m_cb += bitmanip::ceiling_to_pow2_multiple(cb, sizeof(_std::max_align_t));
    if (m_cbFrozen && m_cb > m_cbFrozen) {
       // TODO: can’t log/report anything since no thread locals are available! Fix me!
       std::abort();

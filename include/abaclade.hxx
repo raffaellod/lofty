@@ -331,30 +331,6 @@ compilers. */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Extended features that can take advantage of C++11 or fallback to still-functional alternatives.
-
-#include <abaclade/_std-before-noncopyable.hxx>
-#include <abaclade/noncopyable.hxx>
-#include <abaclade/explicit_operator_bool.hxx>
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-#ifdef ABC_STLIMPL
-typedef _std::max_align_t max_align_t;
-#else //ifdef ABC_STLIMPL
-/*! Type whose alignment requirement is at least as large as that of any scalar type (see C++11 §
-18.2 “<cstddef>”). */
-union max_align_t {
-   double d;
-   long double ld;
-   long long ll;
-};
-#endif //ifdef ABC_STLIMPL … else
-
-} //namespace abc
-
 /*! Avoids compiler warnings about purposely unused parameters. Win32 has UNREFERENCED_PARAMETER for
 this purpose, but this is noticeably shorter :)
 
@@ -374,17 +350,20 @@ this purpose, but this is noticeably shorter :)
 #define ABC_COUNTOF(array) \
    (sizeof(array) / sizeof((array)[0]))
 
-/*! Returns a size rounded (ceiling) to a count of abc::max_align_t units. This allows to declare
+/*! Returns a size rounded (ceiling) to a count of _std::max_align_t units. This allows to declare
 storage with alignment suitable for any type, just like std::malloc() does. Identical to
-bitmanip::ceiling_to_pow2_multiple(cb, sizeof(abc::max_align_t)).
+bitmanip::ceiling_to_pow2_multiple(cb, sizeof(_std::max_align_t)).
 
 @param cb
-   Size to be aligned to sizeof(abc::max_align_t).
+   Size to be aligned to sizeof(_std::max_align_t).
 @return
-   Multiple of sizeof(abc::max_align_t) not smaller than cb.
+   Multiple of sizeof(_std::max_align_t) not smaller than cb.
 */
 #define ABC_ALIGNED_SIZE(cb) \
-   ((static_cast<std::size_t>(cb) + sizeof(::abc::max_align_t) - 1) / sizeof(::abc::max_align_t))
+   (\
+      (static_cast<std::size_t>(cb) + sizeof(::abc::_std::max_align_t) - 1) / \
+      sizeof(::abc::_std::max_align_t) \
+   )
 
 /** Returns the offset of a member in a struct/class.
 
@@ -452,9 +431,6 @@ from Abaclade’s testing shared library (into another library/executable). */
    #pragma warning(pop)
 #endif
 
-#include <abaclade/_std-before-memory.hxx>
-#include <abaclade/memory.hxx>
-
 // Forward declarations.
 
 namespace abc { namespace collections {
@@ -517,7 +493,13 @@ using text::sstr;
 
 } //namespace abc
 
+#include <abaclade/_std-before-noncopyable.hxx>
+#include <abaclade/noncopyable.hxx>
+#include <abaclade/explicit_operator_bool.hxx>
+#include <abaclade/_std-before-memory.hxx>
+#include <abaclade/memory.hxx>
 #include <abaclade/_std.hxx>
+
 #include <abaclade/collections/static_list.hxx>
 #include <abaclade/detail/context_local.hxx>
 #include <abaclade/coroutine_local.hxx>

@@ -30,6 +30,24 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace _std {
+
+/*! Type whose alignment requirement is at least as large as that of any scalar type (see C++11 §
+18.2 “<cstddef>”). */
+#if !defined(ABC_STLIMPL) && ABC_HOST_CXX_GCC >= 40900
+   typedef std::max_align_t max_align_t;
+#elif !defined(ABC_STLIMPL) && (ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC >= 40700)
+   typedef ::max_align_t max_align_t;
+#else
+   union max_align_t {
+      double d;
+      long double ld;
+      long long ll;
+   };
+#endif
+
+}} //namespace abc::_std
+
 #if defined(ABC_STLIMPL) || !defined(ABC_CXX_VARIADIC_TEMPLATES)
    #include <abaclade/_std/tuple.hxx>
 #else
