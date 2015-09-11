@@ -361,7 +361,7 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(_std::max_align_t)).
 */
 #define ABC_ALIGNED_SIZE(cb) \
    (\
-      (static_cast<std::size_t>(cb) + sizeof(::abc::_std::max_align_t) - 1) / \
+      (static_cast< ::std::size_t>(cb) + sizeof(::abc::_std::max_align_t) - 1) / \
       sizeof(::abc::_std::max_align_t) \
    )
 
@@ -375,7 +375,7 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(_std::max_align_t)).
    Offset of the specified member, in bytes.
 */
 #define ABC_OFFSETOF(type, member) \
-   (reinterpret_cast<std::size_t>(&reinterpret_cast<type *>(8192)->member) - 8192)
+   (reinterpret_cast< ::std::size_t>(&reinterpret_cast<type *>(8192)->member) - 8192)
 
 /** Returns the size of a struct/class, without padding added.
 
