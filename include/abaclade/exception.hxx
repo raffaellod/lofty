@@ -107,7 +107,7 @@ STL exception class, and these are indeed defined once for all binaries, and are
 
 See also ABC_THROW() for more information.
 
-See [IMG:8190 Exception class hierarchy] for a diagram of the entire Abaclade exception class
+See doc/Exception_class_hierarchy.fodg for a diagram of the entire Abaclade exception class
 hierarchy, including the relations with the STL hierarchy.
 
 Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/library/

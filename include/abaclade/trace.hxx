@@ -69,7 +69,7 @@ This covers the following code flows:
    exception was thrown. This is acceptable, since it cannot be determined whether the two
    exceptions were related.
 
-See related diagram [IMG:8503 Stack trace generation] for all code flows covered by this design.
+See related diagram doc/Stack_trace_generation.svg for all code flows covered by this design.
 See also ABC_THROW() and abc::exception for the remainder of the implementation.
 
 Currently unsupported:

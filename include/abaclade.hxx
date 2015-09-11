@@ -44,8 +44,8 @@ namespace abc {
    since these will not be used by container classes. */
    namespace collections {}
 
-   /*! I/O classes and functions. For an overview of the class/namespace hierarchy, see [IMG:4872
-   I/O class hierarchy] */
+   /*! I/O classes and functions. For an overview of the class/namespace hierarchy, see
+   doc/IO_class_hierarchy.fodg . */
    namespace io {
       //! Classes and functions to perform I/O in binary mode (raw bytes).
       namespace binary {}
