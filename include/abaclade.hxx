@@ -198,26 +198,36 @@ namespace abc {
    #define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
 #endif
 
-#if ABC_HOST_CXX_MSC
+#if ABC_HOST_STL_MSVCRT
    /* Prevent MSC headers from typedef-ining char16_t as unsigned short. This will also prevent
    char32_t from being typedef-ined to unsigned int, but we’ll do that anyway in char.hxx. */
    #define _CHAR16T
-
-   // Silence warnings from system header files.
-   #pragma warning(push)
-   // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
-   #pragma warning(disable: 4668)
+   #if ABC_HOST_CXX_MSC
+      // Silence warnings from system header files.
+      #pragma warning(push)
+      // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
+      #pragma warning(disable: 4668)
+   #endif
 #endif
 #include <cstdint> // std::*int*_t
-#if ABC_HOST_CXX_MSC
+#if ABC_HOST_STL_MSVCRT && ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
-/* As described in abaclade/detail/host.hxx, confirm that we’re really using GNU libstdc++. Note
-that even though we could, we won’t redefine it to ABC_HOST_STL_LIBSTDCXX to __GLIBCXX__, since
-__GLIBCXX__ is just a timestamp. */
-#if ABC_HOST_STL_LIBSTDCXX && !defined(__GLIBCXX__)
+#if ABC_HOST_STL_LIBSTDCXX
+   // As described in abaclade/detail/host.hxx, confirm that we’re really using GNU libstdc++.
    #undef ABC_HOST_STL_LIBSTDCXX
-   #define ABC_HOST_STL_LIBSTDCXX 0
+   #ifdef __GLIBCXX__
+      /* __GLIBCXX__ is a just timestamp, not good for version checks; if compiling using G++,
+      assume that the libstdc++ versions matches G++; otherwise we’ll just assume the worse and make
+      it a mere 1. */
+      #if ABC_HOST_CXX_GCC
+         #define ABC_HOST_STL_LIBSTDCXX ABC_HOST_CXX_GCC
+      #else
+         #define ABC_HOST_STL_LIBSTDCXX 1
+      #endif
+   #else
+      #define ABC_HOST_STL_LIBSTDCXX 0
+   #endif
 #endif
 
 // Under Win32, this also defines char16_t to be wchar_t, which is quite appropriate.
@@ -308,15 +318,15 @@ constructor (N2346). */
 #endif
 
 //! If defined, the STL implements C++11 type traits (as opposed to early similar implementations).
-#if ABC_HOST_CXX_CLANG && !defined(__GLIBCXX__)
+#if ABC_HOST_STL_LIBCXX || ABC_HOST_STL_LIBSTDCXX >= 40900
    #define ABC_CXX_STL_CXX11_TYPE_TRAITS
 #endif
 
 /*! If defined, the STL implements part of the C++11 type traits. This is a special case for the GNU
 libc++; see <https://gcc.gnu.org/onlinedocs/gcc-4.9.2/libstdc++/manual/manual/status.html> for the
 supported type traits. */
-#if (ABC_HOST_CXX_CLANG && defined(__GLIBCXX__)) || ABC_HOST_CXX_GCC >= 40800
-   #define ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS
+#if !defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) && ABC_HOST_STL_LIBSTDCXX >= 40800
+   #define ABC_CXX_STL_LIBSTDCXX_PARTIAL_TYPE_TRAITS
 #endif
 
 //! If defined, the compiler supports variadic templates (N2242).
@@ -426,16 +436,16 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 // #include other core header files that require a special order.
 
-#if ABC_HOST_CXX_MSC
+#if ABC_HOST_STL_MSVCRT && ABC_HOST_CXX_MSC
    // Silence warnings from system header files.
    #pragma warning(push)
    // “expression before comma has no effect; expected expression with side-effect”
    #pragma warning(disable: 4548)
    // “'id' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'”
    #pragma warning(disable: 4668)
-#endif //if ABC_HOST_CXX_MSC
+#endif
 #include <cstddef> // std::ptrdiff_t std::size_t
-#if ABC_HOST_CXX_MSC
+#if ABC_HOST_STL_MSVCRT && ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
 

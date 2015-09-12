@@ -223,12 +223,16 @@ private:
       Pointer to beyond the last item to copy.
    */
 #if ABC_HOST_CXX_MSC
-   /* MSC applies SFINAE too late, and when asked to get the address of the *one and only* valid
-   version of copy_construct_impl() (see non-MSC code in the #else branch), it will raise an error
-   saying it doesn’t know which one to choose. */
+   /* MSC16 BUG/MSC17 BUG/MSC18 BUG: they apply SFINAE too late, and when asked to get the address
+   of the *one and only* valid version of copy_construct_impl() (see non-MSC code in the #else
+   branch), they will raise an error saying they doesn’t know which one to choose. */
    template <typename T>
    static void copy_construct_impl(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
+   #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
+      if (_std::is_trivially_copy_constructible<T>::value) {
+   #else
       if (std::has_trivial_copy_constructor<T>::value) {
+   #endif
          // No constructor, fastest copy possible.
          memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
       } else {
@@ -300,7 +304,7 @@ private:
    */
    template <typename T>
    static void destruct_impl(T const * ptBegin, T const * ptEnd) {
-#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS)
+#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_LIBSTDCXX_PARTIAL_TYPE_TRAITS)
       if (!_std::is_trivially_destructible<T>::value) {
 #else
       if (!std::has_trivial_destructor<T>::value) {

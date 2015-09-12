@@ -41,12 +41,12 @@ using namespace ::abc::_std;
 #ifdef ABC_STLIMPL
    #include <abaclade/_std/type_traits.hxx>
 #else
-   #if ABC_HOST_CXX_MSC == 1800
+   #if ABC_HOST_STL_MSVCRT == 1800
       // See abc::noncopyable to understand what’s going on here.
-      #define is_copy_constructible _ABC_MSC18_is_copy_constructible
+      #define is_copy_constructible _ABC_MSVCRT_is_copy_constructible
    #endif
    #include <type_traits>
-   #if ABC_HOST_CXX_MSC == 1800
+   #if ABC_HOST_STL_MSVCRT == 1800
       #undef is_copy_constructible
    #endif
 
@@ -62,7 +62,7 @@ using namespace ::abc::_std;
    using ::std::is_arithmetic;
    using ::std::is_array;
    using ::std::is_base_of;
-#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS)
+#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_LIBSTDCXX_PARTIAL_TYPE_TRAITS)
    using ::std::is_copy_constructible;
 #endif
    using ::std::is_empty;
@@ -76,7 +76,7 @@ using namespace ::abc::_std;
 #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
    using ::std::is_trivially_copy_constructible;
 #endif
-#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_CXX11_GLIBCXX_PARTIAL_TYPE_TRAITS)
+#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_LIBSTDCXX_PARTIAL_TYPE_TRAITS)
    using ::std::is_trivially_destructible;
 #endif
    using ::std::remove_const;
@@ -95,7 +95,7 @@ using namespace ::abc::_std;
 
    namespace abc { namespace _std {
 
-   #if !ABC_HOST_CXX_MSC || ABC_HOST_CXX_MSC >= 1800
+   #if !ABC_HOST_STL_MSVCRT || ABC_HOST_STL_MSVCRT >= 1800
       using ::std::declval;
    #endif
    using ::std::forward;
@@ -106,13 +106,12 @@ using namespace ::abc::_std;
 #endif
 
 // Provide a definition of std::is_copy_constructible for STL implementations lacking it.
-#if ( \
-   (ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) || (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1900) \
-) && !defined(ABC_STLIMPL)
+#if (ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40700) || \
+    (ABC_HOST_STL_MSVCRT    && ABC_HOST_STL_MSVCRT    <  1900)
 
 namespace abc { namespace _std {
 
-#if ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1800
+#if ABC_HOST_STL_MSVCRT && ABC_HOST_STL_MSVCRT < 1800
    // MSC16 lacks a definition of std::declval.
    template <typename T>
    typename add_rvalue_reference<T>::type declval();
@@ -128,10 +127,10 @@ private:
 
 public:
    static bool const value = (sizeof(test(declval<TRef>())) == sizeof(int))
-#if ABC_HOST_CXX_MSC == 1800
+#if ABC_HOST_STL_MSVCRT == 1800
       /* MSC18 does provide an implementation which, while severely flawed (see abc::noncopyable),
       may be stricter than this, so && its return value. */
-      && std::_ABC_MSC18_is_copy_constructible<T>::value
+      && std::_ABC_MSVCRT_is_copy_constructible<T>::value
 #endif
    ;
 };
@@ -140,8 +139,8 @@ public:
 
 }} //namespace abc::_std
 
-#endif /*if ((ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700) ||
-             (ABC_HOST_CXX_MSC && ABC_HOST_CXX_MSC < 1900) && !defined(ABC_STLIMPL) */
+#endif /*if (ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40700) ||
+            (ABC_HOST_STL_MSVCRT    && ABC_HOST_STL_MSVCRT    <  1900) */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

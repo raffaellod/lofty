@@ -34,9 +34,9 @@ namespace abc { namespace _std {
 
 /*! Type whose alignment requirement is at least as large as that of any scalar type (see C++11 §
 18.2 “<cstddef>”). */
-#if !defined(ABC_STLIMPL) && ABC_HOST_CXX_GCC >= 40900
+#if ABC_HOST_STL_LIBCXX || ABC_HOST_STL_LIBSTDCXX >= 40900
    typedef std::max_align_t max_align_t;
-#elif !defined(ABC_STLIMPL) && (ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC >= 40700)
+#elif ABC_HOST_STL_LIBSTDCXX >= 40700
    typedef ::max_align_t max_align_t;
 #else
    union max_align_t {
@@ -66,7 +66,7 @@ namespace abc { namespace _std {
    }} //namespace abc::_std
 #endif
 
-#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
+#if defined(ABC_STLIMPL) || ABC_HOST_STL_MSVCRT == 1600
    #include <abaclade/_std/atomic.hxx>
 #else
    #include <atomic>
@@ -81,16 +81,16 @@ namespace abc { namespace _std {
 #ifdef ABC_STLIMPL
    #include <abaclade/_std/exception.hxx>
 #else
-   #if ABC_HOST_CXX_MSC
+   #if ABC_HOST_STL_MSVCRT && ABC_HOST_CXX_MSC
       // Silence warnings from system header files.
       #pragma warning(push)
       // “expression before comma has no effect; expected expression with side-effect”
       #pragma warning(disable: 4548)
       // “'function': exception specification does not match previous declaration”
       #pragma warning(disable: 4986)
-   #endif //if ABC_HOST_CXX_MSC
+   #endif
    #include <exception>
-   #if ABC_HOST_CXX_MSC
+   #if ABC_HOST_STL_MSVCRT && ABC_HOST_CXX_MSC
       #pragma warning(pop)
    #endif
 
@@ -128,7 +128,7 @@ namespace abc { namespace _std {
    }} //namespace abc::_std
 #endif
 
-#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
+#if defined(ABC_STLIMPL) || ABC_HOST_STL_MSVCRT == 1600
    // MSC16 has a half-assed std::shared_ptr that requires the type’s destructor to be defined.
    #include <abaclade/_std/memory.hxx>
 #else

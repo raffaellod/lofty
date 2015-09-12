@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(ABC_STLIMPL) || ABC_HOST_CXX_MSC == 1600
+#if defined(ABC_STLIMPL) || ABC_HOST_STL_MSVCRT == 1600
    #include <abaclade/_std/mutex.hxx>
 #else
    #include <mutex>
