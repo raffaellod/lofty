@@ -38,43 +38,6 @@ _std::shared_ptr<writer> stderr;
 _std::shared_ptr<reader> stdin;
 _std::shared_ptr<writer> stdout;
 
-/*! Instantiates a text::base specialization appropriate for the specified binary I/O object,
-returning a shared pointer to it. If the binary I/O object does not implement buffering, a buffered
-I/O wrapper is instanciated as well.
-
-pbb
-   Pointer to a binary I/O object.
-return
-   Shared pointer to the newly created object.
-*/
-static _std::shared_ptr<binbuf_base> _construct(
-   _std::shared_ptr<binary::base> pbb, abc::text::encoding enc
-) {
-   ABC_TRACE_FUNC(pbb, enc);
-
-   // Choose what type of text I/O object to create based on what type of binary I/O object we got.
-
-   // Check if it’s a buffered I/O object.
-   auto pbbr(_std::dynamic_pointer_cast<binary::buffered_reader>(pbb));
-   auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbb));
-   if (!pbbr && !pbbw) {
-      // Not a buffered I/O object? Get one then, and try again with the casts.
-      auto pbbb(binary::buffer(pbb));
-      pbbr = _std::dynamic_pointer_cast<binary::buffered_reader>(pbbb);
-      pbbw = _std::dynamic_pointer_cast<binary::buffered_writer>(pbbb);
-   }
-
-   // Now we must have a buffered reader or writer, or pbb is not something we can use.
-   if (pbbr) {
-      return _std::make_shared<binbuf_reader>(_std::move(pbbr), enc);
-   }
-   if (pbbw) {
-      return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
-   }
-   // TODO: use a better exception class.
-   ABC_THROW(argument_error, ());
-}
-
 /*! Detects the encoding to use for a standard text I/O file, with the help of an optional
 environment variable.
 
@@ -87,18 +50,20 @@ more general, as a way for an Abaclade-based parent process to communicate with 
 child process. Thought maybe a better way is to pass a command-line argument that triggers Abaclade-
 specific behavior, so that it’s inherently PID-specific.
 
-pszEnvVarName
+@param pbb
+   Pointer to the binary I/O object to analyze.
+@param pszEnvVarName
    Environment variable name that, if set, specifies the encoding to be used.
-return
+@return
    Encoding appropriate for the requested standard I/O file.
 */
-static _std::shared_ptr<binbuf_base> _construct_stdio(
-   _std::shared_ptr<binary::base> pbb, char_t const * pszEnvVarName
+static abc::text::encoding get_stdio_encoding(
+   binary::base const * pbb, char_t const * pszEnvVarName
 ) {
    ABC_TRACE_FUNC(pbb, pszEnvVarName);
 
    abc::text::encoding enc;
-   if (_std::dynamic_pointer_cast<binary::console_file_base>(pbb)) {
+   if (dynamic_cast<binary::console_file_base const *>(pbb)) {
       /* Console files can only perform I/O in the host platform’s encoding, so force the correct
       encoding here. */
       enc = abc::text::encoding::host;
@@ -128,7 +93,7 @@ static _std::shared_ptr<binbuf_base> _construct_stdio(
          }
       }
    }
-   return _construct(_std::move(pbb), enc);
+   return enc;
 }
 
 
@@ -152,12 +117,34 @@ _std::shared_ptr<writer> make_writer(
    );
 }
 
-_std::shared_ptr<binbuf_base> open(
-   os::path const & op, access_mode am, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+_std::shared_ptr<binbuf_reader> open_reader(
+   os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
-   ABC_TRACE_FUNC(op, am, enc);
+   ABC_TRACE_FUNC(op, enc);
 
-   return _construct(binary::open(op, am), enc);
+   auto pbr(binary::open_reader(op));
+   // See if *pbr is also a binary::buffered_reader.
+   auto pbbr(_std::dynamic_pointer_cast<binary::buffered_reader>(pbr));
+   if (!pbbr) {
+      // Add a buffering wrapper to *pbr.
+      pbbr = binary::buffer_reader(pbr);
+   }
+   return _std::make_shared<binbuf_reader>(_std::move(pbbr), enc);
+}
+
+_std::shared_ptr<binbuf_writer> open_writer(
+   os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+) {
+   ABC_TRACE_FUNC(op, enc);
+
+   auto pbw(binary::open_writer(op));
+   // See if *pbw is also a binary::buffered_writer.
+   auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbw));
+   if (!pbbw) {
+      // Add a buffering wrapper to *pbw.
+      pbbw = binary::buffer_writer(pbw);
+   }
+   return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
 }
 
 }}} //namespace abc::io::text
@@ -167,25 +154,43 @@ namespace abc { namespace io { namespace text { namespace detail {
 _std::shared_ptr<writer> make_stderr() {
    ABC_TRACE_FUNC();
 
-   return _std::dynamic_pointer_cast<writer>(
-      _construct_stdio(binary::stderr, ABC_SL("ABC_STDERR_ENCODING"))
-   );
+   auto pbw(binary::stderr);
+   // See if *pbw is also a binary::buffered_writer.
+   auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbw));
+   if (!pbbw) {
+      // Add a buffering wrapper to *pbw.
+      pbbw = binary::buffer_writer(pbw);
+   }
+   auto enc = get_stdio_encoding(pbw.get(), ABC_SL("ABC_STDERR_ENCODING"));
+   return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
 }
 
 _std::shared_ptr<reader> make_stdin() {
    ABC_TRACE_FUNC();
 
-   return _std::dynamic_pointer_cast<reader>(
-      _construct_stdio(binary::stdin, ABC_SL("ABC_STDIN_ENCODING"))
-   );
+   auto pbr(binary::stdin);
+   // See if *pbr is also a binary::buffered_reader.
+   auto pbbr(_std::dynamic_pointer_cast<binary::buffered_reader>(pbr));
+   if (!pbbr) {
+      // Add a buffering wrapper to *pbr.
+      pbbr = binary::buffer_reader(pbr);
+   }
+   auto enc = get_stdio_encoding(pbr.get(), ABC_SL("ABC_STDIN_ENCODING"));
+   return _std::make_shared<binbuf_reader>(_std::move(pbbr), enc);
 }
 
 _std::shared_ptr<writer> make_stdout() {
    ABC_TRACE_FUNC();
 
-   return _std::dynamic_pointer_cast<writer>(
-      _construct_stdio(binary::stdout, ABC_SL("ABC_STDOUT_ENCODING"))
-   );
+   auto pbw(binary::stdout);
+   // See if *pbw is also a binary::buffered_writer.
+   auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbw));
+   if (!pbbw) {
+      // Add a buffering wrapper to *pbw.
+      pbbw = binary::buffer_writer(pbw);
+   }
+   auto enc = get_stdio_encoding(pbw.get(), ABC_SL("ABC_STDOUT_ENCODING"));
+   return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
 }
 
 }}}} //namespace abc::io::text::detail

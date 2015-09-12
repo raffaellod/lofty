@@ -82,21 +82,6 @@ ABACLADE_SYM _std::shared_ptr<writer> make_writer(
    _std::shared_ptr<binary::writer> pbw, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
-/*! Opens a file for text-mode access.
-
-@param op
-   Path to the file.
-@param am
-   Desired access mode.
-@param enc
-   Encoding to be used the the text.
-@return
-   Pointer to a text I/O object for the file.
-*/
-ABACLADE_SYM _std::shared_ptr<binbuf_base> open(
-   os::path const & op, access_mode am, abc::text::encoding enc = abc::text::encoding::unknown
-);
-
 /*! Opens a file for text-mode reading.
 
 @param op
@@ -106,11 +91,9 @@ ABACLADE_SYM _std::shared_ptr<binbuf_base> open(
 @return
    Pointer to a text reader for the file.
 */
-inline _std::shared_ptr<binbuf_reader> open_reader(
+ABACLADE_SYM _std::shared_ptr<binbuf_reader> open_reader(
    os::path const & op, abc::text::encoding enc = abc::text::encoding::unknown
-) {
-   return _std::dynamic_pointer_cast<binbuf_reader>(open(op, access_mode::read, enc));
-}
+);
 
 /*! Opens a file for text-mode writing.
 
@@ -121,11 +104,9 @@ inline _std::shared_ptr<binbuf_reader> open_reader(
 @return
    Pointer to a text writer for the file.
 */
-inline _std::shared_ptr<binbuf_writer> open_writer(
+ABACLADE_SYM _std::shared_ptr<binbuf_writer> open_writer(
    os::path const & op, abc::text::encoding enc = abc::text::encoding::utf8
-) {
-   return _std::dynamic_pointer_cast<binbuf_writer>(open(op, access_mode::write, enc));
-}
+);
 
 }}} //namespace abc::io::text
 

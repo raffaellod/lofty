@@ -196,19 +196,12 @@ static _std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    return _construct(&fid);
 }
 
-_std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb) {
-   ABC_TRACE_FUNC(pbb);
+ABACLADE_SYM _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr) {
+   return _std::make_shared<default_buffered_reader>(_std::move(pbr));
+}
 
-   auto pbr(_std::dynamic_pointer_cast<reader>(pbb));
-   auto pbw(_std::dynamic_pointer_cast<writer>(pbb));
-   if (pbr) {
-      return _std::make_shared<default_buffered_reader>(_std::move(pbr));
-   }
-   if (pbw) {
-      return _std::make_shared<default_buffered_writer>(_std::move(pbw));
-   }
-   // TODO: use a better exception class.
-   ABC_THROW(argument_error, ());
+ABACLADE_SYM _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw) {
+   return _std::make_shared<default_buffered_writer>(_std::move(pbw));
 }
 
 _std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {

@@ -490,15 +490,6 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-/*! Creates and returns a buffered wrapper for the specified binary I/O object.
-
-@param pbb
-   Pointer to a binary I/O object.
-@return
-   Pointer to a buffered wrapper for *pbb.
-*/
-ABACLADE_SYM _std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb);
-
 /*! Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
 
 @param pbr
@@ -506,9 +497,7 @@ ABACLADE_SYM _std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb);
 @return
    Pointer to a buffered wrapper for *pbr.
 */
-inline _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr) {
-   return _std::dynamic_pointer_cast<buffered_reader>(buffer(_std::move(pbr)));
-}
+ABACLADE_SYM _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr);
 
 /*! Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
 
@@ -517,9 +506,7 @@ inline _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> 
 @return
    Pointer to a buffered wrapper for *pbw.
 */
-inline _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw) {
-   return _std::dynamic_pointer_cast<buffered_writer>(buffer(_std::move(pbw)));
-}
+ABACLADE_SYM _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw);
 
 }}} //namespace abc::io::binary
 
