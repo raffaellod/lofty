@@ -21,6 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/bitmanip.hxx>
 #include <abaclade/io/binary.hxx>
 #include "default_buffered.hxx"
+#include "file-subclasses.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

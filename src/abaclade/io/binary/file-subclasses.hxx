@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_IO_BINARY_FILE_HXX
-#define _ABACLADE_IO_BINARY_FILE_HXX
+#ifndef _ABACLADE_IO_BINARY_FILE_SUBCLASSES_HXX
+#define _ABACLADE_IO_BINARY_FILE_SUBCLASSES_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -27,119 +27,11 @@ You should have received a copy of the GNU General Public License along with Aba
    #pragma once
 #endif
 
+#include <abaclade/io/binary.hxx>
 #if ABC_HOST_API_WIN32
    #include <abaclade/text/parsers/ansi_escape_sequences.hxx>
 #endif
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary { namespace detail {
-
-/*! Data collected by open() used to construct a file instance. This is only defined in file.cxx,
-after the necessary header files have been included. */
-struct file_init_data;
-
-}}}} //namespace abc::io::binary::detail
-
-namespace abc { namespace io { namespace binary {
-
-//! Base for file binary I/O classes.
-class ABACLADE_SYM file_base : public virtual base, public noncopyable {
-public:
-   //! Destructor.
-   virtual ~file_base();
-
-protected:
-   /*! Constructor.
-
-   @param pfid
-      Data used to initialize the object, as set by abc::io::binary::open() and other functions.
-   */
-   file_base(detail::file_init_data * pfid);
-
-protected:
-   //! Descriptor of the underlying file.
-   filedesc m_fd;
-};
-
-}}} //namespace abc::io::binary
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-//! Binary file input.
-class ABACLADE_SYM file_reader : public virtual file_base, public reader {
-public:
-   //! See file_base::file_base().
-   file_reader(detail::file_init_data * pfid);
-
-   //! Destructor.
-   virtual ~file_reader();
-
-   //! See reader::read().
-   virtual std::size_t read(void * p, std::size_t cbMax) override;
-
-protected:
-#if ABC_HOST_API_WIN32
-   /*! Detects EOF conditions and real errors. Necessary because under Win32 there are major
-   differences in detection of EOF depending on the file type.
-
-   @param cbRead
-      Count of bytes read by ::ReadFile().
-   @param iErr
-      Value returned by ::GetLastError() if ::ReadFile() returned false, or ERROR_SUCCESS otherwise.
-   @return
-      true if ::ReadFile() indicated that EOF was reached, or false otherwise. Exceptions are
-      thrown for all non-EOF error conditions.
-   */
-   virtual bool check_if_eof_or_throw_os_error(::DWORD cbRead, ::DWORD iErr) const;
-#endif
-};
-
-}}} //namespace abc::io::binary
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-//! Binary file output.
-class ABACLADE_SYM file_writer : public virtual file_base, public writer {
-public:
-   //! See writer::writer().
-   file_writer(detail::file_init_data * pfid);
-
-   //! Destructor.
-   virtual ~file_writer();
-
-   //! See writer::finalize().
-   virtual void finalize() override;
-
-   //! See writer::flush().
-   virtual void flush() override;
-
-   //! See writer::write().
-   virtual std::size_t write(void const * p, std::size_t cb) override;
-};
-
-}}} //namespace abc::io::binary
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-//! Bidirectional binary file.
-class ABACLADE_SYM file_readwriter : public virtual file_reader, public virtual file_writer {
-public:
-   //! See file_reader::file_reader() and file_writer::file_writer().
-   file_readwriter(detail::file_init_data * pfid);
-
-   //! Destructor.
-   virtual ~file_readwriter();
-};
-
-}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -437,4 +329,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_IO_BINARY_FILE_HXX
+#endif //ifndef _ABACLADE_IO_BINARY_FILE_SUBCLASSES_HXX
