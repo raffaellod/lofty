@@ -23,7 +23,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/io/text.hxx>
 #include <abaclade/os/path.hxx>
 #include <abaclade/text.hxx>
-#include "binary/default_buffered.hxx"
 
 #if ABC_HOST_API_POSIX
    #include <cstdlib> // std::getenv()
@@ -97,32 +96,11 @@ static abc::text::encoding get_stdio_encoding(
 }
 
 
-_std::shared_ptr<reader> make_reader(
+_std::shared_ptr<binbuf_reader> make_reader(
    _std::shared_ptr<binary::reader> pbr, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
    ABC_TRACE_FUNC(pbr, enc);
 
-   return _std::make_shared<binbuf_reader>(
-      _std::make_shared<binary::default_buffered_reader>(_std::move(pbr)), enc
-   );
-}
-
-_std::shared_ptr<writer> make_writer(
-   _std::shared_ptr<binary::writer> pbw, abc::text::encoding enc /*= abc::text::encoding::unknown*/
-) {
-   ABC_TRACE_FUNC(pbw, enc);
-
-   return _std::make_shared<binbuf_writer>(
-      _std::make_shared<binary::default_buffered_writer>(_std::move(pbw)), enc
-   );
-}
-
-_std::shared_ptr<binbuf_reader> open_reader(
-   os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
-) {
-   ABC_TRACE_FUNC(op, enc);
-
-   auto pbr(binary::open_reader(op));
    // See if *pbr is also a binary::buffered_reader.
    auto pbbr(_std::dynamic_pointer_cast<binary::buffered_reader>(pbr));
    if (!pbbr) {
@@ -132,12 +110,11 @@ _std::shared_ptr<binbuf_reader> open_reader(
    return _std::make_shared<binbuf_reader>(_std::move(pbbr), enc);
 }
 
-_std::shared_ptr<binbuf_writer> open_writer(
-   os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+_std::shared_ptr<binbuf_writer> make_writer(
+   _std::shared_ptr<binary::writer> pbw, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
-   ABC_TRACE_FUNC(op, enc);
+   ABC_TRACE_FUNC(pbw, enc);
 
-   auto pbw(binary::open_writer(op));
    // See if *pbw is also a binary::buffered_writer.
    auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbw));
    if (!pbbw) {
@@ -145,6 +122,22 @@ _std::shared_ptr<binbuf_writer> open_writer(
       pbbw = binary::buffer_writer(pbw);
    }
    return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
+}
+
+_std::shared_ptr<binbuf_reader> open_reader(
+   os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+) {
+   ABC_TRACE_FUNC(op, enc);
+
+   return make_reader(binary::open_reader(op));
+}
+
+_std::shared_ptr<binbuf_writer> open_writer(
+   os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+) {
+   ABC_TRACE_FUNC(op, enc);
+
+   return make_writer(binary::open_writer(op));
 }
 
 }}} //namespace abc::io::text
