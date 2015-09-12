@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/io/binary.hxx>
 #include <abaclade/os.hxx>
 #include <abaclade/thread.hxx>
+#include "binary/default_buffered.hxx"
 #include "binary/detail/file_init_data.hxx"
 
 #if ABC_HOST_API_POSIX
@@ -43,9 +44,9 @@ _std::shared_ptr<writer> stdout;
 /*! Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
 shared pointer to it.
 
-pfid
+@param pfid
    Data that will be passed to the constructor of the file object.
-return
+@return
    Shared pointer to the newly created object.
 */
 static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
@@ -176,11 +177,11 @@ static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
 
 /*! Returns a new binary I/O object controlling the specified file descriptor.
 
-fd
+@param fd
    File descriptor to take ownership of.
-am
+@param am
    Desired access mode.
-return
+@return
    Pointer to a binary I/O object controlling fd.
 */
 static _std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
@@ -195,6 +196,20 @@ static _std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    return _construct(&fid);
 }
 
+_std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb) {
+   ABC_TRACE_FUNC(pbb);
+
+   auto pbr(_std::dynamic_pointer_cast<reader>(pbb));
+   auto pbw(_std::dynamic_pointer_cast<writer>(pbb));
+   if (pbr) {
+      return _std::make_shared<default_buffered_reader>(_std::move(pbr));
+   }
+   if (pbw) {
+      return _std::make_shared<default_buffered_writer>(_std::move(pbw));
+   }
+   // TODO: use a better exception class.
+   ABC_THROW(argument_error, ());
+}
 
 _std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
@@ -513,6 +528,54 @@ _std::shared_ptr<writer> make_stdout() {
 namespace abc { namespace io { namespace binary {
 
 /*virtual*/ base::~base() {
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+/*virtual*/ std::size_t buffered_reader::read(void * p, std::size_t cbMax) /*override*/ {
+   ABC_TRACE_FUNC(this, p, cbMax);
+
+   std::size_t cbReadTotal(0);
+   while (cbMax) {
+      // Attempt to read at least the count of bytes requested by the caller.
+      std::int8_t const * pbBuf;
+      std::size_t cbBuf;
+      _std::tie(pbBuf, cbBuf) = peek<std::int8_t>(cbMax);
+      if (cbBuf == 0) {
+         // No more data available.
+         break;
+      }
+      // Copy whatever was read into the caller-supplied buffer.
+      memory::copy(static_cast<std::int8_t *>(p), pbBuf, cbBuf);
+      cbReadTotal += cbBuf;
+      /* Advance the pointer and decrease the count of bytes to read, so that the next call will
+      attempt to fill in the remaining buffer space. */
+      p = static_cast<std::int8_t *>(p) + cbBuf;
+      cbMax -= cbBuf;
+   }
+   return cbReadTotal;
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+/*virtual*/ std::size_t buffered_writer::write(void const * p, std::size_t cb) /*override*/ {
+   ABC_TRACE_FUNC(this, p, cb);
+
+   // Obtain a buffer large enough.
+   std::int8_t * pbBuf;
+   std::size_t cbBuf;
+   _std::tie(pbBuf, cbBuf) = get_buffer<std::int8_t>(cb);
+   // Copy the source data into the buffer.
+   memory::copy(pbBuf, static_cast<std::int8_t const *>(p), cb);
+   return cb;
 }
 
 }}} //namespace abc::io::binary

@@ -331,7 +331,200 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace io { namespace binary {
+
+//! Interface for buffering objects that wrap binary::* instances.
+class ABACLADE_SYM buffered_base : public virtual base {
+public:
+   /*! Returns a pointer to the wrapped unbuffered binary I/O object.
+
+   @return
+      Pointer to a unbuffered binary I/O object.
+   */
+   _std::shared_ptr<base> unbuffered() const {
+      return _unbuffered_base();
+   }
+
+protected:
+   /*! Implementation of unbuffered(). This enables unbuffered() to be non-virtual, which in turn
+   allows derived classes to override it changing its return type to be more specific.
+
+   @return
+      Pointer to a unbuffered binary I/O object.
+   */
+   virtual _std::shared_ptr<base> _unbuffered_base() const = 0;
+};
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+//! Interface for buffering objects that wrap binary::reader instances.
+class ABACLADE_SYM buffered_reader : public virtual buffered_base, public reader {
+public:
+   /*! Marks the specified amount of bytes as read, so that they won’t be presented again on the
+   next peek() call.
+
+   @param c
+      Count of elements to mark as read.
+   */
+   template <typename T>
+   void consume(std::size_t c) {
+      return consume_bytes(sizeof(T) * c);
+   }
+
+   /*! Non-template implementation of consume(). See consume().
+
+   @param cb
+      Count of bytes to mark as read.
+   */
+   virtual void consume_bytes(std::size_t cb) = 0;
+
+   /*! Returns a view of the internal read buffer, performing at most one read from the underlying
+   binary reader.
+
+   TODO: change to return a read-only, non-shareable ivector<T>.
+
+   @param c
+      Count of items to peek. If greater than the size of the read buffer’s contents, an additional
+      read from the underlying binary reader will be made, adding to the contents of the read
+      buffer; if the internal buffer is not large enough to hold the cumulative data, it will be
+      enlarged.
+   @return
+      Pair containing:
+      •  A pointer to the portion of the internal buffer that holds the read data;
+      •  Count of bytes read. May be less than the cb argument if EOF is reached, or greater than cb
+         if the buffer was filled more than requested. For non-zero values of cb, a return value of
+         0 indicates that no more data is available (EOF).
+   */
+   template <typename T>
+   _std::tuple<T const *, std::size_t> peek(std::size_t c = 1) {
+      auto ret(peek_bytes(sizeof(T) * c));
+      // Repack the tuple, changing pointer type.
+      return _std::make_tuple(static_cast<T const *>(_std::get<0>(ret)), _std::get<1>(ret));
+   }
+
+   /*! Non-template implementation of peek(). See peek().
+
+   @param cb
+      Count of bytes to peek.
+   */
+   virtual _std::tuple<void const *, std::size_t> peek_bytes(std::size_t cb) = 0;
+
+   /*! See binary::reader::read(). Using peek()/consume() or peek_bytes()/consume_bytes() is
+   preferred to calling this method, because it will spare the caller from having to allocate an
+   intermediate buffer. */
+   virtual std::size_t read(void * p, std::size_t cbMax) override;
+
+   //! See buffered_base::unbuffered().
+   _std::shared_ptr<reader> unbuffered() const {
+      return _std::dynamic_pointer_cast<reader>(_unbuffered_base());
+   }
+};
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+//! Interface for buffering objects that wrap binary::writer instances.
+class ABACLADE_SYM buffered_writer : public virtual buffered_base, public writer {
+public:
+   /*! Commits (writes) any pending buffer blocks returned by get_buffer().
+
+   @param c
+      Count of elements to commit.
+   */
+   template <typename T>
+   void commit(std::size_t c) {
+      commit_bytes(sizeof(T) * c);
+   }
+
+   /*! Non-template, byte-oriented implementation of commit(). See commit().
+
+   @param cb
+      Count of bytes to commit.
+   */
+   virtual void commit_bytes(std::size_t cb) = 0;
+
+   /*! Returns a buffer large enough to store up to c items.
+
+   @param c
+      Count of items to create buffer space for.
+   @return
+      Pair containing:
+      •  A pointer to the portion of the internal buffer that the caller can write to;
+      •  Size of the portion of internal buffer, in bytes.
+   */
+   template <typename T>
+   _std::tuple<T *, std::size_t> get_buffer(std::size_t c) {
+      auto ret(get_buffer_bytes(sizeof(T) * c));
+      // Repack the tuple, changing pointer type.
+      return _std::make_tuple(static_cast<T *>(_std::get<0>(ret)), _std::get<1>(ret));
+   }
+
+   /*! Byte-oriented implementation of get_buffer(). See get_buffer().
+
+   @param cb
+      Count of bytes to create buffer space for.
+   */
+   virtual _std::tuple<void *, std::size_t> get_buffer_bytes(std::size_t cb) = 0;
+
+   //! See buffered_base::unbuffered().
+   _std::shared_ptr<writer> unbuffered() const {
+      return _std::dynamic_pointer_cast<writer>(_unbuffered_base());
+   }
+
+   /*! See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
+   is preferred to calling this method, because it will spare the caller from having to allocate an
+   intermediate buffer. */
+   virtual std::size_t write(void const * p, std::size_t cb) override;
+};
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+/*! Creates and returns a buffered wrapper for the specified binary I/O object.
+
+@param pbb
+   Pointer to a binary I/O object.
+@return
+   Pointer to a buffered wrapper for *pbb.
+*/
+ABACLADE_SYM _std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb);
+
+/*! Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
+
+@param pbr
+   Pointer to an unbuffered binary reader.
+@return
+   Pointer to a buffered wrapper for *pbr.
+*/
+inline _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr) {
+   return _std::dynamic_pointer_cast<buffered_reader>(buffer(_std::move(pbr)));
+}
+
+/*! Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
+
+@param pbw
+   Pointer to an unbuffered binary writer.
+@return
+   Pointer to a buffered wrapper for *pbw.
+*/
+inline _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw) {
+   return _std::dynamic_pointer_cast<buffered_writer>(buffer(_std::move(pbw)));
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <abaclade/io/binary/file.hxx>
-#include <abaclade/io/binary/buffered.hxx>
 
 #endif //ifndef _ABACLADE_IO_BINARY_HXX

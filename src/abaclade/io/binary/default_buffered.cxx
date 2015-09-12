@@ -20,28 +20,8 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade.hxx>
 #include <abaclade/bitmanip.hxx>
 #include <abaclade/io/binary.hxx>
+#include "default_buffered.hxx"
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-_std::shared_ptr<buffered_base> buffer(_std::shared_ptr<base> pbb) {
-   ABC_TRACE_FUNC(pbb);
-
-   auto pbr(_std::dynamic_pointer_cast<reader>(pbb));
-   auto pbw(_std::dynamic_pointer_cast<writer>(pbb));
-   if (pbr) {
-      return _std::make_shared<default_buffered_reader>(_std::move(pbr));
-   }
-   if (pbw) {
-      return _std::make_shared<default_buffered_writer>(_std::move(pbw));
-   }
-   // TODO: use a better exception class.
-   ABC_THROW(argument_error, ());
-}
-
-}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,54 +75,6 @@ void buffer::make_unused_available() {
 }
 
 }}}} //namespace abc::io::binary::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-/*virtual*/ std::size_t buffered_reader::read(void * p, std::size_t cbMax) /*override*/ {
-   ABC_TRACE_FUNC(this, p, cbMax);
-
-   std::size_t cbReadTotal(0);
-   while (cbMax) {
-      // Attempt to read at least the count of bytes requested by the caller.
-      std::int8_t const * pbBuf;
-      std::size_t cbBuf;
-      _std::tie(pbBuf, cbBuf) = peek<std::int8_t>(cbMax);
-      if (cbBuf == 0) {
-         // No more data available.
-         break;
-      }
-      // Copy whatever was read into the caller-supplied buffer.
-      memory::copy(static_cast<std::int8_t *>(p), pbBuf, cbBuf);
-      cbReadTotal += cbBuf;
-      /* Advance the pointer and decrease the count of bytes to read, so that the next call will
-      attempt to fill in the remaining buffer space. */
-      p = static_cast<std::int8_t *>(p) + cbBuf;
-      cbMax -= cbBuf;
-   }
-   return cbReadTotal;
-}
-
-}}} //namespace abc::io::binary
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-/*virtual*/ std::size_t buffered_writer::write(void const * p, std::size_t cb) /*override*/ {
-   ABC_TRACE_FUNC(this, p, cb);
-
-   // Obtain a buffer large enough.
-   std::int8_t * pbBuf;
-   std::size_t cbBuf;
-   _std::tie(pbBuf, cbBuf) = get_buffer<std::int8_t>(cb);
-   // Copy the source data into the buffer.
-   memory::copy(pbBuf, static_cast<std::int8_t const *>(p), cb);
-   return cb;
-}
-
-}}} //namespace abc::io::binary
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

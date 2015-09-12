@@ -23,6 +23,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include <abaclade/io/text.hxx>
 #include <abaclade/os/path.hxx>
 #include <abaclade/text.hxx>
+#include "binary/default_buffered.hxx"
 
 #if ABC_HOST_API_POSIX
    #include <cstdlib> // std::getenv()
