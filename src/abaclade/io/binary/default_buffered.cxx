@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License along with Aba
 namespace abc { namespace io { namespace binary { namespace detail {
 
 buffer::buffer(std::size_t cb) :
-   m_p(memory::alloc_unique<void>(cb)),
+   m_p(memory::alloc_unique<>(cb)),
    m_cb(cb),
    m_ibUsedOffset(0),
    m_ibAvailableOffset(0) {

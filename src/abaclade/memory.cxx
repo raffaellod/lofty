@@ -171,10 +171,10 @@ void bad_pointer_alignment::init(void const * pInvalid, errint_t err /*= 0*/) {
 #endif
 
 void * ABC_STL_CALLCONV operator new(std::size_t cb) {
-   return abc::memory::alloc<void>(cb);
+   return abc::memory::alloc<>(cb);
 }
 void * ABC_STL_CALLCONV operator new[](std::size_t cb) {
-   return abc::memory::alloc<void>(cb);
+   return abc::memory::alloc<>(cb);
 }
 void * ABC_STL_CALLCONV operator new(
    std::size_t cb, abc::_std::nothrow_t const &

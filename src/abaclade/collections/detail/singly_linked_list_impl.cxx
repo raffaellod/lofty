@@ -30,7 +30,7 @@ void * singly_linked_list_impl::node::operator new(std::size_t cb, type_void_ada
    ABC_UNUSED_ARG(cb);
    /* To calculate the node size, pack the value against the end of the node, potentially using
    space that cb (== sizeof(node)) would reserve as padding. */
-   return memory::alloc<void>(type.align_offset(ABC_UNPADDED_SIZEOF(node, m_pnNext)) + type.size());
+   return memory::alloc<>(type.align_offset(ABC_UNPADDED_SIZEOF(node, m_pnNext)) + type.size());
 }
 
 singly_linked_list_impl::node::node(

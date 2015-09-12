@@ -111,7 +111,7 @@ namespace abc {
 #if ABC_HOST_CXX_MSC
    // Suppress unnecessary warnings.
 
-   // “enumerator 'name' in switch of enum 'type' is not explicitly handled by a case label
+   // “enumerator 'name' in switch of enum 'type' is not explicitly handled by a case label”
    #pragma warning(disable: 4061)
    // “enumerator 'name' in switch of enum 'type' is not handled”
    #pragma warning(disable: 4062)

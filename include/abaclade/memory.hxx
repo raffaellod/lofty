@@ -102,9 +102,9 @@ namespace abc { namespace memory {
 @return
    Pointer to the allocated memory block.
 */
-template <typename T>
+template <typename T = void>
 T * alloc(std::size_t cb) {
-   return static_cast<T *>(alloc<void>(cb));
+   return static_cast<T *>(alloc<>(cb));
 }
 template <>
 ABACLADE_SYM void * alloc<void>(std::size_t cb);
@@ -125,7 +125,7 @@ ABACLADE_SYM void free(void const * p);
 */
 template <typename T>
 void realloc(T ** ppt, std::size_t cb) {
-   realloc<void>(reinterpret_cast<void **>(ppt), cb);
+   realloc<>(reinterpret_cast<void **>(ppt), cb);
 }
 template <>
 ABACLADE_SYM void realloc(void ** pp, std::size_t cb);
@@ -248,7 +248,7 @@ plus additional cbExtra bytes.
    Pointer to the allocated memory block. The memory will be released with abc::memory::free() when
    the pointer is destructed.
 */
-template <typename T>
+template <typename T = void>
 inline _std::unique_ptr<T, freeing_deleter> alloc_unique(
    std::size_t c = 1, std::size_t cbExtra = 0
 ) {
@@ -259,7 +259,7 @@ template <>
 inline _std::unique_ptr<void, freeing_deleter> alloc_unique<void>(
    std::size_t cb, std::size_t cbExtra /*= 0*/
 ) {
-   return _std::unique_ptr<void, freeing_deleter>(alloc<void>(cb + cbExtra));
+   return _std::unique_ptr<void, freeing_deleter>(alloc<>(cb + cbExtra));
 }
 
 /*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing
