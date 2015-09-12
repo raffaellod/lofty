@@ -199,10 +199,20 @@ static _std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
 }
 
 ABACLADE_SYM _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr) {
+   // See if *pbr is also a binary::buffered_reader.
+   if (auto pbbr = _std::dynamic_pointer_cast<buffered_reader>(pbr)) {
+      return _std::move(pbbr);
+   }
+   // Add a buffering wrapper to *pbr.
    return _std::make_shared<default_buffered_reader>(_std::move(pbr));
 }
 
 ABACLADE_SYM _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw) {
+   // See if *pbw is also a binary::buffered_writer.
+   if (auto pbbw = _std::dynamic_pointer_cast<buffered_writer>(pbw)) {
+      return _std::move(pbbw);
+   }
+   // Add a buffering wrapper to *pbw.
    return _std::make_shared<default_buffered_writer>(_std::move(pbw));
 }
 
