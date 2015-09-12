@@ -532,6 +532,9 @@ _std::shared_ptr<writer> make_stdout() {
 
 namespace abc { namespace io { namespace binary {
 
+base::base() {
+}
+
 /*virtual*/ base::~base() {
 }
 
@@ -540,6 +543,48 @@ namespace abc { namespace io { namespace binary {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace io { namespace binary {
+
+reader::reader() {
+}
+
+/*virtual*/ reader::~reader() {
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+writer::writer() {
+}
+
+/*virtual*/ writer::~writer() {
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+buffered_base::buffered_base() {
+}
+
+/*virtual*/ buffered_base::~buffered_base() {
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+buffered_reader::buffered_reader() {
+}
+
+/*virtual*/ buffered_reader::~buffered_reader() {
+}
 
 /*virtual*/ std::size_t buffered_reader::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
@@ -570,6 +615,12 @@ namespace abc { namespace io { namespace binary {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace io { namespace binary {
+
+buffered_writer::buffered_writer() {
+}
+
+/*virtual*/ buffered_writer::~buffered_writer() {
+}
 
 /*virtual*/ std::size_t buffered_writer::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);

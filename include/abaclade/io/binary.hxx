@@ -39,6 +39,10 @@ class ABACLADE_SYM base {
 public:
    //! Destructor. Needed to make the class polymorphic (have a vtable).
    virtual ~base();
+
+protected:
+   //! Default constructor.
+   base();
 };
 
 }}} //namespace abc::io::binary
@@ -50,6 +54,9 @@ namespace abc { namespace io { namespace binary {
 //! Interface for binary (non-text) input.
 class ABACLADE_SYM reader : public virtual base {
 public:
+   //! Destructor.
+   virtual ~reader();
+
    /*! Reads at most cbMax bytes.
 
    @param p
@@ -61,6 +68,10 @@ public:
       of the data (EOF) was reached.
    */
    virtual std::size_t read(void * p, std::size_t cbMax) = 0;
+
+protected:
+   //! Default constructor.
+   reader();
 };
 
 }}} //namespace abc::io::binary
@@ -72,6 +83,9 @@ namespace abc { namespace io { namespace binary {
 //! Interface for binary (non-text) output.
 class ABACLADE_SYM writer : public virtual base {
 public:
+   //! Destructor.
+   virtual ~writer();
+
    /*! Flushes the write buffer and closes the underlying backend, ensuring that no error conditions
    remain possible in the destructor. */
    virtual void finalize() = 0;
@@ -89,6 +103,10 @@ public:
       Count of bytes written.
    */
    virtual std::size_t write(void const * p, std::size_t cb) = 0;
+
+protected:
+   //! Default constructor.
+   writer();
 };
 
 }}} //namespace abc::io::binary
@@ -145,6 +163,9 @@ namespace abc { namespace io { namespace binary {
 //! Interface for buffering objects that wrap binary::* instances.
 class ABACLADE_SYM buffered_base : public virtual base {
 public:
+   //! Destructor.
+   virtual ~buffered_base();
+
    /*! Returns a pointer to the wrapped unbuffered binary I/O object.
 
    @return
@@ -155,6 +176,9 @@ public:
    }
 
 protected:
+   //! Default constructor.
+   buffered_base();
+
    /*! Implementation of unbuffered(). This enables unbuffered() to be non-virtual, which in turn
    allows derived classes to override it changing its return type to be more specific.
 
@@ -173,6 +197,9 @@ namespace abc { namespace io { namespace binary {
 //! Interface for buffering objects that wrap binary::reader instances.
 class ABACLADE_SYM buffered_reader : public virtual buffered_base, public reader {
 public:
+   //! Destructor.
+   virtual ~buffered_reader();
+
    /*! Marks the specified amount of bytes as read, so that they won’t be presented again on the
    next peek() call.
 
@@ -231,6 +258,10 @@ public:
    _std::shared_ptr<reader> unbuffered() const {
       return _std::dynamic_pointer_cast<reader>(_unbuffered_base());
    }
+
+protected:
+   //! Default constructor.
+   buffered_reader();
 };
 
 }}} //namespace abc::io::binary
@@ -242,6 +273,9 @@ namespace abc { namespace io { namespace binary {
 //! Interface for buffering objects that wrap binary::writer instances.
 class ABACLADE_SYM buffered_writer : public virtual buffered_base, public writer {
 public:
+   //! Destructor.
+   virtual ~buffered_writer();
+
    /*! Commits (writes) any pending buffer blocks returned by get_buffer().
 
    @param c
@@ -291,6 +325,10 @@ public:
    is preferred to calling this method, because it will spare the caller from having to allocate an
    intermediate buffer. */
    virtual std::size_t write(void const * p, std::size_t cb) override;
+
+protected:
+   //! Default constructor.
+   buffered_writer();
 };
 
 }}} //namespace abc::io::binary
