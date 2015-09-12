@@ -52,6 +52,41 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! 1 if building with Abaclade’s STL subset implementation, or 0 otherwise.
+#define ABC_HOST_STL_ABACLADE 0
+//! 1 if building with Clang’s libc++ STL implementation, or 0 otherwise.
+#define ABC_HOST_STL_LIBCXX 0
+//! 1 if building with GNU libstdc++ STL implementation, or 0 otherwise.
+#define ABC_HOST_STL_LIBSTDCXX 0
+//! 1 if building with MSVCRT STL implementation, or 0 otherwise.
+#define ABC_HOST_STL_MSVCRT 0
+
+#ifdef ABC_STLIMPL
+   #undef ABC_HOST_STL_ABACLADE
+   #define ABC_HOST_STL_ABACLADE 1
+#elif ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
+   #if ABC_HOST_CXX_CLANG
+      #if __has_include(<__config>)
+         #include <__config>
+      #endif
+   #endif
+   #ifdef _LIBCPP_VERSION
+      #undef ABC_HOST_STL_LIBCXX
+      #define ABC_HOST_STL_LIBCXX _LIBCPP_VERSION
+   #else
+      /* Not libc++; assume we’re using GNU libstdc++. This will be confirmed after we #include
+      <cstdint> in abaclade.hxx. */
+      #undef ABC_HOST_STL_LIBSTDCXX
+      #define ABC_HOST_STL_LIBSTDCXX 1
+   #endif
+#elif ABC_HOST_CXX_MSC
+   // Assume the version of MSVCRT matches that of MSC.
+   #undef ABC_HOST_STL_MSVCRT
+   #define ABC_HOST_STL_MSVCRT ABC_HOST_CXX_MSC
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define ABC_HOST_API_BSD 0
 #define ABC_HOST_API_DARWIN 0
 #define ABC_HOST_API_FREEBSD 0

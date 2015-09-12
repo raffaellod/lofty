@@ -212,6 +212,14 @@ namespace abc {
 #if ABC_HOST_CXX_MSC
    #pragma warning(pop)
 #endif
+/* As described in abaclade/detail/host.hxx, confirm that we’re really using GNU libstdc++. Note
+that even though we could, we won’t redefine it to ABC_HOST_STL_LIBSTDCXX to __GLIBCXX__, since
+__GLIBCXX__ is just a timestamp. */
+#if ABC_HOST_STL_LIBSTDCXX && !defined(__GLIBCXX__)
+   #undef ABC_HOST_STL_LIBSTDCXX
+   #define ABC_HOST_STL_LIBSTDCXX 0
+#endif
+
 // Under Win32, this also defines char16_t to be wchar_t, which is quite appropriate.
 #include <abaclade/text/char.hxx>
 
