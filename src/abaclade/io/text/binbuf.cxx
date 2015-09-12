@@ -48,7 +48,88 @@ binbuf_base::binbuf_base(abc::text::encoding enc) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace io { namespace text { namespace detail {
+namespace abc { namespace io { namespace text {
+
+class binbuf_reader::read_helper : public noncopyable {
+public:
+   //! Constructor.
+   read_helper(
+      binbuf_reader * ptbbr, std::uint8_t const * pbSrc, std::size_t cbSrc, str * psDst,
+      bool bOneLine
+   );
+
+   //! Destructor.
+   ~read_helper();
+
+   /*! Consumes the used bytes from the binary::buffered_reader.
+
+   @return
+      Count of bytes consumed.
+   */
+   std::size_t consume_used_bytes();
+
+   //! Reads characters until a line terminator is found.
+   void read_line();
+
+   //! Performs a new binary::buffered_reader::peek() call.
+   bool replenish_peek_buffer();
+
+   //! Transcodes more characters from the peek buffer.
+   bool replenish_transcoded_buffer();
+
+   //! Runs the helper.
+   bool run();
+
+private:
+   //! Pointer to the object that instantiated *this.
+   binbuf_reader * m_ptbbr;
+
+   // State persisted for *this by binbuf_reader::read_line_or_all().
+
+   //! Pointer to the first non-consumed byte in the peek buffer.
+   std::uint8_t const * m_pbSrc;
+   /*! Size of the non-consumed part of the peek buffer. Set by replenish_peek_buffer(), updated by
+   consume_used_bytes(). */
+   std::size_t m_cbSrc;
+   //! Pointer to the destination string.
+   str * m_psDst;
+   //! If true, reading will stop as soon as a valid line terminator is found.
+   bool m_bOneLine:1;
+
+   // Buffered from m_ptbbr.
+
+   //! Encoding of the source.
+   abc::text::encoding const mc_enc;
+   //! If true, the end of the source has been detected. Set by replenish_peek_buffer().
+   bool m_bEOF:1;
+   //! If true, a CR has been found, and a following LF should be discarded if detected.
+   bool m_bDiscardNextLF:1;
+
+   // Internal state.
+
+   //! If true, the line terminator is not LF.
+   bool m_bLineEndsOnCROrAny:1;
+   //! If true, the line terminator is not CR.
+   bool m_bLineEndsOnLFOrAny:1;
+   //! Tracks how many source bytes have been read. Updated by consume_used_bytes().
+   std::size_t m_cchReadTotal;
+   /*! If m_bOneLine, this tracks how many characters will need to be stripped off to remove the
+   trailing line terminator before the final resize of *m_psDst. */
+   std::size_t m_cchLTerm;
+   //! Tracks how many source bytes have been transcoded.
+   std::size_t m_cbSrcTranscoded;
+   //! TODO: comment.
+   char_t const * m_pchTranscoded;
+   //! Pointer to the beginning of TODO: comment.
+   char_t const * m_pchTranscodedBegin;
+   //! Pointer to the end of TODO: comment.
+   char_t const * m_pchTranscodedEnd;
+   //! Pointer to the next character in *m_psDst to be used.
+   char_t * m_pchDst;
+
+   //! Maximum count of characters to be transcoded.
+   static std::size_t const smc_cbTranscodeMax;
+};
 
 /* TODO: tune smc_cbTranscodeMax.
 In the non-transcoding case, smaller values cause more calls to replenish_transcoded_buffer(),
@@ -57,9 +138,9 @@ line and lines are much shorter than the size of the peek buffer.
 In the transcoding case, smaller values causes more calls to replenish_*_buffer(), while larger
 values causes more repeated iterations in abc::text::transcode() when consume_used_bytes() needs
 to calculate how many source bytes have been transcoded wihtout being consumed. */
-std::size_t const reader_read_helper::smc_cbTranscodeMax = 0x1000;
+std::size_t const binbuf_reader::read_helper::smc_cbTranscodeMax = 0x1000;
 
-reader_read_helper::reader_read_helper(
+binbuf_reader::read_helper::read_helper(
    binbuf_reader * ptbbr, std::uint8_t const * pbSrc, std::size_t cbSrc, str * psDst, bool bOneLine
 ) :
    m_ptbbr(ptbbr),
@@ -120,12 +201,12 @@ reader_read_helper::reader_read_helper(
    m_pchDst = m_psDst->data();
 }
 
-reader_read_helper::~reader_read_helper() {
+binbuf_reader::read_helper::~read_helper() {
    m_ptbbr->m_bEOF = m_bEOF;
    m_ptbbr->m_bDiscardNextLF = m_bDiscardNextLF;
 }
 
-std::size_t reader_read_helper::consume_used_bytes() {
+std::size_t binbuf_reader::read_helper::consume_used_bytes() {
    ABC_TRACE_FUNC(this);
 
    std::size_t cchUsed = static_cast<std::size_t>(m_pchTranscoded - m_pchTranscodedBegin);
@@ -159,7 +240,7 @@ std::size_t reader_read_helper::consume_used_bytes() {
    return cbUsed;
 }
 
-void reader_read_helper::read_line() {
+void binbuf_reader::read_helper::read_line() {
    ABC_TRACE_FUNC(this);
 
    m_cchLTerm = 0;
@@ -208,7 +289,7 @@ void reader_read_helper::read_line() {
    }
 }
 
-bool reader_read_helper::replenish_peek_buffer() {
+bool binbuf_reader::read_helper::replenish_peek_buffer() {
    ABC_TRACE_FUNC(this);
 
    /* If we didn’t consume some bytes because they don’t make a complete code point, we’ll ask for
@@ -226,7 +307,7 @@ bool reader_read_helper::replenish_peek_buffer() {
    }
 }
 
-bool reader_read_helper::replenish_transcoded_buffer() {
+bool binbuf_reader::read_helper::replenish_transcoded_buffer() {
    ABC_TRACE_FUNC(this);
 
    // Calculate sizes from the current pointers, since the string buffer might be reallocated.
@@ -280,7 +361,7 @@ bool reader_read_helper::replenish_transcoded_buffer() {
    return true;
 }
 
-bool reader_read_helper::run() {
+bool binbuf_reader::read_helper::run() {
    ABC_TRACE_FUNC(this);
 
    // This (outer) loop restarts the inner one if we’re not just reading a single line.
@@ -300,10 +381,6 @@ bool reader_read_helper::run() {
    }
    return m_cchReadTotal > 0;
 }
-
-}}}} //namespace abc::io::text::detail
-
-namespace abc { namespace io { namespace text {
 
 binbuf_reader::binbuf_reader(
    _std::shared_ptr<binary::buffered_reader> pbbr,
@@ -380,8 +457,8 @@ std::size_t binbuf_reader::detect_encoding(std::uint8_t const * pb, std::size_t 
       }
    }
 
-   detail::reader_read_helper rrh(this, pbSrc, cbSrc, psDst, bOneLine);
-   return rrh.run();
+   read_helper rh(this, pbSrc, cbSrc, psDst, bOneLine);
+   return rh.run();
 }
 
 }}} //namespace abc::io::text
