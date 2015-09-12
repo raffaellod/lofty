@@ -141,11 +141,16 @@ namespace abc {
    precompiled-header>. */
    #pragma warning(disable: 4350)
    #if ABC_HOST_CXX_MSC >= 1700
-      /* “'derived_class' : Object layout under / vd2 will change due to virtual base 'base_class'”:
+      /* “'derived_class' : Object layout under /vd2 will change due to virtual base 'base_class'”:
       yet another problem related to calling virtual methods from a constructor. This warning could
       be used to detect the latter situation, but MSC raises it unconditionally, so just turn it
       off. */
       #pragma warning(disable: 4435)
+      /* “dynamic_cast from virtual base 'base_class' to 'derived_class' could fail in some
+      contexts”: only really applies if the code using dynamic_cast gets called on this in a
+      constructor or destructor. This warning could be used to detect real errors, but MSC raises it
+      unconditionally, so just turn it off.*/
+      #pragma warning(disable: 4437)
    #endif
    // “'class' : default constructor could not be generated”
    #pragma warning(disable: 4510)
