@@ -75,7 +75,7 @@ Macros to generate proper Unicode characters.
    #undef ABC_CXX_CHAR32
    #define ABC_CXX_CHAR32 2
 
-   #if (ABC_HOST_CXX_CLANG && __has_feature(cxx_unicode_literals)) || ABC_HOST_CXX_GCC >= 40500
+   #if __has_feature(cxx_unicode_literals) || ABC_HOST_CXX_GCC >= 40500
       // UTF-8 string literals are supported.
       #undef ABC_CXX_UTF8LIT
       #define ABC_CXX_UTF8LIT 2

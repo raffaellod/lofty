@@ -55,8 +55,7 @@ compilers. */
 @param expr
    Expression of a type for which std::begin() and std::end() are defined.
 */
-#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_range_for)) || ABC_HOST_CXX_GCC || \
-      ABC_HOST_CXX_MSC >= 1700
+#if __has_feature(cxx_range_for) || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC >= 1700
    #define ABC_FOR_EACH(rangedecl, expr) \
       for (rangedecl : expr)
 #elif ABC_HOST_CXX_MSC
@@ -78,8 +77,7 @@ reached. */
    #define ABC_FUNC_NORETURN
 #endif
 
-#if (ABC_HOST_CXX_CLANG && __has_feature(cxx_override_control)) || ABC_HOST_CXX_GCC >= 0x40700 || \
-      ABC_HOST_CXX_MSC >= 1800
+#if __has_feature(cxx_override_control) || ABC_HOST_CXX_GCC >= 0x40700 || ABC_HOST_CXX_MSC >= 1800
    // Good, no need for fixes.
 #elif ABC_HOST_CXX_MSC
    // MSC16 thinks that override is a non-standard extension, so we need to tell it otherwise.
