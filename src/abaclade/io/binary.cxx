@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with Aba
 #include "binary/detail/file_init_data.hxx"
 #include "binary/file-subclasses.hxx"
 
-#include <algorithm>
+#include <algorithm> // std::min()
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // E* errno
