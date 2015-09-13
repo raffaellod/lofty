@@ -85,8 +85,7 @@ public:
       Pointer to the object to copy.
    */
    void copy_construct(void * pDst, void const * pSrc) const {
-      // Add 1 byte to pSrc to trick m_pfnCopyConstrImpl to iterate exactly one time.
-      m_pfnCopyConstrImpl(pDst, pSrc, static_cast<std::int8_t const *>(pSrc) + 1);
+      copy_construct(pDst, pSrc, static_cast<std::int8_t const *>(pSrc) + m_cb);
    }
 
    /*! Copy-constructs items from an array to another.
@@ -99,7 +98,7 @@ public:
       Pointer to the end of the source array.
    */
    void copy_construct(void * pDstBegin, void const * pSrcBegin, void const * pSrcEnd) const {
-      m_pfnCopyConstrImpl(pDstBegin, pSrcBegin, pSrcEnd);
+      m_pfnCopyConstructImpl(pDstBegin, pSrcBegin, pSrcEnd);
    }
 
    /*! Destructs an object.
@@ -108,8 +107,7 @@ public:
       Pointer to the object to destruct.
    */
    void destruct(void const * p) const {
-      // Add 1 byte to p to trick m_pfnDestructImpl to iterate exactly one time.
-      m_pfnDestructImpl(p, static_cast<std::int8_t const *>(p) + 1);
+      destruct(p, static_cast<std::int8_t const *>(p) + m_cb);
    }
 
    /*! Destructs a range of items in an array.
@@ -131,8 +129,7 @@ public:
       Pointer to the object to move.
    */
    void move_construct(void * pDst, void * pSrc) const {
-      // Add 1 byte to pSrc to trick m_pfnMoveConstructImpl to iterate exactly one time.
-      m_pfnMoveConstructImpl(pDst, pSrc, static_cast<std::int8_t *>(pSrc) + 1);
+      move_construct(pDst, pSrc, static_cast<std::int8_t *>(pSrc) + m_cb);
    }
 
    /*! Move-constructs items from an array to another.
@@ -157,12 +154,13 @@ public:
    //! Makes copy_construct() available.
    template <typename T>
    void set_copy_construct() {
-      m_pfnCopyConstrImpl = reinterpret_cast<copy_construct_impl_type>(
+      set_size<T>();
+      m_pfnCopyConstructImpl = reinterpret_cast<copy_construct_impl_type>(
          &copy_construct_impl<typename _std::remove_cv<T>::type>
       );
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
-      if (!m_pfnCopyConstrImpl) {
+      if (!m_pfnCopyConstructImpl) {
          &copy_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
       }
 #endif
@@ -171,6 +169,7 @@ public:
    //! Makes destruct() available.
    template <typename T>
    void set_destruct() {
+      set_size<T>();
       m_pfnDestructImpl = reinterpret_cast<destruct_impl_type>(
          &destruct_impl<typename _std::remove_cv<T>::type>
       );
@@ -185,6 +184,7 @@ public:
    //! Makes move_construct() available.
    template <typename T>
    void set_move_construct() {
+      set_size<T>();
       m_pfnMoveConstructImpl = reinterpret_cast<move_construct_impl_type>(
          &move_construct_impl<typename _std::remove_cv<T>::type>
       );
@@ -340,7 +340,7 @@ private:
    //! Alignment of a variable of this type, in bytes.
    std::uint16_t m_cbAlign;
    //! Pointer to a function to copy items from one array to another.
-   copy_construct_impl_type m_pfnCopyConstrImpl;
+   copy_construct_impl_type m_pfnCopyConstructImpl;
    //! Pointer to a function to destruct items in an array.
    destruct_impl_type m_pfnDestructImpl;
    //! Pointer to a function to move items from one array to another.
