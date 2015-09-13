@@ -48,7 +48,7 @@ namespace abc { namespace _std {
 
 }} //namespace abc::_std
 
-#if defined(ABC_STLIMPL) || !defined(ABC_CXX_VARIADIC_TEMPLATES)
+#if ABC_HOST_STL_ABACLADE || !defined(ABC_CXX_VARIADIC_TEMPLATES)
    #include <abaclade/_std/tuple.hxx>
 #else
    #include <tuple>
@@ -66,7 +66,7 @@ namespace abc { namespace _std {
    }} //namespace abc::_std
 #endif
 
-#if defined(ABC_STLIMPL) || ABC_HOST_STL_MSVCRT == 1600
+#if ABC_HOST_STL_ABACLADE || ABC_HOST_STL_MSVCRT == 1600
    #include <abaclade/_std/atomic.hxx>
 #else
    #include <atomic>
@@ -78,7 +78,7 @@ namespace abc { namespace _std {
    }} //namespace abc::_std
 #endif
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
    #include <abaclade/_std/exception.hxx>
 #else
    #if ABC_HOST_STL_MSVCRT && ABC_HOST_CXX_MSC
@@ -102,7 +102,7 @@ namespace abc { namespace _std {
    }} //namespace abc::_std
 #endif
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
    #include <abaclade/_std/new.hxx>
 #else
    #include <new>
@@ -116,7 +116,7 @@ namespace abc { namespace _std {
    }} //namespace abc::_std
 #endif
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
    #include <abaclade/_std/typeinfo.hxx>
 #else
    #include <typeinfo>
@@ -128,8 +128,9 @@ namespace abc { namespace _std {
    }} //namespace abc::_std
 #endif
 
-#if defined(ABC_STLIMPL) || ABC_HOST_STL_MSVCRT == 1600
-   // MSC16 has a half-assed std::shared_ptr that requires the type’s destructor to be defined.
+#if ABC_HOST_STL_ABACLADE || ABC_HOST_STL_MSVCRT == 1600
+   /* MSC16 BUG: has a half-assed std::shared_ptr that requires the type’s destructor to be defined
+   at the point of declaration of the pointer. */
    #include <abaclade/_std/memory.hxx>
 #else
    #include <memory>
@@ -144,7 +145,7 @@ namespace abc { namespace _std {
    using ::std::unique_ptr;
    using ::std::weak_ptr;
 
-   #ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+   #ifdef _ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
       // (Partially-) specialize is_copy_constructible for stock STL types.
       template <typename T, typename TDeleter>
       struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};

@@ -30,15 +30,17 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
 // In case we’re reimplementing all of STL, just merge ::abc::_std into ::std.
 namespace std {
+
 using namespace ::abc::_std;
+
 } //namespace std
 #endif
 
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
    #include <abaclade/_std/type_traits.hxx>
 #else
    #if ABC_HOST_STL_MSVCRT == 1800
@@ -88,7 +90,7 @@ using namespace ::abc::_std;
    }} //namespace abc::_std
 #endif
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
    #include <abaclade/_std/utility.hxx>
 #else
    #include <utility>
@@ -135,7 +137,7 @@ public:
    ;
 };
 
-#define ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+#define _ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
 
 }} //namespace abc::_std
 

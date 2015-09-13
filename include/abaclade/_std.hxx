@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(ABC_STLIMPL) || ABC_HOST_STL_MSVCRT == 1600
+#if ABC_HOST_STL_ABACLADE || ABC_HOST_STL_MSVCRT == 1600
    #include <abaclade/_std/mutex.hxx>
 #else
    #include <mutex>
@@ -44,13 +44,13 @@ You should have received a copy of the GNU General Public License along with Aba
    }} //namespace abc::_std
 #endif
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
    #include <abaclade/_std/stdexcept.hxx>
 #else
    #include <stdexcept>
 #endif
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
    #include <abaclade/_std/functional.hxx>
 #else
    #include <functional>
@@ -62,7 +62,7 @@ You should have received a copy of the GNU General Public License along with Aba
    }} //namespace abc::_std
 #endif
 
-#ifdef ABC_STLIMPL
+#if ABC_HOST_STL_ABACLADE
    #include <abaclade/_std/iterator.hxx>
 #else
    #include <iterator>

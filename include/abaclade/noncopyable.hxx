@@ -70,7 +70,7 @@ private:
 
 } //namespace abc
 
-#ifdef ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
+#ifdef _ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
 
    namespace abc { namespace _std {
 

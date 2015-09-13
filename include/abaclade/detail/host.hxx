@@ -61,7 +61,7 @@ You should have received a copy of the GNU General Public License along with Aba
 //! 1 if building with MSVCRT STL implementation, or 0 otherwise.
 #define ABC_HOST_STL_MSVCRT 0
 
-#ifdef ABC_STLIMPL
+#ifdef _ABC_USE_STLIMPL
    #undef ABC_HOST_STL_ABACLADE
    #define ABC_HOST_STL_ABACLADE 1
 #elif ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
