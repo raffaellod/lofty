@@ -228,11 +228,7 @@ private:
    branch), they will raise an error saying they doesn’t know which one to choose. */
    template <typename T>
    static void copy_construct_impl(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
-   #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
       if (_std::is_trivially_copy_constructible<T>::value) {
-   #else
-      if (std::has_trivial_copy_constructor<T>::value) {
-   #endif
          // No constructor, fastest copy possible.
          memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
       } else {
@@ -257,11 +253,7 @@ private:
    template <typename T>
    static void copy_construct_impl(
       typename _std::enable_if<
-   #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
          _std::is_trivially_copy_constructible<T>::value,
-   #else
-         std::has_trivial_copy_constructor<T>::value,
-   #endif
       T *>::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
    ) {
       // No constructor, fastest copy possible.
@@ -271,11 +263,7 @@ private:
    template <typename T>
    static void copy_construct_impl(
       typename _std::enable_if<
-   #ifdef ABC_CXX_STL_CXX11_TYPE_TRAITS
          !_std::is_trivially_copy_constructible<T>::value,
-   #else
-         !std::has_trivial_copy_constructor<T>::value,
-   #endif
       T * >::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
    ) {
       /* Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
@@ -304,11 +292,7 @@ private:
    */
    template <typename T>
    static void destruct_impl(T const * ptBegin, T const * ptEnd) {
-#if defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) || defined(ABC_CXX_STL_LIBSTDCXX_PARTIAL_TYPE_TRAITS)
       if (!_std::is_trivially_destructible<T>::value) {
-#else
-      if (!std::has_trivial_destructor<T>::value) {
-#endif
          // The destructor is not a no-op.
          for (T const * pt = ptBegin; pt < ptEnd; ++pt) {
             pt->~T();

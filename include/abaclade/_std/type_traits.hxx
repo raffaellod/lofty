@@ -32,6 +32,8 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace _std {
 
+#ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
+
 //! Defines an integral constant (C++11 § 20.9.3 “Helper classes”).
 template <typename T, T t_t>
 struct integral_constant {
@@ -43,11 +45,110 @@ typedef integral_constant<bool, true> true_type;
 //! False integral constant (C++11 § 20.9.3 “Helper classes”).
 typedef integral_constant<bool, false> false_type;
 
-}} //namespace abc::_std
+#endif //ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+#if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
+   ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800 \
+)
+   //! Defined as _std::true_type if T::T(T const &) is defined, or _std::false_type otherwise.
+   template <typename T>
+   struct is_copy_constructible {
+   private:
+      template <typename U>
+      static long test(decltype(U(*reinterpret_cast<U const *>(8192))) *);
 
-namespace abc { namespace _std {
+      template <typename>
+      static short test(...);
+
+   public:
+      static bool const value = (sizeof(test<T>(0)) == sizeof(long));
+   };
+   template <>
+   struct is_copy_constructible<void> : public false_type {};
+
+   #define _ABC_STD_TYPE_TRAITS_IS_COPY_CONSTRUCTIBLE
+
+#endif /*if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || (
+            ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800
+         )*/
+
+#if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
+   ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900 \
+)
+
+   /*! Defined as _std::true_type if T::T(T const &) is just a memcpy(), or _std::false_type
+   otherwise. */
+   template <typename T>
+   struct is_trivially_copy_constructible : public integral_constant<bool,
+   #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+      __has_trivial_copy(T)
+   #endif
+   > {};
+
+   #define _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
+
+#endif /*if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || (
+            ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900
+         )*/
+
+#if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
+   ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800 \
+)
+
+   //! Defined as _std::true_type if T::~T() is a no-op, or _std::false_type otherwise.
+   template <typename T>
+   struct is_trivially_destructible : public integral_constant<bool,
+   #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+      __has_trivial_destructor(T)
+   #endif
+   > {};
+
+   #define _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_DESTRUCTIBLE
+
+#endif /*if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || (
+            ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800
+         )*/
+
+#ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
+
+/*! Defined as _std::true_type if T has no members or base classes of size > 0, or _std::false_type
+otherwise (C++11 20.9.4.3 “Type properties”). */
+template <typename T>
+struct is_empty : public integral_constant<bool,
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+   __is_empty(T)
+#endif
+> {};
+
+/*! Defined as _std::true_type if T is an l-value reference type, or _std::false_type otherwise
+(C++11 § 20.9.4.1 “Primary type categories”). */
+template <typename T>
+struct is_lvalue_reference : public false_type {};
+template <typename T>
+struct is_lvalue_reference<T &> : public true_type {};
+
+/*! Defined as _std::true_type if T is an r-value reference type, or _std::false_type otherwise
+(C++11 § 20.9.4.1 “Primary type categories”). */
+template <typename T>
+struct is_rvalue_reference : public false_type {};
+template <typename T>
+struct is_rvalue_reference<T &&> : public true_type {};
+
+/*! Defined as _std::true_type if T is a reference type, or _std::false_type otherwise (C++11 §
+20.9.4.2 “Composite type traits”). */
+template <typename T>
+struct is_reference : public integral_constant<
+   bool, is_lvalue_reference<T>::value || is_rvalue_reference<T>::value
+> {};
+
+/*! Defined as _std::true_type if T is a scalar type or a trivially copyable class with a trivial
+default constructor, or _std::false_type otherwise (C++11 § 20.9.4.3 “Type properties”). */
+template <typename T>
+struct is_trivial : public integral_constant<bool, false
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+   || __is_trivial(T)
+#endif
+> {};
 
 /*! Removes const and volatile qualifiers from a type (C++11 § 20.9.7.1 “Const-volatile
 modifications”). */
@@ -70,79 +171,6 @@ struct remove_cv<T const volatile> {
 
 }} //namespace abc::_std
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace _std {
-
-/* All the constants that depend on compiler support will default to a safe (if pessimistic)
-default, in case no such support is available. */
-
-#if 0
-// True if T::T(T const &) is defined.
-template <typename T>
-struct is_copy_constructible
-template <typename T>
-struct is_trivially_copy_constructible
-
-// True if a type has a non-deleted destructor.
-template <typename T>
-struct is_trivially_destructible
-#endif
-
-//! True if T::T(T const &) is just a memcpy().
-template <typename T>
-struct has_trivial_copy_constructor : public integral_constant<bool, false
-#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __has_trivial_copy(T)
-#endif
-> {};
-
-//! True if T::~T() is a no-op.
-template <typename T>
-struct has_trivial_destructor : public integral_constant<bool, false
-#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __has_trivial_destructor(T)
-#endif
-> {};
-
-//! True if T has no members or base classes of size > 0 (C++11 20.9.4.3 “Type properties”).
-template <typename T>
-struct is_empty : public integral_constant<bool, false
-#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __is_empty(T)
-#endif
-> {};
-
-//! True if T is an l-value reference type (C++11 § 20.9.4.1 “Primary type categories”).
-template <typename T>
-struct is_lvalue_reference : public false_type {};
-template <typename T>
-struct is_lvalue_reference<T &> : public true_type {};
-
-//! True if T is an r-value reference type (C++11 § 20.9.4.1 “Primary type categories”).
-template <typename T>
-struct is_rvalue_reference : public false_type {};
-template <typename T>
-struct is_rvalue_reference<T &&> : public true_type {};
-
-//! True if T is a reference type (C++11 § 20.9.4.2 “Composite type traits”).
-template <typename T>
-struct is_reference : public integral_constant<
-   bool, is_lvalue_reference<T>::value || is_rvalue_reference<T>::value
-> {};
-
-/*! True if T is a scalar type or a trivially copyable class with a trivial default constructor
-(C++11 § 20.9.4.3 “Type properties”).
-*/
-template <typename T>
-struct is_trivial : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __is_trivial(T)
-#endif
-> {};
-
-}} //namespace abc::_std
-
 namespace abc { namespace _std { namespace detail {
 
 //! Helper for abc::_std::is_void.
@@ -155,13 +183,12 @@ struct is_void_helper<void> : public true_type {};
 
 namespace abc { namespace _std {
 
-//! True if T is void (C++11 § 20.9.4.1 “Primary type categories”).
+/*! Defined as _std::true_type if T is void, or _std::false_type otherwise (C++11 § 20.9.4.1
+“Primary type categories”). */
 template <typename T>
 struct is_void : public detail::is_void_helper<typename remove_cv<T>::type> {};
 
 }} //namespace abc::_std
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace _std { namespace detail {
 
@@ -199,10 +226,8 @@ struct add_rvalue_reference : public detail::add_rvalue_reference_helper<
    T, !is_void<T>::value && !is_reference<T>::value
 > {};
 
-
 /*! Defines a member named type as T, removing reference qualifiers if any are present (C++11 §
-20.9.7.2 “Reference modifications”).
-*/
+20.9.7.2 “Reference modifications”). */
 template <typename T>
 struct remove_reference {
    typedef T type;
@@ -215,12 +240,6 @@ template <typename T>
 struct remove_reference<T &&> {
    typedef T type;
 };
-
-}} //namespace abc::_std
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace _std {
 
 /*! Defines a member named type as TTrue if t_bTest == true, else if is defined as TFalse (C++11 §
 20.9.7.6 “Other transformations”). */
@@ -258,6 +277,8 @@ template <typename T>
 struct enable_if<true, T> {
    typedef T type;
 };
+
+#endif //ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
 
 }} //namespace abc::_std
 
