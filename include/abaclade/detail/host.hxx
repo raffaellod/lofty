@@ -197,3 +197,90 @@ You should have received a copy of the GNU General Public License along with Aba
 #else
    #error "TODO: HOST_ARCH"
 #endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Apply fixes depending ABC_HOST_CXX_*.
+
+// Compatibility with compilers that don’t support feature/extension checking.
+#ifndef __has_extension
+   #define __has_extension(x) 0
+#endif
+#ifndef __has_feature
+   #define __has_feature(x) 0
+#endif
+
+#if ABC_HOST_CXX_MSC
+   // Suppress unnecessary warnings.
+
+   // “enumerator 'name' in switch of enum 'type' is not explicitly handled by a case label”
+   #pragma warning(disable: 4061)
+   // “enumerator 'name' in switch of enum 'type' is not handled”
+   #pragma warning(disable: 4062)
+   // “conditional expression is constant”
+   #pragma warning(disable: 4127)
+   /* “nonstandard extension used : 'initializing' : conversion from 'type' to 'type &' A non-const
+   reference may only be bound to an lvalue”: raised by ABC_FOR_EACH() when the iterated expression
+   is not an l-value. No other compiler complains about it. */
+   #pragma warning(disable: 4239)
+   // “'class' : inherits 'base::member' via dominance”: it points out the obvious and intended.
+   #pragma warning(disable: 4250)
+   /* “'class1 member' : class 'template class2' needs to have dll-interface to be used by clients
+   of class 'class1'”: not sure why, but can’t imagine how it could possibly make sense to DLL-
+   export a class template. */
+   #pragma warning(disable: 4251)
+   // “'class' : class has virtual functions, but destructor is not virtual”
+   #pragma warning(disable: 4265)
+   // “non dll-interface class 'base_class' used as base for dll-interface class 'derived_class'”
+   #pragma warning(disable: 4275)
+   // “C++ exception specification ignored except to indicate a function is not __declspec(nothrow)”
+   #pragma warning(disable: 4290)
+   // “cast truncates constant value”: would be useful, but it’s raised too easily by MSC16.
+   #pragma warning(disable: 4310)
+   /* “behavior change : 'stl_internal1' called instead of 'stl_internal2': this is raised by MSC’s
+   STL header files, and Microsoft suggests to just ignore it; see <https://connect.microsoft.com/
+   VisualStudio/feedback/details/767960/warning-c4350-behavior-change-when-including-string-and-no-
+   precompiled-header>. */
+   #pragma warning(disable: 4350)
+   #if ABC_HOST_CXX_MSC >= 1700
+      /* “'derived_class' : Object layout under /vd2 will change due to virtual base 'base_class'”:
+      yet another problem related to calling virtual methods from a constructor. This warning could
+      be used to detect the latter situation, but MSC raises it unconditionally, so just turn it
+      off. */
+      #pragma warning(disable: 4435)
+      /* “dynamic_cast from virtual base 'base_class' to 'derived_class' could fail in some
+      contexts”: only really applies if the code using dynamic_cast gets called on this in a
+      constructor or destructor. This warning could be used to detect real errors, but MSC raises it
+      unconditionally, so just turn it off.*/
+      #pragma warning(disable: 4437)
+   #endif
+   // “'class' : default constructor could not be generated”
+   #pragma warning(disable: 4510)
+   // “'class' : assignment operator could not be generated”
+   #pragma warning(disable: 4512)
+   // “class 'class' can never be instantiated - user defined constructor required”
+   #pragma warning(disable: 4610)
+   /* “'class' : copy constructor could not be generated because a base class copy constructor is
+   inaccessible” */
+   #pragma warning(disable: 4625)
+   /* “'class' : assignment operator could not be generated because a base class assignment operator
+   is inaccessible” */
+   #pragma warning(disable: 4626)
+   /* “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
+   catch site” */
+   #pragma warning(disable: 4673)
+   /* “potentially uninitialized local variable 'var' used”: would be useful, but it’s raised too
+   easily by MSC16. */
+   #pragma warning(disable: 4701)
+   // “'function' : function not inlined”
+   #pragma warning(disable: 4710)
+   // “function 'function' selected for automatic inline expansion”
+   #pragma warning(disable: 4711)
+   // “'struct' : 'n' bytes padding added after data member 'member'”
+   #pragma warning(disable: 4820)
+   #if ABC_HOST_CXX_MSC < 1700
+      /* “nonstandard extension used : 'type' : local types or unnamed types cannot be used as
+      template arguments”. */
+      #pragma warning(disable: 4836)
+   #endif
+#endif //if ABC_HOST_CXX_MSC
