@@ -78,111 +78,29 @@ namespace abc { namespace _std {
 default, in case no such support is available. */
 
 #if 0
-// True if a type has a default constructor.
-template <typename T>
-is_default_constructible
-template <typename T>
-is_trivially_default_constructible
-template <typename T>
-is_nothrow_default_constructible
-
 // True if T::T(T const &) is defined.
 template <typename T>
 struct is_copy_constructible
 template <typename T>
 struct is_trivially_copy_constructible
-template <typename T>
-struct is_nothrow_copy_constructible
-
-// True if a type has a move constructor.
-template <typename T>
-struct is_move_constructible
-template <typename T>
-struct is_trivially_move_constructible
-template <typename T>
-struct is_nothrow_move_constructible
-
-// True if a type has a copy assignment operator.
-template <typename T>
-struct is_copy_assignable
-template <typename T>
-struct is_trivially_copy_assignable
-template <typename T>
-struct is_nothrow_copy_assignable
-
-// True if a type has a move assignment operator.
-template <typename T>
-struct is_move_assignable
-template <typename T>
-struct is_trivially_move_assignable
-template <typename T>
-struct is_nothrow_move_assignable
 
 // True if a type has a non-deleted destructor.
 template <typename T>
-struct is_destructible
-template <typename T>
 struct is_trivially_destructible
-template <typename T>
-struct is_nothrow_destructible
-
-// True if T::~T() is declared as virtual.
-template <typename T>
-struct has_virtual_destructor
 #endif
-
-//! True if T::operator=(T const &) is declared as throw().
-template <typename T>
-struct has_nothrow_assign : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __has_nothrow_assign(T)
-#endif
-> {};
-
-//! True if T::T(T const &) is declared as throw().
-template <typename T>
-struct has_nothrow_copy_constructor : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __has_nothrow_copy(T)
-#endif
-> {};
-
-//! True if T::T() is declared as throw().
-template <typename T>
-struct has_nothrow_default_constructor : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __has_nothrow_constructor(T)
-#endif
-> {};
-
-//! True if T::operator=(T const &) is just a memcpy().
-template <typename T>
-struct has_trivial_assign : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __has_trivial_assign(T)
-#endif
-> {};
 
 //! True if T::T(T const &) is just a memcpy().
 template <typename T>
 struct has_trivial_copy_constructor : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_trivial_copy(T)
-#endif
-> {};
-
-//! True if T::T() is a no-op.
-template <typename T>
-struct has_trivial_default_constructor : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __has_trivial_constructor(T)
 #endif
 > {};
 
 //! True if T::~T() is a no-op.
 template <typename T>
 struct has_trivial_destructor : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __has_trivial_destructor(T)
 #endif
 > {};
@@ -190,7 +108,7 @@ struct has_trivial_destructor : public integral_constant<bool, false
 //! True if T has no members or base classes of size > 0 (C++11 20.9.4.3 “Type properties”).
 template <typename T>
 struct is_empty : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+#if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
    || __is_empty(T)
 #endif
 > {};
