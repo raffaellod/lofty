@@ -95,7 +95,16 @@ void ABC_STL_CALLCONV operator delete[](
 
 namespace abc { namespace memory {
 
-/*! Requests the dynamic allocation of a memory block of the specified number of bytes.
+/*! Requests the dynamic allocation of a memory block of the specified size.
+
+@param cb
+   Count of bytes to allocate.
+@return
+   Pointer to the allocated memory block.
+*/
+ABACLADE_SYM void * alloc_bytes(std::size_t cb);
+
+/*! Requests the dynamic allocation of a memory block of the specified size.
 
 @param cb
    Count of bytes to allocate.
@@ -104,9 +113,8 @@ namespace abc { namespace memory {
 */
 template <typename T>
 T * alloc(std::size_t cb) {
-   return static_cast<T *>(alloc(cb));
+   return static_cast<T *>(alloc_bytes(cb));
 }
-ABACLADE_SYM void * alloc(std::size_t cb);
 
 /*! Releases a block of dynamically allocated memory.
 
@@ -234,13 +242,23 @@ struct freeing_deleter {
 
 namespace abc { namespace memory {
 
+/*! Requests the dynamic allocation of a memory block of the specified size.
+
+@param cb
+   Amount of memory to allocate, in bytes (void case).
+@return
+   Pointer to the allocated memory block. The memory will be released with abc::memory::free() when
+   the pointer is destructed.
+*/
+inline _std::unique_ptr<void, freeing_deleter> alloc_bytes_unique(std::size_t cb) {
+   return _std::unique_ptr<void, freeing_deleter>(alloc_bytes(cb));
+}
+
 /*! Requests the dynamic allocation of a memory block large enough to contain c objects of type T,
 plus additional cbExtra bytes.
 
 @param c
-   Count of items to allocate memory for (non-void case).
-@param cb
-   Amount of memory to allocate, in bytes (void case).
+   Count of items to allocate memory for.
 @param cbExtra
    Count of bytes of additional storage to allocate at the end of the requested items.
 @return
@@ -253,11 +271,6 @@ inline _std::unique_ptr<T, freeing_deleter> alloc_unique(
 ) {
    typedef typename _std::unique_ptr<T, freeing_deleter>::element_type TElt;
    return _std::unique_ptr<T, freeing_deleter>(alloc<TElt>(sizeof(TElt) * c + cbExtra));
-}
-inline _std::unique_ptr<void, freeing_deleter> alloc_unique(
-   std::size_t cb
-) {
-   return _std::unique_ptr<void, freeing_deleter>(alloc(cb));
 }
 
 /*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing

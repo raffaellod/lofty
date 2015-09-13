@@ -298,8 +298,8 @@ void hash_map_impl::grow_table(
    // The “old” names of these four variables will make sense in a moment…
    std::size_t cOldBuckets = m_cBuckets ? m_cBuckets * smc_iGrowthFactor : smc_cBucketsMin;
    _std::unique_ptr<std::size_t[]> piOldHashes(new std::size_t[cOldBuckets]);
-   auto pOldKeys  (memory::alloc_unique(typeKey  .size() * cOldBuckets));
-   auto pOldValues(memory::alloc_unique(typeValue.size() * cOldBuckets));
+   auto pOldKeys  (memory::alloc_bytes_unique(typeKey  .size() * cOldBuckets));
+   auto pOldValues(memory::alloc_bytes_unique(typeValue.size() * cOldBuckets));
    // At this point we’re safe from exceptions, so we can update the member variables.
    _std::swap(m_cBuckets, cOldBuckets);
    _std::swap(m_piHashes, piOldHashes);
