@@ -69,18 +69,3 @@ private:
 };
 
 } //namespace abc
-
-#if 0//def _ABC_STLIMPL_IS_COPY_CONSTRUCTIBLE
-
-   namespace abc { namespace _std {
-
-   /* Partially-specialize std::is_copy_constructible to always return true for abc::noncopyable
-   subclasses. */
-   template <typename T>
-   struct is_copy_constructible<T, typename enable_if<
-      is_base_of< ::abc::noncopyable, T>::value
-   >::type> : public false_type {};
-
-   }} //namespace abc::_std
-
-#endif

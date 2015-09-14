@@ -54,8 +54,10 @@ using namespace ::abc::_std;
 
    namespace abc { namespace _std {
 
+   using ::std::enable_if;
    using ::std::false_type;
    using ::std::integral_constant;
+   using ::std::is_base_of;
    using ::std::true_type;
 
    }} //namespace abc::_std
@@ -74,10 +76,8 @@ using namespace ::abc::_std;
    using ::std::add_rvalue_reference;
    using ::std::conditional;
    using ::std::decay;
-   using ::std::enable_if;
    using ::std::is_arithmetic;
    using ::std::is_array;
-   using ::std::is_base_of;
    #ifndef _ABC_STD_TYPE_TRAITS_IS_COPY_CONSTRUCTIBLE
    using ::std::is_copy_constructible;
    #endif

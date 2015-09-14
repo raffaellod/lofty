@@ -30,6 +30,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Forward declaration.
+namespace abc {
+
+class noncopyable;
+
+} //namespace abc
+
 namespace abc { namespace _std {
 
 #ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
@@ -45,13 +52,30 @@ typedef integral_constant<bool, true> true_type;
 //! False integral constant (C++11 § 20.9.3 “Helper classes”).
 typedef integral_constant<bool, false> false_type;
 
+/*! Defines a member named type as T, if and only if t_bTest == true (C++11 § 20.9.7.6 “Other
+transformations”). */
+template <bool t_bTest, typename T = void>
+struct enable_if {
+};
+template <typename T>
+struct enable_if<true, T> {
+   typedef T type;
+};
+
 #endif //ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
 
 #if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
    ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800 \
 )
-   //! Defined as _std::true_type if T::T(T const &) is defined, or _std::false_type otherwise.
-   template <typename T>
+   /*! Defined as _std::true_type if T::T(T const &) is defined, or _std::false_type otherwise. The
+   additional template argument is used to partially-specialize this trait for abc::noncopyable
+   subclasses if C++11’s function deletion is not supported. */
+   template <
+      typename T
+   #ifndef ABC_CXX_FUNC_DELETE
+      , typename = void
+   #endif
+   >
    struct is_copy_constructible {
    private:
       template <typename U>
@@ -65,6 +89,12 @@ typedef integral_constant<bool, false> false_type;
    };
    template <>
    struct is_copy_constructible<void> : public false_type {};
+   #ifndef ABC_CXX_FUNC_DELETE
+      // Partially-specialize to always return true for abc::noncopyable subclasses.
+      template <typename T>
+      struct is_copy_constructible<T, typename enable_if<is_base_of<noncopyable, T>::value>::type> :
+         public false_type {};
+   #endif
 
    #define _ABC_STD_TYPE_TRAITS_IS_COPY_CONSTRUCTIBLE
 
@@ -266,16 +296,6 @@ struct decay {
             typename remove_cv<U>::type
         >::type
     >::type type;
-};
-
-/*! Defines a member named type as T, if and only if t_bTest == true (C++11 § 20.9.7.6 “Other
-transformations”). */
-template <bool t_bTest, typename T = void>
-struct enable_if {
-};
-template <typename T>
-struct enable_if<true, T> {
-   typedef T type;
 };
 
 #endif //ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
