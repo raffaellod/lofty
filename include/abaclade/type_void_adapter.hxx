@@ -161,7 +161,7 @@ public:
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!m_pfnCopyConstructImpl) {
-         &copy_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
+         copy_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
       }
 #endif
    }
@@ -191,7 +191,7 @@ public:
 #if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
       // Force instantiating the template, even if (obviously) never executed.
       if (!m_pfnMoveConstructImpl) {
-         &move_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
+         move_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
       }
 #endif
    }
