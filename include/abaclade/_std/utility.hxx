@@ -32,6 +32,17 @@ You should have received a copy of the GNU General Public License along with Aba
 
 namespace abc { namespace _std {
 
+#if !defined(_ABC_STD_UTILITY_SELECTIVE) || (ABC_HOST_STL_MSVCRT && ABC_HOST_STL_MSVCRT < 1800)
+   // MSC16 lacks a definition of std::declval().
+   template <typename T>
+   typename add_rvalue_reference<T>::type declval();
+
+   #define _ABC_STD_UTILITY_DECLVAL
+#endif /*if !defined(_ABC_STD_UTILITY_SELECTIVE) ||
+            (ABC_HOST_STL_MSVCRT && ABC_HOST_STL_MSVCRT < 1800) */
+
+#ifndef _ABC_STD_UTILITY_SELECTIVE
+
 //! Defines a member named type as T.
 template <typename T>
 struct identity {
@@ -108,6 +119,8 @@ inline void swap(T (& t1)[t_ci], T (& t2)[t_ci]) {
       swap(*pt1, *pt2);
    }
 }
+
+#endif //ifndef _ABC_STD_UTILITY_SELECTIVE
 
 }} //namespace abc::_std
 

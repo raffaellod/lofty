@@ -109,9 +109,16 @@ using namespace ::abc::_std;
 #else
    #include <utility>
 
+   #if ABC_HOST_STL_MSVCRT && ABC_HOST_STL_MSVCRT < 1800
+      // The STL implementations above need to be supplemented with Abaclade’s implementation.
+      #define _ABC_STD_UTILITY_SELECTIVE
+      #include <abaclade/_std/utility.hxx>
+      #undef _ABC_STD_UTILITY_SELECTIVE
+   #endif
+
    namespace abc { namespace _std {
 
-   #if !ABC_HOST_STL_MSVCRT || ABC_HOST_STL_MSVCRT >= 1800
+   #ifndef _ABC_STD_UTILITY_DECLVAL
       using ::std::declval;
    #endif
    using ::std::forward;
