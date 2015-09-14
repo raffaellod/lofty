@@ -170,10 +170,18 @@ void bad_pointer_alignment::init(void const * pInvalid, errint_t err /*= 0*/) {
    #pragma warning(disable: 4986)
 #endif
 
-void * ABC_STL_CALLCONV operator new(std::size_t cb) {
+void * ABC_STL_CALLCONV operator new(std::size_t cb)
+#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
+throw(std::bad_alloc)
+#endif
+{
    return abc::memory::alloc_bytes(cb);
 }
-void * ABC_STL_CALLCONV operator new[](std::size_t cb) {
+void * ABC_STL_CALLCONV operator new[](std::size_t cb)
+#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
+throw(std::bad_alloc)
+#endif
+{
    return abc::memory::alloc_bytes(cb);
 }
 void * ABC_STL_CALLCONV operator new(
