@@ -158,12 +158,6 @@ public:
       m_pfnCopyConstructImpl = reinterpret_cast<copy_construct_impl_type>(
          &copy_construct_impl<typename _std::remove_cv<T>::type>
       );
-#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
-      // Force instantiating the template, even if (obviously) never executed.
-      if (!m_pfnCopyConstructImpl) {
-         copy_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
-      }
-#endif
    }
 
    //! Makes destruct() available.
@@ -173,12 +167,6 @@ public:
       m_pfnDestructImpl = reinterpret_cast<destruct_impl_type>(
          &destruct_impl<typename _std::remove_cv<T>::type>
       );
-#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
-      // Force instantiating the template, even if (obviously) never executed.
-      if (!m_pfnDestructImpl) {
-         destruct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr);
-      }
-#endif
    }
 
    //! Makes move_construct() available.
@@ -188,12 +176,6 @@ public:
       m_pfnMoveConstructImpl = reinterpret_cast<move_construct_impl_type>(
          &move_construct_impl<typename _std::remove_cv<T>::type>
       );
-#if ABC_HOST_CXX_GCC && ABC_HOST_CXX_GCC < 40700
-      // Force instantiating the template, even if (obviously) never executed.
-      if (!m_pfnMoveConstructImpl) {
-         move_construct_impl<typename _std::remove_cv<T>::type>(nullptr, nullptr, nullptr);
-      }
-#endif
    }
 
    //! Makes size() available.

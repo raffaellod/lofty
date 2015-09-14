@@ -36,7 +36,7 @@ namespace abc { namespace _std {
 18.2 “<cstddef>”). */
 #if ABC_HOST_STL_LIBCXX || ABC_HOST_STL_LIBSTDCXX >= 40900
    typedef std::max_align_t max_align_t;
-#elif ABC_HOST_STL_LIBSTDCXX >= 40700
+#elif ABC_HOST_STL_LIBSTDCXX
    typedef ::max_align_t max_align_t;
 #else
    union max_align_t {

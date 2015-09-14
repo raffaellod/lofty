@@ -217,23 +217,23 @@ namespace abc {
 
 /*! If defined, the compiler supports defining conversion operators as explicit, to avoid executing
 them implicitly (N2437). */
-#if __has_feature(cxx_explicit_conversions) || ABC_HOST_CXX_GCC >= 40500 || ABC_HOST_CXX_MSC >= 1800
+#if __has_feature(cxx_explicit_conversions) || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC >= 1800
    #define ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 #endif
 
 /*! If defined, the compiler allows to delete a specific (overload of a) function, method or
 constructor (N2346). */
-#if __has_feature(cxx_deleted_functions) || ABC_HOST_CXX_GCC >= 40400 || ABC_HOST_CXX_MSC >= 1800
+#if __has_feature(cxx_deleted_functions) || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC >= 1800
    #define ABC_CXX_FUNC_DELETE
 #endif
 
 //! If defined, the compiler supports the noexcept exception specification.
-#if __has_feature(cxx_noexcept) || ABC_HOST_CXX_GCC >= 40600
+#if __has_feature(cxx_noexcept) || ABC_HOST_CXX_GCC
    #define ABC_CXX_NOEXCEPT
 #endif
 
 //! If defined, the compiler expects C++11 noexcept specifications for STL functions/methods.
-#if __has_feature(cxx_noexcept) || ABC_HOST_CXX_GCC >= 40700
+#if __has_feature(cxx_noexcept) || ABC_HOST_CXX_GCC
    #define ABC_CXX_STL_USES_NOEXCEPT
 #endif
 

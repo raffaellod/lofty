@@ -39,8 +39,8 @@ You should have received a copy of the GNU General Public License along with Aba
    #undef ABC_HOST_CXX_GCC
    #define ABC_HOST_CXX_GCC \
       (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-   #if ABC_HOST_CXX_GCC < 40400
-      #error "Unsupported version of GCC: >= 4.4 required, 4.6 suggested"
+   #if ABC_HOST_CXX_GCC < 40700
+      #error "Unsupported version of GCC: >= 4.7 required"
    #endif
 #elif defined(_MSC_VER)
    #undef ABC_HOST_CXX_MSC
