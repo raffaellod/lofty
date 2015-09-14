@@ -237,18 +237,6 @@ constructor (N2346). */
    #define ABC_CXX_STL_USES_NOEXCEPT
 #endif
 
-//! If defined, the STL implements C++11 type traits (as opposed to early similar implementations).
-#if ABC_HOST_STL_LIBCXX || ABC_HOST_STL_LIBSTDCXX >= 40900
-   #define ABC_CXX_STL_CXX11_TYPE_TRAITS
-#endif
-
-/*! If defined, the STL implements part of the C++11 type traits. This is a special case for the GNU
-libc++; see <https://gcc.gnu.org/onlinedocs/gcc-4.9.2/libstdc++/manual/manual/status.html> for the
-supported type traits. */
-#if !defined(ABC_CXX_STL_CXX11_TYPE_TRAITS) && ABC_HOST_STL_LIBSTDCXX >= 40800
-   #define ABC_CXX_STL_LIBSTDCXX_PARTIAL_TYPE_TRAITS
-#endif
-
 //! If defined, the compiler supports variadic templates (N2242).
 #if __has_feature(cxx_variadic_templates) || ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC >= 1800
    #define ABC_CXX_VARIADIC_TEMPLATES

@@ -97,7 +97,6 @@ struct enable_if<true, T> {
    #endif
 
    #define _ABC_STD_TYPE_TRAITS_IS_COPY_CONSTRUCTIBLE
-
 #endif /*if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || (
             ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800
          )*/
@@ -116,7 +115,6 @@ struct enable_if<true, T> {
    > {};
 
    #define _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
-
 #endif /*if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || (
             ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900
          )*/
@@ -134,7 +132,6 @@ struct enable_if<true, T> {
    > {};
 
    #define _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_DESTRUCTIBLE
-
 #endif /*if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || (
             ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800
          )*/
