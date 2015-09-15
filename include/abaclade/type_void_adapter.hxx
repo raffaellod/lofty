@@ -36,11 +36,11 @@ namespace abc {
 // TODO: document rationale, design and use cases.
 class ABACLADE_SYM type_void_adapter {
 private:
-   //! Prototype of a function that copy-constructs items from one array to another.
+   //! Prototype of a function that copy-constructs elements from one array to another.
    typedef void (* copy_construct_impl_type)(void *, void const *, void const *);
-   //! Prototype of a function that destructs a range of items in an array.
+   //! Prototype of a function that destructs a range of elements in an array.
    typedef void (* destruct_impl_type)(void const *, void const *);
-   //! Prototype of a function that move-constructs items from one array to another.
+   //! Prototype of a function that move-constructs elements from one array to another.
    typedef void (* move_construct_impl_type)(void *, void *, void *);
 
 public:
@@ -88,12 +88,12 @@ public:
       copy_construct(pDst, pSrc, static_cast<std::int8_t const *>(pSrc) + m_cb);
    }
 
-   /*! Copy-constructs items from an array to another.
+   /*! Copy-constructs elements from an array to another.
 
    @param pDstBegin
       Pointer to the start of the destination array. The array is supposed to be uninitialized.
    @param pSrcBegin
-      Pointer to the first item to copy.
+      Pointer to the first element to copy.
    @param pSrcEnd
       Pointer to the end of the source array.
    */
@@ -110,12 +110,12 @@ public:
       destruct(p, static_cast<std::int8_t const *>(p) + m_cb);
    }
 
-   /*! Destructs a range of items in an array.
+   /*! Destructs a range of elements in an array.
 
    @param pBegin
-      Pointer to the first item to destruct.
+      Pointer to the first element to destruct.
    @param pEnd
-      Pointer to beyond the last item to destruct.
+      Pointer to beyond the last element to destruct.
    */
    void destruct(void const * pBegin, void const * pEnd) const {
       m_pfnDestructImpl(pBegin, pEnd);
@@ -132,12 +132,12 @@ public:
       move_construct(pDst, pSrc, static_cast<std::int8_t *>(pSrc) + m_cb);
    }
 
-   /*! Move-constructs items from an array to another.
+   /*! Move-constructs elements from an array to another.
 
    @param pDstBegin
       Pointer to the start of the destination array. The array is supposed to be uninitialized.
    @param pSrcBegin
-      Pointer to the first item to move.
+      Pointer to the first element to move.
    @param pSrcEnd
       Pointer to the end of the source array.
    */
@@ -232,15 +232,15 @@ public:
    }
 
 private:
-   /*! Copies a range of items from one array to another, overwriting any existing contents in the
-   destination.
+   /*! Copies a range of elements from one array to another, overwriting any existing contents in
+   the destination.
 
    @param ptDstBegin
-      Pointer to the start of the destination array. The items are supposed to be uninitialized.
+      Pointer to the start of the destination array. The elements are supposed to be uninitialized.
    @param ptSrcBegin
-      Pointer to the first item to copy.
+      Pointer to the first element to copy.
    @param ptSrcEnd
-      Pointer to beyond the last item to copy.
+      Pointer to beyond the last element to copy.
    */
    template <typename T>
    static void copy_construct_impl(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
@@ -260,16 +260,26 @@ private:
       }
    }
 
+   /*! Copies memory from one array to another. Replaces copy_construct_impl() and/or
+   move_construct_impl() in case of trivial copy constructor and/or move constructor.
+
+   @param pbDstBegin
+      Pointer to the start of the destination array.
+   @param pbSrcBegin
+      Pointer to the first byte to copy.
+   @param pbSrcEnd
+      Pointer to beyond the last byte to copy.
+   */
    static void copy_construct_trivial_impl(
       std::int8_t * pbDstBegin, std::int8_t * pbSrcBegin, std::int8_t * pbSrcEnd
    );
 
-   /*! Destructs a range of items in an array.
+   /*! Destructs a range of elements in an array.
 
    @param ptBegin
-      Pointer to the first item to destruct.
+      Pointer to the first element to destruct.
    @param ptEnd
-      Pointer to beyond the last item to destruct.
+      Pointer to beyond the last element to destruct.
    */
    template <typename T>
    static void destruct_impl(T const * ptBegin, T const * ptEnd) {
@@ -278,17 +288,24 @@ private:
       }
    }
 
+   /*! No-op to replace destruct_impl() in case of trivial destructor.
+
+   @param pBegin
+      Pointer to the start of the memory that would be destructed.
+   @param pEnd
+      Pointer to the end of the memory that would be destructed.
+   */
    static void destruct_trivial_impl(void const * pBegin, void const * pEnd);
 
-   /*! Moves a range of items from one array to another, overwriting any existing contents in the
+   /*! Moves a range of elements from one array to another, overwriting any existing contents in the
    destination.
 
    @param ptDstBegin
-      Pointer to the start of the destination array. The items are supposed to be uninitialized.
+      Pointer to the start of the destination array. The elements are supposed to be uninitialized.
    @param ptSrcBegin
-      Pointer to the first item to copy.
+      Pointer to the first element to copy.
    @param ptSrcEnd
-      Pointer to beyond the last item to copy.
+      Pointer to beyond the last element to copy.
    */
    template <typename T>
    static void move_construct_impl(T * ptDstBegin, T * ptSrcBegin, T * ptSrcEnd) {
@@ -303,11 +320,11 @@ private:
    std::uint16_t m_cb;
    //! Alignment of a variable of this type, in bytes.
    std::uint16_t m_cbAlign;
-   //! Pointer to a function to copy items from one array to another.
+   //! Pointer to a function to copy elements from one array to another.
    copy_construct_impl_type m_pfnCopyConstructImpl;
-   //! Pointer to a function to destruct items in an array.
+   //! Pointer to a function to destruct elements in an array.
    destruct_impl_type m_pfnDestructImpl;
-   //! Pointer to a function to move items from one array to another.
+   //! Pointer to a function to move elements from one array to another.
    move_construct_impl_type m_pfnMoveConstructImpl;
 };
 
