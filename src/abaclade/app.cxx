@@ -27,6 +27,28 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if ABC_HOST_API_WIN32
+/*! Entry point for abaclade.dll.
+
+hinst
+   Module’s instance handle.
+iReason
+   Reason why this function was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
+return
+   true in case of success, or false otherwise.
+*/
+extern "C" ::BOOL WINAPI DllMain(::HINSTANCE hinst, ::DWORD iReason, void * pReserved) {
+   ABC_UNUSED_ARG(hinst);
+   ABC_UNUSED_ARG(pReserved);
+   if (!abc::detail::thread_local_storage::dllmain_hook(static_cast<unsigned>(iReason))) {
+      return false;
+   }
+   return true;
+}
+#endif //if ABC_HOST_API_WIN32
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc {
 
 /*static*/ app * app::sm_papp = nullptr;

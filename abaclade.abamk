@@ -25,7 +25,6 @@ You should have received a copy of the GNU General Public License along with Aba
       name="abaclade"
       brief="Main Abaclade dynamic shared library."
    >
-      <source path="src/abaclade/abaclade.cxx"/>
       <source path="src/abaclade/app.cxx"/>
       <source path="src/abaclade/bitmanip.cxx"/>
       <source path="src/abaclade/byteorder.cxx"/>
