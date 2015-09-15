@@ -73,6 +73,7 @@ You should have received a copy of the GNU General Public License along with Aba
       <source path="src/abaclade/thread.cxx"/>
       <source path="src/abaclade/thread_local.cxx"/>
       <source path="src/abaclade/to_str.cxx"/>
+      <source path="src/abaclade/type_void_adapter.cxx"/>
 
       <exeunittest
          name="abaclade-test"

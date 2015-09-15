@@ -34,7 +34,7 @@ namespace abc {
 
 //! Encapsulates raw constructors, destructors and assignment operators for a type.
 // TODO: document rationale, design and use cases.
-class type_void_adapter {
+class ABACLADE_SYM type_void_adapter {
 private:
    //! Prototype of a function that copy-constructs items from one array to another.
    typedef void (* copy_construct_impl_type)(void *, void const *, void const *);
@@ -151,27 +151,65 @@ public:
       m_cbAlign = static_cast<std::uint16_t>(alignof(T));
    }
 
-   //! Makes copy_construct() available.
+   //! Makes copy_construct() available (trivial copy case).
    template <typename T>
-   void set_copy_construct() {
+   void set_copy_construct(typename _std::enable_if<
+      _std::is_trivially_copy_constructible<T>::value, T *
+   >::type = nullptr) {
+      set_size<T>();
+      m_pfnCopyConstructImpl = reinterpret_cast<copy_construct_impl_type>(
+         &copy_construct_trivial_impl
+      );
+   }
+
+   //! Makes copy_construct() available (non-trivial copy case).
+   template <typename T>
+   void set_copy_construct(typename _std::enable_if<
+      !_std::is_trivially_copy_constructible<T>::value, T *
+   >::type = nullptr) {
       set_size<T>();
       m_pfnCopyConstructImpl = reinterpret_cast<copy_construct_impl_type>(
          &copy_construct_impl<typename _std::remove_cv<T>::type>
       );
    }
 
-   //! Makes destruct() available.
+   //! Makes destruct() available (trivial copy case).
    template <typename T>
-   void set_destruct() {
+   void set_destruct(typename _std::enable_if<
+      _std::is_trivially_destructible<T>::value, T *
+   >::type = nullptr) {
+      set_size<T>();
+      m_pfnDestructImpl = reinterpret_cast<destruct_impl_type>(&destruct_trivial_impl);
+   }
+
+   //! Makes destruct() available (non-trivial copy case).
+   template <typename T>
+   void set_destruct(typename _std::enable_if<
+      !_std::is_trivially_destructible<T>::value, T *
+   >::type = nullptr) {
       set_size<T>();
       m_pfnDestructImpl = reinterpret_cast<destruct_impl_type>(
          &destruct_impl<typename _std::remove_cv<T>::type>
       );
    }
 
-   //! Makes move_construct() available.
+   //! Makes move_construct() available (trivial copy case).
    template <typename T>
-   void set_move_construct() {
+   void set_move_construct(typename _std::enable_if<
+      _std::is_trivially_move_constructible<T>::value, T *
+   >::type = nullptr) {
+      set_size<T>();
+      m_pfnMoveConstructImpl = reinterpret_cast<move_construct_impl_type>(
+         // A trivial copy move works just fine for a trivial move.
+         &copy_construct_trivial_impl
+      );
+   }
+
+   //! Makes move_construct() available (non-trivial copy case).
+   template <typename T>
+   void set_move_construct(typename _std::enable_if<
+      !_std::is_trivially_move_constructible<T>::value, T *
+   >::type = nullptr) {
       set_size<T>();
       m_pfnMoveConstructImpl = reinterpret_cast<move_construct_impl_type>(
          &move_construct_impl<typename _std::remove_cv<T>::type>
@@ -204,50 +242,8 @@ private:
    @param ptSrcEnd
       Pointer to beyond the last item to copy.
    */
-#if ABC_HOST_CXX_MSC
-   /* MSC16 BUG/MSC17 BUG/MSC18 BUG: they apply SFINAE too late, and when asked to get the address
-   of the *one and only* valid version of copy_construct_impl() (see non-MSC code in the #else
-   branch), they will raise an error saying they doesn’t know which one to choose. */
    template <typename T>
    static void copy_construct_impl(T * ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd) {
-      if (_std::is_trivially_copy_constructible<T>::value) {
-         // No constructor, fastest copy possible.
-         memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
-      } else {
-         /* Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
-         copy. */
-         T * ptDst = ptDstBegin;
-         try {
-            for (T const * ptSrc = ptSrcBegin; ptSrc < ptSrcEnd; ++ptSrc, ++ptDst) {
-               ::new(ptDst) T(*ptSrc);
-            }
-         } catch (...) {
-            // Undo (destruct) all the copies instantiated.
-            while (--ptDst >= ptDstBegin) {
-               ptDst->~T();
-            }
-            throw;
-         }
-      }
-   }
-#else //if ABC_HOST_CXX_MSC
-   // Only enabled if the copy constructor is trivial.
-   template <typename T>
-   static void copy_construct_impl(
-      typename _std::enable_if<
-         _std::is_trivially_copy_constructible<T>::value,
-      T *>::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
-   ) {
-      // No constructor, fastest copy possible.
-      memory::copy(ptDstBegin, ptSrcBegin, static_cast<std::size_t>(ptSrcEnd - ptSrcBegin));
-   }
-   // Only enabled if the copy constructor is not trivial.
-   template <typename T>
-   static void copy_construct_impl(
-      typename _std::enable_if<
-         !_std::is_trivially_copy_constructible<T>::value,
-      T * >::type ptDstBegin, T const * ptSrcBegin, T const * ptSrcEnd
-   ) {
       /* Assume that since it’s not trivial, it can throw exceptions, so perform a transactional
       copy. */
       T * ptDst = ptDstBegin;
@@ -263,7 +259,10 @@ private:
          throw;
       }
    }
-#endif //if ABC_HOST_CXX_MSC … else
+
+   static void copy_construct_trivial_impl(
+      std::int8_t * pbDstBegin, std::int8_t * pbSrcBegin, std::int8_t * pbSrcEnd
+   );
 
    /*! Destructs a range of items in an array.
 
@@ -274,13 +273,12 @@ private:
    */
    template <typename T>
    static void destruct_impl(T const * ptBegin, T const * ptEnd) {
-      if (!_std::is_trivially_destructible<T>::value) {
-         // The destructor is not a no-op.
-         for (T const * pt = ptBegin; pt < ptEnd; ++pt) {
-            pt->~T();
-         }
+      for (T const * pt = ptBegin; pt < ptEnd; ++pt) {
+         pt->~T();
       }
    }
+
+   static void destruct_trivial_impl(void const * pBegin, void const * pEnd);
 
    /*! Moves a range of items from one array to another, overwriting any existing contents in the
    destination.
