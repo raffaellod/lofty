@@ -58,6 +58,7 @@ using namespace ::abc::_std;
    using ::std::false_type;
    using ::std::integral_constant;
    using ::std::is_base_of;
+   using ::std::is_trivial;
    using ::std::true_type;
 
    }} //namespace abc::_std
@@ -88,18 +89,20 @@ using namespace ::abc::_std;
    using ::std::is_reference;
    using ::std::is_scalar;
    using ::std::is_signed;
-   using ::std::is_trivial;
    #ifndef _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
    using ::std::is_trivially_copy_constructible;
    #endif
    #ifndef _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_DESTRUCTIBLE
    using ::std::is_trivially_destructible;
    #endif
+   #ifndef _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE
+   using ::std::is_trivially_move_constructible;
+   #endif
+   using ::std::is_void;
    using ::std::remove_const;
    using ::std::remove_cv;
    using ::std::remove_extent;
    using ::std::remove_reference;
-   using ::std::is_void;
 
    }} //namespace abc::_std
 #endif
@@ -119,7 +122,7 @@ using namespace ::abc::_std;
    namespace abc { namespace _std {
 
    #ifndef _ABC_STD_UTILITY_DECLVAL
-      using ::std::declval;
+   using ::std::declval;
    #endif
    using ::std::forward;
    using ::std::move;

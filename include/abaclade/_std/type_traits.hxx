@@ -62,6 +62,15 @@ struct enable_if<true, T> {
    typedef T type;
 };
 
+/*! Defined as _std::true_type if T is a scalar type or a trivially copyable class with a trivial
+default constructor, or _std::false_type otherwise (C++11 § 20.9.4.3 “Type properties”). */
+template <typename T>
+struct is_trivial : public integral_constant<bool, false
+#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
+   || __is_trivial(T)
+#endif
+> {};
+
 #endif //ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
 
 #if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
@@ -104,7 +113,6 @@ struct enable_if<true, T> {
 #if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
    ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900 \
 )
-
    /*! Defined as _std::true_type if T::T(T const &) is just a memcpy(), or _std::false_type
    otherwise. */
    template <typename T>
@@ -122,7 +130,6 @@ struct enable_if<true, T> {
 #if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
    ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800 \
 )
-
    //! Defined as _std::true_type if T::~T() is a no-op, or _std::false_type otherwise.
    template <typename T>
    struct is_trivially_destructible : public integral_constant<bool,
@@ -134,6 +141,19 @@ struct enable_if<true, T> {
    #define _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_DESTRUCTIBLE
 #endif /*if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || (
             ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40800
+         )*/
+
+#if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
+   ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900 \
+)
+   //! Defined as _std::true_type if T::T(T &&) is just a memcpy(), or _std::false_type otherwise.
+   template <typename T>
+   struct is_trivially_move_constructible : public is_trivial<T> {};
+   // TODO: the above is less accurate than it could be, but it’s safe.
+
+   #define _ABC_STD_TYPE_TRAITS_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE
+#endif /*if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || (
+            ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900
          )*/
 
 #ifndef _ABC_STD_TYPE_TRAITS_SELECTIVE
@@ -166,15 +186,6 @@ struct is_rvalue_reference<T &&> : public true_type {};
 template <typename T>
 struct is_reference : public integral_constant<
    bool, is_lvalue_reference<T>::value || is_rvalue_reference<T>::value
-> {};
-
-/*! Defined as _std::true_type if T is a scalar type or a trivially copyable class with a trivial
-default constructor, or _std::false_type otherwise (C++11 § 20.9.4.3 “Type properties”). */
-template <typename T>
-struct is_trivial : public integral_constant<bool, false
-#if ABC_HOST_CXX_GCC || ABC_HOST_CXX_MSC
-   || __is_trivial(T)
-#endif
 > {};
 
 /*! Removes const and volatile qualifiers from a type (C++11 § 20.9.7.1 “Const-volatile
