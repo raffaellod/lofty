@@ -170,6 +170,10 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 #endif
 
    // Emulate a 3-argument function call to throw_common_type().
+#if ABC_HOST_ARCH_X86_64
+   // Make sure the stack is aligned. Seems unnecessary?
+   //iStackPtr &= ~reg_t(0xf);
+#endif
    reg_t * pStack = reinterpret_cast<reg_t *>(iStackPtr);
 #if ABC_HOST_ARCH_ARM
    /* Load the arguments into r0-2, push lr and replace it with the address of the current
@@ -186,12 +190,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
    *--pStack = static_cast<reg_t>(xct.base());
    *--pStack = iCodePtr;
 #elif ABC_HOST_ARCH_X86_64
-   // Make sure the stack is aligned.
-   if (iStackPtr & 0xf) {
-      --pStack;
-   }
-   /* Load the arguments into rdi/rsi/rdx (Mach, POSIX), push the address of the current
-   instruction. */
+   // Load the arguments into rdi/rsi/rdx, push the address of the current instruction.
    rdi = static_cast<reg_t>(xct.base());
    rsi = static_cast<reg_t>(iArg0);
    rdx = static_cast<reg_t>(iArg1);
