@@ -32,6 +32,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Provides facilities to interact with the underlying OS.
+namespace os {}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace os {
 
 //! A path failed validation. Path validation is typically file system- or OS-dependent.

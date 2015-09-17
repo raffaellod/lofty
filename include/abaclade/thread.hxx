@@ -204,6 +204,13 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Functions that can only affect the current thread; replacement for std::this_thread.
+namespace this_thread {}
+
+} //namespace abc
+
 namespace abc { namespace this_thread {
 
 /*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization

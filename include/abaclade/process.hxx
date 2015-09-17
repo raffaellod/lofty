@@ -209,6 +209,13 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Functions that can only affect the current process, analogous to this_thread.
+namespace this_process {}
+
+} //namespace abc
+
 namespace abc { namespace this_process {
 
 /*! Returns a system-wide unique ID for the current process.

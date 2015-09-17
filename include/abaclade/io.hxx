@@ -30,6 +30,14 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+/*! I/O classes and functions. For an overview of the class/namespace hierarchy, see
+doc/IO_class_hierarchy.fodg . */
+namespace io {}
+
+} //namespace abc
+
 namespace abc { namespace io {
 
 //! Unsigned integer wide enough to express an I/O-related size.

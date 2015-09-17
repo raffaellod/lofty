@@ -85,6 +85,13 @@ void ABC_STL_CALLCONV operator delete[](
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Templated replacements to C’s mem* functions, integrated with STL smart pointers.
+namespace memory {}
+
+} //namespace abc
+
 namespace abc { namespace memory {
 
 /*! Requests the dynamic allocation of a memory block of the specified size.

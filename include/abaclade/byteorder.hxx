@@ -30,6 +30,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Byte-ordering functions.
+namespace byteorder {}
+
+} //namespace abc
+
 // Define byte reordering functions.
 #if defined(__GLIBC__)
    #include <byteswap.h> // bswap_*()

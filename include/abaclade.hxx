@@ -26,72 +26,11 @@ You should have received a copy of the GNU General Public License along with Aba
 
 //! Abaclade’s top-level namespace.
 namespace abc {
-   //! Bit manipulation functions.
-   namespace bitmanip {}
-
-   //! Byte-ordering functions.
-   namespace byteorder {}
-
-   /*! Templated container data structures.
-
-   Contained classes must provide move constructors and assignment operators (cls::cls(cls &&) and
-   cls::operator=(cls &&)) if the copy constructor could result in execution of exception-prone code
-   (e.g. resource allocation).
-
-   Because move constructors are employed widely in container classes that need to provide strong
-   exception guarantee (fully transacted operation) even in case of moves, move constructors must
-   not throw exceptions. This requirement is relaxed for moves that involve two different classes,
-   since these will not be used by container classes. */
-   namespace collections {}
-
-   /*! I/O classes and functions. For an overview of the class/namespace hierarchy, see
-   doc/IO_class_hierarchy.fodg . */
-   namespace io {
-      //! Classes and functions to perform I/O in binary mode (raw bytes).
-      namespace binary {}
-
-      //! Classes and functions to perform I/O in text mode (with encoding support).
-      namespace text {}
-   } //namespace io
-
-   //! Mathematical functions and algorithms.
-   namespace math {}
-
-   //! Memory management functions and classes. Mostly a templated approach to C’s mem* functions.
-   namespace memory {}
-
-   //! Networking facilities.
-   namespace net {}
-
-   //! Type traits and functions for numeric types.
-   namespace numeric {}
-
-   //! Provides facilities to interact with the underlying OS.
-   namespace os {}
-
    //! Support for performance tracking.
    namespace perf {}
 
-   /*! @internal abc::_std contains STL implementation bits from Abaclade’s STL incomplete
-   implementation that we may want to use when _ABC_USE_STLIMPL is not defined, as Abaclade-only
-   alternatives to lacking/buggy host STL implementations. */
-   namespace _std {}
-
    //! Top-level namespace for Abaclade’s testing framework.
    namespace testing {}
-
-   //! Contains classes and functions to work with Unicode text strings and characters.
-   namespace text {}
-
-   /*! Functions that can only affect the current coroutine. Coroutine counterpart to
-   abc::this_thread. */
-   namespace this_coroutine {}
-
-   //! Functions that can only affect the current process, analogous to this_thread.
-   namespace this_process {}
-
-   //! Functions that can only affect the current thread. Replacement for std::this_thread.
-   namespace this_thread {}
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

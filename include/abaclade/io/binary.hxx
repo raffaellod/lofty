@@ -32,6 +32,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace io {
+
+//! Classes and functions to perform I/O in binary mode (raw bytes).
+namespace binary {}
+
+}} //namespace abc::io
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace io { namespace binary {
 
 //! Base interface for binary (non-text) I/O.

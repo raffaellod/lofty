@@ -32,6 +32,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace io {
+
+//! Classes and functions to perform I/O in text mode (with encoding support).
+namespace text {}
+
+}} //namespace abc::io
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Forward declarations.
 namespace abc { namespace io { namespace binary {
 

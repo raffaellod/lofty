@@ -32,6 +32,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Networking facilities.
+namespace net {}
+
+} //namespace abc
+
 namespace abc { namespace net {
 
 //! Type of a network port.

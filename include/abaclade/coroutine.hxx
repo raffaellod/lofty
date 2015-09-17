@@ -195,6 +195,13 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Functions that can only affect the current coroutine; coroutine counterpart to this_thread.
+namespace this_coroutine {}
+
+} //namespace abc
+
 namespace abc { namespace this_coroutine {
 
 /*! Returns a process-wide unique ID for the current coroutine.

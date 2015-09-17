@@ -30,6 +30,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+/*! @internal abc::_std contains STL implementation bits from Abaclade’s STL incomplete
+implementation that we may want to use when _ABC_USE_STLIMPL is not defined, as Abaclade-only
+alternatives to lacking/buggy host STL implementations. */
+namespace _std {}
+
+} //namespace abc
+
 #if ABC_HOST_STL_ABACLADE || ABC_HOST_STL_MSVCRT == 1600
    #include <abaclade/_std/mutex.hxx>
 #else

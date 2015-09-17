@@ -32,6 +32,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Contains classes and functions to work with Unicode text strings and characters.
+namespace text {}
+
+} //namespace abc
+
 namespace abc { namespace text {
 
 //! This should be used to replace any invalid char32_t value.

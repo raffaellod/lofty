@@ -32,6 +32,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+//! Type traits and functions for numeric types.
+namespace numeric {}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace numeric {
 
 /*! Returns true if the argument is negative. It avoids annoying compiler warnings if the argument
