@@ -650,7 +650,7 @@ namespace abc { namespace _std {
 20.7.2.1 “Class bad_weak_ptr”). */
 class ABACLADE_SYM bad_weak_ptr : public exception {
 public:
-   //! See exception::exception().
+   //! Default constructor.
    bad_weak_ptr();
 
    //! Destructor.
@@ -756,7 +756,8 @@ class basic_shared_refcount : public shared_refcount {
 public:
    /*! Constructor.
 
-   TODO: comment signature.
+   @param pt
+      Pointer to take ownership of.
    */
    basic_shared_refcount(T * pt) :
       shared_refcount(1, 0),
@@ -939,34 +940,78 @@ public:
    typedef T element_type;
 
 public:
-   /*! Constructor.
-
-   TODO: comment signature.
-   */
+   //! Default constructor.
    /*constexpr*/ shared_ptr() :
       m_psr(nullptr),
       m_pt(nullptr) {
    }
+
+   /*! Constructor from a raw pointer with implicit pointer conversion.
+
+   @param pu
+      Source pointer.
+   */
    template <typename U>
    explicit shared_ptr(U * pu) :
       m_psr(new detail::basic_shared_refcount<U>(pu)),
       m_pt(pu) {
    }
+
+   /*! Constructor from a raw pointer with implicit pointer conversion, with deleter.
+
+   @param pu
+      Source pointer.
+   @param tdel
+      Deleter to store.
+   */
    template <typename U, typename TDel>
    shared_ptr(U * pu, TDel tdel) :
       m_psr(new detail::shared_refcount_with_deleter<U, TDel>(pu, tdel)),
       m_pt(pu) {
    }
+
+   /*! Constructor from a raw pointer with implicit pointer conversion, with deleter and allocator.
+
+   @param pu
+      Source pointer.
+   @param tdel
+      Deleter to store.
+   @param talloc
+      Allocator to store.
+   */
    template <typename U, typename TDel, class TAllocator>
    shared_ptr(U * pu, TDel tdel, TAllocator talloc); // TODO
-   template <typename U>
-   shared_ptr(shared_ptr<U> const & spu, T * pt) :
-      m_psr(spu.m_psr),
-      m_pt(pt) {
-      if (m_psr) {
-         m_psr->add_strong_ref();
-      }
+
+   /*! Move constructor.
+
+   @param spt
+      Source object.
+   */
+   shared_ptr(shared_ptr && spt) :
+      m_psr(spt.m_psr),
+      m_pt(spt.m_pt) {
+      spt.m_psr = nullptr;
+      spt.m_pt = nullptr;
    }
+
+   /*! Move constructor with implicit pointer conversion.
+
+   @param spu
+      Source object.
+   */
+   template <typename U>
+   shared_ptr(shared_ptr<U> && spu) :
+      m_psr(spu.m_psr),
+      m_pt(spu.m_pt) {
+      spu.m_psr = nullptr;
+      spu.m_pt = nullptr;
+   }
+
+   /*! Copy constructor.
+
+   @param spt
+      Source object.
+   */
    shared_ptr(shared_ptr const & spt) :
       m_psr(spt.m_psr),
       m_pt(spt.m_pt) {
@@ -974,6 +1019,12 @@ public:
          m_psr->add_strong_ref();
       }
    }
+
+   /*! Copy constructor with implicit pointer conversion.
+
+   @param spu
+      Source object.
+   */
    template <typename U>
    shared_ptr(shared_ptr<U> const & spu) :
       m_psr(spu.m_psr),
@@ -982,35 +1033,67 @@ public:
          m_psr->add_strong_ref();
       }
    }
-   shared_ptr(shared_ptr && spt) :
-      m_psr(spt.m_psr),
-      m_pt(spt.m_pt) {
-      spt.m_psr = nullptr;
-      spt.m_pt = nullptr;
-   }
+
+   /*! Constructor that shares the reference count with another shared_ptr instance, but sets a
+   different pointer that the other instance.
+
+   @param spu
+      Source object.
+   @param pt
+      Source pointer.
+   */
    template <typename U>
-   shared_ptr(shared_ptr<U> && spu) :
+   shared_ptr(shared_ptr<U> const & spu, T * pt) :
       m_psr(spu.m_psr),
-      m_pt(spu.m_pt) {
-      spu.m_psr = nullptr;
-      spu.m_pt = nullptr;
+      m_pt(pt) {
+      if (m_psr) {
+         m_psr->add_strong_ref();
+      }
    }
+
+   /*! Constructor that creates a strong pointer from a weak one.
+
+   @param wpu
+      Source object.
+   */
    template <typename U>
    explicit shared_ptr(weak_ptr<U> const & wpu);
+
+   /*! Constructor that transfers ownership from a unique_ptr.
+
+   @param upu
+      Pointer to transfer ownership from.
+   */
    template <typename U, typename TDel>
    shared_ptr(unique_ptr<U, TDel> && upu) :
       m_psr(new detail::shared_refcount_with_deleter<U, TDel>(upu.get(), upu.get_deleter())),
       m_pt(upt2.release()) {
    }
+
+   //! Constructor from a null pointer.
    /*constexpr*/ shared_ptr(nullptr_t) :
       m_psr(nullptr),
       m_pt(nullptr) {
    }
+
+   /*! Constructor that assigns a deleter but not a pointer.
+
+   @param tdel
+      Deleter to store.
+   */
    template <typename TDel>
    shared_ptr(nullptr_t, TDel tdel) :
       m_psr(new detail::shared_refcount_with_deleter<nullptr_t, TDel>(nullptr, tdel)),
       m_pt(nullptr) {
    }
+
+   /*! Constructor that assigns a deleter and an allocator, but not a pointer.
+
+   @param tdel
+      Deleter to store.
+   @param talloc
+      Allocator to store.
+   */
    template <typename TDel, class TAllocator>
    shared_ptr(nullptr_t, TDel tdel, TAllocator talloc); // TODO
 
@@ -1021,11 +1104,41 @@ public:
       }
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param spt
       Source object.
-   @param spt2
+   @return
+      *this.
+   */
+   shared_ptr & operator=(shared_ptr && spt) {
+      if (&spt != this) {
+         if (m_psr) {
+            m_psr->release_strong();
+         }
+         m_psr = spt.m_psr;
+         m_pt = spt.m_pt;
+         spt.m_psr = nullptr;
+         spt.m_pt = nullptr;
+      }
+      return *this;
+   }
+
+   /*! Move-assignment operator with implicit pointer conversion.
+
+   @param spu
+      Source object.
+   @return
+      *this.
+   */
+   template <typename U>
+   shared_ptr & operator=(shared_ptr<U> && spu) {
+      return operator=(shared_ptr(move(spu)));
+   }
+
+   /*! Copy-assignment operator.
+
+   @param spt
       Source object.
    @return
       *this.
@@ -1044,26 +1157,27 @@ public:
       }
       return *this;
    }
+
+   /*! Copy-assignment operator with implicit pointer conversion.
+
+   @param spu
+      Source object.
+   @return
+      *this.
+   */
    template <typename U>
    shared_ptr & operator=(shared_ptr<U> const & spu) {
       return operator=(shared_ptr(spu));
    }
-   shared_ptr & operator=(shared_ptr && spt) {
-      if (&spt != this) {
-         if (m_psr) {
-            m_psr->release_strong();
-         }
-         m_psr = spt.m_psr;
-         m_pt = spt.m_pt;
-         spt.m_psr = nullptr;
-         spt.m_pt = nullptr;
-      }
-      return *this;
-   }
-   template <typename U>
-   shared_ptr & operator=(shared_ptr<U> && spu) {
-      return operator=(shared_ptr(move(spu)));
-   }
+
+   /*! Move-assignment operator that transfers ownership from a unique_ptr with implicit pointer
+   conversion.
+
+   @param upu
+      Source object.
+   @return
+      *this.
+   */
    template <typename U, typename TDel>
    shared_ptr & operator=(unique_ptr<U, TDel> && upu) {
       return operator=(shared_ptr(move(upu)));
@@ -1071,7 +1185,8 @@ public:
 
    /*! Dereference operator.
 
-   TODO: comment signature.
+   @return
+      Reference to the owned object.
    */
    typename add_lvalue_reference<T>::type operator*() const {
       return *m_pt;
@@ -1079,7 +1194,8 @@ public:
 
    /*! Dereferencing member access operator.
 
-   TODO: comment signature.
+   @return
+      Pointer to the owned object.
    */
    T * operator->() const {
       return m_pt;
@@ -1124,12 +1240,6 @@ public:
       return m_pt;
    }
 
-   //! TODO: comment.
-   template <typename U>
-   bool owner_before(shared_ptr<U> const & spu) const;
-   template <typename U>
-   bool owner_before(weak_ptr<U> const & wpu) const;
-
    /*! Returns true if no other pointers are referring to the object pointed to.
 
    @return
@@ -1151,7 +1261,10 @@ public:
 private:
    /*! Constructor. Non-standard.
 
-   TODO: comment signature.
+   @param psr
+      Pointer to the reference-counting object to use.
+   @param pt
+      Pointer to adopt.
    */
    shared_ptr(detail::shared_refcount * psr, T * pt) :
       m_psr(psr),
@@ -1185,14 +1298,29 @@ public:
    typedef T element_type;
 
 public:
-   /*! Constructor.
-
-   TODO: comment signature.
-   */
+   //! Default constructor.
    weak_ptr() :
       m_psr(nullptr),
       m_pt(nullptr) {
    }
+
+   /*! Move constructor.
+
+   @param wpt
+      Source object.
+   */
+   weak_ptr(weak_ptr && wpt) :
+      m_psr(wpt.m_psr),
+      m_pt(wpt.m_pt) {
+      wpt.m_psr = nullptr;
+      wpt.m_pt = nullptr;
+   }
+
+   /*! Copy constructor.
+
+   @param wpt
+      Source object.
+   */
    weak_ptr(weak_ptr const & wpt) :
       m_psr(wpt.m_psr),
       m_pt(wpt.m_pt) {
@@ -1200,6 +1328,12 @@ public:
          m_psr->add_weak_ref();
       }
    }
+
+   /*! Copy constructor with implicit pointer conversion.
+
+   @param wpu
+      Source object.
+   */
    template <typename U>
    weak_ptr(weak_ptr<U> const & wpu) :
       m_psr(wpu.m_psr),
@@ -1208,6 +1342,12 @@ public:
          m_psr->add_weak_ref();
       }
    }
+
+   /*! Constructor from a shared_ptr with implicit pointer conversion.
+
+   @param spu
+      Source object.
+   */
    template <typename U>
    weak_ptr(shared_ptr<U> const & spu) :
       m_psr(spu.m_psr),
@@ -1215,13 +1355,6 @@ public:
       if (m_psr) {
          m_psr->add_weak_ref();
       }
-   }
-   // Non-standard.
-   weak_ptr(weak_ptr && wpt) :
-      m_psr(wpt.m_psr),
-      m_pt(wpt.m_pt) {
-      wpt.m_psr = nullptr;
-      wpt.m_pt = nullptr;
    }
 
    //! Destructor.
@@ -1231,11 +1364,29 @@ public:
       }
    }
 
-   /*! Assignment operator.
+   /*! Move-assignment operator.
 
    @param wpt
       Source object.
-   @param wpt2
+   @return
+      *this.
+   */
+   weak_ptr & operator=(weak_ptr && wpt) {
+      if (&wpt != this) {
+         if (m_psr) {
+            m_psr->release_weak();
+         }
+         m_psr = wpt.m_psr;
+         m_pt = wpt.m_pt;
+         wpt.m_psr = nullptr;
+         wpt.m_pt = nullptr;
+      }
+      return *this;
+   }
+
+   /*! Copy-assignment operator.
+
+   @param wpt
       Source object.
    @return
       *this.
@@ -1254,26 +1405,29 @@ public:
       }
       return *this;
    }
+
+   /*! Copy-assignment operator with implicit pointer conversion.
+
+   @param wpu
+      Source object.
+   @return
+      *this.
+   */
    template <typename U>
    weak_ptr & operator=(weak_ptr<U> const & wpu) {
       return operator=(weak_ptr(wpu));
    }
+
+   /*! Copy-assignment operator from a shared_ptr with implicit pointer conversion.
+
+   @param spu
+      Source object.
+   @return
+      *this.
+   */
    template <typename U>
    weak_ptr & operator=(shared_ptr<U> const & spu) {
       return operator=(weak_ptr(spu));
-   }
-   // Non-standard.
-   weak_ptr & operator=(weak_ptr && wpt) {
-      if (&wpt != this) {
-         if (m_psr) {
-            m_psr->release_weak();
-         }
-         m_psr = wpt.m_psr;
-         m_pt = wpt.m_pt;
-         wpt.m_psr = nullptr;
-         wpt.m_pt = nullptr;
-      }
-      return *this;
    }
 
    /*! Returns true if the object pointed to no longer exists.
@@ -1293,12 +1447,6 @@ public:
    shared_ptr<T> lock() const {
       return expired() ? shared_ptr<T>() : shared_ptr<T>(*this);
    }
-
-   //! TODO: comment.
-   template <typename U>
-   bool owner_before(shared_ptr<U> const & spu) const;
-   template <typename U>
-   bool owner_before(weak_ptr<U> const & wpu) const;
 
    //! Releases the object pointed to.
    void reset() {
@@ -1438,7 +1586,10 @@ namespace abc { namespace _std {
 /*! Returns the deleter in use by the specified shared_ptr, if any (C++11 § 20.7.2.2.10
 “get_deleter”).
 
-TODO: comment signature.
+@param spt
+   Pointer from which to extract a deleter.
+@return
+   Pointer to spt’s deleter.
 */
 template <typename TDel, typename T>
 inline TDel * get_deleter(shared_ptr<T> const & spt) {
@@ -1453,7 +1604,10 @@ inline TDel * get_deleter(shared_ptr<T> const & spt) {
 /*! Dynamically allocates an object, using the same memory block to store any dynamic memory used by
 the returned shared pointer to it.
 
-TODO: comment signature.
+@param targs
+   Arguments to T’s constructor.
+@return
+   Shared pointer to the newly-constructed T instance.
 */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 

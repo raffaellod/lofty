@@ -40,27 +40,28 @@ public:
 
    /*! Equality relational operator.
 
-   TODO: comment signature.
+   @param ti
+      Object to compare to *this.
+   @return
+      true if *this refers to the same type as ti, or false otherwise.
    */
    bool operator==(type_info const & ti) const;
 
    /*! Inequality relational operator.
 
-   TODO: comment signature.
+   @param ti
+      Object to compare to *this.
+   @return
+      true if *this refers to a different type than ti, or false otherwise.
    */
    bool operator!=(type_info const & ti) const {
       return !operator==(ti);
    }
 
-   /*! Returns true if *this collates before ti.
-
-   TODO: comment signature.
-   */
-   bool before(type_info const & ti) const;
-
    /*! Returns an hash code for *this.
 
-   TODO: comment signature.
+   @return
+      Hash code for the type.
    */
    std::size_t hash_code() const;
 
@@ -81,7 +82,7 @@ namespace abc { namespace _std {
 //! Thrown in case of invalid dynamic_cast<>() (C++11 § 18.7.2 “Class bad_cast”).
 class ABACLADE_SYM bad_cast : public exception {
 public:
-   //! See exception::exception().
+   //! Default constructor.
    bad_cast();
 
    //! Destructor.
@@ -100,7 +101,7 @@ namespace abc { namespace _std {
 //! Thrown in case of typeid(nullptr) (C++11 § 18.7.3 “Class bad_typeid”).
 class ABACLADE_SYM bad_typeid : public exception {
 public:
-   //! See exception::exception().
+   //! Default constructor.
    bad_typeid();
 
    //! Destructor.

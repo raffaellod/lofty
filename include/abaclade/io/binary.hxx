@@ -221,19 +221,16 @@ public:
    /*! Returns a view of the internal read buffer, performing at most one read from the underlying
    binary reader.
 
-   TODO: change to return a read-only, non-shareable ivector<T>.
-
    @param c
       Count of items to peek. If greater than the size of the read buffer’s contents, an additional
       read from the underlying binary reader will be made, adding to the contents of the read
       buffer; if the internal buffer is not large enough to hold the cumulative data, it will be
       enlarged.
    @return
-      Pair containing:
-      •  A pointer to the portion of the internal buffer that holds the read data;
-      •  Count of bytes read. May be less than the cb argument if EOF is reached, or greater than cb
-         if the buffer was filled more than requested. For non-zero values of cb, a return value of
-         0 indicates that no more data is available (EOF).
+      Pair containing a pointer to the portion of the internal buffer that holds the read data, and
+      the count of bytes read. The latter may be less than the cb argument if EOF is reached, or
+      greater than cb if the buffer was filled more than requested. For non-zero values of cb, a
+      count of 0 bytes read indicates that no more data is available (EOF).
    */
    template <typename T>
    _std::tuple<T const *, std::size_t> peek(std::size_t c = 1) {

@@ -181,10 +181,27 @@ private:
    */
    bool consume_sequence_char(char_t ch);
 
-   //! TODO: comment.
+   /*! Returns true if the current command has been provided with exactly one argument, or if it has
+   zero arguments; in the latter case, one arguments with value iDefault0 will be added.
+
+   @param iDefault0
+      Default argument to be pushed to m_aiCmdArgs if zero arguments are available.
+   @return
+      true if exactly one argument is available, or false otherwise.
+   */
    bool got_one_argument(std::int16_t iDefault0);
 
-   //! TODO: comment.
+   /*! Returns true if the current command has been provided with exactly two arguments, or if it
+   has zero to one arguments; in the latter case, up to two arguments with values iDefault0 and
+   iDefault1 will be added.
+
+   @param iDefault0
+      Default argument to be pushed to m_aiCmdArgs if zero arguments are available.
+   @param iDefault1
+      Default argument to be pushed to m_aiCmdArgs if only one argument is available.
+   @return
+      true if exactly two arguments are available, or false otherwise.
+   */
    bool got_two_arguments(std::int16_t iDefault0, std::int16_t iDefault1);
 
    //! Implementation of run_sequence('J').
@@ -221,9 +238,9 @@ private:
    );
 
 protected:
-   //! TODO: comment.
+   //! Initial character attributes.
    char_attributes m_chattrDefault;
-   //! TODO: comment.
+   //! Current character attributes.
    char_attributes m_chattrCurr;
 
 private:
