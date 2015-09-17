@@ -214,6 +214,12 @@ class writer;
 
 }}} //namespace abc::io::binary
 
+namespace abc { namespace os {
+
+class path;
+
+}} //namespace abc::os
+
 namespace abc { namespace io { namespace text {
 
 //! Text writer associated to the standard error output file.

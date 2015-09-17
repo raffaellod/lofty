@@ -356,6 +356,13 @@ from Abaclade’s testing shared library (into another library/executable). */
    #pragma warning(pop)
 #endif
 
+#include <abaclade/_std-before-noncopyable.hxx>
+#include <abaclade/noncopyable.hxx>
+#include <abaclade/explicit_operator_bool.hxx>
+#include <abaclade/_std-before-memory.hxx>
+#include <abaclade/memory.hxx>
+#include <abaclade/_std.hxx>
+
 // Forward declarations.
 
 namespace abc { namespace collections {
@@ -371,12 +378,6 @@ namespace abc { namespace io { namespace text {
 class writer;
 
 }}} //namespace abc::io::text
-
-namespace abc { namespace os {
-
-class path;
-
-}} //namespace abc::os
 
 namespace abc { namespace text {
 
@@ -410,20 +411,11 @@ typedef sstr<0> str;
 
 namespace abc {
 
-class type_void_adapter;
-
 using text::char_t;
 using text::str;
 using text::sstr;
 
 } //namespace abc
-
-#include <abaclade/_std-before-noncopyable.hxx>
-#include <abaclade/noncopyable.hxx>
-#include <abaclade/explicit_operator_bool.hxx>
-#include <abaclade/_std-before-memory.hxx>
-#include <abaclade/memory.hxx>
-#include <abaclade/_std.hxx>
 
 #include <abaclade/collections/static_list.hxx>
 #include <abaclade/detail/context_local.hxx>
@@ -444,7 +436,6 @@ using text::sstr;
 #include <abaclade/text/str-after-to_str.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/exception-after-to_str.hxx>
-
 #include <abaclade/io/text/base-reader-writer.hxx>
 #include <abaclade/io/text/str.hxx>
 

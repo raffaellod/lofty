@@ -491,6 +491,13 @@ struct pipe_ends {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Forward declaration.
+namespace abc { namespace os {
+
+class path;
+
+}} //namespace abc::os
+
 namespace abc { namespace io { namespace binary {
 
 /*! Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.

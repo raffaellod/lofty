@@ -30,6 +30,13 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Forward declaration.
+namespace abc {
+
+class type_void_adapter;
+
+} //namespace abc
+
 namespace abc { namespace collections { namespace detail {
 
 //! Non-template implementation of a singly-linked list.
