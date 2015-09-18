@@ -494,11 +494,20 @@ public:
    @param key
       Key to search for.
    @return
-      Iterator to the first matching key/value, or cend() if the key could not be found.
+      Iterator to the first matching key/value, or end() if the key could not be found.
    */
    iterator find(TKey key) {
       return iterator(this, key, detail::bitwise_trie_ordered_multimap_impl::find(key_to_int(key)));
    }
+
+   /*! Searches the map for a specific key, returning a const iterator to the first corresponding
+   key/value pair if found.
+
+   @param key
+      Key to search for.
+   @return
+      Const iterator to the first matching key/value, or cend() if the key could not be found.
+   */
    const_iterator find(TKey key) const {
       return const_cast<trie_ordered_multimap *>(this)->find(key);
    }

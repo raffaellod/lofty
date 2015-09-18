@@ -429,6 +429,8 @@ public:
 
    @param it
       Iterator to the key/value to extract.
+   @return
+      Value removed from the map.
    */
    TValue pop(const_iterator it) {
       ABC_TRACE_FUNC(this/*, it*/);
@@ -448,6 +450,8 @@ public:
 
    @param key
       Key associated to the value to extract.
+   @return
+      Value removed from the map.
    */
    TValue pop(TKey const & key) {
       ABC_TRACE_FUNC(this/*, key*/);

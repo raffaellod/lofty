@@ -240,17 +240,7 @@ public:
    typedef typename T::enum_type enum_type;
 
 public:
-   /*! Default constructor.
-
-   @param e
-      Source value.
-   @param iValue
-      Integer value to be converted to enum_type. If i has a value not in enum_type, an exception
-      will be thrown.
-   @param sName
-      String to be converted to enum_type. If this does not match exactly the name of one of the
-      members of enum_type, an exception of type abc::domain_error will be thrown.
-   */
+   //! Default constructor.
    enum_impl() {
    }
 

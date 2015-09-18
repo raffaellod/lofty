@@ -327,20 +327,25 @@ public:
          return const_iterator(m_ps, str::advance_index_by_codepoint_delta(m_ps, m_ich, i, true));
       }
 
-      /*! Subtraction/difference operator.
+      /*! Subtraction operator.
 
       @param i
          Count of positions by which to rewind the iterator. If the resulting iterator is outside of
          the string’s [begin, end] range, a collections::out_of_range exception will be thrown.
-      @param it
-         Iterator from which to calculate the distance.
       @return
-         Iterator that’s i items behind *this (subtraction) or distance between *this and it, in
-         code points (difference).
+         Iterator that’s i items behind *this.
       */
       const_iterator operator-(std::ptrdiff_t i) const {
          return const_iterator(m_ps, str::advance_index_by_codepoint_delta(m_ps, m_ich, -i, true));
       }
+
+      /*! Difference operator.
+
+      @param it
+         Iterator from which to calculate the distance.
+      @return
+         Distance between *this and it, in code points.
+      */
       std::ptrdiff_t operator-(const_iterator it) const {
          return distance(it.m_ich);
       }
@@ -759,7 +764,7 @@ public:
 
    /*! Concatenation-assignment operator.
 
-   @param ch
+   @param cp
       Code point to append.
    @return
       *this.
@@ -785,8 +790,8 @@ public:
 
    /*! Concatenation-assignment operator.
 
-   @param ch
-      Character to append.
+   @param ach
+      NUL-terminated string literal to append.
    @return
       *this.
    */
@@ -1055,8 +1060,6 @@ public:
 
    @param sNeedle
       Substring to search for.
-   @param itWhence
-      Iterator to the first character whence the search should start.
    @return
       Iterator to the first occurrence of the substring, or cend() when no matches are found.
    */
@@ -1568,6 +1571,8 @@ protected:
    resulting pointer. If the resulting index is outside the characters array, a
    collections::out_of_range exception will be thrown.
 
+   @param ps
+      this.
    @param ich
       Initial index.
    @param iDelta
@@ -1761,7 +1766,7 @@ public:
 
    /*! Concatenation-assignment operator.
 
-   @param ch
+   @param cp
       Code point to append.
    @return
       *this.
@@ -1910,10 +1915,6 @@ ABC_RELOP_IMPL(<=)
    Left string operand.
 @param sR
    Right string operand.
-@param chL
-   Left character operand.
-@param chR
-   Right character operand.
 @return
    Resulting string.
 */
@@ -1924,6 +1925,15 @@ inline str operator+(
    return str(sL.data(), sL.data_end(), sR.data(), sR.data_end());
 }
 
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacityL, std::size_t t_cchEmbeddedCapacityR>
 inline sstr<t_cchEmbeddedCapacityL> operator+(
    sstr<t_cchEmbeddedCapacityL> && sL, sstr<t_cchEmbeddedCapacityR> const & sR
@@ -1933,6 +1943,16 @@ inline sstr<t_cchEmbeddedCapacityL> operator+(
 }
 
 // Overloads taking a string or character literal as right operand.
+
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param achR
+   Right NUL-terminated string literal operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch>
 inline sstr<t_cchEmbeddedCapacity> operator+(
    sstr<t_cchEmbeddedCapacity> && sL, char_t const (& achR)[t_cch]
@@ -1941,40 +1961,105 @@ inline sstr<t_cchEmbeddedCapacity> operator+(
    return _std::move(sL);
 }
 
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param achR
+   Right NUL-terminated string literal operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity, std::size_t t_cch>
 inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char_t const (& achR)[t_cch]) {
    return str(sL.data(), sL.data_end(), &achR[0], &achR[ABC_SL_SIZE(achR)]);
 }
 
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param chR
+   Right character operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, char_t chR) {
    sL += chR;
    return _std::move(sL);
 }
 
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param chR
+   Right character operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char_t chR) {
    return str(sL.data(), sL.data_end(), &chR, &chR + 1);
 }
 
 #if ABC_HOST_UTF > 8
+
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param chR
+   Right ASCII character operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, char chR) {
    return operator+(_std::move(sL), host_char(chR));
 }
 
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param chR
+   Right ASCII character operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char chR) {
    return operator+(sL, host_char(chR));
 }
+
 #endif
 
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param cpR
+   Right code point operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(sstr<t_cchEmbeddedCapacity> && sL, char32_t cpR) {
    sL += cpR;
    return _std::move(sL);
 }
 
+/*! Concatenation operator.
+
+@param sL
+   Left string operand.
+@param cpR
+   Right code point operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char32_t cpR) {
    char_t achR[host_char_traits::max_codepoint_length];
@@ -1982,6 +2067,16 @@ inline str operator+(sstr<t_cchEmbeddedCapacity> const & sL, char32_t cpR) {
 }
 
 // Overloads taking a string or character literal as left operand.
+
+/*! Concatenation operator.
+
+@param achL
+   Left NUL-terminated string literal operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(
    char_t const (& achL)[t_cch], sstr<t_cchEmbeddedCapacity> && sR
@@ -1990,40 +2085,105 @@ inline sstr<t_cchEmbeddedCapacity> operator+(
    return _std::move(sR);
 }
 
+/*! Concatenation operator.
+
+@param achL
+   Left NUL-terminated string literal operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cch, std::size_t t_cchEmbeddedCapacity>
 inline str operator+(char_t const (& achL)[t_cch], sstr<t_cchEmbeddedCapacity> const & sR) {
    return str(&achL[0], &achL[ABC_SL_SIZE(achL)], sR.data(), sR.data_end());
 }
 
+/*! Concatenation operator.
+
+@param chL
+   Left character operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(char_t chL, sstr<t_cchEmbeddedCapacity> && sR) {
    sR.insert(sR.cbegin(), chL);
    return _std::move(sR);
 }
 
+/*! Concatenation operator.
+
+@param chL
+   Left character operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(char_t chL, sstr<t_cchEmbeddedCapacity> const & sR) {
    return str(&chL, &chL + 1, sR.data(), sR.data_end());
 }
 
 #if ABC_HOST_UTF > 8
+
+/*! Concatenation operator.
+
+@param chL
+   Left ASCII character operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(char chL, sstr<t_cchEmbeddedCapacity> && sR) {
    return operator+(host_char(chL), _std::move(sR));
 }
 
+/*! Concatenation operator.
+
+@param chL
+   Left ASCII character operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(char chL, sstr<t_cchEmbeddedCapacity> const & sR) {
    return operator+(host_char(chL), sR);
 }
+
 #endif
 
+/*! Concatenation operator.
+
+@param cpL
+   Left code point operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline sstr<t_cchEmbeddedCapacity> operator+(char32_t cpL, sstr<t_cchEmbeddedCapacity> && sR) {
    sR.insert(sR.cbegin(), cpL);
    return _std::move(sR);
 }
 
+/*! Concatenation operator.
+
+@param cpL
+   Left code point operand.
+@param sR
+   Right string operand.
+@return
+   Resulting string.
+*/
 template <std::size_t t_cchEmbeddedCapacity>
 inline str operator+(char32_t cpL, sstr<t_cchEmbeddedCapacity> const & sR) {
    char_t achL[host_char_traits::max_codepoint_length];

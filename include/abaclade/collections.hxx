@@ -178,7 +178,7 @@ public:
    @param err
       OS-defined error number associated to the exception.
    */
-   void init(void const * iInvalid, void const * iMin, void const * iMax, errint_t err = 0);
+   void init(void const * pInvalid, void const * pMin, void const * pMax, errint_t err = 0);
 
 protected:
    //! See collections::bad_access::write_extended_info().

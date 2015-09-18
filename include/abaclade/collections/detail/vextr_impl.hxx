@@ -363,6 +363,13 @@ protected:
          return nullptr;
       }
    }
+
+   /*! Returns a const pointer to the current prefixed item array, or nullptr if the current item
+   array is not prefixed.
+
+   @return
+      Const pointer to the prefixed item array, or nullptr if not applicable.
+   */
    _prefixed_item_array const * prefixed_item_array() const {
       return const_cast<vextr_impl_base *>(this)->prefixed_item_array();
    }
@@ -410,7 +417,7 @@ protected:
    This overload is static so that it will validate that this (pvib) is not nullptr before
    dereferencing it.
 
-   @param ps
+   @param pvib
       this.
    @param p
       Pointer to validate.
@@ -590,9 +597,9 @@ public:
 
    @param ibOffset
       Byte index at which the items should be inserted or removed.
-   @param pInsert
+   @param pAdd
       Pointer to the first item to insert.
-   @param cbInsert
+   @param cbAdd
       Size of the array pointed to be pInsert, in bytes.
    @param cbRemove
       Size of the slice of item array to remove, in bytes.

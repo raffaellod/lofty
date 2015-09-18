@@ -386,6 +386,10 @@ public:
    /*! Returns the common_type value that best matches the type of the specified exception, which
    may or may not be an execution_interruption instance.
 
+   @param px
+      Pointer to an exception whose type shall be inspected to determine which common_type matches
+      it most closely. If omitted, the default value of common_type::execution_interruption is
+      returned.
    @return
       Exception type. May be nullptr to indicate that the caught exception is not an std::exception
       instance.
@@ -447,6 +451,8 @@ to be incorrect.
 
 @param expr
    Expression to be validated.
+@param sMsg
+   Message to be displayed if the assertion fails.
 */
 #ifdef DEBUG
    #define ABC_ASSERT(expr, sMsg) \

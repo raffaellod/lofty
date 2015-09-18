@@ -255,8 +255,6 @@ protected:
       Adapter for the value type.
    @param it
       Iterator to the bucket to empty.
-   @param iBucket
-      Index of the bucket to empty.
    */
    void empty_bucket(
       type_void_adapter const & typeKey, type_void_adapter const & typeValue, iterator_base it
@@ -266,6 +264,16 @@ protected:
       it.validate();
       empty_bucket(typeKey, typeValue, it.m_iBucket);
    }
+
+   /*! Marks a bucket as empty and destructs the corresponding key and value.
+
+   @param typeKey
+      Adapter for the key type.
+   @param typeValue
+      Adapter for the value type.
+   @param iBucket
+      Index of the bucket to empty.
+   */
    void empty_bucket(
       type_void_adapter const & typeKey, type_void_adapter const & typeValue, std::size_t iBucket
    );

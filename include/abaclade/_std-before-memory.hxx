@@ -40,9 +40,11 @@ namespace abc { namespace _std {
    typedef ::max_align_t max_align_t;
 #else
    union max_align_t {
+      //! @cond
       double d;
       long double ld;
       long long ll;
+      //! @endcond
    };
 #endif
 

@@ -50,7 +50,7 @@ private:
       typedef T value_type;
 
    public:
-      //! See iterator_base::iterator_base().
+      //! Default constructor.
       const_bidi_iterator() {
       }
 
@@ -221,11 +221,17 @@ public:
    T & back() {
       return *detail::doubly_linked_list_impl::back()->template value_ptr<T>();
    }
+
+   /*! Returns a const reference to the first element in the list.
+
+   @return
+      Const reference to the first element in the list.
+   */
    T const & back() const {
       return const_cast<list *>(this)->back();
    }
 
-   /*! Returns a forward iterator to the start of the list.
+   /*! Returns an iterator to the start of the list.
 
    @return
       Iterator to the first node in the list.
@@ -233,11 +239,17 @@ public:
    iterator begin() {
       return iterator(m_pnFirst);
    }
+
+   /*! Returns a const iterator to the start of the list.
+
+   @return
+      Iterator to the first node in the list.
+   */
    const_iterator begin() const {
       return const_cast<list *>(this)->begin();
    }
 
-   /*! Returns a const forward iterator to the start of the list.
+   /*! Returns a const iterator to the start of the list.
 
    @return
       Iterator to the first node in the list.
@@ -246,7 +258,7 @@ public:
       return const_cast<list *>(this)->begin();
    }
 
-   /*! Returns a const forward iterator to the end of the list.
+   /*! Returns a const iterator to the end of the list.
 
    @return
       Iterator to the beyond the last node in the list.
@@ -281,7 +293,7 @@ public:
       return const_cast<list *>(this)->rend();
    }
 
-   /*! Returns a forward iterator to the end of the list.
+   /*! Returns an iterator to the end of the list.
 
    @return
       Iterator to the beyond the last node in the list.
@@ -289,6 +301,12 @@ public:
    iterator end() {
       return iterator();
    }
+
+   /*! Returns a const iterator to the end of the list.
+
+   @return
+      Const iterator to the beyond the last node in the list.
+   */
    const_iterator end() const {
       return const_cast<list *>(this)->end();
    }
@@ -301,6 +319,12 @@ public:
    T & front() {
       return *detail::doubly_linked_list_impl::front()->template value_ptr<T>();
    }
+
+   /*! Returns a const reference to the last element in the list.
+
+   @return
+      Const reference to the last element in the list.
+   */
    T const & front() const {
       return const_cast<list *>(this)->front();
    }
@@ -339,6 +363,8 @@ public:
 
    @param t
       Element to add.
+   @return
+      Iterator to the newly-added element.
    */
    iterator push_back(T t) {
       type_void_adapter type;
@@ -353,6 +379,8 @@ public:
 
    @param t
       Element to add.
+   @return
+      Iterator to the newly-added element.
    */
    iterator push_front(T t) {
       type_void_adapter type;
@@ -371,6 +399,12 @@ public:
    reverse_iterator rbegin() {
       return reverse_iterator(m_pnLast);
    }
+
+   /*! Returns a reverse iterator to the end of the list.
+
+   @return
+      Reverse iterator to the last node in the list.
+   */
    const_reverse_iterator rbegin() const {
       return const_cast<list *>(this)->rbegin();
    }
@@ -411,6 +445,12 @@ public:
    reverse_iterator rend() {
       return reverse_iterator();
    }
+
+   /*! Returns a const reverse iterator to the start of the list.
+
+   @return
+      Const reverse iterator to the before the first node in the list.
+   */
    const_reverse_iterator rend() const {
       return const_cast<list *>(this)->rend();
    }

@@ -218,6 +218,8 @@ namespace abc { namespace this_thread {
 /*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization
 required for the current thread to run coroutines.
 
+@param pcorosched
+   Scheduler to attach. If omitted, a new coroutine::scheduler will be created.
 @return
    Coroutine scheduler associated to this thread. If pcorosched was non-nullptr, this is the same as
    pcorosched.

@@ -72,8 +72,8 @@ public:
 
    /*! Constructor.
 
-   @param id
-      ID of a running process to associate this abc::process instance with.
+   @param pid
+      PID of a running process to associate this abc::process instance with.
    */
    explicit process(id_type pid);
 

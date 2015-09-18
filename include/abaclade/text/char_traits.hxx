@@ -39,7 +39,7 @@ public:
 public:
    /*! Converts a char8_t array into a code point (UTF-32 character).
 
-   @param pchDstBegin
+   @param pchSrcBegin
       Start of the character array to decode.
    @return
       Decoded code point.
@@ -162,7 +162,7 @@ public:
 public:
    /*! Converts a char16_t array into a code point (UTF-32 character).
 
-   @param pchDstBegin
+   @param pchSrcBegin
       Start of the character array to decode.
    @return
       Decoded code point.
