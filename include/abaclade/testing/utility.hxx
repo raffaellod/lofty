@@ -207,7 +207,11 @@ public:
    }
 
    /*! Copy-assigment operator. Doesn’t use its argument since the only non-static member
-   (m_iUnique) is always generated. */
+   (m_iUnique) is always generated.
+
+   @return
+      *this.
+   */
    instances_counter & operator=(instances_counter const &) {
       m_iUnique = ++m_iNextUnique;
       ++m_cCopies;
