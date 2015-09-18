@@ -435,6 +435,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
 namespace abc { namespace io { namespace text { namespace detail {
 
 //! Template-free implementation of abc::io::text::detail::writer_print_helper.
@@ -791,6 +792,7 @@ protected:
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
 }}}} //namespace abc::io::text::detail
+//! @endcond
 
 // Now it’s possible to implement this.
 

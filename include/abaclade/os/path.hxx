@@ -450,6 +450,7 @@ ABC_RELOP_IMPL(<=)
 
 }} //namespace abc::os
 
+//! @cond
 namespace std {
 
 template <>
@@ -461,9 +462,11 @@ struct hash<abc::os::path> : public hash<abc::text::str> {
 };
 
 } //namespace std
+//! @endcond
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
 namespace abc {
 
 template <>
@@ -487,6 +490,7 @@ public:
 };
 
 } //namespace abc
+//! @endcond
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

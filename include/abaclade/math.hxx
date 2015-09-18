@@ -181,6 +181,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
 namespace abc { namespace math { namespace detail {
 
 /*! Helper for abc::math::abs(). Needed because function templates can’t be partially specialized,
@@ -205,6 +206,7 @@ struct abs_helper<T, false> {
 };
 
 }}} //namespace abc::math::detail
+//! @endcond
 
 namespace abc { namespace math {
 

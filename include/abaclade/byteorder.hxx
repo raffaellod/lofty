@@ -42,25 +42,26 @@ namespace byteorder {}
    #include <byteswap.h> // bswap_*()
    #define ABC_HAVE_BSWAP
 #endif
+//! @cond
 #ifndef ABC_HAVE_BSWAP
-   namespace abc { namespace detail {
+   namespace abc { namespace byteorder { namespace detail {
 
    ABACLADE_SYM std::uint16_t bswap_16(std::uint16_t i);
    ABACLADE_SYM std::uint32_t bswap_32(std::uint32_t i);
    ABACLADE_SYM std::uint64_t bswap_64(std::uint64_t i);
 
-   }} //namespace abc::detail
+   }}} //namespace abc::byteorder::detail
 #endif
 
-namespace abc { namespace byteorder {
+namespace abc { namespace byteorder { namespace detail {
 
 //! Implementation of swap(), specialized by size in bytes of the argument. See swap().
 template <std::size_t cb>
-struct _swap_impl;
+struct swap_impl;
 
 // Specialization for 1-byte integers.
 template <>
-struct _swap_impl<1> {
+struct swap_impl<1> {
    typedef std::uint8_t type;
 
    type operator()(type i) {
@@ -71,7 +72,7 @@ struct _swap_impl<1> {
 
 // Specialization for 2-byte integers.
 template <>
-struct _swap_impl<2> {
+struct swap_impl<2> {
    typedef std::uint16_t type;
 
    type operator()(type i) {
@@ -82,7 +83,7 @@ struct _swap_impl<2> {
 
 // Specialization for 4-byte integers.
 template <>
-struct _swap_impl<4> {
+struct swap_impl<4> {
    typedef std::uint32_t type;
 
    type operator()(type i) {
@@ -93,7 +94,7 @@ struct _swap_impl<4> {
 
 // Specialization for 8-byte integers.
 template <>
-struct _swap_impl<8> {
+struct swap_impl<8> {
    typedef std::uint64_t type;
 
    type operator()(type i) {
@@ -101,6 +102,11 @@ struct _swap_impl<8> {
       return bswap_64(i);
    }
 };
+
+}}} //namespace abc::byteorder::detail
+//! @endcond
+
+namespace abc { namespace byteorder {
 
 /*! Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
 from 2 to 8 bytes.
@@ -112,8 +118,8 @@ from 2 to 8 bytes.
 */
 template <typename I>
 inline I swap(I i) {
-   typedef _swap_impl<sizeof(I)> swap_impl;
-   return I(swap_impl()(typename swap_impl::type(i)));
+   typedef detail::swap_impl<sizeof(I)> swap_impl;
+   return static_cast<I>(swap_impl()(static_cast<typename swap_impl::type>(i)));
 }
 
 /*! Converts a number from host endianness to big endian.

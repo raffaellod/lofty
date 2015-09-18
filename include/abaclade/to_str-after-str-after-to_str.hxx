@@ -60,6 +60,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
 namespace abc {
 
 // Specialization for raw pointer types.
@@ -123,9 +124,11 @@ public:
 };
 
 } //namespace abc
+//! @endcond
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
 namespace abc {
 
 template <>
@@ -155,6 +158,7 @@ public:
 };
 
 } //namespace abc
+//! @endcond
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -225,9 +229,10 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
-
+//! @cond
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+namespace abc { namespace detail {
 
 //! Helper to write a single element out of a tuple, recursing to print any remaining ones.
 template <class TTuple, typename... Ts>
@@ -311,7 +316,11 @@ inline void tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_elem
    }
 }
 
+}} //namespace abc::detail
+
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
+
+namespace abc { namespace detail {
 
 //! Helper to write the elements of a tuple.
 // Template recursion step.
@@ -355,6 +364,9 @@ public:
    }
 };
 
+}} //namespace abc::detail
+
+namespace abc {
 
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
@@ -387,8 +399,11 @@ public:
    }
 };
 
+} //namespace abc
 
 // Now this can be defined.
+
+namespace abc { namespace detail {
 
 template <
    class TTuple, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -410,6 +425,7 @@ inline void tuple_to_str_backend_element_writer<
    }
 }
 
-#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
-
 }} //namespace abc::detail
+
+#endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+//! @endcond

@@ -31,6 +31,13 @@ namespace abc {
 
    //! Top-level namespace for Abaclade’s testing framework.
    namespace testing {}
+
+   namespace text {
+
+      //! Classes implementing semi-complete parsers, ready to be built upon.
+      namespace parsers {}
+
+   } //namespace text
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

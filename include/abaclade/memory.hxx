@@ -188,6 +188,7 @@ protected:
    bool m_bEnabled;
 };
 
+//! @cond
 // Specialization for arrays.
 template <typename T, typename TDeleter>
 class conditional_deleter<T[], TDeleter> : public conditional_deleter<T, TDeleter> {
@@ -216,6 +217,7 @@ public:
       }
    }
 };
+//! @endcond
 
 }} //namespace abc::memory
 

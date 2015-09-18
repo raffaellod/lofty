@@ -2032,6 +2032,7 @@ inline str operator+(char32_t cpL, sstr<t_cchEmbeddedCapacity> const & sR) {
 
 }} //namespace abc::text
 
+//! @cond
 namespace std {
 
 template <>
@@ -2044,3 +2045,4 @@ struct hash<abc::text::sstr<t_cchEmbeddedCapacity>> : public hash<abc::text::str
 };
 
 } //namespace std
+//! @endcond

@@ -79,6 +79,7 @@ struct min;
 template <typename T>
 struct max;
 
+//! @cond
 // Specialization of min and max for UTF character types (note: wchar_t is not among these).
 template <>
 struct min<    char> : public std::integral_constant<    char, CHAR_MIN> {};
@@ -150,6 +151,7 @@ template <>
 struct min<unsigned long long> : public std::integral_constant<unsigned long long,          0> {};
 template <>
 struct max<unsigned long long> : public std::integral_constant<unsigned long long, ULLONG_MAX> {};
+//! @endcond
 
 }} //namespace abc::numeric
 

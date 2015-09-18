@@ -114,6 +114,7 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
 namespace abc {
 
 template <>
@@ -184,3 +185,4 @@ class to_str_backend<text::str::iterator> : public to_str_backend<text::str::con
 };
 
 } //namespace abc
+//! @endcond

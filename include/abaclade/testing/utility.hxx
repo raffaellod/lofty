@@ -30,6 +30,15 @@ You should have received a copy of the GNU General Public License along with Aba
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace testing {
+
+//! Utility classes useful for testing.
+namespace utility {}
+
+}} //namespace abc::testing
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace testing { namespace utility {
 
 // Forward declaration.
