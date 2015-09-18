@@ -145,6 +145,8 @@ public:
       Character at which the error is located.
    @param iLine
       Line where the error is located.
+   @param err
+      OS-defined error number associated to the exception.
    */
    void init(
       str const & sDescription = str::empty, str const & sSource = str::empty,

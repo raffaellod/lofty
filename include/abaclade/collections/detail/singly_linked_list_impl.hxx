@@ -155,6 +155,8 @@ public:
 
    @param slli
       Source object.
+   @return
+      *this.
    */
    singly_linked_list_impl & operator=(singly_linked_list_impl && slli);
 
@@ -197,7 +199,7 @@ protected:
 
    @param type
       Adapter for the node value’s type.
-   @param pnFirst
+   @param pn
       Pointer to the first node to destruct.
    */
    static void destruct_list(type_void_adapter const & type, node * pn);

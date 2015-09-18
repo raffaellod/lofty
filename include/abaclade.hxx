@@ -17,9 +17,14 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Top-level Abaclade header file; must always be included before any other Abaclade headers. */
+
 #ifndef _ABACLADE_HXX
 #define _ABACLADE_HXX
+//! @cond
 #define _ABACLADE_HXX_INTERNAL
+//! @endcond
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +48,7 @@ namespace abc {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <abaclade/detail/host.hxx>
+//! @cond
 
 // Host-dependent fixes.
 
@@ -151,6 +157,7 @@ namespace abc {
       #undef max
    #endif
 #endif //if ABC_HOST_API_WIN32
+//! @endcond
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

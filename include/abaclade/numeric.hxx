@@ -57,6 +57,7 @@ inline /*constexpr*/ bool is_negative(
 ) {
    return t < T(0);
 }
+//! @cond
 template <typename T>
 inline /*constexpr*/ bool is_negative(
    typename _std::enable_if<!_std::is_signed<T>::value, T>::type t
@@ -64,6 +65,7 @@ inline /*constexpr*/ bool is_negative(
    ABC_UNUSED_ARG(t);
    return false;
 }
+//! @endcond
 
 }} //namespace abc::numeric
 

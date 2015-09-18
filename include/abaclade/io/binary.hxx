@@ -129,7 +129,7 @@ class ABACLADE_SYM seekable {
 public:
    /*! Changes the current read/write position.
 
-   @param iOffset
+   @param ibOffset
       New position, relative to sfWhence.
    @param sfWhence
       Indicates what position iOffset is relative to.
@@ -255,9 +255,18 @@ public:
    */
    virtual _std::tuple<void const *, std::size_t> peek_bytes(std::size_t cb) = 0;
 
-   /*! See binary::reader::read(). Using peek()/consume() or peek_bytes()/consume_bytes() is
+   /*! Reads at most cbMax bytes. Using peek()/consume() or peek_bytes()/consume_bytes() is
    preferred to calling this method, because it will spare the caller from having to allocate an
-   intermediate buffer. */
+   intermediate buffer.
+
+   @param p
+      Address of the destination buffer.
+   @param cbMax
+      Size of the destination buffer, in bytes.
+   @return
+      Count of bytes read. For non-zero values of cbMax, a return value of 0 indicates that the end
+      of the data (EOF) was reached.
+   */
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 
    //! See buffered_base::unbuffered().
@@ -327,9 +336,17 @@ public:
       return _std::dynamic_pointer_cast<writer>(_unbuffered_base());
    }
 
-   /*! See binary::writer::write(). Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes()
-   is preferred to calling this method, because it will spare the caller from having to allocate an
-   intermediate buffer. */
+   /*! Writes an array of bytes. Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes() is
+   preferred to calling this method, because it will spare the caller from having to allocate an
+   intermediate buffer.
+
+   @param p
+      Address of the source buffer.
+   @param cb
+      Size of the source buffer, in bytes.
+   @return
+      Count of bytes written.
+   */
    virtual std::size_t write(void const * p, std::size_t cb) override;
 
 protected:
@@ -485,6 +502,8 @@ struct pipe_ends {
 
    @param pe
       Source object.
+   @return
+      *this.
    */
    pipe_ends & operator=(pipe_ends && pe) {
       reader = _std::move(pe.reader);

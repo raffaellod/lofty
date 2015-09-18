@@ -22,8 +22,7 @@ Exceptions and stack traces example
 
 This program showcases Abaclade’s ability to display stack traces when an exception is thrown, as
 well as its support for catching null pointer access and similar invalid operations. See the source
-code for more comments.
-*/
+code for more comments. */
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>

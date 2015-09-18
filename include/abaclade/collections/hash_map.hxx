@@ -189,9 +189,18 @@ public:
    public:
       //! Key/value type.
       struct value_type {
+         //! Reference to the key.
          TKey const & key;
+         //! Reference to the value.
          TValue & value;
 
+         /*! Constructor.
+
+         @param pkey
+            Pointer to the key to refer to.
+         @param pvalue
+            Pointer to the value to refer to.
+         */
          value_type(TKey const * pkey, TValue * pvalue) :
             key(*pkey), value(*pvalue) {
          }
@@ -201,7 +210,7 @@ public:
       typedef value_type & reference;
 
    public:
-      //! Constructor.
+      //! Default constructor.
       iterator() {
       }
 
@@ -504,6 +513,8 @@ public:
 
    @param key
       Key associated to the value to remove.
+   @return
+      true if a value matching the key was found (and removed), or false otherwise.
    */
    bool remove_if_found(TKey const & key) {
       ABC_TRACE_FUNC(this/*, key*/);

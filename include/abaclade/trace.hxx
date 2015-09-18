@@ -17,13 +17,12 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Stack tracing infrastructure. */
+
 #ifndef _ABACLADE_HXX_INTERNAL
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
-
-/*! @file
-Stack tracing infrastructure.
-*/
 
 /*! @page stack-tracing Stack tracing
 Automatic generation of stack traces whenever an exception occurs.
@@ -81,8 +80,7 @@ Currently unsupported:
    stack trace buffer.
 
 •  TODO: properly handling exceptions occurring while generating a stack trace. The current behavior
-   swallows any nested exceptions, gracefully failing to generate a complete stack trace.
-*/
+   swallows any nested exceptions, gracefully failing to generate a complete stack trace. */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

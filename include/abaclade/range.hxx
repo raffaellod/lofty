@@ -57,6 +57,12 @@ public:
       T & operator*() {
          return m_t;
       }
+
+      /*! Dereferencing operator.
+
+      @return
+         Const reference to the current value.
+      */
       T const & operator*() const {
          return m_t;
       }
@@ -69,6 +75,12 @@ public:
       T * operator->() {
          return &m_t;
       }
+
+      /*! Dereferencing member access operator.
+
+      @return
+         Const pointer to the current value.
+      */
       T const * operator->() const {
          return &m_t;
       }

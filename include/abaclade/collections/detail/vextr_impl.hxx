@@ -236,6 +236,12 @@ public:
    T * begin() {
       return static_cast<T *>(m_pBegin);
    }
+
+   /*! Returns a const pointer to the start of the item array.
+
+   @return
+      Const pointer to the first item.
+   */
    template <typename T>
    T const * begin() const {
       return static_cast<T const *>(m_pBegin);
@@ -261,6 +267,12 @@ public:
    T * end() {
       return static_cast<T *>(m_pEnd);
    }
+
+   /*! Returns a const pointer to the end of the item array.
+
+   @return
+      Const pointer to beyond the last item.
+   */
    template <typename T>
    T const * end() const {
       return static_cast<T const *>(m_pEnd);

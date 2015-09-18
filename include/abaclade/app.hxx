@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Classes and macros to enable application startup. */
+
 #ifndef _ABACLADE_APP_HXX
 #define _ABACLADE_APP_HXX
 
@@ -26,10 +29,6 @@ You should have received a copy of the GNU General Public License along with Aba
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
 #endif
-
-/*! @file
-Classes and macros to enable application startup.
-*/
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

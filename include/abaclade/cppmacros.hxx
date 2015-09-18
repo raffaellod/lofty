@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010, 2011, 2012, 2013, 2014
+Copyright 2010, 2011, 2012, 2013, 2014, 2015
 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
@@ -16,6 +16,9 @@ Public License for more details.
 You should have received a copy of the GNU General Public License along with Abaclade. If not, see
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
+
+/*! @file
+Defines C++ preprocessor macros to perform useful code generation tasks. */
 
 #ifndef _ABACLADE_HXX_INTERNAL
    #error "Please #include <abaclade.hxx> instead of this file"
@@ -62,6 +65,7 @@ The name of this macro stands for Ugly Workaround Expansion.
       _ \
    ))
 
+//! @cond
 #define _ABC_CPP_LIST_COUNT_IMPL( \
       _99, _98, _97, _96, _95, _94, _93, _92, _91, _90, \
       _89, _88, _87, _86, _85, _84, _83, _82, _81, _80, \
@@ -76,6 +80,7 @@ The name of this macro stands for Ugly Workaround Expansion.
       count, ... \
    ) \
    count
+//! @endcond
 
 /*! Expands into a joined version of the two provided tokens. Necessary to implement the more
 generic ABC_CPP_CAT().
@@ -90,8 +95,10 @@ generic ABC_CPP_CAT().
 #define ABC_CPP_CAT2(token1, token2) \
    _ABC_CPP_CAT2_IMPL(token1, token2)
 
+//! @cond
 #define _ABC_CPP_CAT2_IMPL(token1, token2) \
    token1 ## token2
+//! @endcond
 
 /*! Expands into a joined version of the provided tokens.
 
@@ -103,6 +110,7 @@ generic ABC_CPP_CAT().
 #define ABC_CPP_CAT(...) \
    ABC_UWE(ABC_CPP_CAT2(_ABC_CPP_CAT_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(__VA_ARGS__))
 
+//! @cond
 #define _ABC_CPP_CAT_1(token1) \
    _ABC_CPP_CAT_1_IMPL(token1)
 #define _ABC_CPP_CAT_1_IMPL(token1) \
@@ -163,6 +171,7 @@ generic ABC_CPP_CAT().
    _ABC_CPP_CAT_15_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15)
 #define _ABC_CPP_CAT_15_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15) \
    t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14 ## t15
+//! @endcond
 
 /*! Expands into a string version of the specified token.
 
@@ -174,8 +183,10 @@ generic ABC_CPP_CAT().
 #define ABC_CPP_TOSTRING(x) \
    _ABC_CPP_TOSTRING_IMPL(x)
 
+//! @cond
 #define _ABC_CPP_TOSTRING_IMPL(x) \
    #x
+//! @endcond
 
 /*! Expands into a mostly unique number prefixed by the specified token. Uniqueness is not
 guaranteed on all platforms.
@@ -204,10 +215,12 @@ whether bit evaluates to 1 or 0, respectively.
 #define ABC_CPP_IIF(bit) \
    ABC_CPP_CAT2(_ABC_CPP_IIF_, bit)
 
+//! @cond
 #define _ABC_CPP_IIF_0(true_part, ...) \
    __VA_ARGS__
 #define _ABC_CPP_IIF_1(true_part, ...) \
    true_part
+//! @endcond
 
 /*! Expands into the complement of the specified bit.
 
@@ -219,8 +232,10 @@ whether bit evaluates to 1 or 0, respectively.
 #define ABC_CPP_COMPL(bit) \
    ABC_CPP_CAT2(_ABC_CPP_COMPL_, bit)
 
+//! @cond
 #define _ABC_CPP_COMPL_0 1
 #define _ABC_CPP_COMPL_1 0
+//! @endcond
 
 /*! Expands into the argument + 1.
 
@@ -232,6 +247,7 @@ whether bit evaluates to 1 or 0, respectively.
 #define ABC_CPP_INC(int) \
    ABC_CPP_CAT2(_ABC_CPP_INC_, int)
 
+//! @cond
 #define _ABC_CPP_INC_0   1
 #define _ABC_CPP_INC_1   2
 #define _ABC_CPP_INC_2   3
@@ -332,6 +348,7 @@ whether bit evaluates to 1 or 0, respectively.
 #define _ABC_CPP_INC_97 98
 #define _ABC_CPP_INC_98 99
 #define _ABC_CPP_INC_99 100
+//! @endcond
 
 /*! Expands into the argument - 1.
 
@@ -343,6 +360,7 @@ whether bit evaluates to 1 or 0, respectively.
 #define ABC_CPP_DEC(int) \
    ABC_CPP_CAT2(_ABC_CPP_DEC_, int)
 
+//! @cond
 #define _ABC_CPP_DEC_0   0
 #define _ABC_CPP_DEC_1   0
 #define _ABC_CPP_DEC_2   1
@@ -443,6 +461,7 @@ whether bit evaluates to 1 or 0, respectively.
 #define _ABC_CPP_DEC_97 96
 #define _ABC_CPP_DEC_98 97
 #define _ABC_CPP_DEC_99 98
+//! @endcond
 
 /*! Used with _ABC_CPP_MAKE_CHECK_RET_ONE(); it expands into 1 or 0 depending on whether the latter
 is expanded or not.
@@ -454,6 +473,7 @@ is expanded or not.
 #define ABC_CPP_CHECK(...) \
    ABC_UWE(_ABC_CPP_CHECK_EXPAND(__VA_ARGS__, 0, ))
 
+//! @cond
 #define _ABC_CPP_CHECK_EXPAND(ignore, ret, ...) \
    ret
 
@@ -462,6 +482,7 @@ ABC_CPP_CHECK(). */
 // TODO: is a comma after 1 necessary?
 #define _ABC_CPP_MAKE_CHECK_RET_ONE(...) \
    dummy, 1
+//! @endcond
 
 /*! Expands into either 1 or 0 depending on whether the argument is a tuple or not.
 
@@ -484,8 +505,10 @@ respectively.
 #define ABC_CPP_NOT(x) \
    ABC_CPP_CHECK(ABC_CPP_CAT2(_ABC_CPP_NOT_, x))
 
+//! @cond
 #define _ABC_CPP_NOT_0 \
    _ABC_CPP_MAKE_CHECK_RET_ONE()
+//! @endcond
 
 /*! Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
 respectively.
@@ -520,6 +543,7 @@ arguments.
 #define ABC_CPP_LIST_WALK(macro, ...) \
    ABC_UWE(ABC_CPP_CAT2(_ABC_CPP_LIST_W_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(macro, __VA_ARGS__))
 
+//! @cond
 #define _ABC_CPP_LIST_W_0(macro)
 #define _ABC_CPP_LIST_W_1(macro, head) macro(head)
 #define _ABC_CPP_LIST_W_2(m, h, ...) m(h) ABC_UWE(_ABC_CPP_LIST_W_1(m, __VA_ARGS__))
@@ -620,6 +644,7 @@ arguments.
 #define _ABC_CPP_LIST_W_97(m, h, ...) m(h) ABC_UWE(_ABC_CPP_LIST_W_96(m, __VA_ARGS__))
 #define _ABC_CPP_LIST_W_98(m, h, ...) m(h) ABC_UWE(_ABC_CPP_LIST_W_97(m, __VA_ARGS__))
 #define _ABC_CPP_LIST_W_99(m, h, ...) m(h) ABC_UWE(_ABC_CPP_LIST_W_98(m, __VA_ARGS__))
+//! @endcond
 
 /*! Expands into the invocation of the specified macro once for each of the remaining tuples passed
 as arguments.
@@ -632,6 +657,7 @@ as arguments.
 #define ABC_CPP_TUPLELIST_WALK(macro, ...) \
    ABC_UWE(ABC_CPP_CAT2(_ABC_CPP_TUPLELIST_W_, ABC_CPP_LIST_COUNT(__VA_ARGS__))(macro, __VA_ARGS__))
 
+//! @cond
 #define _ABC_CPP_TUPLELIST_W_0(macro)
 #define _ABC_CPP_TUPLELIST_W_1(macro, head) macro head
 #define _ABC_CPP_TUPLELIST_W_2(m, h, ...) m h ABC_UWE(_ABC_CPP_TUPLELIST_W_1(m, __VA_ARGS__))
@@ -732,3 +758,4 @@ as arguments.
 #define _ABC_CPP_TUPLELIST_W_97(m, h, ...) m h ABC_UWE(_ABC_CPP_TUPLELIST_W_96(m, __VA_ARGS__))
 #define _ABC_CPP_TUPLELIST_W_98(m, h, ...) m h ABC_UWE(_ABC_CPP_TUPLELIST_W_97(m, __VA_ARGS__))
 #define _ABC_CPP_TUPLELIST_W_99(m, h, ...) m h ABC_UWE(_ABC_CPP_TUPLELIST_W_98(m, __VA_ARGS__))
+//! @endcond

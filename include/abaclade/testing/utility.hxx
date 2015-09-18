@@ -47,8 +47,8 @@ class container_data_ptr_tracker;
 
 /*! Allows to declare a container_data_ptr_tracker instance using the auto keyword.
 
-@param t
-   Object to track.
+@param pt
+   Pointer to the object to track.
 @return
    Tracker instance.
 */

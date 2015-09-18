@@ -98,10 +98,12 @@ existing thread/coroutine), and unloading it would remove the library from all m
 CRLS block for each thread/coroutine). */
 class ABACLADE_SYM context_local_storage_impl {
 public:
-   /*! Destructs the variables .
+   /*! Runs a single destruction iteration over the stored variables, using the specified registrar.
 
+   @param clsri
+      Registrar to provide the list of variables to destruct.
    @return
-      true if any variables were destructed, or no constructed ones were found.
+      true if any variables were destructed or no constructed ones were found, or false otherwise.
    */
    bool destruct_vars(context_local_storage_registrar_impl const & clsri);
 
@@ -520,7 +522,9 @@ namespace abc { namespace detail {
 //! Contains a T and a bool to track whether the T has been constructed.
 template <typename T>
 struct context_local_ptr_value {
+   //! Contained value.
    T t;
+   //! true if t has been constructed, or false otherwise.
    bool bConstructed;
 };
 

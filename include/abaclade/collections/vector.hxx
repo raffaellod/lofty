@@ -445,19 +445,24 @@ public:
       return vector_const_iterator(m_pv, vector_0::validate_pointer(m_pv, m_pt + i, true));
    }
 
-   /*! Subtraction/difference operator.
+   /*! Subtraction operator.
 
    @param i
       Count of positions by which to rewind the iterator.
-   @param it
-      Iterator from which to calculate the distance.
    @return
-      Iterator that’s i items behind *this (subtraction) or distance between *this and it
-      (difference).
+      Iterator that’s i items behind *this.
    */
    vector_const_iterator operator-(std::ptrdiff_t i) const {
       return vector_const_iterator(m_pv, vector_0::validate_pointer(m_pv, m_pt - i, true));
    }
+
+   /*! Difference operator.
+
+   @param it
+      Iterator from which to calculate the distance.
+   @return
+      Distance between *this and it.
+   */
    std::ptrdiff_t operator-(vector_const_iterator it) const {
       return m_pt - it.m_pt;
    }
@@ -752,13 +757,13 @@ public:
 
    /*! Constructor that concatenates two arrays, copying elements from both.
 
-   @param p1Begin
+   @param pt1Begin
       Pointer to the start of the first source array.
-   @param p1End
+   @param pt1End
       Pointer to the end of the first source array.
-   @param p2Begin
+   @param pt2Begin
       Pointer to the start of the second source array.
-   @param p2End
+   @param pt2End
       Pointer to the end of the second source array.
    */
    vector(T const * pt1Begin, T const * pt1End, T const * pt2Begin, T const * pt2End) :
@@ -821,11 +826,19 @@ public:
    @param i
       Element index.
    @return
-      Element at index i.
+      Reference to the element at index i.
    */
    T & operator[](std::ptrdiff_t i) {
       return *validate_pointer(data() + i, false);
    }
+
+   /*! Const element access operator.
+
+   @param i
+      Element index.
+   @return
+      Const reference to the element at index i.
+   */
    T const & operator[](std::ptrdiff_t i) const {
       return const_cast<vector *>(this)->operator[](i);
    }
@@ -1142,6 +1155,8 @@ public:
 
    @param itBegin
       Iterator to the first element to return.
+   @return
+      Vector slice.
    */
    vector slice(const_iterator itBegin) const {
       return vector(itBegin.m_pt, data_end());
@@ -1153,6 +1168,8 @@ public:
       Iterator to the first element to return.
    @param itEnd
       Iterator to the element after the last one to return.
+   @return
+      Vector slice.
    */
    vector slice(const_iterator itBegin, const_iterator itEnd) const {
       return vector(itBegin.m_pt, itEnd.m_pt);
@@ -1194,6 +1211,8 @@ protected:
 
    /*! Copy constructor from C arrays for subclasses with an embedded item array.
 
+   @param cbEmbeddedCapacity
+      Size of the embedded character array, in bytes.
    @param pt
       Pointer to a C array that will be copied to the vector.
    @param ci
@@ -1210,6 +1229,8 @@ protected:
       Pointer to validate.
    @param bAllowEnd
       If true, pt == data_end() is allowed; if false, it’s not.
+   @return
+      pt.
    */
    template <typename TPtr>
    TPtr * validate_pointer(TPtr * pt, bool bAllowEnd) const {
@@ -1228,6 +1249,8 @@ protected:
       Pointer to validate.
    @param bAllowEnd
       If true, pt == pv->data_end() is allowed; if false, it’s not.
+   @return
+      pt.
    */
    template <typename TPtr>
    static TPtr * validate_pointer(vector const * pv, TPtr * pt, bool bAllowEnd) {
@@ -1383,10 +1406,10 @@ public:
 
    /*! Constructor that copies elements from an array.
 
-   @param pt
-      Pointer to an array.
-   @param ci
-      Count of items in *pt.
+   @param ptBegin
+      Pointer to the start of the array to copy.
+   @param ptEnd
+      Pointer to the end of the array to copy.
    */
    vector(T const * ptBegin, T const * ptEnd) :
       vector_0(smc_cbEmbeddedCapacity, ptBegin, ptEnd) {

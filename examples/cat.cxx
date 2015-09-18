@@ -22,8 +22,7 @@ You should have received a copy of the GNU General Public License along with Aba
 
 This is a basic usage example of Abaclade; it shows how to read from standard input one line at a
 time, echoing each to standard output. The program terminates when it reaches the end of input,
-which can be signaled with Ctrl+D in Linux/OS X/FreeBSD or Ctrl+Z followed by Enter in Windows.
-*/
+which can be signaled with Ctrl+D in Linux/OS X/FreeBSD or Ctrl+Z followed by Enter in Windows. */
 
 #include <abaclade.hxx>
 #include <abaclade/app.hxx>

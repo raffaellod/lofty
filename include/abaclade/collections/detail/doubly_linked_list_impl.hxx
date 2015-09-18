@@ -228,6 +228,8 @@ public:
 
    @param dlli
       Source object.
+   @return
+      *this.
    */
    doubly_linked_list_impl & operator=(doubly_linked_list_impl && dlli);
 

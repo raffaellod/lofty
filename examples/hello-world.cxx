@@ -21,8 +21,7 @@ You should have received a copy of the GNU General Public License along with Aba
 Hello World example
 
 This is a basic usage example of Abaclade; all it does is display the canonical “Hello World” text,
-then it terminates. See the source code for line-by-line comments.
-*/
+then it terminates. See the source code for line-by-line comments. */
 
 // This should always be the first file included in any C++ source using Abaclade.
 #include <abaclade.hxx>

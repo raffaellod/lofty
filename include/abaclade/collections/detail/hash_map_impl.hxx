@@ -132,8 +132,10 @@ public:
 
    /*! Move-assignment operator.
 
-   @param m
+   @param hmi
       Source object.
+   @return
+      *this.
    */
    hash_map_impl & operator=(hash_map_impl && hmi);
 

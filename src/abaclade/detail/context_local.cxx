@@ -62,20 +62,9 @@ context_local_storage_impl::context_local_storage_impl(
 context_local_storage_impl::~context_local_storage_impl() {
 }
 
-void * context_local_storage_impl::get_storage(context_local_storage_node_impl const & clsni) {
-   void * pb = &m_pb[clsni.m_ibStorageOffset];
-   if (!m_pbConstructed[clsni.m_iStorageIndex]) {
-      if (clsni.construct) {
-         clsni.construct(pb);
-      }
-      m_pbConstructed[clsni.m_iStorageIndex] = true;
-   }
-   return pb;
-}
-
 bool context_local_storage_impl::destruct_vars(context_local_storage_registrar_impl const & clsri) {
    bool bAnyDestructed = false;
-   // Iterate backwards over the list to destruct TLS/CRLS for this coroutine.
+   // Iterate backwards over the list to destruct TLS/CRLS for this storage.
    unsigned i = clsri.m_cVars;
    for (auto it(clsri.rbegin()), itEnd(clsri.rend()); it != itEnd; ++it) {
       auto & clsni = static_cast<context_local_storage_node_impl &>(*it);
@@ -90,6 +79,17 @@ bool context_local_storage_impl::destruct_vars(context_local_storage_registrar_i
       }
    }
    return bAnyDestructed;
+}
+
+void * context_local_storage_impl::get_storage(context_local_storage_node_impl const & clsni) {
+   void * pb = &m_pb[clsni.m_ibStorageOffset];
+   if (!m_pbConstructed[clsni.m_iStorageIndex]) {
+      if (clsni.construct) {
+         clsni.construct(pb);
+      }
+      m_pbConstructed[clsni.m_iStorageIndex] = true;
+   }
+   return pb;
 }
 
 }} //namespace abc::detail

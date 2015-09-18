@@ -17,13 +17,12 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Facilities to create smart enumerations, as described in @ref enumeration-classes */
+
 #ifndef _ABACLADE_HXX_INTERNAL
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
-
-/*! @file
-Facilities to create smart enumerations, as described in @ref enumeration-classes
-*/
 
 /*! @page enumeration-classes Enumeration classes
 Support for advanced enumeration classes. These are the features that set them apart from pre-C++11
@@ -47,8 +46,7 @@ The name provided to ABC_ENUM() is associated to a C++ class, not the C++ enum; 
 available through the former, as in as my_enum::enum_type; there should little to no need to ever
 directly refer to the C++ enum type.
 
-This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>.
-*/
+This design is loosely based on <http://www.python.org/dev/peps/pep-0435/>. */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

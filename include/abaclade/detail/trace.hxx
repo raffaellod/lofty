@@ -64,6 +64,8 @@ public:
 
    @param ts
       Arguments.
+   @return
+      New tuple containing references to the specified arguments.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
    template <typename... Ts>
@@ -176,7 +178,11 @@ private:
    >>::value;
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 public:
-   //! Constructor.
+   /*! Constructor.
+
+   @param ts
+      Objects to include in the tuple.
+   */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
    explicit scope_trace_tuple_impl(Ts const &... ts) :
       tuple_type(ts ...) {
@@ -192,6 +198,12 @@ public:
       tuple_type(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
    }
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
+
+   /*! Move constructor.
+
+   @param tpl
+      Source object.
+   */
    scope_trace_tuple_impl(scope_trace_tuple_impl && tpl) :
       tuple_type(_std::move(tpl)) {
    }
@@ -335,11 +347,9 @@ class ABACLADE_SYM scope_trace : public noncopyable {
 public:
    /*! Constructor.
 
-   @param srcloc
+   @param psrcloc
       Source location.
-   @param pszFunction
-      Function name.
-   @param tplVars
+   @param ptplVars
       Variables to capture.
    */
    scope_trace(scope_trace_source_location const * psrcloc, scope_trace_tuple const * ptplVars);

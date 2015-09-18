@@ -89,6 +89,12 @@ public:
       type.set_align<T>();
       return *static_cast<T *>(m_pnLast->value_ptr(type));
    }
+
+   /*! Returns a const reference to the last element in the queue.
+
+   @return
+      Const reference to the last element in the queue.
+   */
    T const & back() const {
       return const_cast<queue *>(this)->back();
    }
@@ -111,6 +117,12 @@ public:
       type.set_align<T>();
       return *static_cast<T *>(m_pnFirst->value_ptr(type));
    }
+
+   /*! Returns a const reference to the first element in the queue.
+
+   @return
+      Const reference to the first element in the queue.
+   */
    T const & front() const {
       return const_cast<queue *>(this)->front();
    }
@@ -130,7 +142,7 @@ public:
       return _std::move(t);
    }
 
-   /*! Adds an element to the end of the queue.
+   /*! Copies an element to the end of the queue.
 
    @param t
       Element to add.
@@ -142,6 +154,12 @@ public:
       type.set_size<T>();
       detail::singly_linked_list_impl::push_back(type, &t, false);
    }
+
+   /*! Moves an element to the end of the queue.
+
+   @param t
+      Element to add.
+   */
    void push_back(T && t) {
       type_void_adapter type;
       type.set_align<T>();

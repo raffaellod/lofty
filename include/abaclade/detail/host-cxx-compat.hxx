@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Defines macros that help hide or minimize differences between different C++ compilers. */
+
 #ifndef _ABACLADE_HXX_INTERNAL
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
@@ -99,6 +102,8 @@ implementation. */
 /*! Declares a function/method as throwing exceptions depending on a (template-dependent) condition.
 Supports both C++11 noexcept specifier and pre-C++11 throw() exception specifications.
 
+@param cond
+   Condition under which the function/method should be considered “to-throw”.
 @param old_throw_decl
    Parentheses-enclosed list of types the function/method may throw.
 */

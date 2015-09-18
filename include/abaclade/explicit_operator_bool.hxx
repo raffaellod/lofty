@@ -17,6 +17,10 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Classes and macros useful to support explicit operator bool conversions even in absence of compiler
+support. */
+
 #ifndef _ABACLADE_HXX_INTERNAL
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif

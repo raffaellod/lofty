@@ -142,6 +142,12 @@ public:
       node * base() {
          return m_pnCurr;
       }
+
+      /*! Returns the underlying const pointer to the node.
+
+      @return
+         Const pointer to the current node.
+      */
       node const * base() const {
          return m_pnCurr;
       }
@@ -154,6 +160,12 @@ public:
       node * next_base() {
          return m_pnNext;
       }
+
+      /*! Returns a const pointer to the next node.
+
+      @return
+         Const pointer to the next node.
+      */
       node const * next_base() const {
          return m_pnNext;
       }
@@ -371,6 +383,8 @@ public:
       TValue * base() {
          return static_cast<TValue *>(iterator_base::base());
       }
+
+      //! See static_list_impl_base::iterator::base().
       TValue const * base() const {
          return static_cast<TValue *>(iterator_base::base());
       }
@@ -379,12 +393,14 @@ public:
       TValue * next_base() {
          return static_cast<TValue *>(iterator_base::next_base());
       }
+
+      //! See static_list_impl_base::iterator::next_base().
       TValue const * next_base() const {
          return static_cast<TValue *>(iterator_base::next_base());
       }
 
    private:
-      /*! Constructor that converts a iterator_base.
+      /*! Constructor that converts from an iterator_base.
 
       @param ii
          Source object.

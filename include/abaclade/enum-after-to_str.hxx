@@ -51,8 +51,10 @@ public:
 protected:
    /*! Writes an enumeration value, applying the formatting options.
 
-   @param e
-      Enumeration value to write.
+   @param i
+      Value of the enumeration member to write.
+   @param pem
+      Pointer to the enumeration members map.
    @param ptwOut
       Pointer to the writer to output to.
    */

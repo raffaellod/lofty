@@ -17,13 +17,12 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Macros to generate proper Unicode characters. */
+
 #ifndef _ABACLADE_HXX_INTERNAL
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
-
-/*! @file
-Macros to generate proper Unicode characters.
-*/
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

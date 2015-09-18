@@ -73,9 +73,9 @@ example, for a return value of utf8_encoding str_traits::validate() will return 
 buffer.
 TODO: why not guarantee validity? It would help weed out more encodings with fewer bytes.
 
-@param pchBegin
+@param pBufBegin
    Pointer to the beginning of the buffer to scan for encoding clues.
-@param pchEnd
+@param pBufEnd
    Pointer to the end of the buffer.
 @param cbSrcTotal
    Total size, in bytes, of a larger string of which *pBuf is the beginning.
@@ -246,6 +246,8 @@ public:
       Pointer to the start of the byte sequence that caused the error.
    @param pbInvalidEnd
       Pointer to the end of the byte sequence that caused the error.
+   @param err
+      OS-defined error number associated to the exception.
    */
    void init(
       str const & sDescription = str::empty, std::uint8_t const * pbInvalidBegin = nullptr,
@@ -300,6 +302,8 @@ public:
       Description of the encountered problem.
    @param chInvalid
       Code point that caused the error.
+   @param err
+      OS-defined error number associated to the exception.
    */
    void init(
       str const & sDescription = str::empty, char32_t chInvalid = 0xffffff, errint_t err = 0

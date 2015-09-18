@@ -56,7 +56,7 @@ class ABACLADE_TESTING_SYM runner : public noncopyable {
 public:
    /*! Constructor.
 
-   @param posOut
+   @param ptwOut
       Pointer to the writer that will be used to log the results of the tests.
    */
    runner(_std::shared_ptr<io::text::writer> ptwOut);

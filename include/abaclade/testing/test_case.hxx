@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Classes and macros to help write test cases and assertions. */
+
 #ifndef _ABACLADE_TESTING_TEST_CASE_HXX
 #define _ABACLADE_TESTING_TEST_CASE_HXX
 

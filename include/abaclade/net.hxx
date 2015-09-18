@@ -166,6 +166,8 @@ public:
       Connected socket.
    @param ipaddrRemote
       Address of the remote peer.
+   @param portRemote
+      Port of the remote peer.
    */
    connection(io::filedesc fd, ip_address && ipaddrRemote, port_t portRemote);
 

@@ -17,13 +17,12 @@ You should have received a copy of the GNU General Public License along with Aba
 <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
+/*! @file
+Basic exception classes and related macros. */
+
 #ifndef _ABACLADE_HXX_INTERNAL
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
-
-/*! @file
-Facilities to create smart enumerations, as described in @ref enumeration-classes
-*/
 
 /*! @page exception-classes Exception classes
 Abaclade’s exception class hierarchy. These classes provide diverse and semantically-rich types that
@@ -111,8 +110,8 @@ See doc/Exception_class_hierarchy.fodg for a diagram of the entire Abaclade exce
 hierarchy, including the relations with the STL hierarchy.
 
 Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/library/
-exceptions.html>.
-*/
+exceptions.html>. */
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

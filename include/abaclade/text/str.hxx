@@ -523,6 +523,8 @@ public:
 
       //! See const_iterator::operator-();
       using const_iterator::operator-;
+
+      //! See const_iterator::operator-();
       iterator operator-(std::ptrdiff_t i) const {
          return const_iterator::operator-(i);
       }

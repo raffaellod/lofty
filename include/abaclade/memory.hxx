@@ -129,12 +129,19 @@ ABACLADE_SYM void free(void const * p);
 @param cb
    Count of bytes to resize **pp to.
 */
+ABACLADE_SYM void realloc_bytes(void ** pp, std::size_t cb);
+
+/*! Resizes a dynamically allocated memory block.
+
+@param ppt
+   Pointer to the caller’s pointer to the memory block to resize.
+@param cb
+   Count of bytes to resize **ppt to.
+*/
 template <typename T>
 void realloc(T ** ppt, std::size_t cb) {
-   realloc(reinterpret_cast<void **>(ppt), cb);
+   realloc_bytes(reinterpret_cast<void **>(ppt), cb);
 }
-template <>
-ABACLADE_SYM void realloc(void ** pp, std::size_t cb);
 
 }} //namespace abc::memory
 
@@ -150,13 +157,17 @@ public:
 
    @param bEnabled
       If true, the deleter will delete objects when invoked; if false, it will do nothing.
-   @param cd
-      Source deleter.
    */
    conditional_deleter(bool bEnabled) :
       TDeleter(),
       m_bEnabled(bEnabled) {
    }
+
+   /*! Copy constructor.
+
+   @param cd
+      Source object.
+   */
    template <typename U, typename UDeleter>
    conditional_deleter(conditional_deleter<U, UDeleter> const & cd) :
       TDeleter(static_cast<UDeleter const &>(cd)),
@@ -280,9 +291,7 @@ it in case a new memory block is needed.
 @param ppt
    Pointer to a smart pointer to the memory block to resize.
 @param c
-   Count of items to allocate memory for (non-void case).
-@param cb
-   Amount of memory to allocate, in bytes (void case).
+   Count of items to allocate memory for.
 @param cbExtra
    Count of bytes of additional storage to allocate at the end of the requested items.
 */
@@ -295,12 +304,23 @@ inline void realloc_unique(
    ppt->release();
    ppt->reset(pt);
 }
+
+/*! Changes the size of a block of dynamically allocated memory, updating the pointer referencing
+it in case a new memory block is needed.
+
+@param pp
+   Pointer to a smart pointer to the memory block to resize.
+@param cb
+   Amount of memory to allocate, in bytes.
+@param cbExtra
+   Not used.
+*/
 template <>
 inline void realloc_unique(
    _std::unique_ptr<void, freeing_deleter> * pp, std::size_t cb, std::size_t cbExtra /*= 0*/
 ) {
    auto p = pp->get();
-   realloc(&p, cb + cbExtra);
+   realloc_bytes(&p, cb + cbExtra);
    pp->release();
    pp->reset(p);
 }

@@ -237,6 +237,8 @@ protected:
 
       @param typeValue
          Adapter for the list_node’s value type.
+      @param pln
+         Pointer to the node to unlink and destruct.
       */
       void remove(type_void_adapter const & typeValue, list_node * pln) const {
          doubly_linked_list_impl::remove(
@@ -254,9 +256,18 @@ protected:
 
    //! Key/pointer-to-value pair.
    struct key_value_ptr {
+      //! Key.
       std::uintmax_t iKey;
+      //! Pointer to the node containing the value.
       list_node * pln;
 
+      /*! Constructor.
+
+      @param _iKey
+         Key to hold.
+      @param _pln
+         Pointer to the node to hold.
+      */
       key_value_ptr(std::uintmax_t _iKey, list_node * _pln) :
          iKey(_iKey),
          pln(_pln) {
@@ -286,6 +297,8 @@ public:
 
    @param bwtommi
       Source object.
+   @return
+      *this.
    */
    bitwise_trie_ordered_multimap_impl & operator=(bitwise_trie_ordered_multimap_impl && bwtommi);
 
@@ -304,7 +317,7 @@ public:
       Adapter for the value’s type.
    @param iKey
       Key to add.
-   @param pvalue
+   @param pValue
       Pointer to the value to add.
    @param bMove
       true to move *pValue to the new node’s value, or false to copy it instead.
@@ -364,7 +377,7 @@ protected:
    /*! Finds the next key minimally greater than the specified one, returning a pointer to the first
    corresponding value.
 
-   @param iKey
+   @param iPrevKey
       Key to search the next of.
    @return
       Pointer to the first matching “next” key/value pair, or a nullptr value if no “next” key could

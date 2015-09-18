@@ -394,6 +394,8 @@ public:
 
    @param tomm
       Source object.
+   @return
+      *this.
    */
    trie_ordered_multimap & operator=(trie_ordered_multimap && tomm) {
       trie_ordered_multimap tommOld(_std::move(*this));

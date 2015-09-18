@@ -223,8 +223,7 @@ void free(void const * p) {
    std::free(const_cast<void *>(p));
 }
 
-template <>
-void realloc<void>(void ** pp, std::size_t cb) {
+void realloc_bytes(void ** pp, std::size_t cb) {
    if (void * p = std::realloc(*pp, cb)) {
       *pp = p;
    } else {
