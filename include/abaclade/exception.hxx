@@ -131,27 +131,10 @@ namespace abc {
 
 namespace abc {
 
-//! Source code location.
+/*! Source code location. Note that this class lacks a constructor, so make sure to manually
+initialize its members or instantiate it using source_location::make(). */
 class source_location {
 public:
-   //! Default constructor.
-   source_location() :
-      m_pszFilePath(nullptr),
-      m_iLine(0) {
-   }
-
-   /*! Constructor.
-
-   @param pszFilePath
-      Path to the source file.
-   @param iLine
-      Line number in pszFilePath.
-   */
-   source_location(char_t const * pszFilePath, unsigned iLine) :
-      m_pszFilePath(pszFilePath),
-      m_iLine(static_cast<std::uint16_t>(iLine)) {
-   }
-
    /*! Returns the file path.
 
    @return
@@ -170,11 +153,27 @@ public:
       return m_iLine;
    }
 
-protected:
+   /*! Returns a constructed source_location. Not a constructor so that source_location instances
+   can be declared static.
+
+   @param pszFilePath
+      Path to the source file.
+   @param iLine
+      Line number in *pszFilePath.
+   */
+   static source_location make(char_t const * pszFilePath, unsigned iLine) {
+      source_location srcloc;
+      srcloc.m_pszFilePath = pszFilePath;
+      srcloc.m_iLine = iLine;
+      return std::move(srcloc);
+   }
+
+// Must be public to allow source_location instances to be declared static.
+public:
    //! Path to the source file.
    char_t const * m_pszFilePath;
    //! Line number in m_pszFilePath.
-   std::uint16_t m_iLine;
+   unsigned m_iLine;
 };
 
 } //namespace abc
@@ -186,7 +185,7 @@ location in which it’s used.
    abc::source_location instance.
 */
 #define ABC_SOURCE_LOCATION() \
-   (::abc::source_location(ABC_SL(__FILE__), __LINE__))
+   (::abc::source_location::make(ABC_SL(__FILE__), __LINE__))
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

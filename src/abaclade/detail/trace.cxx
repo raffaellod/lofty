@@ -71,7 +71,9 @@ void scope_trace::write(io::text::writer * ptwOut, unsigned iStackDepth) const {
    );
    // Write the variables tuple.
    m_ptplVars->write(ptwOut);
-   ptwOut->print(ABC_SL(" at {}\n"), source_location(m_psrcloc->pszFilePath, m_psrcloc->iLine));
+   ptwOut->print(
+      ABC_SL(" at {}\n"), source_location::make(m_psrcloc->pszFilePath, m_psrcloc->iLine)
+   );
 }
 
 /*static*/ void scope_trace::write_list(io::text::writer * ptwOut) {
