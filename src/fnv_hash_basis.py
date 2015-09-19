@@ -47,5 +47,17 @@ def fnv_hash_basis(cBits, iFNVPrime):
       iFNVPrime, cBits, iFNVBasis
    ))
 
+def main(iterArgs):
+   """Implementation of __main__.
+
+   iterable(str*) iterArgs
+      Command-line arguments.
+   int return
+      Command return status.
+   """
+
+   fnv_hash_basis(int(iterArgs[1], 0), int(iterArgs[2], 0))
+   return 0
+
 if __name__ == '__main__':
-   fnv_hash_basis(int(sys.argv[1], 0), int(sys.argv[2], 0))
+   sys.exit(main(sys.argv))
