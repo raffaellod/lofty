@@ -90,17 +90,18 @@ Currently unsupported:
    Arguments or variables to trace.
 */
 #define ABC_TRACE_FUNC(...) \
-   _ABC_TRACE_SCOPE_IMPL( \
-      ABC_CPP_APPEND_UID(_scope_trace_), ABC_CPP_APPEND_UID(_scope_trace_tuple_), \
-      ABC_CPP_APPEND_UID(_scope_trace_source_location_), __VA_ARGS__ \
-   )
+   _ABC_TRACE_SCOPE_IMPL(ABC_CPP_APPEND_UID(__scope_trace_), __VA_ARGS__)
 
-/*! @cond
-Implementation of ABC_TRACE_FUNC() and similar macros. */
-#define _ABC_TRACE_SCOPE_IMPL(st, tuple, srcloc, ...) \
-   static ::abc::detail::scope_trace_source_location const srcloc = { \
+/*! Implementation of ABC_TRACE_FUNC() and similar macros.
+
+@param uid
+   Unique ID for this scope trace.
+@param ...
+   Arguments or variables to trace.
+*/
+#define _ABC_TRACE_SCOPE_IMPL(uid, ...) \
+   static ::abc::detail::scope_trace_source_location const ABC_CPP_CAT(uid, _srcloc) = { \
       ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__ \
    }; \
-   auto tuple(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
-   ::abc::detail::scope_trace st(&srcloc, &tuple)
-//! @endcond
+   auto ABC_CPP_CAT(uid, _tuple)(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
+   ::abc::detail::scope_trace uid(&ABC_CPP_CAT(uid, _srcloc), &ABC_CPP_CAT(uid, _tuple))
