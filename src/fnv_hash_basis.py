@@ -17,8 +17,8 @@
 # not, see <http://www.gnu.org/licenses/>.
 #---------------------------------------------------------------------------------------------------
 
-"""Python adaption of the FNV-1a hash algorithm by Fowler/Noll/Vo, based on the de facto standard
-alhorithm in calc script. See  See <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
+"""Python adaptation of the FNV-1a hash algorithm by Fowler/Noll/Vo, based on the de facto standard
+algorithm in calc script. See  See <http://www.isthe.com/chongo/tech/comp/fnv/> for details.
 """
 
 import sys
