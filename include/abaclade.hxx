@@ -320,7 +320,76 @@ from Abaclade’s testing shared library (into another library/executable). */
 
 namespace abc { namespace collections {
 
-//! TODO: comment.
+/*! Abaclade’s memory-efficient vector/array class.
+
+Instead of forcing users to choose between std::vector and fixed-size arrays, Abaclade’s vector
+class employs different allocation strategies, and is able to use a dynamically-allocated and
+-resized element array, while also taking advantage of an optional fixed-size array embedded into
+it (when the template argument t_ciEmbeddedCapacity is provided and greater than 0).
+
+Let’s look at the underlying data storage in different scenarios. Key:
+   @verbatim
+   ┌─────────────┬────────────┬─────────────┬────────────────┬──────────────────┬───────────────┐
+   │ Pointer to  │ Pointer to │ P if array  │ T if array is  │ E if followed by │ D if array is │
+   │ array start │ array end  │ is prefixed │ NUL-terminated │ fixed-side array │ dynamically-  │
+   │             │            │             │                │                  │ allocated     │
+   └─────────────┴────────────┴─────────────┴────────────────┴──────────────────┴───────────────┘
+   @endverbatim
+Additionally, this may be following the above in case t_ciEmbeddedCapacity is greater than 0:
+   @verbatim
+   ┌────────────────────┬─────────────────┐
+   │ Count of slots     │ Array contents… │
+   │ (bytes in reality) │                 │
+   └────────────────────┴─────────────────┘
+   @endverbatim
+
+1. vector<int> v1(): no element array.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───┐
+   │ nullptr │ nullptr │ - │ - │ - │
+   └─────────┴─────────┴───┴───┴───┘
+   @endverbatim
+
+2. vector<int, 2> v2(): has an embedded prefixed fixed-size array, but does not use it yet.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───╥───┬─────┐
+   │ nullptr │ nullptr │ - │ E │ - ║ 2 │ - - │
+   └─────────┴─────────┴───┴───┴───╨───┴─────┘
+   @endverbatim
+
+3. v1.push_back(1): switches to a dynamically-allocated prefixed array to perform the insertion.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───┐           ┌───┬─────────────────┐
+   │ 0xptr   │ 0xptr   │ P │ - │ D │           │ 8 │ 1 - - - - - - - │
+   └─────────┴─────────┴───┴───┴───┘           └───┴─────────────────┘
+     │         │                                   ▲   ▲
+     │         └───────────────────────────────────│───┘
+     └─────────────────────────────────────────────┘
+   @endverbatim
+
+4. v2.push_back(1), v2.push_back(2): starts using the embedded prefixed fixed-size array to perform
+   the insertions.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───╥───┬─────┐
+   │ 0xptr   │ 0xptr   │ P │ E │ - ║ 2 │ 1 2 │
+   └─────────┴─────────┴───┴───┴───╨───┴─────┘
+     │         │                       ▲     ▲
+     │         └───────────────────────│─────┘
+     └─────────────────────────────────┘
+   @endverbatim
+
+5. v2.push_back(1): switches to a dynamically-allocated prefixed array to perform an insertion that
+   requires more space than the embedded fixed-size array allows to store.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───╥───┬─────┐ ┌───┬─────────────────┐
+   │ 0xptr   │ 0xptr   │ P │ - │ D ║ 2 │ - - │ │ 8 │ 1 2 3 - - - - - │
+   └─────────┴─────────┴───┴───┴───╨───┴─────┘ └───┴─────────────────┘
+     │         │                                   ▲       ▲
+     │         └───────────────────────────────────│───────┘
+     └─────────────────────────────────────────────┘
+   @endverbatim
+
+See abc::collections::detail::vextr_impl_base for more implementation details. */
 template <typename T, std::size_t t_ciEmbeddedCapacity = 0>
 class vector;
 
@@ -355,9 +424,89 @@ class sstr;
 
 /*! Abaclade’s memory-efficient string class.
 
-Unlike C or STL strings, instances do not implicitly have an accessible trailing NUL character.
+Instead of forcing users to choose between std::string and fixed-size buffers, Abaclade’s string
+class employs different allocation strategies, and is able to use a dynamically-allocated and
+-resized character array, while also taking advantage of an optional fixed-size array embedded into
+it (see the abc::text::sstr subclass).
 
-See @ref vextr-design for implementation details of this class and abc::text::sstr. */
+Unlike C or STL strings, instances do not implicitly have an accessible trailing NUL character; to
+get a pointer to a NUL-terminated string, use abc::text::str::c_str().
+
+Let’s look at the underlying data storage in different scenarios.
+These are the fields in an abc::text::str instance:
+   @verbatim
+   ┌─────────────┬────────────┬─────────────┬────────────────┬──────────────────┬───────────────┐
+   │ Pointer to  │ Pointer to │ P if array  │ T if array is  │ E if followed by │ D if array is │
+   │ array start │ array end  │ is prefixed │ NUL-terminated │ fixed-side array │ dynamically-  │
+   │             │            │             │                │                  │ allocated     │
+   └─────────────┴────────────┴─────────────┴────────────────┴──────────────────┴───────────────┘
+   @endverbatim
+Additionally, this may be following the above in case of an abc::text::sstr instance, which has an
+embedded fixed-side character array:
+   @verbatim
+   ┌────────────────────┬─────────────────┐
+   │ Count of slots     │ Array contents… │
+   │ (bytes in reality) │                 │
+   └────────────────────┴─────────────────┘
+   @endverbatim
+
+1. str s1(): no character array.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───┬───┐
+   │ nullptr │ nullptr │ - │ - │ - │ - │
+   └─────────┴─────────┴───┴───┴───┴───┘
+   @endverbatim
+
+2. sstr<4> s2(): has an embedded prefixed fixed-size array, but does not use it yet.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
+   │ nullptr │ nullptr │ - │ - │ E │ - ║ 4 │ - - - - │
+   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
+   @endverbatim
+
+3. str s3("abc"): points to a non-prefixed character array in read-only memory, which also has a NUL
+   terminator.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───┬───┐                    ┌──────────┐
+   │ 0xptr   │ 0xptr   │ - │ T │ - │ - │                    │ a b c \0 │
+   └─────────┴─────────┴───┴───┴───┴───┘                    └──────────┘
+     │         │                                            ▲       ▲
+     │         └────────────────────────────────────────────│───────┘
+     └──────────────────────────────────────────────────────┘
+   @endverbatim
+
+4. s3 += "def": switches to a dynamically-allocated prefixed array to perform the concatenation.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───┬───┐                ┌───┬─────────────────┐
+   │ 0xptr   │ 0xptr   │ P │ - │ - │ D │                │ 8 │ a b c d e f - - │
+   └─────────┴─────────┴───┴───┴───┴───┘                └───┴─────────────────┘
+     │         │                                            ▲             ▲
+     │         └────────────────────────────────────────────│─────────────┘
+     └──────────────────────────────────────────────────────┘
+   @endverbatim
+
+5. s2 += "abc": starts using the embedded prefixed fixed-size array to perform the concatenation.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
+   │ 0xptr   │ 0xptr   │ P │ - │ E │ - ║ 4 │ a b c - │
+   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
+     │         │                           ▲       ▲
+     │         └───────────────────────────│───────┘
+     └─────────────────────────────────────┘
+   @endverbatim
+
+7. s2 += "def": switches to a dynamically-allocated prefixed array because the embedded one is not
+   large enough.
+   @verbatim
+   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐  ┌───┬─────────────────┐
+   │ 0xptr   │ 0xptr   │ P │ - │ E │ D ║ 4 │ - - - - │  │ 8 │ a b c d e f - - │
+   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘  └───┴─────────────────┘
+     │         │                                            ▲             ▲
+     │         └────────────────────────────────────────────│─────────────┘
+     └──────────────────────────────────────────────────────┘
+   @endverbatim
+
+See abc::collections::detail::vextr_impl_base for more implementation details. */
 typedef sstr<0> str;
 
 }} //namespace abc::text

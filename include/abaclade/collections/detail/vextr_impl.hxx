@@ -21,148 +21,14 @@ You should have received a copy of the GNU General Public License along with Aba
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
-/*! @page vextr-design High-efficiency strings and vectors
-Design of abc::text::str and abc::collections::vector.
-
-Abaclade’s string and vector classes are intelligent wrappers around C arrays; they are able to
-dynamically adjust the size of the underlying array, while also taking advantage of an optional
-fixed-size array embedded into the string/vector object.
-
-Since the implementation is shared between vectors and strings, the implementation class name is
-vextr, which is a portmanteau of vector and str(ing).
-
-Data-wise, vextr stores two pointers, one to the first item and one to beyond the last item
-(see abc::collections::detail::vextr_impl_data); this makes checking an iterator against the end of
-the array a matter of a simple load/compare in terms of machine level instructions. The item array
-pointed to by the begin/end pointers can be part of a prefixed item array
-(abc::collections::detail::vextr_prefixed_item_array), which includes information such as the total
-capacity of the item array, which is used to find out when the item array needs to be reallocated to
-make room for more items.
-
-All vextr* classes are non-template to avoid template bloat, though potentially at the expense of
-some execution speed.
-
-The class hierarchy of vextr/vector/str is composed as follows:
-
-   @verbatim
-                             ┌──────────────────────────────────────┐
-                             │ collections::detail::vextr_impl_base │
-                             └──────────────────────────────────────┘
-                              △                                    △
-                              │                                    │
-      ┌─────────────────────────────────────────┐ ┌─────────────────────────────────────────┐
-      │ collections::detail::trivial_vextr_impl │ │ collections::detail::complex_vextr_impl │
-      └─────────────────────────────────────────┘ └─────────────────────────────────────────┘
-         △                                △                                  △
-         │                                │                                  │
-   ┌─────────────────┐ ┌──────────────────────────────────┐ ┌──────────────────────────────────┐
-   │  text::sstr<0>  │ │ collections::detail::vector_impl │ │ collections::detail::vector_impl │
-   │ (aka text::str) │ │ (trivial partial specialization) │ │ (complex partial specialization) │
-   └─────────────────┘ └──────────────────────────────────┘ └──────────────────────────────────┘
-            △                                  △                      △
-            │                                  │                      │
-    ┌───────────────┐                         ┌────────────────────────┐
-    │ text::sstr<n> │                         │ collections::vector<0> │
-    └───────────────┘                         └────────────────────────┘
-                                                           △
-                                                           │
-                                              ┌────────────────────────┐
-                                              │ collections::vector<n> │
-                                              └────────────────────────┘
-   @endverbatim
-
-Here’s an overview of each class:
-•  abc::collections::detail::vextr_impl_base – core functionality for a vector of elements: a little
-   code and all member variables;
-•  abc::collections::detail::complex_vextr_impl – implementation of a vector of objects of non-
-   trivial class: this is fully transactional and therefore exception-proof, but it’s of course
-   slower and uses more memory even during simpler operations;
-•  abc::collections::detail::trivial_vextr_impl – implementation of a vector of plain values
-   (instances of trivial class or native type): this is a near-optimal solution, still exception-
-   proof but also taking advantage of the knowledge that no copy constructors need to be called.
-•  abc::collections::detail::vector_impl – abstracts away the differences between trivial and
-   complex interfaces, exposing them as a single interface;
-•  abc::collections::vector – Abaclade’s vector class;
-•  abc::text::str – Abaclade’s string class.
-
-Let’s look at the underlying data storage in different scenarios. Key:
-   @verbatim
-   ┌──────────────┬──────────┬───────────┬───────────────┬────────────────┬─────────────────┐
-   │ Pointer to   │ Pointer  │ P if elem │ T if element  │ E is vextr has │ D if elem array │
-   │ beginning of │ to end   │ array is  │ array is NUL- │ embedded       │ is dynamically- │
-   │ array        │ of array │ prefixed  │ terminated    │ prefixed array │ allocated       │
-   └──────────────┴──────────┴───────────┴───────────────┴────────────────┴─────────────────┘
-   @endverbatim
-
-Additionally, an embedded element array can follow, prefixed by its length (here shown as an element
-count, but in the real implementation it’s actually a byte count).
-
-
-1. str s1(): no element array.
-   @verbatim
-   ┌─────────┬─────────┬───┬───┬───┬───┐
-   │ nullptr │ nullptr │ - │ - │ - │ - │
-   └─────────┴─────────┴───┴───┴───┴───┘
-   @endverbatim
-
-2. sstr<4> s2(): has an embedded prefixed fixed-size array, but does not use it yet.
-   @verbatim
-   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
-   │ nullptr │ nullptr │ - │ - │ E │ - ║ 4 │ - - - - │
-   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
-   @endverbatim
-
-3. str s3("abc"): points to a non-prefixed element array in read-only memory, which also has a NUL
-   terminator.
-   @verbatim
-   ┌─────────┬─────────┬───┬───┬───┬───┐                    ┌──────────┐
-   │ 0xptr   │ 0xptr   │ - │ T │ - │ - │                    │ a b c \0 │
-   └─────────┴─────────┴───┴───┴───┴───┘                    └──────────┘
-     │         │                                            ▲       ▲
-     │         └────────────────────────────────────────────│───────┘
-     └──────────────────────────────────────────────────────┘
-   @endverbatim
-
-4. s3 += "def": switches to a dynamically-allocated prefixed array to perform the concatenation.
-   @verbatim
-   ┌─────────┬─────────┬───┬───┬───┬───┐                ┌───┬─────────────────┐
-   │ 0xptr   │ 0xptr   │ P │ - │ - │ D │                │ 8 │ a b c d e f - - │
-   └─────────┴─────────┴───┴───┴───┴───┘                └───┴─────────────────┘
-     │         │                                            ▲             ▲
-     │         └────────────────────────────────────────────│─────────────┘
-     └──────────────────────────────────────────────────────┘
-   @endverbatim
-
-5. s2 += "abc": starts using the embedded prefixed fixed-size array to perform the concatenation.
-   @verbatim
-   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐
-   │ 0xptr   │ 0xptr   │ P │ - │ E │ - ║ 4 │ a b c - │
-   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘
-     │         │                           ▲       ▲
-     │         └───────────────────────────│───────┘
-     └─────────────────────────────────────┘
-   @endverbatim
-
-7. s2 += "def": switches to a dynamically-allocated prefixed array because the embedded one is not
-   large enough.
-   @verbatim
-   ┌─────────┬─────────┬───┬───┬───┬───╥───┬─────────┐  ┌───┬─────────────────┐
-   │ 0xptr   │ 0xptr   │ P │ - │ E │ D ║ 4 │ - - - - │  │ 8 │ a b c d e f - - │
-   └─────────┴─────────┴───┴───┴───┴───╨───┴─────────┘  └───┴─────────────────┘
-     │         │                                            ▲             ▲
-     │         └────────────────────────────────────────────│─────────────┘
-     └──────────────────────────────────────────────────────┘
-   @endverbatim
-*/
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace collections { namespace detail {
 
 /*! Stores an item array and its capacity. Used as a real template by classes with embedded item
-array in the “upper level” hierarchy (see @ref vextr-design), and used with template capacity == 1
-for all non-template-driven manipulations in non-template code in the “lower-level” hierarchy, which
+array (see abc::text::sstr and abc::collections::vector), and used with template capacity == 1 for
+all non-template-driven manipulations in non-template code in the “lower-level” hierarchy, which
 relies on m_cbCapacity instead. */
 template <typename T, std::size_t t_ciEmbeddedCapacity>
 class vextr_prefixed_item_array {
@@ -207,8 +73,77 @@ struct vextr_impl_data {
 
 namespace abc { namespace collections { namespace detail {
 
-/*! Template-independent members of detail::*_vextr_impl that are identical for trivial and non-
-trivial types. */
+/*! Template-independent members of *_vextr_impl that are identical for trivial and non-trivial
+types.
+
+Abaclade’s string and vector classes are intelligent wrappers around C arrays; they are able to
+dynamically adjust the size of the underlying array, while also taking advantage of an optional
+fixed-size array embedded into the string/vector object.
+
+Since the implementation is shared between vectors and strings, the implementation class name is
+vextr, which is a portmanteau of vector and str(ing).
+
+Data-wise, vextr stores two pointers, one to the first item and one to beyond the last item (see
+abc::collections::detail::vextr_impl_data); this makes checking an iterator against the end of the
+array a matter of a simple load/compare in terms of machine level instructions. The item array
+pointed to by the begin/end pointers can be part of a prefixed item array
+(abc::collections::detail::vextr_prefixed_item_array), which includes information such as the total
+capacity of the item array, which is used to find out when the item array needs to be reallocated to
+make room for more items.
+
+All vextr* classes are non-template to avoid template bloat, though potentially at the expense of
+some execution speed.
+
+The class hierarchy of vextr/vector/str is composed as follows:
+
+   @verbatim
+                             ┌──────────────────────────────────────┐
+                             │ collections::detail::vextr_impl_data │
+                             └──────────────────────────────────────┘
+                                                 △
+                                                 │
+                             ┌──────────────────────────────────────┐
+                             │ collections::detail::vextr_impl_base │
+                             └──────────────────────────────────────┘
+                              △                                    △
+                              │                                    │
+      ┌─────────────────────────────────────────┐ ┌─────────────────────────────────────────┐
+      │ collections::detail::trivial_vextr_impl │ │ collections::detail::complex_vextr_impl │
+      └─────────────────────────────────────────┘ └─────────────────────────────────────────┘
+         △                                △                                  △
+         │                                │                                  │
+   ┌─────────────────┐ ┌──────────────────────────────────┐ ┌──────────────────────────────────┐
+   │  text::sstr<0>  │ │ collections::detail::vector_impl │ │ collections::detail::vector_impl │
+   │ (aka text::str) │ │ (trivial partial specialization) │ │ (complex partial specialization) │
+   └─────────────────┘ └──────────────────────────────────┘ └──────────────────────────────────┘
+            △                                  △                      △
+            │                                  │                      │
+    ┌───────────────┐                         ┌────────────────────────┐
+    │ text::sstr<n> │                         │ collections::vector<0> │
+    └───────────────┘                         └────────────────────────┘
+                                                           △
+                                                           │
+                                              ┌────────────────────────┐
+                                              │ collections::vector<n> │
+                                              └────────────────────────┘
+   @endverbatim
+
+Here’s an overview of each class:
+•  abc::collections::detail::vextr_impl_base – core functionality for a vector of elements: a little
+   code and all member variables;
+•  abc::collections::detail::complex_vextr_impl – implementation of a vector of objects of non-
+   trivial class: this is fully transactional and therefore exception-proof, but it’s of course
+   slower and uses more memory even during simpler operations;
+•  abc::collections::detail::trivial_vextr_impl – implementation of a vector of plain values
+   (instances of trivial class or native type): this is a near-optimal solution, still exception-
+   proof but also taking advantage of the knowledge that no copy constructors need to be called.
+•  abc::collections::detail::vector_impl – abstracts away the differences between trivial and
+   complex interfaces, exposing them as a single interface;
+•  abc::collections::vector – Abaclade’s vector class;
+•  abc::text::str – Abaclade’s string class.
+
+See for abc::text::str and abc::collections::vector for examples of the memory layout of the above
+classes. */
 class ABACLADE_SYM vextr_impl_base : public vextr_impl_data {
 protected:
    // Allow transactions to access this class’s protected members.
