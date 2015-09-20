@@ -523,7 +523,7 @@ using text::sstr;
 #include <abaclade/coroutine_local.hxx>
 #include <abaclade/thread_local.hxx>
 #include <abaclade/enum.hxx>
-#include <abaclade/text-before-str.hxx> //text-before-exception-and-str
+#include <abaclade/text-before-exception-and-str.hxx>
 #include <abaclade/exception.hxx>
 #include <abaclade/memory-after-exception.hxx>
 #include <abaclade/collections/detail/vextr_impl.hxx>
