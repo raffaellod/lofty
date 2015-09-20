@@ -104,4 +104,6 @@ Currently unsupported:
       ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__ \
    }; \
    auto ABC_CPP_CAT(uid, _tuple)(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
-   ::abc::detail::scope_trace uid(&ABC_CPP_CAT(uid, _sfad), &ABC_CPP_CAT(uid, _tuple))
+   ::abc::detail::scope_trace uid( \
+      ::abc::source_file_address::from_data(&ABC_CPP_CAT(uid, _sfad)), &ABC_CPP_CAT(uid, _tuple) \
+   )

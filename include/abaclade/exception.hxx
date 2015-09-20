@@ -129,14 +129,6 @@ namespace abc {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*! Expands into a abc::text::file_address x-value referencing the location in which it’s used.
-
-@return
-   abc::text::file_address instance.
-*/
-#define ABC_THIS_FILE_ADDRESS() \
-   (::abc::text::file_address(ABC_SL(__FILE__), __LINE__))
-
 namespace abc { namespace detail {
 
 //! Stores the source code location for a scope_trace instance.
@@ -185,6 +177,15 @@ public:
       return this;
    }
 
+   /*! Returns the contained file address, identifying file path and line number.
+
+   @return
+      Contained file address.
+   */
+   text::file_address const * file_address() const {
+      return text::file_address::from_data(&m_tfad);
+   }
+
    /*! Returns the file path.
 
    @return
@@ -192,6 +193,17 @@ public:
    */
    char_t const * file_path() const {
       return m_tfad.m_pszFilePath;
+   }
+
+   /*! Returns a pointer to an instance of this class from a pointer to the data-only struct.
+
+   @param psfad
+      Pointer to a data-only struct.
+   @return
+      Pointer to the equivalent source_file_address instance.
+   */
+   static source_file_address const * from_data(detail::source_file_address_data const * psfad) {
+      return static_cast<source_file_address const *>(psfad);
    }
 
    /*! Returns the function name.
@@ -212,6 +224,14 @@ public:
       return m_tfad.m_iLine;
    }
 };
+
+/*! Expands into a abc::text::file_address x-value referencing the location in which it’s used.
+
+@return
+   abc::text::file_address instance.
+*/
+#define ABC_THIS_FILE_ADDRESS() \
+   (::abc::text::file_address(ABC_SL(__FILE__), __LINE__))
 
 } //namespace abc
 
@@ -244,7 +264,7 @@ public:
 
 /*! Implementation of ABC_THROW(); can be used directly to customize the source of the exception.
 
-@param tfad
+@param tfa
    Location at which the exception is being thrown.
 @param pszFunction
    Function that is throwing the exception.
@@ -254,11 +274,11 @@ public:
    Parentheses-enclosed list of data that will be associated to the exception, as accepted by
    x::init().
 */
-#define ABC_THROW_FROM(tfad, pszFunction, x, info) \
+#define ABC_THROW_FROM(tfa, pszFunction, x, info) \
    do { \
       ::abc::detail::exception_aggregator<x> _x; \
       _x.init info; \
-      _x._before_throw(tfad, pszFunction); \
+      _x._before_throw(tfa, pszFunction); \
       throw _x; \
    } while (false)
 
@@ -301,7 +321,7 @@ because it’s the only class involved that’s not in a detail namespace.
    x::init().
 */
 #define ABC_THROW(x, info) \
-   ABC_THROW_FROM(*ABC_THIS_FILE_ADDRESS().data(), ABC_THIS_FUNC, x, info)
+   ABC_THROW_FROM(ABC_THIS_FILE_ADDRESS(), ABC_THIS_FUNC, x, info)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -360,7 +380,7 @@ public:
    @param pszFunction
       Function that is throwing the exception.
    */
-   void _before_throw(text::detail::file_address_data const & tfad, char_t const * pszFunction);
+   void _before_throw(text::file_address const & tfa, char_t const * pszFunction);
 
    //! Initializes the information associated to the exception.
    void init() {
@@ -460,7 +480,7 @@ private:
    //! Source function name.
    char_t const * m_pszSourceFunction;
    //! Source location.
-   text::detail::file_address_data m_tfad;
+   text::file_address m_tfa;
    //! true if *this is an in-flight exception (it has been thrown) or is a copy of one.
    bool m_bInFlight;
 };

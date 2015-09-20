@@ -39,11 +39,9 @@ coroutine_local_ptr<io::text::str_writer> scope_trace::sm_ptswScopeTrace;
 coroutine_local_value<unsigned> scope_trace::sm_cScopeTraceRefs /*= 0*/;
 coroutine_local_value<unsigned> scope_trace::sm_iStackDepth /*= 0*/;
 
-scope_trace::scope_trace(
-   source_file_address_data const * psfad, scope_trace_tuple const * ptplVars
-) :
+scope_trace::scope_trace(source_file_address const * psfa, scope_trace_tuple const * ptplVars) :
    m_pstPrev(sm_pstHead),
-   m_psfad(psfad),
+   m_psfa(psfa),
    m_ptplVars(ptplVars) {
    sm_pstHead = this;
 }
@@ -67,13 +65,11 @@ scope_trace::~scope_trace() {
 
 void scope_trace::write(io::text::writer * ptwOut, unsigned iStackDepth) const {
    ptwOut->print(
-      ABC_SL("#{} {} with args: "), iStackDepth, str(external_buffer, m_psfad->m_pszFunction)
+      ABC_SL("#{} {} with args: "), iStackDepth, str(external_buffer, m_psfa->function())
    );
    // Write the variables tuple.
    m_ptplVars->write(ptwOut);
-   ptwOut->print(
-      ABC_SL(" at {}\n"), text::file_address(m_psfad->m_tfad.m_pszFilePath, m_psfad->m_tfad.m_iLine)
-   );
+   ptwOut->print(ABC_SL(" at {}\n"), *m_psfa->file_address());
 }
 
 /*static*/ void scope_trace::write_list(io::text::writer * ptwOut) {

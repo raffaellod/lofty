@@ -330,12 +330,12 @@ class ABACLADE_SYM scope_trace : public noncopyable {
 public:
    /*! Constructor.
 
-   @param psfad
+   @param psfa
       Source location.
    @param ptplVars
       Variables to capture.
    */
-   scope_trace(source_file_address_data const * psfad, scope_trace_tuple const * ptplVars);
+   scope_trace(source_file_address const * psfa, scope_trace_tuple const * ptplVars);
 
    //! Destructor. Adds a scope in the current scope trace if an in-flight exception is detected.
    ~scope_trace();
@@ -397,7 +397,7 @@ private:
    //! Pointer to the previous scope_trace single-linked list item that *this replaced as the head.
    scope_trace const * m_pstPrev;
    //! Pointer to the statically-allocated source location.
-   source_file_address_data const * m_psfad;
+   source_file_address const * m_psfa;
    //! Pointer to the caller-allocated tuple containing references to local variables in the scope.
    scope_trace_tuple const * m_ptplVars;
    //! Pointer to the head of the scope_trace single-linked list for each thread.

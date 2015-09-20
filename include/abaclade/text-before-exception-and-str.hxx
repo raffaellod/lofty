@@ -187,6 +187,17 @@ public:
       return m_pszFilePath;
    }
 
+   /*! Returns a pointer to an instance of this class from a pointer to the data-only struct.
+
+   @param pfad
+      Pointer to a data-only struct.
+   @return
+      Pointer to the equivalent file_address instance.
+   */
+   static file_address const * from_data(detail::file_address_data const * pfad) {
+      return static_cast<file_address const *>(pfad);
+   }
+
    /*! Returns the line number.
 
    @return

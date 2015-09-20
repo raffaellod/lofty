@@ -80,7 +80,7 @@ exception::exception() :
 exception::exception(exception const & x) :
    m_pszWhat(x.m_pszWhat),
    m_pszSourceFunction(x.m_pszSourceFunction),
-   m_tfad(x.m_tfad),
+   m_tfa(x.m_tfa),
    m_bInFlight(x.m_bInFlight) {
    // See @ref stack-tracing.
    if (m_bInFlight) {
@@ -98,7 +98,7 @@ exception::exception(exception const & x) :
 exception & exception::operator=(exception const & x) {
    m_pszWhat = x.m_pszWhat;
    m_pszSourceFunction = x.m_pszSourceFunction;
-   m_tfad = x.m_tfad;
+   m_tfa = x.m_tfa;
    /* Adopt the source’s in-flight status. See @ref stack-tracing. If the in-flight status is not
    changing, avoid the pointless (and dangerous, if done in this sequence – it could delete the
    trace writer if *this was the last reference to it) release()/addref(). */
@@ -114,11 +114,9 @@ exception & exception::operator=(exception const & x) {
    return *this;
 }
 
-void exception::_before_throw(
-   text::detail::file_address_data const & tfad, char_t const * pszFunction
-) {
+void exception::_before_throw(text::file_address const & tfa, char_t const * pszFunction) {
    m_pszSourceFunction = pszFunction;
-   m_tfad = tfad;
+   m_tfa = tfa;
    /* Clear any old trace writer buffer and create a new one with *this as its only reference. See
    @ref stack-tracing. */
    detail::scope_trace::trace_writer_clear();
@@ -211,6 +209,7 @@ void exception::_before_throw(
    common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
 ) {
    static text::detail::file_address_data const sc_tfad = { ABC_SL("source_not_available"), 0 };
+   text::file_address const & tfa = *text::file_address::from_data(&sc_tfad);
    static char_t const sc_szInternal[] = ABC_SL("<internal>");
    static char_t const sc_szOS[] = ABC_SL("<OS error reporting>");
 
@@ -226,13 +225,13 @@ void exception::_before_throw(
          if (!this_thread::get_impl()->terminating()) {
             switch (xct) {
                case common_type::app_execution_interruption:
-                  ABC_THROW_FROM(sc_tfad, sc_szInternal, app_execution_interruption, ());
+                  ABC_THROW_FROM(tfa, sc_szInternal, app_execution_interruption, ());
                case common_type::app_exit_interruption:
-                  ABC_THROW_FROM(sc_tfad, sc_szInternal, app_exit_interruption, ());
+                  ABC_THROW_FROM(tfa, sc_szInternal, app_exit_interruption, ());
                case common_type::execution_interruption:
-                  ABC_THROW_FROM(sc_tfad, sc_szInternal, execution_interruption, ());
+                  ABC_THROW_FROM(tfa, sc_szInternal, execution_interruption, ());
                case common_type::user_forced_interruption:
-                  ABC_THROW_FROM(sc_tfad, sc_szInternal, user_forced_interruption, ());
+                  ABC_THROW_FROM(tfa, sc_szInternal, user_forced_interruption, ());
                default:
                   // Silence compiler warnings.
                   break;
@@ -240,21 +239,18 @@ void exception::_before_throw(
          }
          break;
       case common_type::math_arithmetic_error:
-         ABC_THROW_FROM(sc_tfad, sc_szOS, math::arithmetic_error, ());
+         ABC_THROW_FROM(tfa, sc_szOS, math::arithmetic_error, ());
       case common_type::math_division_by_zero:
-         ABC_THROW_FROM(sc_tfad, sc_szOS, math::division_by_zero, ());
+         ABC_THROW_FROM(tfa, sc_szOS, math::division_by_zero, ());
       case common_type::math_floating_point_error:
-         ABC_THROW_FROM(sc_tfad, sc_szOS, math::floating_point_error, ());
+         ABC_THROW_FROM(tfa, sc_szOS, math::floating_point_error, ());
       case common_type::math_overflow:
-         ABC_THROW_FROM(sc_tfad, sc_szOS, math::overflow, ());
+         ABC_THROW_FROM(tfa, sc_szOS, math::overflow, ());
       case common_type::memory_bad_pointer:
-         ABC_THROW_FROM(
-            sc_tfad, sc_szOS, memory::bad_pointer, (reinterpret_cast<void const *>(iArg0))
-         );
+         ABC_THROW_FROM(tfa, sc_szOS, memory::bad_pointer, (reinterpret_cast<void const *>(iArg0)));
       case common_type::memory_bad_pointer_alignment:
          ABC_THROW_FROM(
-            sc_tfad, sc_szOS,
-            memory::bad_pointer_alignment, (reinterpret_cast<void const *>(iArg0))
+            tfa, sc_szOS, memory::bad_pointer_alignment, (reinterpret_cast<void const *>(iArg0))
          );
       default:
          // Unexpected exception type. Should never happen.
@@ -325,8 +321,9 @@ char const * exception::what() const {
    ptwOut->write(ABC_SL("Stack trace (most recent call first):\n"));
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
-      text::file_address tfa(pabcx->m_tfad.m_pszFilePath, pabcx->m_tfad.m_iLine);
-      ptwOut->print(ABC_SL("#0 {} at {}\n"), str(external_buffer, pabcx->m_pszSourceFunction), tfa);
+      ptwOut->print(
+         ABC_SL("#0 {} at {}\n"), str(external_buffer, pabcx->m_pszSourceFunction), pabcx->m_tfa
+      );
    }
    // Print the scope/stack trace collected via ABC_TRACE_FUNC().
    ptwOut->write(detail::scope_trace::get_trace_writer()->get_str());
