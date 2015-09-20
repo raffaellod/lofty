@@ -278,7 +278,7 @@ void exception::_before_throw(text::file_address const & tfa, char_t const * psz
    return common_type::execution_interruption;
 }
 
-char const * exception::what() const {
+/*virtual*/ const char * exception::what() const ABC_STL_NOEXCEPT_TRUE() /*override*/ {
    return m_pszWhat;
 }
 

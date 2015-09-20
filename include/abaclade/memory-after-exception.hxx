@@ -28,9 +28,6 @@ namespace abc { namespace memory {
 //! A memory allocation request could not be satisfied.
 class ABACLADE_SYM bad_alloc : public generic_error {
 public:
-   //! See abc::generic_error::related_std.
-   typedef _std::bad_alloc related_std;
-
    //! Default constructor.
    bad_alloc();
 

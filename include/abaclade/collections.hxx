@@ -120,14 +120,6 @@ namespace abc { namespace collections {
 range. */
 class ABACLADE_SYM out_of_range : public bad_access {
 public:
-#if 0
-   // TODO: make abc::detail::exception_aggregator able to construct <stdexcept> classes.
-
-   //! See abc::collections::bad_access::related_std.
-   typedef _std::out_of_range related_std;
-#endif
-
-public:
    //! Default constructor.
    out_of_range();
 

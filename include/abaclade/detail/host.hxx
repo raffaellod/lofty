@@ -265,9 +265,6 @@ not, see <http://www.gnu.org/licenses/>.
    /* “'class' : assignment operator could not be generated because a base class assignment operator
    is inaccessible” */
    #pragma warning(disable: 4626)
-   /* “throwing 'abc::_exception_aggregator<TAbc>' the following types will not be considered at the
-   catch site” */
-   #pragma warning(disable: 4673)
    /* “potentially uninitialized local variable 'var' used”: would be useful, but it’s raised too
    easily by MSC16. */
    #pragma warning(disable: 4701)
