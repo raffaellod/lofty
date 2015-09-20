@@ -42,7 +42,7 @@ namespace abc { namespace test {
                char8_t(0xff) \
          }; \
          this->ABC_CPP_CAT(assert_, b)( \
-            ABC_SOURCE_LOCATION(), \
+            ABC_THIS_FILE_ADDRESS(), \
             text::str_traits::validate(ach, ach + ABC_COUNTOF(ach) - 6), \
             ABC_SL("text::str_traits::validate(") ABC_SL(# __VA_ARGS__) ABC_SL(")") \
          ); \
@@ -58,7 +58,7 @@ namespace abc { namespace test {
             ABC_CPP_LIST_WALK(_ABC_CHAR_COMMA, __VA_ARGS__) char16_t(0xd834), char16_t(0xd834) \
          }; \
          this->ABC_CPP_CAT(assert_, b)( \
-            ABC_SOURCE_LOCATION(), \
+            ABC_THIS_FILE_ADDRESS(), \
             text::str_traits::validate(ach, ach + ABC_COUNTOF(ach) - 2), \
             ABC_SL("text::str_traits::validate(") ABC_SL(# __VA_ARGS__) ABC_SL(")") \
          ); \

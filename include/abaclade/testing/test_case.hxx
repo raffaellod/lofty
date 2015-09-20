@@ -66,7 +66,7 @@ public:
 protected:
    /*! Implementation of ABC_TESTING_ASSERT_DOES_NOT_THROW().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param fnExpr
       Functor wrapping the expression to evaluate.
@@ -74,12 +74,12 @@ protected:
       Source representation of the expression being evaluated.
    */
    void assert_does_not_throw(
-      source_location const & srcloc, _std::function<void ()> const & fnExpr, str const & sExpr
+      text::file_address const & tfa, _std::function<void ()> const & fnExpr, str const & sExpr
    );
 
    /*! Implementation of ABC_TESTING_ASSERT_EQUAL().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param tActual
       Actual value of the evaluated expression.
@@ -92,30 +92,30 @@ protected:
    */
    template <typename TExpr, typename TEqual>
    void assert_equal(
-      source_location const & srcloc,
+      text::file_address const & tfa,
       TExpr const & tActual, TEqual const & tEqual, str const & sExpr, str const & sEqual
    ) {
       bool bPass = (tActual == tEqual);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, ABC_SL("== "),
+         tfa, bPass, sExpr, ABC_SL("== "),
          bPass ? sEqual : str(to_str(tEqual)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
    /*! Implementation of ABC_TESTING_ASSERT_FALSE().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param bActual
       Actual value of the evaluated expression.
    @param sExpr
       C++ code evaluating to bActual.
    */
-   void assert_false(source_location const & srcloc, bool bActual, str const & sExpr);
+   void assert_false(text::file_address const & tfa, bool bActual, str const & sExpr);
 
    /*! Implementation of ABC_TESTING_ASSERT_GREATER().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param tActual
       Actual value of the evaluated expression.
@@ -128,19 +128,19 @@ protected:
    */
    template <typename TExpr, typename TLBound>
    void assert_greater(
-      source_location const & srcloc,
+      text::file_address const & tfa,
       TExpr const & tActual, TLBound const & tLBound, str const & sExpr, str const & sLBound
    ) {
       bool bPass = (tActual > tLBound);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, ABC_SL("> "),
+         tfa, bPass, sExpr, ABC_SL("> "),
          bPass ? sLBound : str(to_str(tLBound)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
    /*! Implementation of ABC_TESTING_ASSERT_GREATER_EQUAL().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param tActual
       Actual value of the evaluated expression.
@@ -153,19 +153,19 @@ protected:
    */
    template <typename TExpr, typename TLBound>
    void assert_greater_equal(
-      source_location const & srcloc,
+      text::file_address const & tfa,
       TExpr const & tActual, TLBound const & tLBound, str const & sExpr, str const & sLBound
    ) {
       bool bPass = (tActual >= tLBound);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, ABC_SL(">= "),
+         tfa, bPass, sExpr, ABC_SL(">= "),
          bPass ? sLBound : str(to_str(tLBound)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
    /*! Implementation of ABC_TESTING_ASSERT_LESS().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param tActual
       Actual value of the evaluated expression.
@@ -178,19 +178,19 @@ protected:
    */
    template <typename TExpr, typename TUBound>
    void assert_less(
-      source_location const & srcloc,
+      text::file_address const & tfa,
       TExpr const & tActual, TUBound const & tUBound, str const & sExpr, str const & sUBound
    ) {
       bool bPass = (tActual < tUBound);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, ABC_SL("<= "),
+         tfa, bPass, sExpr, ABC_SL("<= "),
          bPass ? sUBound : str(to_str(tUBound)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
    /*! Implementation of ABC_TESTING_ASSERT_LESS_EQUAL().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param tActual
       Actual value of the evaluated expression.
@@ -203,19 +203,19 @@ protected:
    */
    template <typename TExpr, typename TUBound>
    void assert_less_equal(
-      source_location const & srcloc,
+      text::file_address const & tfa,
       TExpr const & tActual, TUBound const & tUBound, str const & sExpr, str const & sUBound
    ) {
       bool bPass = (tActual <= tUBound);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, ABC_SL("<= "),
+         tfa, bPass, sExpr, ABC_SL("<= "),
          bPass ? sUBound : str(to_str(tUBound)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
    /*! Implementation of ABC_TESTING_ASSERT_NOT_EQUAL().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param tActual
       Actual value of the evaluated expression.
@@ -228,19 +228,19 @@ protected:
    */
    template <typename TExpr, typename TNotEqual>
    void assert_not_equal(
-      source_location const & srcloc,
+      text::file_address const & tfa,
       TExpr const & tActual, TNotEqual const & tNotEqual, str const & sExpr, str const & sNotEqual
    ) {
       bool bPass = (tActual != tNotEqual);
       m_prunner->log_assertion(
-         srcloc, bPass, sExpr, ABC_SL("!= "),
+         tfa, bPass, sExpr, ABC_SL("!= "),
          bPass ? sNotEqual : str(to_str(tNotEqual)), bPass ? str::empty : str(to_str(tActual))
       );
    }
 
    /*! Implementation of ABC_TESTING_ASSERT_THROWS().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param fnExpr
       Functor wrapping the expression to evaluate.
@@ -252,21 +252,21 @@ protected:
       Return value of std::exception::what(), as overridden by the desired derived class.
    */
    void assert_throws(
-      source_location const & srcloc, _std::function<void ()> const & fnExpr, str const & sExpr,
+      text::file_address const & tfa, _std::function<void ()> const & fnExpr, str const & sExpr,
       _std::function<bool (_std::exception const &)> const & fnMatchType,
       char const * pszExpectedWhat
    );
 
    /*! Implementation of ABC_TESTING_ASSERT_TRUE().
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param bActual
       Actual value of the evaluated expression.
    @param sExpr
       C++ code evaluating to bActual.
    */
-   void assert_true(source_location const & srcloc, bool bActual, str const & sExpr);
+   void assert_true(text::file_address const & tfa, bool bActual, str const & sExpr);
 
 protected:
    //! Runner executing this test.
@@ -282,7 +282,7 @@ protected:
 */
 #define ABC_TESTING_ASSERT_DOES_NOT_THROW(expr) \
    /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. */ \
-   this->assert_does_not_throw(ABC_SOURCE_LOCATION(), [&] () { \
+   this->assert_does_not_throw(ABC_THIS_FILE_ADDRESS(), [&] () { \
       static_cast<void>(expr); \
    }, ABC_SL(#expr))
 
@@ -294,7 +294,7 @@ protected:
    Value that expr should evaluate to.
 */
 #define ABC_TESTING_ASSERT_EQUAL(expr, value) \
-   this->assert_equal(ABC_SOURCE_LOCATION(), (expr), value, ABC_SL(#expr), ABC_SL(#value))
+   this->assert_equal(ABC_THIS_FILE_ADDRESS(), (expr), value, ABC_SL(#expr), ABC_SL(#value))
 
 /*! Asserts that an expression evaluates to false.
 
@@ -302,7 +302,7 @@ protected:
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
-   this->assert_false(ABC_SOURCE_LOCATION(), (expr), ABC_SL(#expr))
+   this->assert_false(ABC_THIS_FILE_ADDRESS(), (expr), ABC_SL(#expr))
 
 /*! Asserts that the value of an expression is strictly greater than a specific lower bound.
 
@@ -312,7 +312,7 @@ protected:
    Exclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER(expr, lbound) \
-   this->assert_greater(ABC_SOURCE_LOCATION(), (expr), lbound, ABC_SL(#expr), ABC_SL(#lbound))
+   this->assert_greater(ABC_THIS_FILE_ADDRESS(), (expr), lbound, ABC_SL(#expr), ABC_SL(#lbound))
 
 /*! Asserts that the value of an expression is greater-than or equal-to a specific lower bound.
 
@@ -322,7 +322,9 @@ protected:
    Inclusive lower bound.
 */
 #define ABC_TESTING_ASSERT_GREATER_EQUAL(expr, lbound) \
-   this->assert_greater_equal(ABC_SOURCE_LOCATION(), (expr), lbound, ABC_SL(#expr), ABC_SL(#lbound))
+   this->assert_greater_equal( \
+      ABC_THIS_FILE_ADDRESS(), (expr), lbound, ABC_SL(#expr), ABC_SL(#lbound) \
+   )
 
 /*! Asserts that the value of an expression is strictly less than a specific upper bound.
 
@@ -332,7 +334,9 @@ protected:
    Exclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS(expr, ubound) \
-   this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), expected, ABC_SL(#expr), ABC_SL(#ubound))
+   this->assert_less_equal( \
+      ABC_THIS_FILE_ADDRESS(), (expr), expected, ABC_SL(#expr), ABC_SL(#ubound) \
+   )
 
 /*! Asserts that the value of an expression is less-than or equal-to a specific upper bound.
 
@@ -342,7 +346,7 @@ protected:
    Inclusive upper bound.
 */
 #define ABC_TESTING_ASSERT_LESS_EQUAL(expr, ubound) \
-   this->assert_less_equal(ABC_SOURCE_LOCATION(), (expr), ubound, ABC_SL(#expr), ABC_SL(#ubound))
+   this->assert_less_equal(ABC_THIS_FILE_ADDRESS(), (expr), ubound, ABC_SL(#expr), ABC_SL(#ubound))
 
 /*! Asserts that the value of an expression differs from a specific value.
 
@@ -352,7 +356,7 @@ protected:
    Value that expr should not evaluate to.
 */
 #define ABC_TESTING_ASSERT_NOT_EQUAL(expr, value) \
-   this->assert_not_equal(ABC_SOURCE_LOCATION(), (expr), value, ABC_SL(#expr), ABC_SL(#value))
+   this->assert_not_equal(ABC_THIS_FILE_ADDRESS(), (expr), value, ABC_SL(#expr), ABC_SL(#value))
 
 /*! Asserts that an expression throws a specific type of exception.
 
@@ -365,7 +369,7 @@ protected:
    /* Wrap the expression to evaluate in a lambda with access to any variable in the scope; also
    wrap the dynamic_cast in a lambda, so the caller doesn’t need to be a template to catch the
    desired type of exception. */ \
-   this->assert_throws(ABC_SOURCE_LOCATION(), [&] () { \
+   this->assert_throws(ABC_THIS_FILE_ADDRESS(), [&] () { \
       static_cast<void>(expr); \
    }, ABC_SL(#expr), [] (::abc::_std::exception const & x) -> bool { \
       return dynamic_cast<type const *>(&x) != nullptr; \
@@ -377,7 +381,7 @@ protected:
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
-   this->assert_true(ABC_SOURCE_LOCATION(), (expr), ABC_SL(#expr))
+   this->assert_true(ABC_THIS_FILE_ADDRESS(), (expr), ABC_SL(#expr))
 
 /*! Declares and opens the definition of a simple test case, consisting in a single function with a
 unique name.

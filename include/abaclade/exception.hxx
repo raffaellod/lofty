@@ -129,63 +129,13 @@ namespace abc {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc {
-
-/*! Source code location. Note that this class lacks a constructor, so make sure to manually
-initialize its members or instantiate it using source_location::make(). */
-class source_location {
-public:
-   /*! Returns the file path.
-
-   @return
-      File path.
-   */
-   char_t const * file_path() const {
-      return m_pszFilePath;
-   }
-
-   /*! Returns the line number.
-
-   @return
-      Line number.
-   */
-   unsigned line_number() const {
-      return m_iLine;
-   }
-
-   /*! Returns a constructed source_location. Not a constructor so that source_location instances
-   can be declared static.
-
-   @param pszFilePath
-      Path to the source file.
-   @param iLine
-      Line number in *pszFilePath.
-   */
-   static source_location make(char_t const * pszFilePath, unsigned iLine) {
-      source_location srcloc;
-      srcloc.m_pszFilePath = pszFilePath;
-      srcloc.m_iLine = iLine;
-      return std::move(srcloc);
-   }
-
-// Must be public to allow source_location instances to be declared static.
-public:
-   //! Path to the source file.
-   char_t const * m_pszFilePath;
-   //! Line number in m_pszFilePath.
-   unsigned m_iLine;
-};
-
-} //namespace abc
-
-/*! Expands into the instantiation of a temporary abc::source_location object referencing the
-location in which it’s used.
+/*! Expands into a abc::text::file_address x-value referencing the location in which it’s used.
 
 @return
-   abc::source_location instance.
+   abc::text::file_address instance.
 */
-#define ABC_SOURCE_LOCATION() \
-   (::abc::source_location::make(ABC_SL(__FILE__), __LINE__))
+#define ABC_THIS_FILE_ADDRESS() \
+   (::abc::text::file_address(ABC_SL(__FILE__), __LINE__))
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -216,7 +166,7 @@ public:
 
 /*! Implementation of ABC_THROW(); can be used directly to customize the source of the exception.
 
-@param srcloc
+@param tfad
    Location at which the exception is being thrown.
 @param pszFunction
    Function that is throwing the exception.
@@ -226,11 +176,11 @@ public:
    Parentheses-enclosed list of data that will be associated to the exception, as accepted by
    x::init().
 */
-#define ABC_THROW_FROM(srcloc, pszFunction, x, info) \
+#define ABC_THROW_FROM(tfad, pszFunction, x, info) \
    do { \
       ::abc::detail::exception_aggregator<x> _x; \
       _x.init info; \
-      _x._before_throw(srcloc, pszFunction); \
+      _x._before_throw(tfad, pszFunction); \
       throw _x; \
    } while (false)
 
@@ -273,7 +223,7 @@ because it’s the only class involved that’s not in a detail namespace.
    x::init().
 */
 #define ABC_THROW(x, info) \
-   ABC_THROW_FROM(ABC_SOURCE_LOCATION(), ABC_THIS_FUNC, x, info)
+   ABC_THROW_FROM(*ABC_THIS_FILE_ADDRESS().data(), ABC_THIS_FUNC, x, info)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -327,12 +277,12 @@ public:
 
    /*! Stores context information to be displayed if the exception is not caught.
 
-   @param srcloc
+   @param tfa
       Location at which the exception is being thrown.
    @param pszFunction
       Function that is throwing the exception.
    */
-   void _before_throw(source_location const & srcloc, char_t const * pszFunction);
+   void _before_throw(text::detail::file_address_data const & tfad, char_t const * pszFunction);
 
    //! Initializes the information associated to the exception.
    void init() {
@@ -432,7 +382,7 @@ private:
    //! Source function name.
    char_t const * m_pszSourceFunction;
    //! Source location.
-   source_location m_srcloc;
+   text::detail::file_address_data m_tfad;
    //! true if *this is an in-flight exception (it has been thrown) or is a copy of one.
    bool m_bInFlight;
 };
@@ -456,7 +406,7 @@ to be incorrect.
       do { \
          if (!(expr)) { \
             abc::assertion_error::_assertion_failed( \
-               ABC_SOURCE_LOCATION(), ABC_THIS_FUNC, ABC_SL(#expr), sMsg \
+               ABC_THIS_FILE_ADDRESS(), ABC_THIS_FUNC, ABC_SL(#expr), sMsg \
             ); \
          } \
       } while (false)
@@ -470,7 +420,7 @@ class ABACLADE_SYM assertion_error : public exception {
 public:
    //! Throws an exception of type ab::assertion_error due to an expression failing validation.
    static ABC_FUNC_NORETURN void _assertion_failed(
-      source_location const & srcloc, str const & sFunction, str const & sExpr, str const & sMsg
+      text::file_address const & tfa, str const & sFunction, str const & sExpr, str const & sMsg
    );
 
 protected:

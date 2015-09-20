@@ -69,7 +69,7 @@ public:
 
    /*! Logs an assertion.
 
-   @param srcloc
+   @param tfa
       Location of the expression.
    @param bPass
       true if the assertion was valid, or false otherwise.
@@ -86,7 +86,7 @@ public:
       string.
    */
    void log_assertion(
-      source_location const & srcloc, bool bPass, str const & sExpr, str const & sOp,
+      text::file_address const & tfa, bool bPass, str const & sExpr, str const & sOp,
       str const & sExpected, str const & sActual = str::empty
    );
 

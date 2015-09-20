@@ -53,14 +53,14 @@ void runner::load_registered_test_cases() {
 }
 
 void runner::log_assertion(
-   source_location const & srcloc, bool bPass, str const & sExpr, str const & sOp,
+   text::file_address const & tfa, bool bPass, str const & sExpr, str const & sOp,
    str const & sExpected, str const & sActual /*= str::empty*/
 ) {
-   ABC_TRACE_FUNC(this, srcloc, sExpr, sOp, sExpected, sActual);
+   ABC_TRACE_FUNC(this, tfa, sExpr, sOp, sExpected, sActual);
 
    if (bPass) {
       m_ptwOut->print(
-         ABC_SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), srcloc, sExpr, sOp, sExpected
+         ABC_SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), tfa, sExpr, sOp, sExpected
       );
    } else {
       ++m_cFailedAssertions;
@@ -68,7 +68,7 @@ void runner::log_assertion(
          ABC_SL("ABCMK-TEST-ASSERT-FAIL {}: fail: {}\n")
             ABC_SL("  expected: {}{}\n")
             ABC_SL("  actual:   {}\n"),
-         srcloc, sExpr, sOp, sExpected, sActual
+         tfa, sExpr, sOp, sExpected, sActual
       );
    }
 }

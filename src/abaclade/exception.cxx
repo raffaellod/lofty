@@ -40,7 +40,8 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc {
 
-void to_str_backend<source_location>::set_format(str const & sFormat) {
+// TODO: move to text.cxx
+void to_str_backend<text::file_address>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -55,14 +56,14 @@ void to_str_backend<source_location>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<source_location>::write(
-   source_location const & srcloc, io::text::writer * ptwOut
+void to_str_backend<text::file_address>::write(
+   text::file_address const & tfa, io::text::writer * ptwOut
 ) {
-   ABC_TRACE_FUNC(this/*, srcloc*/, ptwOut);
+   ABC_TRACE_FUNC(this/*, tfa*/, ptwOut);
 
-   ptwOut->write(str(external_buffer, srcloc.file_path()));
+   ptwOut->write(str(external_buffer, tfa.file_path()));
    ptwOut->write(ABC_SL(":"));
-   ptwOut->write(srcloc.line_number());
+   ptwOut->write(tfa.line_number());
 }
 
 } //namespace abc
@@ -79,7 +80,7 @@ exception::exception() :
 exception::exception(exception const & x) :
    m_pszWhat(x.m_pszWhat),
    m_pszSourceFunction(x.m_pszSourceFunction),
-   m_srcloc(x.m_srcloc),
+   m_tfad(x.m_tfad),
    m_bInFlight(x.m_bInFlight) {
    // See @ref stack-tracing.
    if (m_bInFlight) {
@@ -97,7 +98,7 @@ exception::exception(exception const & x) :
 exception & exception::operator=(exception const & x) {
    m_pszWhat = x.m_pszWhat;
    m_pszSourceFunction = x.m_pszSourceFunction;
-   m_srcloc = x.m_srcloc;
+   m_tfad = x.m_tfad;
    /* Adopt the source’s in-flight status. See @ref stack-tracing. If the in-flight status is not
    changing, avoid the pointless (and dangerous, if done in this sequence – it could delete the
    trace writer if *this was the last reference to it) release()/addref(). */
@@ -113,9 +114,11 @@ exception & exception::operator=(exception const & x) {
    return *this;
 }
 
-void exception::_before_throw(source_location const & srcloc, char_t const * pszFunction) {
+void exception::_before_throw(
+   text::detail::file_address_data const & tfad, char_t const * pszFunction
+) {
    m_pszSourceFunction = pszFunction;
-   m_srcloc = srcloc;
+   m_tfad = tfad;
    /* Clear any old trace writer buffer and create a new one with *this as its only reference. See
    @ref stack-tracing. */
    detail::scope_trace::trace_writer_clear();
@@ -207,7 +210,7 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
 /*static*/ void exception::throw_common_type(
    common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
 ) {
-   static source_location const sc_srcloc = { ABC_SL("source_not_available"), 0 };
+   static text::detail::file_address_data const sc_tfad = { ABC_SL("source_not_available"), 0 };
    static char_t const sc_szInternal[] = ABC_SL("<internal>");
    static char_t const sc_szOS[] = ABC_SL("<OS error reporting>");
 
@@ -223,13 +226,13 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          if (!this_thread::get_impl()->terminating()) {
             switch (xct) {
                case common_type::app_execution_interruption:
-                  ABC_THROW_FROM(sc_srcloc, sc_szInternal, app_execution_interruption, ());
+                  ABC_THROW_FROM(sc_tfad, sc_szInternal, app_execution_interruption, ());
                case common_type::app_exit_interruption:
-                  ABC_THROW_FROM(sc_srcloc, sc_szInternal, app_exit_interruption, ());
+                  ABC_THROW_FROM(sc_tfad, sc_szInternal, app_exit_interruption, ());
                case common_type::execution_interruption:
-                  ABC_THROW_FROM(sc_srcloc, sc_szInternal, execution_interruption, ());
+                  ABC_THROW_FROM(sc_tfad, sc_szInternal, execution_interruption, ());
                case common_type::user_forced_interruption:
-                  ABC_THROW_FROM(sc_srcloc, sc_szInternal, user_forced_interruption, ());
+                  ABC_THROW_FROM(sc_tfad, sc_szInternal, user_forced_interruption, ());
                default:
                   // Silence compiler warnings.
                   break;
@@ -237,20 +240,20 @@ void exception::_before_throw(source_location const & srcloc, char_t const * psz
          }
          break;
       case common_type::math_arithmetic_error:
-         ABC_THROW_FROM(sc_srcloc, sc_szOS, math::arithmetic_error, ());
+         ABC_THROW_FROM(sc_tfad, sc_szOS, math::arithmetic_error, ());
       case common_type::math_division_by_zero:
-         ABC_THROW_FROM(sc_srcloc, sc_szOS, math::division_by_zero, ());
+         ABC_THROW_FROM(sc_tfad, sc_szOS, math::division_by_zero, ());
       case common_type::math_floating_point_error:
-         ABC_THROW_FROM(sc_srcloc, sc_szOS, math::floating_point_error, ());
+         ABC_THROW_FROM(sc_tfad, sc_szOS, math::floating_point_error, ());
       case common_type::math_overflow:
-         ABC_THROW_FROM(sc_srcloc, sc_szOS, math::overflow, ());
+         ABC_THROW_FROM(sc_tfad, sc_szOS, math::overflow, ());
       case common_type::memory_bad_pointer:
          ABC_THROW_FROM(
-            sc_srcloc, sc_szOS, memory::bad_pointer, (reinterpret_cast<void const *>(iArg0))
+            sc_tfad, sc_szOS, memory::bad_pointer, (reinterpret_cast<void const *>(iArg0))
          );
       case common_type::memory_bad_pointer_alignment:
          ABC_THROW_FROM(
-            sc_srcloc, sc_szOS,
+            sc_tfad, sc_szOS,
             memory::bad_pointer_alignment, (reinterpret_cast<void const *>(iArg0))
          );
       default:
@@ -322,9 +325,8 @@ char const * exception::what() const {
    ptwOut->write(ABC_SL("Stack trace (most recent call first):\n"));
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
-      ptwOut->print(
-         ABC_SL("#0 {} at {}\n"), str(external_buffer, pabcx->m_pszSourceFunction), pabcx->m_srcloc
-      );
+      text::file_address tfa(pabcx->m_tfad.m_pszFilePath, pabcx->m_tfad.m_iLine);
+      ptwOut->print(ABC_SL("#0 {} at {}\n"), str(external_buffer, pabcx->m_pszSourceFunction), tfa);
    }
    // Print the scope/stack trace collected via ABC_TRACE_FUNC().
    ptwOut->write(detail::scope_trace::get_trace_writer()->get_str());
@@ -522,14 +524,14 @@ namespace abc {
 coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
 
 /*static*/ void assertion_error::_assertion_failed(
-   source_location const & srcloc, str const & sFunction, str const & sExpr, str const & sMsg
+   text::file_address const & tfa, str const & sFunction, str const & sExpr, str const & sMsg
 ) {
    if (!sm_bReentering) {
       sm_bReentering = true;
       try {
          io::text::stderr->print(
             ABC_SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
-            sMsg, sExpr, srcloc, sFunction
+            sMsg, sExpr, tfa, sFunction
          );
       } catch (...) {
          sm_bReentering = false;

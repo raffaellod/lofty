@@ -175,7 +175,7 @@ private:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<source_location> {
+class ABACLADE_SYM to_str_backend<text::file_address> {
 public:
    /*! Changes the output format.
 
@@ -186,12 +186,12 @@ public:
 
    /*! Writes a source location, applying the formatting options.
 
-   @param srcloc
+   @param tfa
       Source location to write.
    @param ptwOut
       Pointer to the writer to output to.
    */
-   void write(source_location const & srcloc, io::text::writer * ptwOut);
+   void write(text::file_address const & tfa, io::text::writer * ptwOut);
 };
 
 } //namespace abc

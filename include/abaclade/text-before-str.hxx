@@ -111,3 +111,90 @@ ABACLADE_SYM std::size_t size_in_chars(char const * psz);
 #endif
 
 }} //namespace abc::text
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace text { namespace detail {
+
+//! Data-only implementation of abc::text::file_address.
+struct file_address_data {
+public:
+   /*! Returns the file path.
+
+   @return
+      File path.
+   */
+   char_t const * file_path() const {
+      return m_pszFilePath;
+   }
+
+   /*! Returns the line number.
+
+   @return
+      Line number.
+   */
+   unsigned line_number() const {
+      return m_iLine;
+   }
+
+public:
+   //! Path to the source file.
+   char_t const * m_pszFilePath;
+   //! Line number in m_pszFilePath.
+   unsigned m_iLine;
+};
+
+}}} //namespace abc::text::detail
+
+namespace abc { namespace text {
+
+//! Address in a text file, expressed as the file path and a line number within it.
+class file_address : protected detail::file_address_data {
+public:
+   //! Default constructor.
+   file_address() {
+      m_pszFilePath = nullptr;
+      m_iLine = 0;
+   }
+
+   /*! Constructor.
+
+   @param pszFilePath
+      Path to the source file.
+   @param iLine
+      Line number in *pszFilePath.
+   */
+   file_address(char_t const * pszFilePath, unsigned iLine) {
+      m_pszFilePath = pszFilePath;
+      m_iLine = iLine;
+   }
+
+   /*! Returns a pointer to the contained data-only struct.
+
+   @return
+      Pointer to the contained detail::file_address_data.
+   */
+   detail::file_address_data const * data() const {
+      return this;
+   }
+
+   /*! Returns the file path.
+
+   @return
+      File path.
+   */
+   char_t const * file_path() const {
+      return m_pszFilePath;
+   }
+
+   /*! Returns the line number.
+
+   @return
+      Line number.
+   */
+   unsigned line_number() const {
+      return m_iLine;
+   }
+};
+
+}} //namespace abc::text
