@@ -137,6 +137,84 @@ namespace abc {
 #define ABC_THIS_FILE_ADDRESS() \
    (::abc::text::file_address(ABC_SL(__FILE__), __LINE__))
 
+namespace abc { namespace detail {
+
+//! Stores the source code location for a scope_trace instance.
+struct source_file_address_data {
+   //! Function name.
+   char_t const * m_pszFunction;
+   //! Address in the file.
+   text::detail::file_address_data m_tfad;
+};
+
+}} //namespace abc::detail
+
+namespace abc {
+
+//! Stores the source code location for a scope_trace instance.
+class source_file_address : protected detail::source_file_address_data {
+public:
+   //! Default constructor.
+   source_file_address() {
+      m_pszFunction = nullptr;
+      m_tfad.m_pszFilePath = nullptr;
+      m_tfad.m_iLine = 0;
+   }
+
+   /*! Constructor.
+
+   @param pszFunction
+      Name of the function.
+   @param pszFilePath
+      Path to the source file.
+   @param iLine
+      Line number in *pszFilePath.
+   */
+   source_file_address(char_t const * pszFunction, char_t const * pszFilePath, unsigned iLine) {
+      m_pszFunction = pszFunction;
+      m_tfad.m_pszFilePath = pszFilePath;
+      m_tfad.m_iLine = iLine;
+   }
+
+   /*! Returns a pointer to the contained data-only struct.
+
+   @return
+      Pointer to the contained detail::source_file_address_data.
+   */
+   detail::source_file_address_data const * data() const {
+      return this;
+   }
+
+   /*! Returns the file path.
+
+   @return
+      File path.
+   */
+   char_t const * file_path() const {
+      return m_tfad.m_pszFilePath;
+   }
+
+   /*! Returns the function name.
+
+   @return
+      Function name.
+   */
+   char_t const * function() const {
+      return m_pszFunction;
+   }
+
+   /*! Returns the line number.
+
+   @return
+      Line number.
+   */
+   unsigned line_number() const {
+      return m_tfad.m_iLine;
+   }
+};
+
+} //namespace abc
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace detail {

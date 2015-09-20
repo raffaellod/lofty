@@ -100,8 +100,8 @@ Currently unsupported:
    Arguments or variables to trace.
 */
 #define _ABC_TRACE_SCOPE_IMPL(uid, ...) \
-   static ::abc::detail::scope_trace_source_location const ABC_CPP_CAT(uid, _tfa) = { \
+   static ::abc::detail::source_file_address_data const ABC_CPP_CAT(uid, _sfad) = { \
       ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__ \
    }; \
    auto ABC_CPP_CAT(uid, _tuple)(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
-   ::abc::detail::scope_trace uid(&ABC_CPP_CAT(uid, _tfa), &ABC_CPP_CAT(uid, _tuple))
+   ::abc::detail::scope_trace uid(&ABC_CPP_CAT(uid, _sfad), &ABC_CPP_CAT(uid, _tuple))

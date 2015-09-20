@@ -25,22 +25,6 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace detail {
 
-//! Stores the source code location for a scope_trace instance.
-struct scope_trace_source_location {
-   //! Function name.
-   char_t const * pszFunction;
-   //! Path to the source file.
-   char_t const * pszFilePath;
-   //! Line number in pszFilePath.
-   std::uint16_t iLine;
-};
-
-}} //namespace abc::detail
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace detail {
-
 // Forward declaration.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 template <typename... Ts>
@@ -346,12 +330,12 @@ class ABACLADE_SYM scope_trace : public noncopyable {
 public:
    /*! Constructor.
 
-   @param ptfa
+   @param psfad
       Source location.
    @param ptplVars
       Variables to capture.
    */
-   scope_trace(scope_trace_source_location const * ptfa, scope_trace_tuple const * ptplVars);
+   scope_trace(source_file_address_data const * psfad, scope_trace_tuple const * ptplVars);
 
    //! Destructor. Adds a scope in the current scope trace if an in-flight exception is detected.
    ~scope_trace();
@@ -413,7 +397,7 @@ private:
    //! Pointer to the previous scope_trace single-linked list item that *this replaced as the head.
    scope_trace const * m_pstPrev;
    //! Pointer to the statically-allocated source location.
-   scope_trace_source_location const * m_ptfa;
+   source_file_address_data const * m_psfad;
    //! Pointer to the caller-allocated tuple containing references to local variables in the scope.
    scope_trace_tuple const * m_ptplVars;
    //! Pointer to the head of the scope_trace single-linked list for each thread.
