@@ -101,7 +101,7 @@ Currently unsupported:
 */
 #define _ABC_TRACE_SCOPE_IMPL(uid, ...) \
    static ::abc::detail::source_file_address_data const ABC_CPP_CAT(uid, _sfad) = { \
-      ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__ \
+      ABC_THIS_FUNC, { ABC_SL(__FILE__), __LINE__ } \
    }; \
    auto ABC_CPP_CAT(uid, _tuple)(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
    ::abc::detail::scope_trace uid( \

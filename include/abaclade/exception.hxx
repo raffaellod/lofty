@@ -104,8 +104,8 @@ public:
    @return
       Contained file address.
    */
-   text::file_address const * file_address() const {
-      return text::file_address::from_data(&m_tfad);
+   text::file_address const & file_address() const {
+      return *text::file_address::from_data(&m_tfad);
    }
 
    /*! Returns the file path.
@@ -147,37 +147,7 @@ public:
    }
 };
 
-/*! Expands into a abc::text::file_address x-value referencing the location in which it’s used.
-
-@return
-   abc::text::file_address instance.
-*/
-#define ABC_THIS_FILE_ADDRESS() \
-   (::abc::text::file_address(ABC_SL(__FILE__), __LINE__))
-
 } //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*! Implementation of ABC_THROW(); can be used directly to customize the source of the exception.
-
-@param tfa
-   Location at which the exception is being thrown.
-@param pszFunction
-   Function that is throwing the exception.
-@param x
-   Exception type to be thrown.
-@param info
-   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
-   x::init().
-*/
-#define ABC_THROW_FROM(tfa, pszFunction, x, info) \
-   do { \
-      x __x; \
-      __x.init info; \
-      __x._before_throw(tfa, pszFunction); \
-      throw __x; \
-   } while (false)
 
 //! Pretty-printed name of the current function.
 #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
@@ -197,13 +167,50 @@ public:
       nullptr
 #endif
 
-/*! Instantiates a specialization of the class template abc::detail::exception_aggregator, fills it
-up with context information and the remaining arguments, and then throws it.
+/*! Expands into an abc::text::file_address x-value referencing the location in which it’s used.
+
+@return
+   abc::text::file_address instance.
+*/
+#define ABC_THIS_FILE_ADDRESS() \
+   (::abc::text::file_address(ABC_SL(__FILE__), __LINE__))
+
+/*! Expands into an abc::source_file_address x-value referencing the location in which it’s used.
+
+@return
+   abc::source_file_address instance.
+*/
+#define ABC_THIS_SOURCE_FILE_ADDRESS() \
+   (::abc::source_file_address(ABC_THIS_FUNC, ABC_SL(__FILE__), __LINE__))
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*! Implementation of ABC_THROW(); can be used directly to customize the source of the exception.
+
+@param sfa
+   Location at which the exception is being thrown.
+@param pszFunction
+   Function that is throwing the exception.
+@param x
+   Exception type to be thrown.
+@param info
+   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
+   x::init().
+*/
+#define ABC_THROW_FROM(sfa, x, info) \
+   do { \
+      x __x; \
+      __x.init info; \
+      __x._before_throw(sfa); \
+      throw __x; \
+   } while (false)
+
+/*! Instantiates the specified exception class, fills it up with context information and the
+remaining arguments, and then throws it.
 
 This is the recommended way of throwing an exception within code using Abaclade. See the
-documentation for abc::exception for more information on abc::detail::exception_aggregator and why
-it exists. Combined with @ref stack-tracing, the use of ABC_THROW() augments the stack trace with
-the exact line where the throw statement occurred.
+documentation for abc::exception. Combined with @ref stack-tracing, the use of ABC_THROW() augments
+the stack trace with the exact line where the throw statement occurred.
 
 Only instances of abc::exception (or a derived class) can be thrown using ABC_THROW(), because of
 the additional members that the latter expects to be able to set in the former.
@@ -218,7 +225,7 @@ because it’s the only class involved that’s not in a detail namespace.
    x::init().
 */
 #define ABC_THROW(x, info) \
-   ABC_THROW_FROM(ABC_THIS_FILE_ADDRESS(), ABC_THIS_FUNC, x, info)
+   ABC_THROW_FROM(ABC_THIS_SOURCE_FILE_ADDRESS(), x, info)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -269,12 +276,10 @@ public:
 
    /*! Stores context information to be displayed if the exception is not caught.
 
-   @param tfa
+   @param sfa
       Location at which the exception is being thrown.
-   @param pszFunction
-      Function that is throwing the exception.
    */
-   void _before_throw(text::file_address const & tfa, char_t const * pszFunction);
+   void _before_throw(source_file_address const & sfa);
 
    //! Initializes the information associated to the exception.
    void init() {
@@ -369,10 +374,8 @@ protected:
    char const * m_pszWhat;
 
 private:
-   //! Source function name.
-   char_t const * m_pszSourceFunction;
    //! Source location.
-   text::file_address m_tfa;
+   source_file_address m_sfa;
    //! true if *this is an in-flight exception (it has been thrown) or is a copy of one.
    bool m_bInFlight;
 };
@@ -396,7 +399,7 @@ to be incorrect.
       do { \
          if (!(expr)) { \
             abc::assertion_error::_assertion_failed( \
-               ABC_THIS_FILE_ADDRESS(), ABC_THIS_FUNC, ABC_SL(#expr), sMsg \
+               ABC_THIS_SOURCE_FILE_ADDRESS(), ABC_SL(#expr), sMsg \
             ); \
          } \
       } while (false)
@@ -410,7 +413,7 @@ class ABACLADE_SYM assertion_error : public exception {
 public:
    //! Throws an exception of type ab::assertion_error due to an expression failing validation.
    static ABC_FUNC_NORETURN void _assertion_failed(
-      text::file_address const & tfa, str const & sFunction, str const & sExpr, str const & sMsg
+      source_file_address const & sfa, str const & sExpr, str const & sMsg
    );
 
 protected:

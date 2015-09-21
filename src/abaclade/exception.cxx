@@ -74,13 +74,11 @@ namespace abc {
 
 exception::exception() :
    m_pszWhat("abc::exception"),
-   m_pszSourceFunction(nullptr),
    m_bInFlight(false) {
 }
 exception::exception(exception const & x) :
    m_pszWhat(x.m_pszWhat),
-   m_pszSourceFunction(x.m_pszSourceFunction),
-   m_tfa(x.m_tfa),
+   m_sfa(x.m_sfa),
    m_bInFlight(x.m_bInFlight) {
    // See @ref stack-tracing.
    if (m_bInFlight) {
@@ -97,8 +95,7 @@ exception::exception(exception const & x) :
 
 exception & exception::operator=(exception const & x) {
    m_pszWhat = x.m_pszWhat;
-   m_pszSourceFunction = x.m_pszSourceFunction;
-   m_tfa = x.m_tfa;
+   m_sfa = x.m_sfa;
    /* Adopt the source’s in-flight status. See @ref stack-tracing. If the in-flight status is not
    changing, avoid the pointless (and dangerous, if done in this sequence – it could delete the
    trace writer if *this was the last reference to it) release()/addref(). */
@@ -114,9 +111,8 @@ exception & exception::operator=(exception const & x) {
    return *this;
 }
 
-void exception::_before_throw(text::file_address const & tfa, char_t const * pszFunction) {
-   m_pszSourceFunction = pszFunction;
-   m_tfa = tfa;
+void exception::_before_throw(source_file_address const & sfa) {
+   m_sfa = sfa;
    /* Clear any old trace writer buffer and create a new one with *this as its only reference. See
    @ref stack-tracing. */
    detail::scope_trace::trace_writer_clear();
@@ -208,10 +204,14 @@ void exception::_before_throw(text::file_address const & tfa, char_t const * psz
 /*static*/ void exception::throw_common_type(
    common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
 ) {
-   static text::detail::file_address_data const sc_tfad = { ABC_SL("source_not_available"), 0 };
-   text::file_address const & tfa = *text::file_address::from_data(&sc_tfad);
-   static char_t const sc_szInternal[] = ABC_SL("<internal>");
-   static char_t const sc_szOS[] = ABC_SL("<OS error reporting>");
+   static detail::source_file_address_data const sc_sfadInternal = {
+      ABC_SL("<internal>"),           { ABC_SL("source_not_available"), 0 }
+   };
+   static detail::source_file_address_data const sc_sfadOS = {
+      ABC_SL("<OS error reporting>"), { ABC_SL("source_not_available"), 0 }
+   };
+   source_file_address const & sfaInternal = *source_file_address::from_data(&sc_sfadInternal);
+   source_file_address const & sfaOS       = *source_file_address::from_data(&sc_sfadOS      );
 
    ABC_UNUSED_ARG(iArg1);
    switch (xct) {
@@ -225,13 +225,13 @@ void exception::_before_throw(text::file_address const & tfa, char_t const * psz
          if (!this_thread::get_impl()->terminating()) {
             switch (xct) {
                case common_type::app_execution_interruption:
-                  ABC_THROW_FROM(tfa, sc_szInternal, app_execution_interruption, ());
+                  ABC_THROW_FROM(sfaInternal, app_execution_interruption, ());
                case common_type::app_exit_interruption:
-                  ABC_THROW_FROM(tfa, sc_szInternal, app_exit_interruption, ());
+                  ABC_THROW_FROM(sfaInternal, app_exit_interruption, ());
                case common_type::execution_interruption:
-                  ABC_THROW_FROM(tfa, sc_szInternal, execution_interruption, ());
+                  ABC_THROW_FROM(sfaInternal, execution_interruption, ());
                case common_type::user_forced_interruption:
-                  ABC_THROW_FROM(tfa, sc_szInternal, user_forced_interruption, ());
+                  ABC_THROW_FROM(sfaInternal, user_forced_interruption, ());
                default:
                   // Silence compiler warnings.
                   break;
@@ -239,18 +239,18 @@ void exception::_before_throw(text::file_address const & tfa, char_t const * psz
          }
          break;
       case common_type::math_arithmetic_error:
-         ABC_THROW_FROM(tfa, sc_szOS, math::arithmetic_error, ());
+         ABC_THROW_FROM(sfaOS, math::arithmetic_error, ());
       case common_type::math_division_by_zero:
-         ABC_THROW_FROM(tfa, sc_szOS, math::division_by_zero, ());
+         ABC_THROW_FROM(sfaOS, math::division_by_zero, ());
       case common_type::math_floating_point_error:
-         ABC_THROW_FROM(tfa, sc_szOS, math::floating_point_error, ());
+         ABC_THROW_FROM(sfaOS, math::floating_point_error, ());
       case common_type::math_overflow:
-         ABC_THROW_FROM(tfa, sc_szOS, math::overflow, ());
+         ABC_THROW_FROM(sfaOS, math::overflow, ());
       case common_type::memory_bad_pointer:
-         ABC_THROW_FROM(tfa, sc_szOS, memory::bad_pointer, (reinterpret_cast<void const *>(iArg0)));
+         ABC_THROW_FROM(sfaOS, memory::bad_pointer, (reinterpret_cast<void const *>(iArg0)));
       case common_type::memory_bad_pointer_alignment:
          ABC_THROW_FROM(
-            tfa, sc_szOS, memory::bad_pointer_alignment, (reinterpret_cast<void const *>(iArg0))
+            sfaOS, memory::bad_pointer_alignment, (reinterpret_cast<void const *>(iArg0))
          );
       default:
          // Unexpected exception type. Should never happen.
@@ -322,7 +322,8 @@ void exception::_before_throw(text::file_address const & tfa, char_t const * psz
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
       ptwOut->print(
-         ABC_SL("#0 {} at {}\n"), str(external_buffer, pabcx->m_pszSourceFunction), pabcx->m_tfa
+         ABC_SL("#0 {} at {}\n"),
+         str(external_buffer, pabcx->m_sfa.function()), pabcx->m_sfa.file_address()
       );
    }
    // Print the scope/stack trace collected via ABC_TRACE_FUNC().
@@ -521,14 +522,14 @@ namespace abc {
 coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
 
 /*static*/ void assertion_error::_assertion_failed(
-   text::file_address const & tfa, str const & sFunction, str const & sExpr, str const & sMsg
+   source_file_address const & sfa, str const & sExpr, str const & sMsg
 ) {
    if (!sm_bReentering) {
       sm_bReentering = true;
       try {
          io::text::stderr->print(
             ABC_SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
-            sMsg, sExpr, tfa, sFunction
+            sMsg, sExpr, sfa.file_address(), sfa.function()
          );
       } catch (...) {
          sm_bReentering = false;

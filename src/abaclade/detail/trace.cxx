@@ -69,7 +69,7 @@ void scope_trace::write(io::text::writer * ptwOut, unsigned iStackDepth) const {
    );
    // Write the variables tuple.
    m_ptplVars->write(ptwOut);
-   ptwOut->print(ABC_SL(" at {}\n"), *m_psfa->file_address());
+   ptwOut->print(ABC_SL(" at {}\n"), m_psfa->file_address());
 }
 
 /*static*/ void scope_trace::write_list(io::text::writer * ptwOut) {
