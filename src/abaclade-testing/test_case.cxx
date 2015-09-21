@@ -19,6 +19,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/text/char_ptr_to_str_adapter.hxx>
+#include <abaclade/text.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

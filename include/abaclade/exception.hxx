@@ -274,7 +274,7 @@ public:
    */
    exception & operator=(exception const & x);
 
-   /*! Stores context information to be displayed if the exception is not caught.
+   /*! Prepares the exception for throwing.
 
    @param sfa
       Location at which the exception is being thrown.

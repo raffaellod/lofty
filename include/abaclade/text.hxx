@@ -175,6 +175,34 @@ ABACLADE_SYM std::size_t transcode(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<text::file_address> {
+public:
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(str const & sFormat);
+
+   /*! Writes a source location, applying the formatting options.
+
+   @param tfa
+      Source location to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(text::file_address const & tfa, io::text::writer * ptwOut);
+};
+
+} //namespace abc
+//! @endcond
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace text {
 
 //! A text encoding or decoding error occurred.

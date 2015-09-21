@@ -684,6 +684,37 @@ std::size_t size_in_chars(char const * psz) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+void to_str_backend<text::file_address>::set_format(str const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   auto it(sFormat.cbegin());
+
+   // Add parsing of the format string here.
+
+   // If we still have any characters, they are garbage.
+   if (it != sFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+      ));
+   }
+}
+
+void to_str_backend<text::file_address>::write(
+   text::file_address const & tfa, io::text::writer * ptwOut
+) {
+   ABC_TRACE_FUNC(this/*, tfa*/, ptwOut);
+
+   ptwOut->write(str(external_buffer, tfa.file_path()));
+   ptwOut->write(ABC_SL(":"));
+   ptwOut->write(tfa.line_number());
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace text {
 
 error::error() {
