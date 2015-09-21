@@ -132,7 +132,7 @@ public:
    /*! Constructor that associates an external string to write to.
 
    @param psBuf
-      Pointer to a mutable string to use as the destination of all writes.
+      Pointer to a non-owned string to use as the destination for all writes.
    */
    str_writer(external_buffer_t const &, str * psBuf);
 

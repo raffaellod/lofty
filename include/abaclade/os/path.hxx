@@ -164,7 +164,7 @@ public:
    /*! Automatic cast to string.
 
    @return
-      An immutable, constant reference to the internal path string.
+      Constant reference to the internal path string.
    */
    operator str const &() const {
       return m_s;

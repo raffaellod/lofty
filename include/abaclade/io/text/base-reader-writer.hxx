@@ -240,14 +240,14 @@ public:
    */
    str read_all();
 
-   /*! Reads the entire source into a mutable string.
+   /*! Reads the entire source into a string.
 
    @param psDst
       Pointer to the string that will receive the data.
    */
    void read_all(str * psDst);
 
-   /*! Reads a whole line into the specified mutable string, discarding the line terminator.
+   /*! Reads a whole line into the specified string, discarding the line terminator.
 
    @param psDst
       Pointer to the string that will receive the read line.
@@ -261,8 +261,8 @@ protected:
    //! Default constructor.
    reader();
 
-   /*! Reads data into the specified mutable string, invoking a callback function to determine how
-   much of the read data should be consumed.
+   /*! Reads data into the specified string, invoking a callback function to determine how much of
+   the read data should be consumed.
 
    @param psDst
       Pointer to the string that will receive the read data.
