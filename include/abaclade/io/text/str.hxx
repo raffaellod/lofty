@@ -180,3 +180,53 @@ protected:
 };
 
 }}} //namespace abc::io::text
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace text {
+
+//! Implementation of text (character-based) output into a fixed-size char array.
+class ABACLADE_SYM char_ptr_writer : public writer {
+public:
+   /*! Constructor.
+
+   @param pchBuf
+      Pointer to a string buffer to use as the destination for all writes.
+   @param pcchBufRemaining
+      Pointer to a variable that tracks the count of characters available in *pchBuf excluding the
+      trailing NUL terminator.
+   */
+   char_ptr_writer(char * pchBuf, std::size_t * pcchBufRemaining);
+
+   /*! Move constructor.
+
+   @param cpw
+      Source object.
+   */
+   char_ptr_writer(char_ptr_writer && cpw);
+
+   //! Destructor.
+   virtual ~char_ptr_writer();
+
+   //! See writer::finalize().
+   virtual void finalize() override;
+
+   //! See writer::flush().
+   virtual void flush() override;
+
+   //! See base::get_encoding().
+   virtual abc::text::encoding get_encoding() const override;
+
+   //! See writer::write_binary().
+   virtual void write_binary(
+      void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
+   ) override;
+
+protected:
+   //! Pointer to the destination string buffer.
+   char * m_pchWriteBuf;
+   //! Pointer to a variable that tracks the count of characters available *m_pchWriteBuf.
+   std::size_t * m_pcchWriteBufAvailable;
+};
+
+}}} //namespace abc::io::text

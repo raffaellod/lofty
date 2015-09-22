@@ -396,6 +396,7 @@ class vector;
 
 namespace abc { namespace io { namespace text {
 
+class char_ptr_writer;
 class writer;
 
 }}} //namespace abc::io::text

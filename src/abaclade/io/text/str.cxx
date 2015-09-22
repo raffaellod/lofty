@@ -28,6 +28,7 @@ str_base::str_base() :
    base(),
    m_ichOffset(0) {
 }
+
 str_base::str_base(str_base && sb) :
    base(_std::move(sb)),
    m_ichOffset(sb.m_ichOffset) {
@@ -62,6 +63,7 @@ str_reader::str_reader(str const & s) :
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(s) {
 }
+
 str_reader::str_reader(str && s) :
    base(),
    str_base(),
@@ -69,6 +71,7 @@ str_reader::str_reader(str && s) :
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(_std::move(s)) {
 }
+
 str_reader::str_reader(external_buffer_t const &, str const * ps) :
    base(),
    str_base(),
@@ -98,6 +101,7 @@ str_writer::str_writer() :
    writer(),
    m_psWriteBuf(&m_sDefaultWriteBuf) {
 }
+
 str_writer::str_writer(str_writer && sw) :
    base(_std::move(sw)),
    str_base(_std::move(sw)),
@@ -106,6 +110,7 @@ str_writer::str_writer(str_writer && sw) :
    m_sDefaultWriteBuf(_std::move(sw.m_sDefaultWriteBuf)) {
    sw.m_psWriteBuf = &sw.m_sDefaultWriteBuf;
 }
+
 str_writer::str_writer(external_buffer_t const &, str * psBuf) :
    base(),
    str_base(),
@@ -169,6 +174,72 @@ str str_writer::release_content() {
    }
    // Truncate the string.
    m_psWriteBuf->set_size_in_chars(m_ichOffset);
+}
+
+}}} //namespace abc::io::text
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace text {
+
+char_ptr_writer::char_ptr_writer(char_t * pchBuf, std::size_t * pcchBufAvailable) :
+   m_pchWriteBuf(pchBuf),
+   m_pcchWriteBufAvailable(pcchBufAvailable) {
+}
+
+char_ptr_writer::char_ptr_writer(char_ptr_writer && cpw) :
+   writer(_std::move(cpw)),
+   m_pchWriteBuf(cpw.m_pchWriteBuf),
+   m_pcchWriteBufAvailable(cpw.m_pcchWriteBufAvailable) {
+   cpw.m_pchWriteBuf = nullptr;
+}
+
+/*virtual*/ char_ptr_writer::~char_ptr_writer() {
+   if (m_pchWriteBuf) {
+      /* NUL-terminate the string. Always safe, since *m_pcchWriteBufAvailable doesn’t include space
+      for the NUL terminator. */
+      *m_pchWriteBuf = '\0';
+   }
+}
+
+/*virtual*/ void char_ptr_writer::finalize() /*override*/ {
+   // Nothing to do.
+}
+
+/*virtual*/ void char_ptr_writer::flush() /*override*/ {
+   // Nothing to do.
+}
+
+/*virtual*/ abc::text::encoding char_ptr_writer::get_encoding() const /*override*/ {
+   // Assume char is always UTF-8.
+   return abc::text::encoding::utf8;
+}
+
+/*virtual*/ void char_ptr_writer::write_binary(
+   void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
+) /*override*/ {
+   ABC_TRACE_FUNC(this, pSrc, cbSrc, enc);
+
+   if (cbSrc == 0) {
+      // Nothing to do.
+      return;
+   }
+   ABC_ASSERT(
+      enc != abc::text::encoding::unknown, ABC_SL("cannot write data with unknown encoding")
+   );
+   if (enc == abc::text::encoding::utf8) {
+      // Optimal case: no transcoding necessary.
+      std::size_t cch = std::min(*m_pcchWriteBufAvailable, cbSrc / sizeof(char_t));
+      memory::copy(m_pchWriteBuf, static_cast<char_t const *>(pSrc), cch);
+      m_pchWriteBuf += cch;
+      *m_pcchWriteBufAvailable -= cch;
+   } else {
+      // Transcode the source into the string buffer.
+      abc::text::transcode(
+         true, enc, &pSrc, &cbSrc, abc::text::encoding::utf8,
+         reinterpret_cast<void **>(&m_pchWriteBuf), m_pcchWriteBufAvailable
+      );
+   }
 }
 
 }}} //namespace abc::io::text
