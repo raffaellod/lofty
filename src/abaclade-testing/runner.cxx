@@ -27,7 +27,6 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc { namespace testing {
 
 assertion_error::assertion_error() {
-   m_pszWhat = "abc::assertion_error";
 }
 
 }} //namespace abc::testing

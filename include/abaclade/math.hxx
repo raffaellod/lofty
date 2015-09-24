@@ -43,8 +43,12 @@ namespace abc { namespace math {
 //! Thrown in case of generic arithmetic errors.
 class ABACLADE_SYM arithmetic_error : public generic_error {
 public:
-   //! Default constructor.
-   arithmetic_error();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit arithmetic_error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -64,9 +68,6 @@ public:
       *this.
    */
    arithmetic_error & operator=(arithmetic_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
 };
 
 }} //namespace abc::math
@@ -78,8 +79,12 @@ namespace abc { namespace math {
 //! Thrown when the divisor of a division or modulo operation was zero.
 class ABACLADE_SYM division_by_zero : public arithmetic_error {
 public:
-   //! Default constructor.
-   division_by_zero();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit division_by_zero(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -99,9 +104,6 @@ public:
       *this.
    */
    division_by_zero & operator=(division_by_zero const & x);
-
-   //! See abc::arithmetic_error::init().
-   void init(errint_t err = 0);
 };
 
 }} //namespace abc::math
@@ -113,8 +115,12 @@ namespace abc { namespace math {
 //! Thrown upon failure of a floating point operation.
 class ABACLADE_SYM floating_point_error : public arithmetic_error {
 public:
-   //! Default constructor.
-   floating_point_error();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit floating_point_error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -134,9 +140,6 @@ public:
       *this.
    */
    floating_point_error & operator=(floating_point_error const & x);
-
-   //! See abc::arithmetic_error::init().
-   void init(errint_t err = 0);
 };
 
 }} //namespace abc::matg
@@ -150,8 +153,12 @@ data type. Because of the lack of standardization of floating point exception ha
 floating point operations are also not checked. */
 class ABACLADE_SYM overflow : public arithmetic_error {
 public:
-   //! Default constructor.
-   overflow();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit overflow(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -171,9 +178,6 @@ public:
       *this.
    */
    overflow & operator=(overflow const & x);
-
-   //! See abc::arithmetic_error::init().
-   void init(errint_t err = 0);
 };
 
 }} //namespace abc::math

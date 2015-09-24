@@ -29,8 +29,18 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace memory {
 
-bad_alloc::bad_alloc() {
-   m_pszWhat = "abc::memory::bad_alloc";
+/*explicit*/ bad_alloc::bad_alloc(std::size_t cbFailed, errint_t err /*= 0*/) :
+   generic_error(err ? err :
+#if ABC_HOST_API_POSIX
+      ENOMEM
+#elif ABC_HOST_API_WIN32
+      ERROR_NOT_ENOUGH_MEMORY
+#else
+      0
+#endif
+   ),
+   m_cbFailed(cbFailed) {
+   what_writer().print(ABC_SL("requested allocation size={} B"), m_cbFailed);
 }
 
 bad_alloc::bad_alloc(bad_alloc const & x) :
@@ -47,36 +57,37 @@ bad_alloc & bad_alloc::operator=(bad_alloc const & x) {
    return *this;
 }
 
-void bad_alloc::init(std::size_t cbFailed, errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      ENOMEM
-#elif ABC_HOST_API_WIN32
-      ERROR_NOT_ENOUGH_MEMORY
-#else
-      0
-#endif
-   );
-   m_cbFailed = cbFailed;
-}
-
-/*virtual*/ void bad_alloc::write_extended_info(
-   io::text::writer * ptwOut
-) const /*override*/ {
-   generic_error::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL(" requested allocation size={} B"), m_cbFailed);
-}
-
 }} //namespace abc::memory
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace memory {
 
-char_t const bad_pointer::smc_szUnknownAddress[] = ABC_SL(" unknown memory address");
+/*explicit*/ bad_pointer::bad_pointer(errint_t err /*= 0*/) :
+   generic_error(err ? err :
+#if ABC_HOST_API_POSIX
+      EFAULT
+#elif ABC_HOST_API_WIN32
+      ERROR_INVALID_ADDRESS
+#else
+      0
+#endif
+   ),
+   m_pInvalid(reinterpret_cast<void const *>(0xbadf00d)) {
+}
 
-bad_pointer::bad_pointer() {
-   m_pszWhat = "abc::memory::bad_pointer";
+/*explicit*/ bad_pointer::bad_pointer(void const * pInvalid, errint_t err /*= 0*/) :
+   generic_error(err ? err :
+#if ABC_HOST_API_POSIX
+      EFAULT
+#elif ABC_HOST_API_WIN32
+      ERROR_INVALID_ADDRESS
+#else
+      0
+#endif
+   ),
+   m_pInvalid(pInvalid) {
+   what_writer().print(ABC_SL("invalid pointer={}"), m_pInvalid);
 }
 
 bad_pointer::bad_pointer(bad_pointer const & x) :
@@ -93,8 +104,16 @@ bad_pointer & bad_pointer::operator=(bad_pointer const & x) {
    return *this;
 }
 
-void bad_pointer::init(void const * pInvalid, errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
+}} //namespace abc::memory
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace memory {
+
+/*explicit*/ bad_pointer_alignment::bad_pointer_alignment(
+   void const * pInvalid, errint_t err /*= 0*/
+) :
+   generic_error(err ? err :
 #if ABC_HOST_API_POSIX
       EFAULT
 #elif ABC_HOST_API_WIN32
@@ -102,27 +121,9 @@ void bad_pointer::init(void const * pInvalid, errint_t err /*= 0*/) {
 #else
       0
 #endif
-   );
-   m_pInvalid = pInvalid;
-}
-
-/*virtual*/ void bad_pointer::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   generic_error::write_extended_info(ptwOut);
-   if (m_pInvalid != smc_szUnknownAddress) {
-      ptwOut->print(ABC_SL(" invalid pointer={}"), m_pInvalid);
-   } else {
-      ptwOut->write(smc_szUnknownAddress);
-   }
-}
-
-}} //namespace abc::memory
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace memory {
-
-bad_pointer_alignment::bad_pointer_alignment() {
-   m_pszWhat = "abc::memory::bad_pointer_alignment";
+   ),
+   m_pInvalid(pInvalid) {
+   what_writer().print(ABC_SL("misaligned pointer={}"), m_pInvalid);
 }
 
 bad_pointer_alignment::bad_pointer_alignment(bad_pointer_alignment const & x) :
@@ -137,26 +138,6 @@ bad_pointer_alignment & bad_pointer_alignment::operator=(bad_pointer_alignment c
    generic_error::operator=(x);
    m_pInvalid = x.m_pInvalid;
    return *this;
-}
-
-void bad_pointer_alignment::init(void const * pInvalid, errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      EFAULT
-#elif ABC_HOST_API_WIN32
-      ERROR_INVALID_ADDRESS
-#else
-      0
-#endif
-   );
-   m_pInvalid = pInvalid;
-}
-
-/*virtual*/ void bad_pointer_alignment::write_extended_info(
-   io::text::writer * ptwOut
-) const /*override*/ {
-   generic_error::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL(" misaligned pointer={}"), m_pInvalid);
 }
 
 }} //namespace abc::memory

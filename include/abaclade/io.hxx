@@ -284,8 +284,12 @@ namespace abc { namespace io {
 //! An I/O operation failed for an I/O-related reason.
 class ABACLADE_SYM error : public generic_error {
 public:
-   //! Default constructor.
-   error();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -305,9 +309,6 @@ public:
       *this.
    */
    error & operator=(error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
 };
 
 }} //namespace abc::io

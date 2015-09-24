@@ -28,8 +28,14 @@ namespace abc { namespace memory {
 //! A memory allocation request could not be satisfied.
 class ABACLADE_SYM bad_alloc : public generic_error {
 public:
-   //! Default constructor.
-   bad_alloc();
+   /*! Constructor.
+
+   @param cbFailed
+      Amount of memory that could not be allocated.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit bad_alloc(std::size_t cbFailed, errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -59,19 +65,6 @@ public:
       return m_cbFailed;
    }
 
-   /*! See abc::generic_error::init().
-
-   @param cbFailed
-      Amount of memory that could not be allocated.
-   @param err
-      OS-defined error number associated to the error.
-   */
-   void init(std::size_t cbFailed, errint_t err = 0);
-
-protected:
-   //! See generic_error::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
-
 private:
    //! Amount of memory that could not be allocated.
    std::size_t m_cbFailed;
@@ -86,8 +79,21 @@ namespace abc { namespace memory {
 //! An attempt was made to access an invalid memory location.
 class ABACLADE_SYM bad_pointer : public generic_error {
 public:
-   //! Default constructor.
-   bad_pointer();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit bad_pointer(errint_t err = 0);
+
+   /*! Constructor.
+
+   @param pInvalid
+      Pointer that could not be dereferenced.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit bad_pointer(void const * pInvalid, errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -108,7 +114,8 @@ public:
    */
    bad_pointer & operator=(bad_pointer const & x);
 
-   /*! Returns the faulty pointer.
+   /*! Returns the faulty pointer. If the returned value is 0xbadf00d, the pointer might have not
+   been provided in the constructor.
 
    @return
       Pointer that was dereferenced.
@@ -117,29 +124,9 @@ public:
       return m_pInvalid;
    }
 
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0) {
-      init(smc_szUnknownAddress, err);
-   }
-
-   /*! See abc::generic_error::init().
-
-   @param pInvalid
-      Pointer that could not be dereferenced.
-   @param err
-      OS-defined error number associated to the error.
-   */
-   void init(void const * pInvalid, errint_t err = 0);
-
-protected:
-   //! See generic_error::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
-
 private:
    //! Address that could not be dereferenced.
    void const * m_pInvalid;
-   //! String used as special value for when the address is not available.
-   static char_t const smc_szUnknownAddress[];
 };
 
 }} //namespace abc::memory
@@ -151,8 +138,14 @@ namespace abc { namespace memory {
 //! An invalid memory access (e.g. misaligned pointer) was detected.
 class ABACLADE_SYM bad_pointer_alignment : public generic_error {
 public:
-   //! Default constructor.
-   bad_pointer_alignment();
+   /*! Constructor.
+
+   @param pInvalid
+      Pointer that could not be dereferenced.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit bad_pointer_alignment(void const * pInvalid, errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -181,19 +174,6 @@ public:
    void const * pointer() const {
       return m_pInvalid;
    }
-
-   /*! See abc::generic_error::init().
-
-   @param pInvalid
-      Pointer that could not be dereferenced.
-   @param err
-      OS-defined error number associated to the error.
-   */
-   void init(void const * pInvalid, errint_t err = 0);
-
-protected:
-   //! See generic_error::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
    //! Address that could not be dereferenced.

@@ -209,7 +209,7 @@ namespace abc { namespace text {
 class ABACLADE_SYM error : public generic_error {
 public:
    //! Default constructor.
-   error();
+   explicit error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -229,9 +229,6 @@ public:
       *this.
    */
    error & operator=(error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
 };
 
 }} //namespace abc::text
@@ -243,8 +240,21 @@ namespace abc { namespace text {
 //! A text decoding error occurred.
 class ABACLADE_SYM decode_error : public error {
 public:
-   //! Default constructor.
-   decode_error();
+   /*! Constructor.
+
+   @param sDescription
+      Description of the encountered problem.
+   @param pbInvalidBegin
+      Pointer to the start of the byte sequence that caused the error.
+   @param pbInvalidEnd
+      Pointer to the end of the byte sequence that caused the error.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit decode_error(
+      str const & sDescription = str::empty, std::uint8_t const * pbInvalidBegin = nullptr,
+      std::uint8_t const * pbInvalidEnd = nullptr, errint_t err = 0
+   );
 
    /*! Copy constructor.
 
@@ -265,26 +275,6 @@ public:
    */
    decode_error & operator=(decode_error const & x);
 
-   /*! See abc::text::error::init().
-
-   @param sDescription
-      Description of the encountered problem.
-   @param pbInvalidBegin
-      Pointer to the start of the byte sequence that caused the error.
-   @param pbInvalidEnd
-      Pointer to the end of the byte sequence that caused the error.
-   @param err
-      OS-defined error number associated to the exception.
-   */
-   void init(
-      str const & sDescription = str::empty, std::uint8_t const * pbInvalidBegin = nullptr,
-      std::uint8_t const * pbInvalidEnd = nullptr, errint_t err = 0
-   );
-
-protected:
-   //! See error::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
-
 private:
    //! Description of the encountered problem.
    str m_sDescription;
@@ -301,8 +291,18 @@ namespace abc { namespace text {
 //! A text encoding error occurred.
 class ABACLADE_SYM encode_error : public error {
 public:
-   //! Default constructor.
-   encode_error();
+   /*! Default constructor.
+
+   @param sDescription
+      Description of the encountered problem.
+   @param chInvalid
+      Code point that caused the error.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit encode_error(
+      str const & sDescription = str::empty, char32_t chInvalid = 0xffffff, errint_t err = 0
+   );
 
    /*! Copy constructor.
 
@@ -322,23 +322,6 @@ public:
       *this.
    */
    encode_error & operator=(encode_error const & x);
-
-   /*! See abc::text::error::init().
-
-   @param sDescription
-      Description of the encountered problem.
-   @param chInvalid
-      Code point that caused the error.
-   @param err
-      OS-defined error number associated to the exception.
-   */
-   void init(
-      str const & sDescription = str::empty, char32_t chInvalid = 0xffffff, errint_t err = 0
-   );
-
-protected:
-   //! See error::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
 
 private:
    //! Description of the encountered problem.

@@ -52,8 +52,12 @@ namespace abc { namespace collections {
 //! Base for errors due to an invalid key or index being used on a mapping or sequence.
 class ABACLADE_SYM bad_access : public generic_error {
 public:
-   //! Default constructor.
-   bad_access();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit bad_access(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -84,8 +88,12 @@ namespace abc { namespace collections {
 //! Mapping (dictionary) key not found in the set of existing keys.
 class ABACLADE_SYM bad_key : public bad_access {
 public:
-   //! Default constructor.
-   bad_key();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit bad_key(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -105,9 +113,6 @@ public:
       *this.
    */
    bad_key & operator=(bad_key const & x);
-
-   //! See abc::collections::bad_access::init().
-   void init(errint_t err = 0);
 };
 
 }} //namespace abc::collections
@@ -120,8 +125,40 @@ namespace abc { namespace collections {
 range. */
 class ABACLADE_SYM out_of_range : public bad_access {
 public:
-   //! Default constructor.
-   out_of_range();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit out_of_range(errint_t err = 0);
+
+   /*! Constructor.
+
+   @param iInvalid
+      Index that caused the error.
+   @param iMin
+      Minimum allowed index value.
+   @param iMax
+      Maximum allowed index value.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   out_of_range(
+      std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err = 0
+   );
+
+   /*! Constructor.
+
+   @param pInvalid
+      Pointer that caused the error.
+   @param pMin
+      Minimum allowed pointer value.
+   @param pMax
+      Maximum allowed pointer value.
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   out_of_range(void const * pInvalid, void const * pMin, void const * pMax, errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -141,51 +178,6 @@ public:
       *this.
    */
    out_of_range & operator=(out_of_range const & x);
-
-   //! See abc::collections::bad_access::init().
-   void init(errint_t err = 0);
-
-   /*! See abc::collections::bad_access::init().
-
-   @param iInvalid
-      Index that caused the error.
-   @param iMin
-      Minimum allowed index value.
-   @param iMax
-      Maximum allowed index value.
-   @param err
-      OS-defined error number associated to the exception.
-   */
-   void init(std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err = 0);
-
-   /*! See abc::collections::bad_access::init().
-
-   @param pInvalid
-      Pointer that caused the error.
-   @param pMin
-      Minimum allowed pointer value.
-   @param pMax
-      Maximum allowed pointer value.
-   @param err
-      OS-defined error number associated to the exception.
-   */
-   void init(void const * pInvalid, void const * pMin, void const * pMax, errint_t err = 0);
-
-protected:
-   //! See collections::bad_access::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
-
-private:
-   //! Pointer that caused the error.
-   void const * m_pInvalid;
-   //! Minimum allowed pointer value.
-   void const * m_pMin;
-   //! Maximum allowed pointer value.
-   void const * m_pMax;
-   //! true if m_iMin and m_iMax have been provided.
-   bool m_bRangeProvided:1;
-   //! true if m_iMin and m_iMax have been provided.
-   bool m_bWriteAsInts:1;
 };
 
 }} //namespace abc::collections

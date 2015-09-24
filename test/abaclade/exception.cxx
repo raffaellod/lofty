@@ -29,18 +29,16 @@ protected:
    //! First-level abc::generic_error subclass.
    class derived1_error : public generic_error {
    public:
-      //! Constructor.
+      //! Default constructor.
       derived1_error() {
-         m_pszWhat = "abc::test::exception_polymorphism::derived1_error";
       }
    };
 
    //! Second-level abc::generic_error subclass.
    class derived2_error : public derived1_error {
    public:
-      //! Constructor.
+      //! Default constructor.
       derived2_error() {
-         m_pszWhat = "abc::test::exception_polymorphism::derived2_error";
       }
    };
 

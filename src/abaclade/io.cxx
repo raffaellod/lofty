@@ -170,8 +170,14 @@ namespace abc { namespace io {
 
 namespace abc { namespace io {
 
-error::error() {
-   m_pszWhat = "abc::io::error";
+/*explicit*/ error::error(errint_t err /*= 0*/) :
+   generic_error(err ? err :
+#if ABC_HOST_API_POSIX
+      EIO
+#else
+      0
+#endif
+   ) {
 }
 
 error::error(error const & x) :
@@ -184,16 +190,6 @@ error::error(error const & x) :
 error & error::operator=(error const & x) {
    generic_error::operator=(x);
    return *this;
-}
-
-void error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      EIO
-#else
-      0
-#endif
-   );
 }
 
 }} //namespace abc::io

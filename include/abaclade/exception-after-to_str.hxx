@@ -34,8 +34,15 @@ called on it. The owner ot the object should be changed to invoke finalize() bef
 object go out of scope. */
 class ABACLADE_SYM destructing_unfinalized_object : public exception {
 public:
-   //! Default constructor.
-   destructing_unfinalized_object();
+   /*! Constructor.
+
+   @param ptObj
+      Pointer to the object that was not finalized.
+   */
+   template <typename T>
+   destructing_unfinalized_object(T const * ptObj) {
+      write_what(ptObj, typeid(*ptObj));
+   }
 
    /*! Copy constructor.
 
@@ -56,36 +63,15 @@ public:
    */
    destructing_unfinalized_object & operator=(destructing_unfinalized_object const & x);
 
-   /*! See abc::exception::init().
-
-   @param ptObj
-      Pointer to the object that was not finalized.
-   */
-   template <typename T>
-   void init(T const * ptObj) {
-      init(ptObj, typeid(*ptObj));
-   }
-
-   /*! See abc::exception::init().
+private:
+   /*! Uses exception::what_writer() to generate a what() string.
 
    @param pObj
       Pointer to the object that was not finalized.
    @param pti
       Type of *pObj.
    */
-   void init(void const * pObj, _std::type_info const & pti);
-
-protected:
-   //! See abc::exception::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
-
-private:
-#if ABC_HOST_UTF > 8
-   //! Same data as m_sWhat but in ASCII, pointed to by abc::exception::m_pszWhat.
-   collections::vector<std::uint8_t> m_vchWhat;
-#endif
-   //! Pointer to and type of the object that was not finalized.
-   str m_sWhat;
+   void write_what(void const * pObj, _std::type_info const & ti);
 };
 
 } //namespace abc
@@ -97,31 +83,9 @@ namespace abc {
 //! The syntax for the specified expression is invalid.
 class ABACLADE_SYM syntax_error : public generic_error {
 public:
-   //! Default constructor.
-   syntax_error();
+   /*! Constructor.
 
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   syntax_error(syntax_error const & x);
-
-   //! Destructor.
-   virtual ~syntax_error();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   syntax_error & operator=(syntax_error const & x);
-
-   /*! See abc::generic_error::init().
-
-   All arguments are optional, and can be specified leaving defaulted gaps in between; the resulting
+   Most arguments are optional, and can be specified leaving defaulted gaps in between; the resulting
    exception message will not contain omitted arguments.
 
    The order of line and character is inverted, so that this single overload can be used to
@@ -147,14 +111,29 @@ public:
    @param err
       OS-defined error number associated to the exception.
    */
-   void init(
-      str const & sDescription = str::empty, str const & sSource = str::empty,
-      unsigned iChar = 0, unsigned iLine = 0, errint_t err = 0
+   explicit syntax_error(
+      str const & sDescription, str const & sSource = str::empty, unsigned iChar = 0,
+      unsigned iLine = 0, errint_t err = 0
    );
 
-protected:
-   //! See generic_error::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
+   /*! Copy constructor.
+
+   @param x
+      Source object.
+   */
+   syntax_error(syntax_error const & x);
+
+   //! Destructor.
+   virtual ~syntax_error();
+
+   /*! Copy-assignment operator.
+
+   @param x
+      Source object.
+   @return
+      *this.
+   */
+   syntax_error & operator=(syntax_error const & x);
 
 private:
    //! Description of the syntax error.

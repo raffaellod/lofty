@@ -717,8 +717,8 @@ void to_str_backend<text::file_address>::write(
 
 namespace abc { namespace text {
 
-error::error() {
-   m_pszWhat = "abc::text::error";
+/*explicit*/ error::error(errint_t err /*= 0*/) :
+   generic_error(err) {
 }
 
 error::error(error const & x) :
@@ -733,18 +733,35 @@ error & error::operator=(error const & x) {
    return *this;
 }
 
-void error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
 }} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace text {
 
-decode_error::decode_error() {
-   m_pszWhat = "abc::text::decode_error";
+/*explicit*/ decode_error::decode_error(
+   str const & sDescription /*= str::empty*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
+   std::uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
+) :
+   error(err),
+   m_sDescription(sDescription) {
+   m_viInvalid.push_back(pbInvalidBegin, static_cast<std::size_t>(pbInvalidEnd - pbInvalidBegin));
+
+   str sFormat;
+   if (m_sDescription) {
+      if (m_viInvalid) {
+         sFormat = ABC_SL("{0}; bytes={1}");
+      } else {
+         sFormat = ABC_SL("{0}");
+      }
+   } else {
+      if (m_viInvalid) {
+         sFormat = ABC_SL("bytes={1}");
+      }
+   }
+   if (sFormat) {
+      what_writer().print(sFormat, m_sDescription, m_viInvalid);
+   }
 }
 
 decode_error::decode_error(decode_error const & x) :
@@ -765,43 +782,35 @@ decode_error & decode_error::operator=(decode_error const & x) {
    return *this;
 }
 
-void decode_error::init(
-   str const & sDescription /*= str::empty*/, std::uint8_t const * pbInvalidBegin /*= nullptr*/,
-   std::uint8_t const * pbInvalidEnd /*= nullptr*/, errint_t err /*= 0*/
-) {
-   error::init(err);
-   m_sDescription = sDescription;
-   m_viInvalid.push_back(pbInvalidBegin, static_cast<std::size_t>(pbInvalidEnd - pbInvalidBegin));
-}
-
-/*virtual*/ void decode_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   error::write_extended_info(ptwOut);
-   str sFormat;
-   if (m_sDescription) {
-      if (m_viInvalid) {
-         sFormat = ABC_SL("{0}; bytes={1}");
-      } else {
-         sFormat = ABC_SL("{0}");
-      }
-   } else {
-      if (m_viInvalid) {
-         sFormat = ABC_SL("bytes={1}");
-      }
-   }
-
-   if (sFormat) {
-      ptwOut->print(sFormat, m_sDescription, m_viInvalid);
-   }
-}
-
 }} //namespace abc::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace text {
 
-encode_error::encode_error() {
-   m_pszWhat = "abc::text::encode_error";
+/*explicit*/ encode_error::encode_error(
+   str const & sDescription /*= str::empty*/, char32_t chInvalid /*= 0xffffff*/,
+   errint_t err /*= 0*/
+) :
+   error(err),
+   m_sDescription(sDescription),
+   m_iInvalidCodePoint(static_cast<std::uint32_t>(chInvalid)) {
+
+   str sFormat;
+   if (m_sDescription) {
+      if (m_iInvalidCodePoint != 0xffffff) {
+         sFormat = ABC_SL("{0}; code point={1}");
+      } else {
+         sFormat = ABC_SL("{0}");
+      }
+   } else {
+      if (m_iInvalidCodePoint != 0xffffff) {
+         sFormat = ABC_SL("code point={1}");
+      }
+   }
+   if (sFormat) {
+      what_writer().print(sFormat, m_sDescription, m_iInvalidCodePoint);
+   }
 }
 
 encode_error::encode_error(encode_error const & x) :
@@ -820,35 +829,6 @@ encode_error & encode_error::operator=(encode_error const & x) {
    m_sDescription = x.m_sDescription;
    m_iInvalidCodePoint = x.m_iInvalidCodePoint;
    return *this;
-}
-
-void encode_error::init(
-   str const & sDescription /*= str::empty*/, char32_t chInvalid /*= 0xffffff*/,
-   errint_t err /*= 0*/
-) {
-   error::init(err);
-   m_sDescription = sDescription;
-   m_iInvalidCodePoint = static_cast<std::uint32_t>(chInvalid);
-}
-
-/*virtual*/ void encode_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   error::write_extended_info(ptwOut);
-   str sFormat;
-   if (m_sDescription) {
-      if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = ABC_SL("{0}; code point={1}");
-      } else {
-         sFormat = ABC_SL("{0}");
-      }
-   } else {
-      if (m_iInvalidCodePoint != 0xffffff) {
-         sFormat = ABC_SL("code point={1}");
-      }
-   }
-
-   if (sFormat) {
-      ptwOut->print(sFormat, m_sDescription, m_iInvalidCodePoint);
-   }
 }
 
 }} //namespace abc::text

@@ -29,8 +29,8 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace math {
 
-arithmetic_error::arithmetic_error() {
-   m_pszWhat = "abc::math::arithmetic_error";
+/*explicit*/ arithmetic_error::arithmetic_error(errint_t err /*= 0*/) :
+   generic_error(err) {
 }
 
 arithmetic_error::arithmetic_error(arithmetic_error const & x) :
@@ -45,18 +45,14 @@ arithmetic_error & arithmetic_error::operator=(arithmetic_error const & x) {
    return *this;
 }
 
-void arithmetic_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
 }} //namespace abc::math
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace math {
 
-division_by_zero::division_by_zero() {
-   m_pszWhat = "abc::math::division_by_zero";
+/*explicit*/ division_by_zero::division_by_zero(errint_t err /*= 0*/) :
+   arithmetic_error(err) {
 }
 
 division_by_zero::division_by_zero(division_by_zero const & x) :
@@ -71,18 +67,14 @@ division_by_zero & division_by_zero::operator=(division_by_zero const & x) {
    return *this;
 }
 
-void division_by_zero::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err);
-}
-
 }} //namespace abc::math
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace math {
 
-floating_point_error::floating_point_error() {
-   m_pszWhat = "abc::math::floating_point_error";
+/*explicit*/ floating_point_error::floating_point_error(errint_t err /*= 0*/) :
+   arithmetic_error(err) {
 }
 
 floating_point_error::floating_point_error(floating_point_error const & x) :
@@ -97,18 +89,20 @@ floating_point_error & floating_point_error::operator=(floating_point_error cons
    return *this;
 }
 
-void floating_point_error::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err);
-}
-
 }} //namespace abc::math
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace math {
 
-overflow::overflow() {
-   m_pszWhat = "abc::math::overflow";
+/*explicit*/ overflow::overflow(errint_t err /*= 0*/) :
+   arithmetic_error(err ? err :
+#if ABC_HOST_API_POSIX
+      EOVERFLOW
+#else
+      0
+#endif
+   ) {
 }
 
 overflow::overflow(overflow const & x) :
@@ -121,16 +115,6 @@ overflow::overflow(overflow const & x) :
 overflow & overflow::operator=(overflow const & x) {
    arithmetic_error::operator=(x);
    return *this;
-}
-
-void overflow::init(errint_t err /*= 0*/) {
-   arithmetic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      EOVERFLOW
-#else
-      0
-#endif
-   );
 }
 
 }} //namespace abc::math

@@ -41,18 +41,197 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc {
 
-exception::exception() :
-   m_pszWhat("abc::exception"),
-   m_bInFlight(false) {
+app_execution_interruption::app_execution_interruption() {
 }
+
+app_execution_interruption::app_execution_interruption(app_execution_interruption const & x) :
+   execution_interruption(x) {
+}
+
+/*virtual*/ app_execution_interruption::~app_execution_interruption() {
+}
+
+app_execution_interruption & app_execution_interruption::operator=(
+   app_execution_interruption const & x
+) {
+   execution_interruption::operator=(x);
+   return *this;
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+app_exit_interruption::app_exit_interruption() {
+}
+
+app_exit_interruption::app_exit_interruption(app_exit_interruption const & x) :
+   execution_interruption(x) {
+}
+
+/*virtual*/ app_exit_interruption::~app_exit_interruption() {
+}
+
+app_exit_interruption & app_exit_interruption::operator=(app_exit_interruption const & x) {
+   execution_interruption::operator=(x);
+   return *this;
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+/*explicit*/ argument_error::argument_error(errint_t err /*= 0*/) :
+   generic_error(err ? err :
+#if ABC_HOST_API_POSIX
+      EINVAL
+#else
+      0
+#endif
+   ) {
+}
+
+argument_error::argument_error(argument_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ argument_error::~argument_error() {
+}
+
+argument_error & argument_error::operator=(argument_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
+
+/*static*/ void assertion_error::_assertion_failed(
+   source_file_address const & sfa, str const & sExpr, str const & sMsg
+) {
+   if (!sm_bReentering) {
+      sm_bReentering = true;
+      try {
+         io::text::stderr->print(
+            ABC_SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
+            sMsg, sExpr, sfa.file_address(), sfa.function()
+         );
+      } catch (...) {
+         sm_bReentering = false;
+         throw;
+      }
+      sm_bReentering = false;
+   }
+   ABC_THROW(assertion_error, ());
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+destructing_unfinalized_object::destructing_unfinalized_object(
+   destructing_unfinalized_object const & x
+) :
+   exception(x) {
+}
+
+/*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() {
+}
+
+destructing_unfinalized_object & destructing_unfinalized_object::operator=(
+   destructing_unfinalized_object const & x
+) {
+   exception::operator=(x);
+   return *this;
+}
+
+void destructing_unfinalized_object::write_what(void const * pObj, _std::type_info const & ti) {
+   what_writer().print(
+      ABC_SL("instance of {} @ {} being destructed before finalize() was invoked on it"), ti, pObj
+   );
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+/*explicit*/ domain_error::domain_error(errint_t err /*= 0*/) :
+   generic_error(err ? err :
+#if ABC_HOST_API_POSIX
+      EDOM
+#else
+      0
+#endif
+   ) {
+}
+
+domain_error::domain_error(domain_error const & x) :
+   generic_error(x) {
+}
+
+/*virtual*/ domain_error::~domain_error() {
+}
+
+domain_error & domain_error::operator=(domain_error const & x) {
+   generic_error::operator=(x);
+   return *this;
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+execution_interruption::execution_interruption(/*source?*/) {
+}
+
+execution_interruption::execution_interruption(execution_interruption const & x) :
+   exception(x) {
+}
+
+/*virtual*/ execution_interruption::~execution_interruption() {
+}
+
+execution_interruption & execution_interruption::operator=(execution_interruption const & x) {
+   exception::operator=(x);
+   return *this;
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+exception::exception() :
+   m_bInFlight(false),
+   m_cchWhatAvailable(ABC_COUNTOF(m_szWhat) - 1 /*NUL*/) {
+   m_szWhat[0] = '\0';
+}
+
 exception::exception(exception const & x) :
-   m_pszWhat(x.m_pszWhat),
    m_sfa(x.m_sfa),
-   m_bInFlight(x.m_bInFlight) {
+   m_bInFlight(x.m_bInFlight),
+   m_cchWhatAvailable(x.m_cchWhatAvailable) {
    // See @ref stack-tracing.
    if (m_bInFlight) {
       detail::scope_trace::trace_writer_addref();
    }
+   memory::copy<char>(m_szWhat, x.m_szWhat, ABC_COUNTOF(m_szWhat) - m_cchWhatAvailable);
 }
 
 /*virtual*/ exception::~exception() {
@@ -63,7 +242,6 @@ exception::exception(exception const & x) :
 }
 
 exception & exception::operator=(exception const & x) {
-   m_pszWhat = x.m_pszWhat;
    m_sfa = x.m_sfa;
    /* Adopt the source’s in-flight status. See @ref stack-tracing. If the in-flight status is not
    changing, avoid the pointless (and dangerous, if done in this sequence – it could delete the
@@ -77,6 +255,8 @@ exception & exception::operator=(exception const & x) {
          detail::scope_trace::trace_writer_addref();
       }
    }
+   m_cchWhatAvailable = x.m_cchWhatAvailable;
+   memory::copy<char>(m_szWhat, x.m_szWhat, ABC_COUNTOF(m_szWhat) - m_cchWhatAvailable);
    return *this;
 }
 
@@ -248,11 +428,17 @@ void exception::_before_throw(source_file_address const & sfa) {
 }
 
 /*virtual*/ const char * exception::what() const ABC_STL_NOEXCEPT_TRUE() /*override*/ {
-   return m_pszWhat;
+   return m_szWhat;
 }
 
-/*virtual*/ void exception::write_extended_info(io::text::writer * ptwOut) const {
-   ABC_UNUSED_ARG(ptwOut);
+io::text::char_ptr_writer exception::what_writer() {
+   std::size_t cchUsed = ABC_COUNTOF(m_szWhat) - 1 /*NUL*/ - m_cchWhatAvailable;
+   io::text::char_ptr_writer cpw(m_szWhat + cchUsed, &m_cchWhatAvailable);
+   // If the what() string has already been written to, add a separator before a new write.
+   if (cchUsed > 0) {
+      cpw.write(ABC_SL("; "));
+   }
+   return _std::move(cpw);
 }
 
 /*static*/ void exception::write_with_scope_trace(
@@ -264,25 +450,14 @@ void exception::_before_throw(source_file_address const & sfa) {
    exception const * pabcx;
    if (pstdx) {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
-      ptwOut->print(
-         ABC_SL("Exception in PID:{},TID:{}"), this_process::id(), this_thread::id()
-      );
+      ptwOut->print(ABC_SL("Exception in PID:{} TID:{}"), this_process::id(), this_thread::id());
       if (auto crid =  this_coroutine::id()) {
-         ptwOut->print(ABC_SL(",CRID:{}"), crid);
+         ptwOut->print(ABC_SL(" CRID:{}"), crid);
       }
-      ptwOut->print(ABC_SL(": {}\n"), text::char_ptr_to_str_adapter(pstdx->what()));
+      ptwOut->print(
+         ABC_SL("\n{}: {}\n"), typeid(*pstdx), text::char_ptr_to_str_adapter(pstdx->what())
+      );
       pabcx = dynamic_cast<exception const *>(pstdx);
-      if (pabcx) {
-         try {
-            ptwOut->write(ABC_SL("Extended information:"));
-            pabcx->write_extended_info(ptwOut);
-            ptwOut->write_line();
-         } catch (...) {
-            /* The exception is not rethrown because we don’t want exception details to interfere
-            with the display of the (more important) exception information. */
-            // FIXME: EXC-SWALLOW
-         }
-      }
    } else {
       pabcx = nullptr;
    }
@@ -307,249 +482,13 @@ void exception::_before_throw(source_file_address const & sfa) {
 
 namespace abc {
 
-destructing_unfinalized_object::destructing_unfinalized_object() {
-   m_pszWhat = "abc::destructing_unfinalized_object";
-}
-
-destructing_unfinalized_object::destructing_unfinalized_object(
-   destructing_unfinalized_object const & x
-) :
-   exception(x),
-#if ABC_HOST_UTF > 8
-   m_vchWhat(x.m_vchWhat),
-   m_sWhat(x.m_sWhat) {
-   m_pszWhat = reinterpret_cast<char const *>(m_vchWhat.data());
-#else
-   m_sWhat(x.m_sWhat) {
-   m_pszWhat = m_sWhat.c_str();
-#endif
-}
-
-/*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() {
-}
-
-destructing_unfinalized_object & destructing_unfinalized_object::operator=(
-   destructing_unfinalized_object const & x
-) {
-#if ABC_HOST_UTF > 8
-   m_vchWhat = x.m_vchWhat;
-   m_sWhat = x.m_sWhat;
-   m_pszWhat = reinterpret_cast<char const *>(m_vchWhat.data());
-#else
-   m_sWhat = x.m_sWhat;
-   m_pszWhat = m_sWhat.c_str();
-#endif
-   return *this;
-}
-
-void destructing_unfinalized_object::init(void const * pObj, _std::type_info const & ti) {
-   m_sWhat = str(ABC_SL("object being destructed={} @ {}")).format(ti, pObj);
-#if ABC_HOST_UTF > 8
-   // TODO: abc::text::encoding::ascii.
-   m_vchWhat = m_sWhat.encode(text::encoding::utf8, true);
-   m_pszWhat = reinterpret_cast<char const *>(m_vchWhat.data());
-#else
-   m_pszWhat = m_sWhat.c_str();
-#endif
-}
-
-/*virtual*/ void destructing_unfinalized_object::write_extended_info(
-   io::text::writer * ptwOut
-) const /*override*/ {
-   exception::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL(" {}"), m_sWhat);
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-execution_interruption::execution_interruption(/*source?*/) {
-   m_pszWhat = "abc::execution_interruption";
-}
-
-execution_interruption::execution_interruption(execution_interruption const & x) :
-   exception(x) {
-}
-
-/*virtual*/ execution_interruption::~execution_interruption() {
-}
-
-execution_interruption & execution_interruption::operator=(execution_interruption const & x) {
-   exception::operator=(x);
-   return *this;
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-app_execution_interruption::app_execution_interruption() {
-   m_pszWhat = "abc::app_execution_interruption";
-}
-
-app_execution_interruption::app_execution_interruption(app_execution_interruption const & x) :
-   execution_interruption(x) {
-}
-
-/*virtual*/ app_execution_interruption::~app_execution_interruption() {
-}
-
-app_execution_interruption & app_execution_interruption::operator=(
-   app_execution_interruption const & x
-) {
-   execution_interruption::operator=(x);
-   return *this;
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-app_exit_interruption::app_exit_interruption() {
-   m_pszWhat = "abc::app_exit_interruption";
-}
-
-app_exit_interruption::app_exit_interruption(app_exit_interruption const & x) :
-   execution_interruption(x) {
-}
-
-/*virtual*/ app_exit_interruption::~app_exit_interruption() {
-}
-
-app_exit_interruption & app_exit_interruption::operator=(app_exit_interruption const & x) {
-   execution_interruption::operator=(x);
-   return *this;
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-user_forced_interruption::user_forced_interruption() {
-   m_pszWhat = "abc::user_forced_interruption";
-}
-
-user_forced_interruption::user_forced_interruption(user_forced_interruption const & x) :
-   app_execution_interruption(x) {
-}
-
-/*virtual*/ user_forced_interruption::~user_forced_interruption() {
-}
-
-user_forced_interruption & user_forced_interruption::operator=(user_forced_interruption const & x) {
-   app_execution_interruption::operator=(x);
-   return *this;
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-argument_error::argument_error() {
-   m_pszWhat = "abc::argument_error";
-}
-
-argument_error::argument_error(argument_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ argument_error::~argument_error() {
-}
-
-argument_error & argument_error::operator=(argument_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void argument_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      EINVAL
-#else
-      0
-#endif
-   );
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
-
-/*static*/ void assertion_error::_assertion_failed(
-   source_file_address const & sfa, str const & sExpr, str const & sMsg
-) {
-   if (!sm_bReentering) {
-      sm_bReentering = true;
-      try {
-         io::text::stderr->print(
-            ABC_SL("Assertion failed: {} ( {} ) in file {}: in function {}\n"),
-            sMsg, sExpr, sfa.file_address(), sfa.function()
-         );
-      } catch (...) {
-         sm_bReentering = false;
-         throw;
-      }
-      sm_bReentering = false;
+/*explicit*/ generic_error::generic_error(errint_t err /*= 0*/) :
+   m_err(err) {
+   if (m_err) {
+      what_writer().print(ABC_SL("OS error={}"), m_err);
    }
-   ABC_THROW(assertion_error, ());
 }
 
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-domain_error::domain_error() {
-   m_pszWhat = "abc::domain_error";
-}
-
-domain_error::domain_error(domain_error const & x) :
-   generic_error(x) {
-}
-
-/*virtual*/ domain_error::~domain_error() {
-}
-
-domain_error & domain_error::operator=(domain_error const & x) {
-   generic_error::operator=(x);
-   return *this;
-}
-
-void domain_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      EDOM
-#else
-      0
-#endif
-   );
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-generic_error::generic_error() {
-   m_pszWhat = "abc::generic_error";
-}
 generic_error::generic_error(generic_error const & x) :
    exception(x),
    m_err(x.m_err) {
@@ -564,21 +503,14 @@ generic_error & generic_error::operator=(generic_error const & x) {
    return *this;
 }
 
-/*virtual*/ void generic_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   exception::write_extended_info(ptwOut);
-   if (m_err) {
-      ptwOut->print(ABC_SL(" OS error={}"), m_err);
-   }
-}
-
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc {
 
-network_error::network_error() {
-   m_pszWhat = "abc::network_error";
+/*explicit*/ network_error::network_error(errint_t err /*= 0*/) :
+   generic_error(err) {
 }
 
 network_error::network_error(network_error const & x) :
@@ -593,18 +525,14 @@ network_error & network_error::operator=(network_error const & x) {
    return *this;
 }
 
-void network_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc {
 
-security_error::security_error() {
-   m_pszWhat = "abc::security_error";
+/*explicit*/ security_error::security_error(errint_t err /*= 0*/) :
+   generic_error(err) {
 }
 
 security_error::security_error(security_error const & x) :
@@ -619,18 +547,53 @@ security_error & security_error::operator=(security_error const & x) {
    return *this;
 }
 
-void security_error::init(errint_t err /*= 0*/) {
-   generic_error::init(err);
-}
-
 } //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc {
 
-syntax_error::syntax_error() {
-   m_pszWhat = "abc::syntax_error";
+/*explicit*/ syntax_error::syntax_error(
+   str const & sDescription, str const & sSource /*= str::empty*/, unsigned iChar /*= 0*/,
+   unsigned iLine /*= 0*/, errint_t err /*= 0*/
+) :
+   generic_error(err),
+   m_sDescription(sDescription),
+   m_sSource(sSource),
+   m_iChar(iChar),
+   m_iLine(iLine) {
+
+   str sFormat;
+   if (m_sSource) {
+      if (m_iChar) {
+         if (m_iLine) {
+            sFormat = ABC_SL("{0} in {1}:{2}:{3}");
+         } else {
+            sFormat = ABC_SL("{0} in expression \"{1}\", character {3}");
+         }
+      } else {
+         if (m_iLine) {
+            sFormat = ABC_SL("{0} in {1}:{2}");
+         } else {
+            sFormat = ABC_SL("{0} in expression \"{1}\"");
+         }
+      }
+   } else {
+      if (m_iChar) {
+         if (m_iLine) {
+            sFormat = ABC_SL("{0} in <input>:{2}:{3}");
+         } else {
+            sFormat = ABC_SL("{0} in <expression>, character {3}");
+         }
+      } else {
+         if (m_iLine) {
+            sFormat = ABC_SL("{0} in <input>:{2}");
+         } else {
+            sFormat = ABC_SL("{0}");
+         }
+      }
+   }
+   what_writer().print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
 }
 
 syntax_error::syntax_error(syntax_error const & x) :
@@ -653,51 +616,25 @@ syntax_error & syntax_error::operator=(syntax_error const & x) {
    return *this;
 }
 
-void syntax_error::init(
-   str const & sDescription /*= str::empty*/, str const & sSource /*= str::empty*/,
-   unsigned iChar /*= 0*/, unsigned iLine /*= 0*/, errint_t err /*= 0*/
-) {
-   generic_error::init(err);
-   m_sDescription = sDescription;
-   m_sSource = sSource;
-   m_iChar = iChar;
-   m_iLine = iLine;
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+user_forced_interruption::user_forced_interruption() {
 }
 
-/*virtual*/ void syntax_error::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   generic_error::write_extended_info(ptwOut);
-   str sFormat;
-   if (m_sSource) {
-      if (m_iChar) {
-         if (m_iLine) {
-            sFormat = ABC_SL(" {0} in {1}:{2}:{3}");
-         } else {
-            sFormat = ABC_SL(" {0} in expression \"{1}\", character {3}");
-         }
-      } else {
-         if (m_iLine) {
-            sFormat = ABC_SL(" {0} in {1}:{2}");
-         } else {
-            sFormat = ABC_SL(" {0} in expression \"{1}\"");
-         }
-      }
-   } else {
-      if (m_iChar) {
-         if (m_iLine) {
-            sFormat = ABC_SL(" {0} in <input>:{2}:{3}");
-         } else {
-            sFormat = ABC_SL(" {0} in <expression>, character {3}");
-         }
-      } else {
-         if (m_iLine) {
-            sFormat = ABC_SL(" {0} in <input>:{2}");
-         } else {
-            sFormat = ABC_SL(" {0}");
-         }
-      }
-   }
+user_forced_interruption::user_forced_interruption(user_forced_interruption const & x) :
+   app_execution_interruption(x) {
+}
 
-   ptwOut->print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
+/*virtual*/ user_forced_interruption::~user_forced_interruption() {
+}
+
+user_forced_interruption & user_forced_interruption::operator=(user_forced_interruption const & x) {
+   app_execution_interruption::operator=(x);
+   return *this;
 }
 
 } //namespace abc

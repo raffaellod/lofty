@@ -24,9 +24,18 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace os {
 
-invalid_path::invalid_path() {
-   m_pszWhat = "abc::invalid_path";
+/*explicit*/ invalid_path::invalid_path(os::path const & opInvalid, errint_t err /*= 0*/) :
+   generic_error(err ? err :
+#if ABC_HOST_API_WIN32
+      ERROR_BAD_PATHNAME
+#else
+      0
+#endif
+   ),
+   m_opInvalid(opInvalid) {
+   what_writer().print(ABC_SL("not a valid path=\"{}\""), m_opInvalid);
 }
+
 invalid_path::invalid_path(invalid_path const & x) :
    generic_error(x),
    m_opInvalid(x.m_opInvalid) {
@@ -41,30 +50,24 @@ invalid_path & invalid_path::operator=(invalid_path const & x) {
    return *this;
 }
 
-void invalid_path::init(os::path const & opInvalid, errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_WIN32
-      ERROR_BAD_PATHNAME
-#else
-      0
-#endif
-   );
-   m_opInvalid = opInvalid;
-}
-
-/*virtual*/ void invalid_path::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   generic_error::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL("not a valid path: \"{}\""), m_opInvalid);
-}
-
 }} //namespace abc::os
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace os {
 
-path_not_found::path_not_found() {
-   m_pszWhat = "abc::path_not_found";
+/*explicit*/ path_not_found::path_not_found(os::path const & opNotFound, errint_t err /*= 0*/) :
+   generic_error(err ? err :
+#if ABC_HOST_API_POSIX
+      ENOENT
+#elif ABC_HOST_API_WIN32
+      ERROR_PATH_NOT_FOUND
+#else
+      0
+#endif
+   ),
+   m_opNotFound(opNotFound) {
+   what_writer().print(ABC_SL("path not found=\"{}\""), m_opNotFound);
 }
 
 path_not_found::path_not_found(path_not_found const & x) :
@@ -79,24 +82,6 @@ path_not_found & path_not_found::operator=(path_not_found const & x) {
    generic_error::operator=(x);
    m_opNotFound = x.m_opNotFound;
    return *this;
-}
-
-void path_not_found::init(os::path const & opNotFound, errint_t err /*= 0*/) {
-   generic_error::init(err ? err :
-#if ABC_HOST_API_POSIX
-      ENOENT
-#elif ABC_HOST_API_WIN32
-      ERROR_PATH_NOT_FOUND
-#else
-      0
-#endif
-   );
-   m_opNotFound = opNotFound;
-}
-
-/*virtual*/ void path_not_found::write_extended_info(io::text::writer * ptwOut) const /*override*/ {
-   generic_error::write_extended_info(ptwOut);
-   ptwOut->print(ABC_SL("path not found: \"{}\""), m_opNotFound);
 }
 
 }} //namespace abc::os

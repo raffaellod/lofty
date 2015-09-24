@@ -193,16 +193,16 @@ public:
    Function that is throwing the exception.
 @param x
    Exception type to be thrown.
-@param info
-   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
-   x::init().
+@param args
+   Parentheses-enclosed list of data that will be associated to the exception, as accepted by the
+   constructor of x.
 */
-#define ABC_THROW_FROM(sfa, x, info) \
+// TODO: add parentheses around each constructor argument instead of the assignment.
+#define ABC_THROW_FROM(sfa, x, args) \
    do { \
-      x __x; \
-      __x.init info; \
+      x __x = x args; \
       __x._before_throw(sfa); \
-      throw __x; \
+      throw ::abc::_std::move(__x); \
    } while (false)
 
 /*! Instantiates the specified exception class, fills it up with context information and the
@@ -220,12 +220,12 @@ because it’s the only class involved that’s not in a detail namespace.
 
 @param x
    Exception type to be thrown.
-@param info
-   Parentheses-enclosed list of data that will be associated to the exception, as accepted by
-   x::init().
+@param args
+   Parentheses-enclosed list of data that will be associated to the exception, as accepted by the
+   constructor of x.
 */
-#define ABC_THROW(x, info) \
-   ABC_THROW_FROM(ABC_THIS_SOURCE_FILE_ADDRESS(), x, info)
+#define ABC_THROW(x, args) \
+   ABC_THROW_FROM(ABC_THIS_SOURCE_FILE_ADDRESS(), x, args)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -280,10 +280,6 @@ public:
       Location at which the exception is being thrown.
    */
    void _before_throw(source_file_address const & sfa);
-
-   //! Initializes the information associated to the exception.
-   void init() {
-   }
 
 #if ABC_HOST_API_MACH || ABC_HOST_API_POSIX
    /*! Injects the requested type of exception in the specified context.
@@ -361,23 +357,24 @@ public:
    );
 
 protected:
-   /*! Writes extended information for the exception to the specified text writer.
+   /*! Returns an object that can be used to add information to the exception. The space available
+   for writing in the returned object is limited, and should be used intelligently.
 
-   @param ptwOut
-      Pointer to the writer to output to.
+   @return
+      Writer instance.
    */
-   virtual void write_extended_info(io::text::writer * ptwOut) const;
-
-protected:
-   /*! String to be returned by what(). Derived classes can overwrite this instead of overriding the
-   entire std::exception::what() method. */
-   char const * m_pszWhat;
+   io::text::char_ptr_writer what_writer();
 
 private:
    //! Source location.
    source_file_address m_sfa;
    //! true if *this is an in-flight exception (it has been thrown) or is a copy of one.
    bool m_bInFlight;
+   //! Characters available in m_szWhat.
+   std::size_t m_cchWhatAvailable;
+   /*! Buffer for the string returned by what(); used as the buffer for the string backing the
+   writer returned by what_writer(). */
+   char m_szWhat[256];
 };
 
 } //namespace abc
@@ -563,8 +560,12 @@ namespace abc {
 //! Base for all error-related exceptions classes.
 class ABACLADE_SYM generic_error : public exception {
 public:
-   //! Default constructor.
-   generic_error();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit generic_error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -585,16 +586,6 @@ public:
    */
    generic_error & operator=(generic_error const & x);
 
-   /*! See abc::exception::init().
-
-   @param err
-      OS-defined error number associated to the exception.
-   */
-   void init(errint_t err = 0) {
-      exception::init();
-      m_err = err;
-   }
-
    /*! Returns the OS-defined error number, if any.
 
    @return
@@ -604,11 +595,7 @@ public:
       return m_err;
    }
 
-protected:
-   //! See exception::write_extended_info().
-   virtual void write_extended_info(io::text::writer * ptwOut) const override;
-
-protected:
+private:
    //! OS-specific error wrapped by this exception.
    errint_t m_err;
 };
@@ -622,8 +609,12 @@ namespace abc {
 //! A function/method received an argument that had an inappropriate value.
 class ABACLADE_SYM argument_error : public generic_error {
 public:
-   //! Default constructor.
-   argument_error();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit argument_error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -643,9 +634,6 @@ public:
       *this.
    */
    argument_error & operator=(argument_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
 };
 
 } //namespace abc
@@ -657,8 +645,12 @@ namespace abc {
 //! Invalid value provided for a variable/argument.
 class ABACLADE_SYM domain_error : public generic_error {
 public:
-   //! Default constructor.
-   domain_error();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit domain_error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -678,9 +670,6 @@ public:
       *this.
    */
    domain_error & operator=(domain_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
 };
 
 } //namespace abc
@@ -692,8 +681,12 @@ namespace abc {
 //! A network-related error occurred.
 class ABACLADE_SYM network_error : public generic_error {
 public:
-   //! Default constructor.
-   network_error();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit network_error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -713,9 +706,6 @@ public:
       *this.
    */
    network_error & operator=(network_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
 };
 
 } //namespace abc
@@ -727,8 +717,12 @@ namespace abc {
 //! An operation failed to prevent a security hazard.
 class ABACLADE_SYM security_error : public generic_error {
 public:
-   //! Default constructor.
-   security_error();
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit security_error(errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -748,9 +742,6 @@ public:
       *this.
    */
    security_error & operator=(security_error const & x);
-
-   //! See abc::generic_error::init().
-   void init(errint_t err = 0);
 };
 
 } //namespace abc
