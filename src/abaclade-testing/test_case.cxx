@@ -39,21 +39,19 @@ void test_case::init(runner * prunner) {
 }
 
 void test_case::assert_does_not_throw(
-   text::file_address const & tfa, _std::function<void ()> const & fnExpr, str const & sExpr
+   text::file_address const & tfa, _std::function<void ()> fnExpr, str const & sExpr
 ) {
    ABC_TRACE_FUNC(this, tfa, /*fnExpr, */sExpr);
 
-   str sCaughtWhat;
+   str sCaught;
    try {
       fnExpr();
    } catch (_std::exception const & x) {
-      sCaughtWhat = str(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(x.what()));
+      sCaught = str(ABC_SL("throws {}")).format(typeid(x));
    } catch (...) {
-      sCaughtWhat = ABC_SL("unknown type");
+      sCaught = ABC_SL("unknown type");
    }
-   m_prunner->log_assertion(
-      tfa, !sCaughtWhat, sExpr, str::empty, ABC_SL("does not throw"), sCaughtWhat
-   );
+   m_prunner->log_assertion(tfa, !sCaught, sExpr, str::empty, ABC_SL("does not throw"), sCaught);
 }
 
 void test_case::assert_false(text::file_address const & tfa, bool bActual, str const & sExpr) {
@@ -73,28 +71,26 @@ void test_case::assert_true(text::file_address const & tfa, bool bActual, str co
 }
 
 void test_case::assert_throws(
-   text::file_address const & tfa, _std::function<void ()> const & fnExpr, str const & sExpr,
-   _std::function<bool (_std::exception const &)> const & fnMatchType, char const * pszExpectedWhat
+   text::file_address const & tfa, _std::function<void ()> fnExpr, str const & sExpr,
+   _std::function<bool (_std::exception const &)> fnInstanceOf, _std::type_info const & tiExpected
 ) {
-   ABC_TRACE_FUNC(this, tfa, /*fnExpr, */sExpr, /*fnMatchType, */pszExpectedWhat);
+   ABC_TRACE_FUNC(this, tfa, /*fnExpr, */sExpr, /*fnInstanceOf, */tiExpected);
 
    bool bPass = false;
-   str sCaughtWhat;
+   str sCaught;
    try {
       fnExpr();
-      sCaughtWhat = ABC_SL("does not throw");
+      sCaught = ABC_SL("does not throw");
    } catch (_std::exception const & x) {
-      if (fnMatchType(x)) {
+      if (fnInstanceOf(x)) {
          bPass = true;
-      } else {
-         sCaughtWhat = str(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(x.what()));
       }
+      sCaught = str(ABC_SL("throws {}")).format(typeid(x));
    } catch (...) {
-      sCaughtWhat = ABC_SL("unknown type");
+      sCaught = ABC_SL("unknown type");
    }
    m_prunner->log_assertion(
-      tfa, bPass, sExpr, str::empty,
-      str(ABC_SL("throws {}")).format(text::char_ptr_to_str_adapter(pszExpectedWhat)), sCaughtWhat
+      tfa, bPass, sExpr, str::empty, str(ABC_SL("throws {}")).format(tiExpected), sCaught
    );
 }
 

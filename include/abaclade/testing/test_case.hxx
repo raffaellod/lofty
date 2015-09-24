@@ -74,7 +74,7 @@ protected:
       Source representation of the expression being evaluated.
    */
    void assert_does_not_throw(
-      text::file_address const & tfa, _std::function<void ()> const & fnExpr, str const & sExpr
+      text::file_address const & tfa, _std::function<void ()> fnExpr, str const & sExpr
    );
 
    /*! Implementation of ABC_TESTING_ASSERT_EQUAL().
@@ -246,15 +246,15 @@ protected:
       Functor wrapping the expression to evaluate.
    @param sExpr
       Source representation of the expression being evaluated.
-   @param fnMatchType
+   @param fnInstanceOf
       Functor that checks whether an std::exception instance is of the desired derived type.
-   @param pszExpectedWhat
-      Return value of std::exception::what(), as overridden by the desired derived class.
+   @param tiExpected
+      Expected exception type.
    */
    void assert_throws(
-      text::file_address const & tfa, _std::function<void ()> const & fnExpr, str const & sExpr,
-      _std::function<bool (_std::exception const &)> const & fnMatchType,
-      char const * pszExpectedWhat
+      text::file_address const & tfa, _std::function<void ()> fnExpr, str const & sExpr,
+      _std::function<bool (_std::exception const &)> fnInstanceOf,
+      _std::type_info const & tiExpected
    );
 
    /*! Implementation of ABC_TESTING_ASSERT_TRUE().
@@ -367,13 +367,13 @@ protected:
 */
 #define ABC_TESTING_ASSERT_THROWS(type, expr) \
    /* Wrap the expression to evaluate in a lambda with access to any variable in the scope; also
-   wrap the dynamic_cast in a lambda, so the caller doesn’t need to be a template to catch the
+   wrap the dynamic_cast in a lambda, so assert_throws() doesn’t need to be a template to catch the
    desired type of exception. */ \
    this->assert_throws(ABC_THIS_FILE_ADDRESS(), [&] () { \
       static_cast<void>(expr); \
    }, ABC_SL(#expr), [] (::abc::_std::exception const & x) -> bool { \
       return dynamic_cast<type const *>(&x) != nullptr; \
-   }, type().what())
+   }, typeid(type))
 
 /*! Asserts that an expression evaluates to true.
 
