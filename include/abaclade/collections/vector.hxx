@@ -1056,9 +1056,9 @@ public:
    */
    T pop_back() {
       T * ptBack = &back();
-      T tBack(std::move(*ptBack));
+      T tBack(_std::move(*ptBack));
       vector_impl::remove(ptBack, ptBack + 1);
-      return std::move(tBack);
+      return _std::move(tBack);
    }
 
    /*! Adds an element at the end of the vector.
