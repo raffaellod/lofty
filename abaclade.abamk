@@ -73,9 +73,9 @@ not, see <http://www.gnu.org/licenses/>.
       <source path="src/abaclade/to_str.cxx"/>
       <source path="src/abaclade/type_void_adapter.cxx"/>
 
-      <exeunittest
+      <exetest
          name="abaclade-test"
-         brief="Main unit test for Abaclade."
+         brief="Main test for Abaclade."
       >
          <source path="test/abaclade/abaclade-test.cxx"/>
          <source path="test/abaclade/collections/hash_map.cxx"/>
@@ -102,26 +102,26 @@ not, see <http://www.gnu.org/licenses/>.
          <source path="test/abaclade/thread_local.cxx"/>
          <source path="test/abaclade/to_str.cxx"/>
          <dynlib name="abaclade-testing"/>
-      </exeunittest>
+      </exetest>
 
-      <toolunittest
+      <tooltest
          name="abaclade-cppmacros-test"
-         brief="Unit test for Abaclade’s preprocessor macros."
+         brief="Test for Abaclade’s preprocessor macros."
       >
          <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
          <source tool="preproc" path="test/abaclade-cppmacros/cppmacros.cxx"/>
          <expected-output path="test/abaclade-cppmacros/cppmacros.cxx.i"/>
-      </toolunittest>
+      </tooltest>
 
-      <!-- exeunittest name="abaclade-binbuf_writer-write-stdout-utf8-test">
+      <!-- exetest name="abaclade-binbuf_writer-write-stdout-utf8-test">
          <source path="test/abaclade/io/text/binbuf_writer-write-stdout-utf8.cxx"/>
          <expected-output path="test/abaclade/io/text/data/utf8.txt"/>
-      </exeunittest -->
+      </exetest -->
 
-      <!-- exeunittest name="abaclade-binbuf_writer-write-stdout-utf16be-test">
+      <!-- exetest name="abaclade-binbuf_writer-write-stdout-utf16be-test">
          <source path="test/abaclade/io/text/binbuf_writer-write-stdout-utf16be.cxx"/>
          <expected-output path="test/abaclade/io/text/data/utf16be.txt"/>
-      </exeunittest -->
+      </exetest -->
    </dynlib>
 
    <dynlib
