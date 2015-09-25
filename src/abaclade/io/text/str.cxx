@@ -182,7 +182,7 @@ str str_writer::release_content() {
 
 namespace abc { namespace io { namespace text {
 
-char_ptr_writer::char_ptr_writer(char_t * pchBuf, std::size_t * pcchBufAvailable) :
+char_ptr_writer::char_ptr_writer(char * pchBuf, std::size_t * pcchBufAvailable) :
    m_pchWriteBuf(pchBuf),
    m_pcchWriteBufAvailable(pcchBufAvailable) {
 }
@@ -229,8 +229,8 @@ char_ptr_writer::char_ptr_writer(char_ptr_writer && cpw) :
    );
    if (enc == abc::text::encoding::utf8) {
       // Optimal case: no transcoding necessary.
-      std::size_t cch = std::min(*m_pcchWriteBufAvailable, cbSrc / sizeof(char_t));
-      memory::copy(m_pchWriteBuf, static_cast<char_t const *>(pSrc), cch);
+      std::size_t cch = std::min(*m_pcchWriteBufAvailable, cbSrc / sizeof(char));
+      memory::copy(m_pchWriteBuf, static_cast<char const *>(pSrc), cch);
       m_pchWriteBuf += cch;
       *m_pcchWriteBufAvailable -= cch;
    } else {
