@@ -50,10 +50,10 @@ The name of this macro stands for Ugly Workaround Expansion.
    1 if called with no arguments (after their expansion), or 0 otherwise.
 */
 #define ABC_CPP_IS_EMPTY(...) \
-   ABC_CPP_NOT(ABC_UWE(ABC_CPP_CAT2( \
+   ABC_CPP_NOT(ABC_CPP_CAT2( \
       ABC_CPP_CAT2(_ABC_CPP_IS_EMPTY_RET_, _ABC_CPP_1_IF_NOT_CALLABLE(__VA_ARGS__)), \
       ABC_CPP_CAT2(_,                      _ABC_CPP_2_IF_EMPTY(__VA_ARGS__)) \
-   )))
+   ))
 
 //! @cond
 /* Only combination of the outputs of _ABC_CPP_1_IF_NOT_CALLABLE() and _ABC_CPP_2_IF_EMPTY() that
@@ -65,12 +65,12 @@ will expand into “0”. */
 Because that’s what we get from reusing _ABC_CPP_LIST_COUNT_0() instead of creating a nearly-
 identical macro. */
 #define _ABC_CPP_1_IF_NOT_CALLABLE(...) \
-   ABC_UWE(_ABC_CPP_LIST_COUNT_0(_ABC_CPP_COMMA_IF_CALL __VA_ARGS__))
+   _ABC_CPP_LIST_COUNT_0(_ABC_CPP_COMMA_IF_CALL __VA_ARGS__)
 
 /* Expands into “2” if the arguments expand into nothing. Why “2”? Because that’s what we get from
 reusing _ABC_CPP_LIST_COUNT_0() instead of creating a nearly-identical macro. */
 #define _ABC_CPP_2_IF_EMPTY(...) \
-   ABC_UWE(_ABC_CPP_LIST_COUNT_0(_ABC_CPP_COMMA_IF_CALL __VA_ARGS__ ()))
+   _ABC_CPP_LIST_COUNT_0(_ABC_CPP_COMMA_IF_CALL __VA_ARGS__ ())
 
 // Expands into “,” if called.
 #define _ABC_CPP_COMMA_IF_CALL(...) ,
@@ -84,7 +84,7 @@ reusing _ABC_CPP_LIST_COUNT_0() instead of creating a nearly-identical macro. */
    Count of the arguments.
 */
 #define ABC_CPP_LIST_COUNT(...) \
-   ABC_UWE(ABC_CPP_CAT2(_ABC_CPP_LIST_COUNT_, ABC_CPP_IS_EMPTY(__VA_ARGS__))(__VA_ARGS__))
+   ABC_CPP_CAT2(_ABC_CPP_LIST_COUNT_, ABC_CPP_IS_EMPTY(__VA_ARGS__))(__VA_ARGS__)
 
 //! @cond
 // Implementation of ABC_CPP_LIST_COUNT() for when ABC_CPP_IS_EMPTY() returns 1 (no arguments).
