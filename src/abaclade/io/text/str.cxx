@@ -19,6 +19,8 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade.hxx>
 #include <abaclade/text.hxx>
 
+#include <algorithm> // std::min()
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

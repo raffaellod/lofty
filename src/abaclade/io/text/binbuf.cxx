@@ -22,7 +22,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/numeric.hxx>
 #include <abaclade/text.hxx>
 
-#include <algorithm>
+#include <algorithm> // std::min()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
