@@ -42,6 +42,40 @@ The name of this macro stands for Ugly Workaround Expansion.
 */
 #define ABC_UWE(x) x
 
+/*! Expands into 1 or 0 depending on whether its arguments list expands into nothing or not.
+
+@param ...
+   Arguments to check.
+@return
+   1 if called with no arguments (after their expansion), or 0 otherwise.
+*/
+#define ABC_CPP_IS_EMPTY(...) \
+   ABC_CPP_NOT(ABC_UWE(ABC_CPP_CAT2( \
+      ABC_CPP_CAT2(_ABC_CPP_IS_EMPTY_RET_, _ABC_CPP_1_IF_NOT_CALLABLE(__VA_ARGS__)), \
+      ABC_CPP_CAT2(_,                      _ABC_CPP_2_IF_EMPTY(__VA_ARGS__)) \
+   )))
+
+//! @cond
+/* Only combination of the outputs of _ABC_CPP_1_IF_NOT_CALLABLE() and _ABC_CPP_2_IF_EMPTY() that
+will expand into “0”. */
+#define _ABC_CPP_IS_EMPTY_RET_1_2 \
+   0
+
+/* Expands into “1” if the arguments don’t expand into something that can be called. Why “1”?
+Because that’s what we get from reusing _ABC_CPP_LIST_COUNT_0() instead of creating a nearly-
+identical macro. */
+#define _ABC_CPP_1_IF_NOT_CALLABLE(...) \
+   ABC_UWE(_ABC_CPP_LIST_COUNT_0(_ABC_CPP_COMMA_IF_CALL __VA_ARGS__))
+
+/* Expands into “2” if the arguments expand into nothing. Why “2”? Because that’s what we get from
+reusing _ABC_CPP_LIST_COUNT_0() instead of creating a nearly-identical macro. */
+#define _ABC_CPP_2_IF_EMPTY(...) \
+   ABC_UWE(_ABC_CPP_LIST_COUNT_0(_ABC_CPP_COMMA_IF_CALL __VA_ARGS__ ()))
+
+// Expands into “,” if called.
+#define _ABC_CPP_COMMA_IF_CALL(...) ,
+//! @endcond
+
 /*! Expands into the count of its arguments.
 
 @param ...
@@ -50,7 +84,16 @@ The name of this macro stands for Ugly Workaround Expansion.
    Count of the arguments.
 */
 #define ABC_CPP_LIST_COUNT(...) \
-   ABC_UWE(_ABC_CPP_LIST_COUNT_IMPL(__VA_ARGS__, \
+   ABC_UWE(ABC_CPP_CAT2(_ABC_CPP_LIST_COUNT_, ABC_CPP_IS_EMPTY(__VA_ARGS__))(__VA_ARGS__))
+
+//! @cond
+// Implementation of ABC_CPP_LIST_COUNT() for when ABC_CPP_IS_EMPTY() returns 1 (no arguments).
+#define _ABC_CPP_LIST_COUNT_1(...) \
+   0
+
+// Implementation of ABC_CPP_LIST_COUNT() for when ABC_CPP_IS_EMPTY() returns 0 (not empty).
+#define _ABC_CPP_LIST_COUNT_0(...) \
+   ABC_UWE(_ABC_CPP_LIST_COUNT_1_IMPL(__VA_ARGS__, \
       99, 98, 97, 96, 95, 94, 93, 92, 91, 90, \
       89, 88, 87, 86, 85, 84, 83, 82, 81, 80, \
       79, 78, 77, 76, 75, 74, 73, 72, 71, 70, \
@@ -64,8 +107,8 @@ The name of this macro stands for Ugly Workaround Expansion.
       _ \
    ))
 
-//! @cond
-#define _ABC_CPP_LIST_COUNT_IMPL( \
+// Returns a number provided by _ABC_CPP_LIST_COUNT_0() after shifting it by that macro’s arguments.
+#define _ABC_CPP_LIST_COUNT_1_IMPL( \
       _99, _98, _97, _96, _95, _94, _93, _92, _91, _90, \
       _89, _88, _87, _86, _85, _84, _83, _82, _81, _80, \
       _79, _78, _77, _76, _75, _74, _73, _72, _71, _70, \
