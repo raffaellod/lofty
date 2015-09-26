@@ -246,22 +246,26 @@ guaranteed on all platforms.
       ABC_CPP_CAT2(s, __LINE__)
 #endif
 
-/*! Expands into a macro that will evaluate its first argument or the remaining ones, depending on
-whether bit evaluates to 1 or 0, respectively.
+/*! Expands into either the first argument or the second, depending on whether a condition evaluates
+to non-zero or 0 (see ABC_CPP_NOT() ), respectively.
 
-@param bit
-   Boolean selector of the macro that folllows.
+@param condition
+   Condition to evaluate.
+@param true
+   Expression to expand into if condition evaluates to non-zero.
+@param false
+   Expression to expand into if condition evaluates to 0.
 @return
-   Execution of the macro that follows.
+   Expansion of true or false.
 */
-#define ABC_CPP_IF(bit) \
-   ABC_CPP_CAT2(_ABC_CPP_IF_, bit)
+#define ABC_CPP_IF(condition, true, false) \
+   ABC_CPP_CAT2(_ABC_CPP_IF_, ABC_CPP_NOT(condition))(true, false)
 
 //! @cond
-#define _ABC_CPP_IF_0(true, ...) \
-   __VA_ARGS__
-#define _ABC_CPP_IF_1(true, ...) \
+#define _ABC_CPP_IF_0(true, false) \
    true
+#define _ABC_CPP_IF_1(true, false) \
+   false
 //! @endcond
 
 /*! Expands into the argument + 1.
