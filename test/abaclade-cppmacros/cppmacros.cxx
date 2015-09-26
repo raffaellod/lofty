@@ -20,14 +20,20 @@ not, see <http://www.gnu.org/licenses/>.
 
 ABCMK_CMP_BEGIN
 
-ABC_CPP_IF(0)(a, b)
-ABC_CPP_IF(1)(a, b)
-ABC_CPP_IF(0)((a), (b))
-ABC_CPP_IF(1)((a), (b))
-
 #define ACTUALLY_EMPTY
 #define EMPTY_ONLY_IF_CALLED()
 #define NOT_QUITE_EMPTY() x
+#define ZERO 0
+
+ABC_CPP_NOT(0)
+ABC_CPP_NOT(1)
+ABC_CPP_NOT(ZERO)
+ABC_CPP_NOT(a)
+
+ABC_CPP_IF(0, a, b)
+ABC_CPP_IF(1, a, b)
+ABC_CPP_IF(ZERO, (a), (b))
+ABC_CPP_IF(a, (a), (b))
 
 ABC_CPP_IS_EMPTY()
 ABC_CPP_IS_EMPTY(/**/)
