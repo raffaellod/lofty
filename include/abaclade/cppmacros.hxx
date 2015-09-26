@@ -254,14 +254,14 @@ whether bit evaluates to 1 or 0, respectively.
 @return
    Execution of the macro that follows.
 */
-#define ABC_CPP_IIF(bit) \
-   ABC_CPP_CAT2(_ABC_CPP_IIF_, bit)
+#define ABC_CPP_IF(bit) \
+   ABC_CPP_CAT2(_ABC_CPP_IF_, bit)
 
 //! @cond
-#define _ABC_CPP_IIF_0(true_part, ...) \
+#define _ABC_CPP_IF_0(true, ...) \
    __VA_ARGS__
-#define _ABC_CPP_IIF_1(true_part, ...) \
-   true_part
+#define _ABC_CPP_IF_1(true, ...) \
+   true
 //! @endcond
 
 /*! Expands into the complement of the specified bit.
@@ -562,17 +562,6 @@ respectively.
 */
 #define ABC_CPP_BOOL(x) \
    ABC_CPP_COMPL(ABC_CPP_NOT(x))
-
-/*! Expands into a macro that will evaluate its first argument or the remaining ones, depending on
-whether x evaluates to non-0 or 0, respectively.
-
-@param x
-   Condition.
-@return
-   Execution of the macro that follows.
-*/
-#define ABC_CPP_IF(x) \
-   ABC_CPP_IIF(ABC_CPP_BOOL(x))
 
 /*! Expands into the invocation of the specified macro once for each of the remaining scalar
 arguments.
