@@ -264,21 +264,6 @@ whether bit evaluates to 1 or 0, respectively.
    true
 //! @endcond
 
-/*! Expands into the complement of the specified bit.
-
-@param bit
-   Bit to complement.
-@return
-   Complement of the expansion of bit.
-*/
-#define ABC_CPP_COMPL(bit) \
-   ABC_CPP_CAT2(_ABC_CPP_COMPL_, bit)
-
-//! @cond
-#define _ABC_CPP_COMPL_0 1
-#define _ABC_CPP_COMPL_1 0
-//! @endcond
-
 /*! Expands into the argument + 1.
 
 @param int
@@ -523,7 +508,7 @@ is expanded or not.
 ABC_CPP_CHECK(). */
 // TODO: is a comma after 1 necessary?
 #define _ABC_CPP_MAKE_CHECK_RET_ONE(...) \
-   dummy, 1
+   placeholder, 1
 //! @endcond
 
 /*! Expands into either 1 or 0 depending on whether the argument is a tuple or not.
@@ -551,17 +536,6 @@ respectively.
 #define _ABC_CPP_NOT_0 \
    _ABC_CPP_MAKE_CHECK_RET_ONE()
 //! @endcond
-
-/*! Expands into either 0 or 1 depending on whether the argument expands into 0 or anything else,
-respectively.
-
-@param x
-   Expression to convert to a boolean value.
-@return
-   0 or 1.
-*/
-#define ABC_CPP_BOOL(x) \
-   ABC_CPP_COMPL(ABC_CPP_NOT(x))
 
 /*! Expands into the invocation of the specified macro once for each of the remaining scalar
 arguments.
