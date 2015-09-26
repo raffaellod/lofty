@@ -18,6 +18,11 @@ not, see <http://www.gnu.org/licenses/>.
 
 ABCMK_CMP_BEGIN
 
+b
+a
+(b)
+(a)
+
 
 
 
