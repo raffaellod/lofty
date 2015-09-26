@@ -197,10 +197,9 @@ public:
    Parentheses-enclosed list of data that will be associated to the exception, as accepted by the
    constructor of x.
 */
-// TODO: add parentheses around each constructor argument instead of the assignment.
 #define ABC_THROW_FROM(sfa, x, args) \
    do { \
-      x __x = x args; \
+      x __x ABC_CPP_IF(ABC_CPP_LIST_COUNT args, args, ); \
       __x._before_throw(sfa); \
       throw ::abc::_std::move(__x); \
    } while (false)
