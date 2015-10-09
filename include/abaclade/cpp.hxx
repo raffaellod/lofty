@@ -192,27 +192,6 @@ generic ABC_CPP_CAT().
 #define _ABC_CPP_CAT_10(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) \
    _ABC_CPP_CAT_10_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10)
 #define _ABC_CPP_CAT_10_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) \
-   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10
-#define _ABC_CPP_CAT_11(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11) \
-   _ABC_CPP_CAT_11_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11)
-#define _ABC_CPP_CAT_11_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11) \
-   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11
-#define _ABC_CPP_CAT_12(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12) \
-   _ABC_CPP_CAT_12_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12)
-#define _ABC_CPP_CAT_12_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12) \
-   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12
-#define _ABC_CPP_CAT_13(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13) \
-   _ABC_CPP_CAT_13_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13)
-#define _ABC_CPP_CAT_13_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13) \
-   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13
-#define _ABC_CPP_CAT_14(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14) \
-   _ABC_CPP_CAT_14_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14)
-#define _ABC_CPP_CAT_14_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14) \
-   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14
-#define _ABC_CPP_CAT_15(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15) \
-   _ABC_CPP_CAT_15_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15)
-#define _ABC_CPP_CAT_15_IMPL(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15) \
-   t1 ## t2 ## t3 ## t4 ## t5 ## t6 ## t7 ## t8 ## t9 ## t10 ## t11 ## t12 ## t13 ## t14 ## t15
 //! @endcond
 
 /*! Expands into a string version of the specified token.
