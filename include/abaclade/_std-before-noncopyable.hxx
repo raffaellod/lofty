@@ -62,7 +62,7 @@ using namespace ::abc::_std;
 
    }} //namespace abc::_std
 
-   #if (ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900) || ABC_HOST_STL_MSVCRT
+   #if (ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 50000) || ABC_HOST_STL_MSVCRT
       // The STL implementations above need to be supplemented with Abaclade’s implementation.
       #define _ABC_STD_TYPE_TRAITS_SELECTIVE
       #include <abaclade/_std/type_traits.hxx>

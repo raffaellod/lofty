@@ -110,7 +110,7 @@ struct is_trivial : public integral_constant<bool, false
          )*/
 
 #if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
-   ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900 \
+   ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 50000 \
 )
    /*! Defined as _std::true_type if T::T(T const &) is just a memcpy(), or _std::false_type
    otherwise. */
@@ -143,7 +143,7 @@ struct is_trivial : public integral_constant<bool, false
          )*/
 
 #if !defined(_ABC_STD_TYPE_TRAITS_SELECTIVE) || ABC_HOST_STL_MSVCRT || ( \
-   ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 40900 \
+   ABC_HOST_STL_LIBSTDCXX && ABC_HOST_STL_LIBSTDCXX < 50000 \
 )
    //! Defined as _std::true_type if T::T(T &&) is just a memcpy(), or _std::false_type otherwise.
    template <typename T>
