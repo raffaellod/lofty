@@ -105,12 +105,12 @@ not, see <http://www.gnu.org/licenses/>.
       </exetest>
 
       <tooltest
-         name="abaclade-cppmacros-test"
+         name="abaclade-cpp-test"
          brief="Test for Abaclade’s preprocessor macros."
       >
          <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
-         <source tool="preproc" path="test/abaclade-cppmacros/cppmacros.cxx"/>
-         <expected-output path="test/abaclade-cppmacros/cppmacros.cxx.i"/>
+         <source tool="preproc" path="test/abaclade-cpp/cpp.cxx"/>
+         <expected-output path="test/abaclade-cpp/cpp.cxx.i"/>
       </tooltest>
 
       <!-- exetest name="abaclade-binbuf_writer-write-stdout-utf8-test">

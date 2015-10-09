@@ -58,7 +58,7 @@ namespace abc {
    #undef _DEBUG
 #endif
 
-#include <abaclade/cppmacros.hxx>
+#include <abaclade/cpp.hxx>
 
 #if ABC_HOST_API_POSIX
    // Enable 64-bit offsets in file functions, and prevent stat() from failing for 2+ GiB files.
