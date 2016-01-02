@@ -292,7 +292,7 @@ void exception::_before_throw(source_file_address const & sfa) {
       #endif
    #elif ABC_HOST_ARCH_I386
       #if ABC_HOST_API_LINUX
-         typedef long reg_t;
+         typedef int reg_t;
          reg_t & iCodePtr = mctx.gregs[REG_EIP], & iStackPtr = mctx.gregs[REG_ESP];
       #elif ABC_HOST_API_FREEBSD
          typedef std::uint32_t reg_t;
