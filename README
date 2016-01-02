@@ -4,7 +4,7 @@
 Abaclade is a C++11 framework featuring:
 
 •  Multiple platform compatibility: Linux and Windows, with OS X and FreeBSD
-   “only” blocked by Clang/LLVM limitations (see § 3. Compatibility);
+   “only” blocked by Clang/LLVM limitations (see § 7. Compatibility);
 
 •  Seamless integration with the C++11 STL;
 
@@ -31,54 +31,95 @@ Abaclade is a C++11 framework featuring:
    service-oriented architectures;
 
 
-2. Past, present and future
----------------------------
+2. Getting Abaclade
+-------------------
+
+Abaclade is available at https://github.com/raffaellod/abaclade via git; to
+download it, just clone the repository:
+
+   git clone https://github.com/raffaellod/abaclade.git
+   cd abaclade
+
+The default branch, linux, is where all Linux development occurs; branches for
+other platforms are regularly merged to and from it, and guarantee a stable base
+for each platform, so you should switch to the branch matching yours if you’re
+not targeting Linux:
+
+•  OS X:    git checkout osx
+•  Windows: git checkout win
+•  FreeBSD: git checkout freebsd
+
+See § 6. Versioning and branching for more information on available branches.
 
 
-2.1. Some history
+3. Building Abaclade
+--------------------
+
+Building Abaclade requires Abamake (see <https://github.com/raffaellod/
+abamake>), which works as an improved make utility.
+
+To build Abaclade, run Abamake from its base directory:
+
+   /path/to/abamake.py
+
+This will create outputs in the bin/ and lib/ folders.
+
+
+4. Installing Abaclade
+----------------------
+
+At the moment, Abaclade lacks any means for installation.
+
+TODO: make Abaclade installable.
+
+
+5. Using Abaclade
 -----------------
 
-Abaclade was started in the mid-2000s with a dual scope: on one hand explore if
-it was possible, (ab)using templates and other C++ features, to have automatic
-error reporting similar to what higher-level languages such as Python and Java
-offer; on the other hand, a required target was to be able to write programs
-that would be light, fast, easy to write, and easy to read years later.
+For usage examples, please see the source files in the examples/ folder.
+Examples are built as part of Abaclade (see § 3. Building Abaclade), and the
+generated executables can be found in the bin/ output folder.
 
-At the time, the features of C++ were insufficient to accomplish all that
-without using some sort of pre-preprocessor, so the project goals lead to
-several dead-ended projects.
+If Abaclade is not installed (see § 4. Installing Abaclade), example programs
+will fail to run due to being unable to load Abaclade shared libraries; this can
+be worked around by adding the output lib/ folder to the shared library search
+path:
 
-When C++11 finally reached the final draft status, it turned out that it allowed
-for most of the features that had originally been planned, so development of
-Abaclade as it is now was finally started.
+• On glibc/Linux and FreeBSD:
+   env LD_LIBRARY_PATH=$PWD/lib bin/hello-world
 
+• On OS X:
+   env DYLD_LIBRARY_PATH=$PWD/lib bin/hello-world
 
-2.2. Current status of Abaclade
--------------------------------
-
-Abaclade can be considered of “beta” grade, and adoption by small projects is
-encouraged.
+• On Windows:
+   set PATH=%PATH%;%CD%\lib
+   bin\hello-world
 
 
-2.3. Project goals
-------------------
+6. Versioning and branching
+---------------------------
 
-Abaclade has very ambitious goals:
+Abaclade uses semantical versioning, with releases named vX.Y.Z-P where X is the
+major version, Y is the minor version, Z is the revision, and P is the platform.
 
-1. Supersede other C++ libraries that fail to exploit the features of C++11 –
-   especially libraries developed as C++ bindings for C libraries;
+While the major version number is 0, changes to the minor indicate breaking
+changes, while the revision is incremented for non-breaking changes such as bug
+fixes and minor improvements.
+There is one main branch for each platform (see § 2. Getting Abaclade), and each
+release is a tag along its platform branch’s history. There are no maintenance
+releases.
 
-2. Demonstrate that C++ programs can be as sleek as Java or Python programs,
-   while being considerably more efficient;
+Version 1.0.0 will indicate the first production-grade release, and the meaning
+of the versioning schema will shift accordingly: the major number will indicate
+breaking changes, the minor non-breaking changes (e.g. for maintenance
+releases), and the revision will be incremented for bug fixes and other minor
+improvements.
+The main git branch will remanin master, but each major release will get its own
+branch, to support maintenance releases independent of the master branch. Minor
+versions and revisions will be tags along their major version’s branch.
 
-3. Encourage writing of software in C++ instead of other less efficient
-   languages such as C (development efficiency) or Java (execution efficiency);
 
-All future development will be geared towards getting closer to accomplishing
-these objectives.
-
-
-3. Compatibility
+7. Compatibility
 ----------------
 
 Abaclade is in full development, so its compatibility can and will change over
@@ -116,73 +157,54 @@ limitations:
 •  FreeBSD – officially only the latest -RELEASE is supported;
 
 Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
-the build host system. This is expected to not be needed in the future.
+the build host system.
 
 
-4. Getting Abaclade
--------------------
-
-Abaclade is available at https://github.com/raffaellod/abaclade via git; to
-download it, just clone the repository:
-
-   git clone https://github.com/raffaellod/abaclade.git
-   cd abaclade
-
-The default branch, master, is where all Linux development occurs; platform-
-specific branches are regularly merged to and from it, and guarantee a stable
-base for each platform, so you’ll probably want to switch to the one matching
-yours if you’re not targeting Linux:
-
-•  OS X:    git checkout osx
-•  Windows: git checkout win
-•  FreeBSD: git checkout freebsd
+6. Past, present and future
+---------------------------
 
 
-5. Building Abaclade
---------------------
-
-Building Abaclade requires Abamake (see <https://github.com/raffaellod/
-abamake>), which works as an improved make utility.
-
-To build Abaclade, run Abamake from its base directory:
-
-   /path/to/abamake.py
-
-This will create outputs in the bin/ and lib/ folders.
-
-
-6. Installing Abaclade
-----------------------
-
-At the moment, Abaclade lacks any means for installation.
-
-TODO: make Abaclade installable.
-
-
-7. Using Abaclade
+6.1. Some history
 -----------------
 
-For usage examples, please see the source files in the examples/ folder.
-Examples are built as part of Abaclade (see § 5. Building Abaclade), and the
-generated executables can be found in the bin/ output folder.
+Abaclade was started in the mid-2000s with a dual scope: on one hand explore if
+it was possible, (ab)using templates and other C++ features, to have automatic
+error reporting similar to what higher-level languages such as Python and Java
+offer; on the other hand, a required target was to be able to write programs
+that would be light, fast, easy to write, and easy to read years later.
 
-If Abaclade is not installed (see § 6. Installing Abaclade), example programs
-will fail to run due to being unable to load Abaclade shared libraries; this can
-be worked around by adding the output lib/ folder to the shared library search
-path:
+At the time, the features of C++ were insufficient to accomplish all that
+without using some sort of pre-preprocessor, so the project goals lead to
+several dead-ended projects.
 
-• On glibc/Linux and FreeBSD:
+When C++11 finally reached the final draft status, it turned out that it allowed
+for most of the features that had originally been planned, so development of
+Abaclade as it is now was finally started.
 
-   env LD_LIBRARY_PATH=$PWD/lib bin/hello-world
 
-• On OS X:
+6.2. Current status of Abaclade
+-------------------------------
 
-   env DYLD_LIBRARY_PATH=$PWD/lib bin/hello-world
+Abaclade can be considered of “alpha” grade, and tinkering with it is strongly
+encouraged.
 
-• On Windows:
 
-   set PATH=%PATH%;%CD%\lib
-   bin\hello-world
+6.3. Project goals
+------------------
+
+Abaclade has very ambitious goals:
+
+1. Supersede other C++ libraries that fail to exploit the features of C++11 –
+   especially libraries developed as C++ bindings for C libraries;
+
+2. Demonstrate that C++ programs can be as sleek as Java or Python programs,
+   while being considerably more efficient;
+
+3. Encourage writing of software in C++ instead of other less efficient
+   languages such as C (development efficiency) or Java (execution efficiency);
+
+All future development will be geared towards getting closer to accomplishing
+these objectives.
 
 
 
