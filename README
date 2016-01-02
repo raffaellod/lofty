@@ -88,9 +88,9 @@ Supported build systems:
 
 •  GNU toolchain
    •  GCC 4.7 to 5.2
-   •  binutils (version to be determined – anything from 2010 on should work)
+   •  binutils 2.20 or later
 
-•  Microsoft Visual Studio 2010/2012/2013 (Visual C++ 10-12 / MSC 16-18)
+•  Microsoft Visual Studio 2010-2013 (Visual C++ 10-12 / MSC 16-18)
 
 Clang/LLVM is not supported at this moment due to missing compiler features. If
 and when these will get integrated in LLVM, Abaclade will support these
@@ -98,13 +98,13 @@ additional build systems:
 
 •  Clang + GNU LD
    •  Clang 3.5
-   •  binutils (version to be determined – anything from 2010 on should work)
+   •  binutils 2.20 or later
 
 •  Apple SDK for OS X 10.10 Yosemite and 10.9 Mavericks (included in Xcode 6)
 
 Supported operating systems:
 
-•  GNU/Linux using glibc 2.17 or later;
+•  GNU/Linux 2.6 or later, using glibc 2.17 or later;
 •  Microsoft Windows – currently only via Visual C++ 10 or later, which means
    only Windows XP and later versions are supported.
 
