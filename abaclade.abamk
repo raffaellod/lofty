@@ -108,7 +108,7 @@ targets:
 
             expected output: test/abaclade-cpp/cpp.cxx.i
             output transform:
-            -  !abamake/target/output-filter "ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"
+            -  !abamake/target/filter-output-transform "ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"
             sources:
             -  path: test/abaclade-cpp/cpp.cxx
                tool: preproc
