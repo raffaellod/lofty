@@ -1,193 +1,175 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- -*- coding: utf-8; mode: xml; tab-width: 3; indent-tabs-mode: nil -*-
+%YAML 1.2
+# -*- coding: utf-8; mode: yaml; tab-width: 3; indent-tabs-mode: nil -*-
+#
+# Copyright 2013-2016 Raffaello D. Di Napoli
+#
+# This file is part of Abaclade.
+#
+# Abaclade is free software: you can redistribute it and/or modify it under the terms of the GNU
+# Lesser General Public License as published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.
+#
+# Abaclade is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
+# General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along with Abaclade. If
+# not, see <http://www.gnu.org/licenses/>.
+#---------------------------------------------------------------------------------------------------
+--- !abamake/makefile
+brief: Abamake makefile for Abaclade.
+targets:
 
-Copyright 2013-2015 Raffaello D. Di Napoli
+   abaclade: !abamake/target/dynlib
+      brief: Main Abaclade dynamic shared library.
+      sources:
+      -  src/abaclade/app.cxx
+      -  src/abaclade/bitmanip.cxx
+      -  src/abaclade/byteorder.cxx
+      -  src/abaclade/collections.cxx
+      -  src/abaclade/collections/detail/doubly_linked_list_impl.cxx
+      -  src/abaclade/collections/detail/hash_map_impl.cxx
+      -  src/abaclade/collections/detail/singly_linked_list_impl.cxx
+      -  src/abaclade/collections/detail/trie_ordered_multimap_impl.cxx
+      -  src/abaclade/collections/detail/vextr_impl.cxx
+      -  src/abaclade/collections/static_list.cxx
+      -  src/abaclade/collections/vector.cxx
+      -  src/abaclade/coroutine.cxx
+      -  src/abaclade/coroutine_local.cxx
+      -  src/abaclade/detail/context_local.cxx
+      -  src/abaclade/detail/signal_dispatcher.cxx
+      -  src/abaclade/detail/trace.cxx
+      -  src/abaclade/enum.cxx
+      -  src/abaclade/exception.cxx
+      -  src/abaclade/exception-throw_os_error.cxx
+      -  src/abaclade/io.cxx
+      -  src/abaclade/io/binary.cxx
+      -  src/abaclade/io/binary/default_buffered.cxx
+      -  src/abaclade/io/binary/file-subclasses.cxx
+      -  src/abaclade/io/text.cxx
+      -  src/abaclade/io/text/binbuf.cxx
+      -  src/abaclade/io/text/str.cxx
+      -  src/abaclade/math.cxx
+      -  src/abaclade/memory.cxx
+      -  src/abaclade/net.cxx
+      -  src/abaclade/os.cxx
+      -  src/abaclade/os/path.cxx
+      -  src/abaclade/perf/stopwatch.cxx
+      -  src/abaclade/process.cxx
+      -  src/abaclade/_std/exception.cxx
+      -  src/abaclade/_std/memory.cxx
+      -  src/abaclade/_std/new.cxx
+      -  src/abaclade/_std/tuple.cxx
+      -  src/abaclade/_std/typeinfo.cxx
+      -  src/abaclade/text.cxx
+      -  src/abaclade/text/char_ptr_to_str_adapter.cxx
+      -  src/abaclade/text/char_traits.cxx
+      -  src/abaclade/text/parsers/ansi_escape_sequences.cxx
+      -  src/abaclade/text/str.cxx
+      -  src/abaclade/text/str_traits.cxx
+      -  src/abaclade/thread.cxx
+      -  src/abaclade/thread_local.cxx
+      -  src/abaclade/to_str.cxx
+      -  src/abaclade/type_void_adapter.cxx
 
-This file is part of Abaclade.
+      tests:
+         abaclade-test: !abamake/target/exetest
+            brief: Main test for Abaclade.
+            sources:
+            -  test/abaclade/abaclade-test.cxx
+            -  test/abaclade/collections/hash_map.cxx
+            -  test/abaclade/collections/list.cxx
+            -  test/abaclade/collections/queue.cxx
+            -  test/abaclade/collections/static_list.cxx
+            -  test/abaclade/collections/trie_ordered_multimap.cxx
+            -  test/abaclade/collections/vector.cxx
+            -  test/abaclade/coroutine.cxx
+            -  test/abaclade/coroutine_local.cxx
+            -  test/abaclade/defer_to_scope_end.cxx
+            -  test/abaclade/detail/signal_dispatcher.cxx
+            -  test/abaclade/enum.cxx
+            -  test/abaclade/exception.cxx
+            -  test/abaclade/io/binary/pipe.cxx
+            -  test/abaclade/io/text/binbuf_reader-read.cxx
+            -  test/abaclade/io/text/writer-print.cxx
+            -  test/abaclade/os/path.cxx
+            -  test/abaclade/range.cxx
+            -  test/abaclade/text/char_ptr_to_str_adapter.cxx
+            -  test/abaclade/text/str.cxx
+            -  test/abaclade/text/str_traits.cxx
+            -  test/abaclade/thread.cxx
+            -  test/abaclade/thread_local.cxx
+            -  test/abaclade/to_str.cxx
+            libraries:
+            -  abaclade-testing
 
-Abaclade is free software: you can redistribute it and/or modify it under the terms of the GNU
-Lesser General Public License as published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
+         abaclade-cpp-test: !abamake/target/tooltest
+            brief: Test for Abaclade’s preprocessor macros.
 
-Abaclade is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
-General Public License for more details.
+            expected output: test/abaclade-cpp/cpp.cxx.i
+            output transform:
+            -  !abamake/target/output-filter "ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"
+            sources:
+            -  path: test/abaclade-cpp/cpp.cxx
+               tool: preproc
 
-You should have received a copy of the GNU Lesser General Public License along with Abaclade. If
-not, see <http://www.gnu.org/licenses/>.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+   abaclade-testing: !abamake/target/dynlib
+      brief: Testing support library.
+      sources:
+      -  src/abaclade-testing/app.cxx
+      -  src/abaclade-testing/runner.cxx
+      -  src/abaclade-testing/test_case.cxx
+      -  src/abaclade-testing/utility.cxx
+      libraries:
+      -  abaclade
 
-<abcmake
-   brief="Abaclade Make makefile for Abaclade itself."
->
-   <dynlib
-      name="abaclade"
-      brief="Main Abaclade dynamic shared library."
-   >
-      <source path="src/abaclade/app.cxx"/>
-      <source path="src/abaclade/bitmanip.cxx"/>
-      <source path="src/abaclade/byteorder.cxx"/>
-      <source path="src/abaclade/collections.cxx"/>
-      <source path="src/abaclade/collections/detail/doubly_linked_list_impl.cxx"/>
-      <source path="src/abaclade/collections/detail/hash_map_impl.cxx"/>
-      <source path="src/abaclade/collections/detail/singly_linked_list_impl.cxx"/>
-      <source path="src/abaclade/collections/detail/trie_ordered_multimap_impl.cxx"/>
-      <source path="src/abaclade/collections/detail/vextr_impl.cxx"/>
-      <source path="src/abaclade/collections/static_list.cxx"/>
-      <source path="src/abaclade/collections/vector.cxx"/>
-      <source path="src/abaclade/coroutine.cxx"/>
-      <source path="src/abaclade/coroutine_local.cxx"/>
-      <source path="src/abaclade/detail/context_local.cxx"/>
-      <source path="src/abaclade/detail/signal_dispatcher.cxx"/>
-      <source path="src/abaclade/detail/trace.cxx"/>
-      <source path="src/abaclade/enum.cxx"/>
-      <source path="src/abaclade/exception.cxx"/>
-      <source path="src/abaclade/exception-throw_os_error.cxx"/>
-      <source path="src/abaclade/io.cxx"/>
-      <source path="src/abaclade/io/binary.cxx"/>
-      <source path="src/abaclade/io/binary/default_buffered.cxx"/>
-      <source path="src/abaclade/io/binary/file-subclasses.cxx"/>
-      <source path="src/abaclade/io/text.cxx"/>
-      <source path="src/abaclade/io/text/binbuf.cxx"/>
-      <source path="src/abaclade/io/text/str.cxx"/>
-      <source path="src/abaclade/math.cxx"/>
-      <source path="src/abaclade/memory.cxx"/>
-      <source path="src/abaclade/net.cxx"/>
-      <source path="src/abaclade/os.cxx"/>
-      <source path="src/abaclade/os/path.cxx"/>
-      <source path="src/abaclade/perf/stopwatch.cxx"/>
-      <source path="src/abaclade/process.cxx"/>
-      <source path="src/abaclade/_std/exception.cxx"/>
-      <source path="src/abaclade/_std/memory.cxx"/>
-      <source path="src/abaclade/_std/new.cxx"/>
-      <source path="src/abaclade/_std/tuple.cxx"/>
-      <source path="src/abaclade/_std/typeinfo.cxx"/>
-      <source path="src/abaclade/text.cxx"/>
-      <source path="src/abaclade/text/char_ptr_to_str_adapter.cxx"/>
-      <source path="src/abaclade/text/char_traits.cxx"/>
-      <source path="src/abaclade/text/parsers/ansi_escape_sequences.cxx"/>
-      <source path="src/abaclade/text/str.cxx"/>
-      <source path="src/abaclade/text/str_traits.cxx"/>
-      <source path="src/abaclade/thread.cxx"/>
-      <source path="src/abaclade/thread_local.cxx"/>
-      <source path="src/abaclade/to_str.cxx"/>
-      <source path="src/abaclade/type_void_adapter.cxx"/>
+   # Examples ######################################################################################
 
-      <exetest
-         name="abaclade-test"
-         brief="Main test for Abaclade."
-      >
-         <source path="test/abaclade/abaclade-test.cxx"/>
-         <source path="test/abaclade/collections/hash_map.cxx"/>
-         <source path="test/abaclade/collections/list.cxx"/>
-         <source path="test/abaclade/collections/queue.cxx"/>
-         <source path="test/abaclade/collections/static_list.cxx"/>
-         <source path="test/abaclade/collections/trie_ordered_multimap.cxx"/>
-         <source path="test/abaclade/collections/vector.cxx"/>
-         <source path="test/abaclade/coroutine.cxx"/>
-         <source path="test/abaclade/coroutine_local.cxx"/>
-         <source path="test/abaclade/defer_to_scope_end.cxx"/>
-         <source path="test/abaclade/detail/signal_dispatcher.cxx"/>
-         <source path="test/abaclade/enum.cxx"/>
-         <source path="test/abaclade/exception.cxx"/>
-         <source path="test/abaclade/io/binary/pipe.cxx"/>
-         <source path="test/abaclade/io/text/binbuf_reader-read.cxx"/>
-         <source path="test/abaclade/io/text/writer-print.cxx"/>
-         <source path="test/abaclade/os/path.cxx"/>
-         <source path="test/abaclade/range.cxx"/>
-         <source path="test/abaclade/text/char_ptr_to_str_adapter.cxx"/>
-         <source path="test/abaclade/text/str.cxx"/>
-         <source path="test/abaclade/text/str_traits.cxx"/>
-         <source path="test/abaclade/thread.cxx"/>
-         <source path="test/abaclade/thread_local.cxx"/>
-         <source path="test/abaclade/to_str.cxx"/>
-         <dynlib name="abaclade-testing"/>
-      </exetest>
+   hello-world: !abamake/target/exe
+      brief: "Example: “Hello World”."
+      sources:
+      -  examples/hello-world.cxx
+      libraries:
+      -  abaclade
 
-      <tooltest
-         name="abaclade-cpp-test"
-         brief="Test for Abaclade’s preprocessor macros."
-      >
-         <output-transform filter="ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"/>
-         <source tool="preproc" path="test/abaclade-cpp/cpp.cxx"/>
-         <expected-output path="test/abaclade-cpp/cpp.cxx.i"/>
-      </tooltest>
+   cat: !abamake/target/exe
+      brief: "Example: “cat” utility."
+      sources:
+      -  examples/cat.cxx
+      libraries:
+      -  abaclade
 
-      <!-- exetest name="abaclade-binbuf_writer-write-stdout-utf8-test">
-         <source path="test/abaclade/io/text/binbuf_writer-write-stdout-utf8.cxx"/>
-         <expected-output path="test/abaclade/io/text/data/utf8.txt"/>
-      </exetest -->
+   exceptions: !abamake/target/exe
+      brief: "Example: exceptions and stack traces."
+      sources:
+      -  examples/exceptions.cxx
+      libraries:
+      -  abaclade
 
-      <!-- exetest name="abaclade-binbuf_writer-write-stdout-utf16be-test">
-         <source path="test/abaclade/io/text/binbuf_writer-write-stdout-utf16be.cxx"/>
-         <expected-output path="test/abaclade/io/text/data/utf16be.txt"/>
-      </exetest -->
-   </dynlib>
+   coroutines: !abamake/target/exe
+      brief: "Example: using coroutines."
+      sources:
+      -  examples/coroutines.cxx
+      libraries:
+      -  abaclade
 
-   <dynlib
-      name="abaclade-testing"
-      brief="Testing support library."
-   >
-      <source path="src/abaclade-testing/app.cxx"/>
-      <source path="src/abaclade-testing/runner.cxx"/>
-      <source path="src/abaclade-testing/test_case.cxx"/>
-      <source path="src/abaclade-testing/utility.cxx"/>
-      <dynlib name="abaclade"/>
-   </dynlib>
+   echo-server: !abamake/target/exe
+      brief: "Example: TCP “echo” server implemented using coroutines."
+      sources:
+      -  examples/echo-server.cxx
+      libraries:
+      -  abaclade
 
-   <exe
-      name="hello-world"
-      brief="Example: “Hello World”."
-   >
-      <source path="examples/hello-world.cxx"/>
-      <dynlib name="abaclade"/>
-   </exe>
+   http-server: !abamake/target/exe
+      brief: "Example: basic HTTP server implemented using coroutines."
+      sources:
+      -  examples/http-server.cxx
+      libraries:
+      -  abaclade
 
-   <exe
-      name="cat"
-      brief="Example: “cat” utility."
-   >
-      <source path="examples/cat.cxx"/>
-      <dynlib name="abaclade"/>
-   </exe>
-
-   <exe
-      name="exceptions"
-      brief="Example: exceptions and stack traces."
-   >
-      <source path="examples/exceptions.cxx"/>
-      <dynlib name="abaclade"/>
-   </exe>
-
-   <exe
-      name="coroutines"
-      brief="Example: using coroutines."
-   >
-      <source path="examples/coroutines.cxx"/>
-      <dynlib name="abaclade"/>
-   </exe>
-
-   <exe
-      name="echo-server"
-      brief="Example: TCP “echo” server implemented using coroutines."
-   >
-      <source path="examples/echo-server.cxx"/>
-      <dynlib name="abaclade"/>
-   </exe>
-
-   <exe
-      name="http-server"
-      brief="Example: basic HTTP server implemented using coroutines."
-   >
-      <source path="examples/http-server.cxx"/>
-      <dynlib name="abaclade"/>
-   </exe>
-
-   <exe
-      name="maps-comparison"
-      brief="Comparison of map implementations."
-   >
-      <source path="examples/maps-comparison.cxx"/>
-      <dynlib name="abaclade"/>
-   </exe>
-</abcmake>
+   maps-comparison: !abamake/target/exe
+      brief: Comparison of map implementations.
+      sources:
+      -  examples/maps-comparison.cxx
+      libraries:
+      -  abaclade
