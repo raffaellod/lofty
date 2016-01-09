@@ -20,7 +20,8 @@
 brief: Abamake makefile for Abaclade.
 targets:
 
-   abaclade: !abamake/target/dynlib
+   - !abamake/target/dynlib
+      name: abaclade
       brief: Main Abaclade dynamic shared library.
       sources:
       -  src/abaclade/app.cxx
@@ -73,7 +74,8 @@ targets:
       -  src/abaclade/type_void_adapter.cxx
 
       tests:
-         abaclade-test: !abamake/target/exetest
+         - !abamake/target/exetest
+            name: abaclade-test
             brief: Main test for Abaclade.
             sources:
             -  test/abaclade/abaclade-test.cxx
@@ -103,7 +105,8 @@ targets:
             libraries:
             -  abaclade-testing
 
-         abaclade-cpp-test: !abamake/target/tooltest
+         - !abamake/target/tooltest
+            name: abaclade-cpp-test
             brief: Test for Abaclade’s preprocessor macros.
 
             expected output: test/abaclade-cpp/cpp.cxx.i
@@ -113,7 +116,8 @@ targets:
             -  path: test/abaclade-cpp/cpp.cxx
                tool: preproc
 
-   abaclade-testing: !abamake/target/dynlib
+   - !abamake/target/dynlib
+      name: abaclade-testing
       brief: Testing support library.
       sources:
       -  src/abaclade-testing/app.cxx
@@ -125,49 +129,56 @@ targets:
 
    # Examples ######################################################################################
 
-   hello-world: !abamake/target/exe
+   - !abamake/target/exe
+      name: hello-world
       brief: "Example: “Hello World”."
       sources:
       -  examples/hello-world.cxx
       libraries:
       -  abaclade
 
-   cat: !abamake/target/exe
+   - !abamake/target/exe
+      name: cat
       brief: "Example: “cat” utility."
       sources:
       -  examples/cat.cxx
       libraries:
       -  abaclade
 
-   exceptions: !abamake/target/exe
+   - !abamake/target/exe
+      name: exceptions
       brief: "Example: exceptions and stack traces."
       sources:
       -  examples/exceptions.cxx
       libraries:
       -  abaclade
 
-   coroutines: !abamake/target/exe
+   - !abamake/target/exe
+      name: coroutines
       brief: "Example: using coroutines."
       sources:
       -  examples/coroutines.cxx
       libraries:
       -  abaclade
 
-   echo-server: !abamake/target/exe
+   - !abamake/target/exe
+      name: echo-server
       brief: "Example: TCP “echo” server implemented using coroutines."
       sources:
       -  examples/echo-server.cxx
       libraries:
       -  abaclade
 
-   http-server: !abamake/target/exe
+   - !abamake/target/exe
+      name: http-server
       brief: "Example: basic HTTP server implemented using coroutines."
       sources:
       -  examples/http-server.cxx
       libraries:
       -  abaclade
 
-   maps-comparison: !abamake/target/exe
+   - !abamake/target/exe
+      name: maps-comparison
       brief: Comparison of map implementations.
       sources:
       -  examples/maps-comparison.cxx
