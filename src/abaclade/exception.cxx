@@ -286,7 +286,7 @@ void exception::_before_throw(source_file_address const & sfa) {
    auto & mctx = static_cast< ::ucontext_t *>(pvctx)->uc_mcontext;
    #if ABC_HOST_ARCH_ARM
       #if ABC_HOST_API_LINUX
-         typedef long reg_t;
+         typedef unsigned long reg_t;
          reg_t & iCodePtr = mctx.arm_pc, & iStackPtr = mctx.arm_sp, & lr = mctx.arm_lr;
          reg_t & r0 = mctx.arm_r0, & r1 = mctx.arm_r1, & r2 = mctx.arm_r2;
       #endif
