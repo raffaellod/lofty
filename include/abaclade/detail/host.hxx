@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -53,11 +53,11 @@ not, see <http://www.gnu.org/licenses/>.
 
 //! 1 if building with Abaclade’s STL subset implementation, or 0 otherwise.
 #define ABC_HOST_STL_ABACLADE 0
-//! 1 if building with Clang’s libc++ STL implementation, or 0 otherwise.
+//! Version of Clang’s libc++ STL implementation if building against it, or 0 otherwise.
 #define ABC_HOST_STL_LIBCXX 0
-//! 1 if building with GNU libstdc++ STL implementation, or 0 otherwise.
+//! Version of GNU libstdc++ STL implementation if building against it, or 0 otherwise.
 #define ABC_HOST_STL_LIBSTDCXX 0
-//! 1 if building with MSVCRT STL implementation, or 0 otherwise.
+//! Version of MSVCRT STL implementation if building against it, or 0 otherwise.
 #define ABC_HOST_STL_MSVCRT 0
 
 #ifdef _ABC_USE_STLIMPL
@@ -86,13 +86,23 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! 1 if building for a BSD-like OS, or 0 otherwise. Implies ABC_HOST_API_POSIX.
 #define ABC_HOST_API_BSD 0
+/*! 1 if building for a Darwin-based OS such as OS X or iOS, or 0 otherwise. Implies
+ABC_HOST_API_BSD, ABC_HOST_API_MACH, ABC_HOST_API_POSIX. */
 #define ABC_HOST_API_DARWIN 0
+//! 1 if building for FreeBSD, or 0 otherwise. Implies ABC_HOST_API_BSD, ABC_HOST_API_POSIX.
 #define ABC_HOST_API_FREEBSD 0
+//! 1 if building for Linux (the kernel), or 0 otherwise. Implies ABC_HOST_API_POSIX.
 #define ABC_HOST_API_LINUX 0
+//! 1 if building for a POSIX-compatible OS, or 0 otherwise.
 #define ABC_HOST_API_POSIX 0
+//! 1 if building for a Mach-based OS, or 0 otherwise.
 #define ABC_HOST_API_MACH 0
+//! 1 if building for the Win32 API, or 0 otherwise.
 #define ABC_HOST_API_WIN32 0
+/*! 1 if building for the 64-bit variant of the Win32 API, or 0 otherwise. Implies
+ABC_HOST_API_WIN32. */
 #define ABC_HOST_API_WIN64 0
 
 #if defined(_WIN32)
@@ -137,11 +147,17 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define ABC_HOST_ARCH_ALPHA  0
-#define ABC_HOST_ARCH_ARM    0
-#define ABC_HOST_ARCH_I386   0
-#define ABC_HOST_ARCH_IA64   0
-#define ABC_HOST_ARCH_PPC    0
+//! 1 if building for the Alpha architecture, or 0 otherwise.
+#define ABC_HOST_ARCH_ALPHA 0
+//! 1 if building for the ARM architecture, or 0 otherwise.
+#define ABC_HOST_ARCH_ARM 0
+//! 1 if building for the i386 architecture also known as x86, or 0 otherwise.
+#define ABC_HOST_ARCH_I386 0
+//! 1 if building for the IA64 architecture, or 0 otherwise.
+#define ABC_HOST_ARCH_IA64 0
+//! 1 if building for the PowerPC architecture, or 0 otherwise.
+#define ABC_HOST_ARCH_PPC 0
+//! 1 if building for the x86-64 architecture also known as AMD64, or 0 otherwise.
 #define ABC_HOST_ARCH_X86_64 0
 
 #if defined(__alpha__) || defined(_M_ALPHA)
@@ -182,8 +198,12 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*! 1 if building for a little-endian processor architecture, or 0 otherwise. Implies
+!ABC_HOST_BIG_ENDIAN. */
 #define ABC_HOST_LITTLE_ENDIAN 0
-#define ABC_HOST_BIG_ENDIAN    0
+/*! 1 if building for a big-endian processor architecture, or 0 otherwise. Implies
+!ABC_HOST_LITTLE_ENDIAN. */
+#define ABC_HOST_BIG_ENDIAN 0
 
 // Assume that ARM is always used in little-endian mode.
 #if ABC_HOST_ARCH_ALPHA || ABC_HOST_ARCH_ARM || ABC_HOST_ARCH_I386 || ABC_HOST_ARCH_IA64 || \
@@ -199,7 +219,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Apply fixes depending ABC_HOST_CXX_*.
+// Apply fixes depending on ABC_HOST_CXX_*.
 
 // Compatibility with compilers that don’t support feature/extension checking.
 #ifndef __has_extension
