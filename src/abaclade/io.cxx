@@ -184,7 +184,7 @@ error::error(error const & x) :
    generic_error(x) {
 }
 
-/*virtual*/ error::~error() {
+/*virtual*/ error::~error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 error & error::operator=(error const & x) {

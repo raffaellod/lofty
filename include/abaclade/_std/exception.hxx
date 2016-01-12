@@ -38,7 +38,7 @@ public:
    exception();
 
    //! Destructor.
-   virtual ~exception();
+   virtual ~exception() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Returns information on the exception.
 

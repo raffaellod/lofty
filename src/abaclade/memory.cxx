@@ -48,7 +48,7 @@ bad_alloc::bad_alloc(bad_alloc const & x) :
    m_cbFailed(x.m_cbFailed) {
 }
 
-/*virtual*/ bad_alloc::~bad_alloc() {
+/*virtual*/ bad_alloc::~bad_alloc() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 bad_alloc & bad_alloc::operator=(bad_alloc const & x) {
@@ -95,7 +95,7 @@ bad_pointer::bad_pointer(bad_pointer const & x) :
    m_pInvalid(x.m_pInvalid) {
 }
 
-/*virtual*/ bad_pointer::~bad_pointer() {
+/*virtual*/ bad_pointer::~bad_pointer() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 bad_pointer & bad_pointer::operator=(bad_pointer const & x) {
@@ -131,7 +131,7 @@ bad_pointer_alignment::bad_pointer_alignment(bad_pointer_alignment const & x) :
    m_pInvalid(x.m_pInvalid) {
 }
 
-/*virtual*/ bad_pointer_alignment::~bad_pointer_alignment() {
+/*virtual*/ bad_pointer_alignment::~bad_pointer_alignment() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 bad_pointer_alignment & bad_pointer_alignment::operator=(bad_pointer_alignment const & x) {

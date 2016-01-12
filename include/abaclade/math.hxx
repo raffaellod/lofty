@@ -58,7 +58,7 @@ public:
    arithmetic_error(arithmetic_error const & x);
 
    //! Destructor.
-   virtual ~arithmetic_error();
+   virtual ~arithmetic_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -94,7 +94,7 @@ public:
    division_by_zero(division_by_zero const & x);
 
    //! Destructor.
-   virtual ~division_by_zero();
+   virtual ~division_by_zero() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -130,7 +130,7 @@ public:
    floating_point_error(floating_point_error const & x);
 
    //! Destructor.
-   virtual ~floating_point_error();
+   virtual ~floating_point_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -168,7 +168,7 @@ public:
    overflow(overflow const & x);
 
    //! Destructor.
-   virtual ~overflow();
+   virtual ~overflow() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 

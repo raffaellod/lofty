@@ -62,7 +62,7 @@ public:
    invalid_path(invalid_path const & x);
 
    //! Destructor.
-   virtual ~invalid_path();
+   virtual ~invalid_path() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -113,7 +113,7 @@ public:
    path_not_found(path_not_found const & x);
 
    //! Destructor.
-   virtual ~path_not_found();
+   virtual ~path_not_found() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 

@@ -262,7 +262,7 @@ public:
    exception(exception const & x);
 
    //! Destructor.
-   virtual ~exception();
+   virtual ~exception() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -439,7 +439,7 @@ public:
    execution_interruption(execution_interruption const & x);
 
    //! Destructor.
-   virtual ~execution_interruption();
+   virtual ~execution_interruption() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -472,7 +472,7 @@ public:
    app_execution_interruption(app_execution_interruption const & x);
 
    //! Destructor.
-   virtual ~app_execution_interruption();
+   virtual ~app_execution_interruption() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -505,7 +505,7 @@ public:
    app_exit_interruption(app_exit_interruption const & x);
 
    //! Destructor.
-   virtual ~app_exit_interruption();
+   virtual ~app_exit_interruption() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -538,7 +538,7 @@ public:
    user_forced_interruption(user_forced_interruption const & x);
 
    //! Destructor.
-   virtual ~user_forced_interruption();
+   virtual ~user_forced_interruption() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -574,7 +574,7 @@ public:
    generic_error(generic_error const & x);
 
    //! Destructor.
-   virtual ~generic_error();
+   virtual ~generic_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -623,7 +623,7 @@ public:
    argument_error(argument_error const & x);
 
    //! Destructor.
-   virtual ~argument_error();
+   virtual ~argument_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -659,7 +659,7 @@ public:
    domain_error(domain_error const & x);
 
    //! Destructor.
-   virtual ~domain_error();
+   virtual ~domain_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -695,7 +695,7 @@ public:
    network_error(network_error const & x);
 
    //! Destructor.
-   virtual ~network_error();
+   virtual ~network_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -731,7 +731,7 @@ public:
    security_error(security_error const & x);
 
    //! Destructor.
-   virtual ~security_error();
+   virtual ~security_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 

@@ -45,7 +45,7 @@ public:
    bad_alloc(bad_alloc const & x);
 
    //! Destructor.
-   virtual ~bad_alloc();
+   virtual ~bad_alloc() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -103,7 +103,7 @@ public:
    bad_pointer(bad_pointer const & x);
 
    //! Destructor.
-   virtual ~bad_pointer();
+   virtual ~bad_pointer() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -155,7 +155,7 @@ public:
    bad_pointer_alignment(bad_pointer_alignment const & x);
 
    //! Destructor.
-   virtual ~bad_pointer_alignment();
+   virtual ~bad_pointer_alignment() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 

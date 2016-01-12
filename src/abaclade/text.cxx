@@ -725,7 +725,7 @@ error::error(error const & x) :
    generic_error(x) {
 }
 
-/*virtual*/ error::~error() {
+/*virtual*/ error::~error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 error & error::operator=(error const & x) {
@@ -770,7 +770,7 @@ decode_error::decode_error(decode_error const & x) :
    m_viInvalid(x.m_viInvalid) {
 }
 
-/*virtual*/ decode_error::~decode_error() {
+/*virtual*/ decode_error::~decode_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 decode_error & decode_error::operator=(decode_error const & x) {
@@ -819,7 +819,7 @@ encode_error::encode_error(encode_error const & x) :
    m_iInvalidCodePoint(x.m_iInvalidCodePoint) {
 }
 
-/*virtual*/ encode_error::~encode_error() {
+/*virtual*/ encode_error::~encode_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 encode_error & encode_error::operator=(encode_error const & x) {

@@ -67,7 +67,7 @@ public:
    bad_access(bad_access const & x);
 
    //! Destructor.
-   virtual ~bad_access();
+   virtual ~bad_access() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -103,7 +103,7 @@ public:
    bad_key(bad_key const & x);
 
    //! Destructor.
-   virtual ~bad_key();
+   virtual ~bad_key() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -168,7 +168,7 @@ public:
    out_of_range(out_of_range const & x);
 
    //! Destructor.
-   virtual ~out_of_range();
+   virtual ~out_of_range() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 

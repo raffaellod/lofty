@@ -299,7 +299,7 @@ public:
    error(error const & x);
 
    //! Destructor.
-   virtual ~error();
+   virtual ~error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 

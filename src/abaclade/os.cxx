@@ -41,7 +41,7 @@ invalid_path::invalid_path(invalid_path const & x) :
    m_opInvalid(x.m_opInvalid) {
 }
 
-/*virtual*/ invalid_path::~invalid_path() {
+/*virtual*/ invalid_path::~invalid_path() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 invalid_path & invalid_path::operator=(invalid_path const & x) {
@@ -75,7 +75,7 @@ path_not_found::path_not_found(path_not_found const & x) :
    m_opNotFound(x.m_opNotFound) {
 }
 
-/*virtual*/ path_not_found::~path_not_found() {
+/*virtual*/ path_not_found::~path_not_found() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 path_not_found & path_not_found::operator=(path_not_found const & x) {

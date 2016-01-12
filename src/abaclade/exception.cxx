@@ -48,7 +48,7 @@ app_execution_interruption::app_execution_interruption(app_execution_interruptio
    execution_interruption(x) {
 }
 
-/*virtual*/ app_execution_interruption::~app_execution_interruption() {
+/*virtual*/ app_execution_interruption::~app_execution_interruption() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 app_execution_interruption & app_execution_interruption::operator=(
@@ -71,7 +71,7 @@ app_exit_interruption::app_exit_interruption(app_exit_interruption const & x) :
    execution_interruption(x) {
 }
 
-/*virtual*/ app_exit_interruption::~app_exit_interruption() {
+/*virtual*/ app_exit_interruption::~app_exit_interruption() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 app_exit_interruption & app_exit_interruption::operator=(app_exit_interruption const & x) {
@@ -99,7 +99,7 @@ argument_error::argument_error(argument_error const & x) :
    generic_error(x) {
 }
 
-/*virtual*/ argument_error::~argument_error() {
+/*virtual*/ argument_error::~argument_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 argument_error & argument_error::operator=(argument_error const & x) {
@@ -146,7 +146,8 @@ destructing_unfinalized_object::destructing_unfinalized_object(
    exception(x) {
 }
 
-/*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() {
+/*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object(
+) ABC_STL_NOEXCEPT_TRUE() {
 }
 
 destructing_unfinalized_object & destructing_unfinalized_object::operator=(
@@ -182,7 +183,7 @@ domain_error::domain_error(domain_error const & x) :
    generic_error(x) {
 }
 
-/*virtual*/ domain_error::~domain_error() {
+/*virtual*/ domain_error::~domain_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 domain_error & domain_error::operator=(domain_error const & x) {
@@ -203,7 +204,7 @@ execution_interruption::execution_interruption(execution_interruption const & x)
    exception(x) {
 }
 
-/*virtual*/ execution_interruption::~execution_interruption() {
+/*virtual*/ execution_interruption::~execution_interruption() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 execution_interruption & execution_interruption::operator=(execution_interruption const & x) {
@@ -234,7 +235,7 @@ exception::exception(exception const & x) :
    memory::copy<char>(m_szWhat, x.m_szWhat, ABC_COUNTOF(m_szWhat) - m_cchWhatAvailable);
 }
 
-/*virtual*/ exception::~exception() {
+/*virtual*/ exception::~exception() ABC_STL_NOEXCEPT_TRUE() {
    // See @ref stack-tracing.
    if (m_bInFlight) {
       detail::scope_trace::trace_writer_release();
@@ -494,7 +495,7 @@ generic_error::generic_error(generic_error const & x) :
    m_err(x.m_err) {
 }
 
-/*virtual*/ generic_error::~generic_error() {
+/*virtual*/ generic_error::~generic_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 generic_error & generic_error::operator=(generic_error const & x) {
@@ -517,7 +518,7 @@ network_error::network_error(network_error const & x) :
    generic_error(x) {
 }
 
-/*virtual*/ network_error::~network_error() {
+/*virtual*/ network_error::~network_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 network_error & network_error::operator=(network_error const & x) {
@@ -539,7 +540,7 @@ security_error::security_error(security_error const & x) :
    generic_error(x) {
 }
 
-/*virtual*/ security_error::~security_error() {
+/*virtual*/ security_error::~security_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 security_error & security_error::operator=(security_error const & x) {
@@ -604,7 +605,7 @@ syntax_error::syntax_error(syntax_error const & x) :
    m_iLine(x.m_iLine) {
 }
 
-/*virtual*/ syntax_error::~syntax_error() {
+/*virtual*/ syntax_error::~syntax_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 syntax_error & syntax_error::operator=(syntax_error const & x) {
@@ -629,7 +630,7 @@ user_forced_interruption::user_forced_interruption(user_forced_interruption cons
    app_execution_interruption(x) {
 }
 
-/*virtual*/ user_forced_interruption::~user_forced_interruption() {
+/*virtual*/ user_forced_interruption::~user_forced_interruption() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 user_forced_interruption & user_forced_interruption::operator=(user_forced_interruption const & x) {

@@ -52,7 +52,7 @@ public:
    destructing_unfinalized_object(destructing_unfinalized_object const & x);
 
    //! Destructor.
-   virtual ~destructing_unfinalized_object();
+   virtual ~destructing_unfinalized_object() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -124,7 +124,7 @@ public:
    syntax_error(syntax_error const & x);
 
    //! Destructor.
-   virtual ~syntax_error();
+   virtual ~syntax_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 

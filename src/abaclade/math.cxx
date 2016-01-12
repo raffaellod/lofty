@@ -37,7 +37,7 @@ arithmetic_error::arithmetic_error(arithmetic_error const & x) :
    generic_error(x) {
 }
 
-/*virtual*/ arithmetic_error::~arithmetic_error() {
+/*virtual*/ arithmetic_error::~arithmetic_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 arithmetic_error & arithmetic_error::operator=(arithmetic_error const & x) {
@@ -59,7 +59,7 @@ division_by_zero::division_by_zero(division_by_zero const & x) :
    arithmetic_error(x) {
 }
 
-/*virtual*/ division_by_zero::~division_by_zero() {
+/*virtual*/ division_by_zero::~division_by_zero() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 division_by_zero & division_by_zero::operator=(division_by_zero const & x) {
@@ -81,7 +81,7 @@ floating_point_error::floating_point_error(floating_point_error const & x) :
    arithmetic_error(x) {
 }
 
-/*virtual*/ floating_point_error::~floating_point_error() {
+/*virtual*/ floating_point_error::~floating_point_error() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 floating_point_error & floating_point_error::operator=(floating_point_error const & x) {
@@ -109,7 +109,7 @@ overflow::overflow(overflow const & x) :
    arithmetic_error(x) {
 }
 
-/*virtual*/ overflow::~overflow() {
+/*virtual*/ overflow::~overflow() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 overflow & overflow::operator=(overflow const & x) {

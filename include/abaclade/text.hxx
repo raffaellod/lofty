@@ -219,7 +219,7 @@ public:
    error(error const & x);
 
    //! Destructor.
-   virtual ~error();
+   virtual ~error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -264,7 +264,7 @@ public:
    decode_error(decode_error const & x);
 
    //! Destructor.
-   virtual ~decode_error();
+   virtual ~decode_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -312,7 +312,7 @@ public:
    encode_error(encode_error const & x);
 
    //! Destructor.
-   virtual ~encode_error();
+   virtual ~encode_error() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 

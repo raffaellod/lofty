@@ -32,7 +32,7 @@ bad_access::bad_access(bad_access const & x) :
    generic_error(x) {
 }
 
-/*virtual*/ bad_access::~bad_access() {
+/*virtual*/ bad_access::~bad_access() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 bad_access & bad_access::operator=(bad_access const & x) {
@@ -54,7 +54,7 @@ bad_key::bad_key(bad_key const & x) :
    bad_access(x) {
 }
 
-/*virtual*/ bad_key::~bad_key() {
+/*virtual*/ bad_key::~bad_key() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 bad_key & bad_key::operator=(bad_key const & x) {
@@ -90,7 +90,7 @@ out_of_range::out_of_range(out_of_range const & x) :
    bad_access(x) {
 }
 
-/*virtual*/ out_of_range::~out_of_range() {
+/*virtual*/ out_of_range::~out_of_range() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 out_of_range & out_of_range::operator=(out_of_range const & x) {
