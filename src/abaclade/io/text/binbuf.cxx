@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -70,7 +70,11 @@ public:
    //! Reads characters until a line terminator is found.
    void read_line();
 
-   //! Performs a new binary::buffered_reader::peek() call.
+   /*! Performs a new binary::buffered_reader::peek() call.
+
+   @return
+      true if the buffer was replenished, or false otherwise (e.g. got to EOF).
+   */
    bool replenish_peek_buffer();
 
    /*! Transcodes more characters from the peek buffer.
@@ -78,11 +82,15 @@ public:
    @param bConstructing
       true if invoked by the constructor, or false otherwise.
    @return
-      true if the buffer was replenished, or false otherwise.
+      true if the buffer was replenished, or false otherwise (e.g. got to EOF).
    */
    bool replenish_transcoded_buffer(bool bConstructing);
 
-   //! Runs the helper.
+   /*! Runs the helper.
+
+   @return
+      true if any characters were read, or false otherwise.
+   */
    bool run();
 
 private:
@@ -318,7 +326,9 @@ bool binbuf_reader::read_helper::replenish_transcoded_buffer(bool bConstructing)
       to track the switch, instead of always comparing mc_enc == abc::text::encoding::host). */
       /* TODO: improve this so we don’t re-validate the entire string on each read; validate only
       the portion that was just read. */
-      abc::text::str_traits::validate(m_pchTranscodedBegin, m_pchTranscodedEnd, true);
+      abc::text::str_traits::validate(
+         m_pchTranscodedBegin, m_pchTranscodedEnd, true /*do throw on errors*/
+      );
       m_psDst->set_capacity(m_cbSrcTranscoded / sizeof(char_t), bPreserve);
    } else {
       std::uint8_t const * pbSrc = m_pbSrc;
@@ -365,6 +375,7 @@ bool binbuf_reader::read_helper::run() {
    }
    return m_cchReadTotal > 0;
 }
+
 
 binbuf_reader::binbuf_reader(
    _std::shared_ptr<binary::buffered_reader> pbbr,
