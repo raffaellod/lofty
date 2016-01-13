@@ -73,8 +73,14 @@ public:
    //! Performs a new binary::buffered_reader::peek() call.
    bool replenish_peek_buffer();
 
-   //! Transcodes more characters from the peek buffer.
-   bool replenish_transcoded_buffer();
+   /*! Transcodes more characters from the peek buffer.
+
+   @param bConstructing
+      true if invoked by the constructor, or false otherwise.
+   @return
+      true if the buffer was replenished, or false otherwise.
+   */
+   bool replenish_transcoded_buffer(bool bConstructing);
 
    //! Runs the helper.
    bool run();
@@ -167,40 +173,7 @@ binbuf_reader::read_helper::read_helper(
       m_ptbbr->m_lterm == abc::text::line_terminator::convert_any_to_lf
    ),
    m_cchReadTotal(0) {
-   if (mc_enc == abc::text::encoding::host) {
-      // Cap m_cbSrc and round it down to the previous char_t.
-      m_cbSrcTranscoded = std::min(m_cbSrc, smc_cbTranscodeMax) & ~(sizeof(char_t) - 1);
-      m_pchTranscodedBegin = reinterpret_cast<char_t const *>(pbSrc);
-      m_pchTranscodedEnd = reinterpret_cast<char_t const *>(pbSrc + m_cbSrcTranscoded);
-      // Validate the characters in the peek buffer before we start appending them to *psDst.
-      /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be. Maybe
-      only do the validation later, at the end of each line? */
-      /* TODO: intercept exceptions if the reader’s “error mode” (TODO) mandates that errors be
-      converted into a special character, in which case we switch to forcing a transcoding read
-      mode, since abc::text:transcode can fix errors if told so (this will need a separate variable
-      to track the switch, instead of always comparing mc_enc == abc::text::encoding::host). */
-      /* TODO: improve this so we don’t re-validate the entire string on each read; validate only
-      the portion that was just read. */
-      abc::text::str_traits::validate(m_pchTranscodedBegin, m_pchTranscodedEnd, true);
-      m_psDst->set_capacity(m_cbSrcTranscoded / sizeof(char_t), false);
-   } else {
-      std::size_t cbTranscoded = abc::text::transcode(
-         true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host
-      );
-      m_psDst->set_capacity(cbTranscoded / sizeof(char_t), false);
-      m_pchTranscodedBegin = m_psDst->data();
-      // Transcode *pbSrc. This will move m_pchTranscodedEnd to the end of the transcoded string.
-      m_pchTranscodedEnd = m_pchTranscodedBegin;
-      std::size_t cbTranscodedRemaining = cbTranscoded;
-      abc::text::transcode(
-         true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host,
-         reinterpret_cast<void **>(const_cast<char_t **>(&m_pchTranscodedEnd)),
-         &cbTranscodedRemaining
-      );
-      m_cbSrcTranscoded = m_cbSrc - cbSrc;
-   }
-   m_pchTranscoded = m_pchTranscodedBegin;
-   m_pchDst = m_psDst->data();
+   replenish_transcoded_buffer(true);
 }
 
 binbuf_reader::read_helper::~read_helper() {
@@ -247,7 +220,7 @@ void binbuf_reader::read_helper::read_line() {
 
    m_cchLTerm = 0;
    // This condition is the inverse of the one controlling the while loop that follows.
-   if (m_pchTranscoded == m_pchTranscodedEnd && !replenish_transcoded_buffer()) {
+   if (m_pchTranscoded == m_pchTranscodedEnd && !replenish_transcoded_buffer(false)) {
       return;
    }
    if (m_bDiscardNextLF) {
@@ -262,7 +235,8 @@ void binbuf_reader::read_helper::read_line() {
    the appropriate line terminator, which gets translated on the fly if necessary. */
    bool bLineEndsOnCRLFAndFoundCR = false;
    while (
-      m_cchLTerm == 0 && (m_pchTranscoded != m_pchTranscodedEnd || replenish_transcoded_buffer())
+      m_cchLTerm == 0 &&
+      (m_pchTranscoded != m_pchTranscodedEnd || replenish_transcoded_buffer(false))
    ) {
       char_t ch = *m_pchTranscoded++;
       *m_pchDst++ = ch;
@@ -309,16 +283,24 @@ bool binbuf_reader::read_helper::replenish_peek_buffer() {
    }
 }
 
-bool binbuf_reader::read_helper::replenish_transcoded_buffer() {
-   ABC_TRACE_FUNC(this);
+bool binbuf_reader::read_helper::replenish_transcoded_buffer(bool bConstructing) {
+   ABC_TRACE_FUNC(this, bConstructing);
 
-   // Calculate sizes from the current pointers, since the string buffer might be reallocated.
-   std::size_t cchDstUsed = static_cast<std::size_t>(m_pchDst - m_psDst->data());
-   /* If we already transcoded all the peeked bytes (and we’re here, so we used all the transcoded
-   characters), get more. */
-   if (m_cbSrcTranscoded == m_cbSrc) {
-      if (!replenish_peek_buffer()) {
-         return false;
+   std::size_t cchDstUsed;
+   bool bPreserve;
+   if (bConstructing) {
+      cchDstUsed = 0;
+      bPreserve = false;
+   } else {
+      // Calculate sizes from the current pointers, since the string buffer might be reallocated.
+      cchDstUsed = static_cast<std::size_t>(m_pchDst - m_psDst->data());
+      bPreserve = true;
+      /* If we already transcoded all the peeked bytes (and we’re here, so we used all the
+      transcoded characters), get more. */
+      if (m_cbSrcTranscoded == m_cbSrc) {
+         if (!replenish_peek_buffer()) {
+            return false;
+         }
       }
    }
 
@@ -337,15 +319,14 @@ bool binbuf_reader::read_helper::replenish_transcoded_buffer() {
       /* TODO: improve this so we don’t re-validate the entire string on each read; validate only
       the portion that was just read. */
       abc::text::str_traits::validate(m_pchTranscodedBegin, m_pchTranscodedEnd, true);
-      m_psDst->set_capacity(m_cbSrcTranscoded / sizeof(char_t), true);
+      m_psDst->set_capacity(m_cbSrcTranscoded / sizeof(char_t), bPreserve);
    } else {
       std::uint8_t const * pbSrc = m_pbSrc;
       std::size_t cbSrc = m_cbSrc;
       std::size_t cbTranscoded = abc::text::transcode(
          true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host
       );
-      m_cbSrcTranscoded = m_cbSrc - cbSrc;
-      m_psDst->set_capacity(cchDstUsed + cbTranscoded / sizeof(char_t), true);
+      m_psDst->set_capacity(cchDstUsed + cbTranscoded / sizeof(char_t), bPreserve);
       // Use the part of the string beyond cchDstUsed as the transcoding destination buffer.
       m_pchTranscodedBegin = m_psDst->data() + cchDstUsed;
       // Transcode *pbSrc. This will move m_pchTranscodedEnd to the end of the transcoded string.
@@ -353,9 +334,10 @@ bool binbuf_reader::read_helper::replenish_transcoded_buffer() {
       std::size_t cbTranscodedRemaining = cbTranscoded;
       abc::text::transcode(
          true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host,
-         const_cast<void **>(reinterpret_cast<void const **>(&m_pchTranscodedEnd)),
+         reinterpret_cast<void **>(const_cast<char_t **>(&m_pchTranscodedEnd)),
          &cbTranscodedRemaining
       );
+      m_cbSrcTranscoded = m_cbSrc - cbSrc;
    }
    m_pchTranscoded = m_pchTranscodedBegin;
    // Rebase this pointer onto the (possibly) newly-reallocated string.
