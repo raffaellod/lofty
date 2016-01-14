@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8; mode: python; tab-width: 3; indent-tabs-mode: nil -*-
 #
-# Copyright 2010-2015 Raffaello D. Di Napoli
+# Copyright 2010-2016 Raffaello D. Di Napoli
 #
 # This file is part of Abaclade.
 #
@@ -24,6 +24,8 @@ algorithm in calc script. See  See <http://www.isthe.com/chongo/tech/comp/fnv/> 
 import sys
 
 
+####################################################################################################
+
 # String the hash of which is the FNV basis number.
 FNV_BASIS_SOURCE = b'chongo <Landon Curt Noll> /\\../\\'
 
@@ -34,6 +36,8 @@ def fnv_hash_basis(cBits, iFNVPrime):
       Size of the hash, in bits.
    int iFNVPrime
       FNV Prime adequate for hashes of cBits size.
+   int return
+      Computed FNV basis.
    """
 
    # Calculate the hash.
@@ -43,9 +47,18 @@ def fnv_hash_basis(cBits, iFNVPrime):
       iFNVBasis *= iFNVPrime
       iFNVBasis %= iHashMod
       iFNVBasis ^= ch
-   print('Using prime = {0} ({0:#x}), {1}-bit basis = {2} ({2:#x})'.format(
-      iFNVPrime, cBits, iFNVBasis
-   ))
+   return iFNVBasis
+
+def auto_base_int(s):
+   """Converts a string notation of an integer into the corresponding number.
+
+   str s
+      String to convert.
+   int return
+      Converted integer.
+   """
+
+   return int(s, 0)
 
 def main(iterArgs):
    """Implementation of __main__.
@@ -56,7 +69,29 @@ def main(iterArgs):
       Command return status.
    """
 
-   fnv_hash_basis(int(iterArgs[1], 0), int(iterArgs[2], 0))
+   import argparse
+
+   # Parse the command line.
+   argparser = argparse.ArgumentParser(add_help = False)
+   argparser.add_argument(
+      '--help', action = 'help',
+      help = 'Show this informative message and exit.'
+   )
+   argparser.add_argument(
+      'bits', type = int,
+      help = 'Size of the hash, in bits.'
+   )
+   argparser.add_argument(
+      'fnv_prime', metavar = 'FNV-prime', type = auto_base_int,
+      help = 'FNV Prime adequate for hashes of <bits> size. May be specified in 0x or 0b notation.'
+   )
+   args = argparser.parse_args()
+
+   iFNVBasis = fnv_hash_basis(args.bits, args.fnv_prime)
+   print('Using prime = {0} ({0:#x}), {1}-bit basis = {2} ({2:#x})'.format(
+      args.fnv_prime, args.bits, iFNVBasis
+   ))
+
    return 0
 
 if __name__ == '__main__':
