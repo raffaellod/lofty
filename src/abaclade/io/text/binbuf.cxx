@@ -161,15 +161,18 @@ binbuf_reader::read_helper::read_helper(
 ) :
    m_ptbbr(ptbbr),
 
+   // Copy values originally passed to the method called on *m_ptbbr.
    m_pbSrc(pbSrc),
    m_cbSrc(cbSrc),
    m_psDst(psDst),
    m_bOneLine(bOneLine),
 
+   // Load non-volatile members from *m_ptbbr.
    mc_enc(m_ptbbr->m_enc),
    m_bEOF(m_ptbbr->m_bEOF),
    m_bDiscardNextLF(m_ptbbr->m_bDiscardNextLF),
 
+   // Initialize all remaining volatile members.
    m_bLineEndsOnCROrAny(
       m_ptbbr->m_lterm == abc::text::line_terminator::cr ||
       m_ptbbr->m_lterm == abc::text::line_terminator::any ||
@@ -185,6 +188,7 @@ binbuf_reader::read_helper::read_helper(
 }
 
 binbuf_reader::read_helper::~read_helper() {
+   // Save non-volatile members back to *m_ptbbr.
    m_ptbbr->m_bEOF = m_bEOF;
    m_ptbbr->m_bDiscardNextLF = m_bDiscardNextLF;
 }

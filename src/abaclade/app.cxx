@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -29,11 +29,13 @@ not, see <http://www.gnu.org/licenses/>.
 #if ABC_HOST_API_WIN32
 /*! Entry point for abaclade.dll.
 
-hinst
+@param hinst
    Module’s instance handle.
-iReason
+@param iReason
    Reason why this function was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
-return
+@param pReserved
+   Legacy.
+@return
    true in case of success, or false otherwise.
 */
 extern "C" ::BOOL WINAPI DllMain(::HINSTANCE hinst, ::DWORD iReason, void * pReserved) {
