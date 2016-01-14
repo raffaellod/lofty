@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -70,7 +70,7 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
             m_state = state::bracket;
          } else if (ch == ')' || ch == '(') {
             m_state = state::ignore;
-         } else if (ch == '\x1b') {
+         } else if (ch != '\x1b') {
             // Multiple ESC characters are not counted; any other character ends the sequence.
             m_state = state::not_in_sequence;
             return false;
