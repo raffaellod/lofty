@@ -26,9 +26,6 @@ import sys
 
 ####################################################################################################
 
-# String the hash of which is the FNV basis number.
-FNV_BASIS_SOURCE = b'chongo <Landon Curt Noll> /\\../\\'
-
 def fnv_hash_basis(cBits, iFNVPrime):
    """Calculates the basis number for the FNV-1a hash algorithm.
 
@@ -40,13 +37,10 @@ def fnv_hash_basis(cBits, iFNVPrime):
       Computed FNV basis.
    """
 
-   # Calculate the hash.
-   iHashMod = 2 ** cBits
+   iHashMask = (1 << cBits) - 1
    iFNVBasis = 0
-   for ch in FNV_BASIS_SOURCE:
-      iFNVBasis *= iFNVPrime
-      iFNVBasis %= iHashMod
-      iFNVBasis ^= ch
+   for i in b'chongo <Landon Curt Noll> /\\../\\':
+      iFNVBasis = ((iFNVBasis * iFNVPrime) & iHashMask) ^ i
    return iFNVBasis
 
 def auto_base_int(s):
