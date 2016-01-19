@@ -85,3 +85,51 @@ path_not_found & path_not_found::operator=(path_not_found const & x) {
 }
 
 }} //namespace abc::os
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace os {
+
+#if ABC_HOST_API_WIN32
+
+static bool g_bIsNt = false;
+static std::uint32_t g_iVer = 0;
+
+static void get_is_nt_and_version() {
+   std::uint32_t iVer = ::GetVersion();
+   std::uint8_t iMajor = static_cast<std::uint8_t>(iVer);
+   // Extract the build number.
+   std::uint16_t iBuild;
+   if (iMajor != 4) {
+      // Windows NT or Win32s.
+      iBuild = static_cast<std::uint16_t>((iVer & 0x7fff0000) >> 16);
+   } else {
+      // Windows 9x.
+      iBuild =  0;
+   }
+   /* No need to use a mutex here, since these writes are atomic and the values written to them
+   will be equal for all threads in the process. */
+   g_bIsNt = ((iVer & 0x80000000) == 0);
+   g_iVer =
+      (static_cast<std::uint32_t>(iMajor) << 24) |
+      (static_cast<std::uint32_t>(iVer & 0x0000ff00) << 8) |
+         static_cast<std::uint32_t>(iBuild);
+}
+
+bool is_nt() {
+   if (g_iVer == 0) {
+      get_is_nt_and_version();
+   }
+   return g_bIsNt;
+}
+
+std::uint32_t version() {
+   if (g_iVer == 0) {
+      get_is_nt_and_version();
+   }
+   return g_iVer;
+}
+
+#endif
+
+}} //namespace abc::os

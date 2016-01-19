@@ -142,4 +142,30 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace os {
+
+#if ABC_HOST_API_WIN32
+
+/*! Determines whether the process is running under Windows NT or an older, non-NT version of
+Windows.
+
+@return
+   true if running under Windows NT, or false otherwise.
+*/
+ABACLADE_SYM bool is_nt();
+
+/*! Returns the Windows version that’s running the process.
+
+@return
+   Windows version in the format 0xMMmmbbbb, where MM is the major version, mm is the minor version,
+   and bbbb is the build number.
+*/
+ABACLADE_SYM std::uint32_t version();
+
+#endif
+
+}} //namespace abc::os
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #endif //ifndef _ABACLADE_OS_HXX
