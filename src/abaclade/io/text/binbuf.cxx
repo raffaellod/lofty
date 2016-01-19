@@ -124,6 +124,9 @@ private:
    bool m_bLineEndsOnCROrAny:1;
    //! If true, the line terminator is not CR.
    bool m_bLineEndsOnLFOrAny:1;
+   /*! If true, bytes read are transcoded to abc::text::encoding::host; if false, the source
+   encoding is already abc::text::encoding::host, and bytes will just be copied. */
+   bool m_bTranscode:1;
    //! Tracks how many source bytes have been read. Updated by consume_used_bytes().
    std::size_t m_cchReadTotal;
    /*! If m_bOneLine, this tracks how many characters will need to be stripped off to remove the
@@ -143,17 +146,17 @@ private:
    //! Pointer to the next character in *m_psDst to be used.
    char_t * m_pchDst;
 
-   //! Maximum count of characters to be transcoded.
+   //! Maximum count of characters to be transcoded at a time.
    static std::size_t const smc_cbTranscodeMax;
 };
 
 /* TODO: tune smc_cbTranscodeMax.
-In the non-transcoding case, smaller values cause more calls to replenish_transcoded_buffer(),
-while larger values cause larger memory allocations that might be wasteful if reading a single
-line and lines are much shorter than the size of the peek buffer.
+In the non-transcoding case, smaller values cause more calls to replenish_transcoded_buffer(), while
+larger values cause larger memory allocations that might be wasteful if reading a single line and
+lines are much shorter than the size of the peek buffer.
 In the transcoding case, smaller values causes more calls to replenish_*_buffer(), while larger
-values causes more repeated iterations in abc::text::transcode() when consume_used_bytes() needs
-to calculate how many source bytes have been transcoded wihtout being consumed. */
+values causes more repeated iterations in abc::text::transcode() when consume_used_bytes() needs to
+calculate how many source bytes have been transcoded wihtout being consumed. */
 std::size_t const binbuf_reader::read_helper::smc_cbTranscodeMax = 0x1000;
 
 binbuf_reader::read_helper::read_helper(
@@ -183,8 +186,14 @@ binbuf_reader::read_helper::read_helper(
       m_ptbbr->m_lterm == abc::text::line_terminator::any ||
       m_ptbbr->m_lterm == abc::text::line_terminator::convert_any_to_lf
    ),
+   m_bTranscode(false /*&& mc_enc == abc::text::encoding::host*/),
    m_cchReadTotal(0) {
    replenish_transcoded_buffer(true);
+
+   static_assert(
+      (smc_cbTranscodeMax & (~smc_cbTranscodeMax + 1)) == smc_cbTranscodeMax,
+      "smc_cbTranscodeMax must be a power of 2"
+   );
 }
 
 binbuf_reader::read_helper::~read_helper() {
@@ -199,7 +208,7 @@ std::size_t binbuf_reader::read_helper::consume_used_bytes() {
    std::size_t cchUsed = static_cast<std::size_t>(m_pchTranscoded - m_pchTranscodedBegin);
    m_cchReadTotal += cchUsed;
    std::size_t cbUsed;
-   if (mc_enc == abc::text::encoding::host) {
+   if (m_bTranscode) {
       cbUsed = sizeof(char_t) * cchUsed;
    } else {
       if (m_pchTranscoded == m_pchTranscodedEnd) {
@@ -316,7 +325,7 @@ bool binbuf_reader::read_helper::replenish_transcoded_buffer(bool bConstructing)
       }
    }
 
-   if (mc_enc == abc::text::encoding::host) {
+   if (m_bTranscode) {
       // Cap m_cbSrc and round it down to the previous char_t.
       m_cbSrcTranscoded = std::min(m_cbSrc, smc_cbTranscodeMax) & ~(sizeof(char_t) - 1);
       m_pchTranscodedBegin = reinterpret_cast<char_t const *>(m_pbSrc);
@@ -336,7 +345,7 @@ bool binbuf_reader::read_helper::replenish_transcoded_buffer(bool bConstructing)
       m_psDst->set_capacity(m_cbSrcTranscoded / sizeof(char_t), bPreserve);
    } else {
       std::uint8_t const * pbSrc = m_pbSrc;
-      std::size_t cbSrc = m_cbSrc;
+      std::size_t cbSrc = std::min(m_cbSrc, smc_cbTranscodeMax);
       std::size_t cbTranscoded = abc::text::transcode(
          true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host
       );
