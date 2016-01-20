@@ -21,12 +21,9 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/io/binary.hxx>
 #include <abaclade/io/text.hxx>
 #include <abaclade/os/path.hxx>
+#include <abaclade/process.hxx>
 #include <abaclade/text.hxx>
 #include "binary/file-subclasses.hxx"
-
-#if ABC_HOST_API_POSIX
-   #include <cstdlib> // std::getenv()
-#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,15 +48,13 @@ specific behavior, so that it’s inherently PID-specific.
 
 @param pbb
    Pointer to the binary I/O object to analyze.
-@param pszEnvVarName
+@param sEnvVarName
    Environment variable name that, if set, specifies the encoding to be used.
 @return
    Encoding appropriate for the requested standard I/O file.
 */
-static abc::text::encoding get_stdio_encoding(
-   binary::base const * pbb, char_t const * pszEnvVarName
-) {
-   ABC_TRACE_FUNC(pbb, pszEnvVarName);
+static abc::text::encoding get_stdio_encoding(binary::base const * pbb, str const & sEnvVarName) {
+   ABC_TRACE_FUNC(pbb, sEnvVarName);
 
    abc::text::encoding enc;
    if (dynamic_cast<binary::console_file_base const *>(pbb)) {
@@ -68,22 +63,9 @@ static abc::text::encoding get_stdio_encoding(
       enc = abc::text::encoding::host;
    } else {
       // In all other cases, allow selecting the encoding via environment variable.
-      sstr<64> sEnc;
-#if ABC_HOST_API_POSIX
-      if (char_t const * pszEnvVarValue = std::getenv(pszEnvVarName)) {
-         sEnc = str(external_buffer, pszEnvVarValue);
-      }
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-      sEnc.set_from([pszEnvVarName] (char_t * pch, std::size_t cchMax) -> std::size_t {
-         /* ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
-         enough, or the required size (length including NUL) otherwise. */
-         return ::GetEnvironmentVariable(pszEnvVarName, pch, static_cast< ::DWORD>(cchMax));
-      });
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
       enc = abc::text::encoding::unknown;
-      if (sEnc) {
+      sstr<64> sEnc;
+      if (this_process::env_var(sEnvVarName, sEnc.str_ptr())) {
          try {
             enc = abc::text::encoding(sEnc.str());
          } catch (domain_error const &) {
