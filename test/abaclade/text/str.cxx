@@ -378,69 +378,69 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    str s;
    // Note: storing its return value in a variable is NOT a way to use c_str().
-   auto psz(const_cast<str const &>(s).c_str());
+   auto cs(const_cast<str const &>(s).c_str());
    // s has no character array, so it should have returned the static NUL character.
-   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), str::empty.data());
-   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
-   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
-   ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(cs), str::empty.data());
+   ABC_TESTING_ASSERT_FALSE(cs._get().get_deleter().enabled());
+   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(cs), 0u);
+   ABC_TESTING_ASSERT_EQUAL(cs[0], '\0');
 
    s = ABC_SL("");
-   psz = const_cast<str const &>(s).c_str();
+   cs = const_cast<str const &>(s).c_str();
    /* s should have adopted the literal and therefore have a trailing NUL, so it should have
    returned its own character array. */
-   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.data());
-   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
-   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
-   ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(cs), s.data());
+   ABC_TESTING_ASSERT_FALSE(cs._get().get_deleter().enabled());
+   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(cs), 0u);
+   ABC_TESTING_ASSERT_EQUAL(cs[0], '\0');
 
    s = ABC_SL("a");
-   psz = const_cast<str const &>(s).c_str();
+   cs = const_cast<str const &>(s).c_str();
    /* s should have adopted the literal and therefore have a trailing NUL, so it should have
    returned its own character array. */
-   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.data());
-   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
-   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 1u);
-   ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
-   ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(cs), s.data());
+   ABC_TESTING_ASSERT_FALSE(cs._get().get_deleter().enabled());
+   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(cs), 1u);
+   ABC_TESTING_ASSERT_EQUAL(cs[0], 'a');
+   ABC_TESTING_ASSERT_EQUAL(cs[1], '\0');
 
    s = text::str::empty;
-   psz = s.c_str();
+   cs = s.c_str();
    // s has no character array, so it should have returned the static NUL character.
-   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), str::empty.data());
-   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
-   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
-   ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(cs), str::empty.data());
+   ABC_TESTING_ASSERT_FALSE(cs._get().get_deleter().enabled());
+   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(cs), 0u);
+   ABC_TESTING_ASSERT_EQUAL(cs[0], '\0');
 
    s = ABC_SL("");
-   psz = s.c_str();
+   cs = s.c_str();
    /* s should have adopted the literal and therefore have a trailing NUL, so it should have
    returned its own character array. */
-   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.data());
-   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
-   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 0u);
-   ABC_TESTING_ASSERT_EQUAL(psz[0], '\0');
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(cs), s.data());
+   ABC_TESTING_ASSERT_FALSE(cs._get().get_deleter().enabled());
+   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(cs), 0u);
+   ABC_TESTING_ASSERT_EQUAL(cs[0], '\0');
 
    s = ABC_SL("a");
-   psz = s.c_str();
+   cs = s.c_str();
    /* s should have copied the literal but dropped its trailing NUL, to then add it back when
    c_str() was called. */
-   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.data());
-   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
-   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 1u);
-   ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
-   ABC_TESTING_ASSERT_EQUAL(psz[1], '\0');
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(cs), s.data());
+   ABC_TESTING_ASSERT_FALSE(cs._get().get_deleter().enabled());
+   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(cs), 1u);
+   ABC_TESTING_ASSERT_EQUAL(cs[0], 'a');
+   ABC_TESTING_ASSERT_EQUAL(cs[1], '\0');
 
    s += ABC_SL("b");
-   psz = s.c_str();
+   cs = s.c_str();
    /* The character array should have grown, to then include a trailing NUL when c_str() was
    called. */
-   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(psz), s.data());
-   ABC_TESTING_ASSERT_FALSE(psz._get().get_deleter().enabled());
-   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(psz), 2u);
-   ABC_TESTING_ASSERT_EQUAL(psz[0], 'a');
-   ABC_TESTING_ASSERT_EQUAL(psz[1], 'b');
-   ABC_TESTING_ASSERT_EQUAL(psz[2], '\0');
+   ABC_TESTING_ASSERT_EQUAL(static_cast<char_t const *>(cs), s.data());
+   ABC_TESTING_ASSERT_FALSE(cs._get().get_deleter().enabled());
+   ABC_TESTING_ASSERT_EQUAL(text::size_in_chars(cs), 2u);
+   ABC_TESTING_ASSERT_EQUAL(cs[0], 'a');
+   ABC_TESTING_ASSERT_EQUAL(cs[1], 'b');
+   ABC_TESTING_ASSERT_EQUAL(cs[2], '\0');
 }
 
 }} //namespace abc::test
