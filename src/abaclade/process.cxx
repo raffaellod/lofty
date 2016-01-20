@@ -21,6 +21,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/thread.hxx>
 
 #if ABC_HOST_API_POSIX
+   #include <cstdlib> // std::getenv()
    #include <errno.h> // EINVAL errno
    #include <sys/types.h> // id_t pid_t
    #include <sys/wait.h> // waitid() waitpid() W*
@@ -209,6 +210,42 @@ void to_str_backend<process>::write(process const & proc, io::text::writer * ptw
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace this_process {
+
+bool env_var(str const & sName, str * psRet) {
+   ABC_TRACE_FUNC(sName, psRet);
+
+   bool bRet;
+   auto csName(sName.c_str());
+#if ABC_HOST_API_POSIX
+   if (char_t const * pszValue = std::getenv(csName)) {
+      /* Environment strings are to be considered stored in non-modifiable memory, so we can just
+      adopt pszValue as external buffer. */
+      *psRet = str(external_buffer, pszValue);
+      bRet = true;
+   } else {
+      psRet->clear();
+      bRet = false;
+   }
+#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
+   psRet->set_from([&bRet] (char_t * pch, std::size_t cchMax) -> std::size_t {
+      /* ::GetEnvironmentVariable() returns < cchMax (length without NUL) if the buffer was large
+      enough, or the required size (length including NUL) otherwise. */
+      ::DWORD cchRet = ::GetEnvironmentVariable(csName, pch, static_cast< ::DWORD>(cchMax));
+      // No other ::GetLastError() values are documented to be returned (other than 0, presumably).
+      bRet = (cchRet > 0 || ::GetLastError() != ERROR_ENVVAR_NOT_FOUND);
+      return cchRet;
+   });
+#else
+   #error "TODO: HOST_API"
+#endif
+   return bRet;
+}
+
+_std::tuple<str, bool> env_var(str const & sName) {
+   _std::tuple<str, bool> tplRet;
+   _std::get<1>(tplRet) = env_var(sName, &_std::get<0>(tplRet));
+   return _std::move(tplRet);
+}
 
 process::id_type id() {
 #if ABC_HOST_API_POSIX

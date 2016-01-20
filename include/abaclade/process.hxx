@@ -219,6 +219,27 @@ namespace this_process {}
 
 namespace abc { namespace this_process {
 
+/*! Returns the value of an environment variable for the process.
+
+@param sName
+   Name of the environment variable to retrieve.
+@param psRet
+   Pointer to a string to receive the value of the environment variable.
+@return
+   true if the specified variable was found in the environment, or false if it wasn’t.
+*/
+ABACLADE_SYM bool env_var(str const & sName, str * psRet);
+
+/*! Returns the value of an environment variable for the process.
+
+@param sName
+   Name of the environment variable to retrieve.
+@return
+   A tuple containing (value, true) if the specified variable was found in the environment, or
+   (str::empty, false) if it wasn’t.
+*/
+ABACLADE_SYM _std::tuple<str, bool> env_var(str const & sName);
+
 /*! Returns a system-wide unique ID for the current process.
 
 @return
