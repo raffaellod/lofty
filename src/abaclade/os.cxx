@@ -117,6 +117,17 @@ static void get_is_nt_and_version() {
          static_cast<std::uint32_t>(iBuild);
 }
 
+static ::HKEY open_registry_key(::HKEY hkeyParent, str const & sName) {
+   ::HKEY hkeyRet;
+   if (long iRet = ::RegOpenKeyEx(hkeyParent, sName.c_str(), 0, KEY_QUERY_VALUE, &hkeyRet)) {
+      if (iRet == ERROR_FILE_NOT_FOUND) {
+         return nullptr;
+      }
+      exception::throw_os_error(static_cast<errint_t>(iRet));
+   }
+   return hkeyRet;
+}
+
 static bool get_registry_value_raw(
    ::HKEY hkey, char_t const * pszName, ::DWORD * piType, void * pValue, ::DWORD * pcbValue
 ) {
@@ -133,9 +144,10 @@ static bool get_registry_value_raw(
 }
 
 bool get_registry_value(::HKEY hkeyParent, str const & sKey, str const & sName, str * psRet) {
-   ::HKEY hkey;
-   if (long iRet = ::RegOpenKeyEx(hkeyParent, sKey.c_str(), 0, KEY_QUERY_VALUE, &hkey)) {
-      exception::throw_os_error(static_cast<errint_t>(iRet));
+   ::HKEY hkey = open_registry_key(hkeyParent, sKey);
+   if (!hkey) {
+      psRet->clear();
+      return false;
    }
    auto deferred1(defer_to_scope_end([hkey] () {
       ::RegCloseKey(hkey);
