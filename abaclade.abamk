@@ -95,6 +95,7 @@ targets:
             -  test/abaclade/io/text/binbuf_reader-read.cxx
             -  test/abaclade/io/text/writer-print.cxx
             -  test/abaclade/os/path.cxx
+            -  test/abaclade/process.cxx
             -  test/abaclade/range.cxx
             -  test/abaclade/text/char_ptr_to_str_adapter.cxx
             -  test/abaclade/text/str.cxx
