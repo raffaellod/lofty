@@ -186,7 +186,7 @@ binbuf_reader::read_helper::read_helper(
       m_ptbbr->m_lterm == abc::text::line_terminator::any ||
       m_ptbbr->m_lterm == abc::text::line_terminator::convert_any_to_lf
    ),
-   m_bTranscode(false /*&& mc_enc == abc::text::encoding::host*/),
+   m_bTranscode(true /*mc_enc != abc::text::encoding::host*/),
    m_cchReadTotal(0) {
    replenish_transcoded_buffer(true);
 
@@ -209,8 +209,6 @@ std::size_t binbuf_reader::read_helper::consume_used_bytes() {
    m_cchReadTotal += cchUsed;
    std::size_t cbUsed;
    if (m_bTranscode) {
-      cbUsed = sizeof(char_t) * cchUsed;
-   } else {
       if (m_pchTranscoded == m_pchTranscodedEnd) {
          // We used all the bytes we transcoded.
          cbUsed = m_cbSrcTranscoded;
@@ -228,6 +226,8 @@ std::size_t binbuf_reader::read_helper::consume_used_bytes() {
          ));
          cbUsed = m_cbSrcTranscoded - cbSrc;
       }
+   } else {
+      cbUsed = sizeof(char_t) * cchUsed;
    }
    m_ptbbr->m_pbbr->consume_bytes(cbUsed);
    /* Reset m_pchTranscoded to inhibit further calls to this method until more characters are
@@ -326,24 +326,7 @@ bool binbuf_reader::read_helper::replenish_transcoded_buffer(bool bConstructing)
    }
 
    if (m_bTranscode) {
-      // Cap m_cbSrc and round it down to the previous char_t.
-      m_cbSrcTranscoded = std::min(m_cbSrc, smc_cbTranscodeMax) & ~(sizeof(char_t) - 1);
-      m_pchTranscodedBegin = reinterpret_cast<char_t const *>(m_pbSrc);
-      m_pchTranscodedEnd = reinterpret_cast<char_t const *>(m_pbSrc + m_cbSrcTranscoded);
-      // Validate the characters in the peek buffer before we start appending them to *psDst.
-      /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be. Maybe
-      only do the validation later, at the end of each line? */
-      /* TODO: intercept exceptions if the reader’s “error mode” (TODO) mandates that errors be
-      converted into a special character, in which case we switch to forcing a transcoding read
-      mode, since abc::text:transcode can fix errors if told so (this will need a separate variable
-      to track the switch, instead of always comparing mc_enc == abc::text::encoding::host). */
-      /* TODO: improve this so we don’t re-validate the entire string on each read; validate only
-      the portion that was just read. */
-      abc::text::str_traits::validate(
-         m_pchTranscodedBegin, m_pchTranscodedEnd, true /*do throw on errors*/
-      );
-      m_psDst->set_capacity(m_cbSrcTranscoded / sizeof(char_t), bPreserve);
-   } else {
+      // Calculate the space needed for up to smc_cbTranscodeMax more transcoded characters.
       std::uint8_t const * pbSrc = m_pbSrc;
       std::size_t cbSrc = std::min(m_cbSrc, smc_cbTranscodeMax);
       std::size_t cbTranscoded = abc::text::transcode(
@@ -361,6 +344,24 @@ bool binbuf_reader::read_helper::replenish_transcoded_buffer(bool bConstructing)
          &cbTranscodedRemaining
       );
       m_cbSrcTranscoded = m_cbSrc - cbSrc;
+   } else {
+      // Cap m_cbSrc and round it down to the previous char_t.
+      m_cbSrcTranscoded = std::min(m_cbSrc, smc_cbTranscodeMax) & ~(sizeof(char_t) - 1);
+      m_pchTranscodedBegin = reinterpret_cast<char_t const *>(m_pbSrc);
+      m_pchTranscodedEnd = reinterpret_cast<char_t const *>(m_pbSrc + m_cbSrcTranscoded);
+      // Validate the characters in the peek buffer before we start appending them to *psDst.
+      /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be. Maybe
+      only do the validation later, at the end of each line? */
+      /* TODO: intercept exceptions if the reader’s “error mode” (TODO) mandates that errors be
+      converted into a special character, in which case we switch to forcing a transcoding read
+      mode, since abc::text:transcode can fix errors if told so (this will need a separate variable
+      to track the switch, instead of always comparing mc_enc == abc::text::encoding::host). */
+      /* TODO: improve this so we don’t re-validate the entire string on each read; validate only
+      the portion that was just read. */
+      abc::text::str_traits::validate(
+         m_pchTranscodedBegin, m_pchTranscodedEnd, true /*do throw on errors*/
+      );
+      m_psDst->set_capacity(m_cbSrcTranscoded / sizeof(char_t), bPreserve);
    }
    m_pchTranscoded = m_pchTranscodedBegin;
    // Rebase this pointer onto the (possibly) newly-reallocated string.
