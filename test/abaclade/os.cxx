@@ -32,6 +32,30 @@ ABC_TESTING_TEST_CASE_FUNC(
    "abc::os – accessing Windows Registry"
 ) {
    ABC_TRACE_FUNC(this);
+
+   sstr<8> s;
+
+   ABC_TESTING_ASSERT_FALSE(os::get_registry_value(
+      HKEY_LOCAL_MACHINE, ABC_SL("non-existent key"), str::empty, s.str_ptr()
+   ));
+   ABC_TESTING_ASSERT_EQUAL(s, str::empty);
+
+   ABC_TESTING_ASSERT_FALSE(os::get_registry_value(
+      HKEY_LOCAL_MACHINE, ABC_SL("Software\\Classes\\Interface"), str::empty, s.str_ptr()
+   ));
+   ABC_TESTING_ASSERT_EQUAL(s, str::empty);
+
+   ABC_TESTING_ASSERT_FALSE(os::get_registry_value(
+      HKEY_LOCAL_MACHINE, ABC_SL("Software"), ABC_SL("non-existent value"), s.str_ptr()
+   ));
+   ABC_TESTING_ASSERT_EQUAL(s, str::empty);
+
+   ABC_TESTING_ASSERT_TRUE(os::get_registry_value(
+      HKEY_LOCAL_MACHINE,
+      ABC_SL("Software\\Classes\\Interface\\{00000000-0000-0000-c000-000000000046}"),
+      str::empty, s.str_ptr()
+   ));
+   ABC_TESTING_ASSERT_EQUAL(s, ABC_SL("IUnknown"));
 }
 
 }} //namespace abc::test
