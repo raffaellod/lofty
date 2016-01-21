@@ -93,9 +93,12 @@ namespace abc { namespace os {
 
 #if ABC_HOST_API_WIN32
 
+//! Value returned by abc::os::is_nt() under Windows.
 static bool g_bIsNt = false;
+//! Value returned by abc::os::version() under Windows.
 static std::uint32_t g_iVer = 0;
 
+//! Initializes g_bIsNt and g_iVer.
 static void get_is_nt_and_version() {
    std::uint32_t iVer = ::GetVersion();
    std::uint8_t iMajor = static_cast<std::uint8_t>(iVer);

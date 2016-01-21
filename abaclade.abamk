@@ -52,7 +52,8 @@ targets:
       -  src/abaclade/io/text/str.cxx
       -  src/abaclade/math.cxx
       -  src/abaclade/memory.cxx
-      -  src/abaclade/net.cxx
+      -  src/abaclade/net/ip.cxx
+      -  src/abaclade/net/tcp.cxx
       -  src/abaclade/os.cxx
       -  src/abaclade/os/path.cxx
       -  src/abaclade/perf/stopwatch.cxx

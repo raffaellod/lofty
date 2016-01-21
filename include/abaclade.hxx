@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -30,6 +30,9 @@ Top-level Abaclade header file; must always be included before any other Abaclad
 
 //! Abaclade’s top-level namespace.
 namespace abc {
+   //! Networking facilities.
+   namespace net {}
+
    //! Support for performance tracking.
    namespace perf {}
 

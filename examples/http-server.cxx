@@ -21,7 +21,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/coroutine.hxx>
 #include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/io/text.hxx>
-#include <abaclade/net.hxx>
+#include <abaclade/net/tcp.hxx>
 #include <abaclade/thread.hxx>
 
 using namespace abc;
@@ -46,9 +46,9 @@ public:
       coroutine([this] () {
          ABC_TRACE_FUNC(this);
 
-         static net::port_t const sc_port = 9080;
-         io::text::stdout->print(ABC_SL("server: starting, listening on port {}\n"), sc_port);
-         net::tcp_server server(net::ip_address::any_ipv4, sc_port);
+         net::ip::port port(9080);
+         io::text::stdout->print(ABC_SL("server: starting, listening on port {}\n"), port.number());
+         net::tcp::server server(net::ip::address::any_v4, port);
          try {
             for (;;) {
                io::text::stdout->write_line(ABC_SL("server: accepting"));

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -18,7 +18,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
-#include <abaclade/net.hxx>
+#include <abaclade/net/tcp.hxx>
 #include <abaclade/thread.hxx>
 
 #if ABC_HOST_API_POSIX
@@ -53,43 +53,27 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace net {
+namespace abc { namespace net { namespace tcp {
 
-static detail::raw_ip_address const gc_abAny4 = {
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 4
-};
-static detail::raw_ip_address const gc_abAny6 = {
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 6
-};
-
-ip_address const & ip_address::any_ipv4 = static_cast<ip_address const &>(gc_abAny4);
-ip_address const & ip_address::any_ipv6 = static_cast<ip_address const &>(gc_abAny6);
-
-}} //namespace abc::net
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace net {
-
-connection::connection(io::filedesc fd, ip_address && ipaddrRemote, port_t portRemote) :
+connection::connection(io::filedesc fd, ip::address && addrRemote, ip::port && portRemote) :
    m_bfrw(io::binary::make_readwriter(_std::move(fd))),
-   m_ipaddrRemote(_std::move(ipaddrRemote)),
-   m_portRemote(portRemote) {
+   m_addrRemote(_std::move(addrRemote)),
+   m_portRemote(_std::move(portRemote)) {
 }
 
 connection::~connection() {
 }
 
-}} //namespace abc::net
+}}} //namespace abc::net::tcp
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace net {
+namespace abc { namespace net { namespace tcp {
 
-tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog /*= 5*/) :
-   m_fdSocket(create_socket(ipaddr.version())),
-   m_iIPVersion(ipaddr.version()) {
-   ABC_TRACE_FUNC(this/*, ipaddr*/, port, cBacklog);
+server::server(ip::address const & addr, ip::port const & port, unsigned cBacklog /*= 5*/) :
+   m_fdSocket(create_socket(addr.version())),
+   m_iIPVersion(addr.version()) {
+   ABC_TRACE_FUNC(this/*, addr, port*/, cBacklog);
 
 #if ABC_HOST_API_POSIX
    typedef ::sockaddr sockaddr_type;
@@ -112,11 +96,11 @@ tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog
          saServer4.sin_family = AF_INET;
          memory::copy(
             reinterpret_cast<std::uint8_t *>(&saServer4.sin_addr.s_addr),
-            ipaddr.raw(),
-            sizeof(ip_address::ipv4_type)
+            addr.raw(),
+            sizeof(ip::address::v4_type)
          );
          saServer4.sin_addr.s_addr = htonl(saServer4.sin_addr.s_addr);
-         saServer4.sin_port = htons(port);
+         saServer4.sin_port = htons(port.number());
          break;
       case 6:
          psaServer = reinterpret_cast<sockaddr_type *>(&saServer6);
@@ -124,8 +108,8 @@ tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog
          memory::clear(&saServer6);
          //saServer6.sin6_flowinfo = 0;
          saServer6.sin6_family = AF_INET6;
-         memory::copy(saServer6.sin6_addr.s6_addr, ipaddr.raw(), sizeof(ip_address::ipv6_type));
-         saServer6.sin6_port = htons(port);
+         memory::copy(saServer6.sin6_addr.s6_addr, addr.raw(), sizeof(ip::address::v6_type));
+         saServer6.sin6_port = htons(port.number());
          break;
       ABC_SWITCH_WITHOUT_DEFAULT
    }
@@ -146,13 +130,13 @@ tcp_server::tcp_server(ip_address const & ipaddr, port_t port, unsigned cBacklog
 #endif
 }
 
-tcp_server::~tcp_server() {
+server::~server() {
 #if ABC_HOST_API_WIN32
    ::WSACleanup();
 #endif
 }
 
-_std::shared_ptr<connection> tcp_server::accept() {
+_std::shared_ptr<connection> server::accept() {
    ABC_TRACE_FUNC(this);
 
    io::filedesc fdConnection;
@@ -262,17 +246,17 @@ _std::shared_ptr<connection> tcp_server::accept() {
 #endif
    this_coroutine::interruption_point();
 
-   ip_address ipaddrClient;
-   port_t portClient;
-   // TODO: validate cbClient and set ipaddrClient/portClient using saClient4/6.sin_addr.
-   ipaddrClient = ip_address(0);
-   portClient = 0;
+   ip::address addrClient;
+   ip::port portClient;
+   // TODO: validate cbClient and set addrClient/portClient using saClient4/6.sin_addr.
+   addrClient = ip::address(0);
+   portClient = ip::port(0);
    return _std::make_shared<connection>(
-      _std::move(fdConnection), _std::move(ipaddrClient), portClient
+      _std::move(fdConnection), _std::move(addrClient), _std::move(portClient)
    );
 }
 
-/*static*/ io::filedesc tcp_server::create_socket(std::uint8_t iIPVersion) {
+/*static*/ io::filedesc server::create_socket(std::uint8_t iIPVersion) {
    ABC_TRACE_FUNC(iIPVersion);
 
    if (iIPVersion != 4 && iIPVersion != 6) {
@@ -335,4 +319,4 @@ _std::shared_ptr<connection> tcp_server::accept() {
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
-}} //namespace abc::net
+}}} //namespace abc::net::tcp
