@@ -149,9 +149,10 @@ bool get_registry_value(::HKEY hkeyParent, str const & sKey, str const & sName, 
    }
    for (;;) {
       ::DWORD iTypeFinal, cbValueFinal = cbValueProbe;
+      std::size_t cchValue = cbValueProbe / sizeof(char_t);
       switch (iTypeProbe) {
          case REG_SZ:
-            psRet->set_size_in_chars(cbValueProbe / sizeof(char_t), false);
+            psRet->set_size_in_chars(cchValue, false);
             if (!get_registry_value_raw(hkey, csName, &iTypeFinal, psRet->data(), &cbValueFinal)) {
                // Race condition detected: somebody else deleted the value between our queries.
                psRet->clear();
@@ -161,12 +162,16 @@ bool get_registry_value(::HKEY hkeyParent, str const & sKey, str const & sName, 
                // Race condition detected: somebody else changed the value between our queries.
                break;
             }
-            /* Note that we don’t bother to enforce a NUL terminator on *psRet, since abc::text::str
+            /* If *psRet ended up including a NUL terminator because the value did, strip it; str
             doesn’t need it. */
+            // TODO: use ends_with(char_t) when it becomes avaiable.
+            if (psRet->ends_with(ABC_SL("\0"))) {
+               psRet->set_size_in_chars(cchValue - 1, false);
+            }
             return true;
          case REG_EXPAND_SZ: {
             text::sstr<256> sUnexpanded;
-            sUnexpanded.set_size_in_chars(cbValueProbe / sizeof(char_t), false);
+            sUnexpanded.set_size_in_chars(cchValue, false);
             if (!get_registry_value_raw(
                hkey, csName, &iTypeFinal, sUnexpanded.data(), &cbValueFinal
             )) {
@@ -177,6 +182,12 @@ bool get_registry_value(::HKEY hkeyParent, str const & sKey, str const & sName, 
             if (iTypeFinal != iTypeProbe || cbValueFinal != cbValueProbe) {
                // Race condition detected: somebody else changed the value between our queries.
                break;
+            }
+            /* If sUnexpanded ended up including a NUL terminator because the value did, strip it;
+            str doesn’t need it. */
+            // TODO: use ends_with(char_t) when it becomes avaiable.
+            if (sUnexpanded.ends_with(ABC_SL("\0"))) {
+               sUnexpanded.set_size_in_chars(cchValue - 1, false);
             }
             // Expand any environment variables.
             auto csUnexpanded(sUnexpanded.c_str());
