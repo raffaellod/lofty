@@ -72,7 +72,7 @@ namespace abc { namespace net { namespace tcp {
 
 server::server(ip::address const & addr, ip::port const & port, unsigned cBacklog /*= 5*/) :
    m_fdSocket(create_socket(addr.version())),
-   m_iIPVersion(addr.version()) {
+   m_ipversion(addr.version()) {
    ABC_TRACE_FUNC(this/*, addr, port*/, cBacklog);
 
 #if ABC_HOST_API_POSIX
@@ -88,8 +88,8 @@ server::server(ip::address const & addr, ip::port const & port, unsigned cBacklo
    socklen_type cbServer;
    ::sockaddr_in saServer4;
    ::sockaddr_in6 saServer6;
-   switch (m_iIPVersion) {
-      case 4:
+   switch (m_ipversion.base()) {
+      case ip::version::v4:
          psaServer = reinterpret_cast<sockaddr_type *>(&saServer4);
          cbServer = sizeof saServer4;
          memory::clear(&saServer4);
@@ -102,7 +102,7 @@ server::server(ip::address const & addr, ip::port const & port, unsigned cBacklo
          saServer4.sin_addr.s_addr = htonl(saServer4.sin_addr.s_addr);
          saServer4.sin_port = htons(port.number());
          break;
-      case 6:
+      case ip::version::v6:
          psaServer = reinterpret_cast<sockaddr_type *>(&saServer6);
          cbServer = sizeof saServer6;
          memory::clear(&saServer6);
@@ -146,12 +146,16 @@ _std::shared_ptr<connection> server::accept() {
    ::socklen_t cbClient;
    ::sockaddr_in saClient4;
    ::sockaddr_in6 saClient6;
-   if (m_iIPVersion == 4) {
-      psaClient = reinterpret_cast< ::sockaddr *>(&saClient4);
-      cbClient = sizeof saClient4;
-   } else {
-      psaClient = reinterpret_cast< ::sockaddr *>(&saClient6);
-      cbClient = sizeof saClient6;
+   switch (m_ipversion.base()) {
+      case ip::version::v4:
+         psaClient = reinterpret_cast< ::sockaddr *>(&saClient4);
+         cbClient = sizeof saClient4;
+         break;
+      case ip::version::v6:
+         psaClient = reinterpret_cast< ::sockaddr *>(&saClient6);
+         cbClient = sizeof saClient6;
+         break;
+      ABC_SWITCH_WITHOUT_DEFAULT
    }
    for (;;) {
       ::socklen_t cb = cbClient;
@@ -212,7 +216,7 @@ _std::shared_ptr<connection> server::accept() {
    static ::DWORD const cbLocalBuf  = sizeof aebuf.saaLocal  + sizeof aebuf.abLocalPadding;
    static ::DWORD const cbRemoteBuf = sizeof aebuf.saaRemote + sizeof aebuf.abRemotePadding;
 
-   fdConnection = create_socket(m_iIPVersion);
+   fdConnection = create_socket(m_ipversion);
    ::DWORD cbRead;
    io::overlapped ovl;
    ovl.Offset = 0;
@@ -256,15 +260,24 @@ _std::shared_ptr<connection> server::accept() {
    );
 }
 
-/*static*/ io::filedesc server::create_socket(std::uint8_t iIPVersion) {
-   ABC_TRACE_FUNC(iIPVersion);
+/*static*/ io::filedesc server::create_socket(ip::version ipversion) {
+   ABC_TRACE_FUNC(ipversion);
 
-   if (iIPVersion != 4 && iIPVersion != 6) {
+   if (ipversion == ip::version::any) {
       // TODO: provide more information in the exception.
       ABC_THROW(domain_error, ());
    }
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-   int iFamily = (iIPVersion == 4 ? AF_INET : AF_INET6);
+   int iFamily;
+   switch (ipversion.base()) {
+      case ip::version::v4:
+         iFamily = AF_INET;
+         break;
+      case ip::version::v6:
+         iFamily = AF_INET6;
+         break;
+      ABC_SWITCH_WITHOUT_DEFAULT
+   }
    int iType = SOCK_STREAM;
 #if ABC_HOST_API_POSIX
    #if !ABC_HOST_API_DARWIN

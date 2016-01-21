@@ -38,6 +38,20 @@ namespace ip {}
 
 }} //namespace abc::net
 
+namespace abc { namespace net { namespace ip {
+
+//! IP protocol version.
+ABC_ENUM(version,
+   //! No specific version.
+   (any, 0),
+   //! Identifies IPv4.
+   (v4, 4),
+   //! Identifies IPv6.
+   (v6, 6)
+);
+
+}}} //namespace abc::net::ip
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace net { namespace ip { namespace detail {
@@ -95,8 +109,8 @@ namespace abc { namespace net { namespace ip { namespace detail {
 struct raw_address {
    //! Raw bytes of an IP address.
    std::uint8_t m_ab[16];
-   //! IP version contained in *this; 4 = IPv4, 6 = IPv6.
-   std::uint8_t m_iVersion;
+   //! IP version contained in *this.
+   version::enum_type m_version;
 };
 
 }}}} //namespace abc::net::ip::detail
@@ -125,7 +139,7 @@ public:
    //! Default constructor.
    address() {
       memory::clear(m_ab);
-      m_iVersion = 0;
+      m_version = ip::version::any;
    }
 
    /*! Move constructor.
@@ -144,7 +158,7 @@ public:
    */
    explicit address(v4_type i) {
       memory::copy(m_ab, reinterpret_cast<std::uint8_t const *>(&i), sizeof m_ab);
-      m_iVersion = 4;
+      m_version = ip::version::v4;
    }
 
    /*! Constructor. Initializes the object as an IPv4 address.
@@ -152,9 +166,9 @@ public:
    @param ab
       Array of bytes to be used as an IPv4 address, in host endianness.
    */
-   explicit address(std::uint8_t const (& ab)[4]) {
+   explicit address(std::uint8_t const (& ab)[sizeof(v4_type)]) {
       memory::copy<std::uint8_t>(m_ab, ab, sizeof ab);
-      m_iVersion = 4;
+      m_version = ip::version::v4;
    }
 
    /*! Constructor. Initializes the object as an IPv6 address.
@@ -164,7 +178,7 @@ public:
    */
    explicit address(v6_type const & ab) {
       memory::copy<std::uint8_t>(m_ab, ab, sizeof ab);
-      m_iVersion = 6;
+      m_version = ip::version::v6;
    }
 
    /*! Returns a pointer to the raw address storage.
@@ -181,8 +195,8 @@ public:
    @return
       IP version.
    */
-   std::uint8_t version() const {
-      return m_iVersion;
+   ip::version version() const {
+      return m_version;
    }
 };
 

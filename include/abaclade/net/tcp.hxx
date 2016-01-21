@@ -124,18 +124,18 @@ public:
 private:
    /*! Creates a socket for the server.
 
-   @param iIPVersion
-      IP version; 4 = IPv4, 6 = IPv6.
+   @param ipversion
+      IP version.
    @return
       New server socket.
    */
-   static io::filedesc create_socket(std::uint8_t iIPVersion);
+   static io::filedesc create_socket(ip::version ipversion);
 
 private:
    //! Server socket bound to the TCP port.
    io::filedesc m_fdSocket;
-   //! IP version; 4 = IPv4, 6 = IPv6.
-   std::uint8_t m_iIPVersion;
+   //! IP version.
+   ip::version m_ipversion;
 };
 
 }}} //namespace abc::net::tcp
