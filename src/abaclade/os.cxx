@@ -17,6 +17,7 @@ not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/os.hxx>
 
 
@@ -114,6 +115,90 @@ static void get_is_nt_and_version() {
       (static_cast<std::uint32_t>(iMajor) << 24) |
       (static_cast<std::uint32_t>(iVer & 0x0000ff00) << 8) |
          static_cast<std::uint32_t>(iBuild);
+}
+
+static bool get_registry_value_raw(
+   ::HKEY hkey, char_t const * pszName, ::DWORD * piType, void * pValue, ::DWORD * pcbValue
+) {
+   if (long iRet = ::RegQueryValueEx(
+      hkey, pszName, nullptr, piType, static_cast< ::BYTE *>(pValue), pcbValue
+   )) {
+      if (iRet == ERROR_FILE_NOT_FOUND) {
+         return false;
+      } else {
+         exception::throw_os_error(static_cast<errint_t>(iRet));
+      }
+   }
+   return true;
+}
+
+bool get_registry_value(::HKEY hkeyParent, str const & sKey, str const & sName, str * psRet) {
+   ::HKEY hkey;
+   if (long iRet = ::RegOpenKeyEx(hkeyParent, sKey.c_str(), 0, KEY_QUERY_VALUE, &hkey)) {
+      exception::throw_os_error(static_cast<errint_t>(iRet));
+   }
+   auto deferred1(defer_to_scope_end([hkey] () {
+      ::RegCloseKey(hkey);
+   }));
+   // TODO: use Nt* functions to avoid the limitation of NUL termination.
+   auto csName(sName.c_str());
+   ::DWORD iTypeProbe, cbValueProbe;
+   if (!get_registry_value_raw(hkey, csName, &iTypeProbe, nullptr, &cbValueProbe)) {
+      psRet->clear();
+      return false;
+   }
+   for (;;) {
+      ::DWORD iTypeFinal, cbValueFinal = cbValueProbe;
+      switch (iTypeProbe) {
+         case REG_SZ:
+            psRet->set_size_in_chars(cbValueProbe / sizeof(char_t), false);
+            if (!get_registry_value_raw(hkey, csName, &iTypeFinal, psRet->data(), &cbValueFinal)) {
+               // Race condition detected: somebody else deleted the value between our queries.
+               psRet->clear();
+               return false;
+            }
+            if (iTypeFinal != iTypeProbe || cbValueFinal != cbValueProbe) {
+               // Race condition detected: somebody else changed the value between our queries.
+               break;
+            }
+            /* Note that we don’t bother to enforce a NUL terminator on *psRet, since abc::text::str
+            doesn’t need it. */
+            return true;
+         case REG_EXPAND_SZ: {
+            text::sstr<256> sUnexpanded;
+            sUnexpanded.set_size_in_chars(cbValueProbe / sizeof(char_t), false);
+            if (!get_registry_value_raw(
+               hkey, csName, &iTypeFinal, sUnexpanded.data(), &cbValueFinal
+            )) {
+               // Race condition detected: somebody else deleted the value between our queries.
+               psRet->clear();
+               return false;
+            }
+            if (iTypeFinal != iTypeProbe || cbValueFinal != cbValueProbe) {
+               // Race condition detected: somebody else changed the value between our queries.
+               break;
+            }
+            // Expand any environment variables.
+            auto csUnexpanded(sUnexpanded.c_str());
+            psRet->set_from([&csUnexpanded] (char_t * pch, std::size_t cchMax) -> std::size_t {
+               ::DWORD cchExpanded = ::ExpandEnvironmentStrings(
+                  csUnexpanded, pch, static_cast< ::DWORD>(cchMax)
+               );
+               if (!cchExpanded) {
+                  exception::throw_os_error();
+               }
+               return cchExpanded;
+            });
+            return true;
+         }
+         default:
+            // TODO: use a better exception class.
+            ABC_THROW(generic_error, ());
+      }
+      // Start over by switching to the new type and size.
+      iTypeProbe = iTypeFinal;
+      cbValueProbe = cbValueFinal;
+   }
 }
 
 bool is_nt() {

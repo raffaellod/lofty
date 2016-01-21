@@ -154,6 +154,23 @@ Windows.
 */
 ABACLADE_SYM bool is_nt();
 
+/*! Returns a Windows Registry value.
+
+@param hkeyParent
+   Parent Registry key, or an HKEY_* constant.
+@param sKey
+   Path to the key, relative to hkeyParent.
+@param sName
+   Name of the value to retrieve.
+@param psRet
+   Destination where to store the value retrieved from the Registry.
+@return bool
+   true if the value was found, or false otherwise.
+*/
+ABACLADE_SYM bool get_registry_value(
+   ::HKEY hkeyParent, str const & sKey, str const & sName, str * psRet
+);
+
 /*! Returns the Windows version that’s running the process.
 
 @return
