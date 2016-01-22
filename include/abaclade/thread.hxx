@@ -184,10 +184,10 @@ public:
    */
    void set_format(str const & sFormat);
 
-   /*! Writes a string, applying the formatting options.
+   /*! Writes a thread’s identifier, applying the formatting options.
 
-   @param op
-      Path to write.
+   @param thr
+      Thread to write.
    @param ptwOut
       Pointer to the writer to output to.
    */

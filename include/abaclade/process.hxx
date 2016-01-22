@@ -189,10 +189,10 @@ public:
    */
    void set_format(str const & sFormat);
 
-   /*! Writes a string, applying the formatting options.
+   /*! Writes a process’ identifier, applying the formatting options.
 
-   @param op
-      Path to write.
+   @param proc
+      Process to write.
    @param ptwOut
       Pointer to the writer to output to.
    */
