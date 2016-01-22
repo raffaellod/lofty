@@ -204,6 +204,9 @@ int const signal_dispatcher::smc_aiFaultSignals[] = {
 // SIGILL,  // Illegal Instruction (POSIX.1-1990).
    SIGSEGV  // Invalid memory reference (POSIX.1-1990).
 };
+int const signal_dispatcher::smc_aiIgnoredSignals[] = {
+   SIGPIPE  // Broken pipe: write to pipe with no readers (POSIX.1-1990).
+};
 int const signal_dispatcher::smc_aiInterruptionSignals[] = {
    SIGINT,  // Interrupt from keyboard (POSIX.1-1990).
 // SIGQUIT, // Quit from keyboard (POSIX.1-1990).
@@ -227,10 +230,14 @@ signal_dispatcher::signal_dispatcher() :
 #endif
    sm_psd = this;
 #if ABC_HOST_API_POSIX
+   // Block unwanted signals. These are not restored at the end; we really mean “unwanted”.
+   ABC_FOR_EACH(int iSignal, smc_aiIgnoredSignals) {
+      ::signal(iSignal, SIG_IGN);
+   }
    struct ::sigaction sa;
    sigemptyset(&sa.sa_mask);
    sa.sa_flags = SA_SIGINFO;
-   // Setup fault and interruption signal handlers.
+   // Setup interruption signal handlers.
    sa.sa_sigaction = &interruption_signal_handler;
    ABC_FOR_EACH(int iSignal, smc_aiInterruptionSignals) {
       ::sigaction(iSignal, &sa, nullptr);
@@ -259,6 +266,7 @@ signal_dispatcher::signal_dispatcher() :
       }
    }
 #elif ABC_HOST_API_POSIX
+   // Setup fault signal handlers.
    sa.sa_sigaction = &fault_signal_handler;
    ABC_FOR_EACH(int iSignal, smc_aiFaultSignals) {
       ::sigaction(iSignal, &sa, nullptr);

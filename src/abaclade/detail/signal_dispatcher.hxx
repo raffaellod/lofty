@@ -212,6 +212,8 @@ private:
 #if ABC_HOST_API_POSIX
    //! Fault signals that we can translate into C++ exceptions.
    static int const smc_aiFaultSignals[];
+   //! Signals that are redundant with errno values; we prefer errno to signals.
+   static int const smc_aiIgnoredSignals[];
    //! Interruption signals that we can translate into C++ exceptions.
    static int const smc_aiInterruptionSignals[];
 #endif
