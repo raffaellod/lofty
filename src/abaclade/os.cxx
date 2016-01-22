@@ -94,30 +94,30 @@ namespace abc { namespace os {
 #if ABC_HOST_API_WIN32
 
 //! Value returned by abc::os::is_nt() under Windows.
-static bool g_bIsNt = false;
+static bool g_bWinIsNt = false;
 //! Value returned by abc::os::version() under Windows.
-static std::uint32_t g_iVer = 0;
+static std::uint32_t g_iWinVersion = 0;
 
-//! Initializes g_bIsNt and g_iVer.
+//! Initializes g_bWinIsNt and g_iWinVersion.
 static void get_is_nt_and_version() {
-   std::uint32_t iVer = ::GetVersion();
-   std::uint8_t iMajor = static_cast<std::uint8_t>(iVer);
+   std::uint32_t iVersion = ::GetVersion();
+   std::uint8_t iMajor = static_cast<std::uint8_t>(iVersion);
    // Extract the build number.
    std::uint16_t iBuild;
-   if (iMajor != 4) {
-      // Windows NT or Win32s.
-      iBuild = static_cast<std::uint16_t>((iVer & 0x7fff0000) >> 16);
-   } else {
+   if (iMajor == 4) {
       // Windows 9x.
       iBuild =  0;
+   } else {
+      // Windows NT or Win32s.
+      iBuild = static_cast<std::uint16_t>((iVersion & 0x7fff0000) >> 16);
    }
-   /* No need to use a mutex here, since these writes are atomic and the values written to them
-   will be equal for all threads in the process. */
-   g_bIsNt = ((iVer & 0x80000000) == 0);
-   g_iVer =
+   /* No need to use a mutex here, since these writes are atomic and the values written will be
+   equal for all threads in the process. */
+   g_bWinIsNt = ((iVersion & 0x80000000) == 0);
+   g_iWinVersion =
       (static_cast<std::uint32_t>(iMajor) << 24) |
-      (static_cast<std::uint32_t>(iVer & 0x0000ff00) << 8) |
-         static_cast<std::uint32_t>(iBuild);
+      (static_cast<std::uint32_t>(iVersion & 0x0000ff00) << 8) |
+       static_cast<std::uint32_t>(iBuild);
 }
 
 static ::HKEY open_registry_key(::HKEY hkeyParent, str const & sName) {
@@ -228,17 +228,17 @@ bool get_registry_value(::HKEY hkeyParent, str const & sKey, str const & sName, 
 }
 
 bool is_nt() {
-   if (g_iVer == 0) {
+   if (g_iWinVersion == 0) {
       get_is_nt_and_version();
    }
-   return g_bIsNt;
+   return g_bWinIsNt;
 }
 
 std::uint32_t version() {
-   if (g_iVer == 0) {
+   if (g_iWinVersion == 0) {
       get_is_nt_and_version();
    }
-   return g_iVer;
+   return g_iWinVersion;
 }
 
 #endif
