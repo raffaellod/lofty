@@ -140,28 +140,32 @@ _std::shared_ptr<connection> server::accept() {
    ABC_TRACE_FUNC(this);
 
    io::filedesc fdConnection;
+   union sockaddr_any {
+      ::sockaddr_in sa4;
+      ::sockaddr_in6 sa6;
+   };
+   sockaddr_any * psaaRemote;
 #if ABC_HOST_API_POSIX
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-   ::sockaddr * psaClient;
-   ::socklen_t cbClient;
-   ::sockaddr_in saClient4;
-   ::sockaddr_in6 saClient6;
+   ::socklen_t cbRemoteSockAddr;
+   sockaddr_any saaRemote;
+   psaaRemote = &saaRemote;
    switch (m_ipversion.base()) {
       case ip::version::v4:
-         psaClient = reinterpret_cast< ::sockaddr *>(&saClient4);
-         cbClient = sizeof saClient4;
+         cbRemoteSockAddr = sizeof saaRemote.sa4;
          break;
       case ip::version::v6:
-         psaClient = reinterpret_cast< ::sockaddr *>(&saClient6);
-         cbClient = sizeof saClient6;
+         cbRemoteSockAddr = sizeof saaRemote.sa6;
          break;
       ABC_SWITCH_WITHOUT_DEFAULT
    }
    for (;;) {
-      ::socklen_t cb = cbClient;
+      ::socklen_t cb = cbRemoteSockAddr;
    #if ABC_HOST_API_DARWIN
       // accept4() is not available, so emulate it with accept() + fcntl().
-      fdConnection = io::filedesc(::accept(m_fdSocket.get(), psaClient, &cb));
+      fdConnection = io::filedesc(
+         ::accept(m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saaRemote), &cb)
+      );
       if (fdConnection) {
          /* Note that at this point there’s no hack that will ensure a fork()/exec() from another
          thread won’t leak the file descriptor. That’s the whole point of accept4(). */
@@ -176,10 +180,12 @@ _std::shared_ptr<connection> server::accept() {
          // Using coroutines, so make the client socket non-blocking.
          iFlags |= SOCK_NONBLOCK;
       }
-      fdConnection = io::filedesc(::accept4(m_fdSocket.get(), psaClient, &cb, iFlags));
+      fdConnection = io::filedesc(
+         ::accept4(m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saaRemote), &cb, iFlags)
+      );
    #endif
       if (fdConnection) {
-         cbClient = cb;
+         cbRemoteSockAddr = cb;
          break;
       }
       int iErr = errno;
@@ -199,22 +205,9 @@ _std::shared_ptr<connection> server::accept() {
       }
    }
 #elif ABC_HOST_API_WIN32
-   union sockaddr_any {
-      ::sockaddr_in sa4;
-      ::sockaddr_in6 sa6;
-   };
    // This weird structure is what ::AcceptEx() expects.
-   struct AcceptEx_buffer_t {
-      /* This is not present, since we’re not going to wait for data to be received when a new
-      connection is established. */
-      // std::int8_t abData[0];
-      sockaddr_any saaLocal;
-      std::int8_t abLocalPadding[16];
-      sockaddr_any saaRemote;
-      std::int8_t abRemotePadding[16];
-   } aebuf;
-   static ::DWORD const cbLocalBuf  = sizeof aebuf.saaLocal  + sizeof aebuf.abLocalPadding;
-   static ::DWORD const cbRemoteBuf = sizeof aebuf.saaRemote + sizeof aebuf.abRemotePadding;
+   static ::DWORD const sc_cbSockAddrBuf = sizeof(sockaddr_any) + 16;
+   std::int8_t abBuf[sc_cbSockAddrBuf * 2];
 
    fdConnection = create_socket(m_ipversion);
    ::DWORD cbRead;
@@ -225,8 +218,8 @@ _std::shared_ptr<connection> server::accept() {
    if (!::AcceptEx(
       reinterpret_cast< ::SOCKET>(m_fdSocket.get()),
       reinterpret_cast< ::SOCKET>(fdConnection.get()),
-      &aebuf, 0 /*don’t wait for data, just wait for a connection*/,
-      cbLocalBuf, cbRemoteBuf, &cbRead, &ovl
+      abBuf, 0 /*don’t wait for data, just wait for a connection*/,
+      sc_cbSockAddrBuf, sc_cbSockAddrBuf, &cbRead, &ovl
    )) {
       ::DWORD iErr = static_cast< ::DWORD>(::WSAGetLastError());
       if (iErr == ERROR_IO_PENDING) {
@@ -240,23 +233,41 @@ _std::shared_ptr<connection> server::accept() {
    }
 
    // Parse the weird buffer.
-   ::SOCKADDR * psaClient, * psaLocal;
-   int cbClient, cbLocal;
+   sockaddr_any * psaaLocal;
+   int cbRemoteSockAddr, cbLocalSockAddr;
    ::GetAcceptExSockaddrs(
-      &aebuf, 0, cbLocalBuf, cbRemoteBuf, &psaLocal, &cbLocal, &psaClient, &cbClient
+      abBuf, 0, sc_cbSockAddrBuf, sc_cbSockAddrBuf,
+      reinterpret_cast< ::SOCKADDR **>(&psaaLocal), &cbLocalSockAddr,
+      reinterpret_cast< ::SOCKADDR **>(&psaaRemote), &cbRemoteSockAddr
    );
 #else
    #error "TODO: HOST_API"
 #endif
    this_coroutine::interruption_point();
 
-   ip::address addrClient;
-   ip::port portClient;
-   // TODO: validate cbClient and set addrClient/portClient using saClient4/6.sin_addr.
-   addrClient = ip::address(0);
-   portClient = ip::port(0);
+   ip::address addrRemote;
+   ip::port portRemote;
+   switch (m_ipversion.base()) {
+      case ip::version::v4:
+         if (cbRemoteSockAddr == sizeof(sockaddr_any::sa4)) {
+            addrRemote = ip::address(
+               ntohl(*reinterpret_cast<ip::address::v4_type *>(&psaaRemote->sa4.sin_addr.s_addr))
+            );
+            portRemote = ip::port(ntohs(psaaRemote->sa4.sin_port));
+         }
+         break;
+      case ip::version::v6:
+         if (cbRemoteSockAddr == sizeof(sockaddr_any::sa6)) {
+            addrRemote = ip::address(
+               *reinterpret_cast<ip::address::v6_type *>(&psaaRemote->sa6.sin6_addr.s6_addr)
+            );
+            portRemote = ip::port(ntohs(psaaRemote->sa6.sin6_port));
+         }
+         break;
+      ABC_SWITCH_WITHOUT_DEFAULT
+   }
    return _std::make_shared<connection>(
-      _std::move(fdConnection), _std::move(addrClient), _std::move(portClient)
+      _std::move(fdConnection), _std::move(addrRemote), _std::move(portRemote)
    );
 }
 
