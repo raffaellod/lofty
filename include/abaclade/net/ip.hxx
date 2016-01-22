@@ -103,6 +103,34 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<net::ip::port> : public to_str_backend<net::ip::port::type> {
+public:
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(str const & sFormat);
+
+   /*! Writes an IP port, applying the formatting options.
+
+   @param port
+      Port to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(net::ip::port const & port, io::text::writer * ptwOut);
+};
+
+} //namespace abc
+//! @endcond
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace net { namespace ip { namespace detail {
 
 //! Contains an IPv4 or IPv6 address.
@@ -191,6 +219,34 @@ public:
 };
 
 }}} //namespace abc::net::ip
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//! @cond
+namespace abc {
+
+template <>
+class ABACLADE_SYM to_str_backend<net::ip::address> {
+public:
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(str const & sFormat);
+
+   /*! Writes an IP address, applying the formatting options.
+
+   @param addr
+      Address to write.
+   @param ptwOut
+      Pointer to the writer to output to.
+   */
+   void write(net::ip::address const & addr, io::text::writer * ptwOut);
+};
+
+} //namespace abc
+//! @endcond
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
