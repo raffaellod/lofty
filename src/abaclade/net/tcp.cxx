@@ -78,7 +78,7 @@ union sockaddr_any {
 server::server(ip::address const & addr, ip::port const & port, unsigned cBacklog /*= 5*/) :
    m_fdSocket(create_socket(addr.version())),
    m_ipversion(addr.version()) {
-   ABC_TRACE_FUNC(this/*, addr, port*/, cBacklog);
+   ABC_TRACE_FUNC(this, addr, port, cBacklog);
 
 #if ABC_HOST_API_POSIX
    ::socklen_t cbServerSockAddr;

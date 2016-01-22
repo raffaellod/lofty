@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2016 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -62,7 +62,10 @@ public:
                coroutine([pconn] () {
                   ABC_TRACE_FUNC(pconn);
 
-                  io::text::stdout->write_line(ABC_SL("responder: starting"));
+                  io::text::stdout->print(
+                     ABC_SL("responder: starting for {}:{}\n"),
+                     pconn->remote_address(), pconn->remote_port()
+                  );
 
                   // Create text-mode reader and writer for the connection’s socket.
                   auto ptr(io::text::make_reader(pconn->socket()));
