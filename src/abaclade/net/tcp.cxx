@@ -96,9 +96,8 @@ server::server(ip::address const & addr, ip::port const & port, unsigned cBacklo
          memory::copy(
             reinterpret_cast<std::uint8_t *>(&saaServer.sa4.sin_addr.s_addr),
             addr.raw(),
-            sizeof(ip::address::v4_type)
+            sizeof saaServer.sa4.sin_addr.s_addr
          );
-         saaServer.sa4.sin_addr.s_addr = htonl(saaServer.sa4.sin_addr.s_addr);
          saaServer.sa4.sin_port = htons(port.number());
          break;
       case ip::version::v6:
@@ -106,7 +105,9 @@ server::server(ip::address const & addr, ip::port const & port, unsigned cBacklo
          memory::clear(&saaServer.sa6);
          //saaServer.sa6.sin6_flowinfo = 0;
          saaServer.sa6.sin6_family = AF_INET6;
-         memory::copy(saaServer.sa6.sin6_addr.s6_addr, addr.raw(), sizeof(ip::address::v6_type));
+         memory::copy(
+            &saaServer.sa6.sin6_addr.s6_addr[0], addr.raw(), sizeof saaServer.sa6.sin6_addr.s6_addr
+         );
          saaServer.sa6.sin6_port = htons(port.number());
          break;
       ABC_SWITCH_WITHOUT_DEFAULT
@@ -248,7 +249,7 @@ _std::shared_ptr<connection> server::accept() {
       case ip::version::v4:
          if (cbRemoteSockAddr == sizeof(sockaddr_any::sa4)) {
             addrRemote = ip::address(
-               ntohl(*reinterpret_cast<ip::address::v4_type *>(&psaaRemote->sa4.sin_addr.s_addr))
+               *reinterpret_cast<ip::address::v4_type *>(&psaaRemote->sa4.sin_addr.s_addr)
             );
             portRemote = ip::port(ntohs(psaaRemote->sa4.sin_port));
          }

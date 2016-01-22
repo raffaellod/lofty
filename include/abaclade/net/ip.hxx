@@ -127,7 +127,7 @@ public:
    //! Used to indicate “any IPv6 address”, e.g. when binding to a port.
    static address const & any_v6;
    //! Type of an IPv4 address.
-   typedef std::uint32_t v4_type;
+   typedef std::uint8_t v4_type[4];
    //! Type of an IPv6 address.
    typedef std::uint8_t v6_type[16];
    //! Maximum length of the string representation of an IPv4 address.
@@ -153,31 +153,21 @@ public:
 
    /*! Constructor. Initializes the object as an IPv4 address.
 
-   @param i
-      Source IPv4 address, in host endianness.
-   */
-   explicit address(v4_type i) {
-      memory::copy(m_ab, reinterpret_cast<std::uint8_t const *>(&i), sizeof m_ab);
-      m_version = ip::version::v4;
-   }
-
-   /*! Constructor. Initializes the object as an IPv4 address.
-
    @param ab
-      Array of bytes to be used as an IPv4 address, in host endianness.
+      Array of bytes to be used as an IPv4 address, in network order (big endian).
    */
-   explicit address(std::uint8_t const (& ab)[sizeof(v4_type)]) {
-      memory::copy<std::uint8_t>(m_ab, ab, sizeof ab);
+   explicit address(v4_type const & ab) {
+      memory::copy(&m_ab[0], &ab[0], sizeof ab);
       m_version = ip::version::v4;
    }
 
    /*! Constructor. Initializes the object as an IPv6 address.
 
    @param ab
-      Array of bytes to be used as an IPv6 address, in host endianness.
+      Array of bytes to be used as an IPv6 address, in network order (big endian).
    */
    explicit address(v6_type const & ab) {
-      memory::copy<std::uint8_t>(m_ab, ab, sizeof ab);
+      memory::copy(&m_ab[0], &ab[0], sizeof ab);
       m_version = ip::version::v6;
    }
 
