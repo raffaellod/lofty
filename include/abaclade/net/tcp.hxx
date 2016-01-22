@@ -65,8 +65,17 @@ public:
    @return
       IP address.
    */
-   ip::address const & address() const {
+   ip::address const & remote_address() const {
       return m_addrRemote;
+   }
+
+   /*! Returns the port the remote peer is using.
+
+   @return
+      Port.
+   */
+   ip::port const & remote_port() const {
+      return m_portRemote;
    }
 
    /*! Returns a binary reader/writer object representing the socket, to receive data from the
