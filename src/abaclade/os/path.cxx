@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -538,7 +538,7 @@ void to_str_backend<os::path>::set_format(str const & sFormat) {
 void to_str_backend<os::path>::write(os::path const & op, io::text::writer * ptwOut) {
    ABC_TRACE_FUNC(this/*, op*/, ptwOut);
 
-   ptwOut->write(static_cast<str const &>(op));
+   to_str_backend<str>::write(op, ptwOut);
 }
 
 } //namespace abc
