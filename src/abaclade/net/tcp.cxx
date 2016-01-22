@@ -70,61 +70,62 @@ connection::~connection() {
 
 namespace abc { namespace net { namespace tcp {
 
+union sockaddr_any {
+   ::sockaddr_in sa4;
+   ::sockaddr_in6 sa6;
+};
+
 server::server(ip::address const & addr, ip::port const & port, unsigned cBacklog /*= 5*/) :
    m_fdSocket(create_socket(addr.version())),
    m_ipversion(addr.version()) {
    ABC_TRACE_FUNC(this/*, addr, port*/, cBacklog);
 
 #if ABC_HOST_API_POSIX
-   typedef ::sockaddr sockaddr_type;
-   typedef ::socklen_t socklen_type;
+   ::socklen_t cbServerSockAddr;
 #elif ABC_HOST_API_WIN32
-   typedef ::SOCKADDR sockaddr_type;
-   typedef int socklen_type;
+   int cbServerSockAddr;
 #else
    #error "TODO: HOST_API"
 #endif
-   sockaddr_type * psaServer;
-   socklen_type cbServer;
-   ::sockaddr_in saServer4;
-   ::sockaddr_in6 saServer6;
+   sockaddr_any saaServer;
    switch (m_ipversion.base()) {
       case ip::version::v4:
-         psaServer = reinterpret_cast<sockaddr_type *>(&saServer4);
-         cbServer = sizeof saServer4;
-         memory::clear(&saServer4);
-         saServer4.sin_family = AF_INET;
+         cbServerSockAddr = sizeof saaServer.sa4;
+         memory::clear(&saaServer.sa4);
+         saaServer.sa4.sin_family = AF_INET;
          memory::copy(
-            reinterpret_cast<std::uint8_t *>(&saServer4.sin_addr.s_addr),
+            reinterpret_cast<std::uint8_t *>(&saaServer.sa4.sin_addr.s_addr),
             addr.raw(),
             sizeof(ip::address::v4_type)
          );
-         saServer4.sin_addr.s_addr = htonl(saServer4.sin_addr.s_addr);
-         saServer4.sin_port = htons(port.number());
+         saaServer.sa4.sin_addr.s_addr = htonl(saaServer.sa4.sin_addr.s_addr);
+         saaServer.sa4.sin_port = htons(port.number());
          break;
       case ip::version::v6:
-         psaServer = reinterpret_cast<sockaddr_type *>(&saServer6);
-         cbServer = sizeof saServer6;
-         memory::clear(&saServer6);
-         //saServer6.sin6_flowinfo = 0;
-         saServer6.sin6_family = AF_INET6;
-         memory::copy(saServer6.sin6_addr.s6_addr, addr.raw(), sizeof(ip::address::v6_type));
-         saServer6.sin6_port = htons(port.number());
+         cbServerSockAddr = sizeof saaServer.sa6;
+         memory::clear(&saaServer.sa6);
+         //saaServer.sa6.sin6_flowinfo = 0;
+         saaServer.sa6.sin6_family = AF_INET6;
+         memory::copy(saaServer.sa6.sin6_addr.s6_addr, addr.raw(), sizeof(ip::address::v6_type));
+         saaServer.sa6.sin6_port = htons(port.number());
          break;
       ABC_SWITCH_WITHOUT_DEFAULT
    }
 #if ABC_HOST_API_WIN32
-   if (::bind(reinterpret_cast< ::SOCKET>(m_fdSocket.get()), psaServer, cbServer) < 0) {
-      exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
-   }
-   if (::listen(reinterpret_cast< ::SOCKET>(m_fdSocket.get()), static_cast<int>(cBacklog)) < 0) {
+   if (
+      ::bind(
+         reinterpret_cast< ::SOCKET>(m_fdSocket.get()),
+         reinterpret_cast< ::SOCKADDR *>(&saaServer), cbServerSockAddr
+      ) < 0 ||
+      ::listen(reinterpret_cast< ::SOCKET>(m_fdSocket.get()), static_cast<int>(cBacklog)) < 0
+   ) {
       exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
    }
 #else
-   if (::bind(m_fdSocket.get(), psaServer, cbServer) < 0) {
-      exception::throw_os_error();
-   }
-   if (::listen(m_fdSocket.get(), static_cast<int>(cBacklog)) < 0) {
+   if (
+      ::bind(m_fdSocket.get(), reinterpret_cast< ::sockaddr *>(&saaServer), cbServerSockAddr) < 0 ||
+      ::listen(m_fdSocket.get(), static_cast<int>(cBacklog)) < 0
+   ) {
       exception::throw_os_error();
    }
 #endif
@@ -140,10 +141,6 @@ _std::shared_ptr<connection> server::accept() {
    ABC_TRACE_FUNC(this);
 
    io::filedesc fdConnection;
-   union sockaddr_any {
-      ::sockaddr_in sa4;
-      ::sockaddr_in6 sa6;
-   };
    sockaddr_any * psaaRemote;
 #if ABC_HOST_API_POSIX
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
