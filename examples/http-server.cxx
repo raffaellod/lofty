@@ -47,7 +47,7 @@ public:
          ABC_TRACE_FUNC(this);
 
          net::ip::port port(9080);
-         io::text::stdout->print(ABC_SL("server: starting, listening on port {}\n"), port.number());
+         io::text::stdout->print(ABC_SL("server: starting, listening on port {}\n"), port);
          net::tcp::server server(net::ip::address::any_v4, port);
          try {
             for (;;) {
