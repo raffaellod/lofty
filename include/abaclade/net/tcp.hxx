@@ -50,15 +50,40 @@ public:
 
    @param fd
       Connected socket.
+   @param addrLocal
+      Local address.
+   @param portLocal
+      Local port.
    @param addrRemote
       Address of the remote peer.
    @param portRemote
       Port of the remote peer.
    */
-   connection(io::filedesc fd, ip::address && addrRemote, ip::port && portRemote);
+   connection(
+      io::filedesc fd, ip::address && addrLocal, ip::port && portLocal, ip::address && addrRemote,
+      ip::port && portRemote
+   );
 
    //! Destructor.
    ~connection();
+
+   /*! Returns the local address for the connection.
+
+   @return
+      IP address.
+   */
+   ip::address const & local_address() const {
+      return m_addrLocal;
+   }
+
+   /*! Returns the local port being used.
+
+   @return
+      Port.
+   */
+   ip::port const & local_port() const {
+      return m_portLocal;
+   }
 
    /*! Returns the address of the remote peer.
 
@@ -91,6 +116,10 @@ public:
 private:
    //! Reader/writer for the connection’s socket.
    _std::shared_ptr<io::binary::file_readwriter> m_bfrw;
+   //! Local address.
+   ip::address m_addrLocal;
+   //! Local port.
+   ip::port m_portLocal;
    //! Address of the remote peer.
    ip::address m_addrRemote;
    //! Port of the remote peer.

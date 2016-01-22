@@ -25,7 +25,7 @@ not, see <http://www.gnu.org/licenses/>.
    #include <arpa/inet.h> // inet_addr()
    #include <errno.h> // EINTR errno
    #include <sys/types.h> // sockaddr sockaddr_in
-   #include <sys/socket.h> // accept4() bind() socket()
+   #include <sys/socket.h> // accept4() bind() getsockname() socket()
    #if ABC_HOST_API_FREEBSD
       #include <netinet/in.h>
    #endif
@@ -55,8 +55,13 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace net { namespace tcp {
 
-connection::connection(io::filedesc fd, ip::address && addrRemote, ip::port && portRemote) :
+connection::connection(
+   io::filedesc fd, ip::address && addrLocal, ip::port && portLocal, ip::address && addrRemote,
+   ip::port && portRemote
+) :
    m_bfrw(io::binary::make_readwriter(_std::move(fd))),
+   m_addrLocal(_std::move(addrLocal)),
+   m_portLocal(_std::move(portLocal)),
    m_addrRemote(_std::move(addrRemote)),
    m_portRemote(_std::move(portRemote)) {
 }
@@ -142,12 +147,13 @@ _std::shared_ptr<connection> server::accept() {
    ABC_TRACE_FUNC(this);
 
    io::filedesc fdConnection;
-   sockaddr_any * psaaRemote;
+   sockaddr_any * psaaLocal, * psaaRemote;
 #if ABC_HOST_API_POSIX
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-   ::socklen_t cbRemoteSockAddr;
-   sockaddr_any saaRemote;
+   sockaddr_any saaLocal, saaRemote;
+   psaaLocal = &saaLocal;
    psaaRemote = &saaRemote;
+   ::socklen_t cbRemoteSockAddr;
    switch (m_ipversion.base()) {
       case ip::version::v4:
          cbRemoteSockAddr = sizeof saaRemote.sa4;
@@ -157,6 +163,7 @@ _std::shared_ptr<connection> server::accept() {
          break;
       ABC_SWITCH_WITHOUT_DEFAULT
    }
+   ::socklen_t cbLocalSockAddr = cbRemoteSockAddr;
    for (;;) {
       ::socklen_t cb = cbRemoteSockAddr;
    #if ABC_HOST_API_DARWIN
@@ -202,8 +209,9 @@ _std::shared_ptr<connection> server::accept() {
             exception::throw_os_error(static_cast<errint_t>(iErr));
       }
    }
+   ::getsockname(fdConnection.get(), reinterpret_cast< ::sockaddr *>(&saaLocal), &cbLocalSockAddr);
 #elif ABC_HOST_API_WIN32
-   // This weird structure is what ::AcceptEx() expects.
+   // ::AcceptEx() expects a weird and under-documented buffer of which we only know the size.
    static ::DWORD const sc_cbSockAddrBuf = sizeof(sockaddr_any) + 16;
    std::int8_t abBuf[sc_cbSockAddrBuf * 2];
 
@@ -231,10 +239,9 @@ _std::shared_ptr<connection> server::accept() {
    }
 
    // Parse the weird buffer.
-   sockaddr_any * psaaLocal;
    int cbRemoteSockAddr, cbLocalSockAddr;
    ::GetAcceptExSockaddrs(
-      abBuf, 0, sc_cbSockAddrBuf, sc_cbSockAddrBuf,
+      abBuf, 0 /*no other data was read*/, sc_cbSockAddrBuf, sc_cbSockAddrBuf,
       reinterpret_cast< ::SOCKADDR **>(&psaaLocal), &cbLocalSockAddr,
       reinterpret_cast< ::SOCKADDR **>(&psaaRemote), &cbRemoteSockAddr
    );
@@ -243,10 +250,16 @@ _std::shared_ptr<connection> server::accept() {
 #endif
    this_coroutine::interruption_point();
 
-   ip::address addrRemote;
-   ip::port portRemote;
+   ip::address addrLocal, addrRemote;
+   ip::port portLocal, portRemote;
    switch (m_ipversion.base()) {
       case ip::version::v4:
+         if (cbLocalSockAddr == sizeof(sockaddr_any::sa4)) {
+            addrLocal = ip::address(
+               *reinterpret_cast<ip::address::v4_type *>(&psaaLocal->sa4.sin_addr.s_addr)
+            );
+            portLocal = ip::port(ntohs(psaaLocal->sa4.sin_port));
+         }
          if (cbRemoteSockAddr == sizeof(sockaddr_any::sa4)) {
             addrRemote = ip::address(
                *reinterpret_cast<ip::address::v4_type *>(&psaaRemote->sa4.sin_addr.s_addr)
@@ -255,6 +268,12 @@ _std::shared_ptr<connection> server::accept() {
          }
          break;
       case ip::version::v6:
+         if (cbLocalSockAddr == sizeof(sockaddr_any::sa6)) {
+            addrLocal = ip::address(
+               *reinterpret_cast<ip::address::v6_type *>(&psaaLocal->sa6.sin6_addr.s6_addr)
+            );
+            portLocal = ip::port(ntohs(psaaLocal->sa6.sin6_port));
+         }
          if (cbRemoteSockAddr == sizeof(sockaddr_any::sa6)) {
             addrRemote = ip::address(
                *reinterpret_cast<ip::address::v6_type *>(&psaaRemote->sa6.sin6_addr.s6_addr)
@@ -265,7 +284,8 @@ _std::shared_ptr<connection> server::accept() {
       ABC_SWITCH_WITHOUT_DEFAULT
    }
    return _std::make_shared<connection>(
-      _std::move(fdConnection), _std::move(addrRemote), _std::move(portRemote)
+      _std::move(fdConnection), _std::move(addrLocal), _std::move(portLocal),
+      _std::move(addrRemote), _std::move(portRemote)
    );
 }
 
