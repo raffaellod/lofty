@@ -95,6 +95,7 @@ targets:
             -  test/abaclade/io/binary/pipe.cxx
             -  test/abaclade/io/text/binbuf_reader-read.cxx
             -  test/abaclade/io/text/writer-print.cxx
+            -  test/abaclade/net/ip.cxx
             -  test/abaclade/os.cxx
             -  test/abaclade/os/path.cxx
             -  test/abaclade/process.cxx
