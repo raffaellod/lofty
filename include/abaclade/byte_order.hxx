@@ -55,7 +55,7 @@ namespace byte_order {}
 namespace abc { namespace byte_order { namespace detail {
 
 //! Implementation of swap(), specialized by size in bytes of the argument. See swap().
-template <std::size_t cb>
+template <std::size_t t_cb>
 struct swap_impl;
 
 // Specialization for 1-byte integers.
