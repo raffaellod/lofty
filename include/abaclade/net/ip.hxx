@@ -185,7 +185,7 @@ public:
       Array of bytes to be used as an IPv4 address, in network order (big endian).
    */
    explicit address(v4_type const & ab) {
-      memory::copy(&m_ab[0], &ab[0], sizeof ab);
+      memory::copy(&m_ab[0], &ab[0], sizeof(v4_type));
       m_version = ip::version::v4;
    }
 
@@ -195,7 +195,7 @@ public:
       Array of bytes to be used as an IPv6 address, in network order (big endian).
    */
    explicit address(v6_type const & ab) {
-      memory::copy(&m_ab[0], &ab[0], sizeof ab);
+      memory::copy(&m_ab[0], &ab[0], sizeof(v6_type));
       m_version = ip::version::v6;
    }
 
@@ -243,6 +243,11 @@ public:
       Pointer to the writer to output to.
    */
    void write(net::ip::address const & addr, io::text::writer * ptwOut);
+
+protected:
+   to_str_backend<char_t> m_tsbChar;
+   to_str_backend<std::uint8_t> m_tsbV4Group;
+   to_str_backend<std::uint16_t> m_tsbV6Group;
 };
 
 } //namespace abc

@@ -17,6 +17,7 @@ not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
+#include <abaclade/byte_order.hxx>
 #include <abaclade/net/ip.hxx>
 
 
@@ -73,6 +74,8 @@ namespace abc {
 void to_str_backend<net::ip::address>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
+   m_tsbV6Group.set_format(ABC_SL("x"));
+
    auto it(sFormat.cbegin());
 
    // Add parsing of the format string here.
@@ -90,30 +93,29 @@ void to_str_backend<net::ip::address>::write(
 ) {
    ABC_TRACE_FUNC(this/*, addr*/, ptwOut);
 
-   to_str_backend<char_t> tsbChar;
-   to_str_backend<std::uint8_t> tsbByte;
-   std::uint8_t const * pbRaw = addr.raw();
    switch (addr.version().base()) {
       case net::ip::version::any:
-         tsbChar.write('-', ptwOut);
+         m_tsbChar.write('-', ptwOut);
          break;
       case net::ip::version::v4: {
-         for (unsigned ib = 0; ib < sizeof(net::ip::address::v4_type); ++ib) {
-            if (ib > 0) {
-               tsbChar.write('.', ptwOut);
-            }
-            tsbByte.write(*pbRaw++, ptwOut);
+         std::uint8_t const * piGroup = addr.raw();
+         std::uint8_t const * piGroupMax = addr.raw() + sizeof(net::ip::address::v4_type);
+         m_tsbV4Group.write(*piGroup, ptwOut);
+         while (++piGroup < piGroupMax) {
+            m_tsbChar.write('.', ptwOut);
+            m_tsbV4Group.write(*piGroup, ptwOut);
          }
          break;
       }
       case net::ip::version::v6: {
+         std::uint16_t const * piGroup = reinterpret_cast<std::uint16_t const *>(addr.raw());
+         std::uint16_t const * piGroupMax =
+            reinterpret_cast<std::uint16_t const *>(addr.raw() + sizeof(net::ip::address::v6_type));
+         m_tsbV6Group.write(byte_order::be_to_host(*piGroup), ptwOut);
          // TODO: write IPv6 addresses with 0 compaction.
-         for (unsigned ib = 0; ib < sizeof(net::ip::address::v6_type); ++ib) {
-            if (ib > 0) {
-               tsbChar.write(':', ptwOut);
-            }
-            tsbByte.write(*pbRaw++, ptwOut);
-            tsbByte.write(*pbRaw++, ptwOut);
+         while (++piGroup < piGroupMax) {
+            m_tsbChar.write(':', ptwOut);
+            m_tsbV6Group.write(byte_order::be_to_host(*piGroup), ptwOut);
          }
          break;
       }
