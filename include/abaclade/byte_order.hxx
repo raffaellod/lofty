@@ -121,6 +121,22 @@ inline I swap(I i) {
    return static_cast<I>(swap_impl()(static_cast<typename swap_impl::type>(i)));
 }
 
+/*! Converts a number from big endian to host endianness.
+
+@param i
+   Source integer.
+@return
+   Integer with the same byte values as i, but in reverse order if the host is little endian.
+*/
+template <typename I>
+inline I be_to_host(I i) {
+#if ABC_HOST_LITTLE_ENDIAN
+   return swap(i);
+#else
+   return i;
+#endif
+}
+
 /*! Converts a number from host endianness to big endian.
 
 @param i
@@ -150,22 +166,6 @@ inline I host_to_le(I i) {
    return i;
 #else
    return swap(i);
-#endif
-}
-
-/*! Converts a number from big endian to host endianness.
-
-@param i
-   Source integer.
-@return
-   Integer with the same byte values as i, but in reverse order if the host is little endian.
-*/
-template <typename I>
-inline I be_to_host(I i) {
-#if ABC_HOST_LITTLE_ENDIAN
-   return swap(i);
-#else
-   return i;
 #endif
 }
 
