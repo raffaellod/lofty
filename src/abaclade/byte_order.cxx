@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -17,14 +17,14 @@ not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/byteorder.hxx>
+#include <abaclade/byte_order.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef ABC_HAVE_BSWAP
 
-namespace abc { namespace byteorder { namespace detail {
+namespace abc { namespace byte_order { namespace detail {
 
 std::uint16_t bswap_16(std::uint16_t i) {
    return std::uint16_t(
@@ -55,6 +55,6 @@ std::uint64_t bswap_64(std::uint64_t i) {
    );
 }
 
-}}} //namespace abc::byteorder::detail
+}}} //namespace abc::byte_order::detail
 
 #endif //ifndef ABC_HAVE_BSWAP

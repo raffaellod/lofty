@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -16,8 +16,8 @@ You should have received a copy of the GNU Lesser General Public License along w
 not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_BYTEORDER_HXX
-#define _ABACLADE_BYTEORDER_HXX
+#ifndef _ABACLADE_BYTE_ORDER_HXX
+#define _ABACLADE_BYTE_ORDER_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -32,7 +32,7 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc {
 
 //! Byte-ordering functions.
-namespace byteorder {}
+namespace byte_order {}
 
 } //namespace abc
 
@@ -43,16 +43,16 @@ namespace byteorder {}
 #endif
 //! @cond
 #ifndef ABC_HAVE_BSWAP
-   namespace abc { namespace byteorder { namespace detail {
+   namespace abc { namespace byte_order { namespace detail {
 
    ABACLADE_SYM std::uint16_t bswap_16(std::uint16_t i);
    ABACLADE_SYM std::uint32_t bswap_32(std::uint32_t i);
    ABACLADE_SYM std::uint64_t bswap_64(std::uint64_t i);
 
-   }}} //namespace abc::byteorder::detail
+   }}} //namespace abc::byte_order::detail
 #endif
 
-namespace abc { namespace byteorder { namespace detail {
+namespace abc { namespace byte_order { namespace detail {
 
 //! Implementation of swap(), specialized by size in bytes of the argument. See swap().
 template <std::size_t cb>
@@ -102,10 +102,10 @@ struct swap_impl<8> {
    }
 };
 
-}}} //namespace abc::byteorder::detail
+}}} //namespace abc::byte_order::detail
 //! @endcond
 
-namespace abc { namespace byteorder {
+namespace abc { namespace byte_order {
 
 /*! Unconditionally flips the byte order in a number. It’s only defined for types ranging in size
 from 2 to 8 bytes.
@@ -185,8 +185,8 @@ inline I le_to_host(I i) {
 #endif
 }
 
-}} //namespace abc::byteorder
+}} //namespace abc::byte_order
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_BYTEORDER_HXX
+#endif //ifndef _ABACLADE_BYTE_ORDER_HXX

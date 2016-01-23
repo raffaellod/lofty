@@ -17,7 +17,7 @@ not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/byteorder.hxx>
+#include <abaclade/byte_order.hxx>
 #include <abaclade/numeric.hxx>
 #include <abaclade/text.hxx>
 
@@ -238,10 +238,10 @@ encoding guess_encoding(
          std::uint32_t ch = *reinterpret_cast<std::uint32_t const *>(
             pbBuf - (sizeof(char32_t) - 1)
          );
-         if ((fess & ESS_UTF32LE) && !is_codepoint_valid(byteorder::le_to_host(ch))) {
+         if ((fess & ESS_UTF32LE) && !is_codepoint_valid(byte_order::le_to_host(ch))) {
             fess &= ~static_cast<unsigned>(ESS_UTF32LE);
          }
-         if ((fess & ESS_UTF32BE) && !is_codepoint_valid(byteorder::be_to_host(ch))) {
+         if ((fess & ESS_UTF32BE) && !is_codepoint_valid(byte_order::be_to_host(ch))) {
             fess &= ~static_cast<unsigned>(ESS_UTF32BE);
          }
       }
@@ -444,7 +444,7 @@ std::size_t transcode(
             char16_t ch16Src0(*reinterpret_cast<char16_t const *>(pbSrc));
             pbSrc += sizeof(char16_t);
             if (encSrc != encoding::utf16_host) {
-               ch16Src0 = byteorder::swap(ch16Src0);
+               ch16Src0 = byte_order::swap(ch16Src0);
             }
             if (!utf16_char_traits::is_surrogate(ch16Src0)) {
                ch32 = ch16Src0;
@@ -457,7 +457,7 @@ std::size_t transcode(
                }
                char16_t ch16Src1 = *reinterpret_cast<char16_t const *>(pbSrc);
                if (encSrc != encoding::utf16_host) {
-                  ch16Src1 = byteorder::swap(ch16Src1);
+                  ch16Src1 = byte_order::swap(ch16Src1);
                }
                if (utf16_char_traits::is_trail_char(ch16Src1)) {
                   pbSrc += sizeof(char16_t);
@@ -503,7 +503,7 @@ std::size_t transcode(
             ch32 = *reinterpret_cast<char32_t const *>(pbSrc);
             pbSrc += sizeof(char32_t);
             if (encSrc != encoding::utf32_host) {
-               ch32 = byteorder::swap(ch32);
+               ch32 = byte_order::swap(ch32);
             }
             break;
 
@@ -560,13 +560,13 @@ std::size_t transcode(
                   ch16Dst0 = static_cast<char16_t>(ch32);
                }
                if (encDst != encoding::utf16_host) {
-                  ch16Dst0 = byteorder::swap(ch16Dst0);
+                  ch16Dst0 = byte_order::swap(ch16Dst0);
                }
                *reinterpret_cast<char16_t *>(pbDst) = ch16Dst0;
                pbDst += sizeof(char16_t);
                if (bNeedSurrogate) {
                   if (encDst != encoding::utf16_host) {
-                     ch16Dst1 = byteorder::swap(ch16Dst1);
+                     ch16Dst1 = byte_order::swap(ch16Dst1);
                   }
                   *reinterpret_cast<char16_t *>(pbDst) = ch16Dst1;
                   pbDst += sizeof(char16_t);
@@ -582,8 +582,8 @@ std::size_t transcode(
 #else
          case encoding::utf32le:
 #endif
-            // The destination endianness is the opposite of the host’s.
-            ch32 = byteorder::swap(ch32);
+            // The destination endianness is the opposite as the host’s.
+            ch32 = byte_order::swap(ch32);
             // Fall through.
          case encoding::utf32_host:
             if (pbDst + sizeof(char32_t) > pbDstEnd) {

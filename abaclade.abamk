@@ -26,7 +26,7 @@ targets:
       sources:
       -  src/abaclade/app.cxx
       -  src/abaclade/bitmanip.cxx
-      -  src/abaclade/byteorder.cxx
+      -  src/abaclade/byte_order.cxx
       -  src/abaclade/collections.cxx
       -  src/abaclade/collections/detail/doubly_linked_list_impl.cxx
       -  src/abaclade/collections/detail/hash_map_impl.cxx
