@@ -24,11 +24,9 @@ not, see <http://www.gnu.org/licenses/>.
 #if ABC_HOST_API_POSIX
    #include <arpa/inet.h> // inet_addr()
    #include <errno.h> // EINTR errno
+   #include <netinet/in.h> // htons() ntohs()
    #include <sys/types.h> // sockaddr sockaddr_in
    #include <sys/socket.h> // accept4() bind() getsockname() socket()
-   #if ABC_HOST_API_FREEBSD
-      #include <netinet/in.h>
-   #endif
 #elif ABC_HOST_API_WIN32
    #include <winsock2.h>
    #include <mswsock.h> // AcceptEx() GetAcceptExSockaddrs()
