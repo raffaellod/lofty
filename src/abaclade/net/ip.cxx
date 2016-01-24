@@ -99,23 +99,74 @@ void to_str_backend<net::ip::address>::write(
          break;
       case net::ip::version::v4: {
          std::uint8_t const * piGroup = addr.raw();
-         std::uint8_t const * piGroupMax = addr.raw() + sizeof(net::ip::address::v4_type);
+         std::uint8_t const * piGroupsEnd = addr.raw() + sizeof(net::ip::address::v4_type);
          m_tsbV4Group.write(*piGroup, ptwOut);
-         while (++piGroup < piGroupMax) {
+         while (++piGroup < piGroupsEnd) {
             m_tsbChar.write('.', ptwOut);
             m_tsbV4Group.write(*piGroup, ptwOut);
          }
          break;
       }
       case net::ip::version::v6: {
-         std::uint16_t const * piGroup = reinterpret_cast<std::uint16_t const *>(addr.raw());
-         std::uint16_t const * piGroupMax =
-            reinterpret_cast<std::uint16_t const *>(addr.raw() + sizeof(net::ip::address::v6_type));
-         m_tsbV6Group.write(byte_order::be_to_host(*piGroup), ptwOut);
-         // TODO: write IPv6 addresses with 0 compaction.
-         while (++piGroup < piGroupMax) {
+         /* This implementation complies with RFC 4291 “IP Version 6 Addressing Architecture” § 2.2.
+         “Text Representation of Addresses”. */
+
+         std::uint16_t const * piGroupsBegin = reinterpret_cast<std::uint16_t const *>(addr.raw());
+         std::uint16_t const * piGroupsEnd = reinterpret_cast<std::uint16_t const *>(
+            addr.raw() + sizeof(net::ip::address::v6_type)
+         );
+
+         // Find the longest run of zeroes, so we can print “::” instead.
+         std::uint16_t const * piCurr0sBegin = piGroupsBegin, * piCurr0sEnd = piGroupsBegin;
+         std::uint16_t const * piMax0sBegin = piGroupsBegin, * piMax0sEnd = piGroupsBegin;
+         for (auto piGroup = piGroupsBegin; piGroup < piGroupsEnd; ++piGroup) {
+            if (*piGroup == 0) {
+               if (piGroup != piCurr0sEnd) {
+                  // Start a new “current 0s” range.
+                  piCurr0sBegin = piGroup;
+               }
+               // Include this group in the “current 0s” range.
+               piCurr0sEnd = piGroup + 1;
+            } else if (piGroup == piCurr0sEnd) {
+               // End of the “current 0s” range; save it as “max 0s” if it’s the longest.
+               if (piCurr0sEnd - piCurr0sBegin > piMax0sEnd - piMax0sBegin) {
+                  piMax0sBegin = piCurr0sBegin;
+                  piMax0sEnd = piCurr0sEnd;
+               }
+            }
+         }
+         // Check if we ended on what should become the “max 0s” range.
+         if (piCurr0sEnd - piCurr0sBegin > piMax0sEnd - piMax0sBegin) {
+            piMax0sBegin = piCurr0sBegin;
+            piMax0sEnd = piCurr0sEnd;
+         }
+
+         auto piGroup = piGroupsBegin;
+         if (piMax0sEnd == piMax0sBegin) {
+            // Write the first group, not preceded by “:”.
+            m_tsbV6Group.write(byte_order::be_to_host(*piGroup++), ptwOut);
+         } else {
+            if (piGroup < piMax0sBegin) {
+               // Write all the groups before the “max 0s” range.
+               do {
+                  m_tsbV6Group.write(byte_order::be_to_host(*piGroup++), ptwOut);
+                  m_tsbChar.write(':', ptwOut);
+               } while (piGroup < piMax0sBegin);
+            } else {
+               // Print one ”:”; the second will be printed in the loop below.
+               m_tsbChar.write(':', ptwOut);
+            }
+            if (piMax0sEnd == piGroupsEnd) {
+               // No more groups to write; just add a second “:” and skip the second loop.
+               m_tsbChar.write(':', ptwOut);
+               break;
+            }
+            piGroup = piMax0sEnd;
+         }
+         // Write all the groups after the “max 0s” range.
+         while (piGroup < piGroupsEnd) {
             m_tsbChar.write(':', ptwOut);
-            m_tsbV6Group.write(byte_order::be_to_host(*piGroup), ptwOut);
+            m_tsbV6Group.write(byte_order::be_to_host(*piGroup++), ptwOut);
          }
          break;
       }
