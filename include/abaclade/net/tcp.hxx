@@ -162,18 +162,18 @@ public:
 private:
    /*! Creates a socket for the server.
 
-   @param ipversion
+   @param ipv
       IP version.
    @return
       New server socket.
    */
-   static io::filedesc create_socket(ip::version ipversion);
+   static io::filedesc create_socket(ip::version ipv);
 
 private:
    //! Server socket bound to the TCP port.
    io::filedesc m_fdSocket;
    //! IP version.
-   ip::version m_ipversion;
+   ip::version m_ipv;
 };
 
 }}} //namespace abc::net::tcp

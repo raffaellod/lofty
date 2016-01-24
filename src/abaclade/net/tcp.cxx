@@ -80,7 +80,7 @@ union sockaddr_any {
 
 server::server(ip::address const & addr, ip::port const & port, unsigned cBacklog /*= 5*/) :
    m_fdSocket(create_socket(addr.version())),
-   m_ipversion(addr.version()) {
+   m_ipv(addr.version()) {
    ABC_TRACE_FUNC(this, addr, port, cBacklog);
 
 #if ABC_HOST_API_POSIX
@@ -91,7 +91,7 @@ server::server(ip::address const & addr, ip::port const & port, unsigned cBacklo
    #error "TODO: HOST_API"
 #endif
    sockaddr_any saaServer;
-   switch (m_ipversion.base()) {
+   switch (m_ipv.base()) {
       case ip::version::v4:
          cbServerSockAddr = sizeof saaServer.sa4;
          memory::clear(&saaServer.sa4);
@@ -152,7 +152,7 @@ _std::shared_ptr<connection> server::accept() {
    psaaLocal = &saaLocal;
    psaaRemote = &saaRemote;
    ::socklen_t cbRemoteSockAddr;
-   switch (m_ipversion.base()) {
+   switch (m_ipv.base()) {
       case ip::version::v4:
          cbRemoteSockAddr = sizeof saaRemote.sa4;
          break;
@@ -213,7 +213,7 @@ _std::shared_ptr<connection> server::accept() {
    static ::DWORD const sc_cbSockAddrBuf = sizeof(sockaddr_any) + 16;
    std::int8_t abBuf[sc_cbSockAddrBuf * 2];
 
-   fdConnection = create_socket(m_ipversion);
+   fdConnection = create_socket(m_ipv);
    ::DWORD cbRead;
    io::overlapped ovl;
    ovl.Offset = 0;
@@ -250,7 +250,7 @@ _std::shared_ptr<connection> server::accept() {
 
    ip::address addrLocal, addrRemote;
    ip::port portLocal, portRemote;
-   switch (m_ipversion.base()) {
+   switch (m_ipv.base()) {
       case ip::version::v4:
          if (cbLocalSockAddr == sizeof(sockaddr_any::sa4)) {
             addrLocal = ip::address(
@@ -287,16 +287,16 @@ _std::shared_ptr<connection> server::accept() {
    );
 }
 
-/*static*/ io::filedesc server::create_socket(ip::version ipversion) {
-   ABC_TRACE_FUNC(ipversion);
+/*static*/ io::filedesc server::create_socket(ip::version ipv) {
+   ABC_TRACE_FUNC(ipv);
 
-   if (ipversion == ip::version::any) {
+   if (ipv == ip::version::any) {
       // TODO: provide more information in the exception.
       ABC_THROW(domain_error, ());
    }
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
    int iFamily;
-   switch (ipversion.base()) {
+   switch (ipv.base()) {
       case ip::version::v4:
          iFamily = AF_INET;
          break;

@@ -737,8 +737,8 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       }
       io::filedesc_t fd = reinterpret_cast< ::HANDLE>(iCompletionKey);
       /* Note (WIN32 BUG?)
-      Empirical evidence shows that at this point, povl might not be a valid pointer, even
-      if the completion key (fd) returned was a valid Abaclade-owned handle. I could not find any
+      Empirical evidence shows that at this point, povl might not be a valid pointer, even if the
+      completion key (fd) returned was a valid Abaclade-owned handle. I could not find any
       explanation for this, but at least the caller of sleep_until_fd_ready() will be able to detect
       the spurious notification by GetOverlappedResult() setting the last error to
       ERROR_IO_INCOMPLETE.
