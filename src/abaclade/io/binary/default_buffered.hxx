@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -231,32 +231,32 @@ private:
 
 namespace abc { namespace io { namespace binary {
 
-//! Provides buffering on top of a binary::reader instance.
-class ABACLADE_SYM default_buffered_reader : public buffered_reader, public noncopyable {
+//! Provides buffering on top of a binary::istream instance.
+class ABACLADE_SYM default_buffered_istream : public buffered_istream, public noncopyable {
 public:
    /*! Constructor.
 
    @param pbr
-      Pointer to a buffered reader to wrap.
+      Pointer to a buffered istream to wrap.
    */
-   default_buffered_reader(_std::shared_ptr<reader> pbr);
+   default_buffered_istream(_std::shared_ptr<istream> pbis);
 
    //! Destructor.
-   virtual ~default_buffered_reader();
+   virtual ~default_buffered_istream();
 
-   //! See buffered_reader::consume_bytes().
+   //! See buffered_istream::consume_bytes().
    virtual void consume_bytes(std::size_t cb) override;
 
-   //! See buffered_reader::peek_bytes().
+   //! See buffered_istream::peek_bytes().
    virtual _std::tuple<void const *, std::size_t> peek_bytes(std::size_t cb) override;
 
 protected:
-   //! See buffered_reader::_unbuffered_base().
-   virtual _std::shared_ptr<base> _unbuffered_base() const override;
+   //! See buffered_istream::_unbuffered_stream().
+   virtual _std::shared_ptr<stream> _unbuffered_stream() const override;
 
 protected:
-   //! Wrapped binary reader.
-   _std::shared_ptr<reader> m_pbr;
+   //! Wrapped binary istream.
+   _std::shared_ptr<istream> m_pbis;
    //! Main read buffer.
    detail::buffer m_bufRead;
    //! Default/increment size of m_pbReadBuf.
@@ -270,41 +270,41 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Provides buffering on top of a binary::writer instance.
-class ABACLADE_SYM default_buffered_writer : public buffered_writer, public noncopyable {
+//! Provides buffering on top of a binary::ostream instance.
+class ABACLADE_SYM default_buffered_ostream : public buffered_ostream, public noncopyable {
 public:
    /*! Constructor.
 
    @param pbw
-      Pointer to a buffered writer to wrap.
+      Pointer to a buffered output stream to wrap.
    */
-   default_buffered_writer(_std::shared_ptr<writer> pbw);
+   default_buffered_ostream(_std::shared_ptr<ostream> pbos);
 
    //! Destructor.
-   virtual ~default_buffered_writer();
+   virtual ~default_buffered_ostream();
 
-   //! See buffered_writer::commit_bytes().
+   //! See buffered_ostream::commit_bytes().
    virtual void commit_bytes(std::size_t cb) override;
 
-   //! See buffered_writer::finalize().
+   //! See buffered_ostream::finalize().
    virtual void finalize() override;
 
-   //! See buffered_writer::flush().
+   //! See buffered_ostream::flush().
    virtual void flush() override;
 
-   //! See buffered_writer::get_buffer_bytes().
+   //! See buffered_ostream::get_buffer_bytes().
    virtual _std::tuple<void *, std::size_t> get_buffer_bytes(std::size_t cb) override;
 
 protected:
    //! Flushes the internal write buffer.
    void flush_buffer();
 
-   //! See buffered_writer::_unbuffered_base().
-   virtual _std::shared_ptr<base> _unbuffered_base() const override;
+   //! See buffered_ostream::_unbuffered_stream().
+   virtual _std::shared_ptr<stream> _unbuffered_stream() const override;
 
 protected:
-   //! Wrapped binary writer.
-   _std::shared_ptr<writer> m_pbw;
+   //! Wrapped binary ostream.
+   _std::shared_ptr<ostream> m_pbos;
    //! Write buffer.
    detail::buffer m_bufWrite;
    //! If true, every commit_bytes() call will flush the buffer.

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -39,11 +39,11 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace io { namespace binary {
 
-console_file_base::console_file_base(detail::file_init_data * pfid) :
-   file_base(pfid) {
+console_file_stream::console_file_stream(detail::file_init_data * pfid) :
+   file_stream(pfid) {
 }
 
-/*virtual*/ console_file_base::~console_file_base() {
+/*virtual*/ console_file_stream::~console_file_stream() {
 }
 
 }}} //namespace abc::io::binary
@@ -52,17 +52,17 @@ console_file_base::console_file_base(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-console_reader::console_reader(detail::file_init_data * pfid) :
-   file_base(pfid),
-   console_file_base(pfid),
-   file_reader(pfid) {
+console_istream::console_istream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   console_file_stream(pfid),
+   file_istream(pfid) {
 }
 
-/*virtual*/ console_reader::~console_reader() {
+/*virtual*/ console_istream::~console_istream() {
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ std::size_t console_reader::read(void * p, std::size_t cbMax) /*override*/ {
+/*virtual*/ std::size_t console_istream::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
    // Note: ::ReadConsole() expects and returns character counts in place of byte counts.
@@ -88,7 +88,7 @@ console_reader::console_reader(detail::file_init_data * pfid) :
 namespace abc { namespace io { namespace binary {
 
 #if ABC_HOST_API_WIN32
-::WORD const console_writer::smc_aiAnsiColorToForegroundColor[] = {
+::WORD const console_ostream::smc_aiAnsiColorToForegroundColor[] = {
    /* black   */ 0,
    /* red     */ FOREGROUND_RED,
    /* green   */                  FOREGROUND_GREEN,
@@ -98,7 +98,7 @@ namespace abc { namespace io { namespace binary {
    /* cyan    */                  FOREGROUND_GREEN | FOREGROUND_BLUE,
    /* white   */ FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 };
-::WORD const console_writer::smc_aiAnsiColorToBackgroundColor[] = {
+::WORD const console_ostream::smc_aiAnsiColorToBackgroundColor[] = {
    /* black   */ 0,
    /* red     */ BACKGROUND_RED,
    /* green   */                  BACKGROUND_GREEN,
@@ -110,10 +110,10 @@ namespace abc { namespace io { namespace binary {
 };
 #endif
 
-console_writer::console_writer(detail::file_init_data * pfid) :
-   file_base(pfid),
-   console_file_base(pfid),
-   file_writer(pfid) {
+console_ostream::console_ostream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   console_file_stream(pfid),
+   file_ostream(pfid) {
 #if ABC_HOST_API_WIN32
    ABC_TRACE_FUNC(this, pfid);
 
@@ -144,11 +144,11 @@ console_writer::console_writer(detail::file_init_data * pfid) :
 #endif
 }
 
-/*virtual*/ console_writer::~console_writer() {
+/*virtual*/ console_ostream::~console_ostream() {
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ void console_writer::clear_display_area(
+/*virtual*/ void console_ostream::clear_display_area(
    std::int16_t iRow, std::int16_t iCol, std::size_t cch
 ) /*override*/ {
    ABC_TRACE_FUNC(this, iRow, iCol, cch);
@@ -156,7 +156,7 @@ console_writer::console_writer(detail::file_init_data * pfid) :
    // TODO: implementation.
 }
 
-/*virtual*/ void console_writer::get_cursor_pos_and_display_size(
+/*virtual*/ void console_ostream::get_cursor_pos_and_display_size(
    std::int16_t * piRow, std::int16_t * piCol, std::int16_t * pcRows, std::int16_t * pcCols
 ) /*override*/ {
    ABC_TRACE_FUNC(this, piRow, piCol, pcRows, pcCols);
@@ -169,7 +169,7 @@ console_writer::console_writer(detail::file_init_data * pfid) :
    *pcCols = csbi.dwSize.X;
 }
 
-bool console_writer::processing_enabled() const {
+bool console_ostream::processing_enabled() const {
    ABC_TRACE_FUNC(this);
 
    ::DWORD iConsoleMode;
@@ -180,13 +180,13 @@ bool console_writer::processing_enabled() const {
    return (iConsoleMode & ENABLE_PROCESSED_OUTPUT) != 0;
 }
 
-/*virtual*/ void console_writer::scroll_text(std::int16_t cRows, std::int16_t cCols) /*override*/ {
+/*virtual*/ void console_ostream::scroll_text(std::int16_t cRows, std::int16_t cCols) /*override*/ {
    ABC_TRACE_FUNC(this, cRows, cCols);
 
    // TODO: implementation.
 }
 
-/*virtual*/ void console_writer::set_char_attributes() /*override*/ {
+/*virtual*/ void console_ostream::set_char_attributes() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    ::WORD iAttr;
@@ -217,7 +217,9 @@ bool console_writer::processing_enabled() const {
    ::SetConsoleTextAttribute(m_fd.get(), iAttr);
 }
 
-/*virtual*/ void console_writer::set_cursor_pos(std::int16_t iRow, std::int16_t iCol) /*override*/ {
+/*virtual*/ void console_ostream::set_cursor_pos(
+   std::int16_t iRow, std::int16_t iCol
+) /*override*/ {
    ABC_TRACE_FUNC(this, iRow, iCol);
 
    ::COORD coord;
@@ -226,7 +228,7 @@ bool console_writer::processing_enabled() const {
    ::SetConsoleCursorPosition(m_fd.get(), coord);
 }
 
-/*virtual*/ void console_writer::set_cursor_visibility(bool bVisible) /*override*/ {
+/*virtual*/ void console_ostream::set_cursor_visibility(bool bVisible) /*override*/ {
    ABC_TRACE_FUNC(this, bVisible);
 
    ::CONSOLE_CURSOR_INFO cci;
@@ -235,13 +237,13 @@ bool console_writer::processing_enabled() const {
    ::SetConsoleCursorInfo(m_fd.get(), &cci);
 }
 
-/*virtual*/ void console_writer::set_window_title(str const & sTitle) /*override*/ {
+/*virtual*/ void console_ostream::set_window_title(str const & sTitle) /*override*/ {
    ABC_TRACE_FUNC(this, sTitle);
 
    ::SetConsoleTitle(sTitle.c_str());
 }
 
-/*virtual*/ std::size_t console_writer::write(void const * p, std::size_t cb) /*override*/ {
+/*virtual*/ std::size_t console_ostream::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    char_t const * pchBegin = static_cast<char_t const *>(p);
@@ -285,7 +287,7 @@ bool console_writer::processing_enabled() const {
    return cb;
 }
 
-void console_writer::write_range(char_t const * pchBegin, char_t const * pchEnd) const {
+void console_ostream::write_range(char_t const * pchBegin, char_t const * pchEnd) const {
    ABC_TRACE_FUNC(this, pchBegin, pchEnd);
 
    // This loop may repeat more than once in the unlikely case cch exceeds what can fit in a DWORD.
@@ -310,17 +312,17 @@ void console_writer::write_range(char_t const * pchBegin, char_t const * pchEnd)
 
 namespace abc { namespace io { namespace binary {
 
-console_readwriter::console_readwriter(detail::file_init_data * pfid) :
-   file_base(pfid),
-   file_reader(pfid),
-   file_writer(pfid),
-   console_file_base(pfid),
-   file_readwriter(pfid),
-   console_reader(pfid),
-   console_writer(pfid) {
+console_iostream::console_iostream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   file_istream(pfid),
+   file_ostream(pfid),
+   console_file_stream(pfid),
+   file_iostream(pfid),
+   console_istream(pfid),
+   console_ostream(pfid) {
 }
 
-/*virtual*/ console_readwriter::~console_readwriter() {
+/*virtual*/ console_iostream::~console_iostream() {
 }
 
 }}} //namespace abc::io::binary
@@ -329,16 +331,16 @@ console_readwriter::console_readwriter(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-pipe_reader::pipe_reader(detail::file_init_data * pfid) :
-   file_base(pfid),
-   file_reader(pfid) {
+pipe_istream::pipe_istream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   file_istream(pfid) {
 }
 
-/*virtual*/ pipe_reader::~pipe_reader() {
+/*virtual*/ pipe_istream::~pipe_istream() {
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ bool pipe_reader::check_if_eof_or_throw_os_error(
+/*virtual*/ bool pipe_istream::check_if_eof_or_throw_os_error(
    ::DWORD cbRead, ::DWORD iErr
 ) const /*override*/ {
    ABC_UNUSED_ARG(cbRead);
@@ -359,30 +361,12 @@ pipe_reader::pipe_reader(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-pipe_writer::pipe_writer(detail::file_init_data * pfid) :
-   file_base(pfid),
-   file_writer(pfid) {
+pipe_ostream::pipe_ostream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   file_ostream(pfid) {
 }
 
-/*virtual*/ pipe_writer::~pipe_writer() {
-}
-
-}}} //namespace abc::io::binary
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-pipe_readwriter::pipe_readwriter(detail::file_init_data * pfid) :
-   file_base(pfid),
-   file_reader(pfid),
-   file_writer(pfid),
-   file_readwriter(pfid),
-   pipe_reader(pfid),
-   pipe_writer(pfid) {
-}
-
-/*virtual*/ pipe_readwriter::~pipe_readwriter() {
+/*virtual*/ pipe_ostream::~pipe_ostream() {
 }
 
 }}} //namespace abc::io::binary
@@ -391,8 +375,26 @@ pipe_readwriter::pipe_readwriter(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-regular_file_base::regular_file_base(detail::file_init_data * pfid) :
-   file_base(pfid) {
+pipe_iostream::pipe_iostream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   file_istream(pfid),
+   file_ostream(pfid),
+   file_iostream(pfid),
+   pipe_istream(pfid),
+   pipe_ostream(pfid) {
+}
+
+/*virtual*/ pipe_iostream::~pipe_iostream() {
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+regular_file_stream::regular_file_stream(detail::file_init_data * pfid) :
+   file_stream(pfid) {
    ABC_TRACE_FUNC(this, pfid);
 
 #if ABC_HOST_API_POSIX
@@ -439,10 +441,10 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
-/*virtual*/ regular_file_base::~regular_file_base() {
+/*virtual*/ regular_file_stream::~regular_file_stream() {
 }
 
-/*virtual*/ offset_t regular_file_base::seek(offset_t ibOffset, seek_from sfWhence) /*override*/ {
+/*virtual*/ offset_t regular_file_stream::seek(offset_t ibOffset, seek_from sfWhence) /*override*/ {
    ABC_TRACE_FUNC(this, ibOffset, sfWhence);
 
 #if ABC_HOST_API_POSIX
@@ -507,19 +509,19 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 #endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
 }
 
-/*virtual*/ full_size_t regular_file_base::size() const /*override*/ {
+/*virtual*/ full_size_t regular_file_stream::size() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
    return m_cb;
 }
 
-/*virtual*/ offset_t regular_file_base::tell() const /*override*/ {
+/*virtual*/ offset_t regular_file_stream::tell() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX || ABC_HOST_API_WIN32
    /* Seeking 0 bytes from the current position won’t change the internal status of the file
    descriptor, so casting the const-ness away is not semantically wrong. */
-   return const_cast<regular_file_base *>(this)->seek(0, seek_from::current);
+   return const_cast<regular_file_stream *>(this)->seek(0, seek_from::current);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -531,13 +533,13 @@ regular_file_base::regular_file_base(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-regular_file_reader::regular_file_reader(detail::file_init_data * pfid) :
-   file_base(pfid),
-   regular_file_base(pfid),
-   file_reader(pfid) {
+regular_file_istream::regular_file_istream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   regular_file_stream(pfid),
+   file_istream(pfid) {
 }
 
-/*virtual*/ regular_file_reader::~regular_file_reader() {
+/*virtual*/ regular_file_istream::~regular_file_istream() {
 }
 
 }}} //namespace abc::io::binary
@@ -546,10 +548,10 @@ regular_file_reader::regular_file_reader(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
-   file_base(pfid),
-   regular_file_base(pfid),
-   file_writer(pfid) {
+regular_file_ostream::regular_file_ostream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   regular_file_stream(pfid),
+   file_ostream(pfid) {
    ABC_TRACE_FUNC(this, pfid);
 
 #if ABC_HOST_API_WIN32
@@ -557,11 +559,11 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 #endif
 }
 
-/*virtual*/ regular_file_writer::~regular_file_writer() {
+/*virtual*/ regular_file_ostream::~regular_file_ostream() {
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ std::size_t regular_file_writer::write(void const * p, std::size_t cb) /*override*/ {
+/*virtual*/ std::size_t regular_file_ostream::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    /* Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then
@@ -658,7 +660,7 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
       // Now the write can occur; the lock will be released automatically at the end.
    }
 
-   return file_writer::write(p, cb);
+   return file_ostream::write(p, cb);
 }
 #endif //if ABC_HOST_API_WIN32
 
@@ -668,17 +670,17 @@ regular_file_writer::regular_file_writer(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-regular_file_readwriter::regular_file_readwriter(detail::file_init_data * pfid) :
-   file_base(pfid),
-   file_reader(pfid),
-   file_writer(pfid),
-   regular_file_base(pfid),
-   file_readwriter(pfid),
-   regular_file_reader(pfid),
-   regular_file_writer(pfid) {
+regular_file_iostream::regular_file_iostream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   file_istream(pfid),
+   file_ostream(pfid),
+   regular_file_stream(pfid),
+   file_iostream(pfid),
+   regular_file_istream(pfid),
+   regular_file_ostream(pfid) {
 }
 
-/*virtual*/ regular_file_readwriter::~regular_file_readwriter() {
+/*virtual*/ regular_file_iostream::~regular_file_iostream() {
 }
 
 }}} //namespace abc::io::binary

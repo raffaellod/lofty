@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -74,10 +74,10 @@ public:
 
    @param cs
       C string to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(text::char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut);
+   void write(text::char_ptr_to_str_adapter const & cs, io::text::ostream * ptos);
 };
 
 } //namespace abc

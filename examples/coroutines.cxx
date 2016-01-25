@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -51,7 +51,7 @@ public:
       /* Ensure that the pipe’s writing end is finalized (closed) even in case of exceptions. In a
       real application, we would check for exceptions when doing so. */
       auto deferred1(defer_to_scope_end([&pe] () {
-         pe.writer->finalize();
+         pe.ostream->finalize();
       }));
 
       // Schedule the reader.
@@ -63,7 +63,7 @@ public:
             int i;
             io::text::stdout->print(ABC_SL("reader: reading\n"));
             // This will cause a context switch if the read would block.
-            std::size_t cbRead = pe.reader->read(&i, sizeof i);
+            std::size_t cbRead = pe.istream->read(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
             if (cbRead == 0) {
                // Detect EOF.
@@ -93,7 +93,7 @@ public:
          ABC_FOR_EACH(int i, make_range(1, 10)) {
             io::text::stdout->print(ABC_SL("writer: writing {}\n"), i);
             // This will cause a context switch if the write would block.
-            pe.writer->write(&i, sizeof i);
+            pe.ostream->write(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
 
             /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be
@@ -103,7 +103,7 @@ public:
             // Execution resumes here, after other coroutines have received CPU time.
          }
          // Close the writing end of the pipe to report EOF on the reading end.
-         pe.writer->finalize();
+         pe.ostream->finalize();
          io::text::stdout->write_line(ABC_SL("writer: terminating"));
       });
 

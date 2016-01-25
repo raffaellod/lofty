@@ -120,10 +120,10 @@ public:
 
    @param port
       Port to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(net::ip::port const & port, io::text::writer * ptwOut);
+   void write(net::ip::port const & port, io::text::ostream * ptos);
 };
 
 } //namespace abc
@@ -239,10 +239,10 @@ public:
 
    @param addr
       Address to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(net::ip::address const & addr, io::text::writer * ptwOut);
+   void write(net::ip::address const & addr, io::text::ostream * ptos);
 
 protected:
    to_str_backend<char_t> m_tsbChar;

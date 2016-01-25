@@ -404,7 +404,7 @@
      <draw:text-box>
       <text:p text:style-name="P1"><text:span text:style-name="T1">_before_throw()</text:span></text:p>
       <text:p text:style-name="P1"><text:span text:style-name="T1">what()</text:span></text:p>
-      <text:p text:style-name="P1"><text:span text:style-name="T1">what_writer()</text:span></text:p>
+      <text:p text:style-name="P1"><text:span text:style-name="T1">what_ostream()</text:span></text:p>
      </draw:text-box>
     </draw:frame>
     <draw:frame draw:style-name="gr2" draw:text-style-name="P4" xml:id="id2" draw:id="id2" draw:layer="layout" svg:width="7cm" svg:height="0.89cm" svg:x="13cm" svg:y="17.3cm">

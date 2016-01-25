@@ -76,14 +76,14 @@ out_of_range::out_of_range(
    std::ptrdiff_t iInvalid, std::ptrdiff_t iMin, std::ptrdiff_t iMax, errint_t err /*= 0*/
 ) :
    bad_access(err) {
-   what_writer().print(ABC_SL("invalid value={} valid range=[{}, {}]"), iInvalid, iMin, iMax);
+   what_ostream().print(ABC_SL("invalid value={} valid range=[{}, {}]"), iInvalid, iMin, iMax);
 }
 
 out_of_range::out_of_range(
    void const * pInvalid, void const * pMin, void const * pMax, errint_t err /*= 0*/
 ) :
    bad_access(err) {
-   what_writer().print(ABC_SL("invalid value={} valid range=[{}, {}]"), pInvalid, pMin, pMax);
+   what_ostream().print(ABC_SL("invalid value={} valid range=[{}, {}]"), pInvalid, pMin, pMax);
 }
 
 out_of_range::out_of_range(out_of_range const & x) :

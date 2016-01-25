@@ -30,12 +30,12 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace io { namespace text {
 
-_std::shared_ptr<writer> stderr;
-_std::shared_ptr<reader> stdin;
-_std::shared_ptr<writer> stdout;
+_std::shared_ptr<ostream> stderr;
+_std::shared_ptr<istream> stdin;
+_std::shared_ptr<ostream> stdout;
 
-/*! Detects the encoding to use for a standard text I/O file, with the help of an optional
-environment variable.
+/*! Detects the encoding to use for a standard text stream, with the help of an optional environment
+variable.
 
 TODO: document this behavior and the related enviroment variables.
 
@@ -47,17 +47,17 @@ child process. Thought maybe a better way is to pass a command-line argument tha
 specific behavior, so that it’s inherently PID-specific.
 
 @param pbb
-   Pointer to the binary I/O object to analyze.
+   Pointer to the binary stream to analyze.
 @param sEnvVarName
    Environment variable name that, if set, specifies the encoding to be used.
 @return
-   Encoding appropriate for the requested standard I/O file.
+   Encoding appropriate for the requested standard stream.
 */
-static abc::text::encoding get_stdio_encoding(binary::base const * pbb, str const & sEnvVarName) {
-   ABC_TRACE_FUNC(pbb, sEnvVarName);
+static abc::text::encoding get_stdio_encoding(binary::stream const * pbs, str const & sEnvVarName) {
+   ABC_TRACE_FUNC(pbs, sEnvVarName);
 
    abc::text::encoding enc;
-   if (dynamic_cast<binary::console_file_base const *>(pbb)) {
+   if (dynamic_cast<binary::console_file_stream const *>(pbs)) {
       /* Console files can only perform I/O in the host platform’s encoding, so force the correct
       encoding here. */
       enc = abc::text::encoding::host;
@@ -78,94 +78,96 @@ static abc::text::encoding get_stdio_encoding(binary::base const * pbb, str cons
 }
 
 
-_std::shared_ptr<binbuf_reader> make_reader(
-   _std::shared_ptr<binary::reader> pbr, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+_std::shared_ptr<binbuf_istream> make_istream(
+   _std::shared_ptr<binary::istream> pbis,
+   abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
-   ABC_TRACE_FUNC(pbr, enc);
+   ABC_TRACE_FUNC(pbis, enc);
 
-   // See if *pbr is also a binary::buffered_reader.
-   auto pbbr(_std::dynamic_pointer_cast<binary::buffered_reader>(pbr));
-   if (!pbbr) {
-      // Add a buffering wrapper to *pbr.
-      pbbr = binary::buffer_reader(pbr);
+   // See if *pbis is also a binary::buffered_istream.
+   auto pbbis(_std::dynamic_pointer_cast<binary::buffered_istream>(pbis));
+   if (!pbbis) {
+      // Add a buffering wrapper to *pbis.
+      pbbis = binary::buffer_istream(pbis);
    }
-   return _std::make_shared<binbuf_reader>(_std::move(pbbr), enc);
+   return _std::make_shared<binbuf_istream>(_std::move(pbbis), enc);
 }
 
-_std::shared_ptr<binbuf_writer> make_writer(
-   _std::shared_ptr<binary::writer> pbw, abc::text::encoding enc /*= abc::text::encoding::unknown*/
+_std::shared_ptr<binbuf_ostream> make_ostream(
+   _std::shared_ptr<binary::ostream> pbos,
+   abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
-   ABC_TRACE_FUNC(pbw, enc);
+   ABC_TRACE_FUNC(pbos, enc);
 
-   // See if *pbw is also a binary::buffered_writer.
-   auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbw));
-   if (!pbbw) {
-      // Add a buffering wrapper to *pbw.
-      pbbw = binary::buffer_writer(pbw);
+   // See if *pbos is also a binary::buffered_ostream.
+   auto pbbos(_std::dynamic_pointer_cast<binary::buffered_ostream>(pbos));
+   if (!pbbos) {
+      // Add a buffering wrapper to *pbos.
+      pbbos = binary::buffer_ostream(pbos);
    }
-   return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
+   return _std::make_shared<binbuf_ostream>(_std::move(pbbos), enc);
 }
 
-_std::shared_ptr<binbuf_reader> open_reader(
+_std::shared_ptr<binbuf_istream> open_istream(
    os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
    ABC_TRACE_FUNC(op, enc);
 
-   return make_reader(binary::open_reader(op));
+   return make_istream(binary::open_istream(op));
 }
 
-_std::shared_ptr<binbuf_writer> open_writer(
+_std::shared_ptr<binbuf_ostream> open_ostream(
    os::path const & op, abc::text::encoding enc /*= abc::text::encoding::unknown*/
 ) {
    ABC_TRACE_FUNC(op, enc);
 
-   return make_writer(binary::open_writer(op));
+   return make_ostream(binary::open_ostream(op));
 }
 
 }}} //namespace abc::io::text
 
 namespace abc { namespace io { namespace text { namespace detail {
 
-_std::shared_ptr<writer> make_stderr() {
+_std::shared_ptr<ostream> make_stderr() {
    ABC_TRACE_FUNC();
 
-   auto pbw(binary::stderr);
-   // See if *pbw is also a binary::buffered_writer.
-   auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbw));
-   if (!pbbw) {
-      // Add a buffering wrapper to *pbw.
-      pbbw = binary::buffer_writer(pbw);
+   auto pbos(binary::stderr);
+   // See if *pbos is also a binary::buffered_ostream.
+   auto pbbos(_std::dynamic_pointer_cast<binary::buffered_ostream>(pbos));
+   if (!pbbos) {
+      // Add a buffering wrapper to *pbos.
+      pbbos = binary::buffer_ostream(pbos);
    }
-   auto enc = get_stdio_encoding(pbw.get(), ABC_SL("ABC_STDERR_ENCODING"));
-   return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
+   auto enc = get_stdio_encoding(pbos.get(), ABC_SL("ABC_STDERR_ENCODING"));
+   return _std::make_shared<binbuf_ostream>(_std::move(pbbos), enc);
 }
 
-_std::shared_ptr<reader> make_stdin() {
+_std::shared_ptr<istream> make_stdin() {
    ABC_TRACE_FUNC();
 
-   auto pbr(binary::stdin);
-   // See if *pbr is also a binary::buffered_reader.
-   auto pbbr(_std::dynamic_pointer_cast<binary::buffered_reader>(pbr));
-   if (!pbbr) {
-      // Add a buffering wrapper to *pbr.
-      pbbr = binary::buffer_reader(pbr);
+   auto pbis(binary::stdin);
+   // See if *pbis is also a binary::buffered_istream.
+   auto pbbis(_std::dynamic_pointer_cast<binary::buffered_istream>(pbis));
+   if (!pbbis) {
+      // Add a buffering wrapper to *pbis.
+      pbbis = binary::buffer_istream(pbis);
    }
-   auto enc = get_stdio_encoding(pbr.get(), ABC_SL("ABC_STDIN_ENCODING"));
-   return _std::make_shared<binbuf_reader>(_std::move(pbbr), enc);
+   auto enc = get_stdio_encoding(pbis.get(), ABC_SL("ABC_STDIN_ENCODING"));
+   return _std::make_shared<binbuf_istream>(_std::move(pbbis), enc);
 }
 
-_std::shared_ptr<writer> make_stdout() {
+_std::shared_ptr<ostream> make_stdout() {
    ABC_TRACE_FUNC();
 
-   auto pbw(binary::stdout);
-   // See if *pbw is also a binary::buffered_writer.
-   auto pbbw(_std::dynamic_pointer_cast<binary::buffered_writer>(pbw));
-   if (!pbbw) {
-      // Add a buffering wrapper to *pbw.
-      pbbw = binary::buffer_writer(pbw);
+   auto pbos(binary::stdout);
+   // See if *pbw is also a binary::buffered_ostream.
+   auto pbbos(_std::dynamic_pointer_cast<binary::buffered_ostream>(pbos));
+   if (!pbbos) {
+      // Add a buffering wrapper to *pbos.
+      pbbos = binary::buffer_ostream(pbos);
    }
-   auto enc = get_stdio_encoding(pbw.get(), ABC_SL("ABC_STDOUT_ENCODING"));
-   return _std::make_shared<binbuf_writer>(_std::move(pbbw), enc);
+   auto enc = get_stdio_encoding(pbos.get(), ABC_SL("ABC_STDOUT_ENCODING"));
+   return _std::make_shared<binbuf_ostream>(_std::move(pbbos), enc);
 }
 
 }}}} //namespace abc::io::text::detail
@@ -174,11 +176,11 @@ _std::shared_ptr<writer> make_stdout() {
 
 namespace abc { namespace io { namespace text {
 
-base::base() :
+stream::stream() :
    m_lterm(abc::text::line_terminator::convert_any_to_lf) {
 }
 
-/*virtual*/ base::~base() {
+/*virtual*/ stream::~stream() {
 }
 
 }}} //namespace abc::io::text
@@ -187,25 +189,25 @@ base::base() :
 
 namespace abc { namespace io { namespace text {
 
-reader::reader() :
-   base() {
+istream::istream() :
+   stream() {
 }
 
-str reader::read_all() {
+str istream::read_all() {
    ABC_TRACE_FUNC(this);
 
    str sDst;
    read_line_or_all(&sDst, false);
    return _std::move(sDst);
 }
-void reader::read_all(str * psDst) {
+void istream::read_all(str * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
    psDst->clear();
    read_line_or_all(psDst, false);
 }
 
-bool reader::read_line(str * psDst) {
+bool istream::read_line(str * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
    psDst->clear();
@@ -218,11 +220,11 @@ bool reader::read_line(str * psDst) {
 
 namespace abc { namespace io { namespace text {
 
-writer::writer() :
-   base() {
+ostream::ostream() :
+   stream() {
 }
 
-void writer::write_line(str const & s) {
+void ostream::write_line(str const & s) {
    ABC_TRACE_FUNC(this, s);
 
    to_str_backend<str> tsb;
@@ -243,15 +245,15 @@ void writer::write_line(str const & s) {
 
 namespace abc { namespace io { namespace text { namespace detail {
 
-writer_print_helper_impl::writer_print_helper_impl(writer * ptw, str const & sFormat) :
-   m_ptw(ptw),
+ostream_print_helper_impl::ostream_print_helper_impl(ostream * ptos, str const & sFormat) :
+   m_ptos(ptos),
    // write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
    m_iSubstArg(static_cast<unsigned>(-1)),
    m_sFormat(sFormat),
    m_itFormatToWriteBegin(sFormat.cbegin()) {
 }
 
-void writer_print_helper_impl::run() {
+void ostream_print_helper_impl::run() {
    /* Since this specialization has no replacements, verify that the format string doesn’t specify
    any either. */
    if (write_format_up_to_next_repl()) {
@@ -259,12 +261,12 @@ void writer_print_helper_impl::run() {
    }
 }
 
-void writer_print_helper_impl::throw_collections_out_of_range() {
+void ostream_print_helper_impl::throw_collections_out_of_range() {
    std::ptrdiff_t iSubstArg = static_cast<std::ptrdiff_t>(m_iSubstArg);
    ABC_THROW(collections::out_of_range, (iSubstArg, 0, iSubstArg - 1));
 }
 
-bool writer_print_helper_impl::write_format_up_to_next_repl() {
+bool ostream_print_helper_impl::write_format_up_to_next_repl() {
    ABC_TRACE_FUNC(this);
 
    // Search for the next replacement, if any.
@@ -355,7 +357,7 @@ bool writer_print_helper_impl::write_format_up_to_next_repl() {
    return true;
 }
 
-void writer_print_helper_impl::throw_syntax_error(
+void ostream_print_helper_impl::throw_syntax_error(
    str const & sDescription, str::const_iterator it
 ) const {
    // +1 because the first character is 1, to human beings.
@@ -364,11 +366,11 @@ void writer_print_helper_impl::throw_syntax_error(
    );
 }
 
-void writer_print_helper_impl::write_format_up_to(str::const_iterator itUpTo) {
+void ostream_print_helper_impl::write_format_up_to(str::const_iterator itUpTo) {
    ABC_TRACE_FUNC(this, itUpTo);
 
    if (itUpTo > m_itFormatToWriteBegin) {
-      m_ptw->write_binary(
+      m_ptos->write_binary(
          m_itFormatToWriteBegin.ptr(),
          sizeof(char_t) * (itUpTo.char_index() - m_itFormatToWriteBegin.char_index()),
          abc::text::encoding::host

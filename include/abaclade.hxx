@@ -399,8 +399,8 @@ class vector;
 
 namespace abc { namespace io { namespace text {
 
-class char_ptr_writer;
-class writer;
+class char_ptr_ostream;
+class ostream;
 
 }}} //namespace abc::io::text
 
@@ -541,12 +541,12 @@ using text::sstr;
 #include <abaclade/text/str-after-to_str.hxx>
 #include <abaclade/to_str-after-str-after-to_str.hxx>
 #include <abaclade/exception-after-to_str.hxx>
-#include <abaclade/io/text/base-reader-writer.hxx>
+#include <abaclade/io/text/stream-istream-ostream.hxx>
 #include <abaclade/io/text/str.hxx>
 
-#include <abaclade/text/str-after-str_writer.hxx>
-#include <abaclade/to_str-after-str_writer.hxx>
-#include <abaclade/from_str-after-str_reader.hxx>
+#include <abaclade/text/str-after-str_ostream.hxx>
+#include <abaclade/to_str-after-str_ostream.hxx>
+#include <abaclade/from_str-after-str_istream.hxx>
 
 #include <abaclade/detail/trace.hxx>
 #include <abaclade/trace.hxx>

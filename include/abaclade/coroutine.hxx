@@ -78,7 +78,7 @@ abc::execution_interruption.
 The following functions and methods implicitly define an interruption point:
 •  abc::this_thread::sleep_for_ms() / abc::this_coroutine::sleep_for_ms();
 •  abc::this_thread::sleep_until_fd_ready() / abc::this_coroutine::sleep_until_fd_ready();
-•  All I/O operations performed on abc::io file-based I/O classes;
+•  All I/O operations performed on abc::io file-based stream classes;
 •  All I/O operations in abc::net classes.
 */
 
@@ -179,10 +179,10 @@ public:
 
    @param coro
       Coroutine to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(coroutine const & coro, io::text::writer * ptwOut);
+   void write(coroutine const & coro, io::text::ostream * ptos);
 
 protected:
    //! Backend used to write strings.

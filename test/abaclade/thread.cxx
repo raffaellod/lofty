@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -139,14 +139,14 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    bool bExceptionCaught = false;
-   /* Temporarily redirect stderr to a local string writer, so the exception trace from the thread
+   /* Temporarily redirect stderr to a local string stream, so the exception trace from the thread
    won’t show in the test output. */
-   auto ptswErr(_std::make_shared<io::text::str_writer>());
+   auto psosErr(_std::make_shared<io::text::str_ostream>());
    {
-      auto ptwOldStdErr(io::text::stderr);
-      io::text::stderr = ptswErr;
-      auto deferred1(defer_to_scope_end([&ptwOldStdErr] () {
-         io::text::stderr = _std::move(ptwOldStdErr);
+      auto ptosOldStdErr(io::text::stderr);
+      io::text::stderr = psosErr;
+      auto deferred1(defer_to_scope_end([&ptosOldStdErr] () {
+         io::text::stderr = _std::move(ptosOldStdErr);
       }));
 
       /* Expect to be interrupted by an exception in thr1 any time from its creation to the sleep,
@@ -172,7 +172,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    }
    ABC_TESTING_ASSERT_TRUE(bExceptionCaught);
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
-   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), str::empty);
+   ABC_TESTING_ASSERT_NOT_EQUAL(psosErr->get_str(), str::empty);
 }
 
 }} //namespace abc::test
@@ -198,14 +198,14 @@ ABC_TESTING_TEST_CASE_FUNC(
       bThr1Completed.store(true);
    });
 
-   /* Temporarily redirect stderr to a local string writer, so the exception trace from the thread
+   /* Temporarily redirect stderr to a local string stream, so the exception trace from the thread
    won’t show in the test output. */
-   auto ptswErr(_std::make_shared<io::text::str_writer>());
+   auto psosErr(_std::make_shared<io::text::str_ostream>());
    {
-      auto ptwOldStdErr(io::text::stderr);
-      io::text::stderr = ptswErr;
-      auto deferred1(defer_to_scope_end([&ptwOldStdErr] () {
-         io::text::stderr = _std::move(ptwOldStdErr);
+      auto ptosOldStdErr(io::text::stderr);
+      io::text::stderr = psosErr;
+      auto deferred1(defer_to_scope_end([&ptosOldStdErr] () {
+         io::text::stderr = _std::move(ptosOldStdErr);
       }));
 
       /* Expect to be interrupted by an exception in thr1 any time from its creation to the sleep,
@@ -229,7 +229,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(bExceptionCaught);
    ABC_TESTING_ASSERT_FALSE(bThr1Completed.load());
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
-   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), str::empty);
+   ABC_TESTING_ASSERT_NOT_EQUAL(psosErr->get_str(), str::empty);
 }
 
 }} //namespace abc::test

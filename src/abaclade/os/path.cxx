@@ -535,10 +535,10 @@ void to_str_backend<os::path>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<os::path>::write(os::path const & op, io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this/*, op*/, ptwOut);
+void to_str_backend<os::path>::write(os::path const & op, io::text::ostream * ptos) {
+   ABC_TRACE_FUNC(this/*, op*/, ptos);
 
-   to_str_backend<str>::write(op, ptwOut);
+   to_str_backend<str>::write(op, ptos);
 }
 
 } //namespace abc

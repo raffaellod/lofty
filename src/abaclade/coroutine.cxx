@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -265,14 +265,14 @@ void to_str_backend<coroutine>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<coroutine>::write(coroutine const & coro, io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this/*, coro*/, ptwOut);
+void to_str_backend<coroutine>::write(coroutine const & coro, io::text::ostream * ptos) {
+   ABC_TRACE_FUNC(this/*, coro*/, ptos);
 
    if (coroutine::id_type id = coro.id()) {
-      m_tsbStr.write(str(ABC_SL("CRID:")), ptwOut);
-      m_tsbId.write(id, ptwOut);
+      m_tsbStr.write(str(ABC_SL("CRID:")), ptos);
+      m_tsbId.write(id, ptos);
    } else {
-      m_tsbStr.write(str(ABC_SL("CRID:-")), ptwOut);
+      m_tsbStr.write(str(ABC_SL("CRID:-")), ptos);
    }
 }
 

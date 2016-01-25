@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -42,15 +42,15 @@ namespace binary {}
 
 namespace abc { namespace io { namespace binary {
 
-//! Base interface for binary (non-text) I/O.
-class ABACLADE_SYM base {
+//! Base interface for binary (non-text) streams.
+class ABACLADE_SYM stream {
 public:
    //! Destructor. Needed to make the class polymorphic (have a vtable).
-   virtual ~base();
+   virtual ~stream();
 
 protected:
    //! Default constructor.
-   base();
+   stream();
 };
 
 }}} //namespace abc::io::binary
@@ -59,11 +59,11 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Interface for binary (non-text) input.
-class ABACLADE_SYM reader : public virtual base {
+//! Interface for binary (non-text) input streams.
+class ABACLADE_SYM istream : public virtual stream {
 public:
    //! Destructor.
-   virtual ~reader();
+   virtual ~istream();
 
    /*! Reads at most cbMax bytes.
 
@@ -79,7 +79,7 @@ public:
 
 protected:
    //! Default constructor.
-   reader();
+   istream();
 };
 
 }}} //namespace abc::io::binary
@@ -88,11 +88,11 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Interface for binary (non-text) output.
-class ABACLADE_SYM writer : public virtual base {
+//! Interface for binary (non-text) output streams.
+class ABACLADE_SYM ostream : public virtual stream {
 public:
    //! Destructor.
-   virtual ~writer();
+   virtual ~ostream();
 
    /*! Flushes the write buffer and closes the underlying backend, ensuring that no error conditions
    remain possible in the destructor. */
@@ -114,7 +114,7 @@ public:
 
 protected:
    //! Default constructor.
-   writer();
+   ostream();
 };
 
 }}} //namespace abc::io::binary
@@ -123,7 +123,7 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Interface for binary I/O classes that allow random access (e.g. seek/tell operations).
+//! Interface for binary streams that allow random access (e.g. seek/tell operations).
 class ABACLADE_SYM seekable {
 public:
    /*! Changes the current read/write position.
@@ -151,7 +151,7 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Interface for binary I/O classes that access data with a known size.
+//! Interface for binary streams that access data with a known size.
 class ABACLADE_SYM sized {
 public:
    /*! Returns the size of the data.
@@ -168,32 +168,32 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Interface for buffering objects that wrap binary::* instances.
-class ABACLADE_SYM buffered_base : public virtual base {
+//! Interface for buffered streams that wrap binary streams.
+class ABACLADE_SYM buffered_stream : public virtual stream {
 public:
    //! Destructor.
-   virtual ~buffered_base();
+   virtual ~buffered_stream();
 
-   /*! Returns a pointer to the wrapped unbuffered binary I/O object.
+   /*! Returns a pointer to the wrapped unbuffered binary stream.
 
    @return
-      Pointer to a unbuffered binary I/O object.
+      Pointer to a unbuffered binary stream.
    */
-   _std::shared_ptr<base> unbuffered() const {
-      return _unbuffered_base();
+   _std::shared_ptr<stream> unbuffered() const {
+      return _unbuffered_stream();
    }
 
 protected:
    //! Default constructor.
-   buffered_base();
+   buffered_stream();
 
    /*! Implementation of unbuffered(). This enables unbuffered() to be non-virtual, which in turn
    allows derived classes to override it changing its return type to be more specific.
 
    @return
-      Pointer to a unbuffered binary I/O object.
+      Pointer to a unbuffered binary stream.
    */
-   virtual _std::shared_ptr<base> _unbuffered_base() const = 0;
+   virtual _std::shared_ptr<stream> _unbuffered_stream() const = 0;
 };
 
 }}} //namespace abc::io::binary
@@ -202,11 +202,11 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Interface for buffering objects that wrap binary::reader instances.
-class ABACLADE_SYM buffered_reader : public virtual buffered_base, public reader {
+//! Interface for buffered input streams that wrap binary input streams.
+class ABACLADE_SYM buffered_istream : public virtual buffered_stream, public istream {
 public:
    //! Destructor.
-   virtual ~buffered_reader();
+   virtual ~buffered_istream();
 
    /*! Marks the specified amount of bytes as read, so that they won’t be presented again on the
    next peek() call.
@@ -227,11 +227,11 @@ public:
    virtual void consume_bytes(std::size_t cb) = 0;
 
    /*! Returns a view of the internal read buffer, performing at most one read from the underlying
-   binary reader.
+   binary input stream.
 
    @param c
       Count of items to peek. If greater than the size of the read buffer’s contents, an additional
-      read from the underlying binary reader will be made, adding to the contents of the read
+      read from the underlying binary stream will be made, adding to the contents of the read
       buffer; if the internal buffer is not large enough to hold the cumulative data, it will be
       enlarged.
    @return
@@ -268,14 +268,14 @@ public:
    */
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 
-   //! See buffered_base::unbuffered().
-   _std::shared_ptr<reader> unbuffered() const {
-      return _std::dynamic_pointer_cast<reader>(_unbuffered_base());
+   //! See buffered_stream::unbuffered().
+   _std::shared_ptr<istream> unbuffered() const {
+      return _std::dynamic_pointer_cast<istream>(_unbuffered_stream());
    }
 
 protected:
    //! Default constructor.
-   buffered_reader();
+   buffered_istream();
 };
 
 }}} //namespace abc::io::binary
@@ -284,11 +284,11 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Interface for buffering objects that wrap binary::writer instances.
-class ABACLADE_SYM buffered_writer : public virtual buffered_base, public writer {
+//! Interface for buffered output streams that wrap binary output streams.
+class ABACLADE_SYM buffered_ostream : public virtual buffered_stream, public ostream {
 public:
    //! Destructor.
-   virtual ~buffered_writer();
+   virtual ~buffered_ostream();
 
    /*! Commits (writes) any pending buffer blocks returned by get_buffer().
 
@@ -330,9 +330,9 @@ public:
    */
    virtual _std::tuple<void *, std::size_t> get_buffer_bytes(std::size_t cb) = 0;
 
-   //! See buffered_base::unbuffered().
-   _std::shared_ptr<writer> unbuffered() const {
-      return _std::dynamic_pointer_cast<writer>(_unbuffered_base());
+   //! See buffered_stream::unbuffered().
+   _std::shared_ptr<ostream> unbuffered() const {
+      return _std::dynamic_pointer_cast<ostream>(_unbuffered_stream());
    }
 
    /*! Writes an array of bytes. Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes() is
@@ -350,7 +350,7 @@ public:
 
 protected:
    //! Default constructor.
-   buffered_writer();
+   buffered_ostream();
 };
 
 }}} //namespace abc::io::binary
@@ -367,11 +367,11 @@ struct file_init_data;
 
 namespace abc { namespace io { namespace binary {
 
-//! Base for file binary I/O classes.
-class ABACLADE_SYM file_base : public virtual base, public noncopyable {
+//! Base for file binary streams.
+class ABACLADE_SYM file_stream : public virtual stream, public noncopyable {
 public:
    //! Destructor.
-   virtual ~file_base();
+   virtual ~file_stream();
 
 protected:
    /*! Constructor.
@@ -379,7 +379,7 @@ protected:
    @param pfid
       Data used to initialize the object, as set by abc::io::binary::open() and other functions.
    */
-   file_base(detail::file_init_data * pfid);
+   file_stream(detail::file_init_data * pfid);
 
 protected:
    //! Descriptor of the underlying file.
@@ -392,16 +392,16 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Binary file input.
-class ABACLADE_SYM file_reader : public virtual file_base, public reader {
+//! Binary file input stream.
+class ABACLADE_SYM file_istream : public virtual file_stream, public istream {
 public:
-   //! See file_base::file_base().
-   file_reader(detail::file_init_data * pfid);
+   //! See file_stream::file_stream().
+   file_istream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~file_reader();
+   virtual ~file_istream();
 
-   //! See reader::read().
+   //! See istream::read().
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 
 protected:
@@ -427,22 +427,22 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Binary file output.
-class ABACLADE_SYM file_writer : public virtual file_base, public writer {
+//! Binary file output stream.
+class ABACLADE_SYM file_ostream : public virtual file_stream, public ostream {
 public:
-   //! See writer::writer().
-   file_writer(detail::file_init_data * pfid);
+   //! See ostream::ostream().
+   file_ostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~file_writer();
+   virtual ~file_ostream();
 
-   //! See writer::finalize().
+   //! See ostream::finalize().
    virtual void finalize() override;
 
-   //! See writer::flush().
+   //! See ostream::flush().
    virtual void flush() override;
 
-   //! See writer::write().
+   //! See ostream::write().
    virtual std::size_t write(void const * p, std::size_t cb) override;
 };
 
@@ -452,14 +452,14 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Bidirectional binary file.
-class ABACLADE_SYM file_readwriter : public virtual file_reader, public virtual file_writer {
+//! Bidirectional binary file stream.
+class ABACLADE_SYM file_iostream : public virtual file_istream, public virtual file_ostream {
 public:
-   //! See file_reader::file_reader() and file_writer::file_writer().
-   file_readwriter(detail::file_init_data * pfid);
+   //! See file_istream::file_istream() and file_ostream::file_ostream().
+   file_iostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~file_readwriter();
+   virtual ~file_iostream();
 };
 
 }}} //namespace abc::io::binary
@@ -470,21 +470,21 @@ namespace abc { namespace io { namespace binary {
 
 //! Contains the two ends of a pipe.
 struct pipe_ends {
-   //! Reader end.
-   _std::shared_ptr<file_reader> reader;
-   //! Writer end.
-   _std::shared_ptr<file_writer> writer;
+   //! Read end.
+   _std::shared_ptr<file_istream> istream;
+   //! Write end.
+   _std::shared_ptr<file_ostream> ostream;
 
    /*! Constructor.
 
-   @param pbprReader
-      Reader end.
-   @param pbpwWriter
-      Writer end.
+   @param pbpis
+      Input end.
+   @param pbpos
+      Output end.
    */
-   pipe_ends(_std::shared_ptr<file_reader> pbprReader, _std::shared_ptr<file_writer> pbpwWriter) :
-      reader(_std::move(pbprReader)),
-      writer(_std::move(pbpwWriter)) {
+   pipe_ends(_std::shared_ptr<file_istream> pbpis, _std::shared_ptr<file_ostream> pbpos) :
+      istream(_std::move(pbpis)),
+      ostream(_std::move(pbpos)) {
    }
 
    /*! Move constructor.
@@ -493,8 +493,8 @@ struct pipe_ends {
       Source object.
    */
    pipe_ends(pipe_ends && pe) :
-      reader(_std::move(pe.reader)),
-      writer(_std::move(pe.writer)) {
+      istream(_std::move(pe.istream)),
+      ostream(_std::move(pe.ostream)) {
    }
 
    /*! Move-assignment operator.
@@ -505,8 +505,8 @@ struct pipe_ends {
       *this.
    */
    pipe_ends & operator=(pipe_ends && pe) {
-      reader = _std::move(pe.reader);
-      writer = _std::move(pe.writer);
+      istream = _std::move(pe.istream);
+      ostream = _std::move(pe.ostream);
       return *this;
    }
 };
@@ -524,50 +524,50 @@ class path;
 
 namespace abc { namespace io { namespace binary {
 
-/*! Creates and returns a buffered reader wrapper for the specified unbuffered binary reader.
+/*! Creates and returns a buffered input stream for the specified unbuffered binary input stream.
 
-@param pbr
-   Pointer to an unbuffered binary reader.
+@param pbis
+   Pointer to an unbuffered binary stream.
 @return
-   Pointer to a buffered wrapper for *pbr.
+   Pointer to a buffered wrapper for *pbis.
 */
-ABACLADE_SYM _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr);
+ABACLADE_SYM _std::shared_ptr<buffered_istream> buffer_istream(_std::shared_ptr<istream> pbis);
 
-/*! Creates and returns a buffered writer wrapper for the specified unbuffered binary writer.
+/*! Creates and returns a buffered output stream for the specified unbuffered binary output stream.
 
-@param pbw
-   Pointer to an unbuffered binary writer.
+@param pbos
+   Pointer to an unbuffered binary stream.
 @return
-   Pointer to a buffered wrapper for *pbw.
+   Pointer to a buffered wrapper for *pbos.
 */
-ABACLADE_SYM _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw);
+ABACLADE_SYM _std::shared_ptr<buffered_ostream> buffer_ostream(_std::shared_ptr<ostream> pbos);
 
-/*! Creates and returns a binary reader for the specified file descriptor.
+/*! Creates and returns a binary input stream for the specified file descriptor.
 
 @param fd
    File descriptor.
 @return
-   Pointer to a binary reader for the file descriptor.
+   Pointer to a binary input stream for the file descriptor.
 */
-ABACLADE_SYM _std::shared_ptr<file_reader> make_reader(io::filedesc && fd);
+ABACLADE_SYM _std::shared_ptr<file_istream> make_istream(io::filedesc && fd);
 
-/*! Creates and returns a binary reader/writer for the specified file descriptor.
+/*! Creates and returns a binary input/output stream for the specified file descriptor.
 
 @param fd
    File descriptor.
 @return
-   Pointer to a binary reader/writer for the file descriptor.
+   Pointer to a binary input/output stream for the file descriptor.
 */
-ABACLADE_SYM _std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd);
+ABACLADE_SYM _std::shared_ptr<file_iostream> make_iostream(io::filedesc && fd);
 
-/*! Creates and returns a binary writer for the specified file descriptor.
+/*! Creates and returns a binary output stream for the specified file descriptor.
 
 @param fd
    File descriptor.
 @return
-   Pointer to a binary writer for the file descriptor.
+   Pointer to a binary output stream for the file descriptor.
 */
-ABACLADE_SYM _std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
+ABACLADE_SYM _std::shared_ptr<file_ostream> make_ostream(io::filedesc && fd);
 
 /*! Opens a file for binary access.
 
@@ -579,9 +579,9 @@ ABACLADE_SYM _std::shared_ptr<file_writer> make_writer(io::filedesc && fd);
    If true, the OS will not cache any portion of the file; if false, accesses to the file will be
    backed by the OS file cache subsystem.
 @return
-   Pointer to a binary I/O object for the file.
+   Pointer to a binary stream for the file.
 */
-ABACLADE_SYM _std::shared_ptr<file_base> open(
+ABACLADE_SYM _std::shared_ptr<file_stream> open(
    os::path const & op, access_mode am, bool bBypassCache = false
 );
 
@@ -593,10 +593,10 @@ ABACLADE_SYM _std::shared_ptr<file_base> open(
    If true, the OS will not cache any portion of the file; if false, accesses to the file will be
    backed by the OS file cache subsystem.
 @return
-   Pointer to a binary reader for the file.
+   Pointer to a binary input stream for the file.
 */
-inline _std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBypassCache = false) {
-   return _std::dynamic_pointer_cast<file_reader>(open(op, access_mode::read, bBypassCache));
+inline _std::shared_ptr<file_istream> open_istream(os::path const & op, bool bBypassCache = false) {
+   return _std::dynamic_pointer_cast<file_istream>(open(op, access_mode::read, bBypassCache));
 }
 
 /*! Opens a file for binary writing.
@@ -607,10 +607,10 @@ inline _std::shared_ptr<file_reader> open_reader(os::path const & op, bool bBypa
    If true, the OS will not cache any portion of the file; if false, accesses to the file will be
    backed by the OS file cache subsystem.
 @return
-   Pointer to a binary writer for the file.
+   Pointer to a binary output stream for the file.
 */
-inline _std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBypassCache = false) {
-   return _std::dynamic_pointer_cast<file_writer>(open(op, access_mode::write, bBypassCache));
+inline _std::shared_ptr<file_ostream> open_ostream(os::path const & op, bool bBypassCache = false) {
+   return _std::dynamic_pointer_cast<file_ostream>(open(op, access_mode::write, bBypassCache));
 }
 
 /*! Opens a file for binary reading and writing.
@@ -621,52 +621,52 @@ inline _std::shared_ptr<file_writer> open_writer(os::path const & op, bool bBypa
    If true, the OS will not cache any portion of the file; if false, accesses to the file will be
    backed by the OS file cache subsystem.
 @return
-   Pointer to a binary reader/writer for the file.
+   Pointer to a binary input/output stream for the file.
 */
-inline _std::shared_ptr<file_readwriter> open_readwriter(
+inline _std::shared_ptr<file_iostream> open_iostream(
    os::path const & op, bool bBypassCache = false
 ) {
-   return _std::dynamic_pointer_cast<file_readwriter>(open(op, access_mode::write, bBypassCache));
+   return _std::dynamic_pointer_cast<file_iostream>(open(op, access_mode::write, bBypassCache));
 }
 
-/*! Creates a unidirectional pipe (FIFO), returning a reader and a writer connected to its ends.
+/*! Creates a unidirectional pipe (FIFO), returning input and output streams for its ends.
 
 @return
-   An object containing the reader end and the writer end of the pipe.
+   An object containing the input and the output streams for the pipe.
 */
 ABACLADE_SYM pipe_ends pipe();
 
-//! Binary writer associated to the standard error output file.
-extern ABACLADE_SYM _std::shared_ptr<writer> stderr;
-//! Binary reader associated to the standard input file.
-extern ABACLADE_SYM _std::shared_ptr<reader> stdin;
-//! Binary writer associated to the standard output file.
-extern ABACLADE_SYM _std::shared_ptr<writer> stdout;
+//! Binary stream associated to the standard error output file.
+extern ABACLADE_SYM _std::shared_ptr<ostream> stderr;
+//! Binary stream associated to the standard input file.
+extern ABACLADE_SYM _std::shared_ptr<istream> stdin;
+//! Binary stream associated to the standard output file.
+extern ABACLADE_SYM _std::shared_ptr<ostream> stdout;
 
 }}} //namespace abc::io::binary
 
 namespace abc { namespace io { namespace binary { namespace detail {
 
-/*! Creates and returns a binary writer associated to the standard error output file (stderr).
+/*! Creates and returns a binary stream associated to the standard error output file (stderr).
 
 @return
    Standard error file.
 */
-ABACLADE_SYM _std::shared_ptr<writer> make_stderr();
+ABACLADE_SYM _std::shared_ptr<ostream> make_stderr();
 
-/*! Creates and returns a binary reader associated to the standard input file (stdin).
+/*! Creates and returns a binary stream associated to the standard input file (stdin).
 
 @return
    Standard input file.
 */
-ABACLADE_SYM _std::shared_ptr<reader> make_stdin();
+ABACLADE_SYM _std::shared_ptr<istream> make_stdin();
 
-/*! Creates and returns a binary writer associated to the standard output file (stdout).
+/*! Creates and returns a binary stream associated to the standard output file (stdout).
 
 @return
    Standard output file.
 */
-ABACLADE_SYM _std::shared_ptr<writer> make_stdout();
+ABACLADE_SYM _std::shared_ptr<ostream> make_stdout();
 
 }}}} //namespace abc::io::binary::detail
 

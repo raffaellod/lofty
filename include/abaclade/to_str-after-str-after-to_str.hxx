@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -43,10 +43,10 @@ protected:
 
    @param iPtr
       Pointer to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void _write_impl(std::uintptr_t iPtr, io::text::writer * ptwOut);
+   void _write_impl(std::uintptr_t iPtr, io::text::ostream * ptos);
 
 protected:
    //! Backend used to write the pointer as an integer.
@@ -70,11 +70,11 @@ public:
 
    @param p
       Pointer to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(T * p, io::text::writer * ptwOut) {
-      _write_impl(reinterpret_cast<std::uintptr_t>(p), ptwOut);
+   void write(T * p, io::text::ostream * ptos) {
+      _write_impl(reinterpret_cast<std::uintptr_t>(p), ptos);
    }
 };
 
@@ -83,8 +83,8 @@ template <typename T, typename TDel>
 class to_str_backend<_std::unique_ptr<T, TDel>> : public detail::ptr_to_str_backend {
 public:
    //! See detail::ptr_to_str_backend::write().
-   void write(_std::unique_ptr<T, TDel> const & p, io::text::writer * ptwOut) {
-      _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptwOut);
+   void write(_std::unique_ptr<T, TDel> const & p, io::text::ostream * ptos) {
+      _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptos);
    }
 };
 
@@ -97,11 +97,11 @@ public:
 
    @param p
       Pointer to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(_std::shared_ptr<T> const & p, io::text::writer * ptwOut) {
-      _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptwOut);
+   void write(_std::shared_ptr<T> const & p, io::text::ostream * ptos) {
+      _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptos);
    }
 };
 
@@ -114,11 +114,11 @@ public:
 
    @param p
       Pointer to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(_std::weak_ptr<T> const & p, io::text::writer * ptwOut) {
-      _write_impl(reinterpret_cast<std::uintptr_t>(p.lock().get()), ptwOut);
+   void write(_std::weak_ptr<T> const & p, io::text::ostream * ptos) {
+      _write_impl(reinterpret_cast<std::uintptr_t>(p.lock().get()), ptos);
    }
 };
 
@@ -150,10 +150,10 @@ public:
 
    @param ti
       Type to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(_std::type_info const & ti, io::text::writer * ptwOut);
+   void write(_std::type_info const & ti, io::text::ostream * ptos);
 };
 
 } //namespace abc
@@ -188,29 +188,29 @@ public:
 
    /*! Writes the sequence end delimiter.
 
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void _write_end(io::text::writer * ptwOut) {
-      m_tsbStr.write(m_sEnd, ptwOut);
+   void _write_end(io::text::ostream * ptos) {
+      m_tsbStr.write(m_sEnd, ptos);
    }
 
    /*! Writes an element separator (typically a comma).
 
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void _write_separator(io::text::writer * ptwOut) {
-      m_tsbStr.write(m_sSeparator, ptwOut);
+   void _write_separator(io::text::ostream * ptos) {
+      m_tsbStr.write(m_sSeparator, ptos);
    }
 
    /*! Writes the sequence start delimiter.
 
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void _write_start(io::text::writer * ptwOut) {
-      m_tsbStr.write(m_sStart, ptwOut);
+   void _write_start(io::text::ostream * ptos) {
+      m_tsbStr.write(m_sStart, ptos);
    }
 
 protected:
@@ -241,16 +241,16 @@ class tuple_to_str_backend_element_writer;
 template <class TTuple>
 class tuple_to_str_backend_element_writer<TTuple> {
 public:
-   /*! Writes the current element to the specified text writer, then recurses to write the rest.
+   /*! Writes the current element to the specified text stream, then recurses to write the rest.
 
    @param tpl
       Tuple from which to extract the element to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void _write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
+   void _write_elements(TTuple const & tpl, io::text::ostream * ptos) {
       ABC_UNUSED_ARG(tpl);
-      ABC_UNUSED_ARG(ptwOut);
+      ABC_UNUSED_ARG(ptos);
    }
 };
 
@@ -260,7 +260,7 @@ class tuple_to_str_backend_element_writer<TTuple, T0, Ts ...> :
    public tuple_to_str_backend_element_writer<TTuple, Ts ...> {
 public:
    //! See tuple_to_str_backend_element_writer<TTuple>::_write_elements().
-   void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
+   void _write_elements(TTuple const & tpl, io::text::ostream * ptos);
 
 protected:
    //! Backend for the current element type.
@@ -285,13 +285,13 @@ public:
 
    @param tpl
       Tuple to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(_std::tuple<Ts ...> const & tpl, io::text::writer * ptwOut) {
-      _write_start(ptwOut);
-      this->_write_elements(tpl, ptwOut);
-      _write_end(ptwOut);
+   void write(_std::tuple<Ts ...> const & tpl, io::text::ostream * ptos) {
+      _write_start(ptos);
+      this->_write_elements(tpl, ptos);
+      _write_end(ptos);
    }
 };
 
@@ -303,15 +303,15 @@ namespace abc { namespace detail {
 
 template <class TTuple, typename T0, typename... Ts>
 inline void tuple_to_str_backend_element_writer<TTuple, T0, Ts ...>::_write_elements(
-   TTuple const & tpl, io::text::writer * ptwOut
+   TTuple const & tpl, io::text::ostream * ptos
 ) {
    m_tsbt0.write(_std::get<
       _std::tuple_size<TTuple>::value - (1 /*Ts*/ + sizeof ...(Ts))
-   >(tpl), ptwOut);
+   >(tpl), ptos);
    // If there are any remaining elements, write a separator and recurse to write the rest.
    if (sizeof ...(Ts)) {
-      static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptwOut);
-      tuple_to_str_backend_element_writer<TTuple, Ts ...>::_write_elements(tpl, ptwOut);
+      static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptos);
+      tuple_to_str_backend_element_writer<TTuple, Ts ...>::_write_elements(tpl, ptos);
    }
 }
 
@@ -333,7 +333,7 @@ class tuple_to_str_backend_element_writer :
    > {
 public:
    //! See tuple_to_str_backend_element_writer<TTuple>::_write_elements().
-   void _write_elements(TTuple const & tpl, io::text::writer * ptwOut);
+   void _write_elements(TTuple const & tpl, io::text::ostream * ptos);
 
 protected:
    //! Backend for the current element type.
@@ -350,16 +350,16 @@ class tuple_to_str_backend_element_writer<
    _std::detail::tuple_void
 > {
 public:
-   /*! Writes the current element to the specified text writer, then recurses to write the rest.
+   /*! Writes the current element to the specified text stream, then recurses to write the rest.
 
    @param tpl
       Tuple from which to extract the element to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void _write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
+   void _write_elements(TTuple const & tpl, io::text::ostream * ptos) {
       ABC_UNUSED_ARG(tpl);
-      ABC_UNUSED_ARG(ptwOut);
+      ABC_UNUSED_ARG(ptos);
    }
 };
 
@@ -386,15 +386,15 @@ public:
 
    @param tpl
       Tuple to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
    void write(
-      _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & tpl, io::text::writer * ptwOut
+      _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & tpl, io::text::ostream * ptos
    ) {
-      _write_start(ptwOut);
-      this->_write_elements(tpl, ptwOut);
-      _write_end(ptwOut);
+      _write_start(ptos);
+      this->_write_elements(tpl, ptos);
+      _write_end(ptos);
    }
 };
 
@@ -410,17 +410,17 @@ template <
 >
 inline void tuple_to_str_backend_element_writer<
    TTuple, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
->::_write_elements(TTuple const & tpl, io::text::writer * ptwOut) {
+>::_write_elements(TTuple const & tpl, io::text::ostream * ptos) {
    static std::size_t const sc_cTs(
       _std::tuple_size<_std::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9>>::value
    );
-   m_tsbt0.write(_std::get<_std::tuple_size<TTuple>::value - (1 /*T0*/ + sc_cTs)>(tpl), ptwOut);
+   m_tsbt0.write(_std::get<_std::tuple_size<TTuple>::value - (1 /*T0*/ + sc_cTs)>(tpl), ptos);
    // If there are any remaining elements, write a separator and recurse to write the rest.
    if (sc_cTs) {
-      static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptwOut);
+      static_cast<to_str_backend<TTuple> *>(this)->_write_separator(ptos);
       tuple_to_str_backend_element_writer<
          TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::detail::tuple_void
-      >::_write_elements(tpl, ptwOut);
+      >::_write_elements(tpl, ptos);
    }
 }
 

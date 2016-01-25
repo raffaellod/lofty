@@ -64,7 +64,7 @@ public:
    destructing_unfinalized_object & operator=(destructing_unfinalized_object const & x);
 
 private:
-   /*! Uses exception::what_writer() to generate a what() string.
+   /*! Uses exception::what_ostream() to generate a what() string.
 
    @param pObj
       Pointer to the object that was not finalized.

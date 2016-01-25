@@ -67,21 +67,21 @@ public:
                      pconn->remote_address(), pconn->remote_port()
                   );
 
-                  // Create text-mode reader and writer for the connection’s socket.
-                  auto ptr(io::text::make_reader(pconn->socket()));
-                  auto ptw(io::text::make_writer(pconn->socket()));
-                  auto deferred1(defer_to_scope_end([&ptw] () {
-                     ptw->finalize();
+                  // Create text-mode input and output streams for the connection’s socket.
+                  auto ptis(io::text::make_istream(pconn->socket()));
+                  auto ptos(io::text::make_ostream(pconn->socket()));
+                  auto deferred1(defer_to_scope_end([&ptos] () {
+                     ptos->finalize();
                   }));
 
                   // Read lines from the socket, writing them back to it (echo).
-                  ABC_FOR_EACH(auto & sLine, ptr->lines()) {
-                     ptw->write_line(sLine);
-                     ptw->flush();
+                  ABC_FOR_EACH(auto & sLine, ptis->lines()) {
+                     ptos->write_line(sLine);
+                     ptos->flush();
                   }
 
                   io::text::stdout->write_line(ABC_SL("responder: terminating"));
-                  // deferred1 will finalize *ptw.
+                  // deferred1 will finalize *ptos.
                });
             }
          } catch (execution_interruption const &) {

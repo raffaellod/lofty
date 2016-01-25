@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013-2015 Raffaello D. Di Napoli
+Copyright 2013-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -55,10 +55,10 @@ class ABACLADE_TESTING_SYM runner : public noncopyable {
 public:
    /*! Constructor.
 
-   @param ptwOut
-      Pointer to the writer that will be used to log the results of the tests.
+   @param ptos
+      Pointer to the output stream that will be used to log the results of the tests.
    */
-   runner(_std::shared_ptr<io::text::writer> ptwOut);
+   runner(_std::shared_ptr<io::text::ostream> ptos);
 
    //! Destructor.
    ~runner();
@@ -111,8 +111,8 @@ public:
 private:
    //! Vector of loaded test test cases to be executed.
    collections::vector<_std::unique_ptr<test_case>> m_vptc;
-   //! Output writer.
-   _std::shared_ptr<io::text::writer> m_ptwOut;
+   //! Output stream.
+   _std::shared_ptr<io::text::ostream> m_ptos;
    //! Total count of failed assertions.
    unsigned m_cFailedAssertions;
 };

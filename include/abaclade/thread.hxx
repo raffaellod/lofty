@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -188,10 +188,10 @@ public:
 
    @param thr
       Thread to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(thread const & thr, io::text::writer * ptwOut);
+   void write(thread const & thr, io::text::ostream * ptos);
 
 protected:
    //! Backend used to write strings.

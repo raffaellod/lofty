@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -394,11 +394,11 @@ void str_to_str_backend::set_format(str const & sFormat) {
 }
 
 void str_to_str_backend::write(
-   void const * p, std::size_t cb, encoding enc, io::text::writer * ptwOut
+   void const * p, std::size_t cb, encoding enc, io::text::ostream * ptos
 ) {
-   ABC_TRACE_FUNC(this, p, cb, enc, ptwOut);
+   ABC_TRACE_FUNC(this, p, cb, enc, ptos);
 
-   ptwOut->write_binary(p, cb, enc);
+   ptos->write_binary(p, cb, enc);
 }
 
 }}} //namespace abc::text::detail
@@ -407,10 +407,10 @@ void str_to_str_backend::write(
 
 namespace abc {
 
-void to_str_backend<text::str>::write(text::str const & s, io::text::writer * ptwOut) {
+void to_str_backend<text::str>::write(text::str const & s, io::text::ostream * ptos) {
    text::detail::str_to_str_backend::write(s.data(), static_cast<std::size_t>(
       reinterpret_cast<std::uintptr_t>(s.data_end()) - reinterpret_cast<std::uintptr_t>(s.data())
-   ), text::encoding::host, ptwOut);
+   ), text::encoding::host, ptos);
 }
 
 } //namespace abc

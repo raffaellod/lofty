@@ -57,7 +57,7 @@ connection::connection(
    io::filedesc fd, ip::address && addrLocal, ip::port && portLocal, ip::address && addrRemote,
    ip::port && portRemote
 ) :
-   m_bfrw(io::binary::make_readwriter(_std::move(fd))),
+   m_bfios(io::binary::make_iostream(_std::move(fd))),
    m_addrLocal(_std::move(addrLocal)),
    m_portLocal(_std::move(portLocal)),
    m_addrRemote(_std::move(addrRemote)),

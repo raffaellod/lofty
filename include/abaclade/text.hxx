@@ -192,10 +192,10 @@ public:
 
    @param tfa
       Source location to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(text::file_address const & tfa, io::text::writer * ptwOut);
+   void write(text::file_address const & tfa, io::text::ostream * ptos);
 };
 
 } //namespace abc

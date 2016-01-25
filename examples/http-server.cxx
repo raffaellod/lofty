@@ -65,14 +65,14 @@ public:
                      ABC_SL("responder: handling request from {}:{}\n"),
                      pconn->remote_address(), pconn->remote_port()
                   );
-                  // Create text-mode reader and writer for the connection’s socket.
-                  auto ptr(io::text::make_reader(pconn->socket()));
-                  auto ptw(io::text::make_writer(pconn->socket(), text::encoding::utf8));
-                  auto deferred1(defer_to_scope_end([&ptw] () {
-                     ptw->finalize();
+                  // Create text-mode input and output streams for the connection’s socket.
+                  auto ptis(io::text::make_istream(pconn->socket()));
+                  auto ptos(io::text::make_ostream(pconn->socket(), text::encoding::utf8));
+                  auto deferred1(defer_to_scope_end([&ptos] () {
+                     ptos->finalize();
                   }));
                   io::text::stdout->write_line(ABC_SL("responder: reading request"));
-                  ABC_FOR_EACH(auto & sLine, ptr->lines()) {
+                  ABC_FOR_EACH(auto & sLine, ptis->lines()) {
                      if (!sLine) {
                         // The request ends on the first empty line.
                         break;
@@ -81,17 +81,17 @@ public:
                   io::text::stdout->write_line(ABC_SL("responder: responding"));
 
                   // Send the response headers.
-                  ptw->write_line(ABC_SL("HTTP/1.0 200 OK"));
-                  ptw->write_line(ABC_SL("Content-Type: text/plain; charset=utf-8"));
-                  ptw->write_line(ABC_SL("Content-Length: 2"));
-                  ptw->write_line();
-                  ptw->flush();
+                  ptos->write_line(ABC_SL("HTTP/1.0 200 OK"));
+                  ptos->write_line(ABC_SL("Content-Type: text/plain; charset=utf-8"));
+                  ptos->write_line(ABC_SL("Content-Length: 2"));
+                  ptos->write_line();
+                  ptos->flush();
 
                   // Send the response content.
-                  ptw->write("OK");
+                  ptos->write("OK");
 
                   io::text::stdout->write_line(ABC_SL("responder: terminating"));
-                  // deferred1 will finalize *ptw.
+                  // deferred1 will finalize *ptos.
                });
             }
          } catch (execution_interruption const &) {

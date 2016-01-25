@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -26,20 +26,20 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace io { namespace text {
 
-str_base::str_base() :
-   base(),
+str_stream::str_stream() :
+   stream(),
    m_ichOffset(0) {
 }
 
-str_base::str_base(str_base && sb) :
-   base(_std::move(sb)),
-   m_ichOffset(sb.m_ichOffset) {
+str_stream::str_stream(str_stream && ss) :
+   stream(_std::move(ss)),
+   m_ichOffset(ss.m_ichOffset) {
 }
 
-/*virtual*/ str_base::~str_base() {
+/*virtual*/ str_stream::~str_stream() {
 }
 
-/*virtual*/ abc::text::encoding str_base::get_encoding() const /*override*/ {
+/*virtual*/ abc::text::encoding str_stream::get_encoding() const /*override*/ {
    return abc::text::encoding::host;
 }
 
@@ -49,42 +49,43 @@ str_base::str_base(str_base && sb) :
 
 namespace abc { namespace io { namespace text {
 
-str_reader::str_reader(str_reader && sr) :
-   base(_std::move(sr)),
-   str_base(_std::move(sr)),
-   reader(_std::move(sr)),
-   m_psReadBuf(sr.m_psReadBuf != &sr.m_sReadBuf ? sr.m_psReadBuf : &m_sReadBuf),
-   m_sReadBuf(_std::move(sr.m_sReadBuf)) {
-   sr.m_psReadBuf = &sr.m_sReadBuf;
+str_istream::str_istream(str_istream && sis) :
+   stream(_std::move(sis)),
+   str_stream(_std::move(sis)),
+   istream(_std::move(sis)),
+   m_psReadBuf(sis.m_psReadBuf != &sis.m_sReadBuf ? sis.m_psReadBuf : &m_sReadBuf),
+   m_sReadBuf(_std::move(sis.m_sReadBuf)) {
+   // Make sis use its own internal read buffer.
+   sis.m_psReadBuf = &sis.m_sReadBuf;
 }
 
-str_reader::str_reader(str const & s) :
-   base(),
-   str_base(),
-   reader(),
+str_istream::str_istream(str const & s) :
+   stream(),
+   str_stream(),
+   istream(),
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(s) {
 }
 
-str_reader::str_reader(str && s) :
-   base(),
-   str_base(),
-   reader(),
+str_istream::str_istream(str && s) :
+   stream(),
+   str_stream(),
+   istream(),
    m_psReadBuf(&m_sReadBuf),
    m_sReadBuf(_std::move(s)) {
 }
 
-str_reader::str_reader(external_buffer_t const &, str const * ps) :
-   base(),
-   str_base(),
-   reader(),
+str_istream::str_istream(external_buffer_t const &, str const * ps) :
+   stream(),
+   str_stream(),
+   istream(),
    m_psReadBuf(ps) {
 }
 
-/*virtual*/ str_reader::~str_reader() {
+/*virtual*/ str_istream::~str_istream() {
 }
 
-/*virtual*/ bool str_reader::read_line_or_all(str * psDst, bool bOneLine) /*override*/ {
+/*virtual*/ bool str_istream::read_line_or_all(str * psDst, bool bOneLine) /*override*/ {
    ABC_TRACE_FUNC(this, psDst, bOneLine);
 
    // TODO: implement this.
@@ -97,55 +98,58 @@ str_reader::str_reader(external_buffer_t const &, str const * ps) :
 
 namespace abc { namespace io { namespace text {
 
-str_writer::str_writer() :
-   base(),
-   str_base(),
-   writer(),
+str_ostream::str_ostream() :
+   stream(),
+   str_stream(),
+   ostream(),
    m_psWriteBuf(&m_sDefaultWriteBuf) {
 }
 
-str_writer::str_writer(str_writer && sw) :
-   base(_std::move(sw)),
-   str_base(_std::move(sw)),
-   writer(_std::move(sw)),
-   m_psWriteBuf(sw.m_psWriteBuf != &sw.m_sDefaultWriteBuf ? sw.m_psWriteBuf : &m_sDefaultWriteBuf),
-   m_sDefaultWriteBuf(_std::move(sw.m_sDefaultWriteBuf)) {
-   sw.m_psWriteBuf = &sw.m_sDefaultWriteBuf;
+str_ostream::str_ostream(str_ostream && sos) :
+   stream(_std::move(sos)),
+   str_stream(_std::move(sos)),
+   ostream(_std::move(sos)),
+   m_psWriteBuf(
+      sos.m_psWriteBuf != &sos.m_sDefaultWriteBuf ? sos.m_psWriteBuf : &m_sDefaultWriteBuf
+   ),
+   m_sDefaultWriteBuf(_std::move(sos.m_sDefaultWriteBuf)) {
+   //  Make sos use its own internal buffer.
+   sos.m_psWriteBuf = &sos.m_sDefaultWriteBuf;
 }
 
-str_writer::str_writer(external_buffer_t const &, str * psBuf) :
-   base(),
-   str_base(),
-   writer(),
+str_ostream::str_ostream(external_buffer_t const &, str * psBuf) :
+   stream(),
+   str_stream(),
+   ostream(),
    m_psWriteBuf(psBuf) {
 }
 
-/*virtual*/ str_writer::~str_writer() {
+/*virtual*/ str_ostream::~str_ostream() {
 }
 
-void str_writer::clear() {
+void str_ostream::clear() {
    ABC_TRACE_FUNC(this);
 
    m_psWriteBuf->set_size_in_chars(0);
    m_ichOffset = 0;
 }
 
-/*virtual*/ void str_writer::finalize() /*override*/ {
+/*virtual*/ void str_ostream::finalize() /*override*/ {
    // Nothing to do.
 }
 
-/*virtual*/ void str_writer::flush() /*override*/ {
+/*virtual*/ void str_ostream::flush() /*override*/ {
    // Nothing to do.
 }
 
-str str_writer::release_content() {
+str str_ostream::release_content() {
    ABC_TRACE_FUNC(this);
 
    m_ichOffset = 0;
    return _std::move(*m_psWriteBuf);
 }
 
-/*virtual*/ void str_writer::write_binary(
+/*virtual*/ void str_ostream::write_binary(
    void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
 ) /*override*/ {
    ABC_TRACE_FUNC(this, pSrc, cbSrc, enc);
@@ -184,19 +188,19 @@ str str_writer::release_content() {
 
 namespace abc { namespace io { namespace text {
 
-char_ptr_writer::char_ptr_writer(char * pchBuf, std::size_t * pcchBufAvailable) :
+char_ptr_ostream::char_ptr_ostream(char * pchBuf, std::size_t * pcchBufAvailable) :
    m_pchWriteBuf(pchBuf),
    m_pcchWriteBufAvailable(pcchBufAvailable) {
 }
 
-char_ptr_writer::char_ptr_writer(char_ptr_writer && cpw) :
-   writer(_std::move(cpw)),
-   m_pchWriteBuf(cpw.m_pchWriteBuf),
-   m_pcchWriteBufAvailable(cpw.m_pcchWriteBufAvailable) {
-   cpw.m_pchWriteBuf = nullptr;
+char_ptr_ostream::char_ptr_ostream(char_ptr_ostream && cpos) :
+   ostream(_std::move(cpos)),
+   m_pchWriteBuf(cpos.m_pchWriteBuf),
+   m_pcchWriteBufAvailable(cpos.m_pcchWriteBufAvailable) {
+   cpos.m_pchWriteBuf = nullptr;
 }
 
-/*virtual*/ char_ptr_writer::~char_ptr_writer() {
+/*virtual*/ char_ptr_ostream::~char_ptr_ostream() {
    if (m_pchWriteBuf) {
       /* NUL-terminate the string. Always safe, since *m_pcchWriteBufAvailable doesn’t include space
       for the NUL terminator. */
@@ -204,20 +208,20 @@ char_ptr_writer::char_ptr_writer(char_ptr_writer && cpw) :
    }
 }
 
-/*virtual*/ void char_ptr_writer::finalize() /*override*/ {
+/*virtual*/ void char_ptr_ostream::finalize() /*override*/ {
    // Nothing to do.
 }
 
-/*virtual*/ void char_ptr_writer::flush() /*override*/ {
+/*virtual*/ void char_ptr_ostream::flush() /*override*/ {
    // Nothing to do.
 }
 
-/*virtual*/ abc::text::encoding char_ptr_writer::get_encoding() const /*override*/ {
+/*virtual*/ abc::text::encoding char_ptr_ostream::get_encoding() const /*override*/ {
    // Assume char is always UTF-8.
    return abc::text::encoding::utf8;
 }
 
-/*virtual*/ void char_ptr_writer::write_binary(
+/*virtual*/ void char_ptr_ostream::write_binary(
    void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
 ) /*override*/ {
    ABC_TRACE_FUNC(this, pSrc, cbSrc, enc);

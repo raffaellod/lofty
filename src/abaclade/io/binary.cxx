@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -40,19 +40,19 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace io { namespace binary {
 
-_std::shared_ptr<writer> stderr;
-_std::shared_ptr<reader> stdin;
-_std::shared_ptr<writer> stdout;
+_std::shared_ptr<ostream> stderr;
+_std::shared_ptr<istream> stdin;
+_std::shared_ptr<ostream> stdout;
 
-/*! Instantiates a binary::base specialization appropriate for the descriptor in *pfid, returning a
-shared pointer to it.
+/*! Instantiates a file_stream subclass appropriate for the descriptor in *pfid, returning a shared
+pointer to it.
 
 @param pfid
-   Data that will be passed to the constructor of the file object.
+   Data that will be passed to the constructor of the file stream.
 @return
-   Shared pointer to the newly created object.
+   Shared pointer to the newly created stream.
 */
-static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
+static _std::shared_ptr<file_stream> _construct(detail::file_init_data * pfid) {
    ABC_TRACE_FUNC(pfid);
 
 #if ABC_HOST_API_POSIX
@@ -62,22 +62,22 @@ static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    if (S_ISREG(pfid->statFile.st_mode)) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return _std::make_shared<regular_file_reader>(pfid);
+            return _std::make_shared<regular_file_istream>(pfid);
          case access_mode::write:
          case access_mode::write_append:
-            return _std::make_shared<regular_file_writer>(pfid);
+            return _std::make_shared<regular_file_ostream>(pfid);
          case access_mode::read_write:
-            return _std::make_shared<regular_file_readwriter>(pfid);
+            return _std::make_shared<regular_file_iostream>(pfid);
       }
    }
    if (S_ISCHR(pfid->statFile.st_mode) && ::isatty(pfid->fd.get())) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return _std::make_shared<console_reader>(pfid);
+            return _std::make_shared<console_istream>(pfid);
          case access_mode::write:
-            return _std::make_shared<console_writer>(pfid);
+            return _std::make_shared<console_ostream>(pfid);
          case access_mode::read_write:
-            return _std::make_shared<console_readwriter>(pfid);
+            return _std::make_shared<console_iostream>(pfid);
          case access_mode::write_append:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
@@ -86,11 +86,11 @@ static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    if (S_ISFIFO(pfid->statFile.st_mode) || S_ISSOCK(pfid->statFile.st_mode)) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return _std::make_shared<pipe_reader>(pfid);
+            return _std::make_shared<pipe_istream>(pfid);
          case access_mode::write:
-            return _std::make_shared<pipe_writer>(pfid);
+            return _std::make_shared<pipe_ostream>(pfid);
          case access_mode::read_write:
-            return _std::make_shared<pipe_readwriter>(pfid);
+            return _std::make_shared<pipe_iostream>(pfid);
          case access_mode::write_append:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
@@ -111,11 +111,11 @@ static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
             switch (pfid->am.base()) {
                case access_mode::read:
-                  return _std::make_shared<console_reader>(pfid);
+                  return _std::make_shared<console_istream>(pfid);
                case access_mode::write:
-                  return _std::make_shared<console_writer>(pfid);
+                  return _std::make_shared<console_ostream>(pfid);
                case access_mode::read_write:
-                  return _std::make_shared<console_readwriter>(pfid);
+                  return _std::make_shared<console_iostream>(pfid);
                case access_mode::write_append:
                   // TODO: use a better exception class.
                   ABC_THROW(argument_error, ());
@@ -127,12 +127,12 @@ static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          // Regular file.
          switch (pfid->am.base()) {
             case access_mode::read:
-               return _std::make_shared<regular_file_reader>(pfid);
+               return _std::make_shared<regular_file_istream>(pfid);
             case access_mode::write:
             case access_mode::write_append:
-               return _std::make_shared<regular_file_writer>(pfid);
+               return _std::make_shared<regular_file_ostream>(pfid);
             case access_mode::read_write:
-               return _std::make_shared<regular_file_readwriter>(pfid);
+               return _std::make_shared<regular_file_iostream>(pfid);
          }
          break;
 
@@ -140,11 +140,11 @@ static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
          // Socket or pipe.
          switch (pfid->am.base()) {
             case access_mode::read:
-               return _std::make_shared<pipe_reader>(pfid);
+               return _std::make_shared<pipe_istream>(pfid);
             case access_mode::write:
-               return _std::make_shared<pipe_writer>(pfid);
+               return _std::make_shared<pipe_ostream>(pfid);
             case access_mode::read_write:
-               return _std::make_shared<pipe_readwriter>(pfid);
+               return _std::make_shared<pipe_iostream>(pfid);
             case access_mode::write_append:
                // TODO: use a better exception class.
                ABC_THROW(argument_error, ());
@@ -167,27 +167,27 @@ static _std::shared_ptr<file_base> _construct(detail::file_init_data * pfid) {
    // If a file object was not returned in the code above, return a generic file.
    switch (pfid->am.base()) {
       case access_mode::read:
-         return _std::make_shared<file_reader>(pfid);
+         return _std::make_shared<file_istream>(pfid);
       case access_mode::write:
-         return _std::make_shared<file_writer>(pfid);
+         return _std::make_shared<file_ostream>(pfid);
       case access_mode::read_write:
-         return _std::make_shared<file_readwriter>(pfid);
+         return _std::make_shared<file_iostream>(pfid);
       default:
          // TODO: use a better exception class.
          ABC_THROW(argument_error, ());
    }
 }
 
-/*! Returns a new binary I/O object controlling the specified file descriptor.
+/*! Returns a new binary stream controlling the specified file descriptor.
 
 @param fd
    File descriptor to take ownership of.
 @param am
    Desired access mode.
 @return
-   Pointer to a binary I/O object controlling fd.
+   Pointer to a binary stream controlling fd.
 */
-static _std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
+static _std::shared_ptr<file_stream> _attach(filedesc && fd, access_mode am) {
    ABC_TRACE_FUNC(fd, am);
 
    detail::file_init_data fid;
@@ -199,55 +199,55 @@ static _std::shared_ptr<file_base> _attach(filedesc && fd, access_mode am) {
    return _construct(&fid);
 }
 
-ABACLADE_SYM _std::shared_ptr<buffered_reader> buffer_reader(_std::shared_ptr<reader> pbr) {
-   // See if *pbr is also a binary::buffered_reader.
-   if (auto pbbr = _std::dynamic_pointer_cast<buffered_reader>(pbr)) {
-      return _std::move(pbbr);
+ABACLADE_SYM _std::shared_ptr<buffered_istream> buffer_istream(_std::shared_ptr<istream> pbis) {
+   // See if *pbis is also a binary::buffered_istream.
+   if (auto pbbis = _std::dynamic_pointer_cast<buffered_istream>(pbis)) {
+      return _std::move(pbbis);
    }
-   // Add a buffering wrapper to *pbr.
-   return _std::make_shared<default_buffered_reader>(_std::move(pbr));
+   // Add a buffering wrapper to *pbis.
+   return _std::make_shared<default_buffered_istream>(_std::move(pbis));
 }
 
-ABACLADE_SYM _std::shared_ptr<buffered_writer> buffer_writer(_std::shared_ptr<writer> pbw) {
-   // See if *pbw is also a binary::buffered_writer.
-   if (auto pbbw = _std::dynamic_pointer_cast<buffered_writer>(pbw)) {
-      return _std::move(pbbw);
+ABACLADE_SYM _std::shared_ptr<buffered_ostream> buffer_ostream(_std::shared_ptr<ostream> pbos) {
+   // See if *pbos is also a binary::buffered_ostream.
+   if (auto pbbos = _std::dynamic_pointer_cast<buffered_ostream>(pbos)) {
+      return _std::move(pbbos);
    }
    // Add a buffering wrapper to *pbw.
-   return _std::make_shared<default_buffered_writer>(_std::move(pbw));
+   return _std::make_shared<default_buffered_ostream>(_std::move(pbos));
 }
 
-_std::shared_ptr<file_reader> make_reader(io::filedesc && fd) {
+_std::shared_ptr<file_istream> make_istream(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
    fid.fd = _std::move(fd);
    fid.am = access_mode::read;
    fid.bBypassCache = false;
-   return _std::dynamic_pointer_cast<file_reader>(_construct(&fid));
+   return _std::dynamic_pointer_cast<file_istream>(_construct(&fid));
 }
 
-_std::shared_ptr<file_writer> make_writer(io::filedesc && fd) {
+_std::shared_ptr<file_ostream> make_ostream(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
    fid.fd = _std::move(fd);
    fid.am = access_mode::write;
    fid.bBypassCache = false;
-   return _std::dynamic_pointer_cast<file_writer>(_construct(&fid));
+   return _std::dynamic_pointer_cast<file_ostream>(_construct(&fid));
 }
 
-_std::shared_ptr<file_readwriter> make_readwriter(io::filedesc && fd) {
+_std::shared_ptr<file_iostream> make_iostream(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
    detail::file_init_data fid;
    fid.fd = _std::move(fd);
    fid.am = access_mode::read_write;
    fid.bBypassCache = false;
-   return _std::dynamic_pointer_cast<file_readwriter>(_construct(&fid));
+   return _std::dynamic_pointer_cast<file_iostream>(_construct(&fid));
 }
 
-_std::shared_ptr<file_base> open(
+_std::shared_ptr<file_stream> open(
    os::path const & op, access_mode am, bool bBypassCache /*= false*/
 ) {
    ABC_TRACE_FUNC(op, am, bBypassCache);
@@ -378,7 +378,7 @@ pipe_ends pipe() {
    ABC_TRACE_FUNC();
 
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-   detail::file_init_data fidReader, fidWriter;
+   detail::file_init_data fidReadEnd, fidWriteEnd;
 #if ABC_HOST_API_DARWIN
    int fds[2];
    // pipe2() is not available, so emulate it with pipe() + fcntl().
@@ -390,15 +390,15 @@ pipe_ends pipe() {
       this_coroutine::interruption_point();
    }
    // Set the .fd members immediately, so they’ll get closed automatically in case of exceptions.
-   fidReader.fd = filedesc(fds[0]);
-   fidWriter.fd = filedesc(fds[1]);
+   fidReadEnd.fd = filedesc(fds[0]);
+   fidWriteEnd.fd = filedesc(fds[1]);
    /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread
    won’t leak the two file descriptors. That’s the whole point of pipe2(). */
-   fidReader.fd.set_close_on_exec(true);
-   fidWriter.fd.set_close_on_exec(true);
+   fidReadEnd.fd.set_close_on_exec(true);
+   fidWriteEnd.fd.set_close_on_exec(true);
    if (bAsync) {
-      fidReader.fd.set_nonblocking(true);
-      fidWriter.fd.set_nonblocking(true);
+      fidReadEnd.fd.set_nonblocking(true);
+      fidWriteEnd.fd.set_nonblocking(true);
    }
 #elif ABC_HOST_API_LINUX || ABC_HOST_API_FREEBSD
    int fds[2], iFlags = O_CLOEXEC;
@@ -412,15 +412,15 @@ pipe_ends pipe() {
       }
       this_coroutine::interruption_point();
    }
-   fidReader.fd = filedesc(fds[0]);
-   fidWriter.fd = filedesc(fds[1]);
+   fidReadEnd.fd = filedesc(fds[0]);
+   fidWriteEnd.fd = filedesc(fds[1]);
 #elif ABC_HOST_API_WIN32
    if (bAsync) {
       // Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
       static long s_iSerial = 0;
       // Generate the pipe name.
       sstr<128> sPipeName;
-      io::text::str_writer(external_buffer, sPipeName.str_ptr()).print(
+      io::text::str_ostream(external_buffer, sPipeName.str_ptr()).print(
          ABC_SL("\\\\.\\pipe\\abc::io::binary::pipe\\{}\\{}"),
          ::GetCurrentProcessId(), ::InterlockedIncrement(&s_iSerial)
       );
@@ -428,41 +428,42 @@ pipe_ends pipe() {
       small; the smallest it can get is a single memory page. */
       ::DWORD cbBuffer = static_cast< ::DWORD>(memory::page_size());
       // 0 means default connection timeout; irrelevant as we’ll connect the other end immediately.
-      ::HANDLE hReader = ::CreateNamedPipe(
+      ::HANDLE hReadEnd = ::CreateNamedPipe(
          sPipeName.c_str(),
          GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE,
          1, cbBuffer, cbBuffer, 0, nullptr
       );
-      if (hReader == INVALID_HANDLE_VALUE) {
+      if (hReadEnd == INVALID_HANDLE_VALUE) {
          exception::throw_os_error();
       }
-      fidReader.fd = filedesc(hReader);
-      ::HANDLE hWriter = ::CreateFile(
+      fidReadEnd.fd = filedesc(hReadEnd);
+      ::HANDLE hWriteEnd = ::CreateFile(
          sPipeName.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
          FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr
       );
-      if (hWriter == INVALID_HANDLE_VALUE) {
-         // fidReader.fd is closed automatically.
+      if (hWriteEnd == INVALID_HANDLE_VALUE) {
+         // fidReadEnd.fd is closed automatically.
          exception::throw_os_error();
       }
-      fidWriter.fd = filedesc(hWriter);
+      fidWriteEnd.fd = filedesc(hWriteEnd);
    } else {
-      ::HANDLE hReader, hWriter;
-      if (!::CreatePipe(&hReader, &hWriter, nullptr, 0)) {
+      ::HANDLE hReadEnd, hWriteEnd;
+      if (!::CreatePipe(&hReadEnd, &hWriteEnd, nullptr, 0)) {
          exception::throw_os_error();
       }
-      fidReader.fd = filedesc(hReader);
-      fidWriter.fd = filedesc(hWriter);
+      fidReadEnd.fd = filedesc(hReadEnd);
+      fidWriteEnd.fd = filedesc(hWriteEnd);
    }
 #else
    #error "TODO: HOST_API"
 #endif
    this_coroutine::interruption_point();
-   fidReader.am = access_mode::read;
-   fidWriter.am = access_mode::write;
-   fidReader.bBypassCache = fidWriter.bBypassCache = false;
+   fidReadEnd.am = access_mode::read;
+   fidWriteEnd.am = access_mode::write;
+   fidReadEnd.bBypassCache = false;
+   fidWriteEnd.bBypassCache = false;
    return pipe_ends(
-      _std::make_shared<pipe_reader>(&fidReader), _std::make_shared<pipe_writer>(&fidWriter)
+      _std::make_shared<pipe_istream>(&fidReadEnd), _std::make_shared<pipe_ostream>(&fidWriteEnd)
    );
 }
 
@@ -470,7 +471,7 @@ pipe_ends pipe() {
 
 namespace abc { namespace io { namespace binary { namespace detail {
 
-_std::shared_ptr<writer> make_stderr() {
+_std::shared_ptr<ostream> make_stderr() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -478,7 +479,7 @@ _std::shared_ptr<writer> make_stderr() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return _std::dynamic_pointer_cast<writer>(_attach(filedesc(
+   return _std::dynamic_pointer_cast<ostream>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDERR_FILENO
 #elif ABC_HOST_API_WIN32
@@ -489,7 +490,7 @@ _std::shared_ptr<writer> make_stderr() {
    ), access_mode::write));
 }
 
-_std::shared_ptr<reader> make_stdin() {
+_std::shared_ptr<istream> make_stdin() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -497,7 +498,7 @@ _std::shared_ptr<reader> make_stdin() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return _std::dynamic_pointer_cast<reader>(_attach(filedesc(
+   return _std::dynamic_pointer_cast<istream>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDIN_FILENO
 #elif ABC_HOST_API_WIN32
@@ -508,7 +509,7 @@ _std::shared_ptr<reader> make_stdin() {
    ), access_mode::read));
 }
 
-_std::shared_ptr<writer> make_stdout() {
+_std::shared_ptr<ostream> make_stdout() {
    ABC_TRACE_FUNC();
 
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To
@@ -516,7 +517,7 @@ _std::shared_ptr<writer> make_stdout() {
    on “NUL”. This mimics the behavior of Linux GUI programs, where all their standard I/O handles
    are open on /dev/null. */
 
-   return _std::dynamic_pointer_cast<writer>(_attach(filedesc(
+   return _std::dynamic_pointer_cast<ostream>(_attach(filedesc(
 #if ABC_HOST_API_POSIX
       STDOUT_FILENO
 #elif ABC_HOST_API_WIN32
@@ -533,22 +534,10 @@ _std::shared_ptr<writer> make_stdout() {
 
 namespace abc { namespace io { namespace binary {
 
-base::base() {
+stream::stream() {
 }
 
-/*virtual*/ base::~base() {
-}
-
-}}} //namespace abc::io::binary
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-reader::reader() {
-}
-
-/*virtual*/ reader::~reader() {
+/*virtual*/ stream::~stream() {
 }
 
 }}} //namespace abc::io::binary
@@ -557,22 +546,10 @@ reader::reader() {
 
 namespace abc { namespace io { namespace binary {
 
-writer::writer() {
+istream::istream() {
 }
 
-/*virtual*/ writer::~writer() {
-}
-
-}}} //namespace abc::io::binary
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc { namespace io { namespace binary {
-
-buffered_base::buffered_base() {
-}
-
-/*virtual*/ buffered_base::~buffered_base() {
+/*virtual*/ istream::~istream() {
 }
 
 }}} //namespace abc::io::binary
@@ -581,13 +558,37 @@ buffered_base::buffered_base() {
 
 namespace abc { namespace io { namespace binary {
 
-buffered_reader::buffered_reader() {
+ostream::ostream() {
 }
 
-/*virtual*/ buffered_reader::~buffered_reader() {
+/*virtual*/ ostream::~ostream() {
 }
 
-/*virtual*/ std::size_t buffered_reader::read(void * p, std::size_t cbMax) /*override*/ {
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+buffered_stream::buffered_stream() {
+}
+
+/*virtual*/ buffered_stream::~buffered_stream() {
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+buffered_istream::buffered_istream() {
+}
+
+/*virtual*/ buffered_istream::~buffered_istream() {
+}
+
+/*virtual*/ std::size_t buffered_istream::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
    std::size_t cbReadTotal(0);
@@ -617,13 +618,13 @@ buffered_reader::buffered_reader() {
 
 namespace abc { namespace io { namespace binary {
 
-buffered_writer::buffered_writer() {
+buffered_ostream::buffered_ostream() {
 }
 
-/*virtual*/ buffered_writer::~buffered_writer() {
+/*virtual*/ buffered_ostream::~buffered_ostream() {
 }
 
-/*virtual*/ std::size_t buffered_writer::write(void const * p, std::size_t cb) /*override*/ {
+/*virtual*/ std::size_t buffered_ostream::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    // Obtain a buffer large enough.
@@ -641,11 +642,11 @@ buffered_writer::buffered_writer() {
 
 namespace abc { namespace io { namespace binary {
 
-file_base::file_base(detail::file_init_data * pfid) :
+file_stream::file_stream(detail::file_init_data * pfid) :
    m_fd(_std::move(pfid->fd)) {
 }
 
-/*virtual*/ file_base::~file_base() {
+/*virtual*/ file_stream::~file_stream() {
 }
 
 }}} //namespace abc::io::binary
@@ -654,18 +655,18 @@ file_base::file_base(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-file_reader::file_reader(detail::file_init_data * pfid) :
-   file_base(pfid) {
+file_istream::file_istream(detail::file_init_data * pfid) :
+   file_stream(pfid) {
 }
 
-/*virtual*/ file_reader::~file_reader() {
-   /* If *this was a file_readwriter, the file_writer destructor has already been called, and this
+/*virtual*/ file_istream::~file_istream() {
+   /* If *this was a file_iostream, the file_ostream destructor has already been called, and this
    will be a no-op; otherwise it’s safe to do it here, since there’s nothing that could fail when
    closing a file only open for reading. */
    m_fd.safe_close();
 }
 
-/*virtual*/ std::size_t file_reader::read(void * p, std::size_t cbMax) /*override*/ {
+/*virtual*/ std::size_t file_istream::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
 #if ABC_HOST_API_POSIX
@@ -725,7 +726,7 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ bool file_reader::check_if_eof_or_throw_os_error(::DWORD cbRead, ::DWORD iErr) const {
+/*virtual*/ bool file_istream::check_if_eof_or_throw_os_error(::DWORD cbRead, ::DWORD iErr) const {
    switch (iErr) {
       case ERROR_SUCCESS:
          return cbRead == 0;
@@ -743,11 +744,11 @@ file_reader::file_reader(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-file_writer::file_writer(detail::file_init_data * pfid) :
-   file_base(pfid) {
+file_ostream::file_ostream(detail::file_init_data * pfid) :
+   file_stream(pfid) {
 }
 
-/*virtual*/ file_writer::~file_writer() {
+/*virtual*/ file_ostream::~file_ostream() {
    /* Verify that m_fd is no longer open. If that’s not the case, the caller neglected to verify
    that the OS write buffer was flushed successfully. */
    if (m_fd) {
@@ -756,13 +757,13 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    }
 }
 
-/*virtual*/ void file_writer::finalize() /*override*/ {
+/*virtual*/ void file_ostream::finalize() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    m_fd.safe_close();
 }
 
-/*virtual*/ void file_writer::flush() /*override*/ {
+/*virtual*/ void file_ostream::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
 #if ABC_HOST_API_POSIX
@@ -799,7 +800,7 @@ file_writer::file_writer(detail::file_init_data * pfid) :
    this_coroutine::interruption_point();
 }
 
-/*virtual*/ std::size_t file_writer::write(void const * p, std::size_t cb) /*override*/ {
+/*virtual*/ std::size_t file_ostream::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    std::int8_t const * pb = static_cast<std::int8_t const *>(p);
@@ -877,13 +878,13 @@ file_writer::file_writer(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-file_readwriter::file_readwriter(detail::file_init_data * pfid) :
-   file_base(pfid),
-   file_reader(pfid),
-   file_writer(pfid) {
+file_iostream::file_iostream(detail::file_init_data * pfid) :
+   file_stream(pfid),
+   file_istream(pfid),
+   file_ostream(pfid) {
 }
 
-/*virtual*/ file_readwriter::~file_readwriter() {
+/*virtual*/ file_iostream::~file_iostream() {
 }
 
 }}} //namespace abc::io::binary

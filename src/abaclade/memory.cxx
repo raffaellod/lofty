@@ -40,7 +40,7 @@ namespace abc { namespace memory {
 #endif
    ),
    m_cbFailed(cbFailed) {
-   what_writer().print(ABC_SL("requested allocation size={} B"), m_cbFailed);
+   what_ostream().print(ABC_SL("requested allocation size={} B"), m_cbFailed);
 }
 
 bad_alloc::bad_alloc(bad_alloc const & x) :
@@ -87,7 +87,7 @@ namespace abc { namespace memory {
 #endif
    ),
    m_pInvalid(pInvalid) {
-   what_writer().print(ABC_SL("invalid pointer={}"), m_pInvalid);
+   what_ostream().print(ABC_SL("invalid pointer={}"), m_pInvalid);
 }
 
 bad_pointer::bad_pointer(bad_pointer const & x) :
@@ -123,7 +123,7 @@ namespace abc { namespace memory {
 #endif
    ),
    m_pInvalid(pInvalid) {
-   what_writer().print(ABC_SL("misaligned pointer={}"), m_pInvalid);
+   what_ostream().print(ABC_SL("misaligned pointer={}"), m_pInvalid);
 }
 
 bad_pointer_alignment::bad_pointer_alignment(bad_pointer_alignment const & x) :

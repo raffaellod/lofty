@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -46,10 +46,10 @@ protected:
       Size of the string pointed to by p, in bytes.
    @param enc
       Text encoding of the string pointed to by p.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(void const * p, std::size_t cb, encoding enc, io::text::writer * ptwOut);
+   void write(void const * p, std::size_t cb, encoding enc, io::text::ostream * ptos);
 };
 
 }}} //namespace abc::text::detail
@@ -67,11 +67,11 @@ namespace abc {
 
       @param ch
          Character to write.
-      @param ptwOut
-         Pointer to the writer to output to.
+      @param ptos
+         Pointer to the stream to output to.
       */ \
-      void write(C ch, io::text::writer * ptwOut) { \
-         text::detail::str_to_str_backend::write(&ch, sizeof(C), enc, ptwOut); \
+      void write(C ch, io::text::ostream * ptos) { \
+         text::detail::str_to_str_backend::write(&ch, sizeof(C), enc, ptos); \
       } \
    }; \
    \
@@ -83,11 +83,11 @@ namespace abc {
 
       @param ach
          String to write.
-      @param ptwOut
-         Pointer to the writer to output to.
+      @param ptos
+         Pointer to the stream to output to.
       */ \
-      void write(C const (& ach)[t_cch], io::text::writer * ptwOut) { \
-         text::detail::str_to_str_backend::write(ach, sizeof(C) * ABC_SL_SIZE(ach), enc, ptwOut); \
+      void write(C const (& ach)[t_cch], io::text::ostream * ptos) { \
+         text::detail::str_to_str_backend::write(ach, sizeof(C) * ABC_SL_SIZE(ach), enc, ptos); \
       } \
    }; \
    \
@@ -123,10 +123,10 @@ public:
 
    @param s
       String to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(text::str const & s, io::text::writer * ptwOut);
+   void write(text::str const & s, io::text::ostream * ptos);
 };
 
 template <std::size_t t_cchEmbeddedCapacity>
@@ -136,11 +136,11 @@ public:
 
    @param s
       String to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(text::sstr<t_cchEmbeddedCapacity> const & s, io::text::writer * ptwOut) {
-      to_str_backend<text::str>::write(s.str(), ptwOut);
+   void write(text::sstr<t_cchEmbeddedCapacity> const & s, io::text::ostream * ptos) {
+      to_str_backend<text::str>::write(s.str(), ptos);
    }
 };
 
@@ -151,11 +151,11 @@ public:
 
    @param cpp
       Code point to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(text::str::const_codepoint_proxy const & cpp, io::text::writer * ptwOut) {
-      to_str_backend<char32_t>::write(cpp.operator char32_t(), ptwOut);
+   void write(text::str::const_codepoint_proxy const & cpp, io::text::ostream * ptos) {
+      to_str_backend<char32_t>::write(cpp.operator char32_t(), ptos);
    }
 };
 
@@ -171,11 +171,11 @@ public:
 
    @param it
       Iterator to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(text::str::const_iterator const & it, io::text::writer * ptwOut) {
-      to_str_backend<std::size_t>::write(it.char_index(), ptwOut);
+   void write(text::str::const_iterator const & it, io::text::ostream * ptos) {
+      to_str_backend<std::size_t>::write(it.char_index(), ptos);
    }
 };
 

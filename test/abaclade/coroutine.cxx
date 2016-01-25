@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -82,18 +82,18 @@ ABC_TESTING_TEST_CASE_FUNC(
       ABC_THROW(generic_error, ());
    });
 
-   /* Temporarily redirect stderr to a local string writer, so the exception trace from the
+   /* Temporarily redirect stderr to a local string stream, so the exception trace from the
    coroutine won’t show in the test output. */
-   auto ptswErr(_std::make_shared<io::text::str_writer>());
+   auto psosErr(_std::make_shared<io::text::str_ostream>());
    {
-      auto ptwOldStdErr(io::text::stderr);
-      io::text::stderr = ptswErr;
+      auto ptosOldStdErr(io::text::stderr);
+      io::text::stderr = psosErr;
       this_thread::run_coroutines();
-      io::text::stderr = _std::move(ptwOldStdErr);
+      io::text::stderr = _std::move(ptosOldStdErr);
    }
 
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
-   ABC_TESTING_ASSERT_NOT_EQUAL(ptswErr->get_str(), str::empty);
+   ABC_TESTING_ASSERT_NOT_EQUAL(psosErr->get_str(), str::empty);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();

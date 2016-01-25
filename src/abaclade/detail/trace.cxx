@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -24,8 +24,8 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace detail {
 
-/*static*/ void scope_trace_tuple::write_separator(io::text::writer * ptwOut) {
-   ptwOut->write(ABC_SL(", "));
+/*static*/ void scope_trace_tuple::write_separator(io::text::ostream * ptos) {
+   ptos->write(ABC_SL(", "));
 }
 
 }} //namespace abc::detail
@@ -36,7 +36,7 @@ namespace abc { namespace detail {
 
 coroutine_local_value<scope_trace const *> scope_trace::sm_pstHead /*= nullptr*/;
 coroutine_local_value<bool> scope_trace::sm_bReentering /*= false*/;
-coroutine_local_ptr<io::text::str_writer> scope_trace::sm_ptswScopeTrace;
+coroutine_local_ptr<io::text::str_ostream> scope_trace::sm_psosScopeTrace;
 coroutine_local_value<unsigned> scope_trace::sm_cScopeTraceRefs /*= 0*/;
 coroutine_local_value<unsigned> scope_trace::sm_iStackDepth /*= 0*/;
 
@@ -53,7 +53,7 @@ scope_trace::~scope_trace() {
    if (!sm_bReentering && _std::uncaught_exception()) {
       sm_bReentering = true;
       try {
-         write(get_trace_writer(), ++sm_iStackDepth);
+         write(get_trace_ostream(), ++sm_iStackDepth);
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
          // FIXME: EXC-SWALLOW
@@ -64,19 +64,19 @@ scope_trace::~scope_trace() {
    sm_pstHead = m_pstPrev;
 }
 
-void scope_trace::write(io::text::writer * ptwOut, unsigned iStackDepth) const {
-   ptwOut->print(
+void scope_trace::write(io::text::ostream * ptos, unsigned iStackDepth) const {
+   ptos->print(
       ABC_SL("#{} {} with args: "), iStackDepth, str(external_buffer, m_psfa->function())
    );
    // Write the variables tuple.
-   m_ptplVars->write(ptwOut);
-   ptwOut->print(ABC_SL(" at {}\n"), m_psfa->file_address());
+   m_ptplVars->write(ptos);
+   ptos->print(ABC_SL(" at {}\n"), m_psfa->file_address());
 }
 
-/*static*/ void scope_trace::write_list(io::text::writer * ptwOut) {
+/*static*/ void scope_trace::write_list(io::text::ostream * ptos) {
    unsigned iStackDepth = 0;
    for (scope_trace const * pst = sm_pstHead; pst; pst = pst->m_pstPrev) {
-      pst->write(ptwOut, ++iStackDepth);
+      pst->write(ptos, ++iStackDepth);
    }
 }
 

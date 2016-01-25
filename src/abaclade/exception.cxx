@@ -158,7 +158,7 @@ destructing_unfinalized_object & destructing_unfinalized_object::operator=(
 }
 
 void destructing_unfinalized_object::write_what(void const * pObj, _std::type_info const & ti) {
-   what_writer().print(
+   what_ostream().print(
       ABC_SL("instance of {} @ {} being destructed before finalize() was invoked on it"), ti, pObj
    );
 }
@@ -230,7 +230,7 @@ exception::exception(exception const & x) :
    m_cchWhatAvailable(x.m_cchWhatAvailable) {
    // See @ref stack-tracing.
    if (m_bInFlight) {
-      detail::scope_trace::trace_writer_addref();
+      detail::scope_trace::trace_ostream_addref();
    }
    memory::copy<char>(m_szWhat, x.m_szWhat, ABC_COUNTOF(m_szWhat) - m_cchWhatAvailable);
 }
@@ -238,7 +238,7 @@ exception::exception(exception const & x) :
 /*virtual*/ exception::~exception() ABC_STL_NOEXCEPT_TRUE() {
    // See @ref stack-tracing.
    if (m_bInFlight) {
-      detail::scope_trace::trace_writer_release();
+      detail::scope_trace::trace_ostream_release();
    }
 }
 
@@ -246,14 +246,14 @@ exception & exception::operator=(exception const & x) {
    m_sfa = x.m_sfa;
    /* Adopt the source’s in-flight status. See @ref stack-tracing. If the in-flight status is not
    changing, avoid the pointless (and dangerous, if done in this sequence – it could delete the
-   trace writer if *this was the last reference to it) release()/addref(). */
+   trace ostream if *this was the last reference to it) release()/addref(). */
    if (m_bInFlight != x.m_bInFlight) {
       if (m_bInFlight) {
-         detail::scope_trace::trace_writer_release();
+         detail::scope_trace::trace_ostream_release();
       }
       m_bInFlight = x.m_bInFlight;
       if (m_bInFlight) {
-         detail::scope_trace::trace_writer_addref();
+         detail::scope_trace::trace_ostream_addref();
       }
    }
    m_cchWhatAvailable = x.m_cchWhatAvailable;
@@ -263,10 +263,10 @@ exception & exception::operator=(exception const & x) {
 
 void exception::_before_throw(source_file_address const & sfa) {
    m_sfa = sfa;
-   /* Clear any old trace writer buffer and create a new one with *this as its only reference. See
+   /* Clear any old trace ostream buffer and create a new one with *this as its only reference. See
    @ref stack-tracing. */
-   detail::scope_trace::trace_writer_clear();
-   detail::scope_trace::trace_writer_addref();
+   detail::scope_trace::trace_ostream_clear();
+   detail::scope_trace::trace_ostream_addref();
    m_bInFlight = true;
 }
 
@@ -432,30 +432,30 @@ void exception::_before_throw(source_file_address const & sfa) {
    return m_szWhat;
 }
 
-io::text::char_ptr_writer exception::what_writer() {
+io::text::char_ptr_ostream exception::what_ostream() {
    std::size_t cchUsed = ABC_COUNTOF(m_szWhat) - 1 /*NUL*/ - m_cchWhatAvailable;
-   io::text::char_ptr_writer cpw(m_szWhat + cchUsed, &m_cchWhatAvailable);
+   io::text::char_ptr_ostream cpos(m_szWhat + cchUsed, &m_cchWhatAvailable);
    // If the what() string has already been written to, add a separator before a new write.
    if (cchUsed > 0) {
-      cpw.write(ABC_SL("; "));
+      cpos.write(ABC_SL("; "));
    }
-   return _std::move(cpw);
+   return _std::move(cpos);
 }
 
 /*static*/ void exception::write_with_scope_trace(
-   io::text::writer * ptwOut /*= nullptr*/, _std::exception const * pstdx /*= nullptr*/
+   io::text::ostream * ptos /*= nullptr*/, _std::exception const * pstdx /*= nullptr*/
 ) {
-   if (!ptwOut) {
-      ptwOut = io::text::stderr.get();
+   if (!ptos) {
+      ptos = io::text::stderr.get();
    }
    exception const * pabcx;
    if (pstdx) {
       // We have an std::exception: print its what() and check if it’s also an abc::exception.
-      ptwOut->print(ABC_SL("Exception in PID:{} TID:{}"), this_process::id(), this_thread::id());
+      ptos->print(ABC_SL("Exception in PID:{} TID:{}"), this_process::id(), this_thread::id());
       if (auto crid =  this_coroutine::id()) {
-         ptwOut->print(ABC_SL(" CRID:{}"), crid);
+         ptos->print(ABC_SL(" CRID:{}"), crid);
       }
-      ptwOut->print(
+      ptos->print(
          ABC_SL("\n{}: {}\n"), typeid(*pstdx), text::char_ptr_to_str_adapter(pstdx->what())
       );
       pabcx = dynamic_cast<exception const *>(pstdx);
@@ -463,18 +463,18 @@ io::text::char_ptr_writer exception::what_writer() {
       pabcx = nullptr;
    }
 
-   ptwOut->write(ABC_SL("Stack trace (most recent call first):\n"));
+   ptos->write(ABC_SL("Stack trace (most recent call first):\n"));
    if (pabcx) {
       // Frame 0 is the location of the ABC_THROW() statement.
-      ptwOut->print(
+      ptos->print(
          ABC_SL("#0 {} at {}\n"),
          str(external_buffer, pabcx->m_sfa.function()), pabcx->m_sfa.file_address()
       );
    }
    // Print the scope/stack trace collected via ABC_TRACE_FUNC().
-   ptwOut->write(detail::scope_trace::get_trace_writer()->get_str());
+   ptos->write(detail::scope_trace::get_trace_ostream()->get_str());
    // Append any scope_trace instances that haven’t been destructed yet.
-   detail::scope_trace::write_list(ptwOut);
+   detail::scope_trace::write_list(ptos);
 }
 
 } //namespace abc
@@ -486,7 +486,7 @@ namespace abc {
 /*explicit*/ generic_error::generic_error(errint_t err /*= 0*/) :
    m_err(err) {
    if (m_err) {
-      what_writer().print(ABC_SL("OS error={}"), m_err);
+      what_ostream().print(ABC_SL("OS error={}"), m_err);
    }
 }
 
@@ -594,7 +594,7 @@ namespace abc {
          }
       }
    }
-   what_writer().print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
+   what_ostream().print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
 }
 
 syntax_error::syntax_error(syntax_error const & x) :

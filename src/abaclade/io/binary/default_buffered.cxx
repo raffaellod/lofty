@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -80,14 +80,14 @@ void buffer::make_unused_available() {
 
 namespace abc { namespace io { namespace binary {
 
-default_buffered_reader::default_buffered_reader(_std::shared_ptr<reader> pbr) :
-   m_pbr(_std::move(pbr)) {
+default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> pbis) :
+   m_pbis(_std::move(pbis)) {
 }
 
-/*virtual*/ default_buffered_reader::~default_buffered_reader() {
+/*virtual*/ default_buffered_istream::~default_buffered_istream() {
 }
 
-/*virtual*/ void default_buffered_reader::consume_bytes(std::size_t cb) /*override*/ {
+/*virtual*/ void default_buffered_istream::consume_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_bufRead.used_size()) {
@@ -99,7 +99,7 @@ default_buffered_reader::default_buffered_reader(_std::shared_ptr<reader> pbr) :
    m_bufRead.mark_as_unused(cb);
 }
 
-/*virtual*/ _std::tuple<void const *, std::size_t> default_buffered_reader::peek_bytes(
+/*virtual*/ _std::tuple<void const *, std::size_t> default_buffered_istream::peek_bytes(
    std::size_t cb
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
@@ -119,7 +119,7 @@ default_buffered_reader::default_buffered_reader(_std::shared_ptr<reader> pbr) :
          }
       }
       // Try to fill the available part of the buffer.
-      std::size_t cbRead = m_pbr->read(m_bufRead.get_available(), m_bufRead.available_size());
+      std::size_t cbRead = m_pbis->read(m_bufRead.get_available(), m_bufRead.available_size());
       // Account for the additional data read.
       m_bufRead.mark_as_used(cbRead);
    }
@@ -127,10 +127,11 @@ default_buffered_reader::default_buffered_reader(_std::shared_ptr<reader> pbr) :
    return _std::make_tuple(m_bufRead.get_used(), m_bufRead.used_size());
 }
 
-/*virtual*/ _std::shared_ptr<base> default_buffered_reader::_unbuffered_base() const /*override*/ {
+/*virtual*/ _std::shared_ptr<stream> default_buffered_istream::_unbuffered_stream(
+) const /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   return _std::static_pointer_cast<base>(m_pbr);
+   return _std::static_pointer_cast<stream>(m_pbis);
 }
 
 }}} //namespace abc::io::binary
@@ -139,13 +140,13 @@ default_buffered_reader::default_buffered_reader(_std::shared_ptr<reader> pbr) :
 
 namespace abc { namespace io { namespace binary {
 
-default_buffered_writer::default_buffered_writer(_std::shared_ptr<writer> pbw) :
-   m_pbw(_std::move(pbw)),
+default_buffered_ostream::default_buffered_ostream(_std::shared_ptr<ostream> pbos) :
+   m_pbos(_std::move(pbos)),
    // Disable buffering for console (interactive) files.
-   m_bFlushAfterCommit(_std::dynamic_pointer_cast<console_writer>(m_pbw) != nullptr) {
+   m_bFlushAfterCommit(_std::dynamic_pointer_cast<console_ostream>(m_pbos) != nullptr) {
 }
 
-/*virtual*/ default_buffered_writer::~default_buffered_writer() {
+/*virtual*/ default_buffered_ostream::~default_buffered_ostream() {
    /* Verify that the write buffer is empty. If that’s not the case, the caller neglected to verify
    that m_bufWrite and the OS write buffer were flushed successfully. */
    if (m_bufWrite.used_size()) {
@@ -154,7 +155,7 @@ default_buffered_writer::default_buffered_writer(_std::shared_ptr<writer> pbw) :
    }
 }
 
-/*virtual*/ void default_buffered_writer::commit_bytes(std::size_t cb) /*override*/ {
+/*virtual*/ void default_buffered_ostream::commit_bytes(std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
 
    if (cb > m_bufWrite.available_size()) {
@@ -169,7 +170,7 @@ default_buffered_writer::default_buffered_writer(_std::shared_ptr<writer> pbw) :
    }
 }
 
-/*virtual*/ void default_buffered_writer::finalize() /*override*/ {
+/*virtual*/ void default_buffered_ostream::finalize() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    // Flush both the write buffer and any lower-level buffers.
@@ -179,34 +180,34 @@ default_buffered_writer::default_buffered_writer(_std::shared_ptr<writer> pbw) :
       // Consider the buffer contents as lost.
       m_bufWrite.mark_as_unused(m_bufWrite.used_size());
       /* If this throws a nested exception, std::terminate() will be called; otherwise, we’ll have
-      successfully prevented m_pbw’s destructor from throwing due to a missed finalize(). */
-      m_pbw->finalize();
+      successfully prevented m_pbos’s destructor from throwing due to a missed finalize(). */
+      m_pbos->finalize();
       throw;
    }
-   m_pbw->finalize();
+   m_pbos->finalize();
 }
 
-/*virtual*/ void default_buffered_writer::flush() /*override*/ {
+/*virtual*/ void default_buffered_ostream::flush() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    // Flush both the write buffer and any lower-level buffers.
    flush_buffer();
-   m_pbw->flush();
+   m_pbos->flush();
 }
 
-void default_buffered_writer::flush_buffer() {
+void default_buffered_ostream::flush_buffer() {
    ABC_TRACE_FUNC(this);
 
    if (std::size_t cbBufUsed = m_bufWrite.used_size()) {
-      /* TODO: if *m_pbw expects writes of an integer multiple of its block size but the buffer is
-      not 100% full, do something – maybe truncate m_pbw afterwards if possible? */
-      std::size_t cbWritten = m_pbw->write(m_bufWrite.get_used(), cbBufUsed);
+      /* TODO: if *m_pbos expects writes of an integer multiple of its block size but the buffer is
+      not 100% full, do something – maybe truncate m_pbos afterwards if possible? */
+      std::size_t cbWritten = m_pbos->write(m_bufWrite.get_used(), cbBufUsed);
       ABC_ASSERT(cbWritten == cbBufUsed, ABC_SL("the entire buffer must have been written"));
       m_bufWrite.mark_as_unused(cbWritten);
    }
 }
 
-/*virtual*/ _std::tuple<void *, std::size_t> default_buffered_writer::get_buffer_bytes(
+/*virtual*/ _std::tuple<void *, std::size_t> default_buffered_ostream::get_buffer_bytes(
    std::size_t cb
 ) /*override*/ {
    ABC_TRACE_FUNC(this, cb);
@@ -231,10 +232,11 @@ void default_buffered_writer::flush_buffer() {
    return _std::make_tuple(m_bufWrite.get_available(), m_bufWrite.available_size());
 }
 
-/*virtual*/ _std::shared_ptr<base> default_buffered_writer::_unbuffered_base() const /*override*/ {
+/*virtual*/ _std::shared_ptr<stream> default_buffered_ostream::_unbuffered_stream(
+) const /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   return _std::static_pointer_cast<base>(m_pbw);
+   return _std::static_pointer_cast<stream>(m_pbos);
 }
 
 }}} //namespace abc::io::binary

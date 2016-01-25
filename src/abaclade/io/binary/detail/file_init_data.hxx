@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -40,10 +40,9 @@ struct file_init_data {
    //! Set by _construct().
    struct ::stat statFile;
 #endif
-   //! See file_base::m_fd. To be set before calling _construct().
+   //! See file_stream::m_fd. To be set before calling _construct().
    filedesc fd;
-   /*! Determines what type of I/O object will be instantiated. To be set before calling
-   _construct(). */
+   //! Determines what type of stream will be instantiated. To be set before calling _construct().
    access_mode am;
    /*! If true, causes the file to be opened with flags to the effect of disabling OS cache for the
    file. To be set before calling _construct(). */

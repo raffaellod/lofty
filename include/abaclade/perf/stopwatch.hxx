@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -101,11 +101,11 @@ public:
 
    @param sw
       Stopwatch to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(perf::stopwatch const & sw, io::text::writer * ptwOut) {
-      to_str_backend<perf::stopwatch::duration_type>::write(sw.duration(), ptwOut);
+   void write(perf::stopwatch const & sw, io::text::ostream * ptos) {
+      to_str_backend<perf::stopwatch::duration_type>::write(sw.duration(), ptos);
    }
 };
 

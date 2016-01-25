@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -36,15 +36,15 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace io { namespace binary {
 
-//! Base for console/terminal binary I/O classes.
-class ABACLADE_SYM console_file_base : public virtual file_base {
+//! Base for console/terminal binary streams.
+class ABACLADE_SYM console_file_stream : public virtual file_stream {
 public:
    //! Destructor.
-   virtual ~console_file_base();
+   virtual ~console_file_stream();
 
 protected:
-   //! See file_base::file_base().
-   console_file_base(detail::file_init_data * pfid);
+   //! See file_stream::file_stream().
+   console_file_stream(detail::file_init_data * pfid);
 };
 
 }}} //namespace abc::io::binary
@@ -54,19 +54,21 @@ protected:
 namespace abc { namespace io { namespace binary {
 
 //! Console/terminal input pseudo-file.
-class ABACLADE_SYM console_reader : public virtual console_file_base, public virtual file_reader {
+class ABACLADE_SYM console_istream :
+   public virtual console_file_stream,
+   public virtual file_istream {
 public:
-   //! See file_reader::file_reader().
-   console_reader(detail::file_init_data * pfid);
+   //! See file_istream::file_istream().
+   console_istream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_reader();
+   virtual ~console_istream();
 
 #if ABC_HOST_API_WIN32
    /* Under Win32, console files must use a dedicated API in order to support the native character
    type. */
 
-   //! See file_reader::read().
+   //! See file_istream::read().
    virtual std::size_t read(void * p, std::size_t cbMax) override;
 #endif //if ABC_HOST_API_WIN32
 };
@@ -78,26 +80,26 @@ public:
 namespace abc { namespace io { namespace binary {
 
 //! Console/terminal output pseudo-file.
-class ABACLADE_SYM console_writer :
-   public virtual console_file_base,
-   public virtual file_writer
+class ABACLADE_SYM console_ostream :
+   public virtual console_file_stream,
+   public virtual file_ostream
 #if ABC_HOST_API_WIN32
    // Under Win32, ANSI escape sequences parsing is up to us.
    , private abc::text::parsers::ansi_escape_sequences
 #endif
    {
 public:
-   //! See file_writer::file_writer().
-   console_writer(detail::file_init_data * pfid);
+   //! See file_ostream::file_ostream().
+   console_ostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_writer();
+   virtual ~console_ostream();
 
 #if ABC_HOST_API_WIN32
    /* Under Win32, console files must use a dedicated API in order to support the native character
    type. */
 
-   //! See file_writer::write().
+   //! See file_ostream::write().
    virtual std::size_t write(void const * p, std::size_t cb) override;
 
 private:
@@ -155,16 +157,16 @@ private:
 namespace abc { namespace io { namespace binary {
 
 //! Bidirectional console/terminal pseudo-file.
-class ABACLADE_SYM console_readwriter :
-   public file_readwriter,
-   public console_reader,
-   public console_writer {
+class ABACLADE_SYM console_iostream :
+   public file_iostream,
+   public console_istream,
+   public console_ostream {
 public:
-   //! See console_reader::console_reader() and console_writer::console_writer().
-   console_readwriter(detail::file_init_data * pfid);
+   //! See console_istream::console_istream() and console_ostream::console_ostream().
+   console_iostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_readwriter();
+   virtual ~console_iostream();
 };
 
 }}} //namespace abc::io::binary
@@ -173,18 +175,18 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Binary reader for the output end of a pipe.
-class ABACLADE_SYM pipe_reader : public virtual file_reader {
+//! Binary stream for the read end of a pipe.
+class ABACLADE_SYM pipe_istream : public virtual file_istream {
 public:
-   //! See file_reader::file_reader().
-   pipe_reader(detail::file_init_data * pfid);
+   //! See file_istream::file_istream().
+   pipe_istream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~pipe_reader();
+   virtual ~pipe_istream();
 
 protected:
 #if ABC_HOST_API_WIN32
-   /*! See file_reader::check_if_eof_or_throw_os_error(). Pipes report EOF in a completely different
+   /*! See file_istream::check_if_eof_or_throw_os_error(). Pipes report EOF in a completely different
    way than regular files. */
    virtual bool check_if_eof_or_throw_os_error(::DWORD cbRead, ::DWORD iErr) const override;
 #endif
@@ -196,14 +198,14 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Binary writer for the input end of a pipe.
-class ABACLADE_SYM pipe_writer : public virtual file_writer {
+//! Binary output stream for the write end of a pipe.
+class ABACLADE_SYM pipe_ostream : public virtual file_ostream {
 public:
-   //! See file_writer::file_writer().
-   pipe_writer(detail::file_init_data * pfid);
+   //! See file_ostream::file_ostream().
+   pipe_ostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~pipe_writer();
+   virtual ~pipe_ostream();
 };
 
 }}} //namespace abc::io::binary
@@ -212,17 +214,17 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Bidirectional console/terminal pseudo-file.
-class ABACLADE_SYM pipe_readwriter :
-   public file_readwriter,
-   public pipe_reader,
-   public pipe_writer {
+//! Bidirectional pipe end.
+class ABACLADE_SYM pipe_iostream :
+   public file_iostream,
+   public pipe_istream,
+   public pipe_ostream {
 public:
-   //! See pipe_reader::pipe_reader() and pipe_writer::pipe_writer().
-   pipe_readwriter(detail::file_init_data * pfid);
+   //! See pipe_istream::pipe_istream() and pipe_ostream::pipe_ostream().
+   pipe_iostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~pipe_readwriter();
+   virtual ~pipe_iostream();
 };
 
 }}} //namespace abc::io::binary
@@ -231,11 +233,11 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Base for binary I/O classes for regular disk files.
-class ABACLADE_SYM regular_file_base : public virtual file_base, public seekable, public sized {
+//! Base for binary streams for regular disk files.
+class ABACLADE_SYM regular_file_stream : public virtual file_stream, public seekable, public sized {
 public:
    //! Destructor.
-   virtual ~regular_file_base();
+   virtual ~regular_file_stream();
 
    //! See seekable::seek().
    virtual offset_t seek(offset_t ibOffset, seek_from sfWhence) override;
@@ -247,8 +249,8 @@ public:
    virtual offset_t tell() const override;
 
 protected:
-   //! See file_base::file_base().
-   regular_file_base(detail::file_init_data * pfid);
+   //! See file_stream::file_stream().
+   regular_file_stream(detail::file_init_data * pfid);
 
 protected:
    //! Size of the file.
@@ -265,16 +267,16 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Binary reader for regular disk files.
-class ABACLADE_SYM regular_file_reader :
-   public virtual regular_file_base,
-   public virtual file_reader {
+//! Binary input stream for regular disk files.
+class ABACLADE_SYM regular_file_istream :
+   public virtual regular_file_stream,
+   public virtual file_istream {
 public:
-   //! See regular_file_base().
-   regular_file_reader(detail::file_init_data * pfid);
+   //! See regular_file_stream().
+   regular_file_istream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~regular_file_reader();
+   virtual ~regular_file_istream();
 };
 
 }}} //namespace abc::io::binary
@@ -283,19 +285,19 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Binary writer for regular disk files.
-class ABACLADE_SYM regular_file_writer :
-   public virtual regular_file_base,
-   public virtual file_writer {
+//! Binary output stream for regular disk files.
+class ABACLADE_SYM regular_file_ostream :
+   public virtual regular_file_stream,
+   public virtual file_ostream {
 public:
-   //! See regular_file_base().
-   regular_file_writer(detail::file_init_data * pfid);
+   //! See regular_file_stream().
+   regular_file_ostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~regular_file_writer();
+   virtual ~regular_file_ostream();
 
 #if ABC_HOST_API_WIN32
-   //! See file_writer::write(). This override is necessary to emulate O_APPEND under Win32.
+   //! See file_ostream::write(). This override is necessary to emulate O_APPEND under Win32.
    virtual std::size_t write(void const * p, std::size_t cb) override;
 
 protected:
@@ -310,18 +312,18 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Bidirectional console/terminal pseudo-file.
-class ABACLADE_SYM regular_file_readwriter :
-   public file_readwriter,
-   public regular_file_reader,
-   public regular_file_writer {
+//! Bidirectional file.
+class ABACLADE_SYM regular_file_iostream :
+   public file_iostream,
+   public regular_file_istream,
+   public regular_file_ostream {
 public:
-   /*! See regular_file_reader::regular_file_reader() and
-   regular_file_writer::regular_file_writer(). */
-   regular_file_readwriter(detail::file_init_data * pfid);
+   /*! See regular_file_istream::regular_file_istream() and
+   regular_file_ostream::regular_file_ostream(). */
+   regular_file_iostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~regular_file_readwriter();
+   virtual ~regular_file_iostream();
 };
 
 }}} //namespace abc::io::binary

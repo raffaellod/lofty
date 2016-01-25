@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -26,7 +26,7 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc {
 
 void to_str_backend<text::char_ptr_to_str_adapter>::write(
-   text::char_ptr_to_str_adapter const & cs, io::text::writer * ptwOut
+   text::char_ptr_to_str_adapter const & cs, io::text::ostream * ptos
 ) {
    void const * p;
    std::size_t cb;
@@ -42,7 +42,7 @@ void to_str_backend<text::char_ptr_to_str_adapter>::write(
       enc = text::encoding::host;
       cb = sizeof sc_szNull - sizeof sc_szNull[0] /*NUL*/;
    }
-   text::detail::str_to_str_backend::write(p, cb, enc, ptwOut);
+   text::detail::str_to_str_backend::write(p, cb, enc, ptos);
 }
 
 } //namespace abc

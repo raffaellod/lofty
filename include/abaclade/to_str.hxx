@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -33,8 +33,8 @@ conversions”); here are the main differences when compared to the STL function
 •  It accepts an additional argument, controlling how the conversion to string is to be done;
 
 •  Its default specialization relies on abc::to_str_backend(), which outputs its result to an
-   abc::io::text::writer instance; this means that the complete specialization is shared with
-   abc::io::text::writer::print();
+   abc::io::text::ostream instance; this means that the complete specialization is shared with
+   abc::io::text::ostream::print();
 
 •  Since the default implementation of abc::to_str() is a thin wrapper around abc::to_str_backend,
    implementors can provide a partial specialization for it (partial specializations of function are
@@ -77,7 +77,7 @@ namespace abc {
 /*! Generates a string suitable for display from an object.
 
 This class template and its specializations are at the core of abc::to_str() and
-abc::io::text::writer::print().
+abc::io::text::ostream::print().
 
 Once constructed with the desired format specification, an instance must be able to convert to
 string any number of T instances. */
@@ -115,10 +115,10 @@ public:
 
    @param b
       Boolean value to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(bool b, io::text::writer * ptwOut);
+   void write(bool b, io::text::ostream * ptos);
 };
 
 } //namespace abc
@@ -150,8 +150,8 @@ protected:
 
    @param bNegative
       true if the number is negative, or false otherwise.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    @param psBuf
       Pointer to the string containing the characters to write.
    @param itBufFirstUsed
@@ -159,51 +159,51 @@ protected:
       character in *psBuf.
    */
    void add_prefixes_and_write(
-      bool bNegative, io::text::writer * ptwOut, str * psBuf, str::iterator itBufFirstUsed
+      bool bNegative, io::text::ostream * ptos, str * psBuf, str::iterator itBufFirstUsed
    ) const;
 
    /*! Converts an integer to its string representation.
 
    @param i
       Integer to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
    template <typename I>
-   void write_impl(I i, io::text::writer * ptwOut) const;
+   void write_impl(I i, io::text::ostream * ptos) const;
 
    //! Converts a 64-bit signed integer to its string representation. See write_impl().
-   void write_s64(std::int64_t i, io::text::writer * ptwOut) const;
+   void write_s64(std::int64_t i, io::text::ostream * ptos) const;
 
    //! Converts a 64-bit unsigned integer to its string representation. See write_impl().
-   void write_u64(std::uint64_t i, io::text::writer * ptwOut) const;
+   void write_u64(std::uint64_t i, io::text::ostream * ptos) const;
 
    //! Converts a 32-bit signed integer to its string representation. See write_impl().
-   void write_s32(std::int32_t i, io::text::writer * ptwOut) const;
+   void write_s32(std::int32_t i, io::text::ostream * ptos) const;
 
    //! Converts a 32-bit unsigned integer to its string representation. See write_impl().
-   void write_u32(std::uint32_t i, io::text::writer * ptwOut) const;
+   void write_u32(std::uint32_t i, io::text::ostream * ptos) const;
 
    //! Converts a 16-bit signed integer to its string representation. See write_impl().
-   void write_s16(std::int16_t i, io::text::writer * ptwOut) const;
+   void write_s16(std::int16_t i, io::text::ostream * ptos) const;
 
    //! Converts a 16-bit unsigned integer to its string representation. See write_impl().
-   void write_u16(std::uint16_t i, io::text::writer * ptwOut) const;
+   void write_u16(std::uint16_t i, io::text::ostream * ptos) const;
 
    //! Converts an 8-bit signed integer to its string representation. See write_impl().
-   void write_s8(std::int8_t i, io::text::writer * ptwOut) const {
+   void write_s8(std::int8_t i, io::text::ostream * ptos) const {
       if (m_iBaseOrShift == 10) {
-         write_s16(i, ptwOut);
+         write_s16(i, ptos);
       } else {
          /* Avoid extending the sign, as it would generate too many digits in any notation except
          decimal. */
-         write_s16(static_cast<std::uint8_t>(i), ptwOut);
+         write_s16(static_cast<std::uint8_t>(i), ptos);
       }
    }
 
    //! Converts an 8-bit unsigned integer to its string representation. See write_impl().
-   void write_u8(std::uint8_t i, io::text::writer * ptwOut) const {
-      write_u16(i, ptwOut);
+   void write_u8(std::uint8_t i, io::text::ostream * ptos) const {
+      write_u16(i, ptos);
    }
 
 protected:
@@ -237,18 +237,18 @@ protected:
 
 // On a machine with 64-bit word size, write_64*() will be faster.
 
-inline void int_to_str_backend_base::write_s32(std::int32_t i, io::text::writer * ptwOut) const {
+inline void int_to_str_backend_base::write_s32(std::int32_t i, io::text::ostream * ptos) const {
    if (m_iBaseOrShift == 10) {
-      write_s64(i, ptwOut);
+      write_s64(i, ptos);
    } else {
       /* Avoid extending the sign in any notation except decimal, as it would generate too many
       digits. */
-      write_s64(static_cast<std::uint32_t>(i), ptwOut);
+      write_s64(static_cast<std::uint32_t>(i), ptos);
    }
 }
 
-inline void int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer * ptwOut) const {
-   write_u64(i, ptwOut);
+inline void int_to_str_backend_base::write_u32(std::uint32_t i, io::text::ostream * ptos) const {
+   write_u64(i, ptos);
 }
 
 #endif //if ABC_HOST_WORD_SIZE >= 64
@@ -256,18 +256,18 @@ inline void int_to_str_backend_base::write_u32(std::uint32_t i, io::text::writer
 /* On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in
 turn defer to write_64*() (see above). */
 
-inline void int_to_str_backend_base::write_s16(std::int16_t i, io::text::writer * ptwOut) const {
+inline void int_to_str_backend_base::write_s16(std::int16_t i, io::text::ostream * ptos) const {
    if (m_iBaseOrShift == 10) {
-      write_s32(i, ptwOut);
+      write_s32(i, ptos);
    } else {
       /* Avoid extending the sign in any notation except decimal, as it would generate too many
       digits. */
-      write_s32(static_cast<std::uint16_t>(i), ptwOut);
+      write_s32(static_cast<std::uint16_t>(i), ptos);
    }
 }
 
-inline void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::writer * ptwOut) const {
-   write_u32(i, ptwOut);
+inline void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::ostream * ptos) const {
+   write_u32(i, ptos);
 }
 
 #endif //if ABC_HOST_WORD_SIZE >= 32
@@ -305,34 +305,34 @@ public:
 
    @param i
       Integer to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(I i, io::text::writer * ptwOut) {
+   void write(I i, io::text::ostream * ptos) {
       if (sizeof i <= sizeof(std::int8_t)) {
          if (_std::is_signed<I>::value) {
-            write_s8(static_cast<std::int8_t>(i), ptwOut);
+            write_s8(static_cast<std::int8_t>(i), ptos);
          } else {
-            write_u8(static_cast<std::uint8_t>(i), ptwOut);
+            write_u8(static_cast<std::uint8_t>(i), ptos);
          }
       } else if (sizeof i <= sizeof(std::int16_t)) {
          if (_std::is_signed<I>::value) {
-            write_s16(static_cast<std::int16_t>(i), ptwOut);
+            write_s16(static_cast<std::int16_t>(i), ptos);
          } else {
-            write_u16(static_cast<std::uint16_t>(i), ptwOut);
+            write_u16(static_cast<std::uint16_t>(i), ptos);
          }
       } else if (sizeof i <= sizeof(std::int32_t)) {
          if (_std::is_signed<I>::value) {
-            write_s32(static_cast<std::int32_t>(i), ptwOut);
+            write_s32(static_cast<std::int32_t>(i), ptos);
          } else {
-            write_u32(static_cast<std::uint32_t>(i), ptwOut);
+            write_u32(static_cast<std::uint32_t>(i), ptos);
          }
       } else {
          static_assert(sizeof i <= sizeof(std::int64_t), "unsupported integer size");
          if (_std::is_signed<I>::value) {
-            write_s64(static_cast<std::int64_t>(i), ptwOut);
+            write_s64(static_cast<std::int64_t>(i), ptos);
          } else {
-            write_u64(static_cast<std::uint64_t>(i), ptwOut);
+            write_u64(static_cast<std::uint64_t>(i), ptos);
          }
       }
    }

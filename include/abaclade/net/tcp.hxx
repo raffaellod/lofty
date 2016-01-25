@@ -103,19 +103,19 @@ public:
       return m_portRemote;
    }
 
-   /*! Returns a binary reader/writer object representing the socket, to receive data from the
-   remote peer.
+   /*! Returns a binary input/output stream representing the socket, to receive data from the remote
+   peer.
 
    @return
-      Reader/writer for the connection’s socket.
+      Input/output stream for the connection’s socket.
    */
-   _std::shared_ptr<io::binary::file_readwriter> const & socket() {
-      return m_bfrw;
+   _std::shared_ptr<io::binary::file_iostream> const & socket() {
+      return m_bfios;
    }
 
 private:
-   //! Reader/writer for the connection’s socket.
-   _std::shared_ptr<io::binary::file_readwriter> m_bfrw;
+   //! Stream for the connection’s socket.
+   _std::shared_ptr<io::binary::file_iostream> m_bfios;
    //! Local address.
    ip::address m_addrLocal;
    //! Local port.

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -70,12 +70,12 @@ void enum_to_str_backend_impl::set_format(str const & sFormat) {
 }
 
 void enum_to_str_backend_impl::write_impl(
-   int i, enum_member const * pem, io::text::writer * ptwOut
+   int i, enum_member const * pem, io::text::ostream * ptos
 ) {
-   ABC_TRACE_FUNC(this, i, pem, ptwOut);
+   ABC_TRACE_FUNC(this, i, pem, ptos);
 
    enum_member const * petvp = enum_member::find_in_map(pem, i);
-   ptwOut->write(str(external_buffer, petvp->pszName));
+   ptos->write(str(external_buffer, petvp->pszName));
 }
 
 }} //namespace abc::detail

@@ -34,7 +34,7 @@ namespace abc { namespace os {
 #endif
    ),
    m_opInvalid(opInvalid) {
-   what_writer().print(ABC_SL("not a valid path=\"{}\""), m_opInvalid);
+   what_ostream().print(ABC_SL("not a valid path=\"{}\""), m_opInvalid);
 }
 
 invalid_path::invalid_path(invalid_path const & x) :
@@ -68,7 +68,7 @@ namespace abc { namespace os {
 #endif
    ),
    m_opNotFound(opNotFound) {
-   what_writer().print(ABC_SL("path not found=\"{}\""), m_opNotFound);
+   what_ostream().print(ABC_SL("path not found=\"{}\""), m_opNotFound);
 }
 
 path_not_found::path_not_found(path_not_found const & x) :

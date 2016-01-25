@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -1173,7 +1173,8 @@ public:
    */
    const_iterator find_last(str const & sNeedle, const_iterator itWhence) const;
 
-   /*! Uses the current content of the string to generate a new one using io::text::writer::print().
+   /*! Uses the current content of the string to generate a new one using
+   io::text::ostream::print().
 
    @param ts
       Replacement values.

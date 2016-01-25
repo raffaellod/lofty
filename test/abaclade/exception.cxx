@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015 Raffaello D. Di Napoli
+Copyright 2011-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -150,9 +150,9 @@ public:
    static str get_scope_trace(_std::exception const * px = nullptr) {
       ABC_TRACE_FUNC(px);
 
-      io::text::str_writer tsw;
-      exception::write_with_scope_trace(&tsw, px);
-      return tsw.release_content();
+      io::text::str_ostream sos;
+      exception::write_with_scope_trace(&sos, px);
+      return sos.release_content();
    }
 
    void run_sub_1(std::uint32_t iArg) {

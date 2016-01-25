@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -108,18 +108,18 @@ public:
 
    /*! Writes the current value of the tuple’s variables.
 
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   virtual void write(io::text::writer * ptwOut) const = 0;
+   virtual void write(io::text::ostream * ptos) const = 0;
 
 protected:
    /*! Writes an argument separator.
 
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   static void write_separator(io::text::writer * ptwOut);
+   static void write_separator(io::text::ostream * ptos);
 };
 
 }} //namespace abc::detail
@@ -192,8 +192,8 @@ public:
    }
 
    //! See scope_trace_tuple::write().
-   virtual void write(io::text::writer * ptwOut) const override {
-      write_vars<0>(ptwOut);
+   virtual void write(io::text::ostream * ptos) const override {
+      write_vars<0>(ptos);
    }
 
 private:
@@ -204,25 +204,27 @@ private:
    #pragma warning(suppress: 4296) 
 #endif
    void write_vars(
-      typename _std::enable_if<t_i + 1 < smc_cTs, io::text::writer *>::type ptwOut
+      typename _std::enable_if<(t_i + 1 < smc_cTs), io::text::ostream *>::type ptos
    ) const {
-      ptwOut->write(_std::get<t_i>(*this));
+      ptos->write(_std::get<t_i>(*this));
       // Write a separator and recurse to write the rest.
-      write_separator(ptwOut);
-      write_vars<t_i + 1>(ptwOut);
+      write_separator(ptos);
+      write_vars<t_i + 1>(ptos);
    }
    // This overload writes a variable without a comma to follow, and does not recurse.
    template <std::size_t t_i>
    void write_vars(
-      typename _std::enable_if<t_i + 1 == smc_cTs, io::text::writer *>::type ptwOut
+      typename _std::enable_if<(t_i + 1 == smc_cTs), io::text::ostream *>::type ptos
    ) const {
-      ptwOut->write(_std::get<t_i>(*this));
+      ptos->write(_std::get<t_i>(*this));
    }
    /* This overload does nothing. Only needed because the tuple may be empty, but write() will call
    write_vars<0>() unconditionally. */
    template <std::size_t t_i>
-   void write_vars(typename _std::enable_if<t_i == smc_cTs, io::text::writer *>::type ptwOut) const {
-      ABC_UNUSED_ARG(ptwOut);
+   void write_vars(
+      typename _std::enable_if<(t_i == smc_cTs), io::text::ostream *>::type ptos
+   ) const {
+      ABC_UNUSED_ARG(ptos);
    }
 };
 
@@ -340,58 +342,58 @@ public:
    //! Destructor. Adds a scope in the current scope trace if an in-flight exception is detected.
    ~scope_trace();
 
-   /*! Returns a writer to which the stack frame can be output. The writer is thread-local, which is
+   /*! Returns a stream to which the stack frame can be output. The stream is thread-local, which is
    why this can’t be just a static member variable.
 
    @return
-      Pointer to the string text writer containing the current stack trace.
+      Pointer to the text stream containing the current stack trace.
    */
-   static io::text::str_writer * get_trace_writer() {
-      if (!sm_ptswScopeTrace) {
-         sm_ptswScopeTrace.reset_new();
+   static io::text::str_ostream * get_trace_ostream() {
+      if (!sm_psosScopeTrace) {
+         sm_psosScopeTrace.reset_new();
       }
-      return sm_ptswScopeTrace.get();
+      return sm_psosScopeTrace.get();
    }
 
    //! Increments the reference count of the scope trace being generated.
-   static void trace_writer_addref() {
+   static void trace_ostream_addref() {
       ++sm_cScopeTraceRefs;
    }
 
    /*! Decrements the reference count of the scope trace being generated. If the reference count
-   reaches zero, trace_writer_clear() will be invoked. */
-   static void trace_writer_release() {
+   reaches zero, trace_ostream_clear() will be invoked. */
+   static void trace_ostream_release() {
       if (sm_cScopeTraceRefs == 1) {
-         trace_writer_clear();
+         trace_ostream_clear();
       } else if (sm_cScopeTraceRefs > 1) {
          --sm_cScopeTraceRefs;
       }
    }
 
    //! Erases any collected stack frames.
-   static void trace_writer_clear() {
-      sm_ptswScopeTrace.reset();
+   static void trace_ostream_clear() {
+      sm_psosScopeTrace.reset();
       sm_iStackDepth = 0;
       sm_cScopeTraceRefs = 0;
    }
 
    /*! Walks the single-linked list of scope_trace instances for the current thread, writing each
-   one to the specified writer.
+   one to the specified stream.
 
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   static void write_list(io::text::writer * ptwOut);
+   static void write_list(io::text::ostream * ptos);
 
 private:
-   /*! Writes the scope trace to the specified writer.
+   /*! Writes the scope trace to the specified stream.
 
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    @param iStackDepth
       Stack index to print next to the trace.
    */
-   void write(io::text::writer * ptwOut, unsigned iStackDepth) const;
+   void write(io::text::ostream * ptos, unsigned iStackDepth) const;
 
 private:
    //! Pointer to the previous scope_trace single-linked list item that *this replaced as the head.
@@ -405,8 +407,8 @@ private:
    /*! true if ~scope_trace() is being run; in that case, another call to it should not try to do
    anything, otherwise we may get stuck in an infinite recursion. */
    static coroutine_local_value<bool> sm_bReentering;
-   //! Writer that collects the rendered scope trace when an exception is thrown.
-   static coroutine_local_ptr<io::text::str_writer> sm_ptswScopeTrace;
+   //! Stream that collects the rendered scope trace when an exception is thrown.
+   static coroutine_local_ptr<io::text::str_ostream> sm_psosScopeTrace;
    //! Number of the next stack frame to be added to the rendered trace.
    static coroutine_local_value<unsigned> sm_iStackDepth;
    //! Count of references to the current rendered trace. Managed by abc::exception.

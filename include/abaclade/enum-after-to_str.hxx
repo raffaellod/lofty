@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -54,10 +54,10 @@ protected:
       Value of the enumeration member to write.
    @param pem
       Pointer to the enumeration members map.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write_impl(int i, enum_member const * pem, io::text::writer * ptwOut);
+   void write_impl(int i, enum_member const * pem, io::text::ostream * ptos);
 };
 
 }} //namespace abc::detail
@@ -71,8 +71,8 @@ template <class T>
 class to_str_backend<enum_impl<T>> : public detail::enum_to_str_backend_impl {
 public:
    //! See abc::detail::enum_to_str_backend_impl::write().
-   void write(enum_impl<T> e, io::text::writer * ptwOut) {
-      detail::enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptwOut);
+   void write(enum_impl<T> e, io::text::ostream * ptos) {
+      detail::enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptos);
    }
 };
 

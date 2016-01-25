@@ -345,24 +345,24 @@ public:
    /*! Writes detailed information about an exception, as well as any scope/stack trace generated up
    to the point of the call to this function.
 
-   @param ptwOut
-      Pointer to the writer to output to. If omitted, the scope/stack trace will be written to
+   @param ptos
+      Pointer to the stream to output to. If omitted, the scope/stack trace will be written to
       stderr.
    @param pstdx
       Caught exception.
    */
    static void write_with_scope_trace(
-      io::text::writer * ptwOut = nullptr, _std::exception const * pstdx = nullptr
+      io::text::ostream * ptos = nullptr, _std::exception const * pstdx = nullptr
    );
 
 protected:
-   /*! Returns an object that can be used to add information to the exception. The space available
-   for writing in the returned object is limited, and should be used intelligently.
+   /*! Returns a stream that can be used to add information to the exception. The space available
+   for writing in the stream is limited, and should be used intelligently.
 
    @return
-      Writer instance.
+      Output stream instance.
    */
-   io::text::char_ptr_writer what_writer();
+   io::text::char_ptr_ostream what_ostream();
 
 private:
    //! Source location.
@@ -372,7 +372,7 @@ private:
    //! Characters available in m_szWhat.
    std::size_t m_cchWhatAvailable;
    /*! Buffer for the string returned by what(); used as the buffer for the string backing the
-   writer returned by what_writer(). */
+   stream returned by what_ostream(). */
    char m_szWhat[256];
 };
 

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -1627,22 +1627,22 @@ public:
 
    @param v
       Vector to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(collections::vector<T, t_ciEmbeddedCapacity> const & v, io::text::writer * ptwOut) {
-//    ABC_TRACE_FUNC(this/*, v*/, ptwOut);
+   void write(collections::vector<T, t_ciEmbeddedCapacity> const & v, io::text::ostream * ptos) {
+//    ABC_TRACE_FUNC(this/*, v*/, ptos);
 
-      _write_start(ptwOut);
+      _write_start(ptos);
       auto it(v.cbegin()), itEnd(v.cend());
       if (it != itEnd) {
-         m_tsbElt.write(*it, ptwOut);
+         m_tsbElt.write(*it, ptos);
          while (++it != itEnd) {
-            _write_separator(ptwOut);
-            m_tsbElt.write(*it, ptwOut);
+            _write_separator(ptos);
+            m_tsbElt.write(*it, ptos);
          }
       }
-      _write_end(ptwOut);
+      _write_end(ptos);
    }
 
 protected:
@@ -1658,13 +1658,13 @@ public:
 
    @param it
       Iterator to write.
-   @param ptwOut
-      Pointer to the writer to output to.
+   @param ptos
+      Pointer to the stream to output to.
    */
-   void write(collections::detail::vector_const_iterator<T> const & it, io::text::writer * ptwOut) {
+   void write(collections::detail::vector_const_iterator<T> const & it, io::text::ostream * ptos) {
       to_str_backend<
          typename collections::detail::vector_const_iterator<T>::pointer
-      >::write(&*it, ptwOut);
+      >::write(&*it, ptos);
    }
 };
 

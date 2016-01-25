@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -26,19 +26,12 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc {
 
 template <typename T>
-inline T from_str(str const & s, str const & sFormat /*= str::empty*/) {
-   io::text::str_reader tsr(external_buffer, &s);
-   from_str_backend<T> fsb;
-   fsb.set_format(sFormat);
-   T t(fsb.read(t, &tsr));
-   if (std::size_t cchRemaining = tsr.remaining_size_in_chars()) {
-      // There are still unused characters in tsr, so the conversion failed.
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat,
-         static_cast<unsigned>(s.index_from_char_index(s.size_in_chars() - cchRemaining))
-      ));
-   }
-   return _std::move(t);
+inline str to_str(T const & t, str const & sFormat /*= str::empty*/) {
+   io::text::str_ostream sos;
+   to_str_backend<T> tsb;
+   tsb.set_format(sFormat);
+   tsb.write(t, &sos);
+   return sos.release_content();
 }
 
 } //namespace abc

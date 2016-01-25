@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -43,27 +43,27 @@ namespace text {}
 // Forward declarations.
 namespace abc { namespace io { namespace binary {
 
-class buffered_base;
-class buffered_reader;
-class buffered_writer;
+class buffered_stream;
+class buffered_istream;
+class buffered_ostream;
 
 }}} //namespace abc::io::binary
 
 namespace abc { namespace io { namespace text {
 
-//! Base for text I/O classes built on top of a binary::buffered_base instance.
-class ABACLADE_SYM binbuf_base : public virtual base {
+//! Base for text streams built on top of binary::buffered_stream instances.
+class ABACLADE_SYM binbuf_stream : public virtual stream {
 public:
    //! Destructor.
-   virtual ~binbuf_base();
+   virtual ~binbuf_stream();
 
-   /*! Returns a pointer to the underlying buffered binary I/O object.
+   /*! Returns a pointer to the underlying buffered binary stream.
 
    @return
-      Pointer to a buffered binary I/O object.
+      Pointer to a buffered binary stream.
    */
-   _std::shared_ptr<binary::buffered_base> binary_buffered() const {
-      return _binary_buffered_base();
+   _std::shared_ptr<binary::buffered_stream> binary_buffered() const {
+      return _binary_buffered_stream();
    }
 
    //! See base::get_encoding().
@@ -75,19 +75,19 @@ protected:
    @param enc
       Initial value for get_encoding().
    */
-   binbuf_base(abc::text::encoding enc);
+   binbuf_stream(abc::text::encoding enc);
 
    /*! Implementation of binary_buffered(). This enables binary_buffered() to be non-virtual, which
    in turn allows derived classes to override it changing its return type to be more specific.
 
    @return
-      Pointer to a buffered binary I/O object.
+      Pointer to a buffered binary stream.
    */
-   virtual _std::shared_ptr<binary::buffered_base> _binary_buffered_base() const = 0;
+   virtual _std::shared_ptr<binary::buffered_stream> _binary_buffered_stream() const = 0;
 
 protected:
-   /*! Encoding used for I/O to/from the underlying buffered_base. If not explicitly set, it will be
-   automatically determined and assigned on the first read or write. */
+   /*! Encoding used for I/O to/from the underlying buffered_stream. If not explicitly set, it will
+   be automatically determined and assigned on the first read or write. */
    abc::text::encoding m_enc;
 };
 
@@ -97,8 +97,9 @@ protected:
 
 namespace abc { namespace io { namespace text {
 
-//! Implementation of a text (character-based) reader on top of a binary::buffered_reader instance.
-class ABACLADE_SYM binbuf_reader : public virtual binbuf_base, public virtual reader {
+/*! Implementation of a text (character-based) input stream on top of a binary::buffered_istream
+instance. */
+class ABACLADE_SYM binbuf_istream : public virtual binbuf_stream, public virtual istream {
 private:
    //! Finite-state automaton implementing much of read_line_or_all().
    class read_helper;
@@ -106,30 +107,30 @@ private:
 public:
    /*! Constructor.
 
-   @param pbbr
-      Pointer to a binary buffered reader to work with.
+   @param pbbis
+      Pointer to a binary buffered input stream to read from.
    @param enc
       Initial value for get_encoding(). If omitted, an encoding will be automatically detected
-      (guessed) on the first read from the underlying binary reader.
+      (guessed) on the first read from the underlying binary istream.
    */
-   explicit binbuf_reader(
-      _std::shared_ptr<binary::buffered_reader> pbbr,
+   explicit binbuf_istream(
+      _std::shared_ptr<binary::buffered_istream> pbbis,
       abc::text::encoding enc = abc::text::encoding::unknown
    );
 
    //! Destructor.
-   virtual ~binbuf_reader();
+   virtual ~binbuf_istream();
 
-   //! See binbuf_base::binary_buffered().
-   _std::shared_ptr<binary::buffered_reader> binary_buffered() const {
-      return m_pbbr;
+   //! See binbuf_stream::binary_buffered().
+   _std::shared_ptr<binary::buffered_istream> binary_buffered() const {
+      return m_pbbis;
    }
 
 protected:
-   //! See binbuf_base::_binary_buffered_base().
-   virtual _std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
+   //! See binbuf_stream::_binary_buffered_stream().
+   virtual _std::shared_ptr<binary::buffered_stream> _binary_buffered_stream() const override;
 
-   //! See reader::read_line_or_all().
+   //! See istream::read_line_or_all().
    virtual bool read_line_or_all(str * psDst, bool bOneLine) override;
 
 private:
@@ -146,8 +147,8 @@ private:
    std::size_t detect_encoding(std::uint8_t const * pb, std::size_t cb);
 
 protected:
-   //! Underlying binary buffered reader.
-   _std::shared_ptr<binary::buffered_reader> m_pbbr;
+   //! Underlying binary buffered input stream.
+   _std::shared_ptr<binary::buffered_istream> m_pbbis;
 
 private:
    //! true if a previous call to read*() got to EOF.
@@ -166,48 +167,49 @@ private:
 
 namespace abc { namespace io { namespace text {
 
-//! Implementation of a text (character-based) writer on top of a binary::buffered_writer instance.
-class ABACLADE_SYM binbuf_writer : public virtual binbuf_base, public virtual writer {
+/*! Implementation of a text (character-based) output stream on top of a binary::buffered_ostream
+instance. */
+class ABACLADE_SYM binbuf_ostream : public virtual binbuf_stream, public virtual ostream {
 public:
    /*! Constructor.
 
-   @param pbbw
-      Pointer to a binary buffered writer to work with.
+   @param pbbos
+      Pointer to a binary buffered output stream to write to.
    @param enc
       Initial value for get_encoding(). If omitted and never explicitly set, on the first write it
       will default to abc::text::encoding::utf8.
    */
-   explicit binbuf_writer(
-      _std::shared_ptr<binary::buffered_writer> pbbw,
+   explicit binbuf_ostream(
+      _std::shared_ptr<binary::buffered_ostream> pbbos,
       abc::text::encoding enc = abc::text::encoding::unknown
    );
 
    //! Destructor.
-   virtual ~binbuf_writer();
+   virtual ~binbuf_ostream();
 
-   //! See binbuf_base::binary_buffered().
-   _std::shared_ptr<binary::buffered_writer> binary_buffered() const {
-      return m_pbbw;
+   //! See binbuf_stream::binary_buffered().
+   _std::shared_ptr<binary::buffered_ostream> binary_buffered() const {
+      return m_pbbos;
    }
 
-   //! See writer::finalize().
+   //! See ostream::finalize().
    virtual void finalize() override;
 
-   //! See writer::flush().
+   //! See ostream::flush().
    virtual void flush() override;
 
-   //! See writer::write_binary().
+   //! See ostream::write_binary().
    virtual void write_binary(
       void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
    ) override;
 
 protected:
-   //! See binbuf_base::_binary_buffered_base().
-   virtual _std::shared_ptr<binary::buffered_base> _binary_buffered_base() const override;
+   //! See binbuf_stream::_binary_buffered_stream().
+   virtual _std::shared_ptr<binary::buffered_stream> _binary_buffered_stream() const override;
 
 protected:
-   //! Underlying binary buffered writer.
-   _std::shared_ptr<binary::buffered_writer> m_pbbw;
+   //! Underlying binary buffered output stream.
+   _std::shared_ptr<binary::buffered_ostream> m_pbbos;
 };
 
 }}} //namespace abc::io::text
@@ -217,8 +219,8 @@ protected:
 // Forward declarations.
 namespace abc { namespace io { namespace binary {
 
-class reader;
-class writer;
+class istream;
+class ostream;
 
 }}} //namespace abc::io::binary
 
@@ -230,37 +232,37 @@ class path;
 
 namespace abc { namespace io { namespace text {
 
-//! Text writer associated to the standard error output file.
-extern ABACLADE_SYM _std::shared_ptr<writer> stderr;
-//! Text reader associated to the standard input file.
-extern ABACLADE_SYM _std::shared_ptr<reader> stdin;
-//! Text writer associated to the standard output file.
-extern ABACLADE_SYM _std::shared_ptr<writer> stdout;
+//! Text stream associated to the standard error output file.
+extern ABACLADE_SYM _std::shared_ptr<ostream> stderr;
+//! Text stream associated to the standard input file.
+extern ABACLADE_SYM _std::shared_ptr<istream> stdin;
+//! Text stream associated to the standard output file.
+extern ABACLADE_SYM _std::shared_ptr<ostream> stdout;
 
-/*! Creates and returns a text reader for the specified binary reader.
+/*! Creates and returns a text input stream for the specified binary input stream.
 
-@param pbr
-   Pointer to a binary reader.
+@param pbis
+   Pointer to a binary input stream.
 @param enc
    Encoding to be used the the text.
 @return
-   Pointer to a text reader operating on top of the specified binary reader.
+   Pointer to a text input stream operating on top of the specified binary input stream.
 */
-ABACLADE_SYM _std::shared_ptr<binbuf_reader> make_reader(
-   _std::shared_ptr<binary::reader> pbr, abc::text::encoding enc = abc::text::encoding::unknown
+ABACLADE_SYM _std::shared_ptr<binbuf_istream> make_istream(
+   _std::shared_ptr<binary::istream> pbis, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
-/*! Creates and returns a text writer for the specified binary writer.
+/*! Creates and returns a text output stream for the specified binary output stream.
 
-@param pbw
-   Pointer to a binary writer.
+@param pbos
+   Pointer to a binary output stream.
 @param enc
    Encoding to be used the the text.
 @return
-   Pointer to a text writer operating on top of the specified binary writer.
+   Pointer to a text output stream operating on top of the specified binary output stream.
 */
-ABACLADE_SYM _std::shared_ptr<binbuf_writer> make_writer(
-   _std::shared_ptr<binary::writer> pbw, abc::text::encoding enc = abc::text::encoding::unknown
+ABACLADE_SYM _std::shared_ptr<binbuf_ostream> make_ostream(
+   _std::shared_ptr<binary::ostream> pbos, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
 /*! Opens a file for text-mode reading.
@@ -270,9 +272,9 @@ ABACLADE_SYM _std::shared_ptr<binbuf_writer> make_writer(
 @param enc
    Encoding to be used the the text.
 @return
-   Pointer to a text reader for the file.
+   Pointer to a text input stream for the file.
 */
-ABACLADE_SYM _std::shared_ptr<binbuf_reader> open_reader(
+ABACLADE_SYM _std::shared_ptr<binbuf_istream> open_istream(
    os::path const & op, abc::text::encoding enc = abc::text::encoding::unknown
 );
 
@@ -283,9 +285,9 @@ ABACLADE_SYM _std::shared_ptr<binbuf_reader> open_reader(
 @param enc
    Encoding to be used the the text.
 @return
-   Pointer to a text writer for the file.
+   Pointer to a text output stream for the file.
 */
-ABACLADE_SYM _std::shared_ptr<binbuf_writer> open_writer(
+ABACLADE_SYM _std::shared_ptr<binbuf_ostream> open_ostream(
    os::path const & op, abc::text::encoding enc = abc::text::encoding::utf8
 );
 
@@ -293,26 +295,26 @@ ABACLADE_SYM _std::shared_ptr<binbuf_writer> open_writer(
 
 namespace abc { namespace io { namespace text { namespace detail {
 
-/*! Creates and returns a text writer associated to the standard error output file (stderr).
+/*! Creates and returns a text stream associated to the standard error output file (stderr).
 
 @return
    Standard error file.
 */
-ABACLADE_SYM _std::shared_ptr<writer> make_stderr();
+ABACLADE_SYM _std::shared_ptr<ostream> make_stderr();
 
-/*! Creates and returns a text reader associated to the standard input file (stdin).
+/*! Creates and returns a text stream associated to the standard input file (stdin).
 
 @return
    Standard input file.
 */
-ABACLADE_SYM _std::shared_ptr<reader> make_stdin();
+ABACLADE_SYM _std::shared_ptr<istream> make_stdin();
 
-/*! Creates and returns a text writer associated to the standard output file (stdout).
+/*! Creates and returns a text stream associated to the standard output file (stdout).
 
 @return
    Standard output file.
 */
-ABACLADE_SYM _std::shared_ptr<writer> make_stdout();
+ABACLADE_SYM _std::shared_ptr<ostream> make_stdout();
 
 }}}} //namespace abc::io::text::detail
 

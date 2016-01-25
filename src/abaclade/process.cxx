@@ -194,14 +194,14 @@ void to_str_backend<process>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<process>::write(process const & proc, io::text::writer * ptwOut) {
-   ABC_TRACE_FUNC(this/*, proc*/, ptwOut);
+void to_str_backend<process>::write(process const & proc, io::text::ostream * ptos) {
+   ABC_TRACE_FUNC(this/*, proc*/, ptos);
 
    if (process::id_type id = proc.id()) {
-      m_tsbStr.write(str(ABC_SL("TID:")), ptwOut);
-      m_tsbId.write(id, ptwOut);
+      m_tsbStr.write(str(ABC_SL("TID:")), ptos);
+      m_tsbId.write(id, ptos);
    } else {
-      m_tsbStr.write(str(ABC_SL("TID:-")), ptwOut);
+      m_tsbStr.write(str(ABC_SL("TID:-")), ptos);
    }
 }
 

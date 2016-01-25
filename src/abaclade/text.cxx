@@ -702,13 +702,13 @@ void to_str_backend<text::file_address>::set_format(str const & sFormat) {
 }
 
 void to_str_backend<text::file_address>::write(
-   text::file_address const & tfa, io::text::writer * ptwOut
+   text::file_address const & tfa, io::text::ostream * ptos
 ) {
-   ABC_TRACE_FUNC(this/*, tfa*/, ptwOut);
+   ABC_TRACE_FUNC(this/*, tfa*/, ptos);
 
-   ptwOut->write(str(external_buffer, tfa.file_path()));
-   ptwOut->write(ABC_SL(":"));
-   ptwOut->write(tfa.line_number());
+   ptos->write(str(external_buffer, tfa.file_path()));
+   ptos->write(ABC_SL(":"));
+   ptos->write(tfa.line_number());
 }
 
 } //namespace abc
@@ -760,7 +760,7 @@ namespace abc { namespace text {
       }
    }
    if (sFormat) {
-      what_writer().print(sFormat, m_sDescription, m_viInvalid);
+      what_ostream().print(sFormat, m_sDescription, m_viInvalid);
    }
 }
 
@@ -809,7 +809,7 @@ namespace abc { namespace text {
       }
    }
    if (sFormat) {
-      what_writer().print(sFormat, m_sDescription, m_iInvalidCodePoint);
+      what_ostream().print(sFormat, m_sDescription, m_iInvalidCodePoint);
    }
 }
 
