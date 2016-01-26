@@ -18,6 +18,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/io/text.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/thread.hxx>
@@ -88,8 +89,11 @@ ABC_TESTING_TEST_CASE_FUNC(
    {
       auto ptosOldStdErr(io::text::stderr);
       io::text::stderr = psosErr;
+      auto deferred1(defer_to_scope_end([&ptosOldStdErr] () {
+         io::text::stderr = _std::move(ptosOldStdErr);
+      }));
+
       this_thread::run_coroutines();
-      io::text::stderr = _std::move(ptosOldStdErr);
    }
 
    // While we’re at it, verify that something was written to stderr while *ptswErr was stderr.
