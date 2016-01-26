@@ -85,13 +85,15 @@ template <typename T>
 class to_str_backend;
 
 //! @cond
-// Partial specializations for cv-qualified T.
+// Partial specializations for cv-qualified T and T reference.
 template <typename T>
 class to_str_backend<T const> : public to_str_backend<T> {};
 template <typename T>
 class to_str_backend<T volatile> : public to_str_backend<T> {};
 template <typename T>
 class to_str_backend<T const volatile> : public to_str_backend<T> {};
+template <typename T>
+class to_str_backend<T &> : public to_str_backend<T> {};
 //! @endcond
 
 } //namespace abc

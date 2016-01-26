@@ -471,7 +471,7 @@ io::text::char_ptr_ostream exception::what_ostream() {
          str(external_buffer, pabcx->m_sfa.function()), pabcx->m_sfa.file_address()
       );
    }
-   // Print the scope/stack trace collected via ABC_TRACE_FUNC().
+   // Write the scope/stack trace collected via ABC_TRACE_FUNC().
    ptos->write(detail::scope_trace::get_trace_ostream()->get_str());
    // Append any scope_trace instances that haven’t been destructed yet.
    detail::scope_trace::write_list(ptos);

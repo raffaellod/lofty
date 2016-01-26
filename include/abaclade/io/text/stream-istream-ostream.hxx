@@ -394,16 +394,12 @@ public:
    );
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-   /*! Writes a value using the default formatting for abc::to_str_backend().
+   /*! Writes a string.
 
-   @param t
-      Value to write.
+   @param s
+      String to write.
    */
-   template <typename T>
-   void write(T const & t) {
-      to_str_backend<T> tsb;
-      tsb.write(t, this);
-   }
+   void write(str const & s);
 
    /*! Writes the contents of a memory buffer, first translating them to the text stream’s character
    encoding, if necessary.

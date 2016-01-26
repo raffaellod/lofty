@@ -708,7 +708,7 @@ void to_str_backend<text::file_address>::write(
 
    ptos->write(str(external_buffer, tfa.file_path()));
    ptos->write(ABC_SL(":"));
-   ptos->write(tfa.line_number());
+   ptos->print(ABC_SL("{}"), tfa.line_number());
 }
 
 } //namespace abc

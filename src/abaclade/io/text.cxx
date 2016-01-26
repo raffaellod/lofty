@@ -224,11 +224,18 @@ ostream::ostream() :
    stream() {
 }
 
+void ostream::write(str const & s) {
+   ABC_TRACE_FUNC(this, s);
+
+   write_binary(s.data(), static_cast<std::size_t>(
+      reinterpret_cast<std::uintptr_t>(s.data_end()) - reinterpret_cast<std::uintptr_t>(s.data())
+   ), abc::text::encoding::host);
+}
+
 void ostream::write_line(str const & s) {
    ABC_TRACE_FUNC(this, s);
 
-   to_str_backend<str> tsb;
-   tsb.write(s, this);
+   write(s);
    abc::text::line_terminator lterm;
    // If no line terminator sequence has been explicitly set, use the platform’s default.
    if (m_lterm == abc::text::line_terminator::any) {
@@ -236,7 +243,7 @@ void ostream::write_line(str const & s) {
    } else {
       lterm = m_lterm;
    }
-   tsb.write(get_line_terminator_str(lterm), this);
+   write(get_line_terminator_str(lterm));
 }
 
 }}} //namespace abc::io::text

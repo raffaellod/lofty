@@ -86,7 +86,7 @@ public:
                   ptos->flush();
 
                   // Send the response content.
-                  ptos->write("OK");
+                  ptos->write(ABC_SL("OK"));
 
                   io::text::stdout->write_line(ABC_SL("responder: terminating"));
                   // deferred1 will finalize *ptos.

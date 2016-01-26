@@ -99,14 +99,10 @@ void runner::run_test_case(test_case & tc) {
       m_ptos->write(ABC_SL("test case execution interrupted\n"));
    } catch (_std::exception const & x) {
       exception::write_with_scope_trace(m_ptos.get(), &x);
-      m_ptos->write(
-         ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n")
-      );
+      m_ptos->write(ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
    } catch (...) {
       exception::write_with_scope_trace(m_ptos.get());
-      m_ptos->write(
-         ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n")
-      );
+      m_ptos->write(ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
    }
 
    m_ptos->write(ABC_SL("ABCMK-TEST-CASE-END\n"));
