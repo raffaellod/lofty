@@ -89,9 +89,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    {
       auto ptosOldStdErr(io::text::stderr);
       io::text::stderr = psosErr;
-      auto deferred1(defer_to_scope_end([&ptosOldStdErr] () {
-         io::text::stderr = _std::move(ptosOldStdErr);
-      }));
+      ABC_DEFER_TO_SCOPE_END(io::text::stderr = _std::move(ptosOldStdErr));
 
       this_thread::run_coroutines();
    }

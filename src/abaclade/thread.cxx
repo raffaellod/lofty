@@ -274,9 +274,7 @@ void thread::impl::join() {
       detail::signal_dispatcher::instance().nonmain_thread_started(pimplThis);
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
-      auto deferred1(defer_to_scope_end([&pimplThis] () {
-         pimplThis->m_bTerminating.store(true);
-      }));
+      ABC_DEFER_TO_SCOPE_END(pimplThis->m_bTerminating.store(true));
       // Run the user’s main().
       pimplThis->m_fnInnerMain();
       /* deferred1 will set m_bTerminating to true, so no exceptions can be injected beyond this
@@ -307,9 +305,7 @@ void thread::impl::start(_std::shared_ptr<impl> * ppimplThis) {
 
    detail::simple_event seStarted;
    m_pseStarted = &seStarted;
-   auto deferred1(defer_to_scope_end([this] () {
-      m_pseStarted = nullptr;
-   }));
+   ABC_DEFER_TO_SCOPE_END(m_pseStarted = nullptr);
 #if ABC_HOST_API_POSIX
    /* In order to have the new thread block signals reserved for the main thread, block them on the
    current thread, then create the new thread, and restore them back. */
@@ -319,9 +315,7 @@ void thread::impl::start(_std::shared_ptr<impl> * ppimplThis) {
    sigaddset(&sigsetBlock, SIGTERM);
    ::pthread_sigmask(SIG_BLOCK, &sigsetBlock, &sigsetPrev);
    {
-      auto deferred2(defer_to_scope_end([&sigsetPrev] () {
-         ::pthread_sigmask(SIG_BLOCK, &sigsetPrev, nullptr);
-      }));
+      ABC_DEFER_TO_SCOPE_END(::pthread_sigmask(SIG_BLOCK, &sigsetPrev, nullptr));
       if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
          exception::throw_os_error(iErr);
       }

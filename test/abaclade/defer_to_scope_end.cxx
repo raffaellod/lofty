@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -27,15 +27,13 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    defer_to_scope_end_basic,
-   "abc::defer_to_scope_end – basic operation"
+   "ABC_DEFER_TO_SCOPE_END() – basic operation"
 ) {
    ABC_TRACE_FUNC(this);
 
    unsigned cDeferredInvocations = 0;
    {
-      auto deferred1(defer_to_scope_end([&cDeferredInvocations] () {
-         ++cDeferredInvocations;
-      }));
+      ABC_DEFER_TO_SCOPE_END(++cDeferredInvocations);
    }
    ABC_TESTING_ASSERT_EQUAL(cDeferredInvocations, 1u);
 }

@@ -70,9 +70,7 @@ public:
                   // Create text-mode input and output streams for the connection’s socket.
                   auto ptis(io::text::make_istream(pconn->socket()));
                   auto ptos(io::text::make_ostream(pconn->socket()));
-                  auto deferred1(defer_to_scope_end([&ptos] () {
-                     ptos->finalize();
-                  }));
+                  ABC_DEFER_TO_SCOPE_END(ptos->finalize());
 
                   // Read lines from the socket, writing them back to it (echo).
                   ABC_FOR_EACH(auto & sLine, ptis->lines()) {

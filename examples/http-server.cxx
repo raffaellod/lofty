@@ -68,9 +68,7 @@ public:
                   // Create text-mode input and output streams for the connection’s socket.
                   auto ptis(io::text::make_istream(pconn->socket()));
                   auto ptos(io::text::make_ostream(pconn->socket(), text::encoding::utf8));
-                  auto deferred1(defer_to_scope_end([&ptos] () {
-                     ptos->finalize();
-                  }));
+                  ABC_DEFER_TO_SCOPE_END(ptos->finalize());
                   io::text::stdout->write_line(ABC_SL("responder: reading request"));
                   ABC_FOR_EACH(auto & sLine, ptis->lines()) {
                      if (!sLine) {

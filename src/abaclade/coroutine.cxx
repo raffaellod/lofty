@@ -543,10 +543,9 @@ void coroutine::scheduler::block_active_until_fd_ready(
    if (::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
       exception::throw_os_error();
    }
-   auto deferred1(defer_to_scope_end([this, fd] () {
-      // Remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
-      ::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr);
-   }));
+   /* Afterwards, remove fd from the epoll. Ignore errors since we wouldn’t know what to do about
+   them. */
+   ABC_DEFER_TO_SCOPE_END(::epoll_ctl(m_fdEpoll.get(), EPOLL_CTL_DEL, fd, nullptr));
 #elif ABC_HOST_API_WIN32
    // TODO: ensure bind_to_this_coroutine_scheduler_iocp() has been called on fd.
    // This may repeat in case of spurious notifications by the IOCP for fd (WIN32 BUG?).
@@ -596,10 +595,8 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
       int iRet;
 #endif
       {
-         auto deferred1(defer_to_scope_end([ppcrlsCurrent, pcrlsDefault] () {
-            // Restore the coroutine_local_storage pointer for this thread.
-            *ppcrlsCurrent = pcrlsDefault;
-         }));
+         // Afterwards, restore the coroutine_local_storage pointer for this thread.
+         ABC_DEFER_TO_SCOPE_END(*ppcrlsCurrent = pcrlsDefault);
          // Switch the current thread’s context to the active coroutine’s.
 #if ABC_HOST_API_POSIX
    #if ABC_HOST_API_DARWIN && ABC_HOST_CXX_CLANG
@@ -849,17 +846,13 @@ void coroutine::scheduler::run() {
 #if ABC_HOST_API_POSIX
    ::ucontext_t uctxReturn;
    sm_puctxReturn = &uctxReturn;
-   auto deferred1(defer_to_scope_end([] () {
-      sm_puctxReturn = nullptr;
-   }));
+   ABC_DEFER_TO_SCOPE_END(sm_puctxReturn = nullptr);
 #elif ABC_HOST_API_WIN32
    void * pfbr = ::ConvertThreadToFiber(nullptr);
    if (!pfbr) {
       exception::throw_os_error();
    }
-   auto deferred1(defer_to_scope_end([] () {
-      ::ConvertFiberToThread();
-   }));
+   ABC_DEFER_TO_SCOPE_END(::ConvertFiberToThread());
    sm_pfbrReturn = pfbr;
 #else
    #error "TODO: HOST_API"

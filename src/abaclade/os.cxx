@@ -152,9 +152,7 @@ bool get_registry_value(::HKEY hkeyParent, str const & sKey, str const & sName, 
       psRet->clear();
       return false;
    }
-   auto deferred1(defer_to_scope_end([hkey] () {
-      ::RegCloseKey(hkey);
-   }));
+   ABC_DEFER_TO_SCOPE_END(::RegCloseKey(hkey));
    // TODO: use Nt* functions to avoid the limitation of NUL termination.
    auto csName(sName.c_str());
    ::DWORD iTypeProbe, cbValueProbe;

@@ -43,9 +43,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    {
       auto pe(io::binary::pipe());
-      auto deferred1(defer_to_scope_end([&pe] () {
-         pe.ostream->finalize();
-      }));
+      ABC_DEFER_TO_SCOPE_END(pe.ostream->finalize());
       // Repeatedly write the buffer to one end of the pipe, and read it back from the other end.
       ABC_FOR_EACH(auto iCopy, make_range(1, 5)) {
          ABC_UNUSED_ARG(iCopy);

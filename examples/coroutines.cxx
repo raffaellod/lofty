@@ -50,9 +50,7 @@ public:
       auto pe(io::binary::pipe());
       /* Ensure that the pipe’s writing end is finalized (closed) even in case of exceptions. In a
       real application, we would check for exceptions when doing so. */
-      auto deferred1(defer_to_scope_end([&pe] () {
-         pe.ostream->finalize();
-      }));
+      ABC_DEFER_TO_SCOPE_END(pe.ostream->finalize());
 
       // Schedule the reader.
       coroutine([this, &pe] () {
