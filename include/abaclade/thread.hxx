@@ -169,14 +169,8 @@ private:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<thread> {
+class ABACLADE_SYM to_str_backend<thread> : public to_str_backend<thread::id_type> {
 public:
-   //! Default constructor.
-   to_str_backend();
-
-   //! Destructor.
-   ~to_str_backend();
-
    /*! Changes the output format.
 
    @param sFormat
@@ -192,12 +186,6 @@ public:
       Pointer to the stream to output to.
    */
    void write(thread const & thr, io::text::ostream * ptos);
-
-protected:
-   //! Backend used to write strings.
-   to_str_backend<str> m_tsbStr;
-   //! Backend used to write thread ID.
-   to_str_backend<thread::id_type> m_tsbId;
 };
 
 } //namespace abc

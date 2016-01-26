@@ -407,12 +407,6 @@ thread::native_handle_type thread::native_handle() const {
 
 namespace abc {
 
-to_str_backend<thread>::to_str_backend() {
-}
-
-to_str_backend<thread>::~to_str_backend() {
-}
-
 void to_str_backend<thread>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
@@ -431,11 +425,11 @@ void to_str_backend<thread>::set_format(str const & sFormat) {
 void to_str_backend<thread>::write(thread const & thr, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, thr*/, ptos);
 
+   ptos->write(ABC_SL("TID:"));
    if (thread::id_type id = thr.id()) {
-      m_tsbStr.write(str(ABC_SL("TID:")), ptos);
-      m_tsbId.write(id, ptos);
+      to_str_backend<thread::id_type>::write(id, ptos);
    } else {
-      m_tsbStr.write(str(ABC_SL("TID:-")), ptos);
+      ptos->write(ABC_SL("-"));
    }
 }
 

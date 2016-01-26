@@ -304,14 +304,10 @@ void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::ostream * pto
 
 namespace abc { namespace detail {
 
-ptr_to_str_backend::ptr_to_str_backend() {
-   ABC_TRACE_FUNC(this);
-
-   m_tsbInt.set_format(ABC_SL("#x"));
-}
-
 void ptr_to_str_backend::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
+
+   to_str_backend<std::uintptr_t>::set_format(ABC_SL("#x"));
 
    auto it(sFormat.cbegin());
 
@@ -329,9 +325,9 @@ void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::ostream * pt
    ABC_TRACE_FUNC(this/*, iPtr*/, ptos);
 
    if (iPtr) {
-      m_tsbInt.write(iPtr, ptos);
+      to_str_backend<std::uintptr_t>::write(iPtr, ptos);
    } else {
-      m_tsbStr.write(str(ABC_SL("nullptr")), ptos);
+      ptos->write(ABC_SL("nullptr"));
    }
 }
 
@@ -417,6 +413,18 @@ void sequence_to_str_backend::set_format(str const & sFormat) {
 }
 
 sequence_to_str_backend::~sequence_to_str_backend() {
+}
+
+void sequence_to_str_backend::_write_end(io::text::ostream * ptos) {
+   ptos->write(m_sEnd);
+}
+
+void sequence_to_str_backend::_write_separator(io::text::ostream * ptos) {
+   ptos->write(m_sSeparator);
+}
+
+void sequence_to_str_backend::_write_start(io::text::ostream * ptos) {
+   ptos->write(m_sStart);
 }
 
 }} //namespace abc::detail

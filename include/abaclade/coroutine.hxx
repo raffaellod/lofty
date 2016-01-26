@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -160,14 +160,8 @@ private:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<coroutine> {
+class ABACLADE_SYM to_str_backend<coroutine> : public to_str_backend<coroutine::id_type> {
 public:
-   //! Constructor.
-   to_str_backend();
-
-   //! Destructor.
-   ~to_str_backend();
-
    /*! Changes the output format.
 
    @param sFormat
@@ -183,12 +177,6 @@ public:
       Pointer to the stream to output to.
    */
    void write(coroutine const & coro, io::text::ostream * ptos);
-
-protected:
-   //! Backend used to write strings.
-   to_str_backend<str> m_tsbStr;
-   //! Backend used to write coroutine ID.
-   to_str_backend<coroutine::id_type> m_tsbId;
 };
 
 } //namespace abc

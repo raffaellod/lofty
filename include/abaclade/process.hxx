@@ -174,14 +174,8 @@ private:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<process> {
+class ABACLADE_SYM to_str_backend<process> : public to_str_backend<process::id_type> {
 public:
-   //! Default constructor.
-   to_str_backend();
-
-   //! Destructor.
-   ~to_str_backend();
-
    /*! Changes the output format.
 
    @param sFormat
@@ -197,12 +191,6 @@ public:
       Pointer to the stream to output to.
    */
    void write(process const & proc, io::text::ostream * ptos);
-
-protected:
-   //! Backend used to write strings.
-   to_str_backend<str> m_tsbStr;
-   //! Backend used to write process ID.
-   to_str_backend<process::id_type> m_tsbId;
 };
 
 } //namespace abc

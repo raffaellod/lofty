@@ -26,11 +26,8 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc { namespace detail {
 
 //! Base class for the specializations of to_str_backend for integer types.
-class ABACLADE_SYM ptr_to_str_backend {
+class ABACLADE_SYM ptr_to_str_backend : public to_str_backend<std::uintptr_t> {
 public:
-   //! Default constructor.
-   ptr_to_str_backend();
-
    /*! Changes the output format.
 
    @param sFormat
@@ -47,12 +44,6 @@ protected:
       Pointer to the stream to output to.
    */
    void _write_impl(std::uintptr_t iPtr, io::text::ostream * ptos);
-
-protected:
-   //! Backend used to write the pointer as an integer.
-   to_str_backend<std::uintptr_t> m_tsbInt;
-   //! Backend used to write a nullptr.
-   to_str_backend<str> m_tsbStr;
 };
 
 }} //namespace abc::detail
@@ -191,27 +182,21 @@ public:
    @param ptos
       Pointer to the stream to output to.
    */
-   void _write_end(io::text::ostream * ptos) {
-      m_tsbStr.write(m_sEnd, ptos);
-   }
+   void _write_end(io::text::ostream * ptos);
 
-   /*! Writes an element separator (typically a comma).
+   /*! Writes an element separator.
 
    @param ptos
       Pointer to the stream to output to.
    */
-   void _write_separator(io::text::ostream * ptos) {
-      m_tsbStr.write(m_sSeparator, ptos);
-   }
+   void _write_separator(io::text::ostream * ptos);
 
    /*! Writes the sequence start delimiter.
 
    @param ptos
       Pointer to the stream to output to.
    */
-   void _write_start(io::text::ostream * ptos) {
-      m_tsbStr.write(m_sStart, ptos);
-   }
+   void _write_start(io::text::ostream * ptos);
 
 protected:
    //! Separator to be output between elements.
@@ -220,8 +205,6 @@ protected:
    str m_sStart;
    //! Sequence end delimiter.
    str m_sEnd;
-   //! Backend for strings.
-   to_str_backend<str> m_tsbStr;
 };
 
 }} //namespace abc::detail

@@ -244,12 +244,6 @@ void coroutine::interrupt() {
 
 namespace abc {
 
-to_str_backend<coroutine>::to_str_backend() {
-}
-
-to_str_backend<coroutine>::~to_str_backend() {
-}
-
 void to_str_backend<coroutine>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
@@ -268,11 +262,11 @@ void to_str_backend<coroutine>::set_format(str const & sFormat) {
 void to_str_backend<coroutine>::write(coroutine const & coro, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, coro*/, ptos);
 
+   ptos->write(ABC_SL("CRID:"));
    if (coroutine::id_type id = coro.id()) {
-      m_tsbStr.write(str(ABC_SL("CRID:")), ptos);
-      m_tsbId.write(id, ptos);
+      to_str_backend<coroutine::id_type>::write(id, ptos);
    } else {
-      m_tsbStr.write(str(ABC_SL("CRID:-")), ptos);
+      ptos->write(ABC_SL("-"));
    }
 }
 
