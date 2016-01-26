@@ -42,14 +42,14 @@ ABC_TESTING_TEST_CASE_FUNC(
    }
 
    {
-      auto pe(io::binary::pipe());
-      ABC_DEFER_TO_SCOPE_END(pe.ostream->finalize());
+      io::binary::pipe pipe;
+      ABC_DEFER_TO_SCOPE_END(pipe.write_end->finalize());
       // Repeatedly write the buffer to one end of the pipe, and read it back from the other end.
       ABC_FOR_EACH(auto iCopy, make_range(1, 5)) {
          ABC_UNUSED_ARG(iCopy);
-         std::size_t cbWritten = pe.ostream->write(aiSrc.get(), sizeof aiSrc[0] * sc_ciBuffer);
+         std::size_t cbWritten = pipe.write_end->write(aiSrc.get(), sizeof aiSrc[0] * sc_ciBuffer);
          ABC_TESTING_ASSERT_EQUAL(cbWritten, sizeof aiSrc[0] * sc_ciBuffer);
-         std::size_t cbRead = pe.istream->read(aiDst.get(), sizeof aiDst[0] * sc_ciBuffer);
+         std::size_t cbRead = pipe.read_end->read(aiDst.get(), sizeof aiDst[0] * sc_ciBuffer);
          ABC_TESTING_ASSERT_EQUAL(cbRead, cbWritten);
 
          // Validate the destination array.

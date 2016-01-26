@@ -468,47 +468,40 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Contains the two ends of a pipe.
-struct pipe_ends {
-   //! Read end.
-   _std::shared_ptr<file_istream> istream;
-   //! Write end.
-   _std::shared_ptr<file_ostream> ostream;
-
-   /*! Constructor.
-
-   @param pbpis
-      Input end.
-   @param pbpos
-      Output end.
-   */
-   pipe_ends(_std::shared_ptr<file_istream> pbpis, _std::shared_ptr<file_ostream> pbpos) :
-      istream(_std::move(pbpis)),
-      ostream(_std::move(pbpos)) {
-   }
+//! Unidirectional pipe (FIFO), consisting in a read end stream and a write end stream.
+class ABACLADE_SYM pipe {
+public:
+   //! Default constructor.
+   pipe();
 
    /*! Move constructor.
 
-   @param pe
+   @param pp
       Source object.
    */
-   pipe_ends(pipe_ends && pe) :
-      istream(_std::move(pe.istream)),
-      ostream(_std::move(pe.ostream)) {
+   pipe(pipe && pp) :
+      read_end(_std::move(pp.read_end)),
+      write_end(_std::move(pp.write_end)) {
    }
 
    /*! Move-assignment operator.
 
-   @param pe
+   @param pp
       Source object.
    @return
       *this.
    */
-   pipe_ends & operator=(pipe_ends && pe) {
-      istream = _std::move(pe.istream);
-      ostream = _std::move(pe.ostream);
+   pipe & operator=(pipe && pp) {
+      read_end = _std::move(pp.read_end);
+      write_end = _std::move(pp.write_end);
       return *this;
    }
+
+public:
+   //! Read end.
+   _std::shared_ptr<file_istream> read_end;
+   //! Write end.
+   _std::shared_ptr<file_ostream> write_end;
 };
 
 }}} //namespace abc::io::binary
@@ -628,13 +621,6 @@ inline _std::shared_ptr<file_iostream> open_iostream(
 ) {
    return _std::dynamic_pointer_cast<file_iostream>(open(op, access_mode::write, bBypassCache));
 }
-
-/*! Creates a unidirectional pipe (FIFO), returning input and output streams for its ends.
-
-@return
-   An object containing the input and the output streams for the pipe.
-*/
-ABACLADE_SYM pipe_ends pipe();
 
 //! Binary stream associated to the standard error output file.
 extern ABACLADE_SYM _std::shared_ptr<ostream> stderr;

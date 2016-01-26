@@ -45,23 +45,20 @@ public:
       ABC_UNUSED_ARG(vsArgs);
       this_thread::attach_coroutine_scheduler();
 
-      /* Open a pipe. Since this thread now has a coroutine scheduler, the pipe will take advantage
-      of it to avoid blocking on reads and writes. */
-      auto pe(io::binary::pipe());
-      /* Ensure that the pipe’s writing end is finalized (closed) even in case of exceptions. In a
-      real application, we would check for exceptions when doing so. */
-      ABC_DEFER_TO_SCOPE_END(pe.ostream->finalize());
+      /* Create a pipe. Since this thread now has a coroutine scheduler, the pipe will take
+      advantage of it to avoid blocking on reads and writes. */
+      io::binary::pipe pipe;
 
       // Schedule the reader.
-      coroutine([this, &pe] () {
-         ABC_TRACE_FUNC(this/*, pe*/);
+      coroutine([this, &pipe] () {
+         ABC_TRACE_FUNC(this/*, pipe*/);
 
          io::text::stdout->write_line(ABC_SL("reader: starting"));
          for (;;) {
             int i;
             io::text::stdout->print(ABC_SL("reader: reading\n"));
             // This will cause a context switch if the read would block.
-            std::size_t cbRead = pe.istream->read(&i, sizeof i);
+            std::size_t cbRead = pipe.read_end->read(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
             if (cbRead == 0) {
                // Detect EOF.
@@ -84,14 +81,19 @@ public:
       });
 
       // Schedule the writer.
-      coroutine([this, &pe] () {
-         ABC_TRACE_FUNC(this/*, pe*/);
+      coroutine([this, &pipe] () {
+         ABC_TRACE_FUNC(this/*, pipe*/);
+
+         /* Ensure that the pipe’s write end is finalized (closed) even in case of exceptions. In a
+         real application, we would check for exceptions when doing so. This will be reported as EOF
+         on the read end. */
+         ABC_DEFER_TO_SCOPE_END(pipe.write_end->finalize());
 
          io::text::stdout->write_line(ABC_SL("writer: starting"));
          ABC_FOR_EACH(int i, make_range(1, 10)) {
             io::text::stdout->print(ABC_SL("writer: writing {}\n"), i);
             // This will cause a context switch if the write would block.
-            pe.ostream->write(&i, sizeof i);
+            pipe.write_end->write(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
 
             /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be
@@ -100,8 +102,6 @@ public:
             this_coroutine::sleep_for_ms(50);
             // Execution resumes here, after other coroutines have received CPU time.
          }
-         // Close the writing end of the pipe to report EOF on the reading end.
-         pe.ostream->finalize();
          io::text::stdout->write_line(ABC_SL("writer: terminating"));
       });
 

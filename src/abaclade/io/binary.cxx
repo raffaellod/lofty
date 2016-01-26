@@ -374,99 +374,6 @@ _std::shared_ptr<file_stream> open(
    return _construct(&fid);
 }
 
-pipe_ends pipe() {
-   ABC_TRACE_FUNC();
-
-   bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-   detail::file_init_data fidReadEnd, fidWriteEnd;
-#if ABC_HOST_API_DARWIN
-   int fds[2];
-   // pipe2() is not available, so emulate it with pipe() + fcntl().
-   while (::pipe(fds)) {
-      int iErr = errno;
-      if (iErr != EINTR) {
-         exception::throw_os_error(iErr);
-      }
-      this_coroutine::interruption_point();
-   }
-   // Set the .fd members immediately, so they’ll get closed automatically in case of exceptions.
-   fidReadEnd.fd = filedesc(fds[0]);
-   fidWriteEnd.fd = filedesc(fds[1]);
-   /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread
-   won’t leak the two file descriptors. That’s the whole point of pipe2(). */
-   fidReadEnd.fd.set_close_on_exec(true);
-   fidWriteEnd.fd.set_close_on_exec(true);
-   if (bAsync) {
-      fidReadEnd.fd.set_nonblocking(true);
-      fidWriteEnd.fd.set_nonblocking(true);
-   }
-#elif ABC_HOST_API_LINUX || ABC_HOST_API_FREEBSD
-   int fds[2], iFlags = O_CLOEXEC;
-   if (bAsync) {
-      iFlags |= O_NONBLOCK;
-   }
-   while (::pipe2(fds, iFlags)) {
-      int iErr = errno;
-      if (iErr != EINTR) {
-         exception::throw_os_error(iErr);
-      }
-      this_coroutine::interruption_point();
-   }
-   fidReadEnd.fd = filedesc(fds[0]);
-   fidWriteEnd.fd = filedesc(fds[1]);
-#elif ABC_HOST_API_WIN32
-   if (bAsync) {
-      // Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
-      static long s_iSerial = 0;
-      // Generate the pipe name.
-      sstr<128> sPipeName;
-      io::text::str_ostream(external_buffer, sPipeName.str_ptr()).print(
-         ABC_SL("\\\\.\\pipe\\abc::io::binary::pipe\\{}\\{}"),
-         ::GetCurrentProcessId(), ::InterlockedIncrement(&s_iSerial)
-      );
-      /* Pipe buffers are allocated in the kernel’s non-paged memory pool, so this value should be
-      small; the smallest it can get is a single memory page. */
-      ::DWORD cbBuffer = static_cast< ::DWORD>(memory::page_size());
-      // 0 means default connection timeout; irrelevant as we’ll connect the other end immediately.
-      ::HANDLE hReadEnd = ::CreateNamedPipe(
-         sPipeName.c_str(),
-         GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE,
-         1, cbBuffer, cbBuffer, 0, nullptr
-      );
-      if (hReadEnd == INVALID_HANDLE_VALUE) {
-         exception::throw_os_error();
-      }
-      fidReadEnd.fd = filedesc(hReadEnd);
-      ::HANDLE hWriteEnd = ::CreateFile(
-         sPipeName.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
-         FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr
-      );
-      if (hWriteEnd == INVALID_HANDLE_VALUE) {
-         // fidReadEnd.fd is closed automatically.
-         exception::throw_os_error();
-      }
-      fidWriteEnd.fd = filedesc(hWriteEnd);
-   } else {
-      ::HANDLE hReadEnd, hWriteEnd;
-      if (!::CreatePipe(&hReadEnd, &hWriteEnd, nullptr, 0)) {
-         exception::throw_os_error();
-      }
-      fidReadEnd.fd = filedesc(hReadEnd);
-      fidWriteEnd.fd = filedesc(hWriteEnd);
-   }
-#else
-   #error "TODO: HOST_API"
-#endif
-   this_coroutine::interruption_point();
-   fidReadEnd.am = access_mode::read;
-   fidWriteEnd.am = access_mode::write;
-   fidReadEnd.bBypassCache = false;
-   fidWriteEnd.bBypassCache = false;
-   return pipe_ends(
-      _std::make_shared<pipe_istream>(&fidReadEnd), _std::make_shared<pipe_ostream>(&fidWriteEnd)
-   );
-}
-
 }}} //namespace abc::io::binary
 
 namespace abc { namespace io { namespace binary { namespace detail {
@@ -885,6 +792,104 @@ file_iostream::file_iostream(detail::file_init_data * pfid) :
 }
 
 /*virtual*/ file_iostream::~file_iostream() {
+}
+
+}}} //namespace abc::io::binary
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace io { namespace binary {
+
+pipe::pipe() {
+   ABC_TRACE_FUNC(this);
+
+   bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
+   detail::file_init_data fidReadEnd, fidWriteEnd;
+#if ABC_HOST_API_DARWIN
+   int fds[2];
+   // pipe2() is not available, so emulate it with pipe() + fcntl().
+   while (::pipe(fds)) {
+      int iErr = errno;
+      if (iErr != EINTR) {
+         exception::throw_os_error(iErr);
+      }
+      this_coroutine::interruption_point();
+   }
+   // Set the .fd members immediately, so they’ll get closed automatically in case of exceptions.
+   fidReadEnd.fd = filedesc(fds[0]);
+   fidWriteEnd.fd = filedesc(fds[1]);
+   /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread
+   won’t leak the two file descriptors. That’s the whole point of pipe2(). */
+   fidReadEnd.fd.set_close_on_exec(true);
+   fidWriteEnd.fd.set_close_on_exec(true);
+   if (bAsync) {
+      fidReadEnd.fd.set_nonblocking(true);
+      fidWriteEnd.fd.set_nonblocking(true);
+   }
+#elif ABC_HOST_API_LINUX || ABC_HOST_API_FREEBSD
+   int fds[2], iFlags = O_CLOEXEC;
+   if (bAsync) {
+      iFlags |= O_NONBLOCK;
+   }
+   while (::pipe2(fds, iFlags)) {
+      int iErr = errno;
+      if (iErr != EINTR) {
+         exception::throw_os_error(iErr);
+      }
+      this_coroutine::interruption_point();
+   }
+   fidReadEnd.fd = filedesc(fds[0]);
+   fidWriteEnd.fd = filedesc(fds[1]);
+#elif ABC_HOST_API_WIN32
+   if (bAsync) {
+      // Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
+      static long s_iSerial = 0;
+      // Generate the pipe name.
+      sstr<128> sPipeName;
+      io::text::str_ostream(external_buffer, sPipeName.str_ptr()).print(
+         ABC_SL("\\\\.\\pipe\\abc::io::binary::pipe\\{}\\{}"),
+         ::GetCurrentProcessId(), ::InterlockedIncrement(&s_iSerial)
+      );
+      /* Pipe buffers are allocated in the kernel’s non-paged memory pool, so this value should be
+      small; the smallest it can get is a single memory page. */
+      ::DWORD cbBuffer = static_cast< ::DWORD>(memory::page_size());
+      // 0 means default connection timeout; irrelevant as we’ll connect the other end immediately.
+      ::HANDLE hReadEnd = ::CreateNamedPipe(
+         sPipeName.c_str(),
+         GENERIC_READ | PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE,
+         1, cbBuffer, cbBuffer, 0, nullptr
+      );
+      if (hReadEnd == INVALID_HANDLE_VALUE) {
+         exception::throw_os_error();
+      }
+      fidReadEnd.fd = filedesc(hReadEnd);
+      ::HANDLE hWriteEnd = ::CreateFile(
+         sPipeName.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
+         FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr
+      );
+      if (hWriteEnd == INVALID_HANDLE_VALUE) {
+         // fidReadEnd.fd is closed automatically.
+         exception::throw_os_error();
+      }
+      fidWriteEnd.fd = filedesc(hWriteEnd);
+   } else {
+      ::HANDLE hReadEnd, hWriteEnd;
+      if (!::CreatePipe(&hReadEnd, &hWriteEnd, nullptr, 0)) {
+         exception::throw_os_error();
+      }
+      fidReadEnd.fd = filedesc(hReadEnd);
+      fidWriteEnd.fd = filedesc(hWriteEnd);
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+   this_coroutine::interruption_point();
+   fidReadEnd.am = access_mode::read;
+   fidWriteEnd.am = access_mode::write;
+   fidReadEnd.bBypassCache = false;
+   fidWriteEnd.bBypassCache = false;
+   read_end  = _std::make_shared<pipe_istream>(&fidReadEnd);
+   write_end = _std::make_shared<pipe_ostream>(&fidWriteEnd);
 }
 
 }}} //namespace abc::io::binary
