@@ -46,7 +46,7 @@ more general, as a way for an Abaclade-based parent process to communicate with 
 child process. Thought maybe a better way is to pass a command-line argument that triggers Abaclade-
 specific behavior, so that it’s inherently PID-specific.
 
-@param pbb
+@param pbs
    Pointer to the binary stream to analyze.
 @param sEnvVarName
    Environment variable name that, if set, specifies the encoding to be used.
@@ -57,7 +57,7 @@ static abc::text::encoding get_stdio_encoding(binary::stream const * pbs, str co
    ABC_TRACE_FUNC(pbs, sEnvVarName);
 
    abc::text::encoding enc;
-   if (dynamic_cast<binary::console_file_stream const *>(pbs)) {
+   if (dynamic_cast<binary::tty_file_stream const *>(pbs)) {
       /* Console files can only perform I/O in the host platform’s encoding, so force the correct
       encoding here. */
       enc = abc::text::encoding::host;

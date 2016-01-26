@@ -143,7 +143,7 @@ namespace abc { namespace io { namespace binary {
 default_buffered_ostream::default_buffered_ostream(_std::shared_ptr<ostream> pbos) :
    m_pbos(_std::move(pbos)),
    // Disable buffering for console (interactive) files.
-   m_bFlushAfterCommit(_std::dynamic_pointer_cast<console_ostream>(m_pbos) != nullptr) {
+   m_bFlushAfterCommit(_std::dynamic_pointer_cast<tty_ostream>(m_pbos) != nullptr) {
 }
 
 /*virtual*/ default_buffered_ostream::~default_buffered_ostream() {

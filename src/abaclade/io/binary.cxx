@@ -73,11 +73,11 @@ static _std::shared_ptr<file_stream> _construct(detail::file_init_data * pfid) {
    if (S_ISCHR(pfid->statFile.st_mode) && ::isatty(pfid->fd.get())) {
       switch (pfid->am.base()) {
          case access_mode::read:
-            return _std::make_shared<console_istream>(pfid);
+            return _std::make_shared<tty_istream>(pfid);
          case access_mode::write:
-            return _std::make_shared<console_ostream>(pfid);
+            return _std::make_shared<tty_ostream>(pfid);
          case access_mode::read_write:
-            return _std::make_shared<console_iostream>(pfid);
+            return _std::make_shared<tty_iostream>(pfid);
          case access_mode::write_append:
             // TODO: use a better exception class.
             ABC_THROW(argument_error, ());
@@ -111,11 +111,11 @@ static _std::shared_ptr<file_stream> _construct(detail::file_init_data * pfid) {
          if (::GetConsoleMode(pfid->fd.get(), &iConsoleMode)) {
             switch (pfid->am.base()) {
                case access_mode::read:
-                  return _std::make_shared<console_istream>(pfid);
+                  return _std::make_shared<tty_istream>(pfid);
                case access_mode::write:
-                  return _std::make_shared<console_ostream>(pfid);
+                  return _std::make_shared<tty_ostream>(pfid);
                case access_mode::read_write:
-                  return _std::make_shared<console_iostream>(pfid);
+                  return _std::make_shared<tty_iostream>(pfid);
                case access_mode::write_append:
                   // TODO: use a better exception class.
                   ABC_THROW(argument_error, ());

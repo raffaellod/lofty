@@ -36,15 +36,15 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace io { namespace binary {
 
-//! Base for console/terminal binary streams.
-class ABACLADE_SYM console_file_stream : public virtual file_stream {
+//! Base for terminal/console binary streams.
+class ABACLADE_SYM tty_file_stream : public virtual file_stream {
 public:
    //! Destructor.
-   virtual ~console_file_stream();
+   virtual ~tty_file_stream();
 
 protected:
    //! See file_stream::file_stream().
-   console_file_stream(detail::file_init_data * pfid);
+   tty_file_stream(detail::file_init_data * pfid);
 };
 
 }}} //namespace abc::io::binary
@@ -53,16 +53,16 @@ protected:
 
 namespace abc { namespace io { namespace binary {
 
-//! Console/terminal input pseudo-file.
-class ABACLADE_SYM console_istream :
-   public virtual console_file_stream,
+//! Terminal/console input stream.
+class ABACLADE_SYM tty_istream :
+   public virtual tty_file_stream,
    public virtual file_istream {
 public:
    //! See file_istream::file_istream().
-   console_istream(detail::file_init_data * pfid);
+   tty_istream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_istream();
+   virtual ~tty_istream();
 
 #if ABC_HOST_API_WIN32
    /* Under Win32, console files must use a dedicated API in order to support the native character
@@ -79,9 +79,9 @@ public:
 
 namespace abc { namespace io { namespace binary {
 
-//! Console/terminal output pseudo-file.
-class ABACLADE_SYM console_ostream :
-   public virtual console_file_stream,
+//! Terminal/console output stream.
+class ABACLADE_SYM tty_ostream :
+   public virtual tty_file_stream,
    public virtual file_ostream
 #if ABC_HOST_API_WIN32
    // Under Win32, ANSI escape sequences parsing is up to us.
@@ -90,10 +90,10 @@ class ABACLADE_SYM console_ostream :
    {
 public:
    //! See file_ostream::file_ostream().
-   console_ostream(detail::file_init_data * pfid);
+   tty_ostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_ostream();
+   virtual ~tty_ostream();
 
 #if ABC_HOST_API_WIN32
    /* Under Win32, console files must use a dedicated API in order to support the native character
@@ -156,17 +156,17 @@ private:
 
 namespace abc { namespace io { namespace binary {
 
-//! Bidirectional console/terminal pseudo-file.
-class ABACLADE_SYM console_iostream :
+//! Bidirectional terminal/console stream.
+class ABACLADE_SYM tty_iostream :
    public file_iostream,
-   public console_istream,
-   public console_ostream {
+   public tty_istream,
+   public tty_ostream {
 public:
-   //! See console_istream::console_istream() and console_ostream::console_ostream().
-   console_iostream(detail::file_init_data * pfid);
+   //! See tty_istream::tty_istream() and tty_ostream::tty_ostream().
+   tty_iostream(detail::file_init_data * pfid);
 
    //! Destructor.
-   virtual ~console_iostream();
+   virtual ~tty_iostream();
 };
 
 }}} //namespace abc::io::binary

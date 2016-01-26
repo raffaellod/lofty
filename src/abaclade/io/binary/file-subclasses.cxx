@@ -39,11 +39,11 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace io { namespace binary {
 
-console_file_stream::console_file_stream(detail::file_init_data * pfid) :
+tty_file_stream::tty_file_stream(detail::file_init_data * pfid) :
    file_stream(pfid) {
 }
 
-/*virtual*/ console_file_stream::~console_file_stream() {
+/*virtual*/ tty_file_stream::~tty_file_stream() {
 }
 
 }}} //namespace abc::io::binary
@@ -52,17 +52,17 @@ console_file_stream::console_file_stream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-console_istream::console_istream(detail::file_init_data * pfid) :
+tty_istream::tty_istream(detail::file_init_data * pfid) :
    file_stream(pfid),
-   console_file_stream(pfid),
+   tty_file_stream(pfid),
    file_istream(pfid) {
 }
 
-/*virtual*/ console_istream::~console_istream() {
+/*virtual*/ tty_istream::~tty_istream() {
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ std::size_t console_istream::read(void * p, std::size_t cbMax) /*override*/ {
+/*virtual*/ std::size_t tty_istream::read(void * p, std::size_t cbMax) /*override*/ {
    ABC_TRACE_FUNC(this, p, cbMax);
 
    // Note: ::ReadConsole() expects and returns character counts in place of byte counts.
@@ -88,7 +88,7 @@ console_istream::console_istream(detail::file_init_data * pfid) :
 namespace abc { namespace io { namespace binary {
 
 #if ABC_HOST_API_WIN32
-::WORD const console_ostream::smc_aiAnsiColorToForegroundColor[] = {
+::WORD const tty_ostream::smc_aiAnsiColorToForegroundColor[] = {
    /* black   */ 0,
    /* red     */ FOREGROUND_RED,
    /* green   */                  FOREGROUND_GREEN,
@@ -98,7 +98,7 @@ namespace abc { namespace io { namespace binary {
    /* cyan    */                  FOREGROUND_GREEN | FOREGROUND_BLUE,
    /* white   */ FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 };
-::WORD const console_ostream::smc_aiAnsiColorToBackgroundColor[] = {
+::WORD const tty_ostream::smc_aiAnsiColorToBackgroundColor[] = {
    /* black   */ 0,
    /* red     */ BACKGROUND_RED,
    /* green   */                  BACKGROUND_GREEN,
@@ -110,9 +110,9 @@ namespace abc { namespace io { namespace binary {
 };
 #endif
 
-console_ostream::console_ostream(detail::file_init_data * pfid) :
+tty_ostream::tty_ostream(detail::file_init_data * pfid) :
    file_stream(pfid),
-   console_file_stream(pfid),
+   tty_file_stream(pfid),
    file_ostream(pfid) {
 #if ABC_HOST_API_WIN32
    ABC_TRACE_FUNC(this, pfid);
@@ -144,11 +144,11 @@ console_ostream::console_ostream(detail::file_init_data * pfid) :
 #endif
 }
 
-/*virtual*/ console_ostream::~console_ostream() {
+/*virtual*/ tty_ostream::~tty_ostream() {
 }
 
 #if ABC_HOST_API_WIN32
-/*virtual*/ void console_ostream::clear_display_area(
+/*virtual*/ void tty_ostream::clear_display_area(
    std::int16_t iRow, std::int16_t iCol, std::size_t cch
 ) /*override*/ {
    ABC_TRACE_FUNC(this, iRow, iCol, cch);
@@ -156,7 +156,7 @@ console_ostream::console_ostream(detail::file_init_data * pfid) :
    // TODO: implementation.
 }
 
-/*virtual*/ void console_ostream::get_cursor_pos_and_display_size(
+/*virtual*/ void tty_ostream::get_cursor_pos_and_display_size(
    std::int16_t * piRow, std::int16_t * piCol, std::int16_t * pcRows, std::int16_t * pcCols
 ) /*override*/ {
    ABC_TRACE_FUNC(this, piRow, piCol, pcRows, pcCols);
@@ -169,7 +169,7 @@ console_ostream::console_ostream(detail::file_init_data * pfid) :
    *pcCols = csbi.dwSize.X;
 }
 
-bool console_ostream::processing_enabled() const {
+bool tty_ostream::processing_enabled() const {
    ABC_TRACE_FUNC(this);
 
    ::DWORD iConsoleMode;
@@ -180,13 +180,13 @@ bool console_ostream::processing_enabled() const {
    return (iConsoleMode & ENABLE_PROCESSED_OUTPUT) != 0;
 }
 
-/*virtual*/ void console_ostream::scroll_text(std::int16_t cRows, std::int16_t cCols) /*override*/ {
+/*virtual*/ void tty_ostream::scroll_text(std::int16_t cRows, std::int16_t cCols) /*override*/ {
    ABC_TRACE_FUNC(this, cRows, cCols);
 
    // TODO: implementation.
 }
 
-/*virtual*/ void console_ostream::set_char_attributes() /*override*/ {
+/*virtual*/ void tty_ostream::set_char_attributes() /*override*/ {
    ABC_TRACE_FUNC(this);
 
    ::WORD iAttr;
@@ -217,7 +217,7 @@ bool console_ostream::processing_enabled() const {
    ::SetConsoleTextAttribute(m_fd.get(), iAttr);
 }
 
-/*virtual*/ void console_ostream::set_cursor_pos(
+/*virtual*/ void tty_ostream::set_cursor_pos(
    std::int16_t iRow, std::int16_t iCol
 ) /*override*/ {
    ABC_TRACE_FUNC(this, iRow, iCol);
@@ -228,7 +228,7 @@ bool console_ostream::processing_enabled() const {
    ::SetConsoleCursorPosition(m_fd.get(), coord);
 }
 
-/*virtual*/ void console_ostream::set_cursor_visibility(bool bVisible) /*override*/ {
+/*virtual*/ void tty_ostream::set_cursor_visibility(bool bVisible) /*override*/ {
    ABC_TRACE_FUNC(this, bVisible);
 
    ::CONSOLE_CURSOR_INFO cci;
@@ -237,13 +237,13 @@ bool console_ostream::processing_enabled() const {
    ::SetConsoleCursorInfo(m_fd.get(), &cci);
 }
 
-/*virtual*/ void console_ostream::set_window_title(str const & sTitle) /*override*/ {
+/*virtual*/ void tty_ostream::set_window_title(str const & sTitle) /*override*/ {
    ABC_TRACE_FUNC(this, sTitle);
 
    ::SetConsoleTitle(sTitle.c_str());
 }
 
-/*virtual*/ std::size_t console_ostream::write(void const * p, std::size_t cb) /*override*/ {
+/*virtual*/ std::size_t tty_ostream::write(void const * p, std::size_t cb) /*override*/ {
    ABC_TRACE_FUNC(this, p, cb);
 
    char_t const * pchBegin = static_cast<char_t const *>(p);
@@ -287,7 +287,7 @@ bool console_ostream::processing_enabled() const {
    return cb;
 }
 
-void console_ostream::write_range(char_t const * pchBegin, char_t const * pchEnd) const {
+void tty_ostream::write_range(char_t const * pchBegin, char_t const * pchEnd) const {
    ABC_TRACE_FUNC(this, pchBegin, pchEnd);
 
    // This loop may repeat more than once in the unlikely case cch exceeds what can fit in a DWORD.
@@ -312,17 +312,17 @@ void console_ostream::write_range(char_t const * pchBegin, char_t const * pchEnd
 
 namespace abc { namespace io { namespace binary {
 
-console_iostream::console_iostream(detail::file_init_data * pfid) :
+tty_iostream::tty_iostream(detail::file_init_data * pfid) :
    file_stream(pfid),
    file_istream(pfid),
    file_ostream(pfid),
-   console_file_stream(pfid),
+   tty_file_stream(pfid),
    file_iostream(pfid),
-   console_istream(pfid),
-   console_ostream(pfid) {
+   tty_istream(pfid),
+   tty_ostream(pfid) {
 }
 
-/*virtual*/ console_iostream::~console_iostream() {
+/*virtual*/ tty_iostream::~tty_iostream() {
 }
 
 }}} //namespace abc::io::binary
