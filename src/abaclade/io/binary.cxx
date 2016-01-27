@@ -844,9 +844,8 @@ pipe::pipe() {
    if (bAsync) {
       // Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
       static long s_iSerial = 0;
-      // Generate the pipe name.
-      sstr<128> sPipeName;
-      io::text::str_ostream(external_buffer, sPipeName.str_ptr()).print(
+      sstr<64> sPipeName;
+      sPipeName.format(
          ABC_SL("\\\\.\\pipe\\abc::io::binary::pipe\\{}\\{}"),
          ::GetCurrentProcessId(), ::InterlockedIncrement(&s_iSerial)
       );
