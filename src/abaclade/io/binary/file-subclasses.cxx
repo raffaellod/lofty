@@ -31,6 +31,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <climits> // CHAR_BIT
 
 #if ABC_HOST_API_POSIX
+   #include <sys/stat.h> // stat fstat()
    #include <unistd.h> // lseek()
 #endif
 
@@ -395,50 +396,25 @@ namespace abc { namespace io { namespace binary {
 
 regular_file_stream::regular_file_stream(detail::file_init_data * pfid) :
    file_stream(pfid) {
+#if 0
    ABC_TRACE_FUNC(this, pfid);
 
 #if ABC_HOST_API_POSIX
-
-   m_cb = static_cast<std::size_t>(pfid->statFile.st_size);
-#if 0
    if (pfid->bBypassCache) {
       // For unbuffered access, use the filesystem-suggested I/O size increment.
       m_cbPhysAlign = static_cast<unsigned>(pfid->statFile.st_blksize);
    }
-#endif
-
-#elif ABC_HOST_API_WIN32 //if ABC_HOST_API_POSIX
-
-#if _WIN32_WINNT >= 0x0500
-   static_assert(
-      sizeof(m_cb) == sizeof(LARGE_INTEGER),
-      "abc::io::full_size_t must be the same size as LARGE_INTEGER"
-   );
-   if (!::GetFileSizeEx(m_fd.get(), reinterpret_cast< ::LARGE_INTEGER *>(&m_cb))) {
-      exception::throw_os_error();
-   }
-#else //if _WIN32_WINNT >= 0x0500
-   ::DWORD cbHigh, cbLow = ::GetFileSize(fd.get(), &cbHigh);
-   if (cbLow == INVALID_FILE_SIZE) {
-      ::DWORD iErr = ::GetLastError();
-      if (iErr != ERROR_SUCCESS) {
-         exception::throw_os_error(iErr);
-      }
-   }
-   m_cb = (static_cast<full_size_t>(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
-#endif //if _WIN32_WINNT >= 0x0500 … else
-#if 0
+#elif ABC_HOST_API_WIN32
    if (pfid->bBypassCache) {
       /* Should really use ::DeviceIoCtl(IOCTL_STORAGE_QUERY_PROPERTY) on the disk containing this
       file. For now, use 4 KiB alignment, since that’s the most recent commonly used physical sector
       size. */
       m_cbPhysAlign = 4096;
    }
-#endif
-
-#else //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32
+#else
    #error "TODO: HOST_API"
-#endif //if ABC_HOST_API_POSIX … elif ABC_HOST_API_WIN32 … else
+#endif
+#endif
 }
 
 /*virtual*/ regular_file_stream::~regular_file_stream() {
@@ -512,7 +488,32 @@ regular_file_stream::regular_file_stream(detail::file_init_data * pfid) :
 /*virtual*/ full_size_t regular_file_stream::size() const /*override*/ {
    ABC_TRACE_FUNC(this);
 
-   return m_cb;
+#if ABC_HOST_API_POSIX
+   struct ::stat statFile;
+   if (::fstat(m_fd.get(), &statFile)) {
+      exception::throw_os_error();
+   }
+   return static_cast<full_size_t>(statFile.st_size);
+#elif ABC_HOST_API_WIN32
+   #if _WIN32_WINNT >= 0x0500
+      ::LARGE_INTEGER cb;
+      if (!::GetFileSizeEx(m_fd.get(), &cb)) {
+         exception::throw_os_error();
+      }
+      return static_cast<full_size_t>(cb.QuadPart);
+   #else
+      ::DWORD cbHigh, cbLow = ::GetFileSize(fd.get(), &cbHigh);
+      if (cbLow == INVALID_FILE_SIZE) {
+         ::DWORD iErr = ::GetLastError();
+         if (iErr != ERROR_SUCCESS) {
+            exception::throw_os_error(iErr);
+         }
+      }
+      return (static_cast<full_size_t>(cbHigh) << sizeof(cbLow) * CHAR_BIT) | cbLow;
+   #endif
+#else
+   #error "TODO: HOST_API"
+#endif
 }
 
 /*virtual*/ offset_t regular_file_stream::tell() const /*override*/ {
