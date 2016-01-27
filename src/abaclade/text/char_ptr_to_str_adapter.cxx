@@ -25,7 +25,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc {
 
-void to_str_backend<text::char_ptr_to_str_adapter>::write(
+void to_text_ostream<text::char_ptr_to_str_adapter>::write(
    text::char_ptr_to_str_adapter const & cs, io::text::ostream * ptos
 ) {
    void const * p;
@@ -42,7 +42,7 @@ void to_str_backend<text::char_ptr_to_str_adapter>::write(
       enc = text::encoding::host;
       cb = sizeof sc_szNull - sizeof sc_szNull[0] /*NUL*/;
    }
-   text::detail::str_to_str_backend::write(p, cb, enc, ptos);
+   text::detail::str_to_text_ostream::write(p, cb, enc, ptos);
 }
 
 } //namespace abc

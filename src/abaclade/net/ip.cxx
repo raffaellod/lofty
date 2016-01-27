@@ -25,7 +25,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc {
 
-void to_str_backend<net::ip::port>::set_format(str const & sFormat) {
+void to_text_ostream<net::ip::port>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -40,10 +40,10 @@ void to_str_backend<net::ip::port>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<net::ip::port>::write(net::ip::port const & port, io::text::ostream * ptos) {
+void to_text_ostream<net::ip::port>::write(net::ip::port const & port, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, port*/, ptos);
 
-   to_str_backend<net::ip::port::type>::write(port.number(), ptos);
+   to_text_ostream<net::ip::port::type>::write(port.number(), ptos);
 }
 
 } //namespace abc
@@ -71,10 +71,10 @@ address const & address::any_v6 = static_cast<address const &>(gc_abAny6);
 
 namespace abc {
 
-void to_str_backend<net::ip::address>::set_format(str const & sFormat) {
+void to_text_ostream<net::ip::address>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
-   m_tsbV6Group.set_format(ABC_SL("x"));
+   m_ttosV6Group.set_format(ABC_SL("x"));
 
    auto it(sFormat.cbegin());
 
@@ -88,22 +88,22 @@ void to_str_backend<net::ip::address>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<net::ip::address>::write(
+void to_text_ostream<net::ip::address>::write(
    net::ip::address const & addr, io::text::ostream * ptos
 ) {
    ABC_TRACE_FUNC(this/*, addr*/, ptos);
 
    switch (addr.version().base()) {
       case net::ip::version::any:
-         m_tsbChar.write('-', ptos);
+         m_ttosChar.write('-', ptos);
          break;
       case net::ip::version::v4: {
          std::uint8_t const * piGroup = addr.raw();
          std::uint8_t const * piGroupsEnd = addr.raw() + sizeof(net::ip::address::v4_type);
-         m_tsbV4Group.write(*piGroup, ptos);
+         m_ttosV4Group.write(*piGroup, ptos);
          while (++piGroup < piGroupsEnd) {
-            m_tsbChar.write('.', ptos);
-            m_tsbV4Group.write(*piGroup, ptos);
+            m_ttosChar.write('.', ptos);
+            m_ttosV4Group.write(*piGroup, ptos);
          }
          break;
       }
@@ -144,29 +144,29 @@ void to_str_backend<net::ip::address>::write(
          auto piGroup = piGroupsBegin;
          if (piMax0sEnd == piMax0sBegin) {
             // Write the first group, not preceded by “:”.
-            m_tsbV6Group.write(byte_order::be_to_host(*piGroup++), ptos);
+            m_ttosV6Group.write(byte_order::be_to_host(*piGroup++), ptos);
          } else {
             if (piGroup < piMax0sBegin) {
                // Write all the groups before the “max 0s” range.
                do {
-                  m_tsbV6Group.write(byte_order::be_to_host(*piGroup++), ptos);
-                  m_tsbChar.write(':', ptos);
+                  m_ttosV6Group.write(byte_order::be_to_host(*piGroup++), ptos);
+                  m_ttosChar.write(':', ptos);
                } while (piGroup < piMax0sBegin);
             } else {
                // Print one ”:”; the second will be printed in the loop below.
-               m_tsbChar.write(':', ptos);
+               m_ttosChar.write(':', ptos);
             }
             if (piMax0sEnd == piGroupsEnd) {
                // No more groups to write; just add a second “:” and skip the second loop.
-               m_tsbChar.write(':', ptos);
+               m_ttosChar.write(':', ptos);
                break;
             }
             piGroup = piMax0sEnd;
          }
          // Write all the groups after the “max 0s” range.
          while (piGroup < piGroupsEnd) {
-            m_tsbChar.write(':', ptos);
-            m_tsbV6Group.write(byte_order::be_to_host(*piGroup++), ptos);
+            m_ttosChar.write(':', ptos);
+            m_ttosV6Group.write(byte_order::be_to_host(*piGroup++), ptos);
          }
          break;
       }

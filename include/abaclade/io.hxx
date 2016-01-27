@@ -225,11 +225,11 @@ private:
 namespace abc {
 
 template <>
-class to_str_backend<io::filedesc> : public to_str_backend<io::filedesc_t> {
+class to_text_ostream<io::filedesc> : public to_text_ostream<io::filedesc_t> {
 public:
-   //! See to_str_backend<io::filedesc_t>::write().
+   //! See to_text_ostream<io::filedesc_t>::write().
    void write(io::filedesc const & fd, io::text::ostream * ptos) {
-      to_str_backend<io::filedesc_t>::write(fd.get(), ptos);
+      to_text_ostream<io::filedesc_t>::write(fd.get(), ptos);
    }
 };
 

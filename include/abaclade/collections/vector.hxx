@@ -1584,15 +1584,15 @@ bool operator!=(
 
 namespace abc { namespace collections { namespace detail {
 
-/*! Base class for the specializations of to_str_backend for vector types. Not using templates, so
+/*! Base class for the specializations of to_text_ostream for vector types. Not using templates, so
 the implementation can be in a cxx file. */
-class ABACLADE_SYM vector_to_str_backend : public abc::detail::sequence_to_str_backend {
+class ABACLADE_SYM vector_to_text_ostream : public abc::detail::sequence_to_text_ostream {
 public:
    //! Default constructor.
-   vector_to_str_backend();
+   vector_to_text_ostream();
 
    //! Destructor.
-   ~vector_to_str_backend();
+   ~vector_to_text_ostream();
 
 protected:
    /*! Formatting options to be applied to the individual elements, obtained from the constructor
@@ -1608,8 +1608,8 @@ protected:
 namespace abc {
 
 template <typename T, std::size_t t_ciEmbeddedCapacity>
-class to_str_backend<collections::vector<T, t_ciEmbeddedCapacity>> :
-   public collections::detail::vector_to_str_backend {
+class to_text_ostream<collections::vector<T, t_ciEmbeddedCapacity>> :
+   public collections::detail::vector_to_text_ostream {
 public:
    /*! Changes the output format.
 
@@ -1619,8 +1619,8 @@ public:
    void set_format(str const & sFormat) {
 //    ABC_TRACE_FUNC(this, sFormat);
 
-      collections::detail::vector_to_str_backend::set_format(sFormat);
-      m_tsbElt.set_format(m_sEltFormat);
+      collections::detail::vector_to_text_ostream::set_format(sFormat);
+      m_ttosElt.set_format(m_sEltFormat);
    }
 
    /*! Writes a vector, applying the formatting options.
@@ -1636,10 +1636,10 @@ public:
       _write_start(ptos);
       auto it(v.cbegin()), itEnd(v.cend());
       if (it != itEnd) {
-         m_tsbElt.write(*it, ptos);
+         m_ttosElt.write(*it, ptos);
          while (++it != itEnd) {
             _write_separator(ptos);
-            m_tsbElt.write(*it, ptos);
+            m_ttosElt.write(*it, ptos);
          }
       }
       _write_end(ptos);
@@ -1647,12 +1647,12 @@ public:
 
 protected:
    //! Backend for the individual elements.
-   to_str_backend<T> m_tsbElt;
+   to_text_ostream<T> m_ttosElt;
 };
 
 template <typename T>
-class to_str_backend<collections::detail::vector_const_iterator<T>> :
-   public to_str_backend<typename collections::detail::vector_const_iterator<T>::pointer> {
+class to_text_ostream<collections::detail::vector_const_iterator<T>> :
+   public to_text_ostream<typename collections::detail::vector_const_iterator<T>::pointer> {
 public:
    /*! Writes an iterator as a pointer, applying the formatting options.
 
@@ -1662,15 +1662,15 @@ public:
       Pointer to the stream to output to.
    */
    void write(collections::detail::vector_const_iterator<T> const & it, io::text::ostream * ptos) {
-      to_str_backend<
+      to_text_ostream<
          typename collections::detail::vector_const_iterator<T>::pointer
       >::write(&*it, ptos);
    }
 };
 
 template <typename T>
-class to_str_backend<collections::detail::vector_iterator<T>> :
-   public to_str_backend<collections::detail::vector_const_iterator<T>> {
+class to_text_ostream<collections::detail::vector_iterator<T>> :
+   public to_text_ostream<collections::detail::vector_const_iterator<T>> {
 };
 
 } //namespace abc

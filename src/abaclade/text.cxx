@@ -686,7 +686,7 @@ std::size_t size_in_chars(char const * psz) {
 
 namespace abc {
 
-void to_str_backend<text::file_address>::set_format(str const & sFormat) {
+void to_text_ostream<text::file_address>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -701,7 +701,7 @@ void to_str_backend<text::file_address>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<text::file_address>::write(
+void to_text_ostream<text::file_address>::write(
    text::file_address const & tfa, io::text::ostream * ptos
 ) {
    ABC_TRACE_FUNC(this/*, tfa*/, ptos);

@@ -31,7 +31,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace text {
 
-/*! Adapter to allow printing of C-style NUL-terminated char * strings via to_str_backend. Use this
+/*! Adapter to allow printing of C-style NUL-terminated char * strings via to_text_ostream. Use this
 for compatibility with STL methods such as std::exception::what(). Without this, C strings are
 printed only as pointers, which is often undesirable.
 
@@ -42,7 +42,7 @@ Even on POSIX, constructing str instances is slower than using char_ptr_to_str_a
 Instances of this class don’t own the memory object they point to. */
 class char_ptr_to_str_adapter {
 private:
-   friend class abc::to_str_backend<char_ptr_to_str_adapter>;
+   friend class abc::to_text_ostream<char_ptr_to_str_adapter>;
 
 public:
    /*! Constructor.
@@ -67,8 +67,8 @@ protected:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<text::char_ptr_to_str_adapter> :
-   public text::detail::str_to_str_backend {
+class ABACLADE_SYM to_text_ostream<text::char_ptr_to_str_adapter> :
+   public text::detail::str_to_text_ostream {
 public:
    /*! Writes a C-style NUL-terminated string, applying the formatting options.
 

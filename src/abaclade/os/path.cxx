@@ -520,7 +520,7 @@ str::const_iterator path::base_name_start() const {
 
 namespace abc {
 
-void to_str_backend<os::path>::set_format(str const & sFormat) {
+void to_text_ostream<os::path>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -535,10 +535,10 @@ void to_str_backend<os::path>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<os::path>::write(os::path const & op, io::text::ostream * ptos) {
+void to_text_ostream<os::path>::write(os::path const & op, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, op*/, ptos);
 
-   to_str_backend<str>::write(op, ptos);
+   to_text_ostream<str>::write(op, ptos);
 }
 
 } //namespace abc

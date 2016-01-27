@@ -207,8 +207,8 @@ private:
       typename _std::enable_if<(t_i + 1 < smc_cTs), io::text::ostream *>::type ptos
    ) const {
       {
-         to_str_backend<typename _std::tuple_element<t_i, tuple_type>::type> tsb;
-         tsb.write(_std::get<t_i>(*this), ptos);
+         to_text_ostream<typename _std::tuple_element<t_i, tuple_type>::type> ttos;
+         ttos.write(_std::get<t_i>(*this), ptos);
       }
       // Write a separator and recurse to write the rest.
       write_separator(ptos);
@@ -219,8 +219,8 @@ private:
    void write_vars(
       typename _std::enable_if<(t_i + 1 == smc_cTs), io::text::ostream *>::type ptos
    ) const {
-      to_str_backend<typename _std::tuple_element<t_i, tuple_type>::type> tsb;
-      tsb.write(_std::get<t_i>(*this), ptos);
+      to_text_ostream<typename _std::tuple_element<t_i, tuple_type>::type> ttos;
+      ttos.write(_std::get<t_i>(*this), ptos);
    }
    /* This overload does nothing. Only needed because the tuple may be empty, but write() will call
    write_vars<0>() unconditionally. */

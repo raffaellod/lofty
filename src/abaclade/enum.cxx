@@ -54,7 +54,7 @@ namespace abc { namespace detail {
 
 namespace abc { namespace detail {
 
-void enum_to_str_backend_impl::set_format(str const & sFormat) {
+void enum_to_text_ostream_impl::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -69,7 +69,7 @@ void enum_to_str_backend_impl::set_format(str const & sFormat) {
    }
 }
 
-void enum_to_str_backend_impl::write_impl(
+void enum_to_text_ostream_impl::write_impl(
    int i, enum_member const * pem, io::text::ostream * ptos
 ) {
    ABC_TRACE_FUNC(this, i, pem, ptos);

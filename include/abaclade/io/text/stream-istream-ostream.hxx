@@ -298,7 +298,7 @@ public:
    The implementation of print() is entirely contained in
    abc::io::text::detail::ostream_print_helper, which accesses the individual arguments in a
    recursive way, from the most-derived class down to the base class, which also contains most of
-   the implementation. Combined with the usage of abc::to_str_backend() (that it shares with
+   the implementation. Combined with the usage of abc::to_text_ostream() (that it shares with
    abc::to_str()), this enables a type-safe variadic alternative to C’s printf, and voids the
    requirement for explicit specification of the argument types (such as %d, %s), much like Python’s
    str.format().
@@ -314,7 +314,7 @@ public:
    A replacement field can specify an argument index; if omitted, the argument used will be the one
    following the last used one, or the first if no arguments have been used up to that point. After
    the optional argument index, an optional type-dependent format specification can be indicated;
-   this will be passed as-is to the specialization of abc::to_str_backend for the selected argument.
+   this will be passed as-is to the specialization of abc::to_text_ostream for the selected argument.
 
    Grammar for a replacement field:
 
@@ -571,13 +571,13 @@ protected:
    //! See ostream_print_helper<>::write_repl().
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
-         to_str_backend<T0> tsb;
-         tsb.set_format(str(
+         to_text_ostream<T0> ttos;
+         ttos.set_format(str(
             external_buffer, osph_base::m_pchReplFormatSpecBegin, static_cast<std::size_t>(
                osph_base::m_pchReplFormatSpecEnd - osph_base::m_pchReplFormatSpecBegin
             )
          ));
-         tsb.write(m_t0, osph_base::m_ptos);
+         ttos.write(m_t0, osph_base::m_ptos);
       } else {
          // Recurse to the previous level.
          osph_base::write_repl(iArg - 1);
@@ -738,13 +738,13 @@ protected:
    //! See ostream_print_helper<>::write_repl().
    void write_repl(unsigned iArg) {
       if (iArg == 0) {
-         to_str_backend<T0> tsb;
-         tsb.set_format(str(
+         to_text_ostream<T0> ttos;
+         ttos.set_format(str(
             external_buffer, osph_base::m_pchReplFormatSpecBegin, static_cast<std::size_t>(
                osph_base::m_pchReplFormatSpecEnd - osph_base::m_pchReplFormatSpecBegin
             )
          ));
-         tsb.write(m_t0, osph_base::m_ptos);
+         ttos.write(m_t0, osph_base::m_ptos);
       } else {
          // Recurse to the previous level.
          osph_base::write_repl(iArg - 1);

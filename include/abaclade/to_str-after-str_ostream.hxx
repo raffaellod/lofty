@@ -28,9 +28,11 @@ namespace abc {
 template <typename T>
 inline str to_str(T const & t, str const & sFormat /*= str::empty*/) {
    io::text::str_ostream sos;
-   to_str_backend<T> tsb;
-   tsb.set_format(sFormat);
-   tsb.write(t, &sos);
+   {
+      to_text_ostream<T> ttos;
+      ttos.set_format(sFormat);
+      ttos.write(t, &sos);
+   }
    return sos.release_content();
 }
 

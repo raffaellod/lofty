@@ -95,7 +95,7 @@ protected:
 namespace abc {
 
 template <>
-class to_str_backend<perf::stopwatch> : public to_str_backend<perf::stopwatch::duration_type> {
+class to_text_ostream<perf::stopwatch> : public to_text_ostream<perf::stopwatch::duration_type> {
 public:
    /*! Writes a stopwatch by its duration in ns, applying the formatting options.
 
@@ -105,7 +105,7 @@ public:
       Pointer to the stream to output to.
    */
    void write(perf::stopwatch const & sw, io::text::ostream * ptos) {
-      to_str_backend<perf::stopwatch::duration_type>::write(sw.duration(), ptos);
+      to_text_ostream<perf::stopwatch::duration_type>::write(sw.duration(), ptos);
    }
 };
 

@@ -378,7 +378,7 @@ std::size_t hash<abc::text::str>::operator()(abc::text::str const & s) const {
 
 namespace abc { namespace text { namespace detail {
 
-void str_to_str_backend::set_format(str const & sFormat) {
+void str_to_text_ostream::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -393,7 +393,7 @@ void str_to_str_backend::set_format(str const & sFormat) {
    }
 }
 
-void str_to_str_backend::write(
+void str_to_text_ostream::write(
    void const * p, std::size_t cb, encoding enc, io::text::ostream * ptos
 ) {
    ABC_TRACE_FUNC(this, p, cb, enc, ptos);
@@ -407,8 +407,8 @@ void str_to_str_backend::write(
 
 namespace abc {
 
-void to_str_backend<text::str>::write(text::str const & s, io::text::ostream * ptos) {
-   text::detail::str_to_str_backend::write(s.data(), static_cast<std::size_t>(
+void to_text_ostream<text::str>::write(text::str const & s, io::text::ostream * ptos) {
+   text::detail::str_to_text_ostream::write(s.data(), static_cast<std::size_t>(
       reinterpret_cast<std::uintptr_t>(s.data_end()) - reinterpret_cast<std::uintptr_t>(s.data())
    ), text::encoding::host, ptos);
 }

@@ -173,7 +173,7 @@ bool process::joinable() const {
 
 namespace abc {
 
-void to_str_backend<process>::set_format(str const & sFormat) {
+void to_text_ostream<process>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -188,12 +188,12 @@ void to_str_backend<process>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<process>::write(process const & proc, io::text::ostream * ptos) {
+void to_text_ostream<process>::write(process const & proc, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, proc*/, ptos);
 
    ptos->write(ABC_SL("TID:"));
    if (process::id_type id = proc.id()) {
-      to_str_backend<process::id_type>::write(id, ptos);
+      to_text_ostream<process::id_type>::write(id, ptos);
    } else {
       ptos->write(ABC_SL("-"));
    }

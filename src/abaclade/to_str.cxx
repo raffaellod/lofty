@@ -32,7 +32,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc {
 
-void to_str_backend<bool>::set_format(str const & sFormat) {
+void to_text_ostream<bool>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -47,7 +47,7 @@ void to_str_backend<bool>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<bool>::write(bool b, io::text::ostream * ptos) {
+void to_text_ostream<bool>::write(bool b, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, b*/, ptos);
 
    if (b) {
@@ -63,14 +63,14 @@ void to_str_backend<bool>::write(bool b, io::text::ostream * ptos) {
 
 namespace abc { namespace detail {
 
-char const int_to_str_backend_base::smc_achIntToStrU[16] = {
+char const int_to_text_ostream_base::smc_achIntToStrU[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
-char const int_to_str_backend_base::smc_achIntToStrL[16] = {
+char const int_to_text_ostream_base::smc_achIntToStrL[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 };
 
-int_to_str_backend_base::int_to_str_backend_base(unsigned cbInt) :
+int_to_text_ostream_base::int_to_text_ostream_base(unsigned cbInt) :
    m_pchIntToStr(smc_achIntToStrL),
    // Default to generating at least a single zero.
    m_cchWidth(1),
@@ -86,7 +86,7 @@ int_to_str_backend_base::int_to_str_backend_base(unsigned cbInt) :
    m_chPrefix1('\0') {
 }
 
-void int_to_str_backend_base::set_format(str const & sFormat) {
+void int_to_text_ostream_base::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    bool bPrefix = false;
@@ -195,7 +195,7 @@ default_notation:
    m_cchBuf = 2 /*prefix or sign*/ + std::max(m_cchWidth, cchByte * mc_cbInt);
 }
 
-void int_to_str_backend_base::add_prefixes_and_write(
+void int_to_text_ostream_base::add_prefixes_and_write(
    bool bNegative, io::text::ostream * ptos, str * psBuf, str::iterator itBufFirstUsed
 ) const {
    ABC_TRACE_FUNC(this, bNegative, ptos, psBuf, itBufFirstUsed);
@@ -237,7 +237,7 @@ void int_to_str_backend_base::add_prefixes_and_write(
 }
 
 template <typename I>
-inline void int_to_str_backend_base::write_impl(I i, io::text::ostream * ptos) const {
+inline void int_to_text_ostream_base::write_impl(I i, io::text::ostream * ptos) const {
    ABC_TRACE_FUNC(this/*, i*/, ptos);
 
    // Create a buffer of sufficient size for binary notation (the largest).
@@ -270,29 +270,29 @@ inline void int_to_str_backend_base::write_impl(I i, io::text::ostream * ptos) c
    add_prefixes_and_write(numeric::is_negative<I>(i), ptos, sBuf.str_ptr(), it);
 }
 
-void int_to_str_backend_base::write_s64(std::int64_t i, io::text::ostream * ptos) const {
+void int_to_text_ostream_base::write_s64(std::int64_t i, io::text::ostream * ptos) const {
    write_impl(i, ptos);
 }
 
-void int_to_str_backend_base::write_u64(std::uint64_t i, io::text::ostream * ptos) const {
+void int_to_text_ostream_base::write_u64(std::uint64_t i, io::text::ostream * ptos) const {
    write_impl(i, ptos);
 }
 
 #if ABC_HOST_WORD_SIZE < 64
-void int_to_str_backend_base::write_s32(std::int32_t i, io::text::ostream * ptos) const {
+void int_to_text_ostream_base::write_s32(std::int32_t i, io::text::ostream * ptos) const {
    write_impl(i, ptos);
 }
 
-void int_to_str_backend_base::write_u32(std::uint32_t i, io::text::ostream * ptos) const {
+void int_to_text_ostream_base::write_u32(std::uint32_t i, io::text::ostream * ptos) const {
    write_impl(i, ptos);
 }
 
 #if ABC_HOST_WORD_SIZE < 32
-void int_to_str_backend_base::write_s16(std::int16_t i, io::text::ostream * ptos) const {
+void int_to_text_ostream_base::write_s16(std::int16_t i, io::text::ostream * ptos) const {
    write_impl(i, ptos);
 }
 
-void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::ostream * ptos) const {
+void int_to_text_ostream_base::write_u16(std::uint16_t i, io::text::ostream * ptos) const {
    write_impl(i, ptos);
 }
 #endif //if ABC_HOST_WORD_SIZE < 32
@@ -304,10 +304,10 @@ void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::ostream * pto
 
 namespace abc { namespace detail {
 
-void ptr_to_str_backend::set_format(str const & sFormat) {
+void ptr_to_text_ostream::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
-   to_str_backend<std::uintptr_t>::set_format(ABC_SL("#x"));
+   to_text_ostream<std::uintptr_t>::set_format(ABC_SL("#x"));
 
    auto it(sFormat.cbegin());
 
@@ -321,11 +321,11 @@ void ptr_to_str_backend::set_format(str const & sFormat) {
    }
 }
 
-void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::ostream * ptos) {
+void ptr_to_text_ostream::_write_impl(std::uintptr_t iPtr, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, iPtr*/, ptos);
 
    if (iPtr) {
-      to_str_backend<std::uintptr_t>::write(iPtr, ptos);
+      to_text_ostream<std::uintptr_t>::write(iPtr, ptos);
    } else {
       ptos->write(ABC_SL("nullptr"));
    }
@@ -337,13 +337,13 @@ void ptr_to_str_backend::_write_impl(std::uintptr_t iPtr, io::text::ostream * pt
 
 namespace abc {
 
-to_str_backend<_std::type_info>::to_str_backend() {
+to_text_ostream<_std::type_info>::to_text_ostream() {
 }
 
-to_str_backend<_std::type_info>::~to_str_backend() {
+to_text_ostream<_std::type_info>::~to_text_ostream() {
 }
 
-void to_str_backend<_std::type_info>::set_format(str const & sFormat) {
+void to_text_ostream<_std::type_info>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -358,7 +358,7 @@ void to_str_backend<_std::type_info>::set_format(str const & sFormat) {
    }
 }
 
-void to_str_backend<_std::type_info>::write(_std::type_info const & ti, io::text::ostream * ptos) {
+void to_text_ostream<_std::type_info>::write(_std::type_info const & ti, io::text::ostream * ptos) {
    char const * psz = ti.name();
 #if ABC_HOST_CXX_CLANG || ABC_HOST_CXX_GCC
    // Clang and G++ generate mangled names.
@@ -381,8 +381,8 @@ void to_str_backend<_std::type_info>::write(_std::type_info const & ti, io::text
       }
    }
 #endif
-   to_str_backend<text::char_ptr_to_str_adapter> tsbCStr;
-   tsbCStr.write(text::char_ptr_to_str_adapter(psz), ptos);
+   to_text_ostream<text::char_ptr_to_str_adapter> ttosCStr;
+   ttosCStr.write(text::char_ptr_to_str_adapter(psz), ptos);
 }
 
 } //namespace abc
@@ -391,13 +391,13 @@ void to_str_backend<_std::type_info>::write(_std::type_info const & ti, io::text
 
 namespace abc { namespace detail {
 
-sequence_to_str_backend::sequence_to_str_backend(str const & sStart, str const & sEnd) :
+sequence_to_text_ostream::sequence_to_text_ostream(str const & sStart, str const & sEnd) :
    m_sSeparator(ABC_SL(", ")),
    m_sStart(sStart),
    m_sEnd(sEnd) {
 }
 
-void sequence_to_str_backend::set_format(str const & sFormat) {
+void sequence_to_text_ostream::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
    auto it(sFormat.cbegin());
@@ -412,18 +412,18 @@ void sequence_to_str_backend::set_format(str const & sFormat) {
    }
 }
 
-sequence_to_str_backend::~sequence_to_str_backend() {
+sequence_to_text_ostream::~sequence_to_text_ostream() {
 }
 
-void sequence_to_str_backend::_write_end(io::text::ostream * ptos) {
+void sequence_to_text_ostream::_write_end(io::text::ostream * ptos) {
    ptos->write(m_sEnd);
 }
 
-void sequence_to_str_backend::_write_separator(io::text::ostream * ptos) {
+void sequence_to_text_ostream::_write_separator(io::text::ostream * ptos) {
    ptos->write(m_sSeparator);
 }
 
-void sequence_to_str_backend::_write_start(io::text::ostream * ptos) {
+void sequence_to_text_ostream::_write_start(io::text::ostream * ptos) {
    ptos->write(m_sStart);
 }
 

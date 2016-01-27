@@ -174,7 +174,7 @@ private:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<process> : public to_str_backend<process::id_type> {
+class ABACLADE_SYM to_text_ostream<process> : public to_text_ostream<process::id_type> {
 public:
    /*! Changes the output format.
 

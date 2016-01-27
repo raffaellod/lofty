@@ -107,7 +107,7 @@ public:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<net::ip::port> : public to_str_backend<net::ip::port::type> {
+class ABACLADE_SYM to_text_ostream<net::ip::port> : public to_text_ostream<net::ip::port::type> {
 public:
    /*! Changes the output format.
 
@@ -226,7 +226,7 @@ public:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<net::ip::address> {
+class ABACLADE_SYM to_text_ostream<net::ip::address> {
 public:
    /*! Changes the output format.
 
@@ -245,9 +245,9 @@ public:
    void write(net::ip::address const & addr, io::text::ostream * ptos);
 
 protected:
-   to_str_backend<char_t> m_tsbChar;
-   to_str_backend<std::uint8_t> m_tsbV4Group;
-   to_str_backend<std::uint16_t> m_tsbV6Group;
+   to_text_ostream<char_t> m_ttosChar;
+   to_text_ostream<std::uint8_t> m_ttosV4Group;
+   to_text_ostream<std::uint16_t> m_ttosV6Group;
 };
 
 } //namespace abc

@@ -179,7 +179,7 @@ ABACLADE_SYM std::size_t transcode(
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<text::file_address> {
+class ABACLADE_SYM to_text_ostream<text::file_address> {
 public:
    /*! Changes the output format.
 

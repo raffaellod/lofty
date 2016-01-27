@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -24,11 +24,11 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace collections { namespace detail {
 
-vector_to_str_backend::vector_to_str_backend() :
-   abc::detail::sequence_to_str_backend(ABC_SL("{"), ABC_SL("}")) {
+vector_to_text_ostream::vector_to_text_ostream() :
+   abc::detail::sequence_to_text_ostream(ABC_SL("{"), ABC_SL("}")) {
 }
 
-vector_to_str_backend::~vector_to_str_backend() {
+vector_to_text_ostream::~vector_to_text_ostream() {
 }
 
 }}} //namespace abc::collections::detail

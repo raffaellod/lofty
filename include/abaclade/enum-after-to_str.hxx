@@ -37,8 +37,8 @@ inline str enum_impl<T>::name() const {
 
 namespace abc { namespace detail {
 
-//! Implementation of the specializations of to_str_backend for enum_impl specializations.
-class ABACLADE_SYM enum_to_str_backend_impl {
+//! Implementation of the specializations of to_text_ostream for enum_impl specializations.
+class ABACLADE_SYM enum_to_text_ostream_impl {
 public:
    /*! Changes the output format.
 
@@ -68,11 +68,11 @@ protected:
 namespace abc {
 
 template <class T>
-class to_str_backend<enum_impl<T>> : public detail::enum_to_str_backend_impl {
+class to_text_ostream<enum_impl<T>> : public detail::enum_to_text_ostream_impl {
 public:
-   //! See abc::detail::enum_to_str_backend_impl::write().
+   //! See abc::detail::enum_to_text_ostream_impl::write().
    void write(enum_impl<T> e, io::text::ostream * ptos) {
-      detail::enum_to_str_backend_impl::write_impl(e.base(), e._get_map(), ptos);
+      detail::enum_to_text_ostream_impl::write_impl(e.base(), e._get_map(), ptos);
    }
 };
 

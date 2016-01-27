@@ -169,7 +169,7 @@ private:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<thread> : public to_str_backend<thread::id_type> {
+class ABACLADE_SYM to_text_ostream<thread> : public to_text_ostream<thread::id_type> {
 public:
    /*! Changes the output format.
 

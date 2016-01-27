@@ -25,10 +25,10 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace text { namespace detail {
 
-/*! Base class for the specializations of to_str_backend for string types. Not using templates, so
+/*! Base class for the specializations of to_text_ostream for string types. Not using templates, so
 the implementation can be in a cxx file. This is used by string literal types as well (see
 below). */
-class ABACLADE_SYM str_to_str_backend {
+class ABACLADE_SYM str_to_text_ostream {
 public:
    /*! Changes the output format.
 
@@ -58,10 +58,10 @@ protected:
 
 namespace abc {
 
-#define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(C, enc) \
+#define ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(C, enc) \
    /*! Character literal. */ \
    template <> \
-   class to_str_backend<C> : public text::detail::str_to_str_backend { \
+   class to_text_ostream<C> : public text::detail::str_to_text_ostream { \
    public: \
       /*! Writes a character, applying the formatting options.
 
@@ -71,13 +71,13 @@ namespace abc {
          Pointer to the stream to output to.
       */ \
       void write(C ch, io::text::ostream * ptos) { \
-         text::detail::str_to_str_backend::write(&ch, sizeof(C), enc, ptos); \
+         text::detail::str_to_text_ostream::write(&ch, sizeof(C), enc, ptos); \
       } \
    }; \
    \
    /*! String literal. */ \
    template <std::size_t t_cch> \
-   class to_str_backend<C [t_cch]> : public text::detail::str_to_str_backend { \
+   class to_text_ostream<C [t_cch]> : public text::detail::str_to_text_ostream { \
    public: \
       /*! Writes a string, applying the formatting options.
 
@@ -87,27 +87,27 @@ namespace abc {
          Pointer to the stream to output to.
       */ \
       void write(C const (& ach)[t_cch], io::text::ostream * ptos) { \
-         text::detail::str_to_str_backend::write(ach, sizeof(C) * ABC_SL_SIZE(ach), enc, ptos); \
+         text::detail::str_to_text_ostream::write(ach, sizeof(C) * ABC_SL_SIZE(ach), enc, ptos); \
       } \
    }; \
    \
    /*! MSC16 BUG: this partial specialization is necessary. */ \
    template <std::size_t t_cch> \
-   class to_str_backend<C const [t_cch]> : public to_str_backend<C [t_cch]> {};
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char, text::encoding::utf8)
+   class to_text_ostream<C const [t_cch]> : public to_text_ostream<C [t_cch]> {};
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(char, text::encoding::utf8)
 /* Specializations for wchar_t, if it’s what char16_t or char32_t map to, and for char16/32_t, if
 they’re native types. */
 #if ABC_CXX_CHAR16 == 2
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char16_t, text::encoding::utf16_host)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(char16_t, text::encoding::utf16_host)
 #elif ABC_CXX_CHAR16 == 1
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf16_host)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(wchar_t, text::encoding::utf16_host)
 #endif
 #if ABC_CXX_CHAR32 == 2
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(char32_t, text::encoding::utf32_host)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(char32_t, text::encoding::utf32_host)
 #elif ABC_CXX_CHAR32 == 1
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 #endif
-#undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
+#undef ABC_SPECIALIZE_to_text_ostream_FOR_TYPE
 
 } //namespace abc
 
@@ -117,7 +117,7 @@ ABC_SPECIALIZE_to_str_backend_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<text::str> : public text::detail::str_to_str_backend {
+class ABACLADE_SYM to_text_ostream<text::str> : public text::detail::str_to_text_ostream {
 public:
    /*! Writes a string, applying the formatting options.
 
@@ -130,7 +130,7 @@ public:
 };
 
 template <std::size_t t_cchEmbeddedCapacity>
-class to_str_backend<text::sstr<t_cchEmbeddedCapacity>> : public to_str_backend<text::str> {
+class to_text_ostream<text::sstr<t_cchEmbeddedCapacity>> : public to_text_ostream<text::str> {
 public:
    /*! Writes a string, applying the formatting options.
 
@@ -140,12 +140,12 @@ public:
       Pointer to the stream to output to.
    */
    void write(text::sstr<t_cchEmbeddedCapacity> const & s, io::text::ostream * ptos) {
-      to_str_backend<text::str>::write(s.str(), ptos);
+      to_text_ostream<text::str>::write(s.str(), ptos);
    }
 };
 
 template <>
-class to_str_backend<text::str::const_codepoint_proxy> : public to_str_backend<char32_t> {
+class to_text_ostream<text::str::const_codepoint_proxy> : public to_text_ostream<char32_t> {
 public:
    /*! Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
 
@@ -155,17 +155,17 @@ public:
       Pointer to the stream to output to.
    */
    void write(text::str::const_codepoint_proxy const & cpp, io::text::ostream * ptos) {
-      to_str_backend<char32_t>::write(cpp.operator char32_t(), ptos);
+      to_text_ostream<char32_t>::write(cpp.operator char32_t(), ptos);
    }
 };
 
 template <>
-class to_str_backend<text::str::codepoint_proxy> :
-   public to_str_backend<text::str::const_codepoint_proxy> {
+class to_text_ostream<text::str::codepoint_proxy> :
+   public to_text_ostream<text::str::const_codepoint_proxy> {
 };
 
 template <>
-class to_str_backend<text::str::const_iterator> : public to_str_backend<std::size_t> {
+class to_text_ostream<text::str::const_iterator> : public to_text_ostream<std::size_t> {
 public:
    /*! Writes a code point iterator as a character index, applying the formatting options.
 
@@ -175,12 +175,12 @@ public:
       Pointer to the stream to output to.
    */
    void write(text::str::const_iterator const & it, io::text::ostream * ptos) {
-      to_str_backend<std::size_t>::write(it.char_index(), ptos);
+      to_text_ostream<std::size_t>::write(it.char_index(), ptos);
    }
 };
 
 template <>
-class to_str_backend<text::str::iterator> : public to_str_backend<text::str::const_iterator> {
+class to_text_ostream<text::str::iterator> : public to_text_ostream<text::str::const_iterator> {
 };
 
 } //namespace abc

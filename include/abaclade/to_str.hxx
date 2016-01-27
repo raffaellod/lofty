@@ -32,31 +32,26 @@ conversions”); here are the main differences when compared to the STL function
 
 •  It accepts an additional argument, controlling how the conversion to string is to be done;
 
-•  Its default specialization relies on abc::to_str_backend(), which outputs its result to an
+•  Its default specialization relies on abc::to_text_ostream, which outputs its result to an
    abc::io::text::ostream instance; this means that the complete specialization is shared with
    abc::io::text::ostream::print();
 
-•  Since the default implementation of abc::to_str() is a thin wrapper around abc::to_str_backend,
-   implementors can provide a partial specialization for it (partial specializations of function are
-   still not allowed in C++11), allowing to share parts of the implementation among convertible
-   classes.
-
-The format specification is provided to an abc::to_str_backend specialization by passing it an
+The format specification is provided to an abc::to_text_ostream specialization by passing it an
 abc::text::str const &, so a caller can specify a non-NUL-terminated substring of a larger string
-without the need for temporary strings. Once an abc::to_str_backend instance has been constructed,
+without the need for temporary strings. Once an abc::to_text_ostream instance has been constructed,
 it must be able to sequentially process an infinite number of conversions, i.e. instances of a
-to_str_backend specialization must be reusable.
+to_text_ostream specialization must be reusable.
 
-The interpretation of the format specification is up to the specialization of abc::to_str_backend.
+The interpretation of the format specification is up to the specialization of abc::to_text_ostream.
 
-When code causes the compiler to instantiate a specialization of abc::to_str_backend that has not
+When code causes the compiler to instantiate a specialization of abc::to_text_ostream that has not
 been defined, GCC will generate an error:
 
    @verbatim
-   error: ‘abc::to_str_backend<my_type> …’ has incomplete type
+   error: ‘abc::to_text_ostream<my_type> …’ has incomplete type
    @endverbatim
 
-The only fix for this is to provide an explicit specialization of abc::to_str_backend for my_type.
+The only fix for this is to provide an explicit specialization of abc::to_text_ostream for my_type.
 
 @param t
    Object to generate a string representation for.
@@ -74,7 +69,8 @@ str to_str(T const & t, str const & sFormat = str::empty);
 
 namespace abc {
 
-/*! Generates a string suitable for display from an object.
+/*! Writes a string representation of one or more objects of the same type, according to a format
+string.
 
 This class template and its specializations are at the core of abc::to_str() and
 abc::io::text::ostream::print().
@@ -82,18 +78,18 @@ abc::io::text::ostream::print().
 Once constructed with the desired format specification, an instance must be able to convert to
 string any number of T instances. */
 template <typename T>
-class to_str_backend;
+class to_text_ostream;
 
 //! @cond
 // Partial specializations for cv-qualified T and T reference.
 template <typename T>
-class to_str_backend<T const> : public to_str_backend<T> {};
+class to_text_ostream<T const> : public to_text_ostream<T> {};
 template <typename T>
-class to_str_backend<T volatile> : public to_str_backend<T> {};
+class to_text_ostream<T volatile> : public to_text_ostream<T> {};
 template <typename T>
-class to_str_backend<T const volatile> : public to_str_backend<T> {};
+class to_text_ostream<T const volatile> : public to_text_ostream<T> {};
 template <typename T>
-class to_str_backend<T &> : public to_str_backend<T> {};
+class to_text_ostream<T &> : public to_text_ostream<T> {};
 //! @endcond
 
 } //namespace abc
@@ -104,7 +100,7 @@ class to_str_backend<T &> : public to_str_backend<T> {};
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<bool> {
+class ABACLADE_SYM to_text_ostream<bool> {
 public:
    /*! Changes the output format.
 
@@ -130,15 +126,15 @@ public:
 
 namespace abc { namespace detail {
 
-//! Base class for the specializations of to_str_backend for integer types.
-class ABACLADE_SYM int_to_str_backend_base {
+//! Base class for the specializations of to_text_ostream for integer types.
+class ABACLADE_SYM int_to_text_ostream_base {
 public:
    /*! Constructor.
 
    @param cbInt
       Size of the integer type.
    */
-   int_to_str_backend_base(unsigned cbInt);
+   int_to_text_ostream_base(unsigned cbInt);
 
    /*! Changes the output format.
 
@@ -239,7 +235,7 @@ protected:
 
 // On a machine with 64-bit word size, write_64*() will be faster.
 
-inline void int_to_str_backend_base::write_s32(std::int32_t i, io::text::ostream * ptos) const {
+inline void int_to_text_ostream_base::write_s32(std::int32_t i, io::text::ostream * ptos) const {
    if (m_iBaseOrShift == 10) {
       write_s64(i, ptos);
    } else {
@@ -249,7 +245,7 @@ inline void int_to_str_backend_base::write_s32(std::int32_t i, io::text::ostream
    }
 }
 
-inline void int_to_str_backend_base::write_u32(std::uint32_t i, io::text::ostream * ptos) const {
+inline void int_to_text_ostream_base::write_u32(std::uint32_t i, io::text::ostream * ptos) const {
    write_u64(i, ptos);
 }
 
@@ -258,7 +254,7 @@ inline void int_to_str_backend_base::write_u32(std::uint32_t i, io::text::ostrea
 /* On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in
 turn defer to write_64*() (see above). */
 
-inline void int_to_str_backend_base::write_s16(std::int16_t i, io::text::ostream * ptos) const {
+inline void int_to_text_ostream_base::write_s16(std::int16_t i, io::text::ostream * ptos) const {
    if (m_iBaseOrShift == 10) {
       write_s32(i, ptos);
    } else {
@@ -268,7 +264,7 @@ inline void int_to_str_backend_base::write_s16(std::int16_t i, io::text::ostream
    }
 }
 
-inline void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::ostream * ptos) const {
+inline void int_to_text_ostream_base::write_u16(std::uint16_t i, io::text::ostream * ptos) const {
    write_u32(i, ptos);
 }
 
@@ -280,27 +276,28 @@ inline void int_to_str_backend_base::write_u16(std::uint16_t i, io::text::ostrea
 
 namespace abc { namespace detail {
 
-//! Implementation of the specializations of to_str_backend for integer types.
+//! Implementation of the specializations of to_text_ostream for integer types.
 template <typename I>
-class int_to_str_backend : public int_to_str_backend_base {
+class int_to_text_ostream : public int_to_text_ostream_base {
 public:
    //! Default constructor.
-   int_to_str_backend() :
-      int_to_str_backend_base(sizeof(I)) {
+   int_to_text_ostream() :
+      int_to_text_ostream_base(sizeof(I)) {
    }
 
    /*! Converts an integer to its string representation.
 
    This design is rather tricky in the way one implementation calls another:
 
-   1. int_to_str_backend<I>::write()
+   1. int_to_text_ostream<I>::write()
       Always inlined, dispatches to step 2. based on number of bits;
-   2. int_to_str_backend_base::write_{s,u}{8,16,32,64}()
-      Inlined to a bit-bigger variant or implemented in to_str_backend.cxx, depending on the host
+   2. int_to_text_ostream_base::write_{s,u}{8,16,32,64}()
+      Inlined to a bit-bigger variant or implemented in to_text_ostream.cxx, depending on the host
       architecture’s word size;
-   3. int_to_str_backend_base::write_impl()
-      Always inlined, but only used in functions defined in to_str_backend.cxx, so it only generates
-      as many copies as strictly necessary to have fastest performance for any integer size.
+   3. int_to_text_ostream_base::write_impl()
+      Always inlined, but only used in functions defined in to_text_ostream.cxx, so it only
+      generates as many copies as strictly necessary to have fastest performance for any integer
+      size.
 
    The net result is that after all the inlining occurs, this will become a direct call to the
    fastest implementation for I of any given size.
@@ -350,19 +347,19 @@ protected:
 
 namespace abc {
 
-#define ABC_SPECIALIZE_to_str_backend_FOR_TYPE(I) \
+#define ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(I) \
    template <> \
-   class to_str_backend<I> : public detail::int_to_str_backend<I> {};
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(  signed char)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned char)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         short)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned short)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(     int)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         long)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(         long long)
-ABC_SPECIALIZE_to_str_backend_FOR_TYPE(unsigned long long)
-#undef ABC_SPECIALIZE_to_str_backend_FOR_TYPE
+   class to_text_ostream<I> : public detail::int_to_text_ostream<I> {};
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(  signed char)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(unsigned char)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(         short)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(unsigned short)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(     int)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(unsigned)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(         long)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(unsigned long)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(         long long)
+ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(unsigned long long)
+#undef ABC_SPECIALIZE_to_text_ostream_FOR_TYPE
 
 } //namespace abc

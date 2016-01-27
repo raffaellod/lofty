@@ -160,7 +160,7 @@ private:
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_str_backend<coroutine> : public to_str_backend<coroutine::id_type> {
+class ABACLADE_SYM to_text_ostream<coroutine> : public to_text_ostream<coroutine::id_type> {
 public:
    /*! Changes the output format.
 
