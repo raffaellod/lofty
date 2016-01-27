@@ -79,7 +79,6 @@ public:
                   }
 
                   io::text::stdout->write_line(ABC_SL("responder: terminating"));
-                  // deferred1 will finalize *ptos.
                });
             }
          } catch (execution_interruption const &) {

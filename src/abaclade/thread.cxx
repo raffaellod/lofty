@@ -274,12 +274,11 @@ void thread::impl::join() {
       detail::signal_dispatcher::instance().nonmain_thread_started(pimplThis);
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
+      /* Afer the user’s main() returns we’ll set m_bTerminating to true, so no exceptions can be
+      injected beyond this scope. A simple bool flag will work because it’s only accessed by this
+      thread (POSIX) or when this thread is suspended (Win32). */
       ABC_DEFER_TO_SCOPE_END(pimplThis->m_bTerminating.store(true));
-      // Run the user’s main().
       pimplThis->m_fnInnerMain();
-      /* deferred1 will set m_bTerminating to true, so no exceptions can be injected beyond this
-      point. A simple bool flag will work because it’s only accessed by this thread (POSIX) or when
-      this thread is suspended (Win32). */
    } catch (_std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
       bUncaughtException = true;
@@ -315,11 +314,11 @@ void thread::impl::start(_std::shared_ptr<impl> * ppimplThis) {
    sigaddset(&sigsetBlock, SIGTERM);
    ::pthread_sigmask(SIG_BLOCK, &sigsetBlock, &sigsetPrev);
    {
+      // Reset this thread’s signal mask to sigsetPrev right after (failing to?) create the thread.
       ABC_DEFER_TO_SCOPE_END(::pthread_sigmask(SIG_BLOCK, &sigsetPrev, nullptr));
       if (int iErr = ::pthread_create(&m_h, nullptr, &outer_main, ppimplThis)) {
          exception::throw_os_error(iErr);
       }
-      // deferred2 will reset this thread’s signal mask to sigsetPrev.
    }
 #elif ABC_HOST_API_WIN32
    m_h = ::CreateThread(nullptr, 0, &outer_main, ppimplThis, 0, nullptr);
@@ -331,7 +330,6 @@ void thread::impl::start(_std::shared_ptr<impl> * ppimplThis) {
 #endif
    // Block until the new thread is finished updating *this.
    seStarted.wait();
-   // deferred1 will reset m_pseStarted to nullptr.
 }
 
 } //namespace abc

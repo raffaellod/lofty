@@ -216,8 +216,6 @@ ABC_TESTING_TEST_CASE_FUNC(
          “other_thread_execution_interrupted”. */
          bExceptionCaught = true;
       }
-
-      // deferred1 will restore io::text::stderr.
    }
 
    ABC_TESTING_ASSERT_TRUE(bExceptionCaught);

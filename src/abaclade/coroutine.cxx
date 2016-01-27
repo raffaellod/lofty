@@ -569,7 +569,6 @@ void coroutine::scheduler::block_active_until_fd_ready(
          m_hmCorosBlockedByFD.remove(fd);
          throw;
       }
-      // Under Linux, deferred1 will remove the now-inactive event for fd.
 #if ABC_HOST_API_WIN32
    } while (povl->get_result() == ERROR_IO_INCOMPLETE);
 #endif
@@ -606,7 +605,6 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= f
 #else
    #error "TODO: HOST_API"
 #endif
-         // deferred1 will restore the coroutine_local_storage pointer for this thread.
       }
 #if ABC_HOST_API_POSIX
       if (iRet < 0) {
@@ -860,8 +858,6 @@ void coroutine::scheduler::run() {
       interrupt_all(exception::execution_interruption_to_common_type());
       throw;
    }
-   // Under POSIX, deferred1 will reset sm_puctxReturn to nullptr.
-   // Under Win32, deferred1 will convert the current fiber back into a thread.
 }
 
 void coroutine::scheduler::switch_to_scheduler(impl * pcoroimplLastActive) {
