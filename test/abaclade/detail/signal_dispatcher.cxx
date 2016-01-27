@@ -61,8 +61,8 @@ ABC_TESTING_TEST_CASE_FUNC(
       str sEmpty;
       int iZero = static_cast<int>(sEmpty.size_in_chars()), iOne = 1;
       ABC_TESTING_ASSERT_THROWS(math::division_by_zero, iOne /= iZero);
-      // The call to str::format() makes use of the quotient, so it shouldn’t be optimized away.
-      str(ABC_SL("{}")).format(iOne);
+      // Use the quotient, so it won’t be optimized away.
+      to_str(iOne);
    }
 }
 
