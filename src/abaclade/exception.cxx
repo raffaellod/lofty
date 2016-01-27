@@ -41,50 +41,6 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc {
 
-app_execution_interruption::app_execution_interruption() {
-}
-
-app_execution_interruption::app_execution_interruption(app_execution_interruption const & x) :
-   execution_interruption(x) {
-}
-
-/*virtual*/ app_execution_interruption::~app_execution_interruption() ABC_STL_NOEXCEPT_TRUE() {
-}
-
-app_execution_interruption & app_execution_interruption::operator=(
-   app_execution_interruption const & x
-) {
-   execution_interruption::operator=(x);
-   return *this;
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-app_exit_interruption::app_exit_interruption() {
-}
-
-app_exit_interruption::app_exit_interruption(app_exit_interruption const & x) :
-   execution_interruption(x) {
-}
-
-/*virtual*/ app_exit_interruption::~app_exit_interruption() ABC_STL_NOEXCEPT_TRUE() {
-}
-
-app_exit_interruption & app_exit_interruption::operator=(app_exit_interruption const & x) {
-   execution_interruption::operator=(x);
-   return *this;
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 /*explicit*/ argument_error::argument_error(errint_t err /*= 0*/) :
    generic_error(err ? err :
 #if ABC_HOST_API_POSIX
@@ -365,21 +321,21 @@ void exception::_before_throw(source_file_address const & sfa) {
 
    ABC_UNUSED_ARG(iArg1);
    switch (xct) {
-      case common_type::app_execution_interruption:
-      case common_type::app_exit_interruption:
       case common_type::execution_interruption:
+      case common_type::process_exit:
+      case common_type::process_interruption:
       case common_type::user_forced_interruption:
          /* Check if the thread is already terminating, and avoid throwing an interruption exception
          if the thread is terminating anyway. This check is safe because m_bTerminating can only be
          written to by the current thread. */
          if (!this_thread::get_impl()->terminating()) {
             switch (xct) {
-               case common_type::app_execution_interruption:
-                  ABC_THROW_FROM(sfaInternal, app_execution_interruption, ());
-               case common_type::app_exit_interruption:
-                  ABC_THROW_FROM(sfaInternal, app_exit_interruption, ());
                case common_type::execution_interruption:
                   ABC_THROW_FROM(sfaInternal, execution_interruption, ());
+               case common_type::process_exit:
+                  ABC_THROW_FROM(sfaInternal, process_exit, ());
+               case common_type::process_interruption:
+                  ABC_THROW_FROM(sfaInternal, process_interruption, ());
                case common_type::user_forced_interruption:
                   ABC_THROW_FROM(sfaInternal, user_forced_interruption, ());
                default:
@@ -413,10 +369,10 @@ void exception::_before_throw(source_file_address const & sfa) {
 ) {
    if (px) {
       // The order of the dynamic_casts matters, since some are subclasses of others.
-      if (dynamic_cast<app_execution_interruption const *>(px)) {
-         return common_type::app_execution_interruption;
-      } else if (dynamic_cast<app_exit_interruption const *>(px)) {
-         return common_type::app_exit_interruption;
+      if (dynamic_cast<process_interruption const *>(px)) {
+         return common_type::process_interruption;
+      } else if (dynamic_cast<process_exit const *>(px)) {
+         return common_type::process_exit;
       } else if (dynamic_cast<user_forced_interruption const *>(px)) {
          return common_type::user_forced_interruption;
       } else if (dynamic_cast<execution_interruption const *>(px)) {
@@ -532,6 +488,48 @@ network_error & network_error::operator=(network_error const & x) {
 
 namespace abc {
 
+process_exit::process_exit() {
+}
+
+process_exit::process_exit(process_exit const & x) :
+   execution_interruption(x) {
+}
+
+/*virtual*/ process_exit::~process_exit() ABC_STL_NOEXCEPT_TRUE() {
+}
+
+process_exit & process_exit::operator=(process_exit const & x) {
+   execution_interruption::operator=(x);
+   return *this;
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+process_interruption::process_interruption() {
+}
+
+process_interruption::process_interruption(process_interruption const & x) :
+   execution_interruption(x) {
+}
+
+/*virtual*/ process_interruption::~process_interruption() ABC_STL_NOEXCEPT_TRUE() {
+}
+
+process_interruption & process_interruption::operator=(process_interruption const & x) {
+   execution_interruption::operator=(x);
+   return *this;
+}
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
 /*explicit*/ security_error::security_error(errint_t err /*= 0*/) :
    generic_error(err) {
 }
@@ -627,14 +625,14 @@ user_forced_interruption::user_forced_interruption() {
 }
 
 user_forced_interruption::user_forced_interruption(user_forced_interruption const & x) :
-   app_execution_interruption(x) {
+   process_interruption(x) {
 }
 
 /*virtual*/ user_forced_interruption::~user_forced_interruption() ABC_STL_NOEXCEPT_TRUE() {
 }
 
 user_forced_interruption & user_forced_interruption::operator=(user_forced_interruption const & x) {
-   app_execution_interruption::operator=(x);
+   process_interruption::operator=(x);
    return *this;
 }
 

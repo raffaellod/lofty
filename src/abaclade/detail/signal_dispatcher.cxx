@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -449,8 +449,8 @@ signal_dispatcher::~signal_dispatcher() {
             xct = exception::common_type::user_forced_interruption;
             break;
          case CTRL_CLOSE_EVENT:
-            // Clicking on the X is considered a normal way of terminating a program.
-            xct = exception::common_type::app_exit_interruption;
+            // Clicking on the X is considered a normal way of terminating a process.
+            xct = exception::common_type::process_exit_interruption;
             break;
          default:
             return false;

@@ -184,9 +184,9 @@ app::app() {
 
    int iRet;
    if (initialize_stdio()) {
-      /* Assume for now that main() will return without exceptions, in which case
-      abc::app_exit_interruption will be thrown in any coroutine/thread still running. */
-      exception::common_type xct = exception::common_type::app_exit_interruption;
+      /* Assume for now that main() will return without exceptions, in which case abc::process_exit
+      will be thrown in any coroutine/thread still running. */
+      exception::common_type xct = exception::common_type::process_exit;
       try {
          sd.main_thread_started();
          iRet = pfnInstantiateAppAndCallMain(pargs);

@@ -237,9 +237,9 @@ public:
    ABC_ENUM_AUTO_VALUES(common_type,
       none,
 
-      app_execution_interruption,
-      app_exit_interruption,
       execution_interruption,
+      process_exit,
+      process_interruption,
       user_forced_interruption,
 
       math_arithmetic_error,
@@ -457,22 +457,22 @@ public:
 
 namespace abc {
 
-/*! Interruption in the execution of the whole application, typically requested by the user. Raised
-simultaneously in every coroutine and thread. */
-class ABACLADE_SYM app_execution_interruption : public execution_interruption {
+/*! Thrown in coroutines and threads that are still running when abc::app:main() returns causing the
+process to terminate (exit), to force them to return as well. */
+class ABACLADE_SYM process_exit : public execution_interruption {
 public:
    //! Default constructor.
-   app_execution_interruption();
+   process_exit();
 
    /*! Copy constructor.
 
    @param x
       Source object.
    */
-   app_execution_interruption(app_execution_interruption const & x);
+   process_exit(process_exit const & x);
 
    //! Destructor.
-   virtual ~app_execution_interruption() ABC_STL_NOEXCEPT_TRUE();
+   virtual ~process_exit() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -481,7 +481,7 @@ public:
    @return
       *this.
    */
-   app_execution_interruption & operator=(app_execution_interruption const & x);
+   process_exit & operator=(process_exit const & x);
 };
 
 } //namespace abc
@@ -490,22 +490,22 @@ public:
 
 namespace abc {
 
-/*! Thrown in coroutines and threads that are still running when abc::app:main() returns, to force
-them to return as well. */
-class ABACLADE_SYM app_exit_interruption : public execution_interruption {
+/*! Interruption in the execution of the whole process, typically requested by the user. Raised
+simultaneously in every coroutine and thread. */
+class ABACLADE_SYM process_interruption : public execution_interruption {
 public:
    //! Default constructor.
-   app_exit_interruption();
+   process_interruption();
 
    /*! Copy constructor.
 
    @param x
       Source object.
    */
-   app_exit_interruption(app_exit_interruption const & x);
+   process_interruption(process_interruption const & x);
 
    //! Destructor.
-   virtual ~app_exit_interruption() ABC_STL_NOEXCEPT_TRUE();
+   virtual ~process_interruption() ABC_STL_NOEXCEPT_TRUE();
 
    /*! Copy-assignment operator.
 
@@ -514,7 +514,7 @@ public:
    @return
       *this.
    */
-   app_exit_interruption & operator=(app_exit_interruption const & x);
+   process_interruption & operator=(process_interruption const & x);
 };
 
 } //namespace abc
@@ -525,7 +525,7 @@ namespace abc {
 
 /*! Execution interruption requested by the user, resulting in the termination of all coroutines and
 threads in the process. */
-class ABACLADE_SYM user_forced_interruption : public app_execution_interruption {
+class ABACLADE_SYM user_forced_interruption : public process_interruption {
 public:
    //! Default constructor.
    user_forced_interruption();

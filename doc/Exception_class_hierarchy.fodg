@@ -689,7 +689,7 @@
     </draw:frame>
     <draw:frame draw:style-name="gr2" draw:text-style-name="P5" xml:id="id26" draw:id="id26" draw:layer="measurelines" svg:width="7cm" svg:height="0.89cm" svg:x="35cm" svg:y="30.201cm">
      <draw:text-box>
-      <text:p text:style-name="P3"><text:span text:style-name="T2">app_execution_interruption</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T2">process_interruption</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">External request to interrupt the process</text:span></text:p>
      </draw:text-box>
     </draw:frame>
@@ -698,7 +698,7 @@
     </draw:connector>
     <draw:frame draw:style-name="gr10" draw:text-style-name="P5" xml:id="id27" draw:id="id27" draw:layer="measurelines" svg:width="7cm" svg:height="1.16cm" svg:x="35.003cm" svg:y="28.501cm">
      <draw:text-box>
-      <text:p text:style-name="P3"><text:span text:style-name="T2">app_exit_interruption</text:span></text:p>
+      <text:p text:style-name="P3"><text:span text:style-name="T2">process_exit</text:span></text:p>
       <text:p text:style-name="P3"><text:span text:style-name="T3">Thrown after abc::app:main() in any remaining threads/coroutines</text:span></text:p>
      </draw:text-box>
     </draw:frame>
