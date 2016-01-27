@@ -43,15 +43,17 @@ void test_case::assert_does_not_throw(
 ) {
    ABC_TRACE_FUNC(this, tfa, /*fnExpr, */sExpr);
 
-   str sCaught;
+   text::sstr<64> sCaught;
    try {
       fnExpr();
    } catch (_std::exception const & x) {
-      sCaught = str(ABC_SL("throws {}")).format(typeid(x));
+      sCaught.format(ABC_SL("throws {}"), typeid(x));
    } catch (...) {
       sCaught = ABC_SL("unknown type");
    }
-   m_prunner->log_assertion(tfa, !sCaught, sExpr, str::empty, ABC_SL("does not throw"), sCaught);
+   m_prunner->log_assertion(
+      tfa, !sCaught, sExpr, str::empty, ABC_SL("does not throw"), sCaught.str()
+   );
 }
 
 void test_case::assert_false(text::file_address const & tfa, bool bActual, str const & sExpr) {
@@ -77,7 +79,8 @@ void test_case::assert_throws(
    ABC_TRACE_FUNC(this, tfa, /*fnExpr, */sExpr, /*fnInstanceOf, */tiExpected);
 
    bool bPass = false;
-   str sCaught;
+   text::sstr<64> sCaught, sExpected;
+   sExpected.format(ABC_SL("throws {}"), tiExpected);
    try {
       fnExpr();
       sCaught = ABC_SL("does not throw");
@@ -85,13 +88,11 @@ void test_case::assert_throws(
       if (fnInstanceOf(x)) {
          bPass = true;
       }
-      sCaught = str(ABC_SL("throws {}")).format(typeid(x));
+      sCaught.format(ABC_SL("throws {}"), typeid(x));
    } catch (...) {
       sCaught = ABC_SL("unknown type");
    }
-   m_prunner->log_assertion(
-      tfa, bPass, sExpr, str::empty, str(ABC_SL("throws {}")).format(tiExpected), sCaught
-   );
+   m_prunner->log_assertion(tfa, bPass, sExpr, str::empty, sExpected.str(), sCaught.str());
 }
 
 }} //namespace abc::testing

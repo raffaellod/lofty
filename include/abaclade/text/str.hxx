@@ -1173,64 +1173,66 @@ public:
    */
    const_iterator find_last(str const & sNeedle, const_iterator itWhence) const;
 
-   /*! Uses the current content of the string to generate a new one using
-   io::text::ostream::print().
+   /*! Prints new contents into the string using io::text::ostream::print().
 
+   @param sFormat
+      Format string.
    @param ts
       Replacement values.
-   @return
-      Resulting string.
    */
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
    template <typename... Ts>
-   str format(Ts const &... ts) const;
+   void format(str const & sFormat, Ts const &... ts);
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
-   str format() const;
+   void format(str const & sFormat);
    template <typename T0>
-   str format(T0 const & t0) const;
+   void format(str const & sFormat, T0 const & t0);
    template <typename T0, typename T1>
-   str format(T0 const & t0, T1 const & t1) const;
+   void format(str const & sFormat, T0 const & t0, T1 const & t1);
    template <typename T0, typename T1, typename T2>
-   str format(T0 const & t0, T1 const & t1, T2 const & t2) const;
+   void format(str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2);
    template <typename T0, typename T1, typename T2, typename T3>
-   str format(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3) const;
+   void format(str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3);
    template <typename T0, typename T1, typename T2, typename T3, typename T4>
-   str format(T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4) const;
+   void format(
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
+   );
    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-   str format(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5
-   ) const;
+   void format(
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      T4 const & t4, T5 const & t5
+   );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
    >
-   str format(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6
-   ) const;
+   void format(
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      T4 const & t4, T5 const & t5, T6 const & t6
+   );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
       typename T7
    >
-   str format(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7
-   ) const;
+   void format(
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7
+   );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
       typename T7, typename T8
    >
-   str format(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7, T8 const & t8
-   ) const;
+   void format(
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
+   );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
       typename T7, typename T8, typename T9
    >
-   str format(
-      T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4, T5 const & t5,
-      T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
-   ) const;
+   void format(
+      str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+      T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
+   );
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
    /*! Converts a character index into its corresponding code point index.

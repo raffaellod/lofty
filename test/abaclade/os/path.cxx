@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015 Raffaello D. Di Napoli
+Copyright 2011-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -34,9 +34,10 @@ ABC_TESTING_TEST_CASE_FUNC(
    /* Note that under Win32, paths that start with “/” are still relative to the current volume;
    nonetheless, the assertions should still be valid. */
 
-   str sSep(os::path::separator());
+   str const c_sSep(os::path::separator());
+   text::sstr<64> sFormatted;
 #define norm_path(s)   str(os::path(ABC_SL(s)).normalize())
-#define format_seps(s) str(ABC_SL(s)).format(sSep)
+#define format_seps(s) (sFormatted.format(ABC_SL(s), c_sSep), sFormatted)
 
    // Empty path.
    ABC_TESTING_ASSERT_EQUAL(norm_path(""),          format_seps("")            );
