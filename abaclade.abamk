@@ -71,7 +71,7 @@ targets:
       -  src/abaclade/text/str_traits.cxx
       -  src/abaclade/thread.cxx
       -  src/abaclade/thread_local.cxx
-      -  src/abaclade/to_str.cxx
+      -  src/abaclade/to_text_ostream.cxx
       -  src/abaclade/type_void_adapter.cxx
 
       tests:
@@ -105,7 +105,7 @@ targets:
             -  test/abaclade/text/str_traits.cxx
             -  test/abaclade/thread.cxx
             -  test/abaclade/thread_local.cxx
-            -  test/abaclade/to_str.cxx
+            -  test/abaclade/to_text_ostream.cxx
             libraries:
             -  abaclade-testing
 

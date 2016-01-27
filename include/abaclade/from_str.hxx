@@ -35,17 +35,20 @@ namespace abc {
    Object reconstructed from s according to sFormat.
 */
 template <typename T>
-T from_str(str const & s, str const & sFormat = str::empty);
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-/*! Parses a string into an object. Once constructed with the desired format specification, an
-instance can convert into T instances any number of strings. */
-template <typename T>
-class from_text_istream;
+inline T from_str(str const & s, str const & sFormat = str::empty) {
+   io::text::str_istream sis(external_buffer, &s);
+   from_text_istream<T> ftis;
+   ftis.set_format(sFormat);
+   T t;
+   ftis.read(&t, &sis);
+   if (std::size_t cchRemaining = sis.remaining_size_in_chars()) {
+      // There are still unused characters in sis, so the conversion failed.
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat,
+         static_cast<unsigned>(s.index_from_char_index(s.size_in_chars() - cchRemaining))
+      ));
+   }
+   return _std::move(t);
+}
 
 } //namespace abc

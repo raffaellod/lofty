@@ -534,19 +534,21 @@ using text::sstr;
 #include <abaclade/text/char_traits.hxx>
 #include <abaclade/text/str_traits.hxx>
 #include <abaclade/text/str.hxx>
-#include <abaclade/to_str.hxx>
-#include <abaclade/from_str.hxx>
 
-#include <abaclade/enum-after-to_str.hxx>
-#include <abaclade/text/str-after-to_str.hxx>
-#include <abaclade/to_str-after-str-after-to_str.hxx>
-#include <abaclade/exception-after-to_str.hxx>
+// Specializations of abc::*_text_*stream for native/core types and for the classes declared so far.
+#include <abaclade/from_text_istream.hxx>
+#include <abaclade/to_text_ostream.hxx>
+#include <abaclade/text/str-text-streaming.hxx>
+#include <abaclade/enum-text-streaming.hxx>
+#include <abaclade/exception-text-streaming.hxx>
+
+// Stream interfaces, abc::io::text::str_*stream, and dependent abc::text::str methods.
 #include <abaclade/io/text/stream-istream-ostream.hxx>
 #include <abaclade/io/text/str.hxx>
-
 #include <abaclade/text/str-after-str_ostream.hxx>
-#include <abaclade/to_str-after-str_ostream.hxx>
-#include <abaclade/from_str-after-str_istream.hxx>
+
+#include <abaclade/from_str.hxx>
+#include <abaclade/to_str.hxx>
 
 #include <abaclade/detail/trace.hxx>
 #include <abaclade/trace.hxx>
