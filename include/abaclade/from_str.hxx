@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -46,6 +46,6 @@ namespace abc {
 /*! Parses a string into an object. Once constructed with the desired format specification, an
 instance can convert into T instances any number of strings. */
 template <typename T>
-class from_str_backend;
+class from_text_istream;
 
 } //namespace abc

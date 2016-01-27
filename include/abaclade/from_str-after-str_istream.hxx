@@ -28,10 +28,10 @@ namespace abc {
 template <typename T>
 inline T from_str(str const & s, str const & sFormat /*= str::empty*/) {
    io::text::str_istream sis(external_buffer, &s);
-   from_str_backend<T> fsb;
-   fsb.set_format(sFormat);
+   from_text_istream<T> ftis;
+   ftis.set_format(sFormat);
    T t;
-   fsb.read(&t, &sis));
+   ftis.read(&t, &sis);
    if (std::size_t cchRemaining = sis.remaining_size_in_chars()) {
       // There are still unused characters in sis, so the conversion failed.
       ABC_THROW(syntax_error, (
