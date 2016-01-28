@@ -23,18 +23,65 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace detail {
+
+/*! Defines a member named value that is true if “void T::to_text_ostream(io::text::ostream * ptos)
+const” is declared, or false otherwise. */
+template <typename T>
+struct has_to_text_ostream_member {
+   template <typename U, void (U::*)(io::text::ostream *) const>
+   struct member_test {};
+   template <typename U>
+   static long test(member_test<U, &U::to_text_ostream> *);
+   template <typename>
+   static short test(...);
+
+   static bool const value = (sizeof(test<T>(nullptr)) == sizeof(long));
+};
+
+}} //namespace abc::detail
+
 namespace abc {
 
 /*! Writes a string representation of one or more objects of the same type, according to a format
-string.
+string. Once constructed with the desired format specification, an instance must be able to convert
+to string any number of T instances.
+
+The default implementation assumes that a public T member
+“void T::to_text_ostream(io::text::ostream * ptos) const” is declared.
 
 This class template and its specializations are at the core of abc::to_str() and
-abc::io::text::ostream::print().
-
-Once constructed with the desired format specification, an instance must be able to convert to
-string any number of T instances. */
+abc::io::text::ostream::print(). */
 template <typename T>
-class to_text_ostream;
+class to_text_ostream {
+public:
+   static_assert(
+      detail::has_to_text_ostream_member<T>::value,
+      "specialization abc::to_text_ostream<T> must be provided, " \
+      "or public “void T::to_text_ostream(io::text::ostream * ptos) const” must be declared"
+   );
+
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(str const & sFormat) {
+      // TODO: ensure that sFormat is empty, since no format is expected.
+      ABC_UNUSED_ARG(sFormat);
+   }
+
+   /*! Converts a T instance to its string representation.
+
+   @param t
+      T instance to write.
+   @param ptos
+      Pointer to the stream to output to.
+   */
+   void write(T const & t, io::text::ostream * ptos) {
+      t.to_text_ostream(ptos);
+   }
+};
 
 //! @cond
 // Partial specializations for cv-qualified T and T reference.
