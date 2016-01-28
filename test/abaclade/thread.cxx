@@ -21,6 +21,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/io/text.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/thread.hxx>
+#include <abaclade/to_str.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

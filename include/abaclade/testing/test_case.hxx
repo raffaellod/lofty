@@ -30,6 +30,7 @@ Classes and macros to help write test cases and assertions. */
 #endif
 
 #include <abaclade/testing/runner.hxx>
+#include <abaclade/to_str.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

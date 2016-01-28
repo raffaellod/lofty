@@ -16,8 +16,14 @@ You should have received a copy of the GNU Lesser General Public License along w
 not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_HXX_INTERNAL
-   #error "Please #include <abaclade.hxx> instead of this file"
+#ifndef _ABACLADE_TO_STR_HXX
+#define _ABACLADE_TO_STR_HXX
+
+#ifndef _ABACLADE_HXX
+   #error "Please #include <abaclade.hxx> before this file"
+#endif
+#ifdef ABC_CXX_PRAGMA_ONCE
+   #pragma once
 #endif
 
 
@@ -72,3 +78,7 @@ inline str to_str(T const & t, str const & sFormat = str::empty) {
 }
 
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _ABACLADE_TO_STR_HXX

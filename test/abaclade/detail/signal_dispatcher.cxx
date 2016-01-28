@@ -19,6 +19,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade.hxx>
 #include <abaclade/math.hxx>
 #include <abaclade/testing/test_case.hxx>
+#include <abaclade/to_str.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

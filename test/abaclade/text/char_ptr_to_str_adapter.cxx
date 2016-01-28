@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -19,6 +19,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/text/char_ptr_to_str_adapter.hxx>
+#include <abaclade/to_str.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

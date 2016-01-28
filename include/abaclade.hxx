@@ -547,9 +547,6 @@ using text::sstr;
 #include <abaclade/io/text/str.hxx>
 #include <abaclade/text/str-after-str_ostream.hxx>
 
-#include <abaclade/from_str.hxx>
-#include <abaclade/to_str.hxx>
-
 #include <abaclade/detail/trace.hxx>
 #include <abaclade/trace.hxx>
 
