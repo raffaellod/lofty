@@ -23,6 +23,79 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace test { namespace {
+
+class type_with_member_ttos {
+public:
+   type_with_member_ttos(str s) :
+      m_s(_std::move(s)) {
+   }
+
+   str const & get() const {
+      return m_s;
+   }
+
+   void to_text_ostream(io::text::ostream * ptos) const {
+      ptos->write(m_s);
+   }
+
+private:
+   str m_s;
+};
+
+class type_with_nonmember_ttos {
+public:
+   type_with_nonmember_ttos(str s) :
+      m_s(_std::move(s)) {
+   }
+
+   str const & get() const {
+      return m_s;
+   }
+
+private:
+   str m_s;
+};
+
+}}} //namespace abc::test::
+
+namespace abc {
+
+template <>
+class to_text_ostream<test::type_with_nonmember_ttos> {
+public:
+   void set_format(str const & sFormat) {
+      ABC_UNUSED_ARG(sFormat);
+   }
+
+   void write(test::type_with_nonmember_ttos const & twnmt, io::text::ostream * ptos) {
+      ptos->write(twnmt.get());
+   }
+};
+
+} //namespace abc
+
+namespace abc { namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC(
+   to_text_ostream_member_nonmember,
+   "abc::to_text_ostream – member and non-member to_text_ostream"
+) {
+   ABC_TRACE_FUNC(this);
+
+   type_with_member_ttos    twmt(ABC_SL("TWMT"));
+   type_with_nonmember_ttos twnt(ABC_SL("TWNT"));
+
+   /* These assertions are more important at compile time than at run time; if the to_str() calls
+   compile, they won’t return the wrong value. */
+   ABC_TESTING_ASSERT_EQUAL(to_str(twmt), twmt.get());
+   ABC_TESTING_ASSERT_EQUAL(to_str(twnt), twnt.get());
+}
+
+}} //namespace abc::test
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
