@@ -26,8 +26,8 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   to_str_int,
-   "abc::to_str – int"
+   to_text_ostream_int,
+   "abc::to_text_ostream – int"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -62,8 +62,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   to_str_std_int8_t,
-   "abc::to_str – std::int8_t"
+   to_text_ostream_std_int8_t,
+   "abc::to_text_ostream – std::int8_t"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -98,8 +98,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   to_str_raw_ptr,
-   "abc::to_str – raw pointers"
+   to_text_ostream_raw_ptr,
+   "abc::to_text_ostream – raw pointers"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -122,7 +122,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    );
 
    /* Test char_t const pointer. Also confirms that pointers-to-char are NOT treated as strings
-   by abc::to_str(). */
+   by abc::to_text_ostream(). */
    ABC_TESTING_ASSERT_EQUAL(
       to_str(reinterpret_cast<char_t const *>(iBad), str::empty), ABC_SL("0xbad")
    );
@@ -135,8 +135,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   to_str_smart_ptr,
-   "abc::to_str – smart pointers"
+   to_text_ostream_smart_ptr,
+   "abc::to_text_ostream – smart pointers"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -179,8 +179,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   to_str_tuple,
-   "abc::to_str – STL tuple types"
+   to_text_ostream_tuple,
+   "abc::to_text_ostream – STL tuple types"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -213,8 +213,8 @@ class class_type {
 };
 
 ABC_TESTING_TEST_CASE_FUNC(
-   to_str_std_type_info,
-   "abc::to_str – std::type_info"
+   to_text_ostream_std_type_info,
+   "abc::to_text_ostream – std::type_info"
 ) {
    ABC_TRACE_FUNC(this);
 
