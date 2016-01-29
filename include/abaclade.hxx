@@ -400,6 +400,7 @@ class vector;
 namespace abc { namespace io { namespace text {
 
 class char_ptr_ostream;
+class istream;
 class ostream;
 
 }}} //namespace abc::io::text

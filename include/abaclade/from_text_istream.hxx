@@ -23,11 +23,65 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc { namespace detail {
+
+/*! Defines a member named value that is true if
+“void T::from_text_istream(io::text::istream * ptis)” is declared, or false otherwise. */
+template <typename T>
+struct has_from_text_istream_member {
+   template <typename U, void (U::*)(io::text::istream *)>
+   struct member_test {};
+   template <typename U>
+   static long test(member_test<U, &U::from_text_istream> *);
+   template <typename>
+   static short test(...);
+
+   static bool const value = (sizeof(test<T>(nullptr)) == sizeof(long));
+};
+
+}} //namespace abc::detail
+
 namespace abc {
 
-/*! Parses a string into an object. Once constructed with the desired format specification, an
-instance can convert into T instances any number of strings. */
+/*! Reads and parses a string representation of an object of type T, according to an optional format
+string. Once constructed with the desired format specification, an instance must be able to convert
+into T instances any number of strings.
+
+The default implementation assumes that a public T member with signature
+“void T::from_text_istream(io::text::istream * ptis)” is declared, and offers no support for a
+format string.
+
+This class template and its specializations are at the core of abc::from_str() and
+abc::io::text::istream::scan(). */
 template <typename T>
-class from_text_istream;
+class from_text_istream {
+public:
+   static_assert(
+      detail::has_from_text_istream_member<T>::value,
+      "specialization abc::from_text_istream<T> must be provided, " \
+      "or public “void T::from_text_istream(abc::io::text::istream * ptis)” must be declared"
+   );
+
+   /*! Changes the input format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(str const & sFormat) {
+      // TODO: ensure that sFormat is empty, since no format is expected.
+      ABC_UNUSED_ARG(sFormat);
+   }
+
+   /*! Sets a T instance from its string representation.
+
+   @param t
+      T instance to read.
+   @param ptis
+      Pointer to the stream to read from.
+   */
+   void read(T * t, io::text::istream * ptis) {
+      t->from_text_istream(ptis);
+   }
+};
 
 } //namespace abc

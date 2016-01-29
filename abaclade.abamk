@@ -92,6 +92,7 @@ targets:
             -  test/abaclade/detail/signal_dispatcher.cxx
             -  test/abaclade/enum.cxx
             -  test/abaclade/exception.cxx
+            -  test/abaclade/from_text_istream.cxx
             -  test/abaclade/io/binary/pipe.cxx
             -  test/abaclade/io/text/binbuf_istream-read.cxx
             -  test/abaclade/io/text/ostream-print.cxx

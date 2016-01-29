@@ -138,7 +138,7 @@ private:
    //! Tracks how many source bytes have been transcoded.
    std::size_t m_cbSrcTranscoded;
    /*! Pointer to the current transcoded, but not yet parsed, character in *m_psDst (if
-    transcoding), or current source character (if not transcoding). */
+   transcoding), or current source character (if not transcoding). */
    char_t const * m_pchTranscoded;
    /*! Pointer to the beginning of the transcoded, but not yet parsed, part of *m_psDst (if
    transcoding), or same as the beginning of the source buffer, m_pbSrc (if not transcoding). */

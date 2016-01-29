@@ -43,12 +43,13 @@ struct has_to_text_ostream_member {
 
 namespace abc {
 
-/*! Writes a string representation of one or more objects of the same type, according to a format
-string. Once constructed with the desired format specification, an instance must be able to convert
-to string any number of T instances.
+/*! Generates and writes a string representation of an object of type T, according to an optional
+format string. Once constructed with the desired format specification, an instance must be able to
+convert to string any number of T instances.
 
-The default implementation assumes that a public T member
-“void T::to_text_ostream(io::text::ostream * ptos) const” is declared.
+The default implementation assumes that a public T member with signature
+“void T::to_text_ostream(io::text::ostream * ptos) const” is declared, and offers no support for a
+format string.
 
 This class template and its specializations are at the core of abc::to_str() and
 abc::io::text::ostream::print(). */
@@ -58,7 +59,7 @@ public:
    static_assert(
       detail::has_to_text_ostream_member<T>::value,
       "specialization abc::to_text_ostream<T> must be provided, " \
-      "or public “void T::to_text_ostream(io::text::ostream * ptos) const” must be declared"
+      "or public “void T::to_text_ostream(abc::io::text::ostream * ptos) const” must be declared"
    );
 
    /*! Changes the output format.
