@@ -252,13 +252,13 @@ _std::shared_ptr<connection> server::accept() {
    ip::port portLocal, portRemote;
    switch (m_ipv.base()) {
       case ip::version::v4:
-         if (cbLocalSockAddr == sizeof(sockaddr_any::sa4)) {
+         if (cbLocalSockAddr == sizeof psaaLocal->sa4) {
             addrLocal = ip::address(
                *reinterpret_cast<ip::address::v4_type *>(&psaaLocal->sa4.sin_addr.s_addr)
             );
             portLocal = ip::port(ntohs(psaaLocal->sa4.sin_port));
          }
-         if (cbRemoteSockAddr == sizeof(sockaddr_any::sa4)) {
+         if (cbRemoteSockAddr == sizeof psaaLocal->sa4) {
             addrRemote = ip::address(
                *reinterpret_cast<ip::address::v4_type *>(&psaaRemote->sa4.sin_addr.s_addr)
             );
@@ -266,13 +266,13 @@ _std::shared_ptr<connection> server::accept() {
          }
          break;
       case ip::version::v6:
-         if (cbLocalSockAddr == sizeof(sockaddr_any::sa6)) {
+         if (cbLocalSockAddr == sizeof psaaLocal->sa6) {
             addrLocal = ip::address(
                *reinterpret_cast<ip::address::v6_type *>(&psaaLocal->sa6.sin6_addr.s6_addr)
             );
             portLocal = ip::port(ntohs(psaaLocal->sa6.sin6_port));
          }
-         if (cbRemoteSockAddr == sizeof(sockaddr_any::sa6)) {
+         if (cbRemoteSockAddr == sizeof psaaLocal->sa6) {
             addrRemote = ip::address(
                *reinterpret_cast<ip::address::v6_type *>(&psaaRemote->sa6.sin6_addr.s6_addr)
             );
