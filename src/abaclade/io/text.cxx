@@ -37,9 +37,7 @@ _std::shared_ptr<ostream> stdout;
 /*! Detects the encoding to use for a standard text stream, with the help of an optional environment
 variable.
 
-TODO: document this behavior and the related enviroment variables.
-
-TODO: change to use a global “environment” map object instead of this ad-hoc code.
+TODO: document this behavior and the related environment variables.
 
 TODO: make the below code only pick up variables meant for this PID. This should eventually be made
 more general, as a way for an Abaclade-based parent process to communicate with an Abaclade-based
