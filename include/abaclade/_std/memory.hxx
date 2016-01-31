@@ -890,7 +890,7 @@ private:
    template <
       typename T2, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4
    >
-   inline shared_ptr<T2> make_shared(
+   friend shared_ptr<T2> make_shared(
       TArg0 && targ0, TArg1 && targ1, TArg2 && targ2, TArg3 && targ3, TArg4 && targ4
    );
    template <
