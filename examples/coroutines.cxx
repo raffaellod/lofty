@@ -87,7 +87,13 @@ public:
          /* Ensure that the pipe’s write end is finalized (closed) even in case of exceptions. In a
          real application, we would check for exceptions when doing so. This will be reported as EOF
          on the read end. */
+#if ABC_HOST_CXX_MSC == 1600
+         // MSC16 BUG: does not like capturing a captured variable.
+         auto pipe_write_end(pipe.write_end);
+         ABC_DEFER_TO_SCOPE_END(pipe_write_end->finalize());
+#else
          ABC_DEFER_TO_SCOPE_END(pipe.write_end->finalize());
+#endif
 
          io::text::stdout->write_line(ABC_SL("writer: starting"));
          ABC_FOR_EACH(int i, make_range(1, 10)) {
