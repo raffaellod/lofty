@@ -450,7 +450,7 @@ signal_dispatcher::~signal_dispatcher() {
             break;
          case CTRL_CLOSE_EVENT:
             // Clicking on the X is considered a normal way of terminating a process.
-            xct = exception::common_type::process_exit_interruption;
+            xct = exception::common_type::process_exit;
             break;
          default:
             return false;
