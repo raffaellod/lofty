@@ -63,15 +63,12 @@ protected:
 protected:
    /*! Determines how line terminators are read and written.
 
-   When reading, a value of line_terminator::any or line_terminator::convert_any_to_lf will cause
-   any occurrence of “\n”, “\r”, or “\r\n” to be accepted as a line terminator, and
-   line_terminator::convert_any_to_lf will additionally cause them to be returned to the reader as
-   “\n”; any other value will leave all terminators unchanged, only considering the corresponding
-   line terminator for line-oriented reads.
+   When reading, a value of line_terminator::any will cause any occurrence of “\n”, “\r”, or “\r\n”
+   to be accepted as a line terminator; any other value will leave all terminators unchanged, only
+   considering the corresponding line terminator for line-oriented reads.
 
    When writing, “\n” characters will be converted to the line terminator indicated by this
-   variable, with line_terminator::any and line_terminator::convert_any_to_lf having the same
-   meaning as line_terminator::host. */
+   variable, with line_terminator::any having the same meaning as line_terminator::host. */
    abc::text::line_terminator m_lterm;
 };
 
@@ -290,11 +287,11 @@ protected:
    istream();
 
 protected:
-   /*! If true and m_lterm is line_terminator::any or line_terminator::convert_any_to_lf, and the
-   next read operation encounters a leading ‘\n’, that character will not be considered as a line
-   terminator; this way, even if a “\r\n” was broken into multiple reads, we’ll still present
-   clients with a single ‘\n’ character instead of two, as it would happen without this tracker (one
-   from the trailing ‘\r’ of the first read, one from the leading ‘\n’ of the second. */
+   /*! If true, and m_lterm is line_terminator::any, and the next read operation encounters an
+   initial ‘\n’, that character will not be considered as a line terminator; this way, even if a
+   “\r\n” was broken into multiple reads, we’ll still present clients with a single ‘\n’ character
+   instead of two, as it would happen without this tracker (one from the trailing ‘\r’ of the first
+   read, one from the leading ‘\n’ of the second. */
    bool m_bDiscardNextLF:1;
 };
 

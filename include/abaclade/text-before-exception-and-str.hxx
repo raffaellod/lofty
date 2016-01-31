@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -54,18 +54,15 @@ ABC_ENUM(encoding,
 
 //! Recognized line terminators.
 ABC_ENUM(line_terminator,
-   /*! In the context of a text I/O, accept as line ending any line terminator read, or write LF
+   /*! In the context of a text stream, accept as line ending any line terminator read, or write LF
    characters as the host line terminator. */
    (any,               0),
-   /*! In the context of a text I/O, read any line terminator as single LF, or write LF characters
-   as the host line terminator. */
-   (convert_any_to_lf, 1),
    //! Old Mac style: Carriage Return, '\r'.
-   (cr,                2),
+   (cr,                1),
    //! Unix/POSIX style: Line Feed, '\n'.
-   (lf,                3),
+   (lf,                2),
    //! DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'.
-   (cr_lf,             4),
+   (cr_lf,             3),
    //! Default host line terminator.
    (host,              (ABC_HOST_API_WIN32 ? cr_lf : lf))
 );

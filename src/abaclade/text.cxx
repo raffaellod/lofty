@@ -58,7 +58,7 @@ std::size_t get_encoding_size(encoding enc) {
 str get_line_terminator_str(line_terminator lterm) {
    ABC_TRACE_FUNC(lterm);
 
-   if (lterm == line_terminator::any || lterm == line_terminator::convert_any_to_lf) {
+   if (lterm == line_terminator::any) {
       lterm = line_terminator::host;
    }
    switch (lterm.base()) {

@@ -55,7 +55,7 @@ encodings (e.g. identity_encoding).
 ABACLADE_SYM std::size_t get_encoding_size(encoding enc);
 
 /*! Returns a line terminator string corresponding to the specified line_terminator value, or the
-host default if lterm is line_terminator::any or line_terminator::convert_any_to_lf.
+host default if lterm is line_terminator::any.
 
 @param lterm
    Desired line terminator.
