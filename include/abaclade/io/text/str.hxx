@@ -45,7 +45,32 @@ protected:
    //! Default constructor.
    str_stream();
 
+   /*! Constructor that initializes the stream with a copy of the contents of a string.
+
+   @param s
+      String to be copied to the internal buffer.
+   */
+   explicit str_stream(str const & s);
+
+   /*! Constructor that initializes the stream by moving the contents of a string.
+
+   @param s
+      String to be moved to the internal buffer.
+   */
+   explicit str_stream(str && s);
+
+   /*! Constructor that assigns an external string as the stream’s buffer.
+
+   @param ps
+      Pointer to the string to be used as the stream’s buffer.
+   */
+   str_stream(external_buffer_t const &, str const * ps);
+
 protected:
+   //! Pointer to the string buffer.
+   str * m_psBuf;
+   //! Default target of m_psBuf, if none is supplied via the external_buffer constructor.
+   str m_sDefaultBuf;
    //! Current read/write offset into the string, in char_t units.
    std::size_t m_ichOffset;
 };
@@ -59,13 +84,6 @@ namespace abc { namespace io { namespace text {
 //! Implementation of text (character-based) input from a string.
 class ABACLADE_SYM str_istream : public virtual str_stream, public virtual istream {
 public:
-   /*! Move constructor.
-
-   @param sis
-      Source object.
-   */
-   str_istream(str_istream && sis);
-
    /*! Constructor that assigns a string to read from.
 
    @param s
@@ -90,24 +108,26 @@ public:
    //! Destructor.
    virtual ~str_istream();
 
+   //! See istream::consume_chars().
+   virtual void consume_chars(std::size_t cch) override;
+
+   //! See istream::peek_chars().
+   virtual str peek_chars(std::size_t cchMin) override;
+
+   // Pull in the other overload to avoid hiding it.
+   using istream::read_all;
+
+   //! See istream::read_all().
+   virtual void read_all(str * psDst) override;
+
    /*! Returns the count of characters (char_t units) still available for reading.
 
    @return
       Count of characters still available for reading.
    */
    std::size_t remaining_size_in_chars() const {
-      return m_psReadBuf->size_in_chars() - m_ichOffset;
+      return m_psBuf->size_in_chars() - m_ichOffset;
    }
-
-protected:
-   //! See istream::read_line_or_all().
-   virtual bool read_line_or_all(str * psDst, bool bOneLine) override;
-
-protected:
-   //! Pointer to the source string, which is m_sReadBuf or an external string.
-   str const * m_psReadBuf;
-   //! Default target of m_psReadBuf, if none is supplied via the external_buffer constructor.
-   str m_sReadBuf;
 };
 
 }}} //namespace abc::io::text
@@ -154,7 +174,7 @@ public:
       Content of the stream.
    */
    str const & get_str() const {
-      return *m_psWriteBuf;
+      return *m_psBuf;
    }
 
    /*! Yields ownership of the internal string buffer. If the str_ostream instance was constructed
@@ -171,12 +191,6 @@ public:
    virtual void write_binary(
       void const * pSrc, std::size_t cbSrc, abc::text::encoding enc
    ) override;
-
-protected:
-   //! Pointer to the destination string.
-   str * m_psWriteBuf;
-   //! Default target of m_psWriteBuf, if none is supplied via the external_buffer constructor.
-   str m_sDefaultWriteBuf;
 };
 
 }}} //namespace abc::io::text

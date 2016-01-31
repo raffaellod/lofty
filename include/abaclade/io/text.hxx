@@ -100,10 +100,6 @@ namespace abc { namespace io { namespace text {
 /*! Implementation of a text (character-based) input stream on top of a binary::buffered_istream
 instance. */
 class ABACLADE_SYM binbuf_istream : public virtual binbuf_stream, public virtual istream {
-private:
-   //! Finite-state automaton implementing much of read_line_or_all().
-   class read_helper;
-
 public:
    /*! Constructor.
 
@@ -126,12 +122,21 @@ public:
       return m_pbbis;
    }
 
+   //! See istream::consume_chars().
+   virtual void consume_chars(std::size_t cch) override;
+
+   //! See istream::peek_chars().
+   virtual str peek_chars(std::size_t cchMin) override;
+
+   // Pull in the other overload to avoid hiding it.
+   using istream::read_all;
+
+   //! See istream::read_line().
+   virtual bool read_line(str * psDst) override;
+
 protected:
    //! See binbuf_stream::_binary_buffered_stream().
    virtual _std::shared_ptr<binary::buffered_stream> _binary_buffered_stream() const override;
-
-   //! See istream::read_line_or_all().
-   virtual bool read_line_or_all(str * psDst, bool bOneLine) override;
 
 private:
    /*! Detects the encoding used in the provided buffer.
@@ -151,14 +156,14 @@ protected:
    _std::shared_ptr<binary::buffered_istream> m_pbbis;
 
 private:
-   //! true if a previous call to read*() got to EOF.
+   //! Buffer backing the string returned by peek_chars().
+   str m_sPeekBuf;
+   /*! First character index of the view into m_sPeekBuf returned by peek_chars(). Contents of
+   m_sPeekBuf before this index have already been consumed, but are kept in it to avoid having to
+   shift its contents on every call to consume_chars(). */
+   std::size_t m_ichPeekBufOffset;
+   //! true if a past call to peek_chars() got to EOF.
    bool m_bEOF:1;
-   /*! If true and m_lterm is line_terminator::any or line_terminator::convert_any_to_lf, and the
-   next read operation encounters a leading ‘\n’, that character will not be considered as a line
-   terminator; this way, even if a “\r\n” was broken into multiple reads, we’ll still present
-   clients with a single ‘\n’ character instead of two, as it would happen without this tracker (one
-   from the trailing ‘\r’ of the first read, one from the leading ‘\n’ of the second. */
-   bool m_bDiscardNextLF:1;
 };
 
 }}} //namespace abc::io::text

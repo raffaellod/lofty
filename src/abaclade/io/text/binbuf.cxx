@@ -49,352 +49,6 @@ binbuf_stream::binbuf_stream(abc::text::encoding enc) :
 
 namespace abc { namespace io { namespace text {
 
-class binbuf_istream::read_helper : public noncopyable {
-public:
-   /*! Constructor.
-
-   TODO: comment signature.
-   */
-   read_helper(
-      binbuf_istream * ptbbis, std::uint8_t const * pbSrc, std::size_t cbSrc, str * psDst,
-      bool bOneLine
-   );
-
-   //! Destructor.
-   ~read_helper();
-
-   /*! Consumes the used bytes from the binary::buffered_istream.
-
-   @return
-      Count of bytes consumed.
-   */
-   std::size_t consume_used_bytes();
-
-   //! Reads characters until a line terminator is found.
-   void read_line();
-
-   /*! Performs a new binary::buffered_istream::peek() call.
-
-   @return
-      true if the buffer was replenished, or false otherwise (e.g. got to EOF).
-   */
-   bool replenish_peek_buffer();
-
-   /*! Transcodes more characters from the peek buffer.
-
-   @param bConstructing
-      true if invoked by the constructor, or false otherwise.
-   @return
-      true if the buffer was replenished, or false otherwise (e.g. got to EOF).
-   */
-   bool replenish_transcoded_buffer(bool bConstructing);
-
-   /*! Runs the helper.
-
-   @return
-      true if any characters were read, or false otherwise.
-   */
-   bool run();
-
-private:
-   //! Pointer to the object that instantiated *this.
-   binbuf_istream * m_ptbbis;
-
-   // State persisted for *this by binbuf_istream::read_line_or_all().
-
-   //! Pointer to the first non-consumed byte in the peek buffer.
-   std::uint8_t const * m_pbSrc;
-   /*! Size of the non-consumed part of the peek buffer. Set by replenish_peek_buffer(), updated by
-   consume_used_bytes(). */
-   std::size_t m_cbSrc;
-   //! Pointer to the destination string.
-   str * m_psDst;
-   //! If true, reading will stop as soon as a valid line terminator is found.
-   bool m_bOneLine:1;
-
-   // Buffered from m_ptbbr.
-
-   //! Encoding of the source.
-   abc::text::encoding const mc_enc;
-   //! If true, the end of the source has been detected. Set by replenish_peek_buffer().
-   bool m_bEOF:1;
-   //! If true, a CR has been found, and a following LF should be discarded if detected.
-   bool m_bDiscardNextLF:1;
-
-   // Internal state.
-
-   //! If true, the line terminator is not LF.
-   bool m_bLineEndsOnCROrAny:1;
-   //! If true, the line terminator is not CR.
-   bool m_bLineEndsOnLFOrAny:1;
-   /*! If true, bytes read are transcoded to abc::text::encoding::host; if false, the source
-   encoding is already abc::text::encoding::host, and bytes will just be copied. */
-   bool m_bTranscode:1;
-   //! Tracks how many source bytes have been read. Updated by consume_used_bytes().
-   std::size_t m_cchReadTotal;
-   /*! If m_bOneLine, this tracks how many characters will need to be stripped off to remove the
-   trailing line terminator before the final resize of *m_psDst. */
-   std::size_t m_cchLTerm;
-   //! Tracks how many source bytes have been transcoded.
-   std::size_t m_cbSrcTranscoded;
-   /*! Pointer to the current transcoded, but not yet parsed, character in *m_psDst (if
-   transcoding), or current source character (if not transcoding). */
-   char_t const * m_pchTranscoded;
-   /*! Pointer to the beginning of the transcoded, but not yet parsed, part of *m_psDst (if
-   transcoding), or same as the beginning of the source buffer, m_pbSrc (if not transcoding). */
-   char_t const * m_pchTranscodedBegin;
-   /*! Pointer to the end of the transcoded, but not yet parsed, part of *m_psDst (if transcoding),
-   or same the end of the source buffer, m_pbSrc + m_cbSrcTranscoded (if not transcoding). */
-   char_t const * m_pchTranscodedEnd;
-   //! Pointer to the next character in *m_psDst to be used.
-   char_t * m_pchDst;
-
-   //! Maximum count of characters to be transcoded at a time.
-   static std::size_t const smc_cbTranscodeMax;
-};
-
-/* TODO: tune smc_cbTranscodeMax.
-In the non-transcoding case, smaller values cause more calls to replenish_transcoded_buffer(), while
-larger values cause larger memory allocations that might be wasteful if reading a single line and
-lines are much shorter than the size of the peek buffer.
-In the transcoding case, smaller values causes more calls to replenish_*_buffer(), while larger
-values causes more repeated iterations in abc::text::transcode() when consume_used_bytes() needs to
-calculate how many source bytes have been transcoded wihtout being consumed. */
-std::size_t const binbuf_istream::read_helper::smc_cbTranscodeMax = 0x1000;
-
-binbuf_istream::read_helper::read_helper(
-   binbuf_istream * ptbbis, std::uint8_t const * pbSrc, std::size_t cbSrc, str * psDst,
-   bool bOneLine
-) :
-   m_ptbbis(ptbbis),
-
-   // Copy values originally passed to the method called on *m_ptbbr.
-   m_pbSrc(pbSrc),
-   m_cbSrc(cbSrc),
-   m_psDst(psDst),
-   m_bOneLine(bOneLine),
-
-   // Load non-volatile members from *m_ptbbr.
-   mc_enc(m_ptbbis->m_enc),
-   m_bEOF(m_ptbbis->m_bEOF),
-   m_bDiscardNextLF(m_ptbbis->m_bDiscardNextLF),
-
-   // Initialize all remaining volatile members.
-   m_bLineEndsOnCROrAny(
-      m_ptbbis->m_lterm == abc::text::line_terminator::cr ||
-      m_ptbbis->m_lterm == abc::text::line_terminator::any ||
-      m_ptbbis->m_lterm == abc::text::line_terminator::convert_any_to_lf
-   ),
-   m_bLineEndsOnLFOrAny(
-      m_ptbbis->m_lterm == abc::text::line_terminator::lf ||
-      m_ptbbis->m_lterm == abc::text::line_terminator::any ||
-      m_ptbbis->m_lterm == abc::text::line_terminator::convert_any_to_lf
-   ),
-   m_bTranscode(true /*mc_enc != abc::text::encoding::host*/),
-   m_cchReadTotal(0) {
-   replenish_transcoded_buffer(true);
-
-   static_assert(
-      (smc_cbTranscodeMax & (~smc_cbTranscodeMax + 1)) == smc_cbTranscodeMax,
-      "smc_cbTranscodeMax must be a power of 2"
-   );
-}
-
-binbuf_istream::read_helper::~read_helper() {
-   // Save non-volatile members back to *m_ptbbr.
-   m_ptbbis->m_bEOF = m_bEOF;
-   m_ptbbis->m_bDiscardNextLF = m_bDiscardNextLF;
-}
-
-std::size_t binbuf_istream::read_helper::consume_used_bytes() {
-   ABC_TRACE_FUNC(this);
-
-   std::size_t cchUsed = static_cast<std::size_t>(m_pchTranscoded - m_pchTranscodedBegin);
-   m_cchReadTotal += cchUsed;
-   std::size_t cbUsed;
-   if (m_bTranscode) {
-      if (m_pchTranscoded == m_pchTranscodedEnd) {
-         // We used all the bytes we transcoded.
-         cbUsed = m_cbSrcTranscoded;
-      } else {
-         /* We didn’t consume all the characters we transcoded, repeat the transcoding capping the
-         destination size to the consumed range of characters; this will yield the count of bytes to
-         consume. */
-         void const * pbSrc = m_pbSrc;
-         std::size_t cbSrc = m_cbSrcTranscoded, cbTranscodedRemaining = sizeof(char_t) * cchUsed;
-         abc::text::transcode(
-            true, mc_enc, &pbSrc, &cbSrc, abc::text::encoding::host, nullptr, &cbTranscodedRemaining
-         );
-         ABC_ASSERT(cbTranscodedRemaining == 0, ABC_SL(
-            "abc::text::transcode() didn’t transcode the expected count of characters"
-         ));
-         cbUsed = m_cbSrcTranscoded - cbSrc;
-      }
-   } else {
-      cbUsed = sizeof(char_t) * cchUsed;
-   }
-   m_ptbbis->m_pbbis->consume_bytes(cbUsed);
-   /* Reset m_pchTranscoded to inhibit further calls to this method until more characters are
-   consumed. */
-   m_pchTranscoded = m_pchTranscodedBegin;
-   return cbUsed;
-}
-
-void binbuf_istream::read_helper::read_line() {
-   ABC_TRACE_FUNC(this);
-
-   m_cchLTerm = 0;
-   // This condition is the inverse of the one controlling the while loop that follows.
-   if (m_pchTranscoded == m_pchTranscodedEnd && !replenish_transcoded_buffer(false)) {
-      return;
-   }
-   if (m_bDiscardNextLF) {
-      /* This CR is part of a CR+LF line terminator we already presented as a LF, so make it
-      disappear. */
-      if (*m_pchTranscoded == '\n') {
-         ++m_pchTranscoded;
-      }
-      m_bDiscardNextLF = false;
-   }
-   /* This (inner) loop copies characters from the transcoded buffer into *m_psDst until it gets to
-   the appropriate line terminator, which gets translated on the fly if necessary. */
-   bool bLineEndsOnCRLFAndFoundCR = false;
-   while (
-      m_cchLTerm == 0 &&
-      (m_pchTranscoded != m_pchTranscodedEnd || replenish_transcoded_buffer(false))
-   ) {
-      char_t ch = *m_pchTranscoded++;
-      *m_pchDst++ = ch;
-      if (ch == '\r') {
-         if (m_bLineEndsOnCROrAny) {
-            if (m_ptbbis->m_lterm != abc::text::line_terminator::cr) {
-               // Make sure we discard a possible following LF.
-               m_bDiscardNextLF = true;
-               if (m_ptbbis->m_lterm == abc::text::line_terminator::convert_any_to_lf) {
-                  // Convert this CR (possibly followed by LF) into a LF.
-                  *(m_pchDst - 1) = '\n';
-               }
-            }
-            m_cchLTerm = 1;
-         } else if (m_ptbbis->m_lterm == abc::text::line_terminator::cr_lf) {
-            // Only consider this CR if followed by a LF.
-            bLineEndsOnCRLFAndFoundCR = true;
-         }
-      } else if (ch == '\n') {
-         if (m_bLineEndsOnLFOrAny) {
-            m_cchLTerm = 1;
-         } else if (bLineEndsOnCRLFAndFoundCR) {
-            m_cchLTerm = 2;
-         }
-      }
-   }
-}
-
-bool binbuf_istream::read_helper::replenish_peek_buffer() {
-   ABC_TRACE_FUNC(this);
-
-   /* If we didn’t consume some bytes because they don’t make a complete code point, we’ll ask for
-   at least one more byte, in an attempt to complete the code point. */
-   std::size_t cbConsumed = consume_used_bytes();
-   _std::tie(m_pbSrc, m_cbSrc) = m_ptbbis->m_pbbis->peek<std::uint8_t>(cbConsumed + 1);
-   if (m_cbSrc > 0) {
-      return true;
-   } else {
-      // Reached EOF. bEOF will break the outer loop after we break out of the inner one.
-      /* TODO: if mc_enc != abc::text::encoding::host, we might have an incomplete character that
-      couldn’t be transcoded: do something about it. */
-      m_bEOF = true;
-      return false;
-   }
-}
-
-bool binbuf_istream::read_helper::replenish_transcoded_buffer(bool bConstructing) {
-   ABC_TRACE_FUNC(this, bConstructing);
-
-   std::size_t cchDstUsed;
-   bool bPreserve;
-   if (bConstructing) {
-      cchDstUsed = 0;
-      bPreserve = false;
-   } else {
-      // Calculate sizes from the current pointers, since the string buffer might be reallocated.
-      cchDstUsed = static_cast<std::size_t>(m_pchDst - m_psDst->data());
-      bPreserve = true;
-      /* If we already transcoded all the peeked bytes (and we’re here, so we used all the
-      transcoded characters), get more. */
-      if (m_cbSrcTranscoded == m_cbSrc) {
-         if (!replenish_peek_buffer()) {
-            return false;
-         }
-      }
-   }
-
-   if (m_bTranscode) {
-      // Calculate the space needed for up to smc_cbTranscodeMax more transcoded characters.
-      std::uint8_t const * pbSrc = m_pbSrc;
-      std::size_t cbSrc = std::min(m_cbSrc, smc_cbTranscodeMax);
-      std::size_t cbTranscoded = abc::text::transcode(
-         true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host
-      );
-      m_psDst->set_capacity(cchDstUsed + cbTranscoded / sizeof(char_t), bPreserve);
-      // Use the part of the string beyond cchDstUsed as the transcoding destination buffer.
-      m_pchTranscodedBegin = m_psDst->data() + cchDstUsed;
-      // Transcode *pbSrc. This will move m_pchTranscodedEnd to the end of the transcoded string.
-      m_pchTranscodedEnd = m_pchTranscodedBegin;
-      std::size_t cbTranscodedRemaining = cbTranscoded;
-      abc::text::transcode(
-         true, mc_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrc, abc::text::encoding::host,
-         reinterpret_cast<void **>(const_cast<char_t **>(&m_pchTranscodedEnd)),
-         &cbTranscodedRemaining
-      );
-      m_cbSrcTranscoded = m_cbSrc - cbSrc;
-   } else {
-      // Cap m_cbSrc and round it down to the previous char_t.
-      m_cbSrcTranscoded = std::min(m_cbSrc, smc_cbTranscodeMax) & ~(sizeof(char_t) - 1);
-      m_pchTranscodedBegin = reinterpret_cast<char_t const *>(m_pbSrc);
-      m_pchTranscodedEnd = reinterpret_cast<char_t const *>(m_pbSrc + m_cbSrcTranscoded);
-      // Validate the characters in the peek buffer before we start appending them to *psDst.
-      /* TODO: FIXME: this is not forgiving of partially-read code points, but it should be. Maybe
-      only do the validation later, at the end of each line? */
-      /* TODO: intercept exceptions if the istream’s “error mode” (TODO) mandates that errors be
-      converted into a special character, in which case we switch to forcing a transcoding read
-      mode, since abc::text:transcode can fix errors if told so (this will need a separate variable
-      to track the switch, instead of always comparing mc_enc == abc::text::encoding::host). */
-      /* TODO: improve this so we don’t re-validate the entire string on each read; validate only
-      the portion that was just read. */
-      abc::text::str_traits::validate(
-         m_pchTranscodedBegin, m_pchTranscodedEnd, true /*do throw on errors*/
-      );
-      m_psDst->set_capacity(m_cbSrcTranscoded / sizeof(char_t), bPreserve);
-   }
-   m_pchTranscoded = m_pchTranscodedBegin;
-   // Rebase this pointer onto the (possibly) newly-reallocated string.
-   m_pchDst = m_psDst->data() + cchDstUsed;
-   return true;
-}
-
-bool binbuf_istream::read_helper::run() {
-   ABC_TRACE_FUNC(this);
-
-   // This (outer) loop restarts the inner one if we’re not just reading a single line.
-   do {
-      read_line();
-   } while (!m_bOneLine && !m_bEOF);
-   if (m_bOneLine) {
-      // If the line read includes a line terminator, strip it off.
-      m_pchDst -= m_cchLTerm;
-   }
-   // Calculate the length of the string and truncate it to that.
-   std::size_t cchDstTotal = static_cast<std::size_t>(m_pchDst - m_psDst->data());
-   m_psDst->set_size_in_chars(cchDstTotal);
-   if (m_pchTranscoded != m_pchTranscodedBegin) {
-      // Calculate how many bytes were used from the last buffer peek and consume them.
-      consume_used_bytes();
-   }
-   return m_cchReadTotal > 0;
-}
-
-
 binbuf_istream::binbuf_istream(
    _std::shared_ptr<binary::buffered_istream> pbbis,
    abc::text::encoding enc /*= abc::text::encoding::unknown*/
@@ -403,8 +57,8 @@ binbuf_istream::binbuf_istream(
    binbuf_stream(enc),
    istream(),
    m_pbbis(_std::move(pbbis)),
-   m_bEOF(false),
-   m_bDiscardNextLF(false) {
+   m_ichPeekBufOffset(0),
+   m_bEOF(false) {
 }
 
 /*virtual*/ binbuf_istream::~binbuf_istream() {
@@ -415,6 +69,16 @@ binbuf_istream::binbuf_istream(
    ABC_TRACE_FUNC(this);
 
    return m_pbbis;
+}
+
+/*virtual*/ void binbuf_istream::consume_chars(std::size_t cch) /*override*/ {
+   ABC_TRACE_FUNC(this, cch);
+
+   if (cch > m_sPeekBuf.size_in_chars() - m_ichPeekBufOffset) {
+      // TODO: use a better exception class.
+      ABC_THROW(argument_error, ());
+   }
+   m_ichPeekBufOffset += cch;
 }
 
 std::size_t binbuf_istream::detect_encoding(std::uint8_t const * pb, std::size_t cb) {
@@ -441,37 +105,96 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * pb, std::size_t
    return cbBom;
 }
 
-/*virtual*/ bool binbuf_istream::read_line_or_all(str * psDst, bool bOneLine) /*override*/ {
-   ABC_TRACE_FUNC(this, psDst, bOneLine);
+/*virtual*/ str binbuf_istream::peek_chars(std::size_t cchMin) /*override*/ {
+   ABC_TRACE_FUNC(this, cchMin);
 
-   // Only continue if we didn’t reach EOF in the past.
-   if (m_bEOF) {
-      return false;
-   }
-
-   // Attempt to read at least a single byte.
-   std::uint8_t const * pbSrc;
-   std::size_t cbSrc;
-   _std::tie(pbSrc, cbSrc) = m_pbbis->peek<std::uint8_t>(1);
-   if (cbSrc == 0) {
-      // If nothing was read, this is the end of the data.
-      m_bEOF = true;
-      return false;
-   }
-
-   // If the encoding is still undefined, try to guess it now.
-   if (m_enc == abc::text::encoding::unknown) {
-      std::size_t cbBom = detect_encoding(pbSrc, cbSrc);
-      // If a BOM was read, consume it.
-      if (cbBom) {
-         m_pbbis->consume<std::uint8_t>(cbBom);
-         pbSrc += cbBom;
-         cbSrc -= cbBom;
+   // The peek buffer might already contain enough characters.
+   std::size_t cchPeekBuf = m_sPeekBuf.size_in_chars() - m_ichPeekBufOffset;
+   if (cchPeekBuf < cchMin && !m_bEOF) {
+      /* Ensure the peek buffer is large enough to hold the requested count of characters or an
+      arbitrary minimum (chosen for efficiency). */
+      if (cchMin > m_sPeekBuf.capacity() - m_ichPeekBufOffset) {
+         // If there’s any unused space in m_sPeekBuf, recover it now.
+         /* TODO: might use a different strategy to decide if it’s more convenient to just allocate
+         a bigger buffer based on m_sPeekBuf.capacity() vs. cchPeekBuf, i.e. the cost of
+         memory::realloc() vs. the cost of memory::move(). */
+         if (m_ichPeekBufOffset > 0) {
+            if (cchPeekBuf > 0) {
+               memory::move(m_sPeekBuf.data(), m_sPeekBuf.data() + m_ichPeekBufOffset, cchPeekBuf);
+            }
+            m_ichPeekBufOffset = 0;
+            m_sPeekBuf.set_size_in_chars(cchPeekBuf, false /*don’t clear*/);
+         }
+         static std::size_t const sc_cchPeekBufMin = 128;
+         std::size_t cchNeededCapacity = std::max(cchMin, sc_cchPeekBufMin);
+         if (cchNeededCapacity > m_sPeekBuf.capacity()) {
+            m_sPeekBuf.set_capacity(cchNeededCapacity, true /*preserve*/);
+         }
       }
-   }
+      char_t * pchPeekBufBegin = m_sPeekBuf.data() + m_ichPeekBufOffset;
+      std::size_t cbPeekBufCapacity = m_sPeekBuf.capacity() - m_ichPeekBufOffset;
+      void * pPeekBufEnd = pchPeekBufBegin;
 
-   read_helper rh(this, pbSrc, cbSrc, psDst, bOneLine);
-   return rh.run();
+      std::size_t cbPeekMin = 1;
+      do {
+         std::uint8_t const * pbSrc;
+         std::size_t cbSrc;
+         _std::tie(pbSrc, cbSrc) = m_pbbis->peek<std::uint8_t>(cbPeekMin);
+         if (cbSrc == 0) {
+            m_bEOF = true;
+            break;
+         }
+
+         // If the encoding is still undefined, try to guess it now.
+         if (m_enc == abc::text::encoding::unknown) {
+            if (std::size_t cbBom = detect_encoding(pbSrc, cbSrc)) {
+               // Consume the BOM that was read.
+               m_pbbis->consume<std::uint8_t>(cbBom);
+               pbSrc += cbBom;
+               cbSrc -= cbBom;
+            }
+         }
+
+         // Transcode the binary peek buffer into m_sPeekBuf at m_ichPeekBufOffset + cchPeekBuf.
+         std::size_t cbSrcRemaining = cbSrc;
+         std::size_t cbPeekBufTranscoded = abc::text::transcode(
+            true, m_enc, reinterpret_cast<void const **>(&pbSrc), &cbSrcRemaining,
+            abc::text::encoding::host, &pPeekBufEnd, &cbPeekBufCapacity
+         );
+         if (cbPeekBufTranscoded == 0) {
+            // Couldn’t transcode even a single code point; get more bytes and try again.
+            ++cbPeekMin;
+            continue;
+         }
+         // If this was changed, ensure it’s reset now that we successfully transcoded something.
+         cbPeekMin = 1;
+
+         // Permanently remove the transcoded bytes from the binary buffer.
+         m_pbbis->consume<std::uint8_t>(cbSrc - cbSrcRemaining);
+         // Account for the characters just transcoded.
+         cchPeekBuf += cbPeekBufTranscoded / sizeof(char_t);
+         m_sPeekBuf.set_size_in_chars(m_ichPeekBufOffset + cchPeekBuf, false /*don’t clear*/);
+      } while (cchPeekBuf < cchMin);
+   }
+   // Return a view of m_sPeekBuf to avoid copying it.
+   return str(
+      external_buffer,
+      m_sPeekBuf.data() + m_ichPeekBufOffset,
+      m_sPeekBuf.size_in_chars() - m_ichPeekBufOffset
+   );
+}
+
+/*virtual*/ bool binbuf_istream::read_line(str * psDst) /*override*/ {
+   ABC_TRACE_FUNC(this, psDst);
+
+   if (m_bEOF) {
+      psDst->clear();
+      return false;
+   } else {
+      // This will result in calls to peek_chars(), which will set m_bEOF as necessary.
+      istream::read_line(psDst);
+      return true;
+   }
 }
 
 }}} //namespace abc::io::text

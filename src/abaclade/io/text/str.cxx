@@ -28,12 +28,38 @@ namespace abc { namespace io { namespace text {
 
 str_stream::str_stream() :
    stream(),
+   m_psBuf(&m_sDefaultBuf),
    m_ichOffset(0) {
 }
 
 str_stream::str_stream(str_stream && ss) :
    stream(_std::move(ss)),
+   m_psBuf(ss.m_psBuf != &ss.m_sDefaultBuf ? ss.m_psBuf : &m_sDefaultBuf),
+   m_sDefaultBuf(_std::move(ss.m_sDefaultBuf)),
    m_ichOffset(ss.m_ichOffset) {
+   // Make ss use its own internal buffer.
+   ss.m_psBuf = &ss.m_sDefaultBuf;
+   ss.m_ichOffset = 0;
+}
+
+/*explicit*/ str_stream::str_stream(str const & s) :
+   stream(),
+   m_psBuf(&m_sDefaultBuf),
+   m_sDefaultBuf(s),
+   m_ichOffset(0) {
+}
+
+/*explicit*/ str_stream::str_stream(str && s) :
+   stream(),
+   m_psBuf(&m_sDefaultBuf),
+   m_sDefaultBuf(_std::move(s)),
+   m_ichOffset(0) {
+}
+
+/*explicit*/ str_stream::str_stream(external_buffer_t const &, str const * ps) :
+   stream(),
+   m_psBuf(const_cast<str *>(ps)),
+   m_ichOffset(0) {
 }
 
 /*virtual*/ str_stream::~str_stream() {
@@ -49,47 +75,51 @@ str_stream::str_stream(str_stream && ss) :
 
 namespace abc { namespace io { namespace text {
 
-str_istream::str_istream(str_istream && sis) :
-   stream(_std::move(sis)),
-   str_stream(_std::move(sis)),
-   istream(_std::move(sis)),
-   m_psReadBuf(sis.m_psReadBuf != &sis.m_sReadBuf ? sis.m_psReadBuf : &m_sReadBuf),
-   m_sReadBuf(_std::move(sis.m_sReadBuf)) {
-   // Make sis use its own internal read buffer.
-   sis.m_psReadBuf = &sis.m_sReadBuf;
-}
-
 str_istream::str_istream(str const & s) :
    stream(),
-   str_stream(),
-   istream(),
-   m_psReadBuf(&m_sReadBuf),
-   m_sReadBuf(s) {
+   str_stream(s),
+   istream() {
 }
 
 str_istream::str_istream(str && s) :
    stream(),
-   str_stream(),
-   istream(),
-   m_psReadBuf(&m_sReadBuf),
-   m_sReadBuf(_std::move(s)) {
+   str_stream(_std::move(s)),
+   istream() {
 }
 
-str_istream::str_istream(external_buffer_t const &, str const * ps) :
+str_istream::str_istream(external_buffer_t const & eb, str const * ps) :
    stream(),
-   str_stream(),
-   istream(),
-   m_psReadBuf(ps) {
+   str_stream(eb, ps),
+   istream() {
 }
 
 /*virtual*/ str_istream::~str_istream() {
 }
 
-/*virtual*/ bool str_istream::read_line_or_all(str * psDst, bool bOneLine) /*override*/ {
-   ABC_TRACE_FUNC(this, psDst, bOneLine);
+/*virtual*/ void str_istream::consume_chars(std::size_t cch) /*override*/ {
+   ABC_TRACE_FUNC(this, cch);
 
-   // TODO: implement this.
-   return false;
+   if (cch > remaining_size_in_chars()) {
+      // TODO: use a better exception class.
+      ABC_THROW(argument_error, ());
+   }
+   m_ichOffset += cch;
+}
+
+/*virtual*/ str str_istream::peek_chars(std::size_t cchMin) /*override*/ {
+   ABC_TRACE_FUNC(this, cchMin);
+
+   // Always return the whole string buffer after m_ichOffset, ignoring cchMin.
+   ABC_UNUSED_ARG(cchMin);
+   return str(external_buffer, m_psBuf->data() + m_ichOffset, remaining_size_in_chars());
+}
+
+/*virtual*/ void str_istream::read_all(str * psDst) /*override*/ {
+   ABC_TRACE_FUNC(this, psDst);
+
+   *psDst = _std::move(*m_psBuf);
+   m_psBuf = &m_sDefaultBuf;
+   m_ichOffset = 0;
 }
 
 }}} //namespace abc::io::text
@@ -101,27 +131,19 @@ namespace abc { namespace io { namespace text {
 str_ostream::str_ostream() :
    stream(),
    str_stream(),
-   ostream(),
-   m_psWriteBuf(&m_sDefaultWriteBuf) {
+   ostream() {
 }
 
 str_ostream::str_ostream(str_ostream && sos) :
    stream(_std::move(sos)),
    str_stream(_std::move(sos)),
-   ostream(_std::move(sos)),
-   m_psWriteBuf(
-      sos.m_psWriteBuf != &sos.m_sDefaultWriteBuf ? sos.m_psWriteBuf : &m_sDefaultWriteBuf
-   ),
-   m_sDefaultWriteBuf(_std::move(sos.m_sDefaultWriteBuf)) {
-   //  Make sos use its own internal buffer.
-   sos.m_psWriteBuf = &sos.m_sDefaultWriteBuf;
+   ostream(_std::move(sos)) {
 }
 
-str_ostream::str_ostream(external_buffer_t const &, str * psBuf) :
+str_ostream::str_ostream(external_buffer_t const & eb, str * psBuf) :
    stream(),
-   str_stream(),
-   ostream(),
-   m_psWriteBuf(psBuf) {
+   str_stream(eb, psBuf),
+   ostream() {
 }
 
 /*virtual*/ str_ostream::~str_ostream() {
@@ -130,7 +152,7 @@ str_ostream::str_ostream(external_buffer_t const &, str * psBuf) :
 void str_ostream::clear() {
    ABC_TRACE_FUNC(this);
 
-   m_psWriteBuf->set_size_in_chars(0);
+   m_psBuf->set_size_in_chars(0);
    m_ichOffset = 0;
 }
 
@@ -146,7 +168,7 @@ str str_ostream::release_content() {
    ABC_TRACE_FUNC(this);
 
    m_ichOffset = 0;
-   return _std::move(*m_psWriteBuf);
+   return _std::move(*m_psBuf);
 }
 
 /*virtual*/ void str_ostream::write_binary(
@@ -165,21 +187,21 @@ str str_ostream::release_content() {
       // Optimal case: no transcoding necessary.
       std::size_t cch = cbSrc / sizeof(char_t);
       // Enlarge the string as necessary, then overwrite any character in the affected range.
-      m_psWriteBuf->set_capacity(m_ichOffset + cch, true);
-      memory::copy(m_psWriteBuf->data() + m_ichOffset, static_cast<char_t const *>(pSrc), cch);
+      m_psBuf->set_capacity(m_ichOffset + cch, true);
+      memory::copy(m_psBuf->data() + m_ichOffset, static_cast<char_t const *>(pSrc), cch);
       m_ichOffset += cch;
    } else {
       // Calculate the additional buffer size required.
       std::size_t cbBuf = abc::text::transcode(true, enc, &pSrc, &cbSrc, abc::text::encoding::host);
-      m_psWriteBuf->set_capacity(m_ichOffset + cbBuf / sizeof(char_t), true);
+      m_psBuf->set_capacity(m_ichOffset + cbBuf / sizeof(char_t), true);
       // Transcode the source into the string buffer and advance m_ichOffset accordingly.
-      void * pBuf = m_psWriteBuf->data() + m_ichOffset;
+      void * pBuf = m_psBuf->data() + m_ichOffset;
       m_ichOffset += abc::text::transcode(
          true, enc, &pSrc, &cbSrc, abc::text::encoding::host, &pBuf, &cbBuf
       ) / sizeof(char_t);
    }
    // Truncate the string.
-   m_psWriteBuf->set_size_in_chars(m_ichOffset);
+   m_psBuf->set_size_in_chars(m_ichOffset);
 }
 
 }}} //namespace abc::io::text

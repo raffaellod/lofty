@@ -177,7 +177,7 @@ _std::shared_ptr<ostream> make_stdout() {
 namespace abc { namespace io { namespace text {
 
 stream::stream() :
-   m_lterm(abc::text::line_terminator::convert_any_to_lf) {
+   m_lterm(abc::text::line_terminator::any) {
 }
 
 /*virtual*/ stream::~stream() {
@@ -190,28 +190,104 @@ stream::stream() :
 namespace abc { namespace io { namespace text {
 
 istream::istream() :
-   stream() {
+   stream(),
+   m_bDiscardNextLF(false) {
 }
 
 str istream::read_all() {
    ABC_TRACE_FUNC(this);
 
    str sDst;
-   read_line_or_all(&sDst, false);
+   read_all(&sDst);
    return _std::move(sDst);
 }
-void istream::read_all(str * psDst) {
+
+/*virtual*/ void istream::read_all(str * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
    psDst->clear();
-   read_line_or_all(psDst, false);
+   // Just ask for 1 character; that’s enough to distinguish between EOF and non-EOF.
+   while (str sSrc = peek_chars(1)) {
+      std::size_t cchConsumed = sSrc.size_in_chars();
+      *psDst += sSrc;
+      consume_chars(cchConsumed);
+   }
 }
 
-bool istream::read_line(str * psDst) {
+/*virtual*/ bool istream::read_line(str * psDst) {
    ABC_TRACE_FUNC(this, psDst);
 
    psDst->clear();
-   return read_line_or_all(psDst, true);
+   std::size_t cchConsumedTotal = 0, cchDst = 0;
+   bool bFoundLTerm = false;
+   str sSrc;
+   // Just ask for 1 character; that’s sufficient to distinguish between EOF and non-EOF.
+   while (!bFoundLTerm && (sSrc = peek_chars(1))) {
+      // Resize *psDst to accommodate, potentially, all of sSrc.
+      psDst->set_capacity(cchDst + sSrc.size_in_chars(), true /*preserve*/);
+      // Copy characters from sSrc to *psDst, stopping at the first line terminator.
+      char_t const * pchSrc = sSrc.data(), * pchSrcEnd = sSrc.data_end();
+      char_t * pchDst = psDst->data() + cchDst;
+      char_t const * pchDstLastCR = nullptr;
+      /* If the last character parsed by prior invocation of read_line() was a CR and this first
+      character is a LF, skip past it. */
+      if (m_bDiscardNextLF) {
+         m_bDiscardNextLF = false;
+         if (*pchSrc == '\n' /*LF*/) {
+            ++pchSrc;
+         }
+      }
+      while (pchSrc != pchSrcEnd) {
+         char_t chSrc = *pchSrc++;
+         if (chSrc == '\r' /*CR*/) {
+            switch (m_lterm.base()) {
+               case abc::text::line_terminator::any:
+                  // Make sure we’ll discard a possible following LF.
+                  m_bDiscardNextLF = true;
+                  // Fall through.
+               case abc::text::line_terminator::cr:
+                  bFoundLTerm = true;
+                  goto break_inner_while;
+               case abc::text::line_terminator::cr_lf:
+                  /* Mark where we’re about to write the CR, so we can rewind to this - 1 if the
+                  next source character is LF. */
+                  pchDstLastCR = pchDst;
+                  break;
+               case abc::text::line_terminator::lf:
+                  break;
+            }
+         } else if (chSrc == '\n' /*LF*/) {
+            switch (m_lterm.base()) {
+               case abc::text::line_terminator::any:
+               case abc::text::line_terminator::lf:
+                  bFoundLTerm = true;
+                  goto break_inner_while;
+               case abc::text::line_terminator::cr_lf: {
+                  /* If the previous character was a CR, pchDstLastCR was set to it; in that case
+                  don’t write this LF and discard the already-written CR. */
+                  char_t * pchDstPrev = pchDst - 1;
+                  if (pchDstLastCR == pchDstPrev) {
+                     pchDst = pchDstPrev;
+                     goto break_inner_while;
+                  }
+                  break;
+               }
+               case abc::text::line_terminator::cr:
+                  break;
+            }
+         }
+         *pchDst++ = chSrc;
+      }
+   break_inner_while:
+      if (std::size_t cchConsumed = static_cast<std::size_t>(pchSrc - sSrc.data())) {
+         consume_chars(cchConsumed);
+         cchConsumedTotal += cchConsumed;
+      }
+      // Save this, since the next iteration might reallocate *psDst’s character array.
+      cchDst = static_cast<std::size_t>(pchDst - psDst->data());
+   }
+   psDst->set_size_in_chars(cchDst);
+   return cchConsumedTotal > 0;
 }
 
 }}} //namespace abc::io::text

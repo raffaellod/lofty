@@ -224,6 +224,14 @@ public:
    };
 
 public:
+   /*! Marks the specified number of characters as read, so that they won’t be presented again on
+   the next peek() call.
+
+   @param c
+      Count of elements to mark as read.
+   */
+   virtual void consume_chars(std::size_t cch) = 0;
+
    /*! Returns a pseudo-object that allows to iterate over lines of text.
 
    @return
@@ -233,45 +241,61 @@ public:
       return _lines_proxy(this);
    }
 
-   /*! Reads the entire source into a string.
+   /*! Returns a view of the internal read buffer. The string may initially use an external buffer
+   provided by the implementation which is potentially read-only, but it will switch to a modifiable
+   copy if necessary, as all abc::text::str instances do.
+
+   @param cchMin
+      Count of characters to peek.
+   @return
+      View of the internal string buffer. The string may be shorter than cch characters if EOF was
+      reached, or longer if there are more characters available than requested, for implementation-
+      defined reasons. For non-zero values of cch, a returned empty string indicates that no more
+      data is available (EOF).
+   */
+   virtual str peek_chars(std::size_t cchMin) = 0;
+
+   /*! Returns the entire stream, emptying it.
 
    @return
-      Content of the source.
+      Content of the stream.
    */
    str read_all();
 
-   /*! Reads the entire source into a string.
+   /*! Reads the entire stream into a string. Efficient when the stream is expected to be of a
+   reasonably small size, and the destination string can be an abc::text::sstr instance of
+   sufficient size, provided by the caller.
+
+   The default implementation relies on peek_chars()/consume_chars().
 
    @param psDst
       Pointer to the string that will receive the data.
    */
-   void read_all(str * psDst);
+   virtual void read_all(str * psDst);
 
    /*! Reads a whole line into the specified string, discarding the line terminator.
 
+   The default implementation relies on peek_chars()/consume_chars().
+
    @param psDst
-      Pointer to the string that will receive the read line.
+      Pointer to the string that will receive the read line, or an empty string if EOF is reached
+      before any characters could be read.
    @return
-      true if a line could be read, or false if the end of the data was reached, in which case
-      *psDst is left in an undetermined state.
-   */
-   bool read_line(str * psDst);
+      true if a line could be read, or false if the end of the stream was reached.
+    */
+   virtual bool read_line(str * psDst);
 
 protected:
    //! Default constructor.
    istream();
 
-   /*! Reads data into the specified string, invoking a callback function to determine how much of
-   the read data should be consumed.
-
-   @param psDst
-      Pointer to the string that will receive the read data.
-   @param bOneLine
-      If true, reading will stop at the first line terminator character.
-   @return
-      true if a string could be read, or false if the istream was at EOF.
-   */
-   virtual bool read_line_or_all(str * psDst, bool bOneLine) = 0;
+protected:
+   /*! If true and m_lterm is line_terminator::any or line_terminator::convert_any_to_lf, and the
+   next read operation encounters a leading ‘\n’, that character will not be considered as a line
+   terminator; this way, even if a “\r\n” was broken into multiple reads, we’ll still present
+   clients with a single ‘\n’ character instead of two, as it would happen without this tracker (one
+   from the trailing ‘\r’ of the first read, one from the leading ‘\n’ of the second. */
+   bool m_bDiscardNextLF:1;
 };
 
 }}} //namespace abc::io::text
@@ -523,7 +547,7 @@ public:
    }
 
 protected:
-   /*! Writes T0 if iArg == 0, or fowards the call to the previous recursion level.
+   /*! Writes T0 if iArg == 0, or forwards the call to the previous recursion level.
 
    @param iArg
       0-based index of the template argument to write.
