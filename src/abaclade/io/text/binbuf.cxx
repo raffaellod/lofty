@@ -132,7 +132,7 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * pb, std::size_t
          }
       }
       char_t * pchPeekBufBegin = m_sPeekBuf.data() + m_ichPeekBufOffset;
-      std::size_t cbPeekBufCapacity = m_sPeekBuf.capacity() - m_ichPeekBufOffset;
+      std::size_t cbPeekBufCapacity = (m_sPeekBuf.capacity() - m_ichPeekBufOffset) * sizeof(char_t);
       void * pPeekBufEnd = pchPeekBufBegin;
 
       std::size_t cbPeekMin = 1;
