@@ -23,21 +23,20 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if 0
 namespace abc { namespace test { namespace {
 
 class type_with_member_ftis {
 public:
-   type_with_member_ftis(str s) :
-      m_s(_std::move(s)) {
-   }
-
    str const & get() const {
       return m_s;
    }
 
    void from_text_istream(io::text::istream * ptis) {
-      ptis->read(m_s);
+      m_s.clear();
+      while (str sPeek = ptis->peek_chars(1)) {
+         m_s += sPeek;
+         ptis->consume_chars(sPeek.size_in_chars());
+      }
    }
 
 private:
@@ -46,11 +45,7 @@ private:
 
 class type_with_nonmember_ftis {
 public:
-   type_with_nonmember_ftis(str s) :
-      m_s(_std::move(s)) {
-   }
-
-   str const & get() const {
+   str & get() {
       return m_s;
    }
 
@@ -70,7 +65,12 @@ public:
    }
 
    void read(test::type_with_nonmember_ftis * ptwnmt, io::text::istream * ptis) {
-      ptis->read(ptwnmt->get());
+      str & s = ptwnmt->get();
+      s.clear();
+      while (str sPeek = ptis->peek_chars(1)) {
+         s += sPeek;
+         ptis->consume_chars(sPeek.size_in_chars());
+      }
    }
 };
 
@@ -88,9 +88,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    /* These assertions are more important at compile time than at run time; if the from_str() calls
    compile, they won’t return the wrong value. */
-   ABC_TESTING_ASSERT_EQUAL(from_str<type_with_member_ftis   >(twmf).get(), sTwmf);
-   ABC_TESTING_ASSERT_EQUAL(from_str<type_with_nonmember_ftis>(twnf).get(), sTwnf);
+   ABC_TESTING_ASSERT_EQUAL(from_str<type_with_member_ftis   >(sTwmf).get(), sTwmf);
+   ABC_TESTING_ASSERT_EQUAL(from_str<type_with_nonmember_ftis>(sTwnf).get(), sTwnf);
 }
 
 }} //namespace abc::test
-#endif
