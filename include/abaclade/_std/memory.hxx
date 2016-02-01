@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015 Raffaello D. Di Napoli
+Copyright 2011-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -663,7 +663,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 /*! Base for control object classes used by shared_ptr and weak_ptr.
 
@@ -743,11 +743,11 @@ protected:
    atomic<unsigned> m_cWeakRefs;
 };
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 //! Simple control object class with no custom deleter or allocator support.
 template <typename T>
@@ -780,11 +780,11 @@ protected:
    T * m_pt;
 };
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 //! Control object class with custom deleter support.
 template <typename T, typename TDel>
@@ -823,11 +823,11 @@ protected:
    TDel m_tdel;
 };
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 /*! Special control object class used when instanciating a shared_ptr via make_shared(). It expects
 the owned object to be allocated on the same memory block. */
@@ -854,7 +854,7 @@ protected:
    }
 };
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -952,7 +952,7 @@ public:
    */
    template <typename U>
    explicit shared_ptr(U * pu) :
-      m_psr(new detail::basic_shared_refcount<U>(pu)),
+      m_psr(new _pvt::basic_shared_refcount<U>(pu)),
       m_pt(pu) {
    }
 
@@ -965,7 +965,7 @@ public:
    */
    template <typename U, typename TDel>
    shared_ptr(U * pu, TDel tdel) :
-      m_psr(new detail::shared_refcount_with_deleter<U, TDel>(pu, tdel)),
+      m_psr(new _pvt::shared_refcount_with_deleter<U, TDel>(pu, tdel)),
       m_pt(pu) {
    }
 
@@ -1065,7 +1065,7 @@ public:
    */
    template <typename U, typename TDel>
    shared_ptr(unique_ptr<U, TDel> && upu) :
-      m_psr(new detail::shared_refcount_with_deleter<U, TDel>(upu.get(), upu.get_deleter())),
+      m_psr(new _pvt::shared_refcount_with_deleter<U, TDel>(upu.get(), upu.get_deleter())),
       m_pt(upt2.release()) {
    }
 
@@ -1082,7 +1082,7 @@ public:
    */
    template <typename TDel>
    shared_ptr(nullptr_t, TDel tdel) :
-      m_psr(new detail::shared_refcount_with_deleter<nullptr_t, TDel>(nullptr, tdel)),
+      m_psr(new _pvt::shared_refcount_with_deleter<nullptr_t, TDel>(nullptr, tdel)),
       m_pt(nullptr) {
    }
 
@@ -1144,7 +1144,7 @@ public:
    */
    shared_ptr & operator=(shared_ptr const & spt) {
       if (&spt != this) {
-         detail::shared_refcount * psrNew = spt.m_psr;
+         _pvt::shared_refcount * psrNew = spt.m_psr;
          if (psrNew) {
             psrNew->add_strong_ref();
          }
@@ -1265,7 +1265,7 @@ private:
    @param pt
       Pointer to adopt.
    */
-   shared_ptr(detail::shared_refcount * psr, T * pt) :
+   shared_ptr(_pvt::shared_refcount * psr, T * pt) :
       m_psr(psr),
       m_pt(pt) {
       // No need to call m_psr->add_strong_ref().
@@ -1273,7 +1273,7 @@ private:
 
 private:
    //! Shared reference count. We hold a strong reference to it.
-   detail::shared_refcount * m_psr;
+   _pvt::shared_refcount * m_psr;
    //! Owned object.
    T * m_pt;
 };
@@ -1467,7 +1467,7 @@ public:
 
 private:
    //! Shared reference count. We hold a weak reference to it.
-   detail::shared_refcount * m_psr;
+   _pvt::shared_refcount * m_psr;
    /*! Weakly-owned object. Not to be used directly; we only keep it to pass it when constructing a
    shared_ptr. */
    T * m_pt;
@@ -1549,7 +1549,7 @@ protected:
 
 private:
    //! Shared reference count. We hold a weak reference to it.
-   detail::shared_refcount * m_psr;
+   _pvt::shared_refcount * m_psr;
 };
 
 }} //namespace abc::_std
@@ -1565,7 +1565,7 @@ namespace abc { namespace _std {
 */
 template <typename T>
 inline tuple<unique_ptr<void>, T *> _make_unconstructed_shared() {
-   typedef detail::prefix_shared_refcount<T> prefix_shared_refcount;
+   typedef _pvt::prefix_shared_refcount<T> prefix_shared_refcount;
    /* Allocate a block of memory large enough to contain a refcount object and a T instance, making
    sure the T has proper alignment. */
    unique_ptr<max_align_t> p(new max_align_t[
@@ -1592,7 +1592,7 @@ namespace abc { namespace _std {
 */
 template <typename TDel, typename T>
 inline TDel * get_deleter(shared_ptr<T> const & spt) {
-   detail::shared_refcount * psr = spt.m_psr;
+   _pvt::shared_refcount * psr = spt.m_psr;
    if (psr) {
       return static_cast<TDel *>(psr->get_deleter(typeid(TDel)));
    } else {
@@ -1614,8 +1614,8 @@ template <typename T, typename... TArgs>
 inline shared_ptr<T> make_shared(TArgs &&... targs) {
    auto tpl(_make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(forward<TArgs>(targs)...);
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 
@@ -1625,8 +1625,8 @@ template <typename T>
 inline shared_ptr<T> make_shared() {
    auto tpl(_make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T();
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 1-argument T::T().
@@ -1634,8 +1634,8 @@ template <typename T, typename TArg0>
 inline shared_ptr<T> make_shared(TArg0 && targ0) {
    auto tpl(_make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(forward<TArg0>(targ0));
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 2-argument T::T().
@@ -1643,8 +1643,8 @@ template <typename T, typename TArg0, typename TArg1>
 inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1) {
    auto tpl(_make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(forward<TArg0>(targ0), forward<TArg1>(targ1));
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 3-argument T::T().
@@ -1652,8 +1652,8 @@ template <typename T, typename TArg0, typename TArg1, typename TArg2>
 inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1, TArg2 && targ2) {
    auto tpl(_make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2));
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 4-argument T::T().
@@ -1663,8 +1663,8 @@ inline shared_ptr<T> make_shared(TArg0 && targ0, TArg1 && targ1, TArg2 && targ2,
    ::new(get<1>(tpl)) T(
       forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3)
    );
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 5-argument T::T().
@@ -1679,8 +1679,8 @@ inline shared_ptr<T> make_shared(
       forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
       forward<TArg4>(targ4)
    );
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 6-argument T::T().
@@ -1696,8 +1696,8 @@ inline shared_ptr<T> make_shared(
       forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
       forward<TArg4>(targ4), forward<TArg5>(targ5)
    );
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 7-argument T::T().
@@ -1714,8 +1714,8 @@ inline shared_ptr<T> make_shared(
       forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
       forward<TArg4>(targ4), forward<TArg5>(targ5), forward<TArg6>(targ6)
    );
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 8-argument T::T().
@@ -1732,8 +1732,8 @@ inline shared_ptr<T> make_shared(
       forward<TArg0>(targ0), forward<TArg1>(targ1), forward<TArg2>(targ2), forward<TArg3>(targ3),
       forward<TArg4>(targ4), forward<TArg5>(targ5), forward<TArg6>(targ6), forward<TArg7>(targ7)
    );
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 9-argument T::T().
@@ -1751,8 +1751,8 @@ inline shared_ptr<T> make_shared(
       forward<TArg4>(targ4), forward<TArg5>(targ5), forward<TArg6>(targ6), forward<TArg7>(targ7),
       forward<TArg8>(targ8)
    );
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 // Overload for 10-argument T::T().
@@ -1770,8 +1770,8 @@ inline shared_ptr<T> make_shared(
       forward<TArg4>(targ4), forward<TArg5>(targ5), forward<TArg6>(targ6), forward<TArg7>(targ7),
       forward<TArg8>(targ8), forward<TArg9>(targ9)
    );
-   return shared_ptr<T>(static_cast<detail::shared_refcount *>(
-      static_cast<detail::prefix_shared_refcount<T> *>(get<0>(tpl).release())
+   return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
+      static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
    ), get<1>(tpl));
 }
 

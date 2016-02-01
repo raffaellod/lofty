@@ -38,7 +38,7 @@ namespace abc { namespace text {
 static char_t const gc_chNul('\0');
 
 //! Vextr referencing a static, empty, NUL-terminated raw C string.
-static collections::detail::vextr_impl_data const gc_vidEmpty = {
+static collections::_pvt::vextr_impl_data const gc_vidEmpty = {
    /*m_pBegin                      =*/ const_cast<char_t *>(&gc_chNul),
    /*m_pEnd                        =*/ const_cast<char_t *>(&gc_chNul),
    /*mc_bEmbeddedPrefixedItemArray =*/ false,
@@ -376,7 +376,7 @@ std::size_t hash<abc::text::str>::operator()(abc::text::str const & s) const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text { namespace _pvt {
 
 void str_to_text_ostream::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
@@ -401,14 +401,14 @@ void str_to_text_ostream::write(
    ptos->write_binary(p, cb, enc);
 }
 
-}}} //namespace abc::text::detail
+}}} //namespace abc::text::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc {
 
 void to_text_ostream<text::str>::write(text::str const & s, io::text::ostream * ptos) {
-   text::detail::str_to_text_ostream::write(s.data(), static_cast<std::size_t>(
+   text::_pvt::str_to_text_ostream::write(s.data(), static_cast<std::size_t>(
       reinterpret_cast<std::uintptr_t>(s.data_end()) - reinterpret_cast<std::uintptr_t>(s.data())
    ), text::encoding::host, ptos);
 }

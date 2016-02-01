@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -25,16 +25,16 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 thread_local_storage_registrar::data_members thread_local_storage_registrar::sm_dm =
-   ABC_DETAIL_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER;
+   ABC__PVT_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER;
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 #if ABC_HOST_API_POSIX
    //! TLS key.
@@ -128,4 +128,4 @@ thread_local_storage::~thread_local_storage() {
    }
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt

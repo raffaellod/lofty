@@ -68,7 +68,7 @@ namespace abc {
 
 template <>
 class ABACLADE_SYM to_text_ostream<text::char_ptr_to_str_adapter> :
-   public text::detail::str_to_text_ostream {
+   public text::_pvt::str_to_text_ostream {
 public:
    /*! Writes a C-style NUL-terminated string, applying the formatting options.
 

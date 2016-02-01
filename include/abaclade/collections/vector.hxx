@@ -26,13 +26,13 @@ not, see <http://www.gnu.org/licenses/>.
    #pragma once
 #endif
 
-#include <abaclade/collections/detail/complex_vextr_impl.hxx>
+#include <abaclade/collections/_pvt/complex_vextr_impl.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 /*! Thin templated wrapper for *_vextr_impl to make the interface of those two classes consistent,
 so vector doesn’t need specializations. */
@@ -340,11 +340,11 @@ protected:
    }
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 //! Const iterator for vector elements.
 template <typename T>
@@ -642,7 +642,7 @@ protected:
    }
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -651,17 +651,17 @@ namespace abc { namespace collections {
 // Partial specialization for non-copyable types.
 template <typename T>
 class vector<T, 0> :
-   public detail::vector_impl<T>,
+   public _pvt::vector_impl<T>,
    public support_explicit_operator_bool<vector<T, 0>> {
 private:
    template <typename T2>
-   friend class detail::vector_iterator;
+   friend class _pvt::vector_iterator;
    template <typename T2>
-   friend class detail::vector_const_iterator;
+   friend class _pvt::vector_const_iterator;
 
    //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = _std::is_copy_constructible<T>::value;
-   typedef detail::vector_impl<T> vector_impl;
+   typedef _pvt::vector_impl<T> vector_impl;
 
 public:
    typedef T value_type;
@@ -671,8 +671,8 @@ public:
    typedef T const & const_reference;
    typedef std::size_t size_type;
    typedef std::ptrdiff_t difference_type;
-   typedef detail::vector_iterator<T> iterator;
-   typedef detail::vector_const_iterator<T> const_iterator;
+   typedef _pvt::vector_iterator<T> iterator;
+   typedef _pvt::vector_const_iterator<T> const_iterator;
    typedef _std::reverse_iterator<iterator> reverse_iterator;
    typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -1330,9 +1330,9 @@ inline typename _std::enable_if<_std::is_copy_constructible<T>::value, vector<T>
 template <typename T, std::size_t t_ciEmbeddedCapacity>
 class vector :
    private vector<T, 0>,
-   private detail::vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
+   private _pvt::vextr_prefixed_item_array<T, t_ciEmbeddedCapacity> {
 private:
-   using detail::vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
+   using _pvt::vextr_prefixed_item_array<T, t_ciEmbeddedCapacity>::smc_cbEmbeddedCapacity;
    //! true if T is copy constructible, or false otherwise.
    static bool const smc_bCopyConstructible = _std::is_copy_constructible<T>::value;
    typedef vector<T, 0> vector_0;
@@ -1493,7 +1493,7 @@ public:
 #ifdef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
    using vector_0::operator bool;
 #else
-   using vector_0::operator abc::detail::explob_helper::bool_type;
+   using vector_0::operator abc::_pvt::explob_helper::bool_type;
 #endif
    using vector_0::back;
    using vector_0::begin;
@@ -1582,11 +1582,11 @@ bool operator!=(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 /*! Base class for the specializations of to_text_ostream for vector types. Not using templates, so
 the implementation can be in a cxx file. */
-class ABACLADE_SYM vector_to_text_ostream : public abc::detail::sequence_to_text_ostream {
+class ABACLADE_SYM vector_to_text_ostream : public abc::_pvt::sequence_to_text_ostream {
 public:
    //! Default constructor.
    vector_to_text_ostream();
@@ -1600,7 +1600,7 @@ protected:
    str m_sEltFormat;
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1609,7 +1609,7 @@ namespace abc {
 
 template <typename T, std::size_t t_ciEmbeddedCapacity>
 class to_text_ostream<collections::vector<T, t_ciEmbeddedCapacity>> :
-   public collections::detail::vector_to_text_ostream {
+   public collections::_pvt::vector_to_text_ostream {
 public:
    /*! Changes the output format.
 
@@ -1619,7 +1619,7 @@ public:
    void set_format(str const & sFormat) {
 //    ABC_TRACE_FUNC(this, sFormat);
 
-      collections::detail::vector_to_text_ostream::set_format(sFormat);
+      collections::_pvt::vector_to_text_ostream::set_format(sFormat);
       m_ttosElt.set_format(m_sEltFormat);
    }
 
@@ -1651,8 +1651,8 @@ protected:
 };
 
 template <typename T>
-class to_text_ostream<collections::detail::vector_const_iterator<T>> :
-   public to_text_ostream<typename collections::detail::vector_const_iterator<T>::pointer> {
+class to_text_ostream<collections::_pvt::vector_const_iterator<T>> :
+   public to_text_ostream<typename collections::_pvt::vector_const_iterator<T>::pointer> {
 public:
    /*! Writes an iterator as a pointer, applying the formatting options.
 
@@ -1661,16 +1661,16 @@ public:
    @param ptos
       Pointer to the stream to output to.
    */
-   void write(collections::detail::vector_const_iterator<T> const & it, io::text::ostream * ptos) {
+   void write(collections::_pvt::vector_const_iterator<T> const & it, io::text::ostream * ptos) {
       to_text_ostream<
-         typename collections::detail::vector_const_iterator<T>::pointer
+         typename collections::_pvt::vector_const_iterator<T>::pointer
       >::write(&*it, ptos);
    }
 };
 
 template <typename T>
-class to_text_ostream<collections::detail::vector_iterator<T>> :
-   public to_text_ostream<collections::detail::vector_const_iterator<T>> {
+class to_text_ostream<collections::_pvt::vector_iterator<T>> :
+   public to_text_ostream<collections::_pvt::vector_const_iterator<T>> {
 };
 
 } //namespace abc

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -23,7 +23,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 // Forward declarations.
 class context_local_storage_node_impl;
@@ -39,8 +39,8 @@ struct context_local_storage_registrar_impl_extra_members {
    std::size_t m_cbFrozen;
 };
 
-/*! Implementation of a variable registrar for abc::detail::thread_local_storage and
-abc::detail::coroutine_local_storage. */
+/*! Implementation of a variable registrar for abc::_pvt::thread_local_storage and
+abc::_pvt::coroutine_local_storage. */
 class ABACLADE_SYM context_local_storage_registrar_impl :
    public collections::static_list_impl_base,
    public context_local_storage_registrar_impl_extra_members {
@@ -71,21 +71,21 @@ public:
 };
 
 /*! Initial value for the data members of an
-abc::detail::context_local_storage_registrar_impl::data_members variable. */
-#define ABC_DETAIL_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER \
+abc::_pvt::context_local_storage_registrar_impl::data_members variable. */
+#define ABC__PVT_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER \
    { \
       ABC_COLLECTIONS_STATIC_LIST_IMPL_BASE_INITIALIZER, \
       { 0, 0, 0 } \
    }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
-/*! Common implementation for abc::detail::thread_local_storage and
-abc::detail::coroutine_local_storage.
+/*! Common implementation for abc::_pvt::thread_local_storage and
+abc::_pvt::coroutine_local_storage.
 
 TODO: this will need changes to support dynamic loading and unloading of libraries that depend on
 Abaclade:
@@ -133,13 +133,13 @@ private:
    _std::unique_ptr<std::int8_t[]> m_pb;
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
-//! Non-template implementation of abc::detail::context_local_storage_node.
+//! Non-template implementation of abc::_pvt::context_local_storage_node.
 class context_local_storage_node_impl :
    public collections::static_list_impl_base::node,
    public noncopyable {
@@ -166,11 +166,11 @@ public:
    unsigned m_iStorageIndex;
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 /*! Implementation of a context_local_storage_registry node, as well as base class for
 context_local_var_impl. */
@@ -192,13 +192,13 @@ protected:
    }
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
-//! Common implementation of abc::detail::context_local_value and abc::detail::context_local_ptr.
+//! Common implementation of abc::_pvt::context_local_value and abc::_pvt::context_local_ptr.
 template <typename T, typename TStorage>
 class context_local_var_impl : public context_local_storage_node<TStorage> {
 public:
@@ -254,11 +254,11 @@ protected:
    }
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Implementation of abc::thread_local_value and abc::coroutine_local_value.
 template <typename T, typename TStorage, bool t_bTrivial = _std::is_trivial<T>::value>
@@ -512,11 +512,11 @@ private:
    }
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Contains a T and a bool to track whether the T has been constructed.
 template <typename T>
@@ -613,4 +613,4 @@ private:
    }
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt

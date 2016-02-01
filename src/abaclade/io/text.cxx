@@ -124,7 +124,7 @@ _std::shared_ptr<binbuf_ostream> open_ostream(
 
 }}} //namespace abc::io::text
 
-namespace abc { namespace io { namespace text { namespace detail {
+namespace abc { namespace io { namespace text { namespace _pvt {
 
 _std::shared_ptr<ostream> make_stderr() {
    ABC_TRACE_FUNC();
@@ -168,7 +168,7 @@ _std::shared_ptr<ostream> make_stdout() {
    return _std::make_shared<binbuf_ostream>(_std::move(pbbos), enc);
 }
 
-}}}} //namespace abc::io::text::detail
+}}}} //namespace abc::io::text::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -324,7 +324,7 @@ void ostream::write_line(str const & s) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace io { namespace text { namespace detail {
+namespace abc { namespace io { namespace text { namespace _pvt {
 
 ostream_print_helper_impl::ostream_print_helper_impl(ostream * ptos, str const & sFormat) :
    m_ptos(ptos),
@@ -460,4 +460,4 @@ void ostream_print_helper_impl::write_format_up_to(str::const_iterator itUpTo) {
    }
 }
 
-}}}} //namespace abc::io::text::detail
+}}}} //namespace abc::io::text::_pvt

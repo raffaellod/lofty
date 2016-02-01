@@ -22,17 +22,17 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 /*static*/ void scope_trace_tuple::write_separator(io::text::ostream * ptos) {
    ptos->write(ABC_SL(", "));
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 coroutine_local_value<scope_trace const *> scope_trace::sm_pstHead /*= nullptr*/;
 coroutine_local_value<bool> scope_trace::sm_bReentering /*= false*/;
@@ -80,4 +80,4 @@ void scope_trace::write(io::text::ostream * ptos, unsigned iStackDepth) const {
    }
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt

@@ -20,7 +20,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/defer_to_scope_end.hxx>
 #include <abaclade/thread.hxx>
 #include "coroutine-scheduler.hxx"
-#include "detail/signal_dispatcher.hxx"
+#include "_pvt/signal_dispatcher.hxx"
 #include "thread-impl.hxx"
 
 #include <cstdlib> // std::abort()
@@ -45,7 +45,7 @@ not, see <http://www.gnu.org/licenses/>.
 /*! Event that can be waited for. Not compatible with coroutines, since it doesn’t yield to a
 coroutine::scheduler. */
 // TODO: make this a non-coroutine-friendly general-purpose event.
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 #if ABC_HOST_API_DARWIN
 simple_event::simple_event() :
@@ -111,7 +111,7 @@ void simple_event::wait() {
 #endif
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -202,7 +202,7 @@ void thread::impl::inject_exception(
       if (bSendSignal) {
          // Ensure that the thread is not blocked in a syscall.
          if (int iErr = ::pthread_kill(
-            m_h, detail::signal_dispatcher::instance().thread_interruption_signal())
+            m_h, _pvt::signal_dispatcher::instance().thread_interruption_signal())
          ) {
             exception::throw_os_error(iErr);
          }
@@ -250,12 +250,12 @@ void thread::impl::join() {
 #elif ABC_HOST_API_WIN32
 /*static*/ ::DWORD WINAPI thread::impl::outer_main(void * p) {
    // Establish this as early as possible.
-   detail::signal_dispatcher::init_for_current_thread();
+   _pvt::signal_dispatcher::init_for_current_thread();
 #else
    #error "TODO: HOST_API"
 #endif
    // Not really necessary since TLS will be lazily allocated, but this avoids a heap allocation.
-   detail::thread_local_storage tls;
+   _pvt::thread_local_storage tls;
 
    /* Get a copy of the shared_ptr owning *this, so that members will be guaranteed to be accessible
    even after start() returns, in the creating thread.
@@ -271,7 +271,7 @@ void thread::impl::join() {
 
    bool bUncaughtException = false;
    try {
-      detail::signal_dispatcher::instance().nonmain_thread_started(pimplThis);
+      _pvt::signal_dispatcher::instance().nonmain_thread_started(pimplThis);
       // Report that this thread is done with writing to *pimplThis.
       pimplThis->m_pseStarted->raise();
       /* Afer the user’s main() returns we’ll set m_bTerminating to true, so no exceptions can be
@@ -286,7 +286,7 @@ void thread::impl::join() {
       exception::write_with_scope_trace();
       bUncaughtException = true;
    }
-   detail::signal_dispatcher::instance().nonmain_thread_terminated(
+   _pvt::signal_dispatcher::instance().nonmain_thread_terminated(
       pimplThis.get(), bUncaughtException
    );
 
@@ -302,7 +302,7 @@ void thread::impl::join() {
 void thread::impl::start(_std::shared_ptr<impl> * ppimplThis) {
    ABC_TRACE_FUNC(this, ppimplThis);
 
-   detail::simple_event seStarted;
+   _pvt::simple_event seStarted;
    m_pseStarted = &seStarted;
    ABC_DEFER_TO_SCOPE_END(m_pseStarted = nullptr);
 #if ABC_HOST_API_POSIX

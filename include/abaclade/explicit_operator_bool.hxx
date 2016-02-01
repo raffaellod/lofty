@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -38,7 +38,7 @@ bool() even with compilers that don’t support C++11 explicit conversion operat
 #endif
 
 #ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Non-template helper providing definitions for support_explicit_operator_bool.
 struct explob_helper {
@@ -50,7 +50,7 @@ struct explob_helper {
    }
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 #endif //ifndef ABC_CXX_EXPLICIT_CONVERSION_OPERATORS
 
 namespace abc {
@@ -66,9 +66,9 @@ struct support_explicit_operator_bool {
    @return
       A valid pointer if T::_explicit_operator_bool() returns true, or nullptr otherwise.
    */
-   operator detail::explob_helper::bool_type() const {
+   operator _pvt::explob_helper::bool_type() const {
       if (static_cast<T const *>(this)->_explicit_operator_bool()) {
-         return &detail::explob_helper::bool_true;
+         return &_pvt::explob_helper::bool_true;
       } else {
          return nullptr;
       }

@@ -647,7 +647,7 @@ break_for:
 
 }} //namespace abc::text
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text { namespace _pvt {
 
 /*! Template implementation of abc::text::size_in_chars().
 
@@ -667,16 +667,16 @@ std::size_t size_in_chars(C const * psz) {
    return static_cast<std::size_t>(pch - psz);
 }
 
-}}} //namespace abc::text::detail
+}}} //namespace abc::text::_pvt
 
 namespace abc { namespace text {
 
 std::size_t size_in_chars(char_t const * psz) {
-   return detail::size_in_chars(psz);
+   return _pvt::size_in_chars(psz);
 }
 #if ABC_HOST_UTF > 8
 std::size_t size_in_chars(char const * psz) {
-   return detail::size_in_chars(psz);
+   return _pvt::size_in_chars(psz);
 }
 #endif
 

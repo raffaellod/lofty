@@ -8,6 +8,6 @@
    intentional dereference of invalid pointer
    Memcheck:Addr4
    ...
-   fun:*detail_signal_dispatcher_os_errors_to_cxx_exceptions*
+   fun:*_pvt_signal_dispatcher_os_errors_to_cxx_exceptions*
    ...
 }

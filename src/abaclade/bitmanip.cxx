@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -22,7 +22,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace bitmanip { namespace detail {
+namespace abc { namespace bitmanip { namespace _pvt {
 
 std::uint8_t ceiling_to_pow2(std::uint8_t i) {
    unsigned iPow2 = static_cast<unsigned>(i - 1);
@@ -59,6 +59,6 @@ std::uint64_t ceiling_to_pow2(std::uint64_t i) {
    return i + 1;
 }
 
-}}} //namespace abc::bitmanip::detail
+}}} //namespace abc::bitmanip::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -357,13 +357,13 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace io { namespace binary { namespace detail {
+namespace abc { namespace io { namespace binary { namespace _pvt {
 
 /*! Data collected by open() used to construct a file instance. This is only defined in file.cxx,
 after the necessary header files have been included. */
 struct file_init_data;
 
-}}}} //namespace abc::io::binary::detail
+}}}} //namespace abc::io::binary::_pvt
 
 namespace abc { namespace io { namespace binary {
 
@@ -379,7 +379,7 @@ protected:
    @param pfid
       Data used to initialize the object, as set by abc::io::binary::open() and other functions.
    */
-   file_stream(detail::file_init_data * pfid);
+   file_stream(_pvt::file_init_data * pfid);
 
 protected:
    //! Descriptor of the underlying file.
@@ -396,7 +396,7 @@ namespace abc { namespace io { namespace binary {
 class ABACLADE_SYM file_istream : public virtual file_stream, public istream {
 public:
    //! See file_stream::file_stream().
-   file_istream(detail::file_init_data * pfid);
+   file_istream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~file_istream();
@@ -431,7 +431,7 @@ namespace abc { namespace io { namespace binary {
 class ABACLADE_SYM file_ostream : public virtual file_stream, public ostream {
 public:
    //! See ostream::ostream().
-   file_ostream(detail::file_init_data * pfid);
+   file_ostream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~file_ostream();
@@ -456,7 +456,7 @@ namespace abc { namespace io { namespace binary {
 class ABACLADE_SYM file_iostream : public virtual file_istream, public virtual file_ostream {
 public:
    //! See file_istream::file_istream() and file_ostream::file_ostream().
-   file_iostream(detail::file_init_data * pfid);
+   file_iostream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~file_iostream();
@@ -631,7 +631,7 @@ extern ABACLADE_SYM _std::shared_ptr<ostream> stdout;
 
 }}} //namespace abc::io::binary
 
-namespace abc { namespace io { namespace binary { namespace detail {
+namespace abc { namespace io { namespace binary { namespace _pvt {
 
 /*! Creates and returns a binary stream associated to the standard error output file (stderr).
 
@@ -654,7 +654,7 @@ ABACLADE_SYM _std::shared_ptr<istream> make_stdin();
 */
 ABACLADE_SYM _std::shared_ptr<ostream> make_stdout();
 
-}}}} //namespace abc::io::binary::detail
+}}}} //namespace abc::io::binary::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

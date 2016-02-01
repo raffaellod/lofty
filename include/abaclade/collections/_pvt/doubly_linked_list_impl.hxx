@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -16,8 +16,8 @@ You should have received a copy of the GNU Lesser General Public License along w
 not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_COLLECTIONS_DETAIL_DOUBLY_LINKED_LIST_IMPL_HXX
-#define _ABACLADE_COLLECTIONS_DETAIL_DOUBLY_LINKED_LIST_IMPL_HXX
+#ifndef _ABACLADE_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX
+#define _ABACLADE_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -31,7 +31,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 //! Non-template implementation of a doubly-linked list.
 class ABACLADE_SYM doubly_linked_list_impl :
@@ -385,8 +385,8 @@ protected:
    std::size_t m_cNodes;
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_COLLECTIONS_DETAIL_DOUBLY_LINKED_LIST_IMPL_HXX
+#endif //ifndef _ABACLADE_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX

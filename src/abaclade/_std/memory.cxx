@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -38,7 +38,7 @@ bad_weak_ptr::bad_weak_ptr() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 shared_refcount::shared_refcount(unsigned cStrongRefs, unsigned cWeakRefs) :
    m_cStrongRefs(cStrongRefs),
@@ -76,7 +76,7 @@ void shared_refcount::add_strong_ref() {
    delete this;
 }
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

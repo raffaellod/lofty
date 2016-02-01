@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -18,12 +18,12 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 #include <abaclade/collections.hxx>
-#include <abaclade/collections/detail/doubly_linked_list_impl.hxx>
+#include <abaclade/collections/_pvt/doubly_linked_list_impl.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 void * doubly_linked_list_impl::node::operator new(std::size_t cb, type_void_adapter const & type) {
    ABC_UNUSED_ARG(cb);
@@ -202,4 +202,4 @@ void doubly_linked_list_impl::remove(type_void_adapter const & type, node * pn) 
    --m_cNodes;
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt

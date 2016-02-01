@@ -23,7 +23,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 /*! Defines a member named value that is true if “void T::to_text_ostream(io::text::ostream * ptos)
 const” is declared, or false otherwise. */
@@ -39,7 +39,7 @@ struct has_to_text_ostream_member {
    static bool const value = (sizeof(test<T>(nullptr)) == sizeof(long));
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 namespace abc {
 
@@ -57,7 +57,7 @@ template <typename T>
 class to_text_ostream {
 public:
    static_assert(
-      detail::has_to_text_ostream_member<T>::value,
+      _pvt::has_to_text_ostream_member<T>::value,
       "specialization abc::to_text_ostream<T> must be provided, " \
       "or public “void T::to_text_ostream(abc::io::text::ostream * ptos) const” must be declared"
    );
@@ -128,7 +128,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Base class for the specializations of to_text_ostream for integer types.
 class ABACLADE_SYM int_to_text_ostream_base {
@@ -274,11 +274,11 @@ inline void int_to_text_ostream_base::write_u16(std::uint16_t i, io::text::ostre
 
 #endif //if ABC_HOST_WORD_SIZE >= 32
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Implementation of the specializations of to_text_ostream for integer types.
 template <typename I>
@@ -345,7 +345,7 @@ protected:
    static std::size_t const smc_cchBufInitial = 2 /* prefix or sign */ + 8 * sizeof(I);
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -353,7 +353,7 @@ namespace abc {
 
 #define ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(I) \
    template <> \
-   class to_text_ostream<I> : public detail::int_to_text_ostream<I> {};
+   class to_text_ostream<I> : public _pvt::int_to_text_ostream<I> {};
 ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(  signed char)
 ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(unsigned char)
 ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(         short)
@@ -370,7 +370,7 @@ ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(unsigned long long)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Base class for the specializations of to_text_ostream for integer types.
 class ABACLADE_SYM ptr_to_text_ostream : public to_text_ostream<std::uintptr_t> {
@@ -393,7 +393,7 @@ protected:
    void _write_impl(std::uintptr_t iPtr, io::text::ostream * ptos);
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -402,7 +402,7 @@ namespace abc {
 
 // Specialization for raw pointer types.
 template <typename T>
-class to_text_ostream<T *> : public detail::ptr_to_text_ostream {
+class to_text_ostream<T *> : public _pvt::ptr_to_text_ostream {
 public:
    /*! Converts a pointer to a string representation.
 
@@ -418,9 +418,9 @@ public:
 
 // Specialization for _std::unique_ptr.
 template <typename T, typename TDel>
-class to_text_ostream<_std::unique_ptr<T, TDel>> : public detail::ptr_to_text_ostream {
+class to_text_ostream<_std::unique_ptr<T, TDel>> : public _pvt::ptr_to_text_ostream {
 public:
-   //! See detail::ptr_to_text_ostream::write().
+   //! See _pvt::ptr_to_text_ostream::write().
    void write(_std::unique_ptr<T, TDel> const & p, io::text::ostream * ptos) {
       _write_impl(reinterpret_cast<std::uintptr_t>(p.get()), ptos);
    }
@@ -429,7 +429,7 @@ public:
 // Specialization for _std::shared_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_text_ostream<_std::shared_ptr<T>> : public detail::ptr_to_text_ostream {
+class to_text_ostream<_std::shared_ptr<T>> : public _pvt::ptr_to_text_ostream {
 public:
    /*! Converts a pointer to a string representation.
 
@@ -446,7 +446,7 @@ public:
 // Specialization for _std::weak_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_text_ostream<_std::weak_ptr<T>> : public detail::ptr_to_text_ostream {
+class to_text_ostream<_std::weak_ptr<T>> : public _pvt::ptr_to_text_ostream {
 public:
    /*! Converts a pointer to a string representation.
 
@@ -499,7 +499,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 /*! Base class for the specializations of to_text_ostream for sequence types. Not using templates,
 so the implementation can be in a .cxx file. */
@@ -554,14 +554,14 @@ protected:
    str m_sEnd;
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //! @cond
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Helper to write a single element out of a tuple, recursing to print any remaining ones.
 template <class TTuple, typename... Ts>
@@ -597,18 +597,18 @@ protected:
    to_text_ostream<T0> m_ttosT0;
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 namespace abc {
 
 template <typename... Ts>
 class to_text_ostream<_std::tuple<Ts ...>> :
-   public detail::sequence_to_text_ostream,
-   public detail::tuple_to_text_ostream_element_writer<_std::tuple<Ts ...>, Ts ...> {
+   public _pvt::sequence_to_text_ostream,
+   public _pvt::tuple_to_text_ostream_element_writer<_std::tuple<Ts ...>, Ts ...> {
 public:
    //! Default constructor.
    to_text_ostream() :
-      detail::sequence_to_text_ostream(ABC_SL("("), ABC_SL(")")) {
+      _pvt::sequence_to_text_ostream(ABC_SL("("), ABC_SL(")")) {
    }
 
    /*! Converts a tuple into its string representation.
@@ -627,7 +627,7 @@ public:
 
 } //namespace abc
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 // Now this can be defined.
 
@@ -645,11 +645,11 @@ inline void tuple_to_text_ostream_element_writer<TTuple, T0, Ts ...>::_write_ele
    }
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Helper to write the elements of a tuple.
 // Template recursion step.
@@ -659,7 +659,7 @@ template <
 >
 class tuple_to_text_ostream_element_writer :
    public tuple_to_text_ostream_element_writer<
-      TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::detail::tuple_void
+      TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_pvt::tuple_void
    > {
 public:
    //! See tuple_to_text_ostream_element_writer<TTuple>::_write_elements().
@@ -674,10 +674,9 @@ protected:
 template <class TTuple>
 class tuple_to_text_ostream_element_writer<
    TTuple,
-   _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
-   _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
-   _std::detail::tuple_void, _std::detail::tuple_void, _std::detail::tuple_void,
-   _std::detail::tuple_void
+   _std::_pvt::tuple_void, _std::_pvt::tuple_void, _std::_pvt::tuple_void, _std::_pvt::tuple_void,
+   _std::_pvt::tuple_void, _std::_pvt::tuple_void, _std::_pvt::tuple_void, _std::_pvt::tuple_void,
+   _std::_pvt::tuple_void, _std::_pvt::tuple_void
 > {
 public:
    /*! Writes the current element to the specified text stream, then recurses to write the rest.
@@ -693,7 +692,7 @@ public:
    }
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 namespace abc {
 
@@ -702,14 +701,14 @@ template <
    typename T7, typename T8, typename T9
 >
 class to_text_ostream<_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
-   public detail::sequence_to_text_ostream,
-   public detail::tuple_to_text_ostream_element_writer<
+   public _pvt::sequence_to_text_ostream,
+   public _pvt::tuple_to_text_ostream_element_writer<
       _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
    > {
 public:
    //! Constructor.
    to_text_ostream() :
-      detail::sequence_to_text_ostream(ABC_SL("("), ABC_SL(")")) {
+      _pvt::sequence_to_text_ostream(ABC_SL("("), ABC_SL(")")) {
    }
 
    /*! Converts a tuple into its string representation.
@@ -732,7 +731,7 @@ public:
 
 // Now this can be defined.
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 template <
    class TTuple, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -749,12 +748,12 @@ inline void tuple_to_text_ostream_element_writer<
    if (sc_cTs) {
       static_cast<to_text_ostream<TTuple> *>(this)->_write_separator(ptos);
       tuple_to_text_ostream_element_writer<
-         TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::detail::tuple_void
+         TTuple, T1, T2, T3, T4, T5, T6, T7, T8, T9, _std::_pvt::tuple_void
       >::_write_elements(tpl, ptos);
    }
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 //! @endcond

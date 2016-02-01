@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -28,7 +28,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade/coroutine.hxx>
 #include <abaclade/thread.hxx>
-#include "detail/signal_dispatcher.hxx"
+#include "_pvt/signal_dispatcher.hxx"
 
 #if ABC_HOST_API_POSIX
    #include <errno.h> // EINTR errno
@@ -46,7 +46,7 @@ not, see <http://www.gnu.org/licenses/>.
 /*! Event that can be waited for. Not compatible with coroutines, since it doesn’t yield to a
 coroutine::scheduler. */
 // TODO: make this a non-coroutine-friendly general-purpose event.
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 class simple_event : public noncopyable {
 public:
@@ -77,7 +77,7 @@ private:
 #endif
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +101,7 @@ private:
    friend native_handle_type thread::native_handle() const;
    friend impl * this_thread::get_impl();
    friend void this_thread::interruption_point();
-   friend void detail::signal_dispatcher::main_thread_terminated(exception::common_type xct);
+   friend void _pvt::signal_dispatcher::main_thread_terminated(exception::common_type xct);
 
 public:
    /*! Constructor.
@@ -203,7 +203,7 @@ private:
 #endif
    /*! Pointer to an event used by the new thread to report to its parent that it has started. Only
    non-nullptr during the execution of start(). */
-   detail::simple_event * m_pseStarted;
+   _pvt::simple_event * m_pseStarted;
    /*! Every time the thread returns from an interruption point, this is checked for pending
    exceptions to be injected. */
    _std::atomic<exception::common_type::enum_type> m_xctPending;

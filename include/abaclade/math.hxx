@@ -185,7 +185,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //! @cond
-namespace abc { namespace math { namespace detail {
+namespace abc { namespace math { namespace _pvt {
 
 /*! Helper for abc::math::abs(). Needed because function templates can’t be partially specialized,
 but structs/classes can. */
@@ -208,7 +208,7 @@ struct abs_helper<T, false> {
    }
 };
 
-}}} //namespace abc::math::detail
+}}} //namespace abc::math::_pvt
 //! @endcond
 
 namespace abc { namespace math {
@@ -223,7 +223,7 @@ will never be negative (i.e. T is unsigned).
 */
 template <typename T>
 inline /*constexpr*/ T abs(T t) {
-   return detail::abs_helper<T>()(_std::move(t));
+   return _pvt::abs_helper<T>()(_std::move(t));
 }
 
 }} //namespace abc::math

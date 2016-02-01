@@ -24,7 +24,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #ifndef ABC_HAVE_BSWAP
 
-namespace abc { namespace byte_order { namespace detail {
+namespace abc { namespace byte_order { namespace _pvt {
 
 std::uint16_t bswap_16(std::uint16_t i) {
    return std::uint16_t(
@@ -55,6 +55,6 @@ std::uint64_t bswap_64(std::uint64_t i) {
    );
 }
 
-}}} //namespace abc::byte_order::detail
+}}} //namespace abc::byte_order::_pvt
 
 #endif //ifndef ABC_HAVE_BSWAP

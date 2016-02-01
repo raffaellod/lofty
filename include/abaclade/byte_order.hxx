@@ -43,16 +43,16 @@ namespace byte_order {}
 #endif
 //! @cond
 #ifndef ABC_HAVE_BSWAP
-   namespace abc { namespace byte_order { namespace detail {
+   namespace abc { namespace byte_order { namespace _pvt {
 
    ABACLADE_SYM std::uint16_t bswap_16(std::uint16_t i);
    ABACLADE_SYM std::uint32_t bswap_32(std::uint32_t i);
    ABACLADE_SYM std::uint64_t bswap_64(std::uint64_t i);
 
-   }}} //namespace abc::byte_order::detail
+   }}} //namespace abc::byte_order::_pvt
 #endif
 
-namespace abc { namespace byte_order { namespace detail {
+namespace abc { namespace byte_order { namespace _pvt {
 
 //! Implementation of swap(), specialized by size in bytes of the argument. See swap().
 template <std::size_t t_cb>
@@ -75,7 +75,6 @@ struct swap_impl<2> {
    typedef std::uint16_t type;
 
    type operator()(type i) {
-      using namespace detail;
       return bswap_16(i);
    }
 };
@@ -86,7 +85,6 @@ struct swap_impl<4> {
    typedef std::uint32_t type;
 
    type operator()(type i) {
-      using namespace detail;
       return bswap_32(i);
    }
 };
@@ -97,12 +95,11 @@ struct swap_impl<8> {
    typedef std::uint64_t type;
 
    type operator()(type i) {
-      using namespace detail;
       return bswap_64(i);
    }
 };
 
-}}} //namespace abc::byte_order::detail
+}}} //namespace abc::byte_order::_pvt
 //! @endcond
 
 namespace abc { namespace byte_order {
@@ -117,7 +114,7 @@ from 2 to 8 bytes.
 */
 template <typename I>
 inline I swap(I i) {
-   typedef detail::swap_impl<sizeof(I)> swap_impl;
+   typedef _pvt::swap_impl<sizeof(I)> swap_impl;
    return static_cast<I>(swap_impl()(static_cast<typename swap_impl::type>(i)));
 }
 

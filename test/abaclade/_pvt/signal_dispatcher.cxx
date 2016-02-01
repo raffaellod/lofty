@@ -27,8 +27,8 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   detail_signal_dispatcher_os_errors_to_cxx_exceptions,
-   "abc::detail::signal_dispatcher – conversion of synchronous OS errors into C++ exceptions"
+   _pvt_signal_dispatcher_os_errors_to_cxx_exceptions,
+   "abc::_pvt::signal_dispatcher – conversion of synchronous OS errors into C++ exceptions"
 ) {
    ABC_TRACE_FUNC(this);
 

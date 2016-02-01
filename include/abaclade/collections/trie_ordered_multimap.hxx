@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -26,7 +26,7 @@ not, see <http://www.gnu.org/licenses/>.
    #pragma once
 #endif
 
-#include <abaclade/collections/detail/trie_ordered_multimap_impl.hxx>
+#include <abaclade/collections/_pvt/trie_ordered_multimap_impl.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
 
@@ -97,7 +97,7 @@ class trie_ordered_multimap;
 
 // Partial specialization for scalar key types.
 template <typename TKey, typename TValue>
-class trie_ordered_multimap<TKey, TValue, 1> : public detail::bitwise_trie_ordered_multimap_impl {
+class trie_ordered_multimap<TKey, TValue, 1> : public _pvt::bitwise_trie_ordered_multimap_impl {
 protected:
    /*! Pointer type returned by iterator::operator->() that behaves like a pointer, but in fact
    includes the object it points to.
@@ -372,7 +372,7 @@ public:
 public:
    //! Default constructor.
    trie_ordered_multimap() :
-      detail::bitwise_trie_ordered_multimap_impl(sizeof(TKey)) {
+      _pvt::bitwise_trie_ordered_multimap_impl(sizeof(TKey)) {
    }
 
    /*! Move constructor.
@@ -381,7 +381,7 @@ public:
       Source object.
    */
    trie_ordered_multimap(trie_ordered_multimap && tomm) :
-      detail::bitwise_trie_ordered_multimap_impl(_std::move(tomm)) {
+      _pvt::bitwise_trie_ordered_multimap_impl(_std::move(tomm)) {
    }
 
    //! Destructor.
@@ -398,7 +398,7 @@ public:
    */
    trie_ordered_multimap & operator=(trie_ordered_multimap && tomm) {
       trie_ordered_multimap tommOld(_std::move(*this));
-      detail::bitwise_trie_ordered_multimap_impl::operator=(_std::move(tomm));
+      _pvt::bitwise_trie_ordered_multimap_impl::operator=(_std::move(tomm));
       return *this;
    }
 
@@ -419,7 +419,7 @@ public:
       typeValue.set_align<TValue>();
       typeValue.set_move_construct<TValue>();
       typeValue.set_size<TValue>();
-      return iterator(this, key, detail::bitwise_trie_ordered_multimap_impl::add(
+      return iterator(this, key, _pvt::bitwise_trie_ordered_multimap_impl::add(
          typeValue, key_to_int(key), &value, true
       ));
    }
@@ -468,7 +468,7 @@ public:
       type_void_adapter typeValue;
       typeValue.set_align<TValue>();
       typeValue.set_destruct<TValue>();
-      return detail::bitwise_trie_ordered_multimap_impl::clear(typeValue);
+      return _pvt::bitwise_trie_ordered_multimap_impl::clear(typeValue);
    }
 
    /*! Returns an iterator set beyond the last key/value pair in the map.
@@ -498,7 +498,7 @@ public:
       Iterator to the first matching key/value, or end() if the key could not be found.
    */
    iterator find(TKey key) {
-      return iterator(this, key, detail::bitwise_trie_ordered_multimap_impl::find(key_to_int(key)));
+      return iterator(this, key, _pvt::bitwise_trie_ordered_multimap_impl::find(key_to_int(key)));
    }
 
    /*! Searches the map for a specific key, returning a const iterator to the first corresponding

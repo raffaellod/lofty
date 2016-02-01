@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -27,7 +27,7 @@ not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include <abaclade/collections.hxx>
-#include <abaclade/collections/detail/hash_map_impl.hxx>
+#include <abaclade/collections/_pvt/hash_map_impl.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
 
@@ -46,7 +46,7 @@ template <
    typename THasher = std::hash<TKey>,
    typename TKeyEqual = std::equal_to<TKey>
 >
-class hash_map : public detail::hash_map_impl, private THasher, private TKeyEqual {
+class hash_map : public _pvt::hash_map_impl, private THasher, private TKeyEqual {
 public:
    //! Key type.
    typedef TKey key_type;
@@ -278,7 +278,7 @@ public:
       Source object.
    */
    hash_map(hash_map && hm) :
-      detail::hash_map_impl(_std::move(hm)) {
+      _pvt::hash_map_impl(_std::move(hm)) {
    }
 
    //! Destructor.
@@ -294,7 +294,7 @@ public:
       *this.
    */
    hash_map & operator=(hash_map && hm) {
-      detail::hash_map_impl::operator=(_std::move(hm));
+      _pvt::hash_map_impl::operator=(_std::move(hm));
       return *this;
    }
 
@@ -556,7 +556,7 @@ private:
       return static_cast<TKey *>(m_pKeys.get()) + i;
    }
 
-   /*! Compares two keys for equality. Static helper used by detail::hash_map_impl.
+   /*! Compares two keys for equality. Static helper used by _pvt::hash_map_impl.
 
    @param phmi
       Pointer to *this.

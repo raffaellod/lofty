@@ -194,7 +194,7 @@ not, see <http://www.gnu.org/licenses/>.
    #include <ucontext.h> // ucontext_t
 #endif
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 signal_dispatcher * signal_dispatcher::sm_psd = nullptr;
 #if ABC_HOST_API_POSIX
@@ -613,4 +613,4 @@ void signal_dispatcher::nonmain_thread_terminated(
    }
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -23,7 +23,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 /*! Stores an item array and its capacity. Used as a real template by classes with embedded item
 array (see abc::text::sstr and abc::collections::vector), and used with template capacity == 1 for
@@ -42,11 +42,11 @@ public:
    _std::max_align_t m_at[ABC_ALIGNED_SIZE(smc_cbEmbeddedCapacity)];
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 /*! Data members of vextr_impl_base, as a plain old struct. This is the most basic implementation
 block for all abc::text::str and abc::collections::vector classes. */
@@ -66,11 +66,11 @@ struct vextr_impl_data {
    bool m_bNulT:1;
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 /*! Template-independent members of *_vextr_impl that are identical for trivial and non-trivial
 types.
@@ -83,10 +83,10 @@ Since the implementation is shared between vectors and strings, the implementati
 vextr, which is a portmanteau of vector and str(ing).
 
 Data-wise, vextr stores two pointers, one to the first item and one to beyond the last item (see
-abc::collections::detail::vextr_impl_data); this makes checking an iterator against the end of the
+abc::collections::_pvt::vextr_impl_data); this makes checking an iterator against the end of the
 array a matter of a simple load/compare in terms of machine level instructions. The item array
 pointed to by the begin/end pointers can be part of a prefixed item array
-(abc::collections::detail::vextr_prefixed_item_array), which includes information such as the total
+(abc::collections::_pvt::vextr_prefixed_item_array), which includes information such as the total
 capacity of the item array, which is used to find out when the item array needs to be reallocated to
 make room for more items.
 
@@ -96,23 +96,23 @@ some execution speed.
 The class hierarchy of vextr/vector/str is composed as follows:
 
    @verbatim
-                             ┌──────────────────────────────────────┐
-                             │ collections::detail::vextr_impl_data │
-                             └──────────────────────────────────────┘
+                              ┌────────────────────────────────────┐
+                              │ collections::_pvt::vextr_impl_data │
+                              └────────────────────────────────────┘
                                                  △
                                                  │
-                             ┌──────────────────────────────────────┐
-                             │ collections::detail::vextr_impl_base │
-                             └──────────────────────────────────────┘
+                              ┌────────────────────────────────────┐
+                              │ collections::_pvt::vextr_impl_base │
+                              └────────────────────────────────────┘
                               △                                    △
                               │                                    │
-      ┌─────────────────────────────────────────┐ ┌─────────────────────────────────────────┐
-      │ collections::detail::trivial_vextr_impl │ │ collections::detail::complex_vextr_impl │
-      └─────────────────────────────────────────┘ └─────────────────────────────────────────┘
+       ┌───────────────────────────────────────┐ ┌───────────────────────────────────────┐
+       │ collections::_pvt::trivial_vextr_impl │ │ collections::_pvt::complex_vextr_impl │
+       └───────────────────────────────────────┘ └───────────────────────────────────────┘
          △                                △                                  △
          │                                │                                  │
    ┌─────────────────┐ ┌──────────────────────────────────┐ ┌──────────────────────────────────┐
-   │  text::sstr<0>  │ │ collections::detail::vector_impl │ │ collections::detail::vector_impl │
+   │  text::sstr<0>  │ │  collections::_pvt::vector_impl  │ │  collections::_pvt::vector_impl  │
    │ (aka text::str) │ │ (trivial partial specialization) │ │ (complex partial specialization) │
    └─────────────────┘ └──────────────────────────────────┘ └──────────────────────────────────┘
             △                                  △                      △
@@ -128,16 +128,16 @@ The class hierarchy of vextr/vector/str is composed as follows:
    @endverbatim
 
 Here’s an overview of each class:
-•  abc::collections::detail::vextr_impl_base – core functionality for a vector of elements: a little
+•  abc::collections::_pvt::vextr_impl_base – core functionality for a vector of elements: a little
    code and all member variables;
-•  abc::collections::detail::complex_vextr_impl – implementation of a vector of objects of non-
-   trivial class: this is fully transactional and therefore exception-proof, but it’s of course
-   slower and uses more memory even during simpler operations;
-•  abc::collections::detail::trivial_vextr_impl – implementation of a vector of plain values
+•  abc::collections::_pvt::complex_vextr_impl – implementation of a vector of objects of non-trivial
+   class: this is fully transactional and therefore exception-proof, but it’s of course slower and
+   uses more memory even during simpler operations;
+•  abc::collections::_pvt::trivial_vextr_impl – implementation of a vector of plain values
    (instances of trivial class or native type): this is a near-optimal solution, still exception-
    proof but also taking advantage of the knowledge that no copy constructors need to be called.
-•  abc::collections::detail::vector_impl – abstracts away the differences between trivial and
-   complex interfaces, exposing them as a single interface;
+•  abc::collections::_pvt::vector_impl – abstracts away the differences between trivial and complex
+   interfaces, exposing them as a single interface;
 •  abc::collections::vector – Abaclade’s vector class;
 •  abc::text::str – Abaclade’s string class.
 
@@ -380,15 +380,15 @@ protected:
    static unsigned const smc_iGrowthRate = 2;
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 /*! Allows to get a temporary item array from a pool of options, then work with it, and upon
-destruction it ensures that the array is either adopted by the associated detail::vextr_impl_base,
-or properly discarded.
+destruction it ensures that the array is either adopted by the associated _pvt::vextr_impl_base, or
+properly discarded.
 
 A transaction will not take care of copying the item array, if switching to a different item array.
 
@@ -479,11 +479,11 @@ private:
    bool m_bFree;
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 /*! Template-independent implementation of a vector for trivial contained types. This is the most
 derived common base class of both vector and str. */
@@ -599,4 +599,4 @@ private:
    );
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt

@@ -22,7 +22,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/numeric.hxx>
 #include <abaclade/text.hxx>
 #include <abaclade/thread.hxx>
-#include "detail/file_init_data.hxx"
+#include "_pvt/file_init_data.hxx"
 #include "file-subclasses.hxx"
 
 #if ABC_HOST_API_WIN32
@@ -40,7 +40,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace io { namespace binary {
 
-tty_file_stream::tty_file_stream(detail::file_init_data * pfid) :
+tty_file_stream::tty_file_stream(_pvt::file_init_data * pfid) :
    file_stream(pfid) {
 }
 
@@ -53,7 +53,7 @@ tty_file_stream::tty_file_stream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-tty_istream::tty_istream(detail::file_init_data * pfid) :
+tty_istream::tty_istream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    tty_file_stream(pfid),
    file_istream(pfid) {
@@ -111,7 +111,7 @@ namespace abc { namespace io { namespace binary {
 };
 #endif
 
-tty_ostream::tty_ostream(detail::file_init_data * pfid) :
+tty_ostream::tty_ostream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    tty_file_stream(pfid),
    file_ostream(pfid) {
@@ -313,7 +313,7 @@ void tty_ostream::write_range(char_t const * pchBegin, char_t const * pchEnd) co
 
 namespace abc { namespace io { namespace binary {
 
-tty_iostream::tty_iostream(detail::file_init_data * pfid) :
+tty_iostream::tty_iostream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    file_istream(pfid),
    file_ostream(pfid),
@@ -332,7 +332,7 @@ tty_iostream::tty_iostream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-pipe_istream::pipe_istream(detail::file_init_data * pfid) :
+pipe_istream::pipe_istream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    file_istream(pfid) {
 }
@@ -362,7 +362,7 @@ pipe_istream::pipe_istream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-pipe_ostream::pipe_ostream(detail::file_init_data * pfid) :
+pipe_ostream::pipe_ostream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    file_ostream(pfid) {
 }
@@ -376,7 +376,7 @@ pipe_ostream::pipe_ostream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-pipe_iostream::pipe_iostream(detail::file_init_data * pfid) :
+pipe_iostream::pipe_iostream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    file_istream(pfid),
    file_ostream(pfid),
@@ -394,7 +394,7 @@ pipe_iostream::pipe_iostream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-regular_file_stream::regular_file_stream(detail::file_init_data * pfid) :
+regular_file_stream::regular_file_stream(_pvt::file_init_data * pfid) :
    file_stream(pfid) {
 #if 0
    ABC_TRACE_FUNC(this, pfid);
@@ -534,7 +534,7 @@ regular_file_stream::regular_file_stream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-regular_file_istream::regular_file_istream(detail::file_init_data * pfid) :
+regular_file_istream::regular_file_istream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    regular_file_stream(pfid),
    file_istream(pfid) {
@@ -549,7 +549,7 @@ regular_file_istream::regular_file_istream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-regular_file_ostream::regular_file_ostream(detail::file_init_data * pfid) :
+regular_file_ostream::regular_file_ostream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    regular_file_stream(pfid),
    file_ostream(pfid) {
@@ -671,7 +671,7 @@ regular_file_ostream::regular_file_ostream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-regular_file_iostream::regular_file_iostream(detail::file_init_data * pfid) :
+regular_file_iostream::regular_file_iostream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    file_istream(pfid),
    file_ostream(pfid),

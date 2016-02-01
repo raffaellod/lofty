@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -49,7 +49,7 @@ namespace bitmanip {}
 •  _InterlockedCompareExchange64
 */
 
-namespace abc { namespace bitmanip { namespace detail {
+namespace abc { namespace bitmanip { namespace _pvt {
 
 /*! Helper for ceiling_to_pow2(), to unify specializations based on sizeof(T). See
 abc::bitmanip::ceiling_to_pow2(). */
@@ -58,7 +58,7 @@ ABACLADE_SYM std::uint16_t ceiling_to_pow2(std::uint16_t i);
 ABACLADE_SYM std::uint32_t ceiling_to_pow2(std::uint32_t i);
 ABACLADE_SYM std::uint64_t ceiling_to_pow2(std::uint64_t i);
 
-}}} //namespace abc::bitmanip::detail
+}}} //namespace abc::bitmanip::_pvt
 
 namespace abc { namespace bitmanip {
 
@@ -78,13 +78,13 @@ inline T ceiling_to_pow2(T i) {
    );
    switch (sizeof(T)) {
       case sizeof(std::uint8_t):
-         return detail::ceiling_to_pow2(static_cast<std::uint8_t>(i));
+         return _pvt::ceiling_to_pow2(static_cast<std::uint8_t>(i));
       case sizeof(std::uint16_t):
-         return detail::ceiling_to_pow2(static_cast<std::uint16_t>(i));
+         return _pvt::ceiling_to_pow2(static_cast<std::uint16_t>(i));
       case sizeof(std::uint32_t):
-         return detail::ceiling_to_pow2(static_cast<std::uint32_t>(i));
+         return _pvt::ceiling_to_pow2(static_cast<std::uint32_t>(i));
       case sizeof(std::uint64_t):
-         return detail::ceiling_to_pow2(static_cast<std::uint64_t>(i));
+         return _pvt::ceiling_to_pow2(static_cast<std::uint64_t>(i));
    }
 }
 

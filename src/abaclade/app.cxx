@@ -21,7 +21,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/collections/vector.hxx>
 #include <abaclade/io/text.hxx>
 #include <abaclade/io/binary.hxx>
-#include "detail/signal_dispatcher.hxx"
+#include "_pvt/signal_dispatcher.hxx"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ not, see <http://www.gnu.org/licenses/>.
 extern "C" ::BOOL WINAPI DllMain(::HINSTANCE hinst, ::DWORD iReason, void * pReserved) {
    ABC_UNUSED_ARG(hinst);
    ABC_UNUSED_ARG(pReserved);
-   if (!abc::detail::thread_local_storage::dllmain_hook(static_cast<unsigned>(iReason))) {
+   if (!abc::_pvt::thread_local_storage::dllmain_hook(static_cast<unsigned>(iReason))) {
       return false;
    }
    return true;
@@ -161,12 +161,12 @@ app::app() {
 
 /*static*/ bool app::initialize_stdio() {
    try {
-      io::binary::stderr = io::binary::detail::make_stderr();
-      io::binary::stdin  = io::binary::detail::make_stdin ();
-      io::binary::stdout = io::binary::detail::make_stdout();
-      io::text::stderr = io::text::detail::make_stderr();
-      io::text::stdin  = io::text::detail::make_stdin ();
-      io::text::stdout = io::text::detail::make_stdout();
+      io::binary::stderr = io::binary::_pvt::make_stderr();
+      io::binary::stdin  = io::binary::_pvt::make_stdin ();
+      io::binary::stdout = io::binary::_pvt::make_stdout();
+      io::text::stderr = io::text::_pvt::make_stderr();
+      io::text::stdin  = io::text::_pvt::make_stdin ();
+      io::text::stdout = io::text::_pvt::make_stdout();
       return true;
    } catch (_std::exception const &) {
       // Exceptions can’t be reported at this point.
@@ -179,8 +179,8 @@ app::app() {
 
 /*static*/ int app::run(int (* pfnInstantiateAppAndCallMain)(_args_t *), _args_t * pargs) {
    // Establish these as early as possible.
-   detail::thread_local_storage tls;
-   detail::signal_dispatcher sd;
+   _pvt::thread_local_storage tls;
+   _pvt::signal_dispatcher sd;
 
    int iRet;
    if (initialize_stdio()) {

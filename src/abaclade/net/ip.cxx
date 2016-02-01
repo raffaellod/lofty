@@ -53,18 +53,18 @@ void to_text_ostream<net::ip::port>::write(net::ip::port const & port, io::text:
 namespace abc { namespace net { namespace ip {
 
 static_assert(
-   sizeof(address::v4_type) <= sizeof reinterpret_cast<detail::raw_address *>(8192)->m_ab,
+   sizeof(address::v4_type) <= sizeof reinterpret_cast<_pvt::raw_address *>(8192)->m_ab,
    "v4_type is too big"
 );
 static_assert(
-   sizeof(address::v6_type) <= sizeof reinterpret_cast<detail::raw_address *>(8192)->m_ab,
+   sizeof(address::v6_type) <= sizeof reinterpret_cast<_pvt::raw_address *>(8192)->m_ab,
    "v6_type is too big"
 );
 
-static detail::raw_address const gc_abAny4 = {
+static _pvt::raw_address const gc_abAny4 = {
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, version::v4
 };
-static detail::raw_address const gc_abAny6 = {
+static _pvt::raw_address const gc_abAny6 = {
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, version::v6
 };
 

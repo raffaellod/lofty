@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -22,7 +22,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 // Forward declaration
 class coroutine_local_storage;
@@ -48,11 +48,11 @@ private:
    static data_members sm_dm;
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Abaclade’s CRLS (TLS for coroutines) slot data manager.
 class ABACLADE_SYM coroutine_local_storage : public context_local_storage_impl {
@@ -88,7 +88,7 @@ public:
    );
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -98,18 +98,18 @@ namespace abc {
 members. */
 template <typename T>
 class coroutine_local_value :
-   public detail::context_local_value<T, detail::coroutine_local_storage> {
+   public _pvt::context_local_value<T, _pvt::coroutine_local_storage> {
 private:
-   typedef detail::context_local_value<T, detail::coroutine_local_storage> context_local;
+   typedef _pvt::context_local_value<T, _pvt::coroutine_local_storage> context_local;
 
 public:
-   //! See detail::context_local_value::operator=().
+   //! See _pvt::context_local_value::operator=().
    coroutine_local_value & operator=(T const & t) {
       context_local::operator=(t);
       return *this;
    }
 
-   //! See detail::context_local_value::operator=().
+   //! See _pvt::context_local_value::operator=().
    coroutine_local_value & operator=(T && t) {
       context_local::operator=(_std::move(t));
       return *this;
@@ -126,7 +126,7 @@ namespace abc {
 each coroutine, and an instance of this class lets each coroutine access its own private copy of the
 value pointed to by it. Variables of this type cannot be non-static class members. */
 template <typename T>
-class coroutine_local_ptr : public detail::context_local_ptr<T, detail::coroutine_local_storage> {
+class coroutine_local_ptr : public _pvt::context_local_ptr<T, _pvt::coroutine_local_storage> {
 };
 
 } //namespace abc

@@ -27,7 +27,7 @@ namespace abc {
 
 template <class T>
 inline str enum_impl<T>::name() const {
-   detail::enum_member const * pem = _member();
+   _pvt::enum_member const * pem = _member();
    return str(external_buffer, pem->pszName, pem->cchName);
 }
 
@@ -35,7 +35,7 @@ inline str enum_impl<T>::name() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Implementation of the specializations of to_text_ostream for enum_impl specializations.
 class ABACLADE_SYM enum_to_text_ostream_impl {
@@ -60,7 +60,7 @@ protected:
    void write_impl(int i, enum_member const * pem, io::text::ostream * ptos);
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,11 +68,11 @@ protected:
 namespace abc {
 
 template <class T>
-class to_text_ostream<enum_impl<T>> : public detail::enum_to_text_ostream_impl {
+class to_text_ostream<enum_impl<T>> : public _pvt::enum_to_text_ostream_impl {
 public:
-   //! See abc::detail::enum_to_text_ostream_impl::write().
+   //! See abc::_pvt::enum_to_text_ostream_impl::write().
    void write(enum_impl<T> e, io::text::ostream * ptos) {
-      detail::enum_to_text_ostream_impl::write_impl(e.base(), e._get_map(), ptos);
+      _pvt::enum_to_text_ostream_impl::write_impl(e.base(), e._get_map(), ptos);
    }
 };
 

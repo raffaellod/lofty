@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -24,7 +24,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 void context_local_storage_registrar_impl::add_var(
    context_local_storage_node_impl * pclsni, std::size_t cb
@@ -39,11 +39,11 @@ void context_local_storage_registrar_impl::add_var(
    }
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 context_local_storage_impl::context_local_storage_impl(
    context_local_storage_registrar_impl * pclsri
@@ -91,4 +91,4 @@ void * context_local_storage_impl::get_storage(context_local_storage_node_impl c
    return pb;
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt

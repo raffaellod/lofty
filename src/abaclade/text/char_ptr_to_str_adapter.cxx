@@ -42,7 +42,7 @@ void to_text_ostream<text::char_ptr_to_str_adapter>::write(
       enc = text::encoding::host;
       cb = sizeof sc_szNull - sizeof sc_szNull[0] /*NUL*/;
    }
-   text::detail::str_to_text_ostream::write(p, cb, enc, ptos);
+   text::_pvt::str_to_text_ostream::write(p, cb, enc, ptos);
 }
 
 } //namespace abc

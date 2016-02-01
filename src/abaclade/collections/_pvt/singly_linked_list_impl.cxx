@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -17,13 +17,13 @@ not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
 #include <abaclade.hxx>
-#include <abaclade/collections/detail/singly_linked_list_impl.hxx>
+#include <abaclade/collections/_pvt/singly_linked_list_impl.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 void * singly_linked_list_impl::node::operator new(std::size_t cb, type_void_adapter const & type) {
    ABC_UNUSED_ARG(cb);
@@ -134,4 +134,4 @@ void singly_linked_list_impl::pop_front(type_void_adapter const & type) {
    delete pn;
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt

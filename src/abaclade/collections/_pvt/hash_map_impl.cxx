@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -18,7 +18,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 #include <abaclade/collections.hxx>
-#include <abaclade/collections/detail/hash_map_impl.hxx>
+#include <abaclade/collections/_pvt/hash_map_impl.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
 #include <climits> // CHAR_BIT
@@ -26,7 +26,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 std::size_t const hash_map_impl::smc_cIdealNeighborhoodBuckets = sizeof(std::size_t) * CHAR_BIT / 8;
 
@@ -445,4 +445,4 @@ void hash_map_impl::iterator_base::validate() const {
    }
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt

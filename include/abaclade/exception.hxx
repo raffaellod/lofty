@@ -51,22 +51,22 @@ namespace abc {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Stores the source code location for a scope_trace instance.
 struct source_file_address_data {
    //! Function name.
    char_t const * m_pszFunction;
    //! Address in the file.
-   text::detail::file_address_data m_tfad;
+   text::_pvt::file_address_data m_tfad;
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 namespace abc {
 
 //! Stores the source code location for a scope_trace instance.
-class source_file_address : protected detail::source_file_address_data {
+class source_file_address : protected _pvt::source_file_address_data {
 public:
    //! Default constructor.
    source_file_address() {
@@ -93,9 +93,9 @@ public:
    /*! Returns a pointer to the contained data-only struct.
 
    @return
-      Pointer to the contained detail::source_file_address_data.
+      Pointer to the contained _pvt::source_file_address_data.
    */
-   detail::source_file_address_data const * data() const {
+   _pvt::source_file_address_data const * data() const {
       return this;
    }
 
@@ -124,7 +124,7 @@ public:
    @return
       Pointer to the equivalent source_file_address instance.
    */
-   static source_file_address const * from_data(detail::source_file_address_data const * psfad) {
+   static source_file_address const * from_data(_pvt::source_file_address_data const * psfad) {
       return static_cast<source_file_address const *>(psfad);
    }
 
@@ -214,8 +214,8 @@ the stack trace with the exact line where the throw statement occurred.
 Only instances of abc::exception (or a derived class) can be thrown using ABC_THROW(), because of
 the additional members that the latter expects to be able to set in the former.
 
-The class abc::exception implements the actual stack trace printing for abc::detail::scope_trace
-because it’s the only class involved that’s not in a detail namespace.
+The class abc::exception implements the actual stack trace printing for abc::_pvt::scope_trace
+because it’s the only class involved that’s not in a _pvt namespace.
 
 @param x
    Exception type to be thrown.

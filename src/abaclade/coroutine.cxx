@@ -160,7 +160,7 @@ public:
    @return
       Pointer to the coroutine’s m_crls member.
    */
-   detail::coroutine_local_storage * local_storage_ptr() {
+   _pvt::coroutine_local_storage * local_storage_ptr() {
       return &m_crls;
    }
 
@@ -209,7 +209,7 @@ private:
    //! Function to be executed in the coroutine.
    _std::function<void ()> m_fnInnerMain;
    //! Local storage for the coroutine.
-   detail::coroutine_local_storage m_crls;
+   _pvt::coroutine_local_storage m_crls;
 };
 
 } //namespace abc
@@ -576,8 +576,8 @@ void coroutine::scheduler::block_active_until_fd_ready(
 
 void coroutine::scheduler::coroutine_scheduling_loop(bool bInterruptingAll /*= false*/) {
    _std::shared_ptr<impl> & pcoroimplActive = sm_pcoroimplActive;
-   detail::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
-   detail::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
+   _pvt::coroutine_local_storage * pcrlsDefault, ** ppcrlsCurrent;
+   _pvt::coroutine_local_storage::get_default_and_current_pointers(&pcrlsDefault, &ppcrlsCurrent);
 #if ABC_HOST_API_POSIX
    ::ucontext_t * puctxReturn = sm_puctxReturn.get();
 #endif

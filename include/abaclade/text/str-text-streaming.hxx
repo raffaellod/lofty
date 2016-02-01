@@ -23,7 +23,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text { namespace _pvt {
 
 /*! Base class for the specializations of to_text_ostream for string types. Not using templates, so
 the implementation can be in a cxx file. This is used by string literal types as well (see
@@ -52,7 +52,7 @@ protected:
    void write(void const * p, std::size_t cb, encoding enc, io::text::ostream * ptos);
 };
 
-}}} //namespace abc::text::detail
+}}} //namespace abc::text::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +61,7 @@ namespace abc {
 #define ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(C, enc) \
    /*! Character literal. */ \
    template <> \
-   class to_text_ostream<C> : public text::detail::str_to_text_ostream { \
+   class to_text_ostream<C> : public text::_pvt::str_to_text_ostream { \
    public: \
       /*! Writes a character, applying the formatting options.
 
@@ -71,13 +71,13 @@ namespace abc {
          Pointer to the stream to output to.
       */ \
       void write(C ch, io::text::ostream * ptos) { \
-         text::detail::str_to_text_ostream::write(&ch, sizeof(C), enc, ptos); \
+         text::_pvt::str_to_text_ostream::write(&ch, sizeof(C), enc, ptos); \
       } \
    }; \
    \
    /*! String literal. */ \
    template <std::size_t t_cch> \
-   class to_text_ostream<C [t_cch]> : public text::detail::str_to_text_ostream { \
+   class to_text_ostream<C [t_cch]> : public text::_pvt::str_to_text_ostream { \
    public: \
       /*! Writes a string, applying the formatting options.
 
@@ -87,7 +87,7 @@ namespace abc {
          Pointer to the stream to output to.
       */ \
       void write(C const (& ach)[t_cch], io::text::ostream * ptos) { \
-         text::detail::str_to_text_ostream::write(ach, sizeof(C) * ABC_SL_SIZE(ach), enc, ptos); \
+         text::_pvt::str_to_text_ostream::write(ach, sizeof(C) * ABC_SL_SIZE(ach), enc, ptos); \
       } \
    }; \
    \
@@ -117,7 +117,7 @@ ABC_SPECIALIZE_to_text_ostream_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_text_ostream<text::str> : public text::detail::str_to_text_ostream {
+class ABACLADE_SYM to_text_ostream<text::str> : public text::_pvt::str_to_text_ostream {
 public:
    /*! Writes a string, applying the formatting options.
 

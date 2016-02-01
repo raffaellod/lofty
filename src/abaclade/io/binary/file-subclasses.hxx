@@ -44,7 +44,7 @@ public:
 
 protected:
    //! See file_stream::file_stream().
-   tty_file_stream(detail::file_init_data * pfid);
+   tty_file_stream(_pvt::file_init_data * pfid);
 };
 
 }}} //namespace abc::io::binary
@@ -59,7 +59,7 @@ class ABACLADE_SYM tty_istream :
    public virtual file_istream {
 public:
    //! See file_istream::file_istream().
-   tty_istream(detail::file_init_data * pfid);
+   tty_istream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~tty_istream();
@@ -90,7 +90,7 @@ class ABACLADE_SYM tty_ostream :
    {
 public:
    //! See file_ostream::file_ostream().
-   tty_ostream(detail::file_init_data * pfid);
+   tty_ostream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~tty_ostream();
@@ -163,7 +163,7 @@ class ABACLADE_SYM tty_iostream :
    public tty_ostream {
 public:
    //! See tty_istream::tty_istream() and tty_ostream::tty_ostream().
-   tty_iostream(detail::file_init_data * pfid);
+   tty_iostream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~tty_iostream();
@@ -179,7 +179,7 @@ namespace abc { namespace io { namespace binary {
 class ABACLADE_SYM pipe_istream : public virtual file_istream {
 public:
    //! See file_istream::file_istream().
-   pipe_istream(detail::file_init_data * pfid);
+   pipe_istream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~pipe_istream();
@@ -202,7 +202,7 @@ namespace abc { namespace io { namespace binary {
 class ABACLADE_SYM pipe_ostream : public virtual file_ostream {
 public:
    //! See file_ostream::file_ostream().
-   pipe_ostream(detail::file_init_data * pfid);
+   pipe_ostream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~pipe_ostream();
@@ -221,7 +221,7 @@ class ABACLADE_SYM pipe_iostream :
    public pipe_ostream {
 public:
    //! See pipe_istream::pipe_istream() and pipe_ostream::pipe_ostream().
-   pipe_iostream(detail::file_init_data * pfid);
+   pipe_iostream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~pipe_iostream();
@@ -250,7 +250,7 @@ public:
 
 protected:
    //! See file_stream::file_stream().
-   regular_file_stream(detail::file_init_data * pfid);
+   regular_file_stream(_pvt::file_init_data * pfid);
 
 protected:
    //! Size of the file.
@@ -273,7 +273,7 @@ class ABACLADE_SYM regular_file_istream :
    public virtual file_istream {
 public:
    //! See regular_file_stream().
-   regular_file_istream(detail::file_init_data * pfid);
+   regular_file_istream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~regular_file_istream();
@@ -291,7 +291,7 @@ class ABACLADE_SYM regular_file_ostream :
    public virtual file_ostream {
 public:
    //! See regular_file_stream().
-   regular_file_ostream(detail::file_init_data * pfid);
+   regular_file_ostream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~regular_file_ostream();
@@ -320,7 +320,7 @@ class ABACLADE_SYM regular_file_iostream :
 public:
    /*! See regular_file_istream::regular_file_istream() and
    regular_file_ostream::regular_file_ostream(). */
-   regular_file_iostream(detail::file_init_data * pfid);
+   regular_file_iostream(_pvt::file_init_data * pfid);
 
    //! Destructor.
    virtual ~regular_file_iostream();

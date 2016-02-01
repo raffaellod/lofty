@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -16,8 +16,8 @@ You should have received a copy of the GNU Lesser General Public License along w
 not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_DETAIL_SIGNAL_DISPATCHER_HXX
-#define _ABACLADE_DETAIL_SIGNAL_DISPATCHER_HXX
+#ifndef _ABACLADE__PVT_SIGNAL_DISPATCHER_HXX
+#define _ABACLADE__PVT_SIGNAL_DISPATCHER_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -41,7 +41,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 /*! Dispatches non-C++ signals to the process’ threads. It establishes, and restores upon
 destruction, special-case handlers to convert non-C++ synchronous error events (Mach exceptions,
@@ -219,8 +219,8 @@ private:
 #endif
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_DETAIL_SIGNAL_DISPATCHER_HXX
+#endif //ifndef _ABACLADE__PVT_SIGNAL_DISPATCHER_HXX

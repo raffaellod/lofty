@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -26,7 +26,7 @@ not, see <http://www.gnu.org/licenses/>.
    #pragma once
 #endif
 
-#include <abaclade/collections/detail/doubly_linked_list_impl.hxx>
+#include <abaclade/collections/_pvt/doubly_linked_list_impl.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
 
@@ -36,10 +36,10 @@ namespace abc { namespace collections {
 
 //! Doubly-linked list.
 template <typename T>
-class list : public detail::doubly_linked_list_impl {
+class list : public _pvt::doubly_linked_list_impl {
 private:
    template <bool t_bForward>
-   class const_bidi_iterator : public detail::doubly_linked_list_impl::iterator_base {
+   class const_bidi_iterator : public _pvt::doubly_linked_list_impl::iterator_base {
    private:
       friend class list;
 
@@ -118,7 +118,7 @@ private:
    protected:
       //! See iterator_base::iterator_base().
       const_bidi_iterator(node * pn) :
-         detail::doubly_linked_list_impl::iterator_base(pn) {
+         _pvt::doubly_linked_list_impl::iterator_base(pn) {
       }
    };
 
@@ -191,7 +191,7 @@ public:
       Source object.
    */
    list(list && l) :
-      detail::doubly_linked_list_impl(_std::move(l)) {
+      _pvt::doubly_linked_list_impl(_std::move(l)) {
    }
 
    //! Destructor.
@@ -208,7 +208,7 @@ public:
    */
    list & operator=(list && l) {
       list lOld(_std::move(*this));
-      detail::doubly_linked_list_impl::operator=(_std::move(l));
+      _pvt::doubly_linked_list_impl::operator=(_std::move(l));
       return *this;
    }
 
@@ -218,7 +218,7 @@ public:
       Reference to the first element in the list.
    */
    T & back() {
-      return *detail::doubly_linked_list_impl::back()->template value_ptr<T>();
+      return *_pvt::doubly_linked_list_impl::back()->template value_ptr<T>();
    }
 
    /*! Returns a const reference to the first element in the list.
@@ -271,7 +271,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      return detail::doubly_linked_list_impl::clear(type);
+      return _pvt::doubly_linked_list_impl::clear(type);
    }
 
    /*! Returns a const reverse iterator to the end of the list.
@@ -316,7 +316,7 @@ public:
       Reference to the last element in the list.
    */
    T & front() {
-      return *detail::doubly_linked_list_impl::front()->template value_ptr<T>();
+      return *_pvt::doubly_linked_list_impl::front()->template value_ptr<T>();
    }
 
    /*! Returns a const reference to the last element in the list.
@@ -337,9 +337,9 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      node * pn = detail::doubly_linked_list_impl::back();
+      node * pn = _pvt::doubly_linked_list_impl::back();
       T tRet(_std::move(*static_cast<T *>(pn->value_ptr(type))));
-      detail::doubly_linked_list_impl::remove(type, pn);
+      _pvt::doubly_linked_list_impl::remove(type, pn);
       return _std::move(tRet);
    }
 
@@ -352,9 +352,9 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      node * pn = detail::doubly_linked_list_impl::front();
+      node * pn = _pvt::doubly_linked_list_impl::front();
       T tRet(_std::move(*static_cast<T *>(pn->value_ptr(type))));
-      detail::doubly_linked_list_impl::remove(type, pn);
+      _pvt::doubly_linked_list_impl::remove(type, pn);
       return _std::move(tRet);
    }
 
@@ -371,7 +371,7 @@ public:
       //type.set_copy_construct<T>();
       type.set_move_construct<T>();
       type.set_size<T>();
-      return iterator(detail::doubly_linked_list_impl::push_back(type, &t, true));
+      return iterator(_pvt::doubly_linked_list_impl::push_back(type, &t, true));
    }
 
    /*! Adds an element to the start of the list.
@@ -387,7 +387,7 @@ public:
       //type.set_copy_construct<T>();
       type.set_move_construct<T>();
       type.set_size<T>();
-      return iterator(detail::doubly_linked_list_impl::push_front(type, &t, true));
+      return iterator(_pvt::doubly_linked_list_impl::push_front(type, &t, true));
    }
 
    /*! Returns a reverse iterator to the end of the list.
@@ -417,7 +417,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      detail::doubly_linked_list_impl::remove(type, it.m_pn);
+      _pvt::doubly_linked_list_impl::remove(type, it.m_pn);
    }
 
    //! Removes the last element in the list.
@@ -425,7 +425,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      detail::doubly_linked_list_impl::remove(type, back());
+      _pvt::doubly_linked_list_impl::remove(type, back());
    }
 
    //! Removes the first element in the list.
@@ -433,7 +433,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      detail::doubly_linked_list_impl::remove(type, front());
+      _pvt::doubly_linked_list_impl::remove(type, front());
    }
 
    /*! Returns a reverse iterator to the start of the list.

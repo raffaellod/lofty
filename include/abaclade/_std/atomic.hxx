@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -51,7 +51,7 @@ typedef enum {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 //! Implementation of key abc::_std::atomic members, specialized by size in bytes of the argument.
 template <unsigned t_cb>
@@ -316,14 +316,14 @@ public:
    }
 };
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 namespace abc { namespace _std {
 
 /*! Type with enforceable atomic access and defined memory access ordering (C++11 § 29.5.1 “Atomic
 types”). */
 template <typename T>
-class atomic : public detail::atomic_impl<T> {
+class atomic : public _pvt::atomic_impl<T> {
 public:
    /*! Default constructor.
 
@@ -331,7 +331,7 @@ public:
       Initial value for the variable.
    */
    /*constexpr*/ atomic(T t = T()) :
-      detail::atomic_impl<T>(t) {
+      _pvt::atomic_impl<T>(t) {
    }
 };
 

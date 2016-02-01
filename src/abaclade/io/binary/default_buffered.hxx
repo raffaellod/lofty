@@ -31,7 +31,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace io { namespace binary { namespace detail {
+namespace abc { namespace io { namespace binary { namespace _pvt {
 
 /*! Self-managed, partitioned file buffer.
 
@@ -225,7 +225,7 @@ private:
    std::size_t m_ibAvailableOffset;
 };
 
-}}}} //namespace abc::io::binary::detail
+}}}} //namespace abc::io::binary::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -258,7 +258,7 @@ protected:
    //! Wrapped binary istream.
    _std::shared_ptr<istream> m_pbis;
    //! Main read buffer.
-   detail::buffer m_bufRead;
+   _pvt::buffer m_bufRead;
    //! Default/increment size of m_pbReadBuf.
    // TODO: tune this value.
    static std::size_t const smc_cbReadBufDefault = 0x1000;
@@ -306,7 +306,7 @@ protected:
    //! Wrapped binary ostream.
    _std::shared_ptr<ostream> m_pbos;
    //! Write buffer.
-   detail::buffer m_bufWrite;
+   _pvt::buffer m_bufWrite;
    //! If true, every commit_bytes() call will flush the buffer.
    bool m_bFlushAfterCommit:1;
    //! Default/increment size of m_pbWriteBuf.

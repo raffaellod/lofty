@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -26,7 +26,7 @@ not, see <http://www.gnu.org/licenses/>.
    #pragma once
 #endif
 
-#include <abaclade/collections/detail/singly_linked_list_impl.hxx>
+#include <abaclade/collections/_pvt/singly_linked_list_impl.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
 
@@ -37,7 +37,7 @@ namespace abc { namespace collections {
 /*! List-based queue. Offers constant insert-at-end time and constant extraction time of its first
 element. */
 template <typename T>
-class queue : public detail::singly_linked_list_impl {
+class queue : public _pvt::singly_linked_list_impl {
 public:
    //! Default constructor.
    queue() {
@@ -49,7 +49,7 @@ public:
       Source object.
    */
    queue(queue && q) :
-      detail::singly_linked_list_impl(_std::move(q)) {
+      _pvt::singly_linked_list_impl(_std::move(q)) {
    }
 
    //! Destructor.
@@ -69,7 +69,7 @@ public:
    */
    queue & operator=(queue && q) {
       node * pnFirst = m_pnFirst;
-      detail::singly_linked_list_impl::operator=(_std::move(q));
+      _pvt::singly_linked_list_impl::operator=(_std::move(q));
       // Now that *this has been successfully overwritten, destruct the old nodes.
       type_void_adapter type;
       type.set_align<T>();
@@ -103,7 +103,7 @@ public:
       type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
-      detail::singly_linked_list_impl::clear(type);
+      _pvt::singly_linked_list_impl::clear(type);
    }
 
    /*! Returns a reference to the first element in the queue.
@@ -137,7 +137,7 @@ public:
       type.set_destruct<T>();
       // Move the value of *m_pnFirst into t, then unlink and discard *m_pnFirst.
       T t(_std::move(*static_cast<T *>(m_pnFirst->value_ptr(type))));
-      detail::singly_linked_list_impl::pop_front(type);
+      _pvt::singly_linked_list_impl::pop_front(type);
       return _std::move(t);
    }
 
@@ -151,7 +151,7 @@ public:
       type.set_align<T>();
       type.set_copy_construct<T>();
       type.set_size<T>();
-      detail::singly_linked_list_impl::push_back(type, &t, false);
+      _pvt::singly_linked_list_impl::push_back(type, &t, false);
    }
 
    /*! Moves an element to the end of the queue.
@@ -164,7 +164,7 @@ public:
       type.set_align<T>();
       type.set_move_construct<T>();
       type.set_size<T>();
-      detail::singly_linked_list_impl::push_back(type, &t, true);
+      _pvt::singly_linked_list_impl::push_back(type, &t, true);
    }
 };
 

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -18,14 +18,14 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 #include <abaclade/collections.hxx>
-#include <abaclade/collections/detail/complex_vextr_impl.hxx>
+#include <abaclade/collections/_pvt/complex_vextr_impl.hxx>
 #include <abaclade/numeric.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 vextr_impl_base::vextr_impl_base(std::size_t cbEmbeddedCapacity) {
    m_pBegin = nullptr;
@@ -106,11 +106,11 @@ void vextr_impl_base::validate_pointer(void const * p, bool bAllowEnd) const {
    pvib->validate_pointer(p, bAllowEnd);
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 vextr_transaction::vextr_transaction(vextr_impl_base * pvib, bool bTrivial, std::size_t cbNew) :
    m_pvib(pvib) {
@@ -200,11 +200,11 @@ void vextr_transaction::_construct(bool bTrivial, std::size_t cbNew) {
    }
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 void complex_vextr_impl::assign_concat(
    type_void_adapter const & type, void const * p1Begin, void const * p1End, void const * p2Begin,
@@ -506,11 +506,11 @@ void complex_vextr_impl::set_size(type_void_adapter const & type, std::size_t cb
    // TODO: implement this.
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 void trivial_vextr_impl::assign_concat(
    void const * p1Begin, void const * p1End, void const * p2Begin, void const * p2End
@@ -624,4 +624,4 @@ void trivial_vextr_impl::set_size(std::size_t cb) {
    }
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt

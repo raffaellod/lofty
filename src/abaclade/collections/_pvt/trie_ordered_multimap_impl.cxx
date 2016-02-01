@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015 Raffaello D. Di Napoli
+Copyright 2015-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -19,7 +19,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade.hxx>
 #include <abaclade/bitmanip.hxx>
 #include <abaclade/collections.hxx>
-#include <abaclade/collections/detail/trie_ordered_multimap_impl.hxx>
+#include <abaclade/collections/_pvt/trie_ordered_multimap_impl.hxx>
 #include <abaclade/collections/vector.hxx>
 #include <abaclade/type_void_adapter.hxx>
 
@@ -28,7 +28,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 bitwise_trie_ordered_multimap_impl::tree_node_slot
 bitwise_trie_ordered_multimap_impl::tree_node_slot::first_used_child() const {
@@ -350,4 +350,4 @@ void bitwise_trie_ordered_multimap_impl::remove_value(
    }
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt

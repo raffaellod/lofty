@@ -23,7 +23,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 /*! Defines a member named value that is true if
 “void T::from_text_istream(io::text::istream * ptis)” is declared, or false otherwise. */
@@ -39,7 +39,7 @@ struct has_from_text_istream_member {
    static bool const value = (sizeof(test<T>(nullptr)) == sizeof(long));
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 namespace abc {
 
@@ -57,7 +57,7 @@ template <typename T>
 class from_text_istream {
 public:
    static_assert(
-      detail::has_from_text_istream_member<T>::value,
+      _pvt::has_from_text_istream_member<T>::value,
       "specialization abc::from_text_istream<T> must be provided, " \
       "or public “void T::from_text_istream(abc::io::text::istream * ptis)” must be declared"
    );

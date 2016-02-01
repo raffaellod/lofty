@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -24,7 +24,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace _std {
 
-detail::ignore_t const ignore;
+_pvt::ignore_t const ignore;
 
 }} //namespace abc::_std
 

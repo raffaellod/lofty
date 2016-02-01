@@ -25,7 +25,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace io { namespace binary { namespace detail {
+namespace abc { namespace io { namespace binary { namespace _pvt {
 
 buffer::buffer(std::size_t cb) :
    m_p(memory::alloc_bytes_unique(cb)),
@@ -74,7 +74,7 @@ void buffer::make_unused_available() {
    m_ibUsedOffset = 0;
 }
 
-}}}} //namespace abc::io::binary::detail
+}}}} //namespace abc::io::binary::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

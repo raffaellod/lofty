@@ -298,7 +298,7 @@ ABACLADE_SYM _std::shared_ptr<binbuf_ostream> open_ostream(
 
 }}} //namespace abc::io::text
 
-namespace abc { namespace io { namespace text { namespace detail {
+namespace abc { namespace io { namespace text { namespace _pvt {
 
 /*! Creates and returns a text stream associated to the standard error output file (stderr).
 
@@ -321,7 +321,7 @@ ABACLADE_SYM _std::shared_ptr<istream> make_stdin();
 */
 ABACLADE_SYM _std::shared_ptr<ostream> make_stdout();
 
-}}}} //namespace abc::io::text::detail
+}}}} //namespace abc::io::text::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

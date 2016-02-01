@@ -111,7 +111,7 @@ ABACLADE_SYM std::size_t size_in_chars(char const * psz);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace text { namespace detail {
+namespace abc { namespace text { namespace _pvt {
 
 //! Data-only implementation of abc::text::file_address.
 struct file_address_data {
@@ -141,12 +141,12 @@ public:
    unsigned m_iLine;
 };
 
-}}} //namespace abc::text::detail
+}}} //namespace abc::text::_pvt
 
 namespace abc { namespace text {
 
 //! Address in a text file, expressed as the file path and a line number within it.
-class file_address : protected detail::file_address_data {
+class file_address : protected _pvt::file_address_data {
 public:
    //! Default constructor.
    file_address() {
@@ -169,9 +169,9 @@ public:
    /*! Returns a pointer to the contained data-only struct.
 
    @return
-      Pointer to the contained detail::file_address_data.
+      Pointer to the contained _pvt::file_address_data.
    */
-   detail::file_address_data const * data() const {
+   _pvt::file_address_data const * data() const {
       return this;
    }
 
@@ -191,7 +191,7 @@ public:
    @return
       Pointer to the equivalent file_address instance.
    */
-   static file_address const * from_data(detail::file_address_data const * pfad) {
+   static file_address const * from_data(_pvt::file_address_data const * pfad) {
       return static_cast<file_address const *>(pfad);
    }
 

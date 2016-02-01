@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -78,8 +78,8 @@ namespace abc {
       }; \
    \
       /*! Returns a pointer to the name/value map to be used by abc::enum_impl. */ \
-      static ::abc::detail::enum_member const * _get_map() { \
-         static ::abc::detail::enum_member const sc_map[] = { \
+      static ::abc::_pvt::enum_member const * _get_map() { \
+         static ::abc::_pvt::enum_member const sc_map[] = { \
             arrayitems \
             { nullptr, 0, 0 } \
          }; \
@@ -111,7 +111,7 @@ namespace abc {
 #define _ABC_ENUM_MEMBER_PAIR(name, value) \
          name = value,
 
-/*! Expands into an abc::detail::enum_member initializer.
+/*! Expands into an abc::_pvt::enum_member initializer.
 
 @param name
    Name of the enumeration constant.
@@ -184,7 +184,7 @@ values cannot be explicitly specified; for example:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 //! Enumeration member (name/value pair).
 struct ABACLADE_SYM enum_member {
@@ -222,7 +222,7 @@ struct ABACLADE_SYM enum_member {
    static enum_member const * find_in_map(enum_member const * pem, str const & sName);
 };
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -266,7 +266,7 @@ public:
       member, an exception of type abc::domain_error will be thrown.
    */
    explicit enum_impl(int iValue) :
-      m_e(static_cast<enum_type>(detail::enum_member::find_in_map(T::_get_map(), iValue)->iValue)) {
+      m_e(static_cast<enum_type>(_pvt::enum_member::find_in_map(T::_get_map(), iValue)->iValue)) {
    }
 
    /*! Constructor that converts from a string.
@@ -276,7 +276,7 @@ public:
       member, an exception of type abc::domain_error will be thrown.
    */
    explicit enum_impl(str const & sName) :
-      m_e(static_cast<enum_type>(detail::enum_member::find_in_map(T::_get_map(), sName)->iValue)) {
+      m_e(static_cast<enum_type>(_pvt::enum_member::find_in_map(T::_get_map(), sName)->iValue)) {
    }
 
    /*! Copy-assignment operator.
@@ -334,8 +334,8 @@ protected:
    @return
       Pointer to the name/value pair for the current value.
    */
-   detail::enum_member const * _member() const {
-      return detail::enum_member::find_in_map(T::_get_map(), m_e);
+   _pvt::enum_member const * _member() const {
+      return _pvt::enum_member::find_in_map(T::_get_map(), m_e);
    }
 
 public:

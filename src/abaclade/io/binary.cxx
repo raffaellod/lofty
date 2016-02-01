@@ -23,7 +23,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade/os.hxx>
 #include <abaclade/thread.hxx>
 #include "binary/default_buffered.hxx"
-#include "binary/detail/file_init_data.hxx"
+#include "binary/_pvt/file_init_data.hxx"
 #include "binary/file-subclasses.hxx"
 
 #include <algorithm> // std::min()
@@ -52,7 +52,7 @@ pointer to it.
 @return
    Shared pointer to the newly created stream.
 */
-static _std::shared_ptr<file_stream> _construct(detail::file_init_data * pfid) {
+static _std::shared_ptr<file_stream> _construct(_pvt::file_init_data * pfid) {
    ABC_TRACE_FUNC(pfid);
 
 #if ABC_HOST_API_POSIX
@@ -190,7 +190,7 @@ static _std::shared_ptr<file_stream> _construct(detail::file_init_data * pfid) {
 static _std::shared_ptr<file_stream> _attach(filedesc && fd, access_mode am) {
    ABC_TRACE_FUNC(fd, am);
 
-   detail::file_init_data fid;
+   _pvt::file_init_data fid;
    fid.fd = _std::move(fd);
    fid.am = am;
    /* Since this method is supposed to be used only for standard descriptors, assume that OS
@@ -220,7 +220,7 @@ ABACLADE_SYM _std::shared_ptr<buffered_ostream> buffer_ostream(_std::shared_ptr<
 _std::shared_ptr<file_istream> make_istream(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
-   detail::file_init_data fid;
+   _pvt::file_init_data fid;
    fid.fd = _std::move(fd);
    fid.am = access_mode::read;
    fid.bBypassCache = false;
@@ -230,7 +230,7 @@ _std::shared_ptr<file_istream> make_istream(io::filedesc && fd) {
 _std::shared_ptr<file_ostream> make_ostream(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
-   detail::file_init_data fid;
+   _pvt::file_init_data fid;
    fid.fd = _std::move(fd);
    fid.am = access_mode::write;
    fid.bBypassCache = false;
@@ -240,7 +240,7 @@ _std::shared_ptr<file_ostream> make_ostream(io::filedesc && fd) {
 _std::shared_ptr<file_iostream> make_iostream(io::filedesc && fd) {
    ABC_TRACE_FUNC(fd);
 
-   detail::file_init_data fid;
+   _pvt::file_init_data fid;
    fid.fd = _std::move(fd);
    fid.am = access_mode::read_write;
    fid.bBypassCache = false;
@@ -253,7 +253,7 @@ _std::shared_ptr<file_stream> open(
    ABC_TRACE_FUNC(op, am, bBypassCache);
 
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-   detail::file_init_data fid;
+   _pvt::file_init_data fid;
 #if ABC_HOST_API_POSIX
    int iFlags;
    switch (am.base()) {
@@ -376,7 +376,7 @@ _std::shared_ptr<file_stream> open(
 
 }}} //namespace abc::io::binary
 
-namespace abc { namespace io { namespace binary { namespace detail {
+namespace abc { namespace io { namespace binary { namespace _pvt {
 
 _std::shared_ptr<ostream> make_stderr() {
    ABC_TRACE_FUNC();
@@ -435,7 +435,7 @@ _std::shared_ptr<ostream> make_stdout() {
    ), access_mode::write));
 }
 
-}}}} //namespace abc::io::binary::detail
+}}}} //namespace abc::io::binary::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -549,7 +549,7 @@ buffered_ostream::buffered_ostream() {
 
 namespace abc { namespace io { namespace binary {
 
-file_stream::file_stream(detail::file_init_data * pfid) :
+file_stream::file_stream(_pvt::file_init_data * pfid) :
    m_fd(_std::move(pfid->fd)) {
 }
 
@@ -562,7 +562,7 @@ file_stream::file_stream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-file_istream::file_istream(detail::file_init_data * pfid) :
+file_istream::file_istream(_pvt::file_init_data * pfid) :
    file_stream(pfid) {
 }
 
@@ -651,7 +651,7 @@ file_istream::file_istream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-file_ostream::file_ostream(detail::file_init_data * pfid) :
+file_ostream::file_ostream(_pvt::file_init_data * pfid) :
    file_stream(pfid) {
 }
 
@@ -785,7 +785,7 @@ file_ostream::file_ostream(detail::file_init_data * pfid) :
 
 namespace abc { namespace io { namespace binary {
 
-file_iostream::file_iostream(detail::file_init_data * pfid) :
+file_iostream::file_iostream(_pvt::file_init_data * pfid) :
    file_stream(pfid),
    file_istream(pfid),
    file_ostream(pfid) {
@@ -804,7 +804,7 @@ pipe::pipe() {
    ABC_TRACE_FUNC(this);
 
    bool bAsync = (this_thread::coroutine_scheduler() != nullptr);
-   detail::file_init_data fidReadEnd, fidWriteEnd;
+   _pvt::file_init_data fidReadEnd, fidWriteEnd;
 #if ABC_HOST_API_DARWIN
    int fds[2];
    // pipe2() is not available, so emulate it with pipe() + fcntl().

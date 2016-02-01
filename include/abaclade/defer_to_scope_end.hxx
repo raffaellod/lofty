@@ -32,7 +32,7 @@ Utilities for the execution of code at the end of a scope. */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 /*! @cond
 Implementation of ABC_DEFER_TO_SCOPE_END(). This cannot define a move constructor (and delete the
@@ -66,7 +66,7 @@ private:
 
 Note that this relies on the compiler to implement return value optimization, which means that one
 call to defer_to_scope_end() must result in the creation of a single
-abc::detail::deferred_to_scope_end instance (see that class for more information).
+abc::_pvt::deferred_to_scope_end instance (see that class for more information).
 
 @param fn
    Code to execute when the returned object goes out of scope.
@@ -79,7 +79,7 @@ inline deferred_to_scope_end<F> defer_to_scope_end(F fn) {
 }
 //! @endcond
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 namespace abc {
 
@@ -107,7 +107,7 @@ only perform simple, fail-proof tasks, such as changing the value or a local or 
    Statement(s) to execute when the containing scope ends.
 */
 #define ABC_DEFER_TO_SCOPE_END(stmt) \
-   auto ABC_CPP_APPEND_UID(__defer_to_scope_end_)(::abc::detail::defer_to_scope_end([&] { \
+   auto ABC_CPP_APPEND_UID(__defer_to_scope_end_)(::abc::_pvt::defer_to_scope_end([&] { \
       stmt; \
    }))
 

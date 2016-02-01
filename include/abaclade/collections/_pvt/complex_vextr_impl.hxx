@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -16,8 +16,8 @@ You should have received a copy of the GNU Lesser General Public License along w
 not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_COLLECTIONS_DETAIL_COMPLEX_VEXTR_IMPL_HXX
-#define _ABACLADE_COLLECTIONS_DETAIL_COMPLEX_VEXTR_IMPL_HXX
+#ifndef _ABACLADE_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX
+#define _ABACLADE_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -36,7 +36,7 @@ class type_void_adapter;
 
 } //namespace abc
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 //! Template-independent implementation of a vector for non-trivial contained types.
 class ABACLADE_SYM complex_vextr_impl : public vextr_impl_base {
@@ -168,8 +168,8 @@ protected:
    }
 };
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_COLLECTIONS_DETAIL_COMPLEX_VEXTR_IMPL_HXX
+#endif //ifndef _ABACLADE_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX

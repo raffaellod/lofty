@@ -49,7 +49,7 @@ namespace abc {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <abaclade/detail/host.hxx>
+#include <abaclade/_pvt/host.hxx>
 //! @cond
 
 // Host-dependent fixes.
@@ -90,7 +90,7 @@ namespace abc {
    #pragma warning(pop)
 #endif
 #if ABC_HOST_STL_LIBSTDCXX
-   // As described in abaclade/detail/host.hxx, confirm that we’re really using GNU libstdc++.
+   // As described in abaclade/_pvt/host.hxx, confirm that we’re really using GNU libstdc++.
    #undef ABC_HOST_STL_LIBSTDCXX
    #ifdef __GLIBCXX__
       /* __GLIBCXX__ is a just timestamp, not good for version checks; if compiling using G++,
@@ -202,7 +202,7 @@ constructor (N2346). */
 /* Compatibility layer for features that are available one way or another in all supported
 compilers. */
 
-#include <abaclade/detail/host-cxx-compat.hxx>
+#include <abaclade/_pvt/host-cxx-compat.hxx>
 
 // If #pragma once is supported, use it now for this file.
 #ifdef ABC_CXX_PRAGMA_ONCE
@@ -391,7 +391,7 @@ Additionally, this may be following the above in case t_ciEmbeddedCapacity is gr
      └─────────────────────────────────────────────┘
    @endverbatim
 
-See abc::collections::detail::vextr_impl_base for more implementation details. */
+See abc::collections::_pvt::vextr_impl_base for more implementation details. */
 template <typename T, std::size_t t_ciEmbeddedCapacity = 0>
 class vector;
 
@@ -510,7 +510,7 @@ embedded fixed-side character array:
      └──────────────────────────────────────────────────────┘
    @endverbatim
 
-See abc::collections::detail::vextr_impl_base for more implementation details. */
+See abc::collections::_pvt::vextr_impl_base for more implementation details. */
 typedef sstr<0> str;
 
 }} //namespace abc::text
@@ -524,14 +524,14 @@ using text::sstr;
 } //namespace abc
 
 #include <abaclade/collections/static_list.hxx>
-#include <abaclade/detail/context_local.hxx>
+#include <abaclade/_pvt/context_local.hxx>
 #include <abaclade/coroutine_local.hxx>
 #include <abaclade/thread_local.hxx>
 #include <abaclade/enum.hxx>
 #include <abaclade/text-before-exception-and-str.hxx>
 #include <abaclade/exception.hxx>
 #include <abaclade/memory-after-exception.hxx>
-#include <abaclade/collections/detail/vextr_impl.hxx>
+#include <abaclade/collections/_pvt/vextr_impl.hxx>
 #include <abaclade/text/char_traits.hxx>
 #include <abaclade/text/str_traits.hxx>
 #include <abaclade/text/str.hxx>
@@ -548,7 +548,7 @@ using text::sstr;
 #include <abaclade/io/text/str.hxx>
 #include <abaclade/text/str-after-str_ostream.hxx>
 
-#include <abaclade/detail/trace.hxx>
+#include <abaclade/_pvt/trace.hxx>
 #include <abaclade/trace.hxx>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

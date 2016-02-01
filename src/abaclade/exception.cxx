@@ -186,7 +186,7 @@ exception::exception(exception const & x) :
    m_cchWhatAvailable(x.m_cchWhatAvailable) {
    // See @ref stack-tracing.
    if (m_bInFlight) {
-      detail::scope_trace::trace_ostream_addref();
+      _pvt::scope_trace::trace_ostream_addref();
    }
    memory::copy<char>(m_szWhat, x.m_szWhat, ABC_COUNTOF(m_szWhat) - m_cchWhatAvailable);
 }
@@ -194,7 +194,7 @@ exception::exception(exception const & x) :
 /*virtual*/ exception::~exception() ABC_STL_NOEXCEPT_TRUE() {
    // See @ref stack-tracing.
    if (m_bInFlight) {
-      detail::scope_trace::trace_ostream_release();
+      _pvt::scope_trace::trace_ostream_release();
    }
 }
 
@@ -205,11 +205,11 @@ exception & exception::operator=(exception const & x) {
    trace ostream if *this was the last reference to it) release()/addref(). */
    if (m_bInFlight != x.m_bInFlight) {
       if (m_bInFlight) {
-         detail::scope_trace::trace_ostream_release();
+         _pvt::scope_trace::trace_ostream_release();
       }
       m_bInFlight = x.m_bInFlight;
       if (m_bInFlight) {
-         detail::scope_trace::trace_ostream_addref();
+         _pvt::scope_trace::trace_ostream_addref();
       }
    }
    m_cchWhatAvailable = x.m_cchWhatAvailable;
@@ -221,8 +221,8 @@ void exception::_before_throw(source_file_address const & sfa) {
    m_sfa = sfa;
    /* Clear any old trace ostream buffer and create a new one with *this as its only reference. See
    @ref stack-tracing. */
-   detail::scope_trace::trace_ostream_clear();
-   detail::scope_trace::trace_ostream_addref();
+   _pvt::scope_trace::trace_ostream_clear();
+   _pvt::scope_trace::trace_ostream_addref();
    m_bInFlight = true;
 }
 
@@ -310,10 +310,10 @@ void exception::_before_throw(source_file_address const & sfa) {
 /*static*/ void exception::throw_common_type(
    common_type::enum_type xct, std::intptr_t iArg0, std::intptr_t iArg1
 ) {
-   static detail::source_file_address_data const sc_sfadInternal = {
+   static _pvt::source_file_address_data const sc_sfadInternal = {
       ABC_SL("<internal>"),           { ABC_SL("source_not_available"), 0 }
    };
-   static detail::source_file_address_data const sc_sfadOS = {
+   static _pvt::source_file_address_data const sc_sfadOS = {
       ABC_SL("<OS error reporting>"), { ABC_SL("source_not_available"), 0 }
    };
    source_file_address const & sfaInternal = *source_file_address::from_data(&sc_sfadInternal);
@@ -428,9 +428,9 @@ io::text::char_ptr_ostream exception::what_ostream() {
       );
    }
    // Write the scope/stack trace collected via ABC_TRACE_FUNC().
-   ptos->write(detail::scope_trace::get_trace_ostream()->get_str());
+   ptos->write(_pvt::scope_trace::get_trace_ostream()->get_str());
    // Append any scope_trace instances that haven’t been destructed yet.
-   detail::scope_trace::write_list(ptos);
+   _pvt::scope_trace::write_list(ptos);
 }
 
 } //namespace abc

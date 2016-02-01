@@ -54,7 +54,7 @@ ABC_ENUM(version,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace net { namespace ip { namespace detail {
+namespace abc { namespace net { namespace ip { namespace _pvt {
 
 //! Contains an IP port number.
 struct raw_port {
@@ -62,14 +62,14 @@ struct raw_port {
    std::uint16_t m_i;
 };
 
-}}}} //namespace abc::net::ip::detail
+}}}} //namespace abc::net::ip::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace net { namespace ip {
 
 //! IP port.
-class ABACLADE_SYM port : public detail::raw_port {
+class ABACLADE_SYM port : public _pvt::raw_port {
 public:
    //! Type of an IP port number.
    typedef std::uint16_t type;
@@ -131,7 +131,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace net { namespace ip { namespace detail {
+namespace abc { namespace net { namespace ip { namespace _pvt {
 
 //! Contains an IPv4 or IPv6 address.
 struct raw_address {
@@ -141,14 +141,14 @@ struct raw_address {
    version::enum_type m_version;
 };
 
-}}}} //namespace abc::net::ip::detail
+}}}} //namespace abc::net::ip::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace abc { namespace net { namespace ip {
 
 //! IP address.
-class ABACLADE_SYM address : public detail::raw_address {
+class ABACLADE_SYM address : public _pvt::raw_address {
 public:
    //! Used to indicate “any IPv4 address”, e.g. when binding to a port.
    static address const & any_v4;
@@ -176,7 +176,7 @@ public:
       Source object.
    */
    address(address const & addr) :
-      detail::raw_address(addr) {
+      _pvt::raw_address(addr) {
    }
 
    /*! Constructor. Initializes the object as an IPv4 address.

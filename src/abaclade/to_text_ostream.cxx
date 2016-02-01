@@ -61,7 +61,7 @@ void to_text_ostream<bool>::write(bool b, io::text::ostream * ptos) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 char const int_to_text_ostream_base::smc_achIntToStrU[16] = {
    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -298,11 +298,11 @@ void int_to_text_ostream_base::write_u16(std::uint16_t i, io::text::ostream * pt
 #endif //if ABC_HOST_WORD_SIZE < 32
 #endif //if ABC_HOST_WORD_SIZE < 64
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 void ptr_to_text_ostream::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
@@ -331,7 +331,7 @@ void ptr_to_text_ostream::_write_impl(std::uintptr_t iPtr, io::text::ostream * p
    }
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -389,7 +389,7 @@ void to_text_ostream<_std::type_info>::write(_std::type_info const & ti, io::tex
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 sequence_to_text_ostream::sequence_to_text_ostream(str const & sStart, str const & sEnd) :
    m_sSeparator(ABC_SL(", ")),
@@ -427,4 +427,4 @@ void sequence_to_text_ostream::_write_start(io::text::ostream * ptos) {
    ptos->write(m_sStart);
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt

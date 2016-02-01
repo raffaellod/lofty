@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015 Raffaello D. Di Napoli
+Copyright 2011-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -31,18 +31,18 @@ not, see <http://www.gnu.org/licenses/>.
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 //! “Null” type used to reduce the number of tuple items from the preset maximum.
 struct tuple_void {};
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 /*! Base for a tuple item. For empty T, it derives from T; otherwise, it has a T member. This allows
 for empty base optimization (EBO), if the compiler is smart enough. */
@@ -331,11 +331,11 @@ private:
    T m_t;
 };
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 //! Internal implementation of tuple.
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
@@ -525,18 +525,17 @@ public:
 
 template <
    std::size_t t_i,
-   typename T0 = detail::tuple_void, typename T1 = detail::tuple_void,
-   typename T2 = detail::tuple_void, typename T3 = detail::tuple_void,
-   typename T4 = detail::tuple_void, typename T5 = detail::tuple_void,
-   typename T6 = detail::tuple_void, typename T7 = detail::tuple_void,
-   typename T8 = detail::tuple_void, typename T9 = detail::tuple_void
+   typename T0 = _pvt::tuple_void, typename T1 = _pvt::tuple_void, typename T2 = _pvt::tuple_void,
+   typename T3 = _pvt::tuple_void, typename T4 = _pvt::tuple_void, typename T5 = _pvt::tuple_void,
+   typename T6 = _pvt::tuple_void, typename T7 = _pvt::tuple_void, typename T8 = _pvt::tuple_void,
+   typename T9 = _pvt::tuple_void
 >
 class tuple_tail :
    public tuple_head<t_i, T0>,
-   public tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, detail::tuple_void> {
+   public tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, _pvt::tuple_void> {
 private:
    typedef tuple_head<t_i, T0> _thead;
-   typedef tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, detail::tuple_void> _ttail;
+   typedef tuple_tail<t_i + 1, T1, T2, T3, T4, T5, T6, T7, T8, T9, _pvt::tuple_void> _ttail;
 
 public:
    //! Default constructor.
@@ -607,7 +606,7 @@ public:
       _thead(forward<U0>(u0)),
       _ttail(
          forward<U1>(u1), forward<U2>(u2), forward<U3>(u3), forward<U4>(u4), forward<U5>(u5),
-         forward<U6>(u6), forward<U7>(u7), forward<U8>(u8), forward<U9>(u9), detail::tuple_void()
+         forward<U6>(u6), forward<U7>(u7), forward<U8>(u8), forward<U9>(u9), _pvt::tuple_void()
       ) {
    }
 
@@ -625,7 +624,7 @@ public:
       U6 const & u6, U7 const & u7, U8 const & u8, U9 const & u9
    ) :
       _thead(u0),
-      _ttail(u1, u2, u3, u4, u5, u6, u7, u8, u9, detail::tuple_void()) {
+      _ttail(u1, u2, u3, u4, u5, u6, u7, u8, u9, _pvt::tuple_void()) {
    }
 
    /*! Move-assignment operator.
@@ -729,9 +728,8 @@ public:
 template <std::size_t t_i>
 class tuple_tail<
    t_i,
-   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void
+   _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
+   _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
 > {
 public:
    //! Default constructor.
@@ -744,10 +742,10 @@ public:
 
    //! Constructor.
    tuple_tail(
-      detail::tuple_void const &, detail::tuple_void const &, detail::tuple_void const &,
-      detail::tuple_void const &, detail::tuple_void const &, detail::tuple_void const &,
-      detail::tuple_void const &, detail::tuple_void const &, detail::tuple_void const &,
-      detail::tuple_void const &
+      _pvt::tuple_void const &, _pvt::tuple_void const &, _pvt::tuple_void const &,
+      _pvt::tuple_void const &, _pvt::tuple_void const &, _pvt::tuple_void const &,
+      _pvt::tuple_void const &, _pvt::tuple_void const &, _pvt::tuple_void const &,
+      _pvt::tuple_void const &
    ) {
    }
 
@@ -763,7 +761,7 @@ public:
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -773,9 +771,9 @@ namespace abc { namespace _std {
 #ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
-class tuple : public detail::tuple_tail<0, Ts...> {
+class tuple : public _pvt::tuple_tail<0, Ts...> {
 private:
-   typedef detail::tuple_tail<0, Ts...> _timpl;
+   typedef _pvt::tuple_tail<0, Ts...> _timpl;
 
 public:
    //! Default constructor.
@@ -807,7 +805,7 @@ public:
    */
    template <typename... Us>
    tuple(tuple<Us...> && tpl) :
-      _timpl(static_cast<detail::tuple_tail<0, Us...> &&>(tpl)) {
+      _timpl(static_cast<_pvt::tuple_tail<0, Us...> &&>(tpl)) {
    }
 
    /*! Copy constructor.
@@ -817,7 +815,7 @@ public:
    */
    template <typename... Us>
    tuple(tuple<Us...> const & tpl) :
-      _timpl(static_cast<detail::tuple_tail<0, Us...> const &>(tpl)) {
+      _timpl(static_cast<_pvt::tuple_tail<0, Us...> const &>(tpl)) {
    }
 
    /*! Element-moving constructor.
@@ -873,7 +871,7 @@ public:
    */
    template <typename... Us>
    tuple & operator=(tuple<Us...> && tpl) {
-      _timpl::operator=(static_cast<detail::tuple_tail<0, Us...> &&>(tpl));
+      _timpl::operator=(static_cast<_pvt::tuple_tail<0, Us...> &&>(tpl));
       return *this;
    }
 
@@ -886,7 +884,7 @@ public:
    */
    template <typename... Us>
    tuple & operator=(tuple<Us...> const & tpl) {
-      _timpl::operator=(static_cast<detail::tuple_tail<0, Us...> const &>(tpl));
+      _timpl::operator=(static_cast<_pvt::tuple_tail<0, Us...> const &>(tpl));
       return *this;
    }
 };
@@ -894,16 +892,15 @@ public:
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 template <
-   typename T0 = detail::tuple_void, typename T1 = detail::tuple_void,
-   typename T2 = detail::tuple_void, typename T3 = detail::tuple_void,
-   typename T4 = detail::tuple_void, typename T5 = detail::tuple_void,
-   typename T6 = detail::tuple_void, typename T7 = detail::tuple_void,
-   typename T8 = detail::tuple_void, typename T9 = detail::tuple_void
+   typename T0 = _pvt::tuple_void, typename T1 = _pvt::tuple_void, typename T2 = _pvt::tuple_void,
+   typename T3 = _pvt::tuple_void, typename T4 = _pvt::tuple_void, typename T5 = _pvt::tuple_void,
+   typename T6 = _pvt::tuple_void, typename T7 = _pvt::tuple_void, typename T8 = _pvt::tuple_void,
+   typename T9 = _pvt::tuple_void
 >
-class tuple : public detail::tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+class tuple : public _pvt::tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
 private:
-   typedef detail::tuple_void _tvoid;
-   typedef detail::tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _timpl;
+   typedef _pvt::tuple_void _tvoid;
+   typedef _pvt::tuple_tail<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> _timpl;
 
 public:
    //! Default constructor.
@@ -938,7 +935,7 @@ public:
       typename U7, typename U8, typename U9
    >
    tuple(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tpl) :
-      _timpl(static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> &&>(tpl)) {
+      _timpl(static_cast<_pvt::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> &&>(tpl)) {
    }
 
    /*! Copy constructor.
@@ -952,7 +949,7 @@ public:
    >
    tuple(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const & tpl) :
       _timpl(
-         static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const &>(tpl)
+         static_cast<_pvt::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const &>(tpl)
       ) {
    }
 
@@ -1164,7 +1161,7 @@ public:
    >
    tuple & operator=(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const & tpl) {
       _timpl::operator=(
-         static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const &>(tpl)
+         static_cast<_pvt::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> const &>(tpl)
       );
       return *this;
    }
@@ -1182,7 +1179,7 @@ public:
    >
    tuple & operator=(tuple<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> && tpl) {
       _timpl::operator=(
-         static_cast<detail::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> &&>(tpl)
+         static_cast<_pvt::tuple_tail<0, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> &&>(tpl)
       );
       return *this;
    }
@@ -1247,7 +1244,7 @@ ABC_SPECIALIZE_tuple_element_FOR_INDEX(9)
 
 #ifndef ABC_CXX_VARIADIC_TEMPLATES
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 /*! Helper for get<>(tuple). Being a class, it can be partially specialized, which is necessary to
 make it work. */
@@ -1286,7 +1283,7 @@ ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(8)
 ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX(9)
 #undef ABC_SPECIALIZE_tuple_get_helper_FOR_INDEX
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 #endif //ifndef ABC_CXX_VARIADIC_TEMPLATES
 
@@ -1323,7 +1320,7 @@ template <
 inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>::type & get(
    tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> & tpl
 ) {
-   return detail::tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
+   return _pvt::tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
 }
 template <
    std::size_t t_i, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -1332,7 +1329,7 @@ template <
 inline typename tuple_element<t_i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>::type const & get(
    tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & tpl
 ) {
-   return detail::tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
+   return _pvt::tuple_get_helper<t_i, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::get(tpl);
 }
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -1365,55 +1362,52 @@ template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7, typename T8
 >
-struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, detail::tuple_void>> :
+struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, _pvt::tuple_void>> :
    std::integral_constant<std::size_t, 9> {};
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6,
    typename T7
 >
-struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, detail::tuple_void, detail::tuple_void>> :
+struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, _pvt::tuple_void, _pvt::tuple_void>> :
    std::integral_constant<std::size_t, 8> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 struct tuple_size<tuple<
-   T0, T1, T2, T3, T4, T5, T6, detail::tuple_void, detail::tuple_void, detail::tuple_void
+   T0, T1, T2, T3, T4, T5, T6, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
 >> :
    std::integral_constant<std::size_t, 7> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 struct tuple_size<tuple<
-   T0, T1, T2, T3, T4, T5, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void
+   T0, T1, T2, T3, T4, T5, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
 >> : std::integral_constant<std::size_t, 6> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 struct tuple_size<tuple<
-   T0, T1, T2, T3, T4, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void
+   T0, T1, T2, T3, T4, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
+   _pvt::tuple_void
 >> : std::integral_constant<std::size_t, 5> {};
 template <typename T0, typename T1, typename T2, typename T3>
 struct tuple_size<tuple<
-   T0, T1, T2, T3, detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void
+   T0, T1, T2, T3, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
+   _pvt::tuple_void, _pvt::tuple_void
 >> : std::integral_constant<std::size_t, 4> {};
 template <typename T0, typename T1, typename T2>
 struct tuple_size<tuple<
-   T0, T1, T2, detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void, detail::tuple_void
+   T0, T1, T2, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
+   _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
 >> : std::integral_constant<std::size_t, 3> {};
 template <typename T0, typename T1>
 struct tuple_size<tuple<
-   T0, T1, detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void
+   T0, T1, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
+   _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
 >> : std::integral_constant<std::size_t, 2> {};
 template <typename T0>
 struct tuple_size<tuple<
-   T0, detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void
+   T0, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
+   _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
 >> : std::integral_constant<std::size_t, 1> {};
 template <>
 struct tuple_size<tuple<
-   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void, detail::tuple_void, detail::tuple_void,
-   detail::tuple_void, detail::tuple_void
+   _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
+   _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
 >> : std::integral_constant<std::size_t, 0> {};
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
@@ -1582,7 +1576,7 @@ inline /*constexpr*/ tuple<
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 /*! Internal (implementation-defined) type of ignore. It supports construction and assignment from
 any type, and silently discards everything. */
@@ -1621,13 +1615,13 @@ public:
    }
 };
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 namespace abc { namespace _std {
 
 /*! Used with tie(), it allows to ignore individual values in the tuple being unpacked (C++11 § 20.4
 “Tuples”). */
-extern detail::ignore_t const ignore;
+extern _pvt::ignore_t const ignore;
 
 }} //namespace abc::_std
 

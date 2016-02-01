@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015 Raffaello D. Di Napoli
+Copyright 2010-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -29,10 +29,10 @@ Automatic generation of stack traces whenever an exception occurs.
 Any function that is not of negligible size and is not an hotspot should invoke, as its first line,
 ABC_TRACE_FUNC(arg1, arg2, …) in order to have its name show up in a post-exception stack trace.
 
-ABC_TRACE_FUNC() initializes a local variable of type abc::detail::scope_trace which will store
+ABC_TRACE_FUNC() initializes a local variable of type abc::_pvt::scope_trace which will store
 references to every provided argument.
 
-abc::detail::scope_trace::~scope_trace() detects if the object is being destroyed due to an
+abc::_pvt::scope_trace::~scope_trace() detects if the object is being destroyed due to an
 exceptional stack unwinding, in which case it will dump its contents into a thread-local stack trace
 buffer. The outermost catch block (main-level) will output the generated stack trace, if available,
 using abc::exception::write_with_scope_trace().
@@ -49,15 +49,15 @@ This covers the following code flows:
 
 •  No exception thrown: no stack trace is generated.
 
-•  Exception is thrown and escapes past abc::app::main(): each abc::detail::scope_trace adds itself
-   to the stack trace, which is then output; the exception is then destroyed, cleaning the trace
+•  Exception is thrown and escapes past abc::app::main(): each abc::_pvt::scope_trace adds itself to
+   the stack trace, which is then output; the exception is then destroyed, clearing the trace
    buffer.
 
-•  Exception is thrown, then caught and blocked: one or more abc::detail::scope_trace might add
+•  Exception is thrown, then caught and blocked: one or more abc::_pvt::scope_trace might add
    themselves to the stack trace, but the exception is blocked before it escapes abc::app::main(),
    so no output occurs.
 
-•  Exception is thrown, then caught and rethrown: one or more abc::detail::scope_trace might add
+•  Exception is thrown, then caught and rethrown: one or more abc::_pvt::scope_trace might add
    themselves to the stack trace, up to the point the exception is caught. Since the exception is
    not destroyed, the stack trace buffer will keep the original point at which the exception was
    thrown, resulting in an accurate stack trace in case the exception reaches main().
@@ -100,10 +100,10 @@ Currently unsupported:
    Arguments or variables to trace.
 */
 #define _ABC_TRACE_SCOPE_IMPL(uid, ...) \
-   static ::abc::detail::source_file_address_data const ABC_CPP_CAT(uid, _sfad) = { \
+   static ::abc::_pvt::source_file_address_data const ABC_CPP_CAT(uid, _sfad) = { \
       ABC_THIS_FUNC, { ABC_SL(__FILE__), __LINE__ } \
    }; \
-   auto ABC_CPP_CAT(uid, _tuple)(::abc::detail::scope_trace_tuple::make(__VA_ARGS__)); \
-   ::abc::detail::scope_trace uid( \
+   auto ABC_CPP_CAT(uid, _tuple)(::abc::_pvt::scope_trace_tuple::make(__VA_ARGS__)); \
+   ::abc::_pvt::scope_trace uid( \
       ::abc::source_file_address::from_data(&ABC_CPP_CAT(uid, _sfad)), &ABC_CPP_CAT(uid, _tuple) \
    )

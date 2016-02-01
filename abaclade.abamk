@@ -28,18 +28,15 @@ targets:
       -  src/abaclade/bitmanip.cxx
       -  src/abaclade/byte_order.cxx
       -  src/abaclade/collections.cxx
-      -  src/abaclade/collections/detail/doubly_linked_list_impl.cxx
-      -  src/abaclade/collections/detail/hash_map_impl.cxx
-      -  src/abaclade/collections/detail/singly_linked_list_impl.cxx
-      -  src/abaclade/collections/detail/trie_ordered_multimap_impl.cxx
-      -  src/abaclade/collections/detail/vextr_impl.cxx
+      -  src/abaclade/collections/_pvt/doubly_linked_list_impl.cxx
+      -  src/abaclade/collections/_pvt/hash_map_impl.cxx
+      -  src/abaclade/collections/_pvt/singly_linked_list_impl.cxx
+      -  src/abaclade/collections/_pvt/trie_ordered_multimap_impl.cxx
+      -  src/abaclade/collections/_pvt/vextr_impl.cxx
       -  src/abaclade/collections/static_list.cxx
       -  src/abaclade/collections/vector.cxx
       -  src/abaclade/coroutine.cxx
       -  src/abaclade/coroutine_local.cxx
-      -  src/abaclade/detail/context_local.cxx
-      -  src/abaclade/detail/signal_dispatcher.cxx
-      -  src/abaclade/detail/trace.cxx
       -  src/abaclade/enum.cxx
       -  src/abaclade/exception.cxx
       -  src/abaclade/exception-throw_os_error.cxx
@@ -58,6 +55,9 @@ targets:
       -  src/abaclade/os/path.cxx
       -  src/abaclade/perf/stopwatch.cxx
       -  src/abaclade/process.cxx
+      -  src/abaclade/_pvt/context_local.cxx
+      -  src/abaclade/_pvt/signal_dispatcher.cxx
+      -  src/abaclade/_pvt/trace.cxx
       -  src/abaclade/_std/exception.cxx
       -  src/abaclade/_std/memory.cxx
       -  src/abaclade/_std/new.cxx
@@ -89,7 +89,6 @@ targets:
             -  test/abaclade/coroutine.cxx
             -  test/abaclade/coroutine_local.cxx
             -  test/abaclade/defer_to_scope_end.cxx
-            -  test/abaclade/detail/signal_dispatcher.cxx
             -  test/abaclade/enum.cxx
             -  test/abaclade/exception.cxx
             -  test/abaclade/from_text_istream.cxx
@@ -100,6 +99,7 @@ targets:
             -  test/abaclade/os.cxx
             -  test/abaclade/os/path.cxx
             -  test/abaclade/process.cxx
+            -  test/abaclade/_pvt/signal_dispatcher.cxx
             -  test/abaclade/range.cxx
             -  test/abaclade/text/char_ptr_to_str_adapter.cxx
             -  test/abaclade/text/str.cxx

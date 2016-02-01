@@ -21,7 +21,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 /*static*/ enum_member const * enum_member::find_in_map(enum_member const * pem, int iValue) {
    ABC_TRACE_FUNC(pem, iValue);
@@ -48,11 +48,11 @@ namespace abc { namespace detail {
    ABC_THROW(domain_error, ());
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace detail {
+namespace abc { namespace _pvt {
 
 void enum_to_text_ostream_impl::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
@@ -78,4 +78,4 @@ void enum_to_text_ostream_impl::write_impl(
    ptos->write(str(external_buffer, petvp->pszName));
 }
 
-}} //namespace abc::detail
+}} //namespace abc::_pvt

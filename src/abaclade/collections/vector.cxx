@@ -22,13 +22,13 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace collections { namespace detail {
+namespace abc { namespace collections { namespace _pvt {
 
 vector_to_text_ostream::vector_to_text_ostream() :
-   abc::detail::sequence_to_text_ostream(ABC_SL("{"), ABC_SL("}")) {
+   abc::_pvt::sequence_to_text_ostream(ABC_SL("{"), ABC_SL("}")) {
 }
 
 vector_to_text_ostream::~vector_to_text_ostream() {
 }
 
-}}} //namespace abc::collections::detail
+}}} //namespace abc::collections::_pvt

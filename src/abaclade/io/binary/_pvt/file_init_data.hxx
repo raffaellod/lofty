@@ -16,8 +16,8 @@ You should have received a copy of the GNU Lesser General Public License along w
 not, see <http://www.gnu.org/licenses/>.
 --------------------------------------------------------------------------------------------------*/
 
-#ifndef _ABACLADE_IO_BINARY_DETAIL_FILE_INIT_DATA_HXX
-#define _ABACLADE_IO_BINARY_DETAIL_FILE_INIT_DATA_HXX
+#ifndef _ABACLADE_IO_BINARY__PVT_FILE_INIT_DATA_HXX
+#define _ABACLADE_IO_BINARY__PVT_FILE_INIT_DATA_HXX
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
@@ -33,7 +33,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace abc { namespace io { namespace binary { namespace detail {
+namespace abc { namespace io { namespace binary { namespace _pvt {
 
 struct file_init_data {
 #if ABC_HOST_API_POSIX
@@ -49,8 +49,8 @@ struct file_init_data {
    bool bBypassCache:1;
 };
 
-}}}} //namespace abc::io::binary::detail
+}}}} //namespace abc::io::binary::_pvt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifndef _ABACLADE_IO_BINARY_DETAIL_FILE_INIT_DATA_HXX
+#endif //ifndef _ABACLADE_IO_BINARY__PVT_FILE_INIT_DATA_HXX

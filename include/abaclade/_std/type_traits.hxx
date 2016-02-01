@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015 Raffaello D. Di Napoli
+Copyright 2011-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -208,7 +208,7 @@ struct remove_cv<T const volatile> {
 
 }} //namespace abc::_std
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 //! Helper for abc::_std::is_void.
 template <typename T>
@@ -216,18 +216,18 @@ struct is_void_helper : public false_type {};
 template <>
 struct is_void_helper<void> : public true_type {};
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 namespace abc { namespace _std {
 
 /*! Defined as _std::true_type if T is void, or _std::false_type otherwise (C++11 § 20.9.4.1
 “Primary type categories”). */
 template <typename T>
-struct is_void : public detail::is_void_helper<typename remove_cv<T>::type> {};
+struct is_void : public _pvt::is_void_helper<typename remove_cv<T>::type> {};
 
 }} //namespace abc::_std
 
-namespace abc { namespace _std { namespace detail {
+namespace abc { namespace _std { namespace _pvt {
 
 //! Helper for add_lvalue_reference.
 template <typename T, bool t_bAddLRef>
@@ -249,17 +249,17 @@ struct add_rvalue_reference_helper<T, false> {
    typedef T type;
 };
 
-}}} //namespace abc::_std::detail
+}}} //namespace abc::_std::_pvt
 
 namespace abc { namespace _std {
 
 //! Adds an l-value reference to the type (C++11 § 20.9.7.2 “Reference modifications”).
 template <typename T>
-struct add_lvalue_reference : public detail::add_lvalue_reference_helper<T, !is_void<T>::value> {};
+struct add_lvalue_reference : public _pvt::add_lvalue_reference_helper<T, !is_void<T>::value> {};
 
 //! Adds an r-value reference to the type (C++11 § 20.9.7.2 “Reference modifications”).
 template <typename T>
-struct add_rvalue_reference : public detail::add_rvalue_reference_helper<
+struct add_rvalue_reference : public _pvt::add_rvalue_reference_helper<
    T, !is_void<T>::value && !is_reference<T>::value
 > {};
 

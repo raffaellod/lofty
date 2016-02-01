@@ -317,9 +317,9 @@ public:
    format string.
 
    The implementation of print() is entirely contained in
-   abc::io::text::detail::ostream_print_helper, which accesses the individual arguments in a
-   recursive way, from the most-derived class down to the base class, which also contains most of
-   the implementation. Combined with the usage of abc::to_text_ostream() (that it shares with
+   abc::io::text::_pvt::ostream_print_helper, which accesses the individual arguments in a recursive
+   way, from the most-derived class down to the base class, which also contains most of the
+   implementation. Combined with the usage of abc::to_text_ostream() (that it shares with
    abc::to_str()), this enables a type-safe variadic alternative to C’s printf, and voids the
    requirement for explicit specification of the argument types (such as %d, %s), much like Python’s
    str.format().
@@ -452,9 +452,9 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //! @cond
-namespace abc { namespace io { namespace text { namespace detail {
+namespace abc { namespace io { namespace text { namespace _pvt {
 
-//! Template-free implementation of abc::io::text::detail::ostream_print_helper.
+//! Template-free implementation of abc::io::text::_pvt::ostream_print_helper.
 class ABACLADE_SYM ostream_print_helper_impl : public noncopyable {
 public:
    /*! Constructor.
@@ -808,7 +808,7 @@ protected:
 
 #endif //ifdef ABC_CXX_VARIADIC_TEMPLATES … else
 
-}}}} //namespace abc::io::text::detail
+}}}} //namespace abc::io::text::_pvt
 //! @endcond
 
 // Now it’s possible to implement this.
@@ -819,43 +819,43 @@ namespace abc { namespace io { namespace text {
 
 template <typename... Ts>
 inline void ostream::print(str const & sFormat, Ts const &... ts) {
-   detail::ostream_print_helper<Ts ...> osph(this, sFormat, ts ...);
+   _pvt::ostream_print_helper<Ts ...> osph(this, sFormat, ts ...);
    osph.run();
 }
 
 #else //ifdef ABC_CXX_VARIADIC_TEMPLATES
 
 inline void ostream::print(str const & sFormat) {
-   detail::ostream_print_helper<> osph(this, sFormat);
+   _pvt::ostream_print_helper<> osph(this, sFormat);
    osph.run();
 }
 template <typename T0>
 inline void ostream::print(str const & sFormat, T0 const & t0) {
-   detail::ostream_print_helper<T0> osph(this, sFormat, t0);
+   _pvt::ostream_print_helper<T0> osph(this, sFormat, t0);
    osph.run();
 }
 template <typename T0, typename T1>
 inline void ostream::print(str const & sFormat, T0 const & t0, T1 const & t1) {
-   detail::ostream_print_helper<T0, T1> osph(this, sFormat, t0, t1);
+   _pvt::ostream_print_helper<T0, T1> osph(this, sFormat, t0, t1);
    osph.run();
 }
 template <typename T0, typename T1, typename T2>
 inline void ostream::print(str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2) {
-   detail::ostream_print_helper<T0, T1, T2> osph(this, sFormat, t0, t1, t2);
+   _pvt::ostream_print_helper<T0, T1, T2> osph(this, sFormat, t0, t1, t2);
    osph.run();
 }
 template <typename T0, typename T1, typename T2, typename T3>
 inline void ostream::print(
    str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
 ) {
-   detail::ostream_print_helper<T0, T1, T2, T3> osph(this, sFormat, t0, t1, t2, t3);
+   _pvt::ostream_print_helper<T0, T1, T2, T3> osph(this, sFormat, t0, t1, t2, t3);
    osph.run();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 inline void ostream::print(
    str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
 ) {
-   detail::ostream_print_helper<T0, T1, T2, T3, T4> osph(this, sFormat, t0, t1, t2, t3, t4);
+   _pvt::ostream_print_helper<T0, T1, T2, T3, T4> osph(this, sFormat, t0, t1, t2, t3, t4);
    osph.run();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
@@ -863,7 +863,7 @@ inline void ostream::print(
    str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5
 ) {
-   detail::ostream_print_helper<T0, T1, T2, T3, T4, T5> osph(this, sFormat, t0, t1, t2, t3, t4, t5);
+   _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5> osph(this, sFormat, t0, t1, t2, t3, t4, t5);
    osph.run();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
@@ -871,7 +871,7 @@ inline void ostream::print(
    str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5, T6 const & t6
 ) {
-   detail::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6> osph(
+   _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6> osph(
       this, sFormat, t0, t1, t2, t3, t4, t5, t6
    );
    osph.run();
@@ -884,7 +884,7 @@ inline void ostream::print(
    str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5, T6 const & t6, T7 const & t7
 ) {
-   detail::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7> osph(
+   _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7> osph(
       this, sFormat, t0, t1, t2, t3, t4, t5, t6, t7
    );
    osph.run();
@@ -897,7 +897,7 @@ inline void ostream::print(
    str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
 ) {
-   detail::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8> osph(
+   _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8> osph(
       this, sFormat, t0, t1, t2, t3, t4, t5, t6, t7, t8
    );
    osph.run();
@@ -910,7 +910,7 @@ inline void ostream::print(
    str const & sFormat, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
    T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
 ) {
-   detail::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> osph(
+   _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> osph(
       this, sFormat, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9
    );
    osph.run();
