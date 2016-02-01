@@ -37,16 +37,12 @@ str vector_to_text_ostream::set_format(str const & sFormat) {
    auto it(sFormat.cbegin());
 
    // Add parsing of the format string here.
+   // TODO: parse sFormat and store the appropriate element format in sEltFormat.
+   str sEltFormat;
 
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
-      ));
-   }
+   throw_on_unused_streaming_format_chars(it, sFormat);
 
-   // TODO: parse sFormat and return the appropriate element format.
-   return str::empty;
+   return _std::move(sEltFormat);
 }
 
 }}} //namespace abc::collections::_pvt

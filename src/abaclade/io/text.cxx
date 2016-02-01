@@ -442,9 +442,9 @@ void ostream_print_helper_impl::throw_syntax_error(
    str const & sDescription, str::const_iterator it
 ) const {
    // +1 because the first character is 1, to human beings.
-   ABC_THROW(
-      syntax_error, (sDescription, m_sFormat, static_cast<unsigned>(it - m_sFormat.cbegin() + 1))
-   );
+   ABC_THROW(abc::text::syntax_error, (
+      sDescription, m_sFormat, static_cast<unsigned>(it - m_sFormat.cbegin() + 1)
+   ));
 }
 
 void ostream_print_helper_impl::write_format_up_to(str::const_iterator itUpTo) {

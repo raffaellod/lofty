@@ -180,12 +180,7 @@ void to_text_ostream<process>::set_format(str const & sFormat) {
 
    // Add parsing of the format string here.
 
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
-      ));
-   }
+   throw_on_unused_streaming_format_chars(it, sFormat);
 }
 
 void to_text_ostream<process>::write(process const & proc, io::text::ostream * ptos) {

@@ -18,6 +18,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 #include <abaclade/testing/test_case.hxx>
+#include <abaclade/text.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,13 +36,13 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    // Syntax errors.
    sos.clear();
-   ABC_TESTING_ASSERT_THROWS(syntax_error, sos.print(ABC_SL("{")));
+   ABC_TESTING_ASSERT_THROWS(text::syntax_error, sos.print(ABC_SL("{")));
    sos.clear();
-   ABC_TESTING_ASSERT_THROWS(syntax_error, sos.print(ABC_SL("{{{")));
+   ABC_TESTING_ASSERT_THROWS(text::syntax_error, sos.print(ABC_SL("{{{")));
    sos.clear();
-   ABC_TESTING_ASSERT_THROWS(syntax_error, sos.print(ABC_SL("}")));
+   ABC_TESTING_ASSERT_THROWS(text::syntax_error, sos.print(ABC_SL("}")));
    sos.clear();
-   ABC_TESTING_ASSERT_THROWS(syntax_error, sos.print(ABC_SL("}}}")));
+   ABC_TESTING_ASSERT_THROWS(text::syntax_error, sos.print(ABC_SL("}}}")));
 
    // No replacements.
    sos.clear();

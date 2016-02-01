@@ -23,6 +23,18 @@ not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace abc {
+
+/*! TODO: comment.
+*/
+ABACLADE_SYM void throw_on_unused_streaming_format_chars(
+   str::const_iterator const & itConsumedEnd, str const & sFormat
+);
+
+} //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace abc { namespace _pvt {
 
 /*! Defines a member named value that is true if

@@ -19,6 +19,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade.hxx>
 #include <abaclade/math.hxx>
 #include <abaclade/numeric.hxx>
+#include <abaclade/text.hxx>
 #include <abaclade/text/char_ptr_to_str_adapter.hxx>
 
 #include <algorithm>
@@ -39,12 +40,7 @@ void to_text_ostream<bool>::set_format(str const & sFormat) {
 
    // Add parsing of the format string here.
 
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
-      ));
-   }
+   throw_on_unused_streaming_format_chars(it, sFormat);
 }
 
 void to_text_ostream<bool>::write(bool b, io::text::ostream * ptos) {
@@ -186,7 +182,7 @@ default_notation:
          }
          // If we still have any characters, they are garbage (fall through).
       default:
-         ABC_THROW(syntax_error, (
+         ABC_THROW(text::syntax_error, (
             ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
          ));
    }
@@ -315,12 +311,7 @@ void ptr_to_text_ostream::set_format(str const & sFormat) {
 
    // Add parsing of the format string here.
 
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
-      ));
-   }
+   throw_on_unused_streaming_format_chars(it, sFormat);
 }
 
 void ptr_to_text_ostream::_write_impl(std::uintptr_t iPtr, io::text::ostream * ptos) {
@@ -352,12 +343,7 @@ void to_text_ostream<_std::type_info>::set_format(str const & sFormat) {
 
    // Add parsing of the format string here.
 
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
-      ));
-   }
+   throw_on_unused_streaming_format_chars(it, sFormat);
 }
 
 void to_text_ostream<_std::type_info>::write(_std::type_info const & ti, io::text::ostream * ptos) {
@@ -406,12 +392,7 @@ void sequence_to_text_ostream::set_format(str const & sFormat) {
 
    // Add parsing of the format string here.
 
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
-      ));
-   }
+   throw_on_unused_streaming_format_chars(it, sFormat);
 }
 
 sequence_to_text_ostream::~sequence_to_text_ostream() {

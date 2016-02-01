@@ -41,6 +41,7 @@ targets:
       -  src/abaclade/enum.cxx
       -  src/abaclade/exception.cxx
       -  src/abaclade/exception-throw_os_error.cxx
+      -  src/abaclade/from_text_istream.cxx
       -  src/abaclade/io.cxx
       -  src/abaclade/io/binary.cxx
       -  src/abaclade/io/binary/default_buffered.cxx

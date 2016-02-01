@@ -693,12 +693,7 @@ void to_text_ostream<text::file_address>::set_format(str const & sFormat) {
 
    // Add parsing of the format string here.
 
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
-      ));
-   }
+   throw_on_unused_streaming_format_chars(it, sFormat);
 }
 
 void to_text_ostream<text::file_address>::write(
@@ -828,6 +823,75 @@ encode_error & encode_error::operator=(encode_error const & x) {
    error::operator=(x);
    m_sDescription = x.m_sDescription;
    m_iInvalidCodePoint = x.m_iInvalidCodePoint;
+   return *this;
+}
+
+}} //namespace abc::text
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace text {
+
+/*explicit*/ syntax_error::syntax_error(
+   str const & sDescription, str const & sSource /*= str::empty*/, unsigned iChar /*= 0*/,
+   unsigned iLine /*= 0*/, errint_t err /*= 0*/
+) :
+   generic_error(err),
+   m_sDescription(sDescription),
+   m_sSource(sSource),
+   m_iChar(iChar),
+   m_iLine(iLine) {
+
+   str sFormat;
+   if (m_sSource) {
+      if (m_iChar) {
+         if (m_iLine) {
+            sFormat = ABC_SL("{0} in {1}:{2}:{3}");
+         } else {
+            sFormat = ABC_SL("{0} in expression \"{1}\", character {3}");
+         }
+      } else {
+         if (m_iLine) {
+            sFormat = ABC_SL("{0} in {1}:{2}");
+         } else {
+            sFormat = ABC_SL("{0} in expression \"{1}\"");
+         }
+      }
+   } else {
+      if (m_iChar) {
+         if (m_iLine) {
+            sFormat = ABC_SL("{0} in <input>:{2}:{3}");
+         } else {
+            sFormat = ABC_SL("{0} in <expression>, character {3}");
+         }
+      } else {
+         if (m_iLine) {
+            sFormat = ABC_SL("{0} in <input>:{2}");
+         } else {
+            sFormat = ABC_SL("{0}");
+         }
+      }
+   }
+   what_ostream().print(sFormat, m_sDescription, m_sSource, m_iLine, m_iChar);
+}
+
+syntax_error::syntax_error(syntax_error const & x) :
+   generic_error(x),
+   m_sDescription(x.m_sDescription),
+   m_sSource(x.m_sSource),
+   m_iChar(x.m_iChar),
+   m_iLine(x.m_iLine) {
+}
+
+/*virtual*/ syntax_error::~syntax_error() ABC_STL_NOEXCEPT_TRUE() {
+}
+
+syntax_error & syntax_error::operator=(syntax_error const & x) {
+   generic_error::operator=(x);
+   m_sDescription = x.m_sDescription;
+   m_sSource = x.m_sSource;
+   m_iChar = x.m_iChar;
+   m_iLine = x.m_iLine;
    return *this;
 }
 

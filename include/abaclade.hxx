@@ -541,7 +541,6 @@ using text::sstr;
 #include <abaclade/to_text_ostream.hxx>
 #include <abaclade/text/str-text-streaming.hxx>
 #include <abaclade/enum-text-streaming.hxx>
-#include <abaclade/exception-text-streaming.hxx>
 
 // Stream interfaces, abc::io::text::str_*stream, and dependent abc::text::str methods.
 #include <abaclade/io/text/stream-istream-ostream.hxx>
