@@ -469,7 +469,7 @@ struct hash<abc::os::path> : public hash<abc::text::str> {
 namespace abc {
 
 template <>
-class ABACLADE_SYM to_text_ostream<os::path> : public to_text_ostream<str> {
+class ABACLADE_SYM to_text_ostream<os::path> {
 public:
    /*! Changes the output format.
 

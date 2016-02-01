@@ -538,7 +538,7 @@ void to_text_ostream<os::path>::set_format(str const & sFormat) {
 void to_text_ostream<os::path>::write(os::path const & op, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, op*/, ptos);
 
-   to_text_ostream<str>::write(op, ptos);
+   ptos->write(op);
 }
 
 } //namespace abc
