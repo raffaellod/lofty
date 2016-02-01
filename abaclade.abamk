@@ -37,6 +37,7 @@ targets:
       -  src/abaclade/collections/vector.cxx
       -  src/abaclade/coroutine.cxx
       -  src/abaclade/coroutine_local.cxx
+      -  src/abaclade/destructing_unfinalized_object.cxx
       -  src/abaclade/enum.cxx
       -  src/abaclade/exception.cxx
       -  src/abaclade/exception-throw_os_error.cxx

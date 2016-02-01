@@ -18,6 +18,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 #include <abaclade/bitmanip.hxx>
+#include <abaclade/destructing_unfinalized_object.hxx>
 #include <abaclade/io/binary.hxx>
 #include "default_buffered.hxx"
 #include "file-subclasses.hxx"

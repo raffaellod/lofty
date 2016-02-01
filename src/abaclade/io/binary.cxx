@@ -18,6 +18,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 #include <abaclade/coroutine.hxx>
+#include <abaclade/destructing_unfinalized_object.hxx>
 #include <abaclade/io/binary.hxx>
 #include <abaclade/numeric.hxx>
 #include <abaclade/os.hxx>

@@ -20,61 +20,6 @@ not, see <http://www.gnu.org/licenses/>.
    #error "Please #include <abaclade.hxx> instead of this file"
 #endif
 
-#if ABC_HOST_UTF > 8
-   #include <abaclade/collections/vector.hxx>
-#endif
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
-/*! Thrown when an instance of a class with a finalize() method was destructed before finalize() was
-called on it. The owner ot the object should be changed to invoke finalize() before letting the
-object go out of scope. */
-class ABACLADE_SYM destructing_unfinalized_object : public exception {
-public:
-   /*! Constructor.
-
-   @param ptObj
-      Pointer to the object that was not finalized.
-   */
-   template <typename T>
-   destructing_unfinalized_object(T const * ptObj) {
-      write_what(ptObj, typeid(*ptObj));
-   }
-
-   /*! Copy constructor.
-
-   @param x
-      Source object.
-   */
-   destructing_unfinalized_object(destructing_unfinalized_object const & x);
-
-   //! Destructor.
-   virtual ~destructing_unfinalized_object() ABC_STL_NOEXCEPT_TRUE();
-
-   /*! Copy-assignment operator.
-
-   @param x
-      Source object.
-   @return
-      *this.
-   */
-   destructing_unfinalized_object & operator=(destructing_unfinalized_object const & x);
-
-private:
-   /*! Uses exception::what_ostream() to generate a what() string.
-
-   @param pObj
-      Pointer to the object that was not finalized.
-   @param pti
-      Type of *pObj.
-   */
-   void write_what(void const * pObj, _std::type_info const & ti);
-};
-
-} //namespace abc
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

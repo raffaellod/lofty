@@ -96,35 +96,6 @@ coroutine_local_value<bool> assertion_error::sm_bReentering /*= false*/;
 
 namespace abc {
 
-destructing_unfinalized_object::destructing_unfinalized_object(
-   destructing_unfinalized_object const & x
-) :
-   exception(x) {
-}
-
-/*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object(
-) ABC_STL_NOEXCEPT_TRUE() {
-}
-
-destructing_unfinalized_object & destructing_unfinalized_object::operator=(
-   destructing_unfinalized_object const & x
-) {
-   exception::operator=(x);
-   return *this;
-}
-
-void destructing_unfinalized_object::write_what(void const * pObj, _std::type_info const & ti) {
-   what_ostream().print(
-      ABC_SL("instance of {} @ {} being destructed before finalize() was invoked on it"), ti, pObj
-   );
-}
-
-} //namespace abc
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace abc {
-
 /*explicit*/ domain_error::domain_error(errint_t err /*= 0*/) :
    generic_error(err ? err :
 #if ABC_HOST_API_POSIX
