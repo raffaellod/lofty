@@ -80,8 +80,8 @@ public:
       Formatting options.
    */
    void set_format(str const & sFormat) {
-      // TODO: ensure that sFormat is empty, since no format is expected.
-      ABC_UNUSED_ARG(sFormat);
+      // No format expected/allowed.
+      throw_on_unused_streaming_format_chars(sFormat.cbegin(), sFormat);
    }
 
    /*! Sets a T instance from its string representation.
