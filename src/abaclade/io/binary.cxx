@@ -660,7 +660,7 @@ file_ostream::file_ostream(_pvt::file_init_data * pfid) :
    that the OS write buffer was flushed successfully. */
    if (m_fd) {
       // This will cause a call to std::terminate().
-      //ABC_THROW(destructing_unfinalized_object, (this));
+      ABC_THROW(destructing_unfinalized_object, (this));
    }
 }
 
