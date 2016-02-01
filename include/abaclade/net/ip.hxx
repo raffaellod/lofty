@@ -109,13 +109,6 @@ namespace abc {
 template <>
 class ABACLADE_SYM to_text_ostream<net::ip::port> : public to_text_ostream<net::ip::port::type> {
 public:
-   /*! Changes the output format.
-
-   @param sFormat
-      Formatting options.
-   */
-   void set_format(str const & sFormat);
-
    /*! Writes an IP port, applying the formatting options.
 
    @param port
@@ -228,6 +221,12 @@ namespace abc {
 template <>
 class ABACLADE_SYM to_text_ostream<net::ip::address> {
 public:
+   //! Default constructor.
+   to_text_ostream();
+
+   //! Destructor.
+   ~to_text_ostream();
+
    /*! Changes the output format.
 
    @param sFormat

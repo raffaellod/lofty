@@ -25,21 +25,6 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc {
 
-void to_text_ostream<net::ip::port>::set_format(str const & sFormat) {
-   ABC_TRACE_FUNC(this, sFormat);
-
-   auto it(sFormat.cbegin());
-
-   // Add parsing of the format string here.
-
-   // If we still have any characters, they are garbage.
-   if (it != sFormat.cend()) {
-      ABC_THROW(syntax_error, (
-         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
-      ));
-   }
-}
-
 void to_text_ostream<net::ip::port>::write(net::ip::port const & port, io::text::ostream * ptos) {
    ABC_TRACE_FUNC(this/*, port*/, ptos);
 
@@ -77,10 +62,16 @@ address const & address::any_v6 = static_cast<address const &>(gc_abAny6);
 
 namespace abc {
 
+to_text_ostream<net::ip::address>::to_text_ostream() {
+   m_ttosV6Group.set_format(ABC_SL("x"));
+}
+
+to_text_ostream<net::ip::address>::~to_text_ostream() {
+}
+
 void to_text_ostream<net::ip::address>::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
 
-   m_ttosV6Group.set_format(ABC_SL("x"));
 
    auto it(sFormat.cbegin());
 

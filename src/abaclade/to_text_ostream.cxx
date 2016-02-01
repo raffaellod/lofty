@@ -304,10 +304,12 @@ void int_to_text_ostream_base::write_u16(std::uint16_t i, io::text::ostream * pt
 
 namespace abc { namespace _pvt {
 
+ptr_to_text_ostream::ptr_to_text_ostream() {
+   to_text_ostream<std::uintptr_t>::set_format(ABC_SL("#x"));
+}
+
 void ptr_to_text_ostream::set_format(str const & sFormat) {
    ABC_TRACE_FUNC(this, sFormat);
-
-   to_text_ostream<std::uintptr_t>::set_format(ABC_SL("#x"));
 
    auto it(sFormat.cbegin());
 

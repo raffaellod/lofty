@@ -1594,10 +1594,14 @@ public:
    //! Destructor.
    ~vector_to_text_ostream();
 
-protected:
-   /*! Formatting options to be applied to the individual elements, obtained from the constructor
-   argument sFormat. */
-   str m_sEltFormat;
+   /*! Changes the output format.
+
+   @param sFormat
+      Formatting options.
+   @return
+      Formatting options to be applied to each individual element.
+   */
+   str set_format(str const & sFormat);
 };
 
 }}} //namespace abc::collections::_pvt
@@ -1619,8 +1623,8 @@ public:
    void set_format(str const & sFormat) {
 //    ABC_TRACE_FUNC(this, sFormat);
 
-      collections::_pvt::vector_to_text_ostream::set_format(sFormat);
-      m_ttosElt.set_format(m_sEltFormat);
+      str sEltFormat(collections::_pvt::vector_to_text_ostream::set_format(sFormat));
+      m_ttosElt.set_format(sEltFormat);
    }
 
    /*! Writes a vector, applying the formatting options.

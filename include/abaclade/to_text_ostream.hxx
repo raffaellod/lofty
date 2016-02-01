@@ -375,6 +375,9 @@ namespace abc { namespace _pvt {
 //! Base class for the specializations of to_text_ostream for integer types.
 class ABACLADE_SYM ptr_to_text_ostream : public to_text_ostream<std::uintptr_t> {
 public:
+   //! Default constructor.
+   ptr_to_text_ostream();
+
    /*! Changes the output format.
 
    @param sFormat

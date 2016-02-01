@@ -31,4 +31,22 @@ vector_to_text_ostream::vector_to_text_ostream() :
 vector_to_text_ostream::~vector_to_text_ostream() {
 }
 
+str vector_to_text_ostream::set_format(str const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   auto it(sFormat.cbegin());
+
+   // Add parsing of the format string here.
+
+   // If we still have any characters, they are garbage.
+   if (it != sFormat.cend()) {
+      ABC_THROW(syntax_error, (
+         ABC_SL("unexpected character"), sFormat, static_cast<unsigned>(it - sFormat.cbegin())
+      ));
+   }
+
+   // TODO: parse sFormat and return the appropriate element format.
+   return str::empty;
+}
+
 }}} //namespace abc::collections::_pvt
