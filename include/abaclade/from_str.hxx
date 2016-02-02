@@ -36,14 +36,8 @@ string.
 
 @param sis
    Temporary stream used by the implementation of abc::from_str().
-@param sSrc
-   Source string.
-@param sFormat
-   Format string.
 */
-ABACLADE_SYM void throw_on_unused_from_str_chars(
-   io::text::str_istream const & sis, str const & sSrc
-);
+ABACLADE_SYM void throw_on_unused_from_str_chars(io::text::str_istream const & sis);
 
 }} //namespace abc::_pvt
 
@@ -65,7 +59,7 @@ inline T from_str(str const & s, str const & sFormat = str::empty) {
    ftis.set_format(sFormat);
    T t;
    ftis.read(&t, &sis);
-   _pvt::throw_on_unused_from_str_chars(sis, s, sFormat);
+   _pvt::throw_on_unused_from_str_chars(sis);
    return _std::move(t);
 }
 
