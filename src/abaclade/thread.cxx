@@ -194,8 +194,7 @@ void thread::impl::inject_exception(
 #endif
 
    /* Avoid interrupting the thread if there’s already a pending interruption (xctExpected != none).
-   This is not meant to prevent multiple concurrent interruptions, with a second interruption
-   occurring after a first one has been thrown. */
+   This is not meant to prevent multiple concurrent interruptions; see @ref interruption-points. */
    auto xctExpected = exception::common_type::none;
    if (m_xctPending.compare_exchange_strong(xctExpected, xct.base())) {
 #if ABC_HOST_API_POSIX
@@ -213,7 +212,7 @@ void thread::impl::inject_exception(
       •  ::WaitFor*() calls made by Abaclade include m_hInterruptionEvent, which can be raised to
          break the wait;
       •  ::GetQueuedCompletionStatus() can be made return by posting something to it; posting the
-         IOCP’s own handle is be a cue to coroutine::scheduler::find_coroutine_to_activate() to
+         IOCP’s own handle is be a cue to abc::coroutine::scheduler::find_coroutine_to_activate() to
          check for pending exceptions. */
       if (!::SetEvent(m_hInterruptionEvent)) {
          exception::throw_os_error();

@@ -80,6 +80,14 @@ The following functions and methods implicitly define an interruption point:
 •  abc::this_thread::sleep_until_fd_ready() / abc::this_coroutine::sleep_until_fd_ready();
 •  All I/O operations performed on abc::io file-based stream classes;
 •  All I/O operations in abc::net classes.
+
+Interruption points should be avoided in destructors or catch blocks, since interruption points may
+recurse: a first interruption will cause an exception to be thrown in a coroutine/thread once
+detected by abc::this_coroutine::interruption_point(); if a second interruption occurs in that same
+coroutine/thread, and the code executed during the flight of the first exception (either due to
+stack unwinding or by explicit catch blocks) causes another call to interruption_point(), a second
+exception will be thrown in that coroutine/thread, resulting in a nested exception if in the context
+of a catch block or a call to std::abort() if in the context of a destructor.
 */
 
 /*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most abc::io

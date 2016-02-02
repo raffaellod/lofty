@@ -126,12 +126,11 @@ public:
 
       /* Avoid interrupting the coroutine if there’s already a pending interruption (xctExpected !=
       none).
-      This is not meant to prevent multiple concurrent interruptions, with a second interruption
-      occurring after a first one has been thrown; this is analogous to abc::thread::interrupt() not
-      trying to prevent multiple concurrent interruptions. In this scenario, the compare-and-swap
-      below would succeed, but the coroutine might terminate before find_coroutine_to_activate() got
-      to running it (and it would, eventually, since we call add_ready() for that), which would be
-      bad. */
+      This is not meant to prevent multiple concurrent interruptions (@see interruption-points);
+      this is analogous to abc::thread::interrupt() not trying to prevent multiple concurrent
+      interruptions. In this scenario, the compare-and-swap below would succeed, but the coroutine
+      might terminate before find_coroutine_to_activate() got to running it (and it would,
+      eventually, since we call add_ready() for that), which would be bad. */
       auto xctExpected = exception::common_type::none;
       if (m_xctPending.compare_exchange_strong(xctExpected, xct.base())) {
          /* Mark this coroutine as ready, so it will be scheduler before the scheduler tries to wait
@@ -698,7 +697,8 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       if (::epoll_wait(m_fdEpoll.get(), &ee, 1, -1) < 0) {
          int iErr = errno;
          /* TODO: EINTR is not a reliable way to interrupt a thread’s ::epoll_wait() call when
-         multiple threads share the same coroutine::scheduler. */
+         multiple threads share the same coroutine::scheduler. This is a problem for Win32 as well
+         (see below), so it probably needs a shared solution. */
          if (iErr == EINTR) {
             this_thread::interruption_point();
             continue;
@@ -724,14 +724,18 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       Empirical evidence shows that at this point, povl might not be a valid pointer, even if the
       completion key (fd) returned was a valid Abaclade-owned handle. I could not find any
       explanation for this, but at least the caller of sleep_until_fd_ready() will be able to detect
-      the spurious notification by GetOverlappedResult() setting the last error to
+      the spurious notification due to GetOverlappedResult() setting the last error to
       ERROR_IO_INCOMPLETE.
       Spurious notifications seem to occur predictably with sockets when, after a completed
-      overlapped read, a new overlapped read is requested and ReadFile() return ERROR_IO_PENDING. */
+      overlapped read, a new overlapped read is requested and ReadFile() returns
+      ERROR_IO_PENDING. */
 
-      // A completion reported on the IOCP itself is used by Abaclade to emulate EINTR.
+      /* A completion reported on the IOCP itself is used by Abaclade to emulate EINTR; see
+      abc::thread::impl::inject_exception(). While we could use a dedicated handle for this purpose,
+      the IOCP reporting a completion about itself kind of makes sense. */
       /* TODO: this is not a reliable way to interrupt a thread’s ::GetQueuedCompletionStatus() call
-      when multiple threads share the same coroutine::scheduler. */
+      when multiple threads share the same coroutine::scheduler. This is a problem for POSIX as well
+      (see above), so it probably needs a shared solution. */
       if (fd == m_fdIocp.get()) {
          this_thread::interruption_point();
          continue;
