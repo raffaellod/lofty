@@ -26,12 +26,12 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc { namespace _pvt {
 
 ABACLADE_SYM void throw_on_unused_from_str_chars(
-   io::text::str_istream const & sis, str const & sSrc, str const & sFormat
+   io::text::str_istream const & sis, str const & sSrc
 ) {
    if (std::size_t cchRemaining = sis.remaining_size_in_chars()) {
       // There are still unused characters in sis, so the conversion failed.
       ABC_THROW(text::syntax_error, (
-         ABC_SL("unexpected character"), sFormat,
+         ABC_SL("unexpected character"), sSrc,
          static_cast<unsigned>(sSrc.index_from_char_index(sSrc.size_in_chars() - cchRemaining))
       ));
    }

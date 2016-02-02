@@ -42,7 +42,7 @@ string.
    Format string.
 */
 ABACLADE_SYM void throw_on_unused_from_str_chars(
-   io::text::str_istream const & sis, str const & sSrc, str const & sFormat
+   io::text::str_istream const & sis, str const & sSrc
 );
 
 }} //namespace abc::_pvt
