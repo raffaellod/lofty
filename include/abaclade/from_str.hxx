@@ -31,7 +31,15 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace _pvt {
 
-/*! TODO: comment.
+/*! Throws an abc::text::syntax_error if a call to abc::from_str() did not consume the entire source
+string.
+
+@param sis
+   Temporary stream used by the implementation of abc::from_str().
+@param sSrc
+   Source string.
+@param sFormat
+   Format string.
 */
 ABACLADE_SYM void throw_on_unused_from_str_chars(
    io::text::str_istream const & sis, str const & sSrc, str const & sFormat

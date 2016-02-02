@@ -42,12 +42,12 @@ ABACLADE_SYM void throw_on_unused_from_str_chars(
 namespace abc {
 
 void throw_on_unused_streaming_format_chars(
-   str::const_iterator const & itConsumedEnd, str const & sFormat
+   str::const_iterator const & itFormatConsumedEnd, str const & sFormat
 ) {
-   if (itConsumedEnd != sFormat.cend()) {
+   if (itFormatConsumedEnd != sFormat.cend()) {
       ABC_THROW(text::syntax_error, (
          ABC_SL("unexpected character in format string"), sFormat,
-         static_cast<unsigned>(itConsumedEnd - sFormat.cbegin())
+         static_cast<unsigned>(itFormatConsumedEnd - sFormat.cbegin())
       ));
    }
 }

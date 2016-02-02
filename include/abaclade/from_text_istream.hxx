@@ -25,10 +25,17 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc {
 
-/*! TODO: comment.
+/*! Throws an abc::text::syntax_error if the first argument, referencing the end of a format string
+parsed by an abc::from_text_istream or abc::to_text_ostream specialization, does not equal the end
+of the format string.
+
+@param itFormatConsumedEnd
+   Iterator to the end of the consumed/parsed portion of the format string.
+@param sFormat
+   Format string.
 */
 ABACLADE_SYM void throw_on_unused_streaming_format_chars(
-   str::const_iterator const & itConsumedEnd, str const & sFormat
+   str::const_iterator const & itFormatConsumedEnd, str const & sFormat
 );
 
 } //namespace abc
