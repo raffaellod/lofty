@@ -93,13 +93,13 @@ public:
 
    /*! Sets a T instance from its string representation.
 
-   @param t
-      T instance to read.
+   @param pt
+      Pointer to the T instance to read into.
    @param ptis
       Pointer to the stream to read from.
    */
-   void read(T * t, io::text::istream * ptis) {
-      t->from_text_istream(ptis);
+   void read(T * pt, io::text::istream * ptis) {
+      pt->from_text_istream(ptis);
    }
 };
 
