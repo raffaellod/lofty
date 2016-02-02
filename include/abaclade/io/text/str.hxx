@@ -41,6 +41,15 @@ public:
    //! See stream::get_encoding().
    virtual abc::text::encoding get_encoding() const override;
 
+   /*! Returns the internal string buffer as a read-only string.
+
+   @return
+      Content of the stream.
+   */
+   str const & get_str() const {
+      return *m_psBuf;
+   }
+
 protected:
    //! Default constructor.
    str_stream();
@@ -167,15 +176,6 @@ public:
 
    //! See ostream::flush().
    virtual void flush() override;
-
-   /*! Returns the internal string buffer as a read-only string.
-
-   @return
-      Content of the stream.
-   */
-   str const & get_str() const {
-      return *m_psBuf;
-   }
 
    /*! Yields ownership of the internal string buffer. If the str_ostream instance was constructed
    based on an external string, all internal variables will be successfully reset, but the result
