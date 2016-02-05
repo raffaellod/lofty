@@ -93,6 +93,11 @@ public:
       friend class dynamic;
 
    public:
+      //! Makes the state accept the start of the input.
+      void set_begin() {
+         st = state_type::begin;
+      }
+
       /*! Makes the state accept the specified code point.
 
       @param cp
@@ -115,6 +120,11 @@ public:
          st = state_type::range;
          u.range.cpFirst = cpFirst;
          u.range.cpLast = cpLast;
+      }
+
+      //! Makes the state accept the end of the input.
+      void set_end() {
+         st = state_type::end;
       }
 
    private:

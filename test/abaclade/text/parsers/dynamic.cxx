@@ -41,4 +41,32 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("b")));
 }
 
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_begin,
+   "abc::text::parsers::dynamic – beginning (“^”) pattern"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto ps = dp.create_state();
+   ps->set_begin();
+   dp.set_initial_state(ps);
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
+}
+
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_end,
+   "abc::text::parsers::dynamic – end (“$”) pattern"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto ps = dp.create_state();
+   ps->set_end();
+   dp.set_initial_state(ps);
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("a")));
+}
+
 }} //namespace abc::test
