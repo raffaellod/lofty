@@ -127,6 +127,15 @@ public:
          st = state_type::end;
       }
 
+      /*! Assigns the state that will follow if this one accepts.
+
+      @param pst
+         Next state.
+      */
+      void set_next(state_t * pst) {
+         pstNext = pst;
+      }
+
    private:
       //! Default constructor.
       state();

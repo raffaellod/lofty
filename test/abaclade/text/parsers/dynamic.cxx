@@ -26,7 +26,7 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_onechar,
+   text_parsers_dynamic_one_char,
    "abc::text::parsers::dynamic – one-character pattern"
 ) {
    ABC_TRACE_FUNC(this);
@@ -35,6 +35,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    auto ps = dp.create_state();
    ps->set_code_point('a');
    dp.set_initial_state(ps);
+
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aa")));
@@ -51,6 +52,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    auto ps = dp.create_state();
    ps->set_begin();
    dp.set_initial_state(ps);
+
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
 }
@@ -65,8 +67,30 @@ ABC_TESTING_TEST_CASE_FUNC(
    auto ps = dp.create_state();
    ps->set_end();
    dp.set_initial_state(ps);
+
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("a")));
+}
+
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_two_char,
+   "abc::text::parsers::dynamic – two-character pattern"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto psB = dp.create_state();
+   psB->set_code_point('b');
+   auto psA = dp.create_state();
+   psA->set_code_point('a');
+   psA->set_next(psB);
+   dp.set_initial_state(psA);
+
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("a")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("aa")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("b")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
 }
 
 }} //namespace abc::test
