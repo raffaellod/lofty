@@ -104,10 +104,10 @@ bool dynamic::run(io::text::istream * ptis) const {
          case state_type::range: {
             // Get a code point from either history or the peek buffer.
             char32_t cp;
-            bool bSaveCpToHistory;
+            bool bSavePeekCpToHistory;
             if (itHistory != itHistoryEnd) {
                cp = *itHistory;
-               bSaveCpToHistory = false;
+               bSavePeekCpToHistory = false;
             } else {
                if (itPeek == itPeekEnd) {
                   ptis->consume_chars(sPeek.size_in_chars());
@@ -120,18 +120,19 @@ bool dynamic::run(io::text::istream * ptis) const {
                   }
                }
                cp = *itPeek;
-               bSaveCpToHistory = true;
+               bSavePeekCpToHistory = true;
             }
 
             if (cp >= pstCurr->u.range.cpFirst && cp <= pstCurr->u.range.cpLast) {
                bAccepted = true;
+               bConsumedCp = true;
                pstNext = pstCurr->pstNext;
-               if (bSaveCpToHistory) {
+               if (bSavePeekCpToHistory) {
                   sHistory += cp;
                   ++itHistoryEnd;
+                  ++itPeek;
                }
                ++itHistory;
-               bConsumedCp = true;
             }
             break;
          }
