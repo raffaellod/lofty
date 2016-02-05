@@ -45,7 +45,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_begin,
-   "abc::text::parsers::dynamic – beginning (“^”) pattern"
+   "abc::text::parsers::dynamic – begin pattern (“^”)"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -59,8 +59,26 @@ ABC_TESTING_TEST_CASE_FUNC(
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_begin_anchored,
+   "abc::text::parsers::dynamic – begin-anchored pattern (“^a”)"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto psA = dp.create_state();
+   psA->set_code_point('a');
+   auto psBegin = dp.create_state();
+   psBegin->set_begin();
+   psBegin->set_next(psA);
+   dp.set_initial_state(psBegin);
+
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
+}
+
+ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_end,
-   "abc::text::parsers::dynamic – end (“$”) pattern"
+   "abc::text::parsers::dynamic – end pattern (“$”)"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -70,6 +88,24 @@ ABC_TESTING_TEST_CASE_FUNC(
    dp.set_initial_state(ps);
 
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
+}
+
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_end_anchored,
+   "abc::text::parsers::dynamic – end-anchored pattern (“a$”)"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto psEnd = dp.create_state();
+   psEnd->set_end();
+   auto psA = dp.create_state();
+   psA->set_code_point('a');
+   psA->set_next(psEnd);
+   dp.set_initial_state(psA);
+
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
 }
 
