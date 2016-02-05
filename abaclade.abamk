@@ -69,6 +69,7 @@ targets:
       -  src/abaclade/text/char_ptr_to_str_adapter.cxx
       -  src/abaclade/text/char_traits.cxx
       -  src/abaclade/text/parsers/ansi_escape_sequences.cxx
+      -  src/abaclade/text/parsers/dynamic.cxx
       -  src/abaclade/text/str.cxx
       -  src/abaclade/text/str_traits.cxx
       -  src/abaclade/thread.cxx
@@ -104,6 +105,7 @@ targets:
             -  test/abaclade/_pvt/signal_dispatcher.cxx
             -  test/abaclade/range.cxx
             -  test/abaclade/text/char_ptr_to_str_adapter.cxx
+            -  test/abaclade/text/parsers/dynamic.cxx
             -  test/abaclade/text/str.cxx
             -  test/abaclade/text/str_traits.cxx
             -  test/abaclade/thread.cxx
