@@ -30,7 +30,7 @@ dynamic::state::state() {
    pstAlternative = nullptr;
    u.range.cpFirst = '\0';
    u.range.cpLast   = '\0';
-   u.repetition.pstOut = nullptr;
+   u.repetition.pstRepeated = nullptr;
    u.repetition.cMin = 0;
    u.repetition.cMax = 0;
    st = state_type::range;
@@ -152,24 +152,24 @@ bool dynamic::run(io::text::istream * ptis) const {
                      /* We already know that the repetition can be matched one fewer time, and the
                      stacks already account for that; just skip straight to out of it. */
                      bAccepted = true;
-                     pstNext = pstCurr->u.repetition.pstOut;
+                     pstNext = pstCurr->pstNext;
                   }
                } else {
                   bAccepted = true;
                   if (++rep.c == pstCurr->u.repetition.cMax) {
                      /* Can’t match this repetition any more times; if we get back here, we’ll try
                      to match it fewer times instead. */
-                     pstNext = pstCurr->u.repetition.pstOut;
+                     pstNext = pstCurr->pstNext;
                      rep.bBacktracking = true;
                   } else {
-                     pstNext = pstCurr->pstNext;
+                     pstNext = pstCurr->u.repetition.pstRepeated;
                   }
                }
             } else {
                // New repetition: save it on the stack, and begin counting.
                vrepStack.push_back(repetition(pstCurr));
                bAccepted = true;
-               pstNext = pstCurr->pstNext;
+               pstNext = pstCurr->u.repetition.pstRepeated;
             }
             break;
 

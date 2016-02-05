@@ -74,8 +74,8 @@ public:
          } range;
          //! Repetition data.
          struct {
-            //! Pointer to the next state if the whole repetition accepts.
-            state_t const * pstOut;
+            //! Pointer to the first state to be matched repeatedly.
+            state_t const * pstRepeated;
             //! Minimum number of repetitions needed to accept.
             std::uint16_t cMin;
             //! Maximum number of repetitions needed to accept.
