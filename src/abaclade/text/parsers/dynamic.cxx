@@ -86,11 +86,13 @@ bool dynamic::run(str const & s) const {
 
 bool dynamic::run(io::text::istream * ptis) const {
    state_t const * pstCurr = m_pstInitial;
+   // Cache this condition to quickly determine whether we’re allowed to skip input code points.
+   bool bBeginAnchor = (pstCurr && pstCurr->st == state_type::begin && !pstCurr->pstAlternative);
    // Setup the two sources of code points: a backtrack and a peek buffer from the input stream.
    str sPeek = ptis->peek_chars(1);
    auto itPeek(sPeek.cbegin()), itPeekEnd(sPeek.cend());
    str sHistory;
-   auto itHistory(sHistory.cbegin()), itHistoryEnd(sHistory.cend());
+   auto itHistoryBegin(sHistory.cbegin()), itHistory(itHistoryBegin), itHistoryEnd(sHistory.cend());
 
    collections::vector<backtrack> vbtStack;
    collections::vector<repetition> vrepStack;
@@ -175,7 +177,7 @@ bool dynamic::run(io::text::istream * ptis) const {
             break;
 
          case state_type::begin:
-            if (itHistory == sHistory.cbegin()) {
+            if (itHistory == itHistoryBegin) {
                bAccepted = true;
                pstNext = pstCurr->pstNext;
             }
@@ -185,6 +187,9 @@ bool dynamic::run(io::text::istream * ptis) const {
             if (itHistory == itHistoryEnd && itPeek == itPeekEnd) {
                /* We consumed history and peek buffer, but “end” really means end, so also check
                that the stream is empty. */
+               /* TODO: this might be redundant, since other code point consumers in this function
+               always do this after consuming a code point. */
+               ptis->consume_chars(sPeek.size_in_chars());
                sPeek = ptis->peek_chars(1);
                if (!sPeek) {
                   bAccepted = true;
@@ -206,11 +211,7 @@ bool dynamic::run(io::text::istream * ptis) const {
          // Consider the next alternative.
          pstCurr = pstCurr->pstAlternative;
          // Go back to a state that had alternatives, if possible.
-         while (!pstCurr) {
-            if (!vbtStack) {
-               // Run out of previous states with alternatives.
-               break;
-            }
+         while (!pstCurr && vbtStack) {
             backtrack bt(vbtStack.pop_back());
             pstCurr = bt.pstAlternative;
             /* If the state we’re rolling back consumed a code point, it must’ve saved it in
@@ -218,6 +219,27 @@ bool dynamic::run(io::text::istream * ptis) const {
             if (bt.bConsumedCp) {
                --itHistory;
             }
+         }
+         /* If we run out of alternatives and can’t backtrack any further, and the pattern is not
+         anchored, we’re allowed to move one code point to history and try the whole pattern again
+         from the initial state. */
+         if (!pstCurr && !bBeginAnchor) {
+            if (itHistory == itHistoryEnd) {
+               if (itPeek == itPeekEnd) {
+                  ptis->consume_chars(sPeek.size_in_chars());
+                  sPeek = ptis->peek_chars(1);
+                  if (!sPeek) {
+                     // Run out of code points.
+                     break;
+                  }
+                  itPeek = sPeek.cbegin();
+                  itPeekEnd = sPeek.cend();
+               }
+               sHistory += *itPeek++;
+               ++itHistoryEnd;
+            }
+            ++itHistory;
+            pstCurr = m_pstInitial;
          }
       }
    }

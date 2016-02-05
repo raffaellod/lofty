@@ -40,6 +40,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aa")));
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("b")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ba")));
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
@@ -69,7 +70,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    dp.set_initial_state(ps);
 
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
-   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("a")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
@@ -91,6 +92,8 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("aa")));
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("b")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("bab")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aab")));
 }
 
 }} //namespace abc::test
