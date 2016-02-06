@@ -88,16 +88,15 @@ bool dynamic::run(io::text::istream * ptis) const {
    state_t const * pstCurr = m_pstInitial;
    // Cache this condition to quickly determine whether we’re allowed to skip input code points.
    bool bBeginAnchor = (pstCurr && pstCurr->st == state_type::begin && !pstCurr->pstAlternative);
-   // Setup the two sources of code points: a backtrack and a peek buffer from the input stream.
-   str sPeek = ptis->peek_chars(1);
-   auto itPeek(sPeek.cbegin()), itPeekEnd(sPeek.cend());
+   // Setup the two sources of code points: a history and a peek buffer from the input stream.
    str sHistory;
    auto itHistoryBegin(sHistory.cbegin()), itHistory(itHistoryBegin), itHistoryEnd(sHistory.cend());
+   str sPeek = ptis->peek_chars(1);
+   auto itPeek(sPeek.cbegin()), itPeekEnd(sPeek.cend());
 
    collections::vector<backtrack> vbtStack;
    collections::vector<repetition> vrepStack;
 
-   // The first code point must necessarily come from sPeek, since sHistory is empty.
    bool bAccepted = false;
    while (pstCurr) {
       state_t const * pstNext = nullptr;
