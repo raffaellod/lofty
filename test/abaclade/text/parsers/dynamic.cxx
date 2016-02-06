@@ -32,9 +32,9 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    text::parsers::dynamic dp;
-   auto ps = dp.create_state();
-   ps->set_code_point('a');
-   dp.set_initial_state(ps);
+   auto pst = dp.create_state();
+   pst->set_code_point('a');
+   dp.set_initial_state(pst);
 
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
@@ -51,9 +51,9 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    text::parsers::dynamic dp;
-   auto ps = dp.create_state();
-   ps->set_begin();
-   dp.set_initial_state(ps);
+   auto pst = dp.create_state();
+   pst->set_begin();
+   dp.set_initial_state(pst);
 
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
@@ -66,12 +66,12 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    text::parsers::dynamic dp;
-   auto psA = dp.create_state();
-   psA->set_code_point('a');
-   auto psBegin = dp.create_state();
-   psBegin->set_begin();
-   psBegin->set_next(psA);
-   dp.set_initial_state(psBegin);
+   auto pstA = dp.create_state();
+   pstA->set_code_point('a');
+   auto pstBegin = dp.create_state();
+   pstBegin->set_begin();
+   pstBegin->set_next(pstA);
+   dp.set_initial_state(pstBegin);
 
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
@@ -88,9 +88,9 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    text::parsers::dynamic dp;
-   auto ps = dp.create_state();
-   ps->set_end();
-   dp.set_initial_state(ps);
+   auto pst = dp.create_state();
+   pst->set_end();
+   dp.set_initial_state(pst);
 
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
@@ -103,12 +103,12 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    text::parsers::dynamic dp;
-   auto psEnd = dp.create_state();
-   psEnd->set_end();
-   auto psA = dp.create_state();
-   psA->set_code_point('a');
-   psA->set_next(psEnd);
-   dp.set_initial_state(psA);
+   auto pstEnd = dp.create_state();
+   pstEnd->set_end();
+   auto pstA = dp.create_state();
+   pstA->set_code_point('a');
+   pstA->set_next(pstEnd);
+   dp.set_initial_state(pstA);
 
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
@@ -125,12 +125,12 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TRACE_FUNC(this);
 
    text::parsers::dynamic dp;
-   auto psB = dp.create_state();
-   psB->set_code_point('b');
-   auto psA = dp.create_state();
-   psA->set_code_point('a');
-   psA->set_next(psB);
-   dp.set_initial_state(psA);
+   auto pstB = dp.create_state();
+   pstB->set_code_point('b');
+   auto pstA = dp.create_state();
+   pstA->set_code_point('a');
+   pstA->set_next(pstB);
+   dp.set_initial_state(pstA);
 
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("a")));
