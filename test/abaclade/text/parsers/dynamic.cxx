@@ -27,7 +27,7 @@ namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_one_char,
-   "abc::text::parsers::dynamic – one-character pattern"
+   "abc::text::parsers::dynamic – one-character pattern “a”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -41,11 +41,12 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aa")));
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("b")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_begin,
-   "abc::text::parsers::dynamic – begin pattern (“^”)"
+   "abc::text::parsers::dynamic – begin pattern “^”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -60,7 +61,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_begin_anchored,
-   "abc::text::parsers::dynamic – begin-anchored pattern (“^a”)"
+   "abc::text::parsers::dynamic – begin-anchored pattern “^a”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -82,7 +83,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_end,
-   "abc::text::parsers::dynamic – end pattern (“$”)"
+   "abc::text::parsers::dynamic – end pattern “$”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -97,7 +98,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_end_anchored,
-   "abc::text::parsers::dynamic – end-anchored pattern (“a$”)"
+   "abc::text::parsers::dynamic – end-anchored pattern “a$”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -119,7 +120,7 @@ ABC_TESTING_TEST_CASE_FUNC(
 
 ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_two_char,
-   "abc::text::parsers::dynamic – two-character pattern"
+   "abc::text::parsers::dynamic – two-character pattern “ab”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -138,6 +139,7 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("bab")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aab")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aaba")));
 }
 
 }} //namespace abc::test
