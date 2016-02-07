@@ -26,25 +26,25 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc { namespace text { namespace parsers {
 
 struct dynamic::backtrack {
-   backtrack(state_t const * pst_, bool bConsumedCp_, bool bAcceptedRepetition_) :
+   backtrack(state const * pst_, bool bConsumedCp_, bool bAcceptedRepetition_) :
       pst(pst_),
       bConsumedCp(bConsumedCp_),
       bAcceptedRepetition(bAcceptedRepetition_) {
    }
 
-   state_t const * pst;
+   state const * pst;
    bool bConsumedCp:1;
    bool bAcceptedRepetition:1;
 };
 
 
 struct dynamic::repetition {
-   explicit repetition(state_t const * pmnAnchor_) :
+   explicit repetition(state const * pmnAnchor_) :
       pmnAnchor(pmnAnchor_),
       c(0) {
    }
 
-   state_t const * pmnAnchor;
+   state const * pmnAnchor;
    std::uint16_t c;
 };
 
@@ -77,7 +77,7 @@ dynamic::state * dynamic::create_code_point_range_state(char32_t cpFirst, char32
 }
 
 dynamic::state * dynamic::create_repetition_state(
-   state_t const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax
+   state const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax
 ) {
    state * pst = create_uninitialized_state(state_type::repetition);
    pst->u.repetition.pstRepeated = pstRepeated;
@@ -88,7 +88,7 @@ dynamic::state * dynamic::create_repetition_state(
 }
 
 dynamic::state * dynamic::create_uninitialized_state(state_type st) {
-   m_qmn.push_back(state_t());
+   m_qmn.push_back(state());
    state * pst = static_cast<state *>(&m_qmn.back());
    pst->st = st.base();
    pst->pstNext = nullptr;
@@ -102,7 +102,7 @@ bool dynamic::run(str const & s) const {
 }
 
 bool dynamic::run(io::text::istream * ptis) const {
-   state_t const * pstCurr = m_pstInitial;
+   state const * pstCurr = m_pstInitial;
    // Cache this condition to quickly determine whether we’re allowed to skip input code points.
    bool bBeginAnchor = (pstCurr && pstCurr->st == state_type::begin && !pstCurr->pstAlternative);
    // Setup the two sources of code points: a history and a peek buffer from the input stream.
@@ -116,7 +116,7 @@ bool dynamic::run(io::text::istream * ptis) const {
 
    bool bAccepted = false;
    while (pstCurr) {
-      state_t const * pstNext = nullptr;
+      state const * pstNext = nullptr;
       bool bConsumedCp = false;
       switch (pstCurr->st) {
          case state_type::range: {

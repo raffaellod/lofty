@@ -46,7 +46,7 @@ For the ERE pattern “a”, the state machine would be:
 */
 class ABACLADE_SYM dynamic {
 public:
-   //! Possible state_t types.
+   //! Possible state types.
    ABC_ENUM_AUTO_VALUES(state_type,
       //! Begin matcher (“^”).
       begin,
@@ -58,12 +58,25 @@ public:
       repetition
    );
 
-   //! Internal state representation. Public to allow instances to be statically allocated.
-   struct state_t {
+   /*! State representation. Instances can be statically allocated, or generated at run-time by
+   calling one of the dynamic::create_*_state() methods. */
+   struct state {
+      /*! Assigns the state that will follow if this one accepts.
+
+      @param pst
+         Next state.
+      @return
+         this.
+      */
+      state * set_next(state * pst) {
+         pstNext = pst;
+         return this;
+      }
+
       //! Pointer to the next state if this one accepts.
-      state_t const * pstNext;
+      state const * pstNext;
       //! Pointer to an alternate state to try if this one does not accept.
-      state_t const * pstAlternative;
+      state const * pstAlternative;
       union {
          //! Range data.
          struct {
@@ -75,7 +88,7 @@ public:
          //! Repetition data.
          struct {
             //! Pointer to the first state to be matched repeatedly.
-            state_t const * pstRepeated;
+            state const * pstRepeated;
             //! Minimum number of repetitions needed to accept.
             std::uint16_t cMin;
             //! Maximum number of repetitions needed to accept.
@@ -84,27 +97,6 @@ public:
          } repetition;
       } u;
       state_type::enum_type st;
-   };
-
-public:
-   /*! Publicly-accessible state representation. Instances are created by dynamic::create_state(),
-   and must be configured by calling one of the set_*() methods. */
-   class state : public state_t {
-   private:
-      friend class dynamic;
-
-   public:
-      /*! Assigns the state that will follow if this one accepts.
-
-      @param pst
-         Next state.
-      @return
-         this.
-      */
-      state * set_next(state_t * pst) {
-         pstNext = pst;
-         return this;
-      }
    };
 
 private:
@@ -177,7 +169,9 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_repetition_state(state_t const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax);
+   state * create_repetition_state(
+      state const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax
+   );
 
    /*! Runs the parser against the specified string.
 
@@ -203,7 +197,7 @@ public:
    @param pstInitial
       Pointer to the new initial state.
    */
-   void set_initial_state(state_t const * pstInitial) {
+   void set_initial_state(state const * pstInitial) {
       m_pstInitial = pstInitial;
    }
 
@@ -222,9 +216,9 @@ protected:
    /* TODO: change to a singly-linked list; it’s a queue now just because collections::list is a
    doubly-linked list, which is unnecessary since we never remove states from the parser, only
    add. */
-   collections::queue<state_t> m_qmn;
+   collections::queue<state> m_qmn;
    //! Pointer to the initial state.
-   state_t const * m_pstInitial;
+   state const * m_pstInitial;
 };
 
 }}} //namespace abc::text::parsers
