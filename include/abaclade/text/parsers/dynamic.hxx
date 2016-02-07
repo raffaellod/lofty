@@ -61,6 +61,18 @@ public:
    /*! State representation. Instances can be statically allocated, or generated at run-time by
    calling one of the dynamic::create_*_state() methods. */
    struct state {
+      /*! Assigns the state that will be tried if this one does not accept.
+
+      @param pst
+         Alternate state.
+      @return
+         this.
+      */
+      state * set_alternative(state * pst) {
+         pstAlternative = pst;
+         return this;
+      }
+
       /*! Assigns the state that will follow if this one accepts.
 
       @param pst

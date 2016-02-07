@@ -192,4 +192,34 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("babab")));
 }
 
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_a_or_b_plus,
+   "abc::text::parsers::dynamic – pattern “(a|b)+”"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto pstB = dp.create_code_point_state('b');
+   auto pstA = dp.create_code_point_state('a');
+   pstA->set_alternative(pstB);
+   auto pstRep = dp.create_repetition_state(pstA, 1);
+   pstA->set_next(pstRep);
+   pstB->set_next(pstRep);
+   dp.set_initial_state(pstRep);
+
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aa")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("abc")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("b")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("bb")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("bac")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("c")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ca")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("cab")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("cc")));
+}
+
 }} //namespace abc::test
