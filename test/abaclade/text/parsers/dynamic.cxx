@@ -193,6 +193,41 @@ ABC_TESTING_TEST_CASE_FUNC(
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_caret_a_plus_b_plus_dollar,
+   "abc::text::parsers::dynamic – pattern “^a+b+$”"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto pstB = dp.create_code_point_state('b');
+   auto pstRepB = dp.create_repetition_state(pstB, 1);
+   pstRepB->set_next(dp.create_end_state());
+   pstB->set_next(pstRepB);
+   auto pstA = dp.create_code_point_state('a');
+   auto pstRepA = dp.create_repetition_state(pstA, 1);
+   pstA->set_next(pstRepA);
+   pstRepA->set_next(pstRepB);
+   dp.set_initial_state(dp.create_begin_state()->set_next(pstRepA));
+
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("a")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("aa")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aab")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aabb")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("aabba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("aba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("abb")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("abab")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("b")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("ba")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("bab")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("baba")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("babb")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("babab")));
+}
+
+ABC_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_or_b_plus,
    "abc::text::parsers::dynamic – pattern “(a|b)+”"
 ) {
@@ -219,6 +254,37 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("c")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ca")));
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("cab")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("cc")));
+}
+
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_caret_a_or_b_plus_dollar,
+   "abc::text::parsers::dynamic – pattern “^(a|b)+$”"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto pstB = dp.create_code_point_state('b');
+   auto pstA = dp.create_code_point_state('a');
+   pstA->set_alternative(pstB);
+   auto pstRep = dp.create_repetition_state(pstA, 1);
+   pstRep->set_next(dp.create_end_state());
+   pstA->set_next(pstRep);
+   pstB->set_next(pstRep);
+   dp.set_initial_state(dp.create_begin_state()->set_next(pstRep));
+
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aa")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("abc")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("b")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("bb")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ba")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("bac")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("c")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("ca")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("cab")));
    ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("cc")));
 }
 
