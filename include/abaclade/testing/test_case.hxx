@@ -303,7 +303,7 @@ protected:
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_FALSE(expr) \
-   this->assert_false(ABC_THIS_FILE_ADDRESS(), (expr), ABC_SL(#expr))
+   this->assert_false(ABC_THIS_FILE_ADDRESS(), (expr) ? true : false, ABC_SL(#expr))
 
 /*! Asserts that the value of an expression is strictly greater than a specific lower bound.
 
@@ -382,7 +382,7 @@ protected:
    Expression to evaulate.
 */
 #define ABC_TESTING_ASSERT_TRUE(expr) \
-   this->assert_true(ABC_THIS_FILE_ADDRESS(), (expr), ABC_SL(#expr))
+   this->assert_true(ABC_THIS_FILE_ADDRESS(), (expr) ? true : false, ABC_SL(#expr))
 
 /*! Declares and opens the definition of a simple test case, consisting in a single function with a
 unique name.
