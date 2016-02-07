@@ -28,36 +28,31 @@ namespace abc { namespace text { namespace parsers {
 dynamic::state::state() {
    pstNext = nullptr;
    pstAlternative = nullptr;
-   u.range.cpFirst = '\0';
-   u.range.cpLast   = '\0';
-   u.repetition.pstRepeated = nullptr;
-   u.repetition.cMin = 0;
-   u.repetition.cMax = 0;
-   st = state_type::range;
+   st = state_type::end;
 }
 
 
 struct dynamic::backtrack {
-   backtrack(state_t const * pstAlternative_, bool bConsumedCp_) :
-      pstAlternative(pstAlternative_),
-      bConsumedCp(bConsumedCp_) {
+   backtrack(state_t const * pst_, bool bConsumedCp_, bool bAcceptedRepetition_) :
+      pst(pst_),
+      bConsumedCp(bConsumedCp_),
+      bAcceptedRepetition(bAcceptedRepetition_) {
    }
 
-   state_t const * pstAlternative;
-   bool bConsumedCp;
+   state_t const * pst;
+   bool bConsumedCp:1;
+   bool bAcceptedRepetition:1;
 };
 
 
 struct dynamic::repetition {
    explicit repetition(state_t const * pmnAnchor_) :
       pmnAnchor(pmnAnchor_),
-      c(0),
-      bBacktracking(false) {
+      c(0) {
    }
 
    state_t const * pmnAnchor;
    std::uint16_t c;
-   bool bBacktracking:1;
 };
 
 
@@ -139,41 +134,31 @@ bool dynamic::run(io::text::istream * ptis) const {
          }
 
          case state_type::repetition:
-            /* TODO: this behavior is greedy; add support for non-greedy behavior, i.e. trying to
-            match the least number of occurrences first. */
-            if (vrepStack && vrepStack.front().pmnAnchor == pstCurr) {
-               /* We just got back to the repetition at the top of the stack. Check if we should try
-               to match it once more. */
-               repetition & rep = vrepStack.front();
-               if (rep.bBacktracking) {
-                  if (rep.c-- == pstCurr->u.repetition.cMin) {
-                     /* Can’t match this repetition any fewer times; this means that the repetition
-                     can’t be matched. */
-                     ;
-                  } else {
-                     /* We already know that the repetition can be matched one fewer time, and the
-                     stacks already account for that; just skip straight to out of it. */
-                     bAccepted = true;
-                     pstNext = pstCurr->pstNext;
-                  }
-               } else {
-                  bAccepted = true;
-                  if (++rep.c == pstCurr->u.repetition.cMax) {
-                     /* Can’t match this repetition any more times; if we get back here, we’ll try
-                     to match it fewer times instead. */
-                     pstNext = pstCurr->pstNext;
-                     rep.bBacktracking = true;
-                  } else {
-                     pstNext = pstCurr->u.repetition.pstRepeated;
-                  }
-               }
+            /* TODO: a stack doesn’t work for nested repetitions; the inner-most one will see on the
+            top of the stack its own previous repetition instance, messing up the counting, and the
+            outer-most ones won’t be able to see themselves in the stack, also messing up the
+            counting. */
+            repetition * prep;
+            if (vrepStack && (prep = &vrepStack.front(), prep->pmnAnchor == pstCurr)) {
+               ++prep->c;
             } else {
-               // New repetition: save it on the stack, and begin counting.
+               // New repetition: save it on the stack and begin counting.
                vrepStack.push_back(repetition(pstCurr));
-               bAccepted = true;
-               pstNext = pstCurr->u.repetition.pstRepeated;
+               prep = &vrepStack.front();
             }
-            break;
+            if (prep->c <= pstCurr->u.repetition.cMax) {
+               if (prep->c >= pstCurr->u.repetition.cMin) {
+                  bAccepted = true;
+               }
+               pstNext = pstCurr->u.repetition.pstRepeated;
+            } else {
+               pstNext = pstCurr->pstNext;
+            }
+            if (!pstNext) {
+               // No more states; this means that the input was accepted.
+               break;
+            }
+            goto accepted_repetition;
 
          case state_type::begin:
             if (itHistory == itHistoryBegin) {
@@ -200,11 +185,13 @@ bool dynamic::run(io::text::istream * ptis) const {
 
       if (bAccepted) {
          if (!pstNext) {
+            // No more states; this means that the input was accepted.
             break;
          }
          // One or more states to check still; this means that we can’t accept the input just yet.
          bAccepted = false;
-         vbtStack.push_back(backtrack(pstCurr->pstAlternative, bConsumedCp));
+accepted_repetition:
+         vbtStack.push_back(backtrack(pstCurr, bConsumedCp, bAccepted));
          pstCurr = pstNext;
       } else {
          // Consider the next alternative.
@@ -212,7 +199,14 @@ bool dynamic::run(io::text::istream * ptis) const {
          // Go back to a state that had alternatives, if possible.
          while (!pstCurr && vbtStack) {
             backtrack bt(vbtStack.pop_back());
-            pstCurr = bt.pstAlternative;
+            if (bt.bAcceptedRepetition) {
+               // This must be a repetition’s Nth occurrence, with N in the acceptable range.
+               bAccepted = true;
+               pstCurr = bt.pst->pstNext;
+            } else {
+               // Not a repetition, or Nth occurrence with N not in the acceptable range.
+               pstCurr = bt.pst->pstAlternative;
+            }
             /* If the state we’re rolling back consumed a code point, it must’ve saved it in
             sHistory. */
             if (bt.bConsumedCp) {

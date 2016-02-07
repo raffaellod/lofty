@@ -142,4 +142,26 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aaba")));
 }
 
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_one_optional_char,
+   "abc::text::parsers::dynamic – optional one-character pattern “a?”"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto pstA = dp.create_state();
+   pstA->set_code_point('a');
+   auto pstRep = dp.create_state();
+   pstRep->set_repetition(pstA, 0, 1);
+   pstA->set_next(pstRep);
+   dp.set_initial_state(pstRep);
+
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aa")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("b")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
+}
+
 }} //namespace abc::test

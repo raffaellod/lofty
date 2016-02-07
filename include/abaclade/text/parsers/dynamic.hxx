@@ -80,6 +80,7 @@ public:
             std::uint16_t cMin;
             //! Maximum number of repetitions needed to accept.
             std::uint16_t cMax;
+            bool bGreedy;
          } repetition;
       } u;
       state_type::enum_type st;
@@ -125,6 +126,23 @@ public:
       //! Makes the state accept the end of the input.
       void set_end() {
          st = state_type::end;
+      }
+
+      /*! Makes the state accept a code point from the specified inclusive range.
+
+      @param pstRepeated
+         Pointer to the first state of the repetition.
+      @param cMin
+         Minimum number of repetitions needed to accept.
+      @param cMax
+         Maximum number of repetitions needed to accept.
+      */
+      void set_repetition(state_t const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax) {
+         st = state_type::repetition;
+         u.repetition.pstRepeated = pstRepeated;
+         u.repetition.cMin = cMin;
+         u.repetition.cMax = cMax;
+         u.repetition.bGreedy = true;
       }
 
       /*! Assigns the state that will follow if this one accepts.
