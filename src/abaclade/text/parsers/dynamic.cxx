@@ -77,7 +77,7 @@ dynamic::state * dynamic::create_code_point_range_state(char32_t cpFirst, char32
 }
 
 dynamic::state * dynamic::create_repetition_state(
-   state const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax
+   state const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax /*= 0*/
 ) {
    state * pst = create_uninitialized_state(state_type::repetition);
    pst->u.repetition.pstRepeated = pstRepeated;
@@ -168,7 +168,7 @@ bool dynamic::run(io::text::istream * ptis) const {
                vrepStack.push_back(repetition(pstCurr));
                prep = &vrepStack.front();
             }
-            if (prep->c <= pstCurr->u.repetition.cMax) {
+            if (pstCurr->u.repetition.cMax == 0 || prep->c <= pstCurr->u.repetition.cMax) {
                if (prep->c >= pstCurr->u.repetition.cMin) {
                   // Repetitions within [cMin, cMax] are accepting.
                   bAccepted = true;

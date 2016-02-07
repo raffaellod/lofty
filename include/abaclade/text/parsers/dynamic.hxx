@@ -166,12 +166,13 @@ public:
    @param cMin
       Minimum number of repetitions needed to accept.
    @param cMax
-      Maximum number of repetitions needed to accept.
+      Maximum number of repetitions needed to accept. If omitted or 0, there will be no upper limit
+      to the number of repetitions.
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
    state * create_repetition_state(
-      state const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax
+      state const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax = 0
    );
 
    /*! Runs the parser against the specified string.
