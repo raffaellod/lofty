@@ -74,7 +74,7 @@ void scope_trace::write(io::text::ostream * ptos, unsigned iStackDepth) const {
 }
 
 /*static*/ void scope_trace::write_list(io::text::ostream * ptos) {
-   unsigned iStackDepth = 0;
+   unsigned iStackDepth = sm_iStackDepth;
    for (scope_trace const * pst = sm_pstHead; pst; pst = pst->m_pstPrev) {
       pst->write(ptos, ++iStackDepth);
    }
