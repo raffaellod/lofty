@@ -170,17 +170,26 @@ bool dynamic::run(io::text::istream * ptis) const {
             }
             if (prep->c <= pstCurr->u.repetition.cMax) {
                if (prep->c >= pstCurr->u.repetition.cMin) {
+                  // Repetitions within [cMin, cMax] are accepting.
                   bAccepted = true;
                }
+               // Try one more repetition.
                pstNext = pstCurr->u.repetition.pstRepeated;
             } else {
+               // Repeated cMax times; move on to the next state.
                pstNext = pstCurr->pstNext;
             }
+
+            // This code is nearly identical to the “if (bAccepted)” below.
+
             if (!pstNext) {
                // No more states; this means that the input was accepted.
                break;
             }
-            goto accepted_repetition;
+            vbtStack.push_back(backtrack(pstCurr, bConsumedCp, bAccepted));
+            pstCurr = pstNext;
+            // Skip the accept/backtrack logic at the end of the loop.
+            continue;
 
          case state_type::begin:
             if (itHistory == itHistoryBegin) {
@@ -210,10 +219,9 @@ bool dynamic::run(io::text::istream * ptis) const {
             // No more states; this means that the input was accepted.
             break;
          }
-         // One or more states to check still; this means that we can’t accept the input just yet.
+         // Still one or more states to check; this means that we can’t accept the input just yet.
          bAccepted = false;
-accepted_repetition:
-         vbtStack.push_back(backtrack(pstCurr, bConsumedCp, bAccepted));
+         vbtStack.push_back(backtrack(pstCurr, bConsumedCp, false /*not an accepted repetition*/));
          pstCurr = pstNext;
       } else {
          // Consider the next alternative.

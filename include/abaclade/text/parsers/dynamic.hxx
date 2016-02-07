@@ -96,6 +96,7 @@ public:
             bool bGreedy;
          } repetition;
       } u;
+      //! State type.
       state_type::enum_type st;
    };
 
