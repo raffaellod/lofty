@@ -59,12 +59,12 @@ namespace {
 
 //! Used to track the acceptance of repetition states.
 struct repetition {
-   explicit repetition(dynamic::state const * pmnAnchor_) :
-      pmnAnchor(pmnAnchor_),
+   explicit repetition(dynamic::state const * pst_) :
+      pst(pst_),
       c(0) {
    }
 
-   dynamic::state const * pmnAnchor;
+   dynamic::state const * pst;
    std::uint16_t c;
 };
 
@@ -181,7 +181,7 @@ bool dynamic::run(io::text::istream * ptis) const {
 
          case state_type::repetition:
             repetition * prep;
-            if (vrepStack && (prep = &vrepStack.front(), prep->pmnAnchor == pstCurr)) {
+            if (vrepStack && (prep = &vrepStack.front(), prep->pst == pstCurr)) {
                ++prep->c;
             } else {
                // New repetition: save it on the stack and begin counting.
@@ -197,16 +197,17 @@ bool dynamic::run(io::text::istream * ptis) const {
                pstNext = pstCurr->u.repetition.pstRepeated;
             } else {
                // Repeated cMax times; pop the stack and move on to the next state.
+               vrepStack.pop_back();
                pstNext = pstCurr->pstNext;
             }
 
-            // This code is nearly identical to the “if (bAccepted)” below.
-
+            // This code is very similar to the “if (bAccepted)” below.
             if (!pstNext) {
                // No more states; this means that the input was accepted.
                break;
             }
             vbtStack.push_back(backtrack::repetition(pstCurr, bAccepted));
+            bAccepted = false;
             pstCurr = pstNext;
             // Skip the accept/backtrack logic at the end of the loop.
             continue;
@@ -240,8 +241,8 @@ bool dynamic::run(io::text::istream * ptis) const {
             break;
          }
          // Still one or more states to check; this means that we can’t accept the input just yet.
-         bAccepted = false;
          vbtStack.push_back(backtrack::default_(pstCurr, bConsumedCp));
+         bAccepted = false;
          pstCurr = pstNext;
       } else {
          // Consider the next alternative.
@@ -249,6 +250,10 @@ bool dynamic::run(io::text::istream * ptis) const {
          // Go back to a state that had alternatives, if possible.
          while (!pstCurr && vbtStack) {
             backtrack bt(vbtStack.pop_back());
+            // If we’re backtracking the current top-of-the-stack repetition, pop it out of it.
+            if (bt.bRepetition && vrepStack && vrepStack.back().pst == bt.pst) {
+               vrepStack.pop_back();
+            }
             if (bt.bAcceptedRepetition) {
                // This must be a repetition’s Nth occurrence, with N in the acceptable range.
                if (!bt.pst->pstNext) {
