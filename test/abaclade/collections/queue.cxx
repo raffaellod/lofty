@@ -34,39 +34,39 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    collections::queue<int> q;
 
-   ABC_TESTING_ASSERT_TRUE(q.empty());
+   ABC_TESTING_ASSERT_FALSE(q);
    ABC_TESTING_ASSERT_EQUAL(q.size(), 0u);
 
    q.push_back(10);
-   ABC_TESTING_ASSERT_FALSE(q.empty());
+   ABC_TESTING_ASSERT_TRUE(q);
    ABC_TESTING_ASSERT_EQUAL(q.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(q.front(), 10);
    ABC_TESTING_ASSERT_EQUAL(q.back(), 10);
 
    q.push_back(20);
-   ABC_TESTING_ASSERT_FALSE(q.empty());
+   ABC_TESTING_ASSERT_TRUE(q);
    ABC_TESTING_ASSERT_EQUAL(q.size(), 2u);
    ABC_TESTING_ASSERT_EQUAL(q.front(), 10);
    ABC_TESTING_ASSERT_EQUAL(q.back(), 20);
 
    ABC_TESTING_ASSERT_EQUAL(q.pop_front(), 10);
-   ABC_TESTING_ASSERT_FALSE(q.empty());
+   ABC_TESTING_ASSERT_TRUE(q);
    ABC_TESTING_ASSERT_EQUAL(q.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(q.front(), 20);
    ABC_TESTING_ASSERT_EQUAL(q.back(), 20);
 
    ABC_TESTING_ASSERT_EQUAL(q.pop_front(), 20);
-   ABC_TESTING_ASSERT_TRUE(q.empty());
+   ABC_TESTING_ASSERT_FALSE(q);
    ABC_TESTING_ASSERT_EQUAL(q.size(), 0u);
 
    q.push_back(30);
-   ABC_TESTING_ASSERT_FALSE(q.empty());
+   ABC_TESTING_ASSERT_TRUE(q);
    ABC_TESTING_ASSERT_EQUAL(q.size(), 1u);
    ABC_TESTING_ASSERT_EQUAL(q.front(), 30);
    ABC_TESTING_ASSERT_EQUAL(q.back(), 30);
 
    q.clear();
-   ABC_TESTING_ASSERT_TRUE(q.empty());
+   ABC_TESTING_ASSERT_FALSE(q);
    ABC_TESTING_ASSERT_EQUAL(q.size(), 0u);
 }
 

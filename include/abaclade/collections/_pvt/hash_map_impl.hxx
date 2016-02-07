@@ -156,15 +156,6 @@ public:
       return m_cBuckets;
    }
 
-   /*! Returns true if the map contains no elements.
-
-   @return
-      true if the map is empty, or false otherwise.
-   */
-   bool empty() const {
-      return m_cUsedBuckets == 0;
-   }
-
    /*! Returns the current neighborhood size.
 
    @return

@@ -175,15 +175,6 @@ public:
    */
    void clear(type_void_adapter const & type);
 
-   /*! Returns true if the list contains no elements.
-
-   @return
-      true if the list is empty, or false otherwise.
-   */
-   bool empty() const {
-      return m_cNodes == 0;
-   }
-
    /*! Returns the count of elements in the list.
 
    @return

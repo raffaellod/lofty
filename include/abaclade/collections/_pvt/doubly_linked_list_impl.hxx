@@ -250,15 +250,6 @@ public:
    */
    static void destruct_list(type_void_adapter const & type, node * pn);
 
-   /*! Returns true if the list contains no elements.
-
-   @return
-      true if the list is empty, or false otherwise.
-   */
-   bool empty() const {
-      return m_cNodes == 0;
-   }
-
    /*! Inserts a node at the end of the list.
 
    @param type

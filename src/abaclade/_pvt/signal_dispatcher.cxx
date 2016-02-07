@@ -581,7 +581,7 @@ void signal_dispatcher::main_thread_terminated(exception::common_type xct) {
    have themselves removed from m_hmThreads. We can’t join() them here, since they might be joining
    amongst themselves in some application-defined order, and we can’t join the same thread more than
    once (at least in POSIX). */
-   while (!m_hmThreads.empty()) {
+   while (m_hmThreads) {
       lock.unlock();
       // Yes, we just sleep. Remember, this should not really happen (see the note above).
       this_thread::sleep_for_ms(1);

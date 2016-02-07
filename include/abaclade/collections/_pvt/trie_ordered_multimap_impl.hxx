@@ -334,15 +334,6 @@ public:
    */
    void clear(type_void_adapter const & typeValue);
 
-   /*! Returns true if the map contains no elements.
-
-   @return
-      true if the map is empty, or false otherwise.
-   */
-   bool empty() const {
-      return m_cValues == 0;
-   }
-
    /*! Searches the multimap for a specific key, returning a pointer to the first corresponding list
    node if found.
 
