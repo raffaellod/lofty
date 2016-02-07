@@ -221,9 +221,9 @@ protected:
 
 protected:
    //! List of states.
-   /* TODO: change to a singly-linked list; it’s a queue now just because collections::list is a
-   doubly-linked list, which is unnecessary since we never remove states from the parser, only
-   add. */
+   /* TODO: change this variable to use collections::forward_list; for now it’s a collections::queue
+   just because collections::list is a doubly-linked list, which is unnecessary since we never
+   remove states from the parser, only add. */
    collections::queue<state> m_qmn;
    //! Pointer to the initial state.
    state const * m_pstInitial;

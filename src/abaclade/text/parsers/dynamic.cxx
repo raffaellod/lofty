@@ -133,6 +133,7 @@ bool dynamic::run(io::text::istream * ptis) const {
    str sPeek = ptis->peek_chars(1);
    auto itPeek(sPeek.cbegin()), itPeekEnd(sPeek.cend());
 
+   // TODO: change these two variables to use collections::stack once that’s available.
    collections::vector<backtrack> vbtStack;
    /* Stack of repetition counters. A new counter is pushed when a new repetition is started, and
    popped when that repetition is a) matched cMax times or b) backtracked over. */

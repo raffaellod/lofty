@@ -162,7 +162,7 @@ private:
    static void fault_signal_handler(int iSignal, ::siginfo_t * psi, void * pctx);
 
 #elif ABC_HOST_API_WIN32
-   /*! Translates Win32 console eventstructured exceptions into C++ exceptions.
+   /*! Translates Win32 console events into C++ exceptions.
 
    @param iCtrlEvent
       CTRL_*_EVENT.
