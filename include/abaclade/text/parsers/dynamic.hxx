@@ -94,69 +94,17 @@ public:
       friend class dynamic;
 
    public:
-      //! Makes the state accept the start of the input.
-      void set_begin() {
-         st = state_type::begin;
-      }
-
-      /*! Makes the state accept the specified code point.
-
-      @param cp
-         Code point to match.
-      */
-      void set_code_point(char32_t cp) {
-         st = state_type::range;
-         u.range.cpFirst = cp;
-         u.range.cpLast = cp;
-      }
-
-      /*! Makes the state accept a code point from the specified inclusive range.
-
-      @param cpFirst
-         First code point in the range.
-      @param cpLast
-         Last code point in the range.
-      */
-      void set_code_point_range(char32_t cpFirst, char32_t cpLast) {
-         st = state_type::range;
-         u.range.cpFirst = cpFirst;
-         u.range.cpLast = cpLast;
-      }
-
-      //! Makes the state accept the end of the input.
-      void set_end() {
-         st = state_type::end;
-      }
-
-      /*! Makes the state accept a code point from the specified inclusive range.
-
-      @param pstRepeated
-         Pointer to the first state of the repetition.
-      @param cMin
-         Minimum number of repetitions needed to accept.
-      @param cMax
-         Maximum number of repetitions needed to accept.
-      */
-      void set_repetition(state_t const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax) {
-         st = state_type::repetition;
-         u.repetition.pstRepeated = pstRepeated;
-         u.repetition.cMin = cMin;
-         u.repetition.cMax = cMax;
-         u.repetition.bGreedy = true;
-      }
-
       /*! Assigns the state that will follow if this one accepts.
 
       @param pst
          Next state.
+      @return
+         this.
       */
-      void set_next(state_t * pst) {
+      state * set_next(state_t * pst) {
          pstNext = pst;
+         return this;
       }
-
-   private:
-      //! Default constructor.
-      state();
    };
 
 private:
@@ -179,14 +127,57 @@ public:
    //! Destructor.
    ~dynamic();
 
-   /*! Creates a parser state. Each newly-created state must be configured by calling one of its
-   set_*() methods.
+   /*! Creates a state that matches the start of the input.
 
    @return
-      New parser state. The instance is owned by the parser; the returned pointer should not be
-      stored independently.
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_state();
+   state * create_begin_state() {
+      return create_uninitialized_state(state_type::begin);
+   }
+
+   /*! Creates a state that matches a specific code point.
+
+   @param cp
+      Code point to match.
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_code_point_state(char32_t cp);
+
+   /*! Creates a state that matches a code point from the specified inclusive range.
+
+   @param cpFirst
+      First code point in the range.
+   @param cpLast
+      Last code point in the range.
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_code_point_range_state(char32_t cpFirst, char32_t cpLast);
+
+   /*! Creates a state that matches the end of the input.
+
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_end_state() {
+      return create_uninitialized_state(state_type::end);
+   }
+
+   /*! Creates a state that matches a number of repetitions of another state list. The last state in
+   the list should have this new state assigned as its next.
+
+   @param pstRepeated
+      Pointer to the first state of the repetition.
+   @param cMin
+      Minimum number of repetitions needed to accept.
+   @param cMax
+      Maximum number of repetitions needed to accept.
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_repetition_state(state_t const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax);
 
    /*! Runs the parser against the specified string.
 
@@ -216,7 +207,17 @@ public:
       m_pstInitial = pstInitial;
    }
 
-private:
+protected:
+   /*! Creates an uninitialized parser state.
+
+   @param st
+      Type of the state to create.
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_uninitialized_state(state_type st);
+
+protected:
    //! List of states.
    /* TODO: change to a singly-linked list; it’s a queue now just because collections::list is a
    doubly-linked list, which is unnecessary since we never remove states from the parser, only

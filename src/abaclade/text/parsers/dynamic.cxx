@@ -25,13 +25,6 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace text { namespace parsers {
 
-dynamic::state::state() {
-   pstNext = nullptr;
-   pstAlternative = nullptr;
-   st = state_type::end;
-}
-
-
 struct dynamic::backtrack {
    backtrack(state_t const * pst_, bool bConsumedCp_, bool bAcceptedRepetition_) :
       pst(pst_),
@@ -69,9 +62,38 @@ dynamic::dynamic(dynamic && dp) :
 dynamic::~dynamic() {
 }
 
-dynamic::state * dynamic::create_state() {
+dynamic::state * dynamic::create_code_point_state(char32_t cp) {
+   state * pst = create_uninitialized_state(state_type::range);
+   pst->u.range.cpFirst = cp;
+   pst->u.range.cpLast = cp;
+   return pst;
+}
+
+dynamic::state * dynamic::create_code_point_range_state(char32_t cpFirst, char32_t cpLast) {
+   state * pst = create_uninitialized_state(state_type::range);
+   pst->u.range.cpFirst = cpFirst;
+   pst->u.range.cpLast = cpLast;
+   return pst;
+}
+
+dynamic::state * dynamic::create_repetition_state(
+   state_t const * pstRepeated, std::uint16_t cMin, std::uint16_t cMax
+) {
+   state * pst = create_uninitialized_state(state_type::repetition);
+   pst->u.repetition.pstRepeated = pstRepeated;
+   pst->u.repetition.cMin = cMin;
+   pst->u.repetition.cMax = cMax;
+   pst->u.repetition.bGreedy = true;
+   return pst;
+}
+
+dynamic::state * dynamic::create_uninitialized_state(state_type st) {
    m_qmn.push_back(state_t());
-   return static_cast<state *>(&m_qmn.back());
+   state * pst = static_cast<state *>(&m_qmn.back());
+   pst->st = st.base();
+   pst->pstNext = nullptr;
+   pst->pstAlternative = nullptr;
+   return pst;
 }
 
 bool dynamic::run(str const & s) const {
