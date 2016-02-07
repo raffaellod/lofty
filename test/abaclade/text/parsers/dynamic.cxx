@@ -141,4 +141,55 @@ ABC_TESTING_TEST_CASE_FUNC(
    ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
 }
 
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_a_plus,
+   "abc::text::parsers::dynamic – pattern “a+”"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto pstA = dp.create_code_point_state('a');
+   auto pstRep = dp.create_repetition_state(pstA, 1);
+   pstA->set_next(pstRep);
+   dp.set_initial_state(pstRep);
+
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("a")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aa")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("b")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
+}
+
+ABC_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_a_plus_b_plus,
+   "abc::text::parsers::dynamic – pattern “a+b+”"
+) {
+   ABC_TRACE_FUNC(this);
+
+   text::parsers::dynamic dp;
+   auto pstB = dp.create_code_point_state('b');
+   auto pstRepB = dp.create_repetition_state(pstB, 1);
+   pstB->set_next(pstRepB);
+   auto pstA = dp.create_code_point_state('a');
+   auto pstRepA = dp.create_repetition_state(pstA, 1);
+   pstA->set_next(pstRepA);
+   pstRepA->set_next(pstRepB);
+   dp.set_initial_state(pstRepA);
+
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("a")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("aa")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("ab")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("aba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("abb")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("abab")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("b")));
+   ABC_TESTING_ASSERT_FALSE(dp.run(ABC_SL("ba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("bab")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("baba")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("babb")));
+   ABC_TESTING_ASSERT_TRUE(dp.run(ABC_SL("babab")));
+}
+
 }} //namespace abc::test
