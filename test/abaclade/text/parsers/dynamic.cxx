@@ -26,8 +26,8 @@ not, see <http://www.gnu.org/licenses/>.
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_one_char,
-   "abc::text::parsers::dynamic – one-character pattern “a”"
+   text_parsers_dynamic_pattern_a,
+   "abc::text::parsers::dynamic – pattern “a”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -43,8 +43,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_begin,
-   "abc::text::parsers::dynamic – begin pattern “^”"
+   text_parsers_dynamic_pattern_caret,
+   "abc::text::parsers::dynamic – pattern “^”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -56,8 +56,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_begin_anchored,
-   "abc::text::parsers::dynamic – begin-anchored pattern “^a”"
+   text_parsers_dynamic_pattern_caret_a,
+   "abc::text::parsers::dynamic – pattern “^a”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -73,8 +73,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_end,
-   "abc::text::parsers::dynamic – end pattern “$”"
+   text_parsers_dynamic_pattern_dollar,
+   "abc::text::parsers::dynamic – pattern “$”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -86,8 +86,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_end_anchored,
-   "abc::text::parsers::dynamic – end-anchored pattern “a$”"
+   text_parsers_dynamic_pattern_a_dollar,
+   "abc::text::parsers::dynamic – pattern “a$”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -103,8 +103,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_two_char,
-   "abc::text::parsers::dynamic – two-character pattern “ab”"
+   text_parsers_dynamic_pattern_ab,
+   "abc::text::parsers::dynamic – pattern “ab”"
 ) {
    ABC_TRACE_FUNC(this);
 
@@ -122,8 +122,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 }
 
 ABC_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_one_optional_char,
-   "abc::text::parsers::dynamic – optional one-character pattern “a?”"
+   text_parsers_dynamic_pattern_a_qmark,
+   "abc::text::parsers::dynamic – pattern “a?”"
 ) {
    ABC_TRACE_FUNC(this);
 
