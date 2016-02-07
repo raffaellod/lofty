@@ -100,12 +100,6 @@ public:
       state_type::enum_type st;
    };
 
-private:
-   //! Backtracking data structure.
-   struct backtrack;
-   //! Used to track the acceptance of repetition states.
-   struct repetition;
-
 public:
    //! Default constructor.
    dynamic();

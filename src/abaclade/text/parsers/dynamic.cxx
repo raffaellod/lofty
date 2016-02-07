@@ -25,28 +25,50 @@ not, see <http://www.gnu.org/licenses/>.
 
 namespace abc { namespace text { namespace parsers {
 
-struct dynamic::backtrack {
-   backtrack(state const * pst_, bool bConsumedCp_, bool bAcceptedRepetition_) :
-      pst(pst_),
-      bConsumedCp(bConsumedCp_),
-      bAcceptedRepetition(bAcceptedRepetition_) {
+namespace {
+
+//! Backtracking data structure.
+struct backtrack {
+   dynamic::state const * pst;
+   bool bConsumedCp:1;
+   bool bRepetition:1;
+   bool bAcceptedRepetition:1;
+
+   static backtrack default_(dynamic::state const * pst, bool bConsumedCp) {
+      backtrack bt;
+      bt.pst = pst;
+      bt.bConsumedCp = bConsumedCp;
+      bt.bRepetition = false;
+      bt.bAcceptedRepetition = false;
+      return _std::move(bt);
    }
 
-   state const * pst;
-   bool bConsumedCp:1;
-   bool bAcceptedRepetition:1;
+   static backtrack repetition(dynamic::state const * pst, bool bAccepted) {
+      backtrack bt;
+      bt.pst = pst;
+      bt.bConsumedCp = false;
+      bt.bRepetition = true;
+      bt.bAcceptedRepetition = bAccepted;
+      return _std::move(bt);
+   }
 };
 
+} //namespace
 
-struct dynamic::repetition {
-   explicit repetition(state const * pmnAnchor_) :
+namespace {
+
+//! Used to track the acceptance of repetition states.
+struct repetition {
+   explicit repetition(dynamic::state const * pmnAnchor_) :
       pmnAnchor(pmnAnchor_),
       c(0) {
    }
 
-   state const * pmnAnchor;
+   dynamic::state const * pmnAnchor;
    std::uint16_t c;
 };
+
+} //namespace
 
 
 dynamic::dynamic() :
@@ -112,6 +134,8 @@ bool dynamic::run(io::text::istream * ptis) const {
    auto itPeek(sPeek.cbegin()), itPeekEnd(sPeek.cend());
 
    collections::vector<backtrack> vbtStack;
+   /* Stack of repetition counters. A new counter is pushed when a new repetition is started, and
+   popped when that repetition is a) matched cMax times or b) backtracked over. */
    collections::vector<repetition> vrepStack;
 
    bool bAccepted = false;
@@ -156,10 +180,6 @@ bool dynamic::run(io::text::istream * ptis) const {
          }
 
          case state_type::repetition:
-            /* TODO: a stack doesn’t work for nested repetitions; the inner-most one will see on the
-            top of the stack its own previous repetition instance, messing up the counting, and the
-            outer-most ones won’t be able to see themselves in the stack, also messing up the
-            counting. */
             repetition * prep;
             if (vrepStack && (prep = &vrepStack.front(), prep->pmnAnchor == pstCurr)) {
                ++prep->c;
@@ -176,7 +196,7 @@ bool dynamic::run(io::text::istream * ptis) const {
                // Try one more repetition.
                pstNext = pstCurr->u.repetition.pstRepeated;
             } else {
-               // Repeated cMax times; move on to the next state.
+               // Repeated cMax times; pop the stack and move on to the next state.
                pstNext = pstCurr->pstNext;
             }
 
@@ -186,7 +206,7 @@ bool dynamic::run(io::text::istream * ptis) const {
                // No more states; this means that the input was accepted.
                break;
             }
-            vbtStack.push_back(backtrack(pstCurr, bConsumedCp, bAccepted));
+            vbtStack.push_back(backtrack::repetition(pstCurr, bAccepted));
             pstCurr = pstNext;
             // Skip the accept/backtrack logic at the end of the loop.
             continue;
@@ -221,7 +241,7 @@ bool dynamic::run(io::text::istream * ptis) const {
          }
          // Still one or more states to check; this means that we can’t accept the input just yet.
          bAccepted = false;
-         vbtStack.push_back(backtrack(pstCurr, bConsumedCp, false /*not an accepted repetition*/));
+         vbtStack.push_back(backtrack::default_(pstCurr, bConsumedCp));
          pstCurr = pstNext;
       } else {
          // Consider the next alternative.
