@@ -231,7 +231,11 @@ bool dynamic::run(io::text::istream * ptis) const {
             backtrack bt(vbtStack.pop_back());
             if (bt.bAcceptedRepetition) {
                // This must be a repetition’s Nth occurrence, with N in the acceptable range.
-               bAccepted = true;
+               if (!bt.pst->pstNext) {
+                  // If there was no following state, the input is accepted.
+                  bAccepted = true;
+                  goto break_outer_while;
+               }
                pstCurr = bt.pst->pstNext;
             } else {
                // Not a repetition, or Nth occurrence with N not in the acceptable range.
@@ -266,6 +270,7 @@ bool dynamic::run(io::text::istream * ptis) const {
          }
       }
    }
+break_outer_while:
    return bAccepted;
 }
 
