@@ -72,6 +72,7 @@ targets:
       -  src/abaclade/text/parsers/dynamic.cxx
       -  src/abaclade/text/str.cxx
       -  src/abaclade/text/str_traits.cxx
+      -  src/abaclade/text/ucd.cxx
       -  src/abaclade/thread.cxx
       -  src/abaclade/thread_local.cxx
       -  src/abaclade/to_text_ostream.cxx

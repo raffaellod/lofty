@@ -21,7 +21,6 @@ not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _ABACLADE_HXX
    #error "Please #include <abaclade.hxx> before this file"
-   // Note: this file may be included while _ABACLADE_HXX_INTERNAL is defined.
 #endif
 #ifdef ABC_CXX_PRAGMA_ONCE
    #pragma once
