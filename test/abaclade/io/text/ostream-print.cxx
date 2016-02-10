@@ -31,8 +31,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   sstr<128> sOStreamBuffer;
-   io::text::str_ostream sos(external_buffer, sOStreamBuffer.str_ptr());
+   sstr<128> sBuf;
+   io::text::str_ostream sos(external_buffer, sBuf.str_ptr());
 
    // Syntax errors.
    sos.clear();
@@ -71,8 +71,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   sstr<128> sOStreamBuffer;
-   io::text::str_ostream sos(external_buffer, sOStreamBuffer.str_ptr());
+   sstr<128> sBuf;
+   io::text::str_ostream sos(external_buffer, sBuf.str_ptr());
 
    // Single string replacement, deduced argument index.
    sos.clear();
@@ -135,8 +135,8 @@ ABC_TESTING_TEST_CASE_FUNC(
 ) {
    ABC_TRACE_FUNC(this);
 
-   sstr<128> sOStreamBuffer;
-   io::text::str_ostream sos(external_buffer, sOStreamBuffer.str_ptr());
+   sstr<128> sBuf;
+   io::text::str_ostream sos(external_buffer, sBuf.str_ptr());
 
    // Single string replacement, referenced twice.
    sos.clear();
