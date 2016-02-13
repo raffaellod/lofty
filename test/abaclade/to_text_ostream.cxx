@@ -99,6 +99,22 @@ ABC_TESTING_TEST_CASE_FUNC(
 namespace abc { namespace test {
 
 ABC_TESTING_TEST_CASE_FUNC(
+   to_text_ostream_bool,
+   "abc::to_text_ostream – bool"
+) {
+   ABC_TRACE_FUNC(this);
+
+   ABC_TESTING_ASSERT_EQUAL(to_str(false), ABC_SL("false"));
+   ABC_TESTING_ASSERT_EQUAL(to_str(true), ABC_SL("true"));
+}
+
+}} //namespace abc::test
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC(
    to_text_ostream_int,
    "abc::to_text_ostream – int"
 ) {
