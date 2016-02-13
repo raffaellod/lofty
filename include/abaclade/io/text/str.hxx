@@ -137,6 +137,9 @@ public:
    std::size_t remaining_size_in_chars() const {
       return m_psBuf->size_in_chars() - m_ichOffset;
    }
+
+   //! See istream::unconsume_chars().
+   virtual void unconsume_chars(str const & s) override;
 };
 
 }}} //namespace abc::io::text

@@ -134,6 +134,9 @@ public:
    //! See istream::read_line().
    virtual bool read_line(str * psDst) override;
 
+   //! See istream::unconsume_chars().
+   virtual void unconsume_chars(str const & s) override;
+
 protected:
    //! See binbuf_stream::_binary_buffered_stream().
    virtual _std::shared_ptr<binary::buffered_stream> _binary_buffered_stream() const override;

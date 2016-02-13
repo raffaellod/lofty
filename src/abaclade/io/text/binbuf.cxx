@@ -197,6 +197,15 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * pb, std::size_t
    }
 }
 
+/*virtual*/ void binbuf_istream::unconsume_chars(str const & s) /*override*/ {
+   ABC_TRACE_FUNC(this, s);
+
+   if (std::size_t cch = s.size_in_chars()) {
+      m_sPeekBuf.set_size_in_chars(cch + m_sPeekBuf.size_in_chars(), false /*don’t clear*/);
+      memory::copy(m_sPeekBuf.data(), s.data(), cch);
+   }
+}
+
 }}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

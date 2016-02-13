@@ -282,6 +282,24 @@ public:
     */
    virtual bool read_line(str * psDst);
 
+
+   /*! Pushes character previously consumed with consume_chars() back in the stream, making them the
+   next characters thar will be yielded by peek_chars().
+
+   This is intended to help a parser “rewind” to a known state at the end of its execution, should
+   it reject the characters it peek/consumed. This would be impossible to implement without this
+   method, since the parser might have consumed multiple peek buffers, and just not calling
+   consume_chars() for the latest peek buffer wouldn’t restore the previous consumed peek buffers.
+
+   This function must be called with characters that were previously returned by peek_chars() and
+   consumed via consume_chars(); implementations are allowed to enforce this by rejecting characters
+   they didn’t previously yield.
+
+   @param s
+      String containing the characters to unconsume.
+   */
+   virtual void unconsume_chars(str const & s) = 0;
+
 protected:
    //! Default constructor.
    istream();

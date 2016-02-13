@@ -122,6 +122,17 @@ str_istream::str_istream(external_buffer_t const & eb, str const * ps) :
    m_ichOffset = 0;
 }
 
+/*virtual*/ void str_istream::unconsume_chars(str const & s) /*override*/ {
+   ABC_TRACE_FUNC(this, s);
+
+   std::size_t cch = s.size_in_chars();
+   if (cch > m_ichOffset) {
+      // TODO: use a better exception class.
+      ABC_THROW(argument_error, ());
+   }
+   m_ichOffset -= cch;
+}
+
 }}} //namespace abc::io::text
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
