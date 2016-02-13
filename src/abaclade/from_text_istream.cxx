@@ -52,3 +52,48 @@ void throw_on_unused_streaming_format_chars(
 }
 
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+from_text_istream<bool>::from_text_istream() :
+   m_sTrue(ABC_SL("true")),
+   m_sFalse(ABC_SL("false")) {
+}
+
+void from_text_istream<bool>::set_format(str const & sFormat) {
+   ABC_TRACE_FUNC(this, sFormat);
+
+   throw_on_unused_streaming_format_chars(sFormat.cbegin(), sFormat);
+}
+
+void from_text_istream<bool>::read(bool * pb, io::text::istream * ptis) {
+   ABC_TRACE_FUNC(this, pb, ptis);
+
+   sstr<16> sRead;
+   for (str sPeek; (sPeek = ptis->peek_chars(1)); ptis->consume_chars(sPeek.size_in_chars())) {
+      for (auto itPeek(sPeek.cbegin()), itPeekEnd(sPeek.cend()); itPeek != itPeekEnd; ++itPeek) {
+         char32_t cp = *itPeek;
+         // TODO: replace this with the UCD equivalent of \w from abc::text.
+         if ((cp < '0' || cp > '9') && (cp < 'A' || cp > 'Z') && (cp < 'a' || cp > 'z')) {
+            // Consume all preceding characters and stop.
+            ptis->consume_chars(itPeek.char_index());
+            goto break_outer_while;
+         }
+         sRead += cp;
+      }
+   }
+break_outer_while:
+   if (sRead == m_sTrue) {
+      *pb = true;
+   } else if (sRead == m_sFalse) {
+      *pb = false;
+   } else {
+      ptis->unconsume_chars(sRead.str());
+      // TODO: provide more information in the exception and/or use a better exception class.
+      ABC_THROW(text::syntax_error, (ABC_SL("unrecognized input"), sRead));
+   }
+}
+
+} //namespace abc

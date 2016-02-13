@@ -19,6 +19,7 @@ not, see <http://www.gnu.org/licenses/>.
 #include <abaclade.hxx>
 #include <abaclade/testing/test_case.hxx>
 #include <abaclade/from_str.hxx>
+#include <abaclade/text.hxx>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,8 +89,26 @@ ABC_TESTING_TEST_CASE_FUNC(
 
    /* These assertions are more important at compile time than at run time; if the from_str() calls
    compile, they won’t return the wrong value. */
-   ABC_TESTING_ASSERT_EQUAL(from_str<type_with_member_ftis   >(sTwmf).get(), sTwmf);
+   ABC_TESTING_ASSERT_EQUAL(from_str<type_with_member_ftis>(sTwmf).get(), sTwmf);
    ABC_TESTING_ASSERT_EQUAL(from_str<type_with_nonmember_ftis>(sTwnf).get(), sTwnf);
+}
+
+}} //namespace abc::test
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc { namespace test {
+
+ABC_TESTING_TEST_CASE_FUNC(
+   from_text_istream_bool,
+   "abc::from_text_istream – bool"
+) {
+   ABC_TRACE_FUNC(this);
+
+   ABC_TESTING_ASSERT_EQUAL(from_str<bool>(ABC_SL("false")), false);
+   ABC_TESTING_ASSERT_EQUAL(from_str<bool>(ABC_SL("true")), true);
+   ABC_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(ABC_SL("")));
+   ABC_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(ABC_SL("a")));
 }
 
 }} //namespace abc::test

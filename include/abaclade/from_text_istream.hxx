@@ -104,3 +104,39 @@ public:
 };
 
 } //namespace abc
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace abc {
+
+//! Specialization for bool.
+template <>
+class ABACLADE_SYM from_text_istream<bool> {
+public:
+   //! Default constructor.
+   from_text_istream();
+
+   /*! Changes the input format.
+
+   @param sFormat
+      Formatting options.
+   */
+   void set_format(str const & sFormat);
+
+   /*! Converts string into a boolean value.
+
+   @param pb
+      Boolean value to write.
+   @param ptos
+      Pointer to the stream to read from.
+   */
+   void read(bool * pb, io::text::istream * ptis);
+
+protected:
+   //! String that will be translated to true.
+   str m_sTrue;
+   //! String that will be translated to false.
+   str m_sFalse;
+};
+
+} //namespace abc
