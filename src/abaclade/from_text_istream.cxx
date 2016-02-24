@@ -92,7 +92,7 @@ break_outer_for:
    } else {
       ptis->unconsume_chars(sRead.str());
       // TODO: provide more information in the exception and/or use a better exception class.
-      ABC_THROW(text::syntax_error, (ABC_SL("unrecognized input"), sRead));
+      ABC_THROW(text::syntax_error, (ABC_SL("unrecognized input"), sRead.str()));
    }
 }
 
