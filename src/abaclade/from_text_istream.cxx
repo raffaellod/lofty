@@ -79,12 +79,12 @@ void from_text_istream<bool>::read(bool * pb, io::text::istream * ptis) {
          if ((cp < '0' || cp > '9') && (cp < 'A' || cp > 'Z') && (cp < 'a' || cp > 'z')) {
             // Consume all preceding characters and stop.
             ptis->consume_chars(itPeek.char_index());
-            goto break_outer_while;
+            goto break_outer_for;
          }
          sRead += cp;
       }
    }
-break_outer_while:
+break_outer_for:
    if (sRead == m_sTrue) {
       *pb = true;
    } else if (sRead == m_sFalse) {
