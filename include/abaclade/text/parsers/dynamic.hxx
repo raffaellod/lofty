@@ -47,13 +47,15 @@ class ABACLADE_SYM dynamic {
 public:
    //! Possible state types.
    ABC_ENUM_AUTO_VALUES(state_type,
-      //! Begin matcher (“^”).
+      //! Begin matcher: /^/ .
       begin,
-      //! End matcher (“$”).
+      //! End matcher: /$/ .
       end,
-      //! Code point or code point range matcher (e.g. “a”, “[a-z]”).
+      //! Look-ahead matcher: /(?=...)/ .
+      look_ahead,
+      //! Code point or code point range matcher: /a/ , /[a-z]/ , etc.
       range,
-      //! Repetition matcher; repeatedly matches the states that follow it.
+      //! Repetition matcher; repeatedly matches the states that follow it: /.{n,m}/ .
       repetition
    );
 
@@ -104,6 +106,7 @@ public:
             std::uint16_t cMin;
             //! Maximum number of repetitions needed to accept.
             std::uint16_t cMax;
+            //! If true, more repetitions than cMin will be attempted first.
             bool bGreedy;
          } repetition;
       } u;
@@ -162,6 +165,13 @@ public:
    state * create_end_state() {
       return create_uninitialized_state(state_type::end);
    }
+
+   /*! Creates a state that matches the end of the input.
+
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_look_ahead_state(state const * pstRepeated);
 
    /*! Creates a state that matches a number of repetitions of another state list. The last state in
    the list should have this new state assigned as its next.

@@ -234,6 +234,10 @@ bool dynamic::run(io::text::istream * ptis) const {
                }
             }
             break;
+
+         case state_type::look_ahead:
+            // TODO: implement look-ahead assertions.
+            break;
       }
 
       if (bAccepted) {
