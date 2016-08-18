@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -33,7 +33,7 @@ public:
       ptwOut->write(ABC_SL("I/O test file encoded using "));
       ptwOut->write(ABC_SL("UTF-8"));
 
-      // Test result determined by Abamake’s output comparer.
+      // Test result determined by Complemake’s output comparer.
       return 0;
    }
 };

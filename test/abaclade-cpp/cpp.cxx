@@ -18,7 +18,7 @@ not, see <http://www.gnu.org/licenses/>.
 
 #include <abaclade.hxx>
 
-ABCMK_CMP_BEGIN
+ABCTEST_CMP_BEGIN
 
 #define ACTUALLY_EMPTY
 #define EMPTY_ONLY_IF_CALLED()
@@ -75,4 +75,4 @@ ABC_CPP_LIST_WALK(SCALAR_WALKER, a, b, c, d)
 ABC_CPP_TUPLELIST_WALK(TUPLE_WALKER, (a, 1))
 ABC_CPP_TUPLELIST_WALK(TUPLE_WALKER, (a, 1), (b, 2), (c, 3), (d, 4))
 
-ABCMK_CMP_END
+ABCTEST_CMP_END

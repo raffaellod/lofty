@@ -60,12 +60,12 @@ void runner::log_assertion(
 
    if (bPass) {
       m_ptos->print(
-         ABC_SL("ABCMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), tfa, sExpr, sOp, sExpected
+         ABC_SL("COMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), tfa, sExpr, sOp, sExpected
       );
    } else {
       ++m_cFailedAssertions;
       m_ptos->print(
-         ABC_SL("ABCMK-TEST-ASSERT-FAIL {}: fail: {}\n")
+         ABC_SL("COMK-TEST-ASSERT-FAIL {}: fail: {}\n")
             ABC_SL("  expected: {}{}\n")
             ABC_SL("  actual:   {}\n"),
          tfa, sExpr, sOp, sExpected, sActual
@@ -90,7 +90,7 @@ void runner::run() {
 void runner::run_test_case(test_case & tc) {
    ABC_TRACE_FUNC(this/*, tc*/);
 
-   m_ptos->print(ABC_SL("ABCMK-TEST-CASE-START {}\n"), tc.title());
+   m_ptos->print(ABC_SL("COMK-TEST-CASE-START {}\n"), tc.title());
 
    try {
       tc.run();
@@ -99,13 +99,13 @@ void runner::run_test_case(test_case & tc) {
       m_ptos->write(ABC_SL("test case execution interrupted\n"));
    } catch (_std::exception const & x) {
       exception::write_with_scope_trace(m_ptos.get(), &x);
-      m_ptos->write(ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
+      m_ptos->write(ABC_SL("COMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
    } catch (...) {
       exception::write_with_scope_trace(m_ptos.get());
-      m_ptos->write(ABC_SL("ABCMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
+      m_ptos->write(ABC_SL("COMK-TEST-ASSERT-FAIL unhandled exception, see stack trace above\n"));
    }
 
-   m_ptos->write(ABC_SL("ABCMK-TEST-CASE-END\n"));
+   m_ptos->write(ABC_SL("COMK-TEST-CASE-END\n"));
 }
 
 }} //namespace abc::testing

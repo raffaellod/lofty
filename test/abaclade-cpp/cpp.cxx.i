@@ -1,6 +1,6 @@
 -*- coding: utf-8; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015 Raffaello D. Di Napoli
+Copyright 2011-2016 Raffaello D. Di Napoli
 
 This file is part of Abaclade.
 
@@ -16,7 +16,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 not, see <http://www.gnu.org/licenses/>.
 ----------------------------------------------------------------------------------------------------
 
-ABCMK_CMP_BEGIN
+ABCTEST_CMP_BEGIN
 
 
 
@@ -73,4 +73,4 @@ a b c d
 a = 1,
 a = 1, b = 2, c = 3, d = 4,
 
-ABCMK_CMP_END
+ABCTEST_CMP_END

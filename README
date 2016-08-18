@@ -14,7 +14,8 @@ Abaclade is a C++11 framework featuring:
    you’ll always know what went wrong! (see ABC_TRACE_FUNC(), for example);
 
 •  Testing framework integrated in the library with full support from the
-   recommended build tool, Abamake (<https://github.com/raffaellod/abamake>);
+   recommended build tool, Complemake (<https://github.com/raffaellod/
+   complemake>);
 
 •  Approachable and intuitive programming style, similar to Python’s; a good
    example is its modern I/O class hierarchy inspired by Python 3.x’s library,
@@ -55,12 +56,13 @@ See § 6. Versioning and branching for more information on available branches.
 3. Building Abaclade
 --------------------
 
-Building Abaclade requires Abamake (see <https://github.com/raffaellod/
-abamake>), which works as an improved make utility.
+Building Abaclade requires Complemake (see <https://github.com/raffaellod/
+complemake>), which works as an improved make utility.
 
-To build Abaclade, run Abamake from its base directory:
+To build Abaclade, run Complemake from Abaclade’s base directory:
 
-   /path/to/abamake.py
+   cd /path/to/abaclade
+   /path/to/complemake.py
 
 This will create outputs in the bin/ and lib/ folders.
 

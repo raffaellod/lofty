@@ -280,7 +280,7 @@ bitmanip::ceiling_to_pow2_multiple(cb, sizeof(_std::max_align_t)).
 
 /*! Declares a symbol to be publicly visible (from the Abaclade shared library) or imported from
 Abaclade’s shared library (into another library/executable). */
-#ifdef ABAMAKE_BUILD_ABACLADE
+#ifdef COMPLEMAKE_BUILD_ABACLADE
    #define ABACLADE_SYM ABC_SYM_EXPORT
 #else
    #define ABACLADE_SYM ABC_SYM_IMPORT
@@ -288,7 +288,7 @@ Abaclade’s shared library (into another library/executable). */
 
 /*! Declares a symbol to be publicly visible (from the Abaclade testing shared library) or imported
 from Abaclade’s testing shared library (into another library/executable). */
-#ifdef ABAMAKE_BUILD_ABACLADE_TESTING
+#ifdef COMPLEMAKE_BUILD_ABACLADE_TESTING
    #define ABACLADE_TESTING_SYM ABC_SYM_EXPORT
 #else
    #define ABACLADE_TESTING_SYM ABC_SYM_IMPORT

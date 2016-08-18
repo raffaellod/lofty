@@ -38,7 +38,7 @@ not, see <http://www.gnu.org/licenses/>.
       #include <sys/timerfd.h>
    #endif
 #endif
-#ifdef ABAMAKE_USING_VALGRIND
+#ifdef COMPLEMAKE_USING_VALGRIND
    #include <valgrind/valgrind.h>
 #endif
 
@@ -63,7 +63,7 @@ public:
 #elif ABC_HOST_API_WIN32
       m_pfbr(nullptr),
 #endif
-#ifdef ABAMAKE_USING_VALGRIND
+#ifdef COMPLEMAKE_USING_VALGRIND
       m_iValgrindStackId(VALGRIND_STACK_REGISTER(
          m_pStack.get(), static_cast<std::int8_t *>(m_pStack.get()) + m_pStack.size()
       )),
@@ -93,7 +93,7 @@ public:
 
    //! Destructor.
    ~impl() {
-#ifdef ABAMAKE_USING_VALGRIND
+#ifdef COMPLEMAKE_USING_VALGRIND
       VALGRIND_STACK_DEREGISTER(m_iValgrindStackId);
 #endif
 #if ABC_HOST_API_WIN32
@@ -198,7 +198,7 @@ private:
 #else
    #error "TODO: HOST_API"
 #endif
-#ifdef ABAMAKE_USING_VALGRIND
+#ifdef COMPLEMAKE_USING_VALGRIND
    //! Identifier assigned by Valgrind to this coroutine’s stack.
    unsigned m_iValgrindStackId;
 #endif

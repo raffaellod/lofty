@@ -16,11 +16,11 @@
 # You should have received a copy of the GNU Lesser General Public License along with Abaclade. If
 # not, see <http://www.gnu.org/licenses/>.
 #---------------------------------------------------------------------------------------------------
---- !abamake/makefile
-brief: Abamake makefile for Abaclade.
+--- !complemake/makefile
+brief: Complemake file for Abaclade.
 targets:
 
-   - !abamake/target/dynlib
+   - !complemake/target/dynlib
       name: abaclade
       brief: Main Abaclade dynamic shared library.
       sources:
@@ -79,7 +79,7 @@ targets:
       -  src/abaclade/type_void_adapter.cxx
 
       tests:
-         - !abamake/target/exetest
+         - !complemake/target/exetest
             name: abaclade-test
             brief: Main test for Abaclade.
             sources:
@@ -115,18 +115,18 @@ targets:
             libraries:
             -  abaclade-testing
 
-         - !abamake/target/tooltest
+         - !complemake/target/tooltest
             name: abaclade-cpp-test
             brief: Test for Abaclade’s preprocessor macros.
 
             expected output: test/abaclade-cpp/cpp.cxx.i
             output transform:
-            -  !abamake/target/filter-output-transform "ABCMK_CMP_BEGIN.*?ABCMK_CMP_END"
+            -  !complemake/target/filter-output-transform "ABCTEST_CMP_BEGIN.*?ABCTEST_CMP_END"
             sources:
             -  path: test/abaclade-cpp/cpp.cxx
                tool: preproc
 
-   - !abamake/target/dynlib
+   - !complemake/target/dynlib
       name: abaclade-testing
       brief: Testing support library.
       sources:
@@ -139,7 +139,7 @@ targets:
 
    # Examples ######################################################################################
 
-   - !abamake/target/exe
+   - !complemake/target/exe
       name: hello-world
       brief: "Example: “Hello World”."
       sources:
@@ -147,7 +147,7 @@ targets:
       libraries:
       -  abaclade
 
-   - !abamake/target/exe
+   - !complemake/target/exe
       name: cat
       brief: "Example: “cat” utility."
       sources:
@@ -155,7 +155,7 @@ targets:
       libraries:
       -  abaclade
 
-   - !abamake/target/exe
+   - !complemake/target/exe
       name: exceptions
       brief: "Example: exceptions and stack traces."
       sources:
@@ -163,7 +163,7 @@ targets:
       libraries:
       -  abaclade
 
-   - !abamake/target/exe
+   - !complemake/target/exe
       name: coroutines
       brief: "Example: using coroutines."
       sources:
@@ -171,7 +171,7 @@ targets:
       libraries:
       -  abaclade
 
-   - !abamake/target/exe
+   - !complemake/target/exe
       name: echo-server
       brief: "Example: TCP “echo” server implemented using coroutines."
       sources:
@@ -179,7 +179,7 @@ targets:
       libraries:
       -  abaclade
 
-   - !abamake/target/exe
+   - !complemake/target/exe
       name: http-server
       brief: "Example: basic HTTP server implemented using coroutines."
       sources:
@@ -187,7 +187,7 @@ targets:
       libraries:
       -  abaclade
 
-   - !abamake/target/exe
+   - !complemake/target/exe
       name: maps-comparison
       brief: Comparison of map implementations.
       sources:
