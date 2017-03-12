@@ -1,35 +1,35 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017 Raffaello D. Di Napoli
 
-This file is part of Abaclade.
+This file is part of Lofty.
 
-Abaclade is free software: you can redistribute it and/or modify it under the terms of the GNU
-Lesser General Public License as published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
+Lofty is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General
+Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
 
-Abaclade is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
-General Public License for more details.
+Lofty is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for
+more details.
 
-You should have received a copy of the GNU Lesser General Public License along with Abaclade. If
-not, see <http://www.gnu.org/licenses/>.
---------------------------------------------------------------------------------------------------*/
+You should have received a copy of the GNU Lesser General Public License along with Lofty. If not, see
+<http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------------------------------------*/
 
-#include <abaclade.hxx>
-#include <abaclade/app.hxx>
-#include <abaclade/collections/hash_map.hxx>
-#include <abaclade/io/text.hxx>
-#include <abaclade/perf/stopwatch.hxx>
-#include <abaclade/range.hxx>
+#include <lofty.hxx>
+#include <lofty/app.hxx>
+#include <lofty/collections/hash_map.hxx>
+#include <lofty/io/text.hxx>
+#include <lofty/perf/stopwatch.hxx>
+#include <lofty/range.hxx>
 
 #include <map>
 #include <unordered_map>
 
-using namespace abc;
+using namespace lofty;
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace {
 
@@ -43,7 +43,7 @@ namespace {
 template <typename T>
 struct poor_hash {
    std::size_t operator()(T t) const {
-      ABC_UNUSED_ARG(t);
+      LOFTY_UNUSED_ARG(t);
       return 0;
    }
 };
@@ -58,64 +58,64 @@ private:
 public:
    /*! Main function of the program.
 
-   @param vsArgs
+   @param args
       Arguments that were provided to this program via command line.
    @return
       Return value of this program.
    */
-   virtual int main(collections::vector<str> & vsArgs) override {
-      ABC_TRACE_FUNC(this/*, vsArgs*/);
+   virtual int main(collections::vector<str> & args) override {
+      LOFTY_TRACE_FUNC(this/*, args*/);
 
-      ABC_UNUSED_ARG(vsArgs);
+      LOFTY_UNUSED_ARG(args);
       using _std::get;
 
-      io::text::stdout->print(ABC_SL(
+      io::text::stdout->print(LOFTY_SL(
          "                                                 Add   Hit lookup  Miss lookup  [ns]\n"
       ));
 
-      auto rGoodHash(make_range(0, 10000000));
-      io::text::stdout->print(ABC_SL("{}, good hash\n"), rGoodHash.size());
+      auto good_hash_range(make_range(0, 10000000));
+      io::text::stdout->print(LOFTY_SL("{}, good hash\n"), good_hash_range.size());
       {
          std::map<int, int> m;
-         auto ret(run_test(&m, rGoodHash));
+         auto ret(run_test(&m, good_hash_range));
          io::text::stdout->print(
-            ABC_SL("  std::map                               {:11}  {:11}  {:11}\n"),
+            LOFTY_SL("  std::map                               {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
       {
-         std::unordered_map<int, int, std::hash<int>> um;
-         auto ret(run_test(&um, rGoodHash));
+         std::unordered_map<int, int, std::hash<int>> map;
+         auto ret(run_test(&map, good_hash_range));
          io::text::stdout->print(
-            ABC_SL("  std::unordered_map                     {:11}  {:11}  {:11}\n"),
+            LOFTY_SL("  std::unordered_map                     {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
       {
-         abc::collections::hash_map<int, int, std::hash<int>> hm;
-         auto ret(run_test(&hm, rGoodHash));
+         lofty::collections::hash_map<int, int, std::hash<int>> map;
+         auto ret(run_test(&map, good_hash_range));
          io::text::stdout->print(
-            ABC_SL("  abc::collections::hash_map (nh: {:5}) {:11}  {:11}  {:11}\n"),
-            hm.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
+            LOFTY_SL("  lofty::collections::hash_map (nh: {:5}) {:11}  {:11}  {:11}\n"),
+            map.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
 
-      auto rPoorHash(make_range(0, 10000));
-      io::text::stdout->print(ABC_SL("{}, 100% collisions\n"), rPoorHash.size());
+      auto poor_hash_range(make_range(0, 10000));
+      io::text::stdout->print(LOFTY_SL("{}, 100% collisions\n"), poor_hash_range.size());
       {
-         std::unordered_map<int, int, poor_hash<int>> um;
-         auto ret(run_test(&um, rPoorHash));
+         std::unordered_map<int, int, poor_hash<int>> map;
+         auto ret(run_test(&map, poor_hash_range));
          io::text::stdout->print(
-            ABC_SL("  std::unordered_map                     {:11}  {:11}  {:11}\n"),
+            LOFTY_SL("  std::unordered_map                     {:11}  {:11}  {:11}\n"),
             get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
       {
-         abc::collections::hash_map<int, int, poor_hash<int>> hm;
-         auto ret(run_test(&hm, rPoorHash));
+         lofty::collections::hash_map<int, int, poor_hash<int>> map;
+         auto ret(run_test(&map, poor_hash_range));
          io::text::stdout->print(
-            ABC_SL("  abc::collections::hash_map (nh: {:5}) {:11}  {:11}  {:11}\n"),
-            hm.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
+            LOFTY_SL("  lofty::collections::hash_map (nh: {:5}) {:11}  {:11}  {:11}\n"),
+            map.neighborhood_size(), get<0>(ret), get<1>(ret), get<2>(ret)
          );
       }
 
@@ -124,15 +124,15 @@ public:
 
 private:
    template <typename TMap, typename TRange>
-   perf::stopwatch hit_lookup_test(TMap & m, TRange const & r) {
-      ABC_TRACE_FUNC(this/*, m, r*/);
+   perf::stopwatch hit_lookup_test(TMap & map, TRange const & range) {
+      LOFTY_TRACE_FUNC(this/*, map, range*/);
 
       perf::stopwatch sw;
       sw.start();
-      ABC_FOR_EACH(auto i, r) {
-         // Consume m[i] in some way.
-         if (m[i] != i) {
-            io::text::stdout->print(ABC_SL("ERROR for i={}\n"), i);
+      LOFTY_FOR_EACH(auto i, range) {
+         // Consume map[i] in some way.
+         if (map[i] != i) {
+            io::text::stdout->print(LOFTY_SL("ERROR for i={}\n"), i);
          }
       }
       sw.stop();
@@ -140,16 +140,16 @@ private:
    }
 
    template <typename TMap, typename TRange>
-   perf::stopwatch miss_lookup_test(TMap & m, TRange const & r) {
-      ABC_TRACE_FUNC(this/*, m, r*/);
+   perf::stopwatch miss_lookup_test(TMap & map, TRange const & range) {
+      LOFTY_TRACE_FUNC(this/*, map, range*/);
 
       perf::stopwatch sw;
-      auto end(m.end());
+      auto end(map.end());
       sw.start();
-      ABC_FOR_EACH(auto i, r >> *r.end()) {
-         // Consume m[i] in some way.
-         if (m.find(i) != end) {
-            io::text::stdout->print(ABC_SL("ERROR for i={}\n"), i);
+      LOFTY_FOR_EACH(auto i, range >> *range.end()) {
+         // Consume map[i] in some way.
+         if (map.find(i) != end) {
+            io::text::stdout->print(LOFTY_SL("ERROR for i={}\n"), i);
          }
       }
       sw.stop();
@@ -157,60 +157,58 @@ private:
    }
 
    template <typename TValue>
-   run_test_ret run_test(std::map<TValue, TValue> * pm, range<TValue> const & r) {
-      ABC_TRACE_FUNC(this, pm/*, r*/);
+   run_test_ret run_test(std::map<TValue, TValue> * map, range<TValue> const & range) {
+      LOFTY_TRACE_FUNC(this, map/*, range*/);
 
-      perf::stopwatch swAdd;
+      perf::stopwatch add_sw;
       {
-         swAdd.start();
-         ABC_FOR_EACH(auto i, r) {
-            pm->insert(std::make_pair(i, i));
+         add_sw.start();
+         LOFTY_FOR_EACH(auto i, range) {
+            map->insert(std::make_pair(i, i));
          }
-         swAdd.stop();
+         add_sw.stop();
       }
-      auto swHitLookup(hit_lookup_test(*pm, r));
-      auto swMissLookup(miss_lookup_test(*pm, r));
+      auto hit_lookup_sw(hit_lookup_test(*map, range));
+      auto miss_lookup_sw(miss_lookup_test(*map, range));
 
-      return run_test_ret(std::move(swAdd), std::move(swHitLookup), std::move(swMissLookup));
+      return run_test_ret(std::move(add_sw), std::move(hit_lookup_sw), std::move(miss_lookup_sw));
    }
 
    template <typename TValue, typename THash>
-   run_test_ret run_test(std::unordered_map<TValue, TValue, THash> * pum, range<TValue> const & r) {
-      ABC_TRACE_FUNC(this, pum/*, r*/);
+   run_test_ret run_test(std::unordered_map<TValue, TValue, THash> * map, range<TValue> const & range) {
+      LOFTY_TRACE_FUNC(this, map/*, range*/);
 
-      perf::stopwatch swAdd;
+      perf::stopwatch add_sw;
       {
-         swAdd.start();
-         ABC_FOR_EACH(auto i, r) {
-            pum->insert(std::make_pair(i, i));
+         add_sw.start();
+         LOFTY_FOR_EACH(auto i, range) {
+            map->insert(std::make_pair(i, i));
          }
-         swAdd.stop();
+         add_sw.stop();
       }
-      auto swHitLookup(hit_lookup_test(*pum, r));
-      auto swMissLookup(miss_lookup_test(*pum, r));
+      auto hit_lookup_sw(hit_lookup_test(*map, range));
+      auto miss_lookup_sw(miss_lookup_test(*map, range));
 
-      return run_test_ret(std::move(swAdd), std::move(swHitLookup), std::move(swMissLookup));
+      return run_test_ret(std::move(add_sw), std::move(hit_lookup_sw), std::move(miss_lookup_sw));
    }
 
    template <typename TValue, typename THash>
-   run_test_ret run_test(
-      collections::hash_map<TValue, TValue, THash> * phm, range<TValue> const & r
-   ) {
-      ABC_TRACE_FUNC(this, phm/*, r*/);
+   run_test_ret run_test(collections::hash_map<TValue, TValue, THash> * map, range<TValue> const & range) {
+      LOFTY_TRACE_FUNC(this, map/*, range*/);
 
-      perf::stopwatch swAdd;
+      perf::stopwatch add_sw;
       {
-         swAdd.start();
-         ABC_FOR_EACH(auto i, r) {
-            phm->add_or_assign(i, i);
+         add_sw.start();
+         LOFTY_FOR_EACH(auto i, range) {
+            map->add_or_assign(i, i);
          }
-         swAdd.stop();
+         add_sw.stop();
       }
-      auto swHitLookup(hit_lookup_test(*phm, r));
-      auto swMissLookup(miss_lookup_test(*phm, r));
+      auto hit_lookup_sw(hit_lookup_test(*map, range));
+      auto miss_lookup_sw(miss_lookup_test(*map, range));
 
-      return run_test_ret(std::move(swAdd), std::move(swHitLookup), std::move(swMissLookup));
+      return run_test_ret(std::move(add_sw), std::move(hit_lookup_sw), std::move(miss_lookup_sw));
    }
 };
 
-ABC_APP_CLASS(maps_comparison_app)
+LOFTY_APP_CLASS(maps_comparison_app)

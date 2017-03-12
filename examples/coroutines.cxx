@@ -1,133 +1,133 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2016 Raffaello D. Di Napoli
+Copyright 2015-2017 Raffaello D. Di Napoli
 
-This file is part of Abaclade.
+This file is part of Lofty.
 
-Abaclade is free software: you can redistribute it and/or modify it under the terms of the GNU
-Lesser General Public License as published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
+Lofty is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General
+Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
 
-Abaclade is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
-General Public License for more details.
+Lofty is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for
+more details.
 
-You should have received a copy of the GNU Lesser General Public License along with Abaclade. If
-not, see <http://www.gnu.org/licenses/>.
---------------------------------------------------------------------------------------------------*/
+You should have received a copy of the GNU Lesser General Public License along with Lofty. If not, see
+<http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------------------------------------*/
 
-#include <abaclade.hxx>
-#include <abaclade/app.hxx>
-#include <abaclade/coroutine.hxx>
-#include <abaclade/defer_to_scope_end.hxx>
-#include <abaclade/io/binary.hxx>
-#include <abaclade/io/text.hxx>
-#include <abaclade/range.hxx>
-#include <abaclade/thread.hxx>
+#include <lofty.hxx>
+#include <lofty/app.hxx>
+#include <lofty/coroutine.hxx>
+#include <lofty/defer_to_scope_end.hxx>
+#include <lofty/io/binary.hxx>
+#include <lofty/io/text.hxx>
+#include <lofty/range.hxx>
+#include <lofty/thread.hxx>
 
-using namespace abc;
+using namespace lofty;
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class coroutines_app : public app {
 public:
    /*! Main function of the program.
 
-   @param vsArgs
+   @param args
       Arguments that were provided to this program via command line.
    @return
       Return value of this program.
    */
-   virtual int main(collections::vector<str> & vsArgs) override {
-      ABC_TRACE_FUNC(this/*, vsArgs*/);
+   virtual int main(collections::vector<str> & args) override {
+      LOFTY_TRACE_FUNC(this/*, args*/);
 
-      ABC_UNUSED_ARG(vsArgs);
+      LOFTY_UNUSED_ARG(args);
       this_thread::attach_coroutine_scheduler();
 
-      /* Create a pipe. Since this thread now has a coroutine scheduler, the pipe will take
-      advantage of it to avoid blocking on reads and writes. */
+      /* Create a pipe. Since this thread now has a coroutine scheduler, the pipe will take advantage of it to
+      avoid blocking on reads and writes. */
       io::binary::pipe pipe;
 
       // Schedule the reader.
       coroutine([this, &pipe] () {
-         ABC_TRACE_FUNC(this/*, pipe*/);
+         LOFTY_TRACE_FUNC(this/*, pipe*/);
 
-         io::text::stdout->write_line(ABC_SL("reader: starting"));
+         io::text::stdout->write_line(LOFTY_SL("reader: starting"));
          for (;;) {
             int i;
-            io::text::stdout->print(ABC_SL("reader: reading\n"));
+            io::text::stdout->print(LOFTY_SL("reader: reading\n"));
             // This will cause a context switch if the read would block.
-            std::size_t cbRead = pipe.read_end->read(&i, sizeof i);
+            std::size_t bytes_read = pipe.read_end->read(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
-            if (cbRead == 0) {
+            if (bytes_read == 0) {
                // Detect EOF.
                break;
             }
-            io::text::stdout->print(ABC_SL("reader: read {}\n"), i);
+            io::text::stdout->print(LOFTY_SL("reader: read {}\n"), i);
 
             // Consume i.
             if (i == 3) {
                // Add a coroutine that will display a message in a quarter of a second.
                coroutine([] () {
-                  io::text::stdout->write_line(ABC_SL("delayed message: starting"));
+                  io::text::stdout->write_line(LOFTY_SL("delayed message: starting"));
                   this_coroutine::sleep_for_ms(250);
-                  io::text::stdout->write_line(ABC_SL("delayed message: this is it"));
-                  io::text::stdout->write_line(ABC_SL("delayed message: terminating"));
+                  io::text::stdout->write_line(LOFTY_SL("delayed message: this is it"));
+                  io::text::stdout->write_line(LOFTY_SL("delayed message: terminating"));
                });
             }
          }
-         io::text::stdout->write_line(ABC_SL("reader: terminating"));
+         io::text::stdout->write_line(LOFTY_SL("reader: terminating"));
       });
 
       // Schedule the writer.
       coroutine([this, &pipe] () {
-         ABC_TRACE_FUNC(this/*, pipe*/);
+         LOFTY_TRACE_FUNC(this/*, pipe*/);
 
-         /* Ensure that the pipe’s write end is finalized (closed) even in case of exceptions. In a
-         real application, we would check for exceptions when doing so. This will be reported as EOF
-         on the read end. */
-#if ABC_HOST_CXX_MSC == 1600
+         /* Ensure that the pipe’s write end is finalized (closed) even in case of exceptions. In a real
+         application, we would check for exceptions when doing so. This will be reported as EOF on the read
+         end. */
+#if LOFTY_HOST_CXX_MSC == 1600
          // MSC16 BUG: does not like capturing a captured variable.
          auto pipe_write_end(pipe.write_end);
-         ABC_DEFER_TO_SCOPE_END(pipe_write_end->finalize());
+         LOFTY_DEFER_TO_SCOPE_END(pipe_write_end->finalize());
 #else
-         ABC_DEFER_TO_SCOPE_END(pipe.write_end->finalize());
+         LOFTY_DEFER_TO_SCOPE_END(pipe.write_end->finalize());
 #endif
 
-         io::text::stdout->write_line(ABC_SL("writer: starting"));
-         ABC_FOR_EACH(int i, make_range(1, 10)) {
-            io::text::stdout->print(ABC_SL("writer: writing {}\n"), i);
+         io::text::stdout->write_line(LOFTY_SL("writer: starting"));
+         LOFTY_FOR_EACH(int i, make_range(1, 10)) {
+            io::text::stdout->print(LOFTY_SL("writer: writing {}\n"), i);
             // This will cause a context switch if the write would block.
             pipe.write_end->write(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
 
-            /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be
-            scheduled, as well as create a more realistic non-continuous data flow into the pipe. */
-            io::text::stdout->write_line(ABC_SL("writer: yielding"));
+            /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be scheduled,
+            as well as create a more realistic non-continuous data flow into the pipe. */
+            io::text::stdout->write_line(LOFTY_SL("writer: yielding"));
             this_coroutine::sleep_for_ms(50);
             // Execution resumes here, after other coroutines have received CPU time.
          }
-         io::text::stdout->write_line(ABC_SL("writer: terminating"));
+         io::text::stdout->write_line(LOFTY_SL("writer: terminating"));
       });
 
       // Schedule the stdin reader.
       /*coroutine([this] () {
-         ABC_TRACE_FUNC(this);
+         LOFTY_TRACE_FUNC(this);
 
-         io::text::stdout->print(ABC_SL("stdin: starting\n"));
-         ABC_FOR_EACH(auto & sLine, io::text::stdin->lines()) {
-            io::text::stdout->print(ABC_SL("stdin: read {}\n"), sLine);
+         io::text::stdout->print(LOFTY_SL("stdin: starting\n"));
+         LOFTY_FOR_EACH(auto & line, io::text::stdin->lines()) {
+            io::text::stdout->print(LOFTY_SL("stdin: read {}\n"), line);
          }
-         io::text::stdout->write_line(ABC_SL("stdin: terminating"));
+         io::text::stdout->write_line(LOFTY_SL("stdin: terminating"));
       });*/
 
       // Switch this thread to run coroutines, until they all terminate.
       this_thread::run_coroutines();
       // Execution resumes here, after all coroutines have terminated.
-      io::text::stdout->write_line(ABC_SL("main: terminating"));
+      io::text::stdout->write_line(LOFTY_SL("main: terminating"));
       return 0;
    }
 };
 
-ABC_APP_CLASS(coroutines_app)
+LOFTY_APP_CLASS(coroutines_app)

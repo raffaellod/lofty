@@ -1,7 +1,7 @@
 ﻿1. Introduction
 ---------------
 
-Abaclade is a C++11 framework featuring:
+Lofty is a C++11 framework featuring:
 
 •  Multiple platform compatibility: Linux and Windows, with OS X and FreeBSD
    “only” blocked by Clang/LLVM limitations (see § 7. Compatibility);
@@ -11,7 +11,7 @@ Abaclade is a C++11 framework featuring:
 •  Integrated self-diagnosis: programs don’t just crash; every error condition
    (including dereferencing a null pointer) results in an exception and a stack
    trace that includes the actual values of arguments and local variables –
-   you’ll always know what went wrong! (see ABC_TRACE_FUNC(), for example);
+   you’ll always know what went wrong! (see LOFTY_TRACE_FUNC(), for example);
 
 •  Testing framework integrated in the library with full support from the
    recommended build tool, Complemake (<https://github.com/raffaellod/
@@ -20,10 +20,10 @@ Abaclade is a C++11 framework featuring:
 •  Approachable and intuitive programming style, similar to Python’s; a good
    example is its modern I/O class hierarchy inspired by Python 3.x’s library,
    including a fully type-safe replacement for printf() (see
-   abc::io::text::ostream::print());
+   lofty::io::text::ostream::print());
 
 •  Full support for Unicode and the C++11 char32_t character type (see
-   abc::text);
+   lofty::text);
 
 •  Use of templates and their specializations over macros and void pointers – no
    C-style variadic functions either;
@@ -32,14 +32,14 @@ Abaclade is a C++11 framework featuring:
    service-oriented architectures;
 
 
-2. Getting Abaclade
--------------------
+2. Getting Lofty
+----------------
 
-Abaclade is available at https://github.com/raffaellod/abaclade via git; to
-download it, just clone the repository:
+Lofty is available at https://github.com/raffaellod/lofty via git; to download
+it, just clone the repository:
 
-   git clone https://github.com/raffaellod/abaclade.git
-   cd abaclade
+   git clone https://github.com/raffaellod/lofty.git
+   cd lofty
 
 The default branch, linux, is where all Linux development occurs; branches for
 other platforms are regularly merged to and from it, and guarantee a stable base
@@ -53,38 +53,38 @@ not targeting Linux:
 See § 6. Versioning and branching for more information on available branches.
 
 
-3. Building Abaclade
---------------------
+3. Building Lofty
+-----------------
 
-Building Abaclade requires Complemake (see <https://github.com/raffaellod/
+Building Lofty requires Complemake (see <https://github.com/raffaellod/
 complemake>), which works as an improved make utility.
 
-To build Abaclade, run Complemake from Abaclade’s base directory:
+To build Lofty, run Complemake from Lofty’s base directory:
 
-   cd /path/to/abaclade
+   cd /path/to/lofty
    /path/to/complemake.py
 
 This will create outputs in the bin/ and lib/ folders.
 
 
-4. Installing Abaclade
-----------------------
+4. Installing Lofty
+-------------------
 
-At the moment, Abaclade lacks any means for installation.
+At the moment, Lofty lacks any means for installation.
 
-TODO: make Abaclade installable.
+TODO: make Lofty installable.
 
 
-5. Using Abaclade
------------------
+5. Using Lofty
+--------------
 
 For usage examples, please see the source files in the examples/ folder.
-Examples are built as part of Abaclade (see § 3. Building Abaclade), and the
-generated executables can be found in the bin/ output folder.
+Examples are built as part of Lofty (see § 3. Building Lofty), and the generated
+executables can be found in the bin/ output folder.
 
-If Abaclade is not installed (see § 4. Installing Abaclade), example programs
-will fail to run due to being unable to load Abaclade shared libraries; this can
-be worked around by adding the output lib/ folder to the shared library search
+If Lofty is not installed (see § 4. Installing Lofty), example programs will
+fail to run due to being unable to load Lofty shared libraries; this can be
+worked around by adding the output lib/ folder to the shared library search
 path:
 
 • On glibc/Linux and FreeBSD:
@@ -101,13 +101,13 @@ path:
 6. Versioning and branching
 ---------------------------
 
-Abaclade uses semantical versioning, with releases named vX.Y.Z-P where X is the
+Lofty uses semantical versioning, with releases named vX.Y.Z-P where X is the
 major version, Y is the minor version, Z is the revision, and P is the platform.
 
 While the major version number is 0, changes to the minor indicate breaking
 changes, while the revision is incremented for non-breaking changes such as bug
 fixes and minor improvements.
-There is one main branch for each platform (see § 2. Getting Abaclade), and each
+There is one main branch for each platform (see § 2. Getting Lofty), and each
 release is a tag along its platform branch’s history. There are no maintenance
 releases.
 
@@ -124,8 +124,8 @@ versions and revisions will be tags along their major version’s branch.
 7. Compatibility
 ----------------
 
-Abaclade is in full development, so its compatibility can and will change over
-time (hopefully expanding).
+Lofty is in full development, so its compatibility can and will change over time
+(hopefully expanding).
 
 Supported build systems:
 
@@ -136,8 +136,8 @@ Supported build systems:
 •  Microsoft Visual Studio 2010-2013 (Visual C++ 10-12 / MSC 16-18)
 
 Clang/LLVM is not supported at this moment due to missing compiler features. If
-and when these will get integrated in LLVM, Abaclade will support these
-additional build systems:
+and when these will get integrated in LLVM, Lofty will support these additional
+build systems:
 
 •  Clang + GNU LD
    •  Clang 3.5
@@ -158,8 +158,8 @@ limitations:
 •  OS X 10.9 Mavericks or later;
 •  FreeBSD – officially only the latest -RELEASE is supported;
 
-Additionally, Abaclade requires Python 2.7 or 3.2 or later to be installed on
-the build host system.
+Additionally, Lofty requires Python 2.7 or 3.2 or later to be installed on the
+build host system.
 
 
 6. Past, present and future
@@ -169,8 +169,8 @@ the build host system.
 6.1. Some history
 -----------------
 
-Abaclade was started in the mid-2000s with a dual scope: on one hand explore if
-it was possible, (ab)using templates and other C++ features, to have automatic
+Lofty was started in the mid-2000s with a dual scope: on one hand explore if it
+was possible, (ab)using templates and other C++ features, to have automatic
 error reporting similar to what higher-level languages such as Python and Java
 offer; on the other hand, a required target was to be able to write programs
 that would be light, fast, easy to write, and easy to read years later.
@@ -181,20 +181,20 @@ several dead-ended projects.
 
 When C++11 finally reached the final draft status, it turned out that it allowed
 for most of the features that had originally been planned, so development of
-Abaclade as it is now was finally started.
+Lofty as it is now was finally started.
 
 
-6.2. Current status of Abaclade
--------------------------------
+6.2. Current status of Lofty
+----------------------------
 
-Abaclade can be considered of “alpha” grade, and tinkering with it is strongly
+Lofty can be considered of “alpha” grade, and tinkering with it is strongly
 encouraged.
 
 
 6.3. Project goals
 ------------------
 
-Abaclade has very ambitious goals:
+Lofty has very ambitious goals (hence its name):
 
 1. Supersede other C++ libraries that fail to exploit the features of C++11 –
    especially libraries developed as C++ bindings for C libraries;
@@ -212,18 +212,18 @@ these objectives.
 
 
 --------------------------------------------------------------------------------
-Copyright 2010-2016 Raffaello D. Di Napoli
+Copyright 2010-2017 Raffaello D. Di Napoli
 
-This file is part of Abaclade.
+This file is part of Lofty.
 
-Abaclade is free software: you can redistribute it and/or modify it under the
-terms of the GNU Lesser General Public License as published by the Free Software
+Lofty is free software: you can redistribute it and/or modify it under the terms
+of the GNU Lesser General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-Abaclade is distributed in the hope that it will be useful, but WITHOUT ANY
+Lofty is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License along
-with Abaclade. If not, see <http://www.gnu.org/licenses/>.
+with Lofty. If not, see <http://www.gnu.org/licenses/>.

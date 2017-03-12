@@ -1,0 +1,13 @@
+{
+   accessing manipulated mcontext_t
+   Memcheck:Addr8
+   fun:*lofty*exception*throw_common_type*
+   ...
+}
+{
+   intentional dereference of invalid pointer
+   Memcheck:Addr4
+   ...
+   fun:*_pvt_signal_dispatcher_os_errors_to_cxx_exceptions*
+   ...
+}
