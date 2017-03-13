@@ -42,7 +42,7 @@ namespace lofty { namespace _std { namespace _pvt {
 
 shared_refcount::shared_refcount(unsigned strong_refs_, unsigned weak_refs_) :
    strong_refs(strong_refs_),
-   weak_refs(weak_refs_ + (strong_refs > 0 ? 1 : 0)) {
+   weak_refs(weak_refs_ + (strong_refs_ > 0 ? 1 : 0)) {
 }
 
 /*virtual*/ shared_refcount::~shared_refcount() {
