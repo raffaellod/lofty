@@ -33,11 +33,11 @@ void * singly_linked_list_impl::node::operator new(std::size_t alloc_size, type_
 }
 
 singly_linked_list_impl::node::node(
-   type_void_adapter const & type, node ** first_node, node ** last_node, node * prev, node * next__,
+   type_void_adapter const & type, node ** first_node_, node ** last_node_, node * prev, node * next__,
    void const * value_src, bool move
 ) :
    next_(next__) {
-   LOFTY_TRACE_FUNC(this/*, type*/, first_node, last_node, prev, next__, value_src, move);
+   LOFTY_TRACE_FUNC(this/*, type*/, first_node_, last_node_, prev, next__, value_src, move);
 
    // Copy- or move-onstruct the value of the node.
    void * value_dst = value_ptr(type);
@@ -50,21 +50,21 @@ singly_linked_list_impl::node::node(
    if (prev) {
       prev->next_ = this;
    } else {
-      *first_node = this;
+      *first_node_ = this;
    }
    if (!next__) {
-      *last_node = this;
+      *last_node_ = this;
    }
 }
 
-void singly_linked_list_impl::node::unlink(node ** first_node, node ** last_node, node * prev) {
+void singly_linked_list_impl::node::unlink(node ** first_node_, node ** last_node_, node * prev) {
    if (prev) {
       prev->next_ = next_;
-   } else if (first_node) {
-      *first_node = next_;
+   } else if (first_node_) {
+      *first_node_ = next_;
    }
-   if (!next_ && last_node) {
-      *last_node = prev;
+   if (!next_ && last_node_) {
+      *last_node_ = prev;
    }
 }
 
