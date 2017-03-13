@@ -25,20 +25,11 @@ targets:
       brief: Main Lofty dynamic shared library.
       sources:
       -  src/lofty/app.cxx
-      -  src/lofty/bitmanip.cxx
-      -  src/lofty/byte_order.cxx
       -  src/lofty/collections.cxx
-      -  src/lofty/collections/_pvt/doubly_linked_list_impl.cxx
       -  src/lofty/collections/_pvt/hash_map_impl.cxx
-      -  src/lofty/collections/_pvt/singly_linked_list_impl.cxx
       -  src/lofty/collections/_pvt/trie_ordered_multimap_impl.cxx
       -  src/lofty/collections/_pvt/vextr_impl.cxx
-      -  src/lofty/collections/static_list.cxx
-      -  src/lofty/collections/vector.cxx
       -  src/lofty/coroutine.cxx
-      -  src/lofty/coroutine_local.cxx
-      -  src/lofty/destructing_unfinalized_object.cxx
-      -  src/lofty/enum.cxx
       -  src/lofty/exception.cxx
       -  src/lofty/exception-throw_os_error.cxx
       -  src/lofty/from_text_istream.cxx
@@ -49,7 +40,7 @@ targets:
       -  src/lofty/io/text.cxx
       -  src/lofty/io/text/binbuf.cxx
       -  src/lofty/io/text/str.cxx
-      -  src/lofty/math.cxx
+      -  src/lofty/lofty.cxx
       -  src/lofty/memory.cxx
       -  src/lofty/net/ip.cxx
       -  src/lofty/net/tcp.cxx
@@ -57,14 +48,8 @@ targets:
       -  src/lofty/os/path.cxx
       -  src/lofty/perf/stopwatch.cxx
       -  src/lofty/process.cxx
-      -  src/lofty/_pvt/context_local.cxx
       -  src/lofty/_pvt/signal_dispatcher.cxx
-      -  src/lofty/_pvt/trace.cxx
-      -  src/lofty/_std/exception.cxx
-      -  src/lofty/_std/memory.cxx
-      -  src/lofty/_std/new.cxx
-      -  src/lofty/_std/tuple.cxx
-      -  src/lofty/_std/typeinfo.cxx
+      -  src/lofty/_std.cxx
       -  src/lofty/text.cxx
       -  src/lofty/text/char_ptr_to_str_adapter.cxx
       -  src/lofty/text/char_traits.cxx
@@ -74,16 +59,13 @@ targets:
       -  src/lofty/text/str_traits.cxx
       -  src/lofty/text/ucd.cxx
       -  src/lofty/thread.cxx
-      -  src/lofty/thread_local.cxx
       -  src/lofty/to_text_ostream.cxx
-      -  src/lofty/type_void_adapter.cxx
 
       tests:
          - !complemake/target/exetest
             name: lofty-test
             brief: Main test for Lofty.
             sources:
-            -  test/lofty/lofty-test.cxx
             -  test/lofty/collections/hash_map.cxx
             -  test/lofty/collections/list.cxx
             -  test/lofty/collections/queue.cxx
@@ -91,26 +73,19 @@ targets:
             -  test/lofty/collections/trie_ordered_multimap.cxx
             -  test/lofty/collections/vector.cxx
             -  test/lofty/coroutine.cxx
-            -  test/lofty/coroutine_local.cxx
-            -  test/lofty/defer_to_scope_end.cxx
-            -  test/lofty/enum.cxx
             -  test/lofty/exception.cxx
             -  test/lofty/from_text_istream.cxx
             -  test/lofty/io/binary/pipe.cxx
             -  test/lofty/io/text/binbuf_istream-read.cxx
             -  test/lofty/io/text/ostream-print.cxx
-            -  test/lofty/net/ip.cxx
-            -  test/lofty/os.cxx
+            -  test/lofty/lofty-test.cxx
+            -  test/lofty/net.cxx
             -  test/lofty/os/path.cxx
             -  test/lofty/process.cxx
-            -  test/lofty/_pvt/signal_dispatcher.cxx
-            -  test/lofty/range.cxx
-            -  test/lofty/text/char_ptr_to_str_adapter.cxx
             -  test/lofty/text/parsers/dynamic.cxx
             -  test/lofty/text/str.cxx
             -  test/lofty/text/str_traits.cxx
             -  test/lofty/thread.cxx
-            -  test/lofty/thread_local.cxx
             -  test/lofty/to_text_ostream.cxx
             libraries:
             -  lofty-testing
@@ -130,10 +105,7 @@ targets:
       name: lofty-testing
       brief: Testing support library.
       sources:
-      -  src/lofty-testing/app.cxx
-      -  src/lofty-testing/runner.cxx
-      -  src/lofty-testing/test_case.cxx
-      -  src/lofty-testing/utility.cxx
+      -  src/lofty-testing/lofty-testing.cxx
       libraries:
       -  lofty
 

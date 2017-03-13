@@ -26,30 +26,6 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if LOFTY_HOST_API_WIN32
-/*! Entry point for lofty.dll.
-
-@param hinst
-   Module’s instance handle.
-@param reason
-   Reason why this function was invoked; one of DLL_{PROCESS,THREAD}_{ATTACH,DETACH}.
-@param reserved
-   Legacy.
-@return
-   true in case of success, or false otherwise.
-*/
-extern "C" ::BOOL WINAPI DllMain(::HINSTANCE hinst, ::DWORD reason, void * reserved) {
-   LOFTY_UNUSED_ARG(hinst);
-   LOFTY_UNUSED_ARG(reserved);
-   if (!lofty::_pvt::thread_local_storage::dllmain_hook(static_cast<unsigned>(reason))) {
-      return false;
-   }
-   return true;
-}
-#endif //if LOFTY_HOST_API_WIN32
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace lofty {
 
 /*static*/ app * app::this_instance = nullptr;

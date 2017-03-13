@@ -964,3 +964,30 @@ void sleep_until_fd_ready(
 }
 
 }} //namespace lofty::this_coroutine
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace _pvt {
+
+coroutine_local_storage_registrar::data_members coroutine_local_storage_registrar::data_members_ =
+   LOFTY__PVT_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER;
+
+}} //namespace lofty::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace _pvt {
+
+coroutine_local_storage::coroutine_local_storage() :
+   context_local_storage_impl(&coroutine_local_storage_registrar::instance()) {
+}
+
+coroutine_local_storage::~coroutine_local_storage() {
+   unsigned remaining_attempts = 10;
+   bool any_destructed;
+   do {
+      any_destructed = destruct_vars(coroutine_local_storage_registrar::instance());
+   } while (--remaining_attempts > 0 && any_destructed);
+}
+
+}} //namespace lofty::_pvt

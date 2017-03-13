@@ -17,10 +17,31 @@ You should have received a copy of the GNU Lesser General Public License along w
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
-#ifdef _LOFTY_STD_MEMORY_HXX
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef _LOFTY_STD_EXCEPTION_HXX
+
+namespace lofty { namespace _std {
+
+exception::exception() {
+}
+
+/*virtual*/ exception::~exception() {
+}
+
+/*virtual*/ char const * exception::what() const {
+   return "lofty::_std::exception";
+}
+
+}} //namespace lofty::_std
+
+#endif //ifdef _LOFTY_STD_EXCEPTION_HXX
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef _LOFTY_STD_MEMORY_HXX
 
 namespace lofty { namespace _std {
 
@@ -36,7 +57,11 @@ bad_weak_ptr::bad_weak_ptr() {
 
 }} //namespace lofty::_std
 
+#endif //ifdef _LOFTY_STD_MEMORY_HXX
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef _LOFTY_STD_MEMORY_HXX
 
 namespace lofty { namespace _std { namespace _pvt {
 
@@ -75,6 +100,88 @@ void shared_refcount::add_strong_ref() {
 
 }}} //namespace lofty::_std::_pvt
 
+#endif //ifdef _LOFTY_STD_MEMORY_HXX
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif //ifdef _LOFTY_STD_MEMORY_HXX
+#ifdef _LOFTY_STD_NEW_HXX
+
+namespace lofty { namespace _std {
+
+nothrow_t const nothrow;
+
+}} //namespace lofty::_std
+
+#endif //ifdef _LOFTY_STD_NEW_HXX
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef _LOFTY_STD_NEW_HXX
+
+namespace lofty { namespace _std {
+
+bad_alloc::bad_alloc() {
+}
+
+/*virtual*/ bad_alloc::~bad_alloc() {
+}
+
+/*virtual*/ char const * bad_alloc::what() const /*override*/ {
+   return "lofty::_std::bad_alloc";
+}
+
+}} //namespace lofty::_std
+
+#endif //ifdef _LOFTY_STD_NEW_HXX
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef _LOFTY_STD_TUPLE_HXX
+
+namespace lofty { namespace _std {
+
+_pvt::ignore_t const ignore;
+
+}} //namespace lofty::_std
+
+#endif //ifdef _LOFTY_STD_TUPLE_HXX
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef _LOFTY_STD_TYPEINFO_HXX
+
+namespace lofty { namespace _std {
+
+bad_cast::bad_cast() {
+}
+
+/*virtual*/ bad_cast::~bad_cast() {
+}
+
+/*virtual*/ char const * bad_cast::what() const /*override*/ {
+   return "lofty::_std::bad_cast";
+}
+
+}} //namespace lofty::_std
+
+#endif //ifdef _LOFTY_STD_TYPEINFO_HXX
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef _LOFTY_STD_TYPEINFO_HXX
+
+namespace lofty { namespace _std {
+
+bad_typeid::bad_typeid() {
+}
+
+/*virtual*/ bad_typeid::~bad_typeid() {
+}
+
+/*virtual*/ char const * bad_typeid::what() const /*override*/ {
+   return "lofty::_std::bad_typeid";
+}
+
+}} //namespace lofty::_std
+
+#endif //ifdef _LOFTY_STD_TYPEINFO_HXX
