@@ -283,7 +283,7 @@ coroutine::scheduler::scheduler() :
    epoll_fd(::epoll_create1(EPOLL_CLOEXEC)),
 #elif LOFTY_HOST_API_WIN32
    iocp_fd(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)),
-   timer_thread(nullptr),
+   timer_thread_handle(nullptr),
    stop_thread_timer(false),
 #endif
    interruption_reason_x_type(exception::common_type::none) {
@@ -308,12 +308,12 @@ coroutine::scheduler::scheduler() :
 coroutine::scheduler::~scheduler() {
    // TODO: verify that ready_coros_queue and coros_blocked_by_fd (and coros_blocked_by_timer_ke…) are empty.
 #if LOFTY_HOST_API_WIN32
-   if (timer_thread) {
+   if (timer_thread_handle) {
       stop_thread_timer.store(true);
       // Wake the thread up one last time to let it know that it’s over.
       arm_timer(0);
-      ::WaitForSingleObject(timer_thread, INFINITE);
-      ::CloseHandle(timer_thread);
+      ::WaitForSingleObject(timer_thread_handle, INFINITE);
+      ::CloseHandle(timer_thread_handle);
    }
 #endif
 }
@@ -456,8 +456,8 @@ void coroutine::scheduler::block_active_for_ms(unsigned millisecs) {
       }
       /* Create a thread that will wait for the timer to fire and post each firing to the IOCP, effectively
       emulating a timerfd. */
-      timer_thread = ::CreateThread(nullptr, 0, &timer_thread_static, this, 0, nullptr);
-      if (!timer_thread) {
+      timer_thread_handle = ::CreateThread(nullptr, 0, &timer_thread_static, this, 0, nullptr);
+      if (!timer_thread_handle) {
          exception::throw_os_error();
       }
    #endif

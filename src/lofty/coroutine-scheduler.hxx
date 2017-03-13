@@ -205,7 +205,7 @@ private:
    //! File descriptor of the internal IOCP.
    io::filedesc iocp_fd;
    //! Thread that translates events from timer_fd into IOCP completions.
-   ::HANDLE timer_thread;
+   ::HANDLE timer_thread_handle;
    _std::atomic<bool> stop_thread_timer;
 #else
    #error "TODO: HOST_API"
