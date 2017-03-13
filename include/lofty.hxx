@@ -214,7 +214,7 @@ purpose, but this is noticeably shorter :)
    Unused argument.
 */
 #define LOFTY_UNUSED_ARG(x) \
-   static_cast<void>(x)
+   static_cast<void>(&x)
 
 /*! Returns the number of items in a (static) array.
 
