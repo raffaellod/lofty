@@ -293,6 +293,7 @@ struct struct_type {
 };
 
 class class_type {
+public:
    int i;
    char ch;
 };
