@@ -146,13 +146,6 @@ namespace lofty { namespace os {
 
 #if LOFTY_HOST_API_WIN32
 
-/*! Determines whether the process is running under Windows NT or an older, non-NT version of Windows.
-
-@return
-   true if running under Windows NT, or false otherwise.
-*/
-LOFTY_SYM bool is_nt();
-
 /*! Returns a Windows Registry value.
 
 @param parent_hkey
@@ -167,14 +160,6 @@ LOFTY_SYM bool is_nt();
    true if the value was found, or false otherwise.
 */
 LOFTY_SYM bool get_registry_value(::HKEY parent_hkey, str const & key_path, str const & name, str * out);
-
-/*! Returns the Windows version that’s running the process.
-
-@return
-   Windows version in the format 0xMMNNBBBB, where MM is the major version, NN is the minor version, and BBBB
-   is the build number.
-*/
-LOFTY_SYM std::uint32_t version();
 
 #endif
 

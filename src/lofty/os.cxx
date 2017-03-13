@@ -93,33 +93,6 @@ namespace lofty { namespace os {
 
 #if LOFTY_HOST_API_WIN32
 
-//! Value returned by lofty::os::is_nt() under Windows.
-static bool win_is_nt = false;
-//! Value returned by lofty::os::version() under Windows.
-static std::uint32_t win_version = 0;
-
-//! Initializes win_is_nt and win_version.
-static void get_is_nt_and_version() {
-   std::uint32_t version = ::GetVersion();
-   std::uint8_t major = static_cast<std::uint8_t>(version);
-   // Extract the build number.
-   std::uint16_t build;
-   if (major == 4) {
-      // Windows 9x.
-      build =  0;
-   } else {
-      // Windows NT or Win32s.
-      build = static_cast<std::uint16_t>((version & 0x7fff0000) >> 16);
-   }
-   /* No need to use a mutex here, since these writes are atomic and the values written will be equal for all
-   threads in the process. */
-   win_is_nt = ((version & 0x80000000) == 0);
-   win_version =
-      (static_cast<std::uint32_t>(major) << 24) |
-      (static_cast<std::uint32_t>(version & 0x0000ff00) << 8) |
-       static_cast<std::uint32_t>(build);
-}
-
 static ::HKEY open_registry_key(::HKEY parent_hkey, str const & name) {
    ::HKEY ret_hkey;
    if (auto ret = ::RegOpenKeyEx(parent_hkey, name.c_str(), 0, KEY_QUERY_VALUE, &ret_hkey)) {
@@ -223,20 +196,6 @@ bool get_registry_value(::HKEY parent_hkey, str const & key_path, str const & na
       probed_type = final_type;
       probed_value_byte_size = final_value_byte_size;
    }
-}
-
-bool is_nt() {
-   if (win_version == 0) {
-      get_is_nt_and_version();
-   }
-   return win_is_nt;
-}
-
-std::uint32_t version() {
-   if (win_version == 0) {
-      get_is_nt_and_version();
-   }
-   return win_version;
 }
 
 #endif
