@@ -57,12 +57,12 @@ See § 6. Versioning and branching for more information on available branches.
 -----------------
 
 Building Lofty requires Complemake (see <https://github.com/raffaellod/
-complemake>), which works as an improved make utility.
+complemake>), which works as an improved make utility and dependency manager.
 
 To build Lofty, run Complemake from Lofty’s base directory:
 
    cd /path/to/lofty
-   /path/to/complemake.py
+   /path/to/complemake.py build
 
 This will create outputs in the bin/ and lib/ folders.
 
