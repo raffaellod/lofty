@@ -41,15 +41,6 @@ it, just clone the repository:
    git clone https://github.com/raffaellod/lofty.git
    cd lofty
 
-The default branch, linux, is where all Linux development occurs; branches for
-other platforms are regularly merged to and from it, and guarantee a stable base
-for each platform, so you should switch to the branch matching yours if you’re
-not targeting Linux:
-
-•  OS X:    git checkout osx
-•  Windows: git checkout win
-•  FreeBSD: git checkout freebsd
-
 See § 6. Versioning and branching for more information on available branches.
 
 
@@ -101,24 +92,39 @@ path:
 6. Versioning and branching
 ---------------------------
 
-Lofty uses semantical versioning, with releases named vX.Y.Z-P where X is the
-major version, Y is the minor version, Z is the revision, and P is the platform.
+Lofty uses semantic versioning: MAJOR.MINOR.REVISION .
 
 While the major version number is 0, changes to the minor indicate breaking
 changes, while the revision is incremented for non-breaking changes such as bug
 fixes and minor improvements.
-There is one main branch for each platform (see § 2. Getting Lofty), and each
-release is a tag along its platform branch’s history. There are no maintenance
-releases.
 
 Version 1.0.0 will indicate the first production-grade release, and the meaning
 of the versioning schema will shift accordingly: the major number will indicate
 breaking changes, the minor non-breaking changes (e.g. for maintenance
 releases), and the revision will be incremented for bug fixes and other minor
 improvements.
-The main git branch will remanin master, but each major release will get its own
-branch, to support maintenance releases independent of the master branch. Minor
-versions and revisions will be tags along their major version’s branch.
+
+Revisions are tags named vX.Y.Z where X is the major version, Y is the minor
+version, and Z is the revision.
+
+Versions are branches named vX.Y where X is the major version and Y is the minor
+version. Version branches start with a revision tag, and may have more revision
+tags for maintenance releases.
+
+Currently there are no version branches, as long as the major version remains 0.
+
+The default branch is master; this branch tracks the most common ancestor of all
+development branches, which are one for each platform:
+
+•  Linux:   linux
+•  Windows: win
+•  OS X:    osx (currently stale due to lack of active development)
+•  FreeBSD: freebsd
+
+When Lofty will have version branches, each version branch should proably get a
+development branch of its own in the form of platform_vX.Y, with the version
+branch vX.Y being a tracker in the same way master tracks the main development
+branches.
 
 
 7. Compatibility
