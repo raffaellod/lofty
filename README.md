@@ -53,9 +53,10 @@ This will create outputs in the `bin` and `lib` folders (you can change that wit
 
 ### 2.2. Installing
 
-At the moment, Lofty lacks any means for installation. If you’re using Complemake to build your project,
-Complemake will take care of making Lofty available to projects that declare it as a dependency. You’ll still
-need to manipulate the environment to run any binaries though (see § _3. Using Lofty_).
+At the moment, Lofty lacks any means for installation.
+If you’re using Complemake to build your project, Complemake will take care of making Lofty available during
+builds to projects that declare it as a dependency, and the `exec` Complemake command will allow running any
+generated executables; see § _3. Using Lofty_.
 
 **TODO**: make Lofty installable.
 
@@ -65,25 +66,12 @@ need to manipulate the environment to run any binaries though (see § _3. Using 
 For usage examples, please see the source files in the `examples` folder. Examples are built as part of Lofty
 (see § _2.1. Building Lofty_), and the generated executables can be found in the `bin` output folder.
 
-If Lofty is not installed (see § _4. Installing Lofty_), programs will fail to run due to being unable to load
-Lofty shared libraries; this can be worked around by adding the output `lib` folder to the shared library
-search path:
+If Lofty is not installed (see § _2.2. Installing Lofty_), programs will fail to run due to being unable to
+load Lofty shared libraries; this can be worked around by using the `exec` command of Complemake:
 
-*  On glibc/Linux and FreeBSD:
-   ```
-   env LD_LIBRARY_PATH=$PWD/lib bin/hello-world
-   ```
-
-*  On OS X:
-   ```
-   env DYLD_LIBRARY_PATH=$PWD/lib bin/hello-world
-   ```
-
-*  On Windows:
-   ```
-   set PATH=%PATH%;%CD%\lib
-   bin\hello-world
-   ```
+```
+complemake exec bin/hello-world
+```
 
 
 ## 4. Versioning and branching
