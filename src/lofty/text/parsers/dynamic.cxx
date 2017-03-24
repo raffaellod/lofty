@@ -95,38 +95,46 @@ dynamic::dynamic(dynamic && src) :
 dynamic::~dynamic() {
 }
 
+dynamic::state * dynamic::create_begin_state() {
+   return create_uninitialized_state(state_type::begin);
+}
+
 dynamic::state * dynamic::create_code_point_state(char32_t cp) {
-   state * new_state = create_uninitialized_state(state_type::range);
-   new_state->u.range.first_cp = cp;
-   new_state->u.range.last_cp = cp;
-   return new_state;
+   state * ret = create_uninitialized_state(state_type::range);
+   ret->u.range.first_cp = cp;
+   ret->u.range.last_cp = cp;
+   return ret;
 }
 
 dynamic::state * dynamic::create_code_point_range_state(char32_t first_cp, char32_t last_cp) {
-   state * new_state = create_uninitialized_state(state_type::range);
-   new_state->u.range.first_cp = first_cp;
-   new_state->u.range.last_cp = last_cp;
-   return new_state;
+   state * ret = create_uninitialized_state(state_type::range);
+   ret->u.range.first_cp = first_cp;
+   ret->u.range.last_cp = last_cp;
+   return ret;
+}
+
+dynamic::state * dynamic::create_end_state() {
+   return create_uninitialized_state(state_type::end);
 }
 
 dynamic::state * dynamic::create_repetition_state(
    state const * repeated_state, std::uint16_t min, std::uint16_t max /*= 0*/
 ) {
-   state * new_state = create_uninitialized_state(state_type::repetition);
-   new_state->u.repetition.repeated_state = repeated_state;
-   new_state->u.repetition.min = min;
-   new_state->u.repetition.max = max;
-   new_state->u.repetition.greedy = true;
-   return new_state;
+   state * ret = create_uninitialized_state(state_type::repetition);
+   ret->u.repetition.repeated_state = repeated_state;
+   ret->u.repetition.min = min;
+   ret->u.repetition.max = max;
+   ret->u.repetition.greedy = true;
+   return ret;
 }
 
 dynamic::state * dynamic::create_uninitialized_state(state_type type) {
    states_list.push_back(state());
-   state * new_state = static_cast<state *>(&states_list.back());
-   new_state->type = type.base();
-   new_state->next = nullptr;
-   new_state->alternative = nullptr;
-   return new_state;
+   state * ret = static_cast<state *>(&states_list.back());
+   ret->type = type.base();
+   ret->next = nullptr;
+   ret->alternative = nullptr;
+   return ret;
 }
 
 dynamic::match dynamic::run(str const & s) const {

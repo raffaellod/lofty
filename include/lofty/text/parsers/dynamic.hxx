@@ -172,9 +172,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_begin_state() {
-      return create_uninitialized_state(state_type::begin);
-   }
+   state * create_begin_state();
 
    /*! Creates a state that matches a specific code point.
 
@@ -201,9 +199,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_end_state() {
-      return create_uninitialized_state(state_type::end);
-   }
+   state * create_end_state();
 
    /*! Creates a state that matches the end of the input.
 
