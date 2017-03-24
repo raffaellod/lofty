@@ -59,6 +59,45 @@ public:
       repetition
    );
 
+   class LOFTY_SYM match : public support_explicit_operator_bool<match>, public noncopyable {
+   private:
+      friend class dynamic;
+
+   public:
+      //! Capture data.
+      struct capture_data {
+         str::const_iterator begin;
+         str::const_iterator end;
+      };
+
+   public:
+      //! Constructor.
+      match();
+
+      /*! Move constructor.
+
+      @param src
+         Source object.
+      */
+      match(match && src);
+
+      //! Destructor.
+      ~match();
+
+      /*! Boolean evaluation operator.
+
+      @return
+         true if the input was accepted by the parser, or false otherwise.
+      */
+      LOFTY_EXPLICIT_OPERATOR_BOOL() const {
+         return accepted;
+      }
+
+   protected:
+      str capture0;
+      bool accepted;
+   };
+
    /*! State representation. Instances can be statically allocated, or generated at run-time by calling one of
    the dynamic::create_*_state() methods. */
    struct state {
@@ -193,18 +232,20 @@ public:
    @param s
       String to parse.
    @return
-      true if the string is accepted by the parser, or false otherwise.
+      Match result. Will evaluate to true if the contents of the stream were accepted by the parser, or false
+      otherwise.
    */
-   bool run(str const & s) const;
+   match run(str const & s) const;
 
    /*! Runs the parser against the specified text stream, consuming code points from it as necessary.
 
    @param istream
       Pointer to the stream to parse.
    @return
-      true if the contents of the stream were accepted by the parser, or false otherwise.
+      Match result. Will evaluate to true if the contents of the stream were accepted by the parser, or false
+      otherwise.
    */
-   bool run(io::text::istream * istream) const;
+   match run(io::text::istream * istream) const;
 
    /*! Assigns an initial state. If not called, the parser will remain empty, accepting all input.
 

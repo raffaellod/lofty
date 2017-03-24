@@ -67,6 +67,21 @@ struct repetition {
 } //namespace
 
 
+dynamic::match::match() :
+   accepted(false) {
+}
+
+dynamic::match::match(match && src) :
+   capture0(std::move(src.capture0)),
+   accepted(src.accepted) {
+   src.accepted = false;
+}
+
+
+dynamic::match::~match() {
+}
+
+
 dynamic::dynamic() :
    initial_state(nullptr) {
 }
@@ -114,17 +129,19 @@ dynamic::state * dynamic::create_uninitialized_state(state_type type) {
    return new_state;
 }
 
-bool dynamic::run(str const & s) const {
+dynamic::match dynamic::run(str const & s) const {
    io::text::str_istream istream(external_buffer, &s);
    return run(&istream);
 }
 
-bool dynamic::run(io::text::istream * istream) const {
+dynamic::match dynamic::run(io::text::istream * istream) const {
+   match ret;
+
    state const * curr_state = initial_state;
    // Cache this condition to quickly determine whether we’re allowed to skip input code points.
    bool begin_anchor = (curr_state && curr_state->type == state_type::begin && !curr_state->alternative);
    // Setup the two sources of code points: a history and a peek buffer from the input stream.
-   str history_buf, peek_buf = istream->peek_chars(1);
+   str & history_buf = ret.capture0, peek_buf = istream->peek_chars(1);
    auto history_begin_itr(history_buf.cbegin()), history_end(history_buf.cend());
    auto history_itr(history_begin_itr), peek_itr(peek_buf.cbegin()), peek_end(peek_buf.cend());
 
@@ -134,7 +151,6 @@ bool dynamic::run(io::text::istream * istream) const {
    that repetition is a) matched max times or b) backtracked over. */
    collections::vector<repetition> reps_stack;
 
-   bool accepted = false;
    while (curr_state) {
       state const * next = nullptr;
       bool did_consume_cp = false;
@@ -162,7 +178,7 @@ bool dynamic::run(io::text::istream * istream) const {
             }
 
             if (cp >= curr_state->u.range.first_cp && cp <= curr_state->u.range.last_cp) {
-               accepted = true;
+               ret.accepted = true;
                did_consume_cp = true;
                next = curr_state->next;
                if (save_peeked_cp_to_history) {
@@ -188,7 +204,7 @@ bool dynamic::run(io::text::istream * istream) const {
             if (curr_state->u.repetition.max == 0 || rep->count <= curr_state->u.repetition.max) {
                if (rep->count >= curr_state->u.repetition.min) {
                   // Repetitions within [min, max] are accepting.
-                  accepted = true;
+                  ret.accepted = true;
                }
                // Try one more repetition.
                next = curr_state->u.repetition.repeated_state;
@@ -198,20 +214,20 @@ bool dynamic::run(io::text::istream * istream) const {
                next = curr_state->next;
             }
 
-            // This code is very similar to the “if (accepted)” below.
+            // This code is very similar to the “if (ret.accepted)” below.
             if (!next) {
                // No more states; this means that the input was accepted.
                break;
             }
-            backtracking_stack.push_back(backtrack::make_repetition(curr_state, accepted));
-            accepted = false;
+            backtracking_stack.push_back(backtrack::make_repetition(curr_state, ret.accepted));
+            ret.accepted = false;
             curr_state = next;
             // Skip the accept/backtrack logic at the end of the loop.
             continue;
 
          case state_type::begin:
             if (history_itr == history_begin_itr) {
-               accepted = true;
+               ret.accepted = true;
                next = curr_state->next;
             }
             break;
@@ -225,7 +241,7 @@ bool dynamic::run(io::text::istream * istream) const {
                istream->consume_chars(peek_buf.size_in_chars());
                peek_buf = istream->peek_chars(1);
                if (!peek_buf) {
-                  accepted = true;
+                  ret.accepted = true;
                   next = curr_state->next;
                }
             }
@@ -236,14 +252,14 @@ bool dynamic::run(io::text::istream * istream) const {
             break;
       }
 
-      if (accepted) {
+      if (ret.accepted) {
          if (!next) {
             // No more states; this means that the input was accepted.
             break;
          }
          // Still one or more states to check; this means that we can’t accept the input just yet.
          backtracking_stack.push_back(backtrack::make_default(curr_state, did_consume_cp));
-         accepted = false;
+         ret.accepted = false;
          curr_state = next;
       } else {
          // Consider the next alternative.
@@ -259,7 +275,7 @@ bool dynamic::run(io::text::istream * istream) const {
                // This must be a repetition’s Nth occurrence, with N in the acceptable range.
                if (!backtrack.state->next) {
                   // If there was no following state, the input is accepted.
-                  accepted = true;
+                  ret.accepted = true;
                   goto break_outer_while;
                }
                curr_state = backtrack.state->next;
@@ -296,7 +312,7 @@ bool dynamic::run(io::text::istream * istream) const {
       }
    }
 break_outer_while:
-   return accepted;
+   return std::move(ret);
 }
 
 }}} //namespace lofty::text::parsers
