@@ -259,8 +259,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             } else {
                // New repetition: save it on the stack and begin counting.
                reps_stack.push_back(repetition(curr_state));
-               // TODO: FIXME: pushing back but then using front?!
-               rep = &reps_stack.front();
+               rep = &reps_stack.back();
             }
             if (curr_state->u.repetition.max == 0 || rep->count <= curr_state->u.repetition.max) {
                if (rep->count >= curr_state->u.repetition.min) {
