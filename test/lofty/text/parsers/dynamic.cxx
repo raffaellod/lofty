@@ -26,6 +26,19 @@ You should have received a copy of the GNU Lesser General Public License along w
 namespace lofty { namespace test {
 
 LOFTY_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_empty,
+   "lofty::text::parsers::dynamic – pattern “” (empty)"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   text::parsers::dynamic parser;
+
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("")));
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("a")));
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("aa")));
+}
+
+LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a,
    "lofty::text::parsers::dynamic – pattern “a”"
 ) {

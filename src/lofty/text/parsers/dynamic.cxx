@@ -213,8 +213,9 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    that repetition is a) matched max times or b) backtracked over. */
    collections::vector<repetition> reps_stack;
 
-   bool accepted = false;
+   bool accepted = true;
    while (curr_state) {
+      accepted = false;
       state const * next = nullptr;
       switch (curr_state->type) {
          case state_type::range: {
@@ -280,7 +281,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                break;
             }
             backtracking_stack.push_back(backtrack(curr_state, accepted));
-            accepted = false;
             curr_state = next;
             // Skip the accept/backtrack logic at the end of the loop.
             continue;
@@ -335,7 +335,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
          }
          // Still one or more states to check; this means that we can’t accept the input just yet.
          backtracking_stack.push_back(backtrack(curr_state, accepted));
-         accepted = false;
          curr_state = next;
       } else {
          // Consider the next alternative of the current state or a prior one.
