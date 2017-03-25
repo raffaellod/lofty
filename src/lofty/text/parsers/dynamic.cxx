@@ -30,23 +30,11 @@ namespace {
 //! Backtracking data structure.
 struct backtrack {
    dynamic::state const * state;
-   bool did_consume_cp:1;
-   bool accepted_repetition:1;
+   bool accepted;
 
-   static backtrack make_default(dynamic::state const * state_, bool did_consume_cp) {
-      backtrack new_backtrack;
-      new_backtrack.state = state_;
-      new_backtrack.did_consume_cp = did_consume_cp;
-      new_backtrack.accepted_repetition = false;
-      return _std::move(new_backtrack);
-   }
-
-   static backtrack make_repetition(dynamic::state const * state_, bool accepted) {
-      backtrack new_backtrack;
-      new_backtrack.state = state_;
-      new_backtrack.did_consume_cp = false;
-      new_backtrack.accepted_repetition = accepted;
-      return _std::move(new_backtrack);
+   backtrack(dynamic::state const * state_, bool accepted_) :
+      state(state_),
+      accepted(accepted_) {
    }
 };
 
@@ -228,7 +216,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    bool accepted = false;
    while (curr_state) {
       state const * next = nullptr;
-      bool did_consume_cp = false;
       switch (curr_state->type) {
          case state_type::range: {
             // Get a code point from either history or the peek buffer.
@@ -254,7 +241,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
             if (cp >= curr_state->u.range.first_cp && cp <= curr_state->u.range.last_cp) {
                accepted = true;
-               did_consume_cp = true;
                next = curr_state->next;
                if (save_peeked_cp_to_history) {
                   history_buf += cp;
@@ -294,7 +280,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                // No more states; this means that the input was accepted.
                break;
             }
-            backtracking_stack.push_back(backtrack::make_repetition(curr_state, accepted));
+            backtracking_stack.push_back(backtrack(curr_state, accepted));
             accepted = false;
             curr_state = next;
             // Skip the accept/backtrack logic at the end of the loop.
@@ -349,7 +335,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
          }
          // Still one or more states to check; this means that we can’t accept the input just yet.
-         backtracking_stack.push_back(backtrack::make_default(curr_state, did_consume_cp));
+         backtracking_stack.push_back(backtrack(curr_state, accepted));
          accepted = false;
          curr_state = next;
       } else {
@@ -386,7 +372,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                   // No special action needed.
                   break;
             }
-            if (backtrack.accepted_repetition) {
+            if (backtrack.state->type == state_type::repetition && backtrack.accepted) {
                // This must be a repetition’s Nth occurrence, with N in the acceptable range.
                if (!backtrack.state->next) {
                   // If there was no following state, the input is accepted.
@@ -399,7 +385,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                curr_state = backtrack.state->alternative;
             }
             // If the state we’re rolling back consumed a code point, it must’ve saved it in history_buf.
-            if (backtrack.did_consume_cp) {
+            if (backtrack.state->type == state_type::range && backtrack.accepted) {
                --history_itr;
             }
          }
