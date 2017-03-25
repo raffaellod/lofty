@@ -231,7 +231,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
 LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_or_b_plus,
-   "lofty::text::parsers::dynamic – pattern “(a|b)+”"
+   "lofty::text::parsers::dynamic – pattern “(?:a|b)+”"
 ) {
    LOFTY_TRACE_FUNC(this);
 
@@ -261,7 +261,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
 LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_caret_a_or_b_plus_dollar,
-   "lofty::text::parsers::dynamic – pattern “^(a|b)+$”"
+   "lofty::text::parsers::dynamic – pattern “^(?:a|b)+$”"
 ) {
    LOFTY_TRACE_FUNC(this);
 
