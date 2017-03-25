@@ -31,14 +31,12 @@ namespace {
 struct backtrack {
    dynamic::state const * state;
    bool did_consume_cp:1;
-   bool repetition:1;
    bool accepted_repetition:1;
 
    static backtrack make_default(dynamic::state const * state_, bool did_consume_cp) {
       backtrack new_backtrack;
       new_backtrack.state = state_;
       new_backtrack.did_consume_cp = did_consume_cp;
-      new_backtrack.repetition = false;
       new_backtrack.accepted_repetition = false;
       return _std::move(new_backtrack);
    }
@@ -47,7 +45,6 @@ struct backtrack {
       backtrack new_backtrack;
       new_backtrack.state = state_;
       new_backtrack.did_consume_cp = false;
-      new_backtrack.repetition = true;
       new_backtrack.accepted_repetition = accepted;
       return _std::move(new_backtrack);
    }
