@@ -343,12 +343,33 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
          while (!curr_state && backtracking_stack) {
             auto backtrack(backtracking_stack.pop_back());
             switch (backtrack.state->type) {
+               case state_type::range:
+                  /* If the state we’re rolling back accepted (and consumed) a code point, it must’ve saved
+                  it in history_buf, so recover it from there. */
+                  if (backtrack.accepted) {
+                     --history_itr;
+                  }
+                  break;
+
                case state_type::repetition:
                   // If we’re backtracking the current top-of-the-stack repetition, pop it out of it.
                   if (reps_stack && reps_stack.back().state == backtrack.state) {
                      reps_stack.pop_back();
                   }
-                  break;
+                  /* This is a repetition’s Nth occurrence; decide what to do depending on whether N is in the
+                  acceptable range. */
+                  if (!backtrack.accepted) {
+                     // Move on to the alternative, like non-repeating states.
+                     break;
+                  } else if (backtrack.state->next) {
+                     // Move past the repetition, ignoring any alternatives.
+                     curr_state = backtrack.state->next;
+                     continue;
+                  } else {
+                     // If there was no following state, the input is accepted.
+                     accepted = true;
+                     goto break_outer_while;
+                  }
 
                case state_type::capture_begin: {
                   // Discard *curr_capture (by resetting its owner’s pointer) and move back to its parent.
@@ -371,22 +392,8 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                   // No special action needed.
                   break;
             }
-            if (backtrack.state->type == state_type::repetition && backtrack.accepted) {
-               // This must be a repetition’s Nth occurrence, with N in the acceptable range.
-               if (!backtrack.state->next) {
-                  // If there was no following state, the input is accepted.
-                  accepted = true;
-                  goto break_outer_while;
-               }
-               curr_state = backtrack.state->next;
-            } else {
-               // Not a repetition, or Nth occurrence with N not in the acceptable range.
-               curr_state = backtrack.state->alternative;
-            }
-            // If the state we’re rolling back consumed a code point, it must’ve saved it in history_buf.
-            if (backtrack.state->type == state_type::range && backtrack.accepted) {
-               --history_itr;
-            }
+            // Not a repetition, or Nth occurrence with N not in the acceptable range.
+            curr_state = backtrack.state->alternative;
          }
          /* If we run out of alternatives and can’t backtrack any further, and the pattern is not anchored,
          we’re allowed to move one code point to history and try the whole pattern again from the initial
