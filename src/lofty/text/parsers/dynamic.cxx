@@ -67,12 +67,72 @@ struct repetition {
 } //namespace
 
 
+struct dynamic::match::capture_node {
+   //! Pointer to the capture_begin state.
+   struct state const * state;
+   //! Pointer to the parent (containing) capture. Only nullptr for capture 0.
+   capture_node * parent;
+   //! Owning pointer to the first nested capture, if any.
+   _std::unique_ptr<capture_node> first_nested;
+   //! Non-owning pointer to the last nested capture, if any.
+   capture_node * last_nested;
+   //! Non-owning pointer to the previous same-level capture, if any.
+   capture_node * prev_sibling;
+   //! Owning pointer to the next same-level capture, if any.
+   _std::unique_ptr<capture_node> next_sibling;
+   //! Offset of the start of the capture.
+   std::size_t begin;
+   //! Offset of the end of the capture.
+   std::size_t end;
+
+   /*! Constructor.
+
+   @param state_
+      Pointer to the related capture_begin state.
+   */
+   explicit capture_node(struct state const * state_) :
+      state(state_),
+      parent(nullptr),
+      last_nested(nullptr),
+      prev_sibling(nullptr) {
+   }
+
+   //! Destructor.
+   ~capture_node() {
+      // last_nested is the only non-owning forward pointer, so it must be updated manually.
+      if (parent && parent->last_nested == this) {
+         parent->last_nested = prev_sibling;
+      }
+   }
+
+   /*! Adds a new capture_node at the end of the nested capture nodes list.
+
+   @param state_
+      Pointer to the related capture_begin state.
+   */
+   capture_node * append_nested(struct state const * state_) {
+      _std::unique_ptr<capture_node> ret_owner(new capture_node(state_));
+      auto ret = ret_owner.get();
+      if (last_nested) {
+         last_nested->next_sibling = _std::move(ret_owner);
+         ret->prev_sibling = last_nested;
+      } else {
+         first_nested = _std::move(ret_owner);
+         last_nested = ret;
+      }
+      ret->parent = this;
+      return ret;
+   }
+};
+
+
 dynamic::match::match() :
    accepted(false) {
 }
 
 dynamic::match::match(match && src) :
-   capture0(std::move(src.capture0)),
+   captures_buffer(_std::move(src.captures_buffer)),
+   capture0(_std::move(src.capture0)),
    accepted(src.accepted) {
    src.accepted = false;
 }
@@ -97,6 +157,14 @@ dynamic::~dynamic() {
 
 dynamic::state * dynamic::create_begin_state() {
    return create_uninitialized_state(state_type::begin);
+}
+
+dynamic::state * dynamic::create_capture_begin_state() {
+   return create_uninitialized_state(state_type::capture_begin);
+}
+
+dynamic::state * dynamic::create_capture_end_state() {
+   return create_uninitialized_state(state_type::capture_end);
 }
 
 dynamic::state * dynamic::create_code_point_state(char32_t cp) {
@@ -143,15 +211,19 @@ dynamic::match dynamic::run(str const & s) const {
 }
 
 dynamic::match dynamic::run(io::text::istream * istream) const {
-   match ret;
+   LOFTY_TRACE_FUNC(this, istream);
 
-   state const * curr_state = initial_state;
+   match ret;
+   auto curr_state = initial_state;
    // Cache this condition to quickly determine whether we’re allowed to skip input code points.
    bool begin_anchor = (curr_state && curr_state->type == state_type::begin && !curr_state->alternative);
    // Setup the two sources of code points: a history and a peek buffer from the input stream.
-   str & history_buf = ret.capture0, peek_buf = istream->peek_chars(1);
+   str & history_buf = ret.captures_buffer, peek_buf = istream->peek_chars(1);
    auto history_begin_itr(history_buf.cbegin()), history_end(history_buf.cend());
    auto history_itr(history_begin_itr), peek_itr(peek_buf.cbegin()), peek_end(peek_buf.cend());
+
+   ret.capture0.reset(new match::capture_node(curr_state));
+   auto curr_capture = ret.capture0.get();
 
    // TODO: change these two variables to use collections::stack once that’s available.
    collections::vector<backtrack> backtracking_stack;
@@ -255,6 +327,22 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             }
             break;
 
+         case state_type::capture_begin:
+            // Nest this capture into the currently-open capture.
+            curr_capture = curr_capture->append_nested(curr_state);
+            curr_capture->begin = history_itr.char_index();
+            ret.accepted = true;
+            next = curr_state->next;
+            break;
+
+         case state_type::capture_end:
+            curr_capture->end = history_itr.char_index();
+            // This capture is over; resume its parent.
+            curr_capture = curr_capture->parent;
+            ret.accepted = true;
+            next = curr_state->next;
+            break;
+
          case state_type::look_ahead:
             // TODO: implement look-ahead assertions.
             break;
@@ -270,14 +358,38 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
          ret.accepted = false;
          curr_state = next;
       } else {
-         // Consider the next alternative.
+         // Consider the next alternative of the current state or a prior one.
          curr_state = curr_state->alternative;
-         // Go back to a state that had alternatives, if possible.
          while (!curr_state && backtracking_stack) {
             auto backtrack(backtracking_stack.pop_back());
-            // If we’re backtracking the current top-of-the-stack repetition, pop it out of it.
-            if (backtrack.repetition && reps_stack && reps_stack.back().state == backtrack.state) {
-               reps_stack.pop_back();
+            switch (backtrack.state->type) {
+               case state_type::repetition:
+                  // If we’re backtracking the current top-of-the-stack repetition, pop it out of it.
+                  if (reps_stack && reps_stack.back().state == backtrack.state) {
+                     reps_stack.pop_back();
+                  }
+                  break;
+
+               case state_type::capture_begin: {
+                  // Discard *curr_capture (by resetting its owner’s pointer) and move back to its parent.
+                  auto parent_capture = curr_capture->parent;
+                  if (auto prev_sibling = curr_capture->prev_sibling) {
+                     prev_sibling->next_sibling.reset();
+                  } else {
+                     parent_capture->first_nested.reset();
+                  }
+                  curr_capture = parent_capture;
+                  break;
+               }
+
+               case state_type::capture_end:
+                  // Re-enter the last (closed) nested capture.
+                  curr_capture = curr_capture->last_nested;
+                  break;
+
+               default:
+                  // No special action needed.
+                  break;
             }
             if (backtrack.accepted_repetition) {
                // This must be a repetition’s Nth occurrence, with N in the acceptable range.
@@ -320,7 +432,10 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
       }
    }
 break_outer_while:
-   return std::move(ret);
+   if (!ret.accepted) {
+      ret.capture0.reset();
+   }
+   return _std::move(ret);
 }
 
 }}} //namespace lofty::text::parsers

@@ -290,4 +290,39 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("cc")));
 }
 
+LOFTY_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_capturing_plus_capture_a_capture_b,
+   "lofty::text::parsers::dynamic – pattern “((a)(b))+”"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   text::parsers::dynamic parser;
+   parser.set_initial_state(parser.create_repetition_state(parser.create_capture_begin_state()->set_next(
+      parser.create_capture_begin_state()->set_next(parser.create_code_point_state('a')->set_next(
+         parser.create_capture_end_state()->set_next(
+            parser.create_capture_begin_state()->set_next(parser.create_code_point_state('b')->set_next(
+               parser.create_capture_end_state()->set_next(parser.create_capture_end_state())
+            ))
+         ))
+      )
+   ), 1));
+
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("a")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("aa")));
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("ab")));
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("abc")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("b")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("bb")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("ba")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("bac")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("c")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("ca")));
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("cab")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("cc")));
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("aab")));
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("abb")));
+   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("abab")));
+}
+
 }} //namespace lofty::test

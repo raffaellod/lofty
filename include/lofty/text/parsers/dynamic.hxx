@@ -49,6 +49,11 @@ public:
    LOFTY_ENUM_AUTO_VALUES(state_type,
       //! Begin matcher: /^/ .
       begin,
+      /*! Mark the start of a capture. Can’t just be a flag on another state type because multiple captures
+      may begin or end on the same code point. */
+      capture_begin,
+      //! Marks the end of the highest-index open capture.
+      capture_end,
       //! End matcher: /$/ .
       end,
       //! Look-ahead matcher: /(?=...)/ .
@@ -63,12 +68,9 @@ public:
    private:
       friend class dynamic;
 
-   public:
-      //! Capture data.
-      struct capture_data {
-         str::const_iterator begin;
-         str::const_iterator end;
-      };
+   protected:
+      //! Capture tree node.
+      struct capture_node;
 
    public:
       //! Constructor.
@@ -94,7 +96,10 @@ public:
       }
 
    protected:
-      str capture0;
+      //! Contains all captures, which are expressed as offset in this string.
+      str captures_buffer;
+      //! Top-level, mandatory capture.
+      _std::unique_ptr<capture_node> capture0;
       bool accepted;
    };
 
@@ -173,6 +178,20 @@ public:
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
    state * create_begin_state();
+
+   /*! Creates a state that marks the start of a capture.
+
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_capture_begin_state();
+
+   /*! Creates a state that marks the end of the highest-index open capture.
+
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_capture_end_state();
 
    /*! Creates a state that matches a specific code point.
 
@@ -264,9 +283,9 @@ protected:
 
 protected:
    //! List of states.
-   /* TODO: change this variable to use collections::forward_list; for now it’s a collections::queue just
-   because collections::list is a doubly-linked list, which is unnecessary since we never remove states from
-   the parser, only add. */
+   /* TODO: this member doesn’t need to support iteration, and we also never remove states from the parser,
+   only add; it’s really just a storage dump. The only reason it’s not a plain array or collections::vector is
+   that it needs to be able to grow without changing the address of existing elements. */
    collections::queue<state> states_list;
    //! Pointer to the initial state.
    state const * initial_state;
