@@ -92,7 +92,7 @@ public:
          true if the input was accepted by the parser, or false otherwise.
       */
       LOFTY_EXPLICIT_OPERATOR_BOOL() const {
-         return accepted;
+         return capture0 != nullptr;
       }
 
    protected:
@@ -100,7 +100,6 @@ public:
       str captures_buffer;
       //! Top-level, mandatory capture.
       _std::unique_ptr<capture_node> capture0;
-      bool accepted;
    };
 
    /*! State representation. Instances can be statically allocated, or generated at run-time by calling one of

@@ -126,15 +126,12 @@ struct dynamic::match::capture_node {
 };
 
 
-dynamic::match::match() :
-   accepted(false) {
+dynamic::match::match() {
 }
 
 dynamic::match::match(match && src) :
    captures_buffer(_std::move(src.captures_buffer)),
-   capture0(_std::move(src.capture0)),
-   accepted(src.accepted) {
-   src.accepted = false;
+   capture0(_std::move(src.capture0)) {
 }
 
 
@@ -231,6 +228,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    that repetition is a) matched max times or b) backtracked over. */
    collections::vector<repetition> reps_stack;
 
+   bool accepted = false;
    while (curr_state) {
       state const * next = nullptr;
       bool did_consume_cp = false;
@@ -258,7 +256,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             }
 
             if (cp >= curr_state->u.range.first_cp && cp <= curr_state->u.range.last_cp) {
-               ret.accepted = true;
+               accepted = true;
                did_consume_cp = true;
                next = curr_state->next;
                if (save_peeked_cp_to_history) {
@@ -284,7 +282,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             if (curr_state->u.repetition.max == 0 || rep->count <= curr_state->u.repetition.max) {
                if (rep->count >= curr_state->u.repetition.min) {
                   // Repetitions within [min, max] are accepting.
-                  ret.accepted = true;
+                  accepted = true;
                }
                // Try one more repetition.
                next = curr_state->u.repetition.repeated_state;
@@ -294,20 +292,20 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                next = curr_state->next;
             }
 
-            // This code is very similar to the “if (ret.accepted)” below.
+            // This code is very similar to the “if (accepted)” after this switch statement.
             if (!next) {
                // No more states; this means that the input was accepted.
                break;
             }
-            backtracking_stack.push_back(backtrack::make_repetition(curr_state, ret.accepted));
-            ret.accepted = false;
+            backtracking_stack.push_back(backtrack::make_repetition(curr_state, accepted));
+            accepted = false;
             curr_state = next;
             // Skip the accept/backtrack logic at the end of the loop.
             continue;
 
          case state_type::begin:
             if (history_itr == history_begin_itr) {
-               ret.accepted = true;
+               accepted = true;
                next = curr_state->next;
             }
             break;
@@ -321,7 +319,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                istream->consume_chars(peek_buf.size_in_chars());
                peek_buf = istream->peek_chars(1);
                if (!peek_buf) {
-                  ret.accepted = true;
+                  accepted = true;
                   next = curr_state->next;
                }
             }
@@ -331,7 +329,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             // Nest this capture into the currently-open capture.
             curr_capture = curr_capture->append_nested(curr_state);
             curr_capture->begin = history_itr.char_index();
-            ret.accepted = true;
+            accepted = true;
             next = curr_state->next;
             break;
 
@@ -339,7 +337,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             curr_capture->end = history_itr.char_index();
             // This capture is over; resume its parent.
             curr_capture = curr_capture->parent;
-            ret.accepted = true;
+            accepted = true;
             next = curr_state->next;
             break;
 
@@ -348,14 +346,14 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
       }
 
-      if (ret.accepted) {
+      if (accepted) {
          if (!next) {
             // No more states; this means that the input was accepted.
             break;
          }
          // Still one or more states to check; this means that we can’t accept the input just yet.
          backtracking_stack.push_back(backtrack::make_default(curr_state, did_consume_cp));
-         ret.accepted = false;
+         accepted = false;
          curr_state = next;
       } else {
          // Consider the next alternative of the current state or a prior one.
@@ -395,7 +393,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                // This must be a repetition’s Nth occurrence, with N in the acceptable range.
                if (!backtrack.state->next) {
                   // If there was no following state, the input is accepted.
-                  ret.accepted = true;
+                  accepted = true;
                   goto break_outer_while;
                }
                curr_state = backtrack.state->next;
@@ -432,7 +430,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
       }
    }
 break_outer_while:
-   if (!ret.accepted) {
+   if (!accepted) {
       ret.capture0.reset();
    }
    return _std::move(ret);
