@@ -29,9 +29,18 @@ namespace {
 
 //! Backtracking data structure.
 struct backtrack {
+   //! Pointer to the state the backtrack refers to.
    dynamic::state const * state;
+   //! true if *state accepted the input, or false otherwise.
    bool accepted;
 
+   /*! Constructor.
+
+   @param state_
+      Pointer to the state the backtrack refers to.
+   @param accepted_
+      true if *state accepted the input, or false otherwise.
+   */
    backtrack(dynamic::state const * state_, bool accepted_) :
       state(state_),
       accepted(accepted_) {
@@ -40,20 +49,27 @@ struct backtrack {
 
 //! Used to track the acceptance of repetition states.
 struct repetition {
+   //! Pointer to the related repetition state.
+   dynamic::state const * state;
+   //! Number of times the repetition has occurred.
+   unsigned count;
+
+   /*! Constructor.
+
+   @param state_
+      Pointer to the related repetition state.
+   */
    explicit repetition(dynamic::state const * state_) :
       state(state_),
       count(0) {
    }
-
-   dynamic::state const * state;
-   std::uint16_t count;
 };
 
 } //namespace
 
 
 struct dynamic::match::capture_node {
-   //! Pointer to the capture_begin state.
+   //! Pointer to the related capture_begin state.
    struct state const * state;
    //! Pointer to the parent (containing) capture. Only nullptr for capture 0.
    capture_node * parent;
@@ -261,9 +277,12 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                reps_stack.push_back(repetition(curr_state));
                rep = &reps_stack.back();
             }
-            if (curr_state->u.repetition.max == 0 || rep->count <= curr_state->u.repetition.max) {
+            if (
+               curr_state->u.repetition.max == 0 ||
+               rep->count <= static_cast<unsigned>(curr_state->u.repetition.max)
+            ) {
                // Repetitions within [min, max] are accepting.
-               accepted = (rep->count >= curr_state->u.repetition.min);
+               accepted = (rep->count >= static_cast<unsigned>(curr_state->u.repetition.min));
                // Try one more repetition.
                next_state = curr_state->u.repetition.repeated_state;
             } else {
