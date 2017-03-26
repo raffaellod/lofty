@@ -215,7 +215,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
    bool accepted = (curr_state == nullptr);
    while (curr_state) {
-      state const * next = nullptr;
+      state const * next_state = curr_state->next;
       switch (curr_state->type) {
          case state_type::range: {
             // Get a code point from either history or the peek buffer.
@@ -242,7 +242,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
             accepted = (cp >= curr_state->u.range.first_cp && cp <= curr_state->u.range.last_cp);
             if (accepted) {
-               next = curr_state->next;
                if (save_peeked_cp_to_history) {
                   history_buf += cp;
                   ++history_end;
@@ -266,21 +265,17 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                // Repetitions within [min, max] are accepting.
                accepted = (rep->count >= curr_state->u.repetition.min);
                // Try one more repetition.
-               next = curr_state->u.repetition.repeated_state;
+               next_state = curr_state->u.repetition.repeated_state;
             } else {
                // Repeated max times; pop the stack and move on to the next state.
                accepted = true;
                reps_stack.pop_back();
-               next = curr_state->next;
             }
             goto skip_acceptance_test;
          }
 
          case state_type::begin:
             accepted = (history_itr == history_begin_itr);
-            if (accepted) {
-               next = curr_state->next;
-            }
             break;
 
          case state_type::end:
@@ -292,9 +287,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                istream->consume_chars(peek_buf.size_in_chars());
                peek_buf = istream->peek_chars(1);
                accepted = !peek_buf;
-               if (accepted) {
-                  next = curr_state->next;
-               }
             } else {
                accepted = false;
             }
@@ -304,14 +296,12 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             // Nest this capture into the currently-open capture.
             curr_capture = curr_capture->append_nested(curr_state);
             curr_capture->begin = history_itr.char_index();
-            next = curr_state->next;
             goto skip_acceptance_test;
 
          case state_type::capture_end:
             curr_capture->end = history_itr.char_index();
             // This capture is over; resume its parent.
             curr_capture = curr_capture->parent;
-            next = curr_state->next;
             goto skip_acceptance_test;
 
          case state_type::look_ahead:
@@ -321,13 +311,13 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
       if (accepted) {
 skip_acceptance_test:
-         if (!next) {
+         if (!next_state) {
             // No more states; this means that the input was accepted.
             break;
          }
          // Still one or more states to check; this means that we can’t accept the input just yet.
          backtracking_stack.push_back(backtrack(curr_state, accepted));
-         curr_state = next;
+         curr_state = next_state;
       } else {
          // Consider the next alternative of the current state or a prior one.
          curr_state = curr_state->alternative;
