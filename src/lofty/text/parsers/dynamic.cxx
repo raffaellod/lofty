@@ -253,7 +253,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
          }
 
-         case state_type::repetition:
+         case state_type::repetition: {
             repetition * rep;
             if (reps_stack && (rep = &reps_stack.front())->state == curr_state) {
                ++rep->count;
@@ -284,6 +284,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             curr_state = next;
             // Skip the accept/backtrack logic at the end of the loop.
             continue;
+         }
 
          case state_type::begin:
             if (history_itr == history_begin_itr) {
