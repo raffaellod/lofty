@@ -270,7 +270,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
          case state_type::repetition: {
             repetition * rep;
-            if (reps_stack && (rep = &reps_stack.front())->state == curr_state) {
+            if (reps_stack && (rep = &reps_stack.back())->state == curr_state) {
                ++rep->count;
             } else {
                // New repetition: save it on the stack and begin counting.
