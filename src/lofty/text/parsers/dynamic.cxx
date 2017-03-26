@@ -213,9 +213,8 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    that repetition is a) matched max times or b) backtracked over. */
    collections::vector<repetition> reps_stack;
 
-   bool accepted = true;
+   bool accepted = (curr_state == nullptr);
    while (curr_state) {
-      accepted = false;
       state const * next = nullptr;
       switch (curr_state->type) {
          case state_type::range: {
@@ -233,6 +232,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                   peek_end = peek_buf.cend();
                   if (peek_itr == peek_end) {
                      // Run out of code points.
+                     accepted = false;
                      break;
                   }
                }
@@ -240,8 +240,8 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                save_peeked_cp_to_history = true;
             }
 
-            if (cp >= curr_state->u.range.first_cp && cp <= curr_state->u.range.last_cp) {
-               accepted = true;
+            accepted = (cp >= curr_state->u.range.first_cp && cp <= curr_state->u.range.last_cp);
+            if (accepted) {
                next = curr_state->next;
                if (save_peeked_cp_to_history) {
                   history_buf += cp;
@@ -263,32 +263,22 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                rep = &reps_stack.back();
             }
             if (curr_state->u.repetition.max == 0 || rep->count <= curr_state->u.repetition.max) {
-               if (rep->count >= curr_state->u.repetition.min) {
-                  // Repetitions within [min, max] are accepting.
-                  accepted = true;
-               }
+               // Repetitions within [min, max] are accepting.
+               accepted = (rep->count >= curr_state->u.repetition.min);
                // Try one more repetition.
                next = curr_state->u.repetition.repeated_state;
             } else {
                // Repeated max times; pop the stack and move on to the next state.
+               accepted = true;
                reps_stack.pop_back();
                next = curr_state->next;
             }
-
-            // This code is very similar to the “if (accepted)” after this switch statement.
-            if (!next) {
-               // No more states; this means that the input was accepted.
-               break;
-            }
-            backtracking_stack.push_back(backtrack(curr_state, accepted));
-            curr_state = next;
-            // Skip the accept/backtrack logic at the end of the loop.
-            continue;
+            goto skip_acceptance_test;
          }
 
          case state_type::begin:
-            if (history_itr == history_begin_itr) {
-               accepted = true;
+            accepted = (history_itr == history_begin_itr);
+            if (accepted) {
                next = curr_state->next;
             }
             break;
@@ -301,10 +291,12 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                this after consuming a code point. */
                istream->consume_chars(peek_buf.size_in_chars());
                peek_buf = istream->peek_chars(1);
-               if (!peek_buf) {
-                  accepted = true;
+               accepted = !peek_buf;
+               if (accepted) {
                   next = curr_state->next;
                }
+            } else {
+               accepted = false;
             }
             break;
 
@@ -312,17 +304,15 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             // Nest this capture into the currently-open capture.
             curr_capture = curr_capture->append_nested(curr_state);
             curr_capture->begin = history_itr.char_index();
-            accepted = true;
             next = curr_state->next;
-            break;
+            goto skip_acceptance_test;
 
          case state_type::capture_end:
             curr_capture->end = history_itr.char_index();
             // This capture is over; resume its parent.
             curr_capture = curr_capture->parent;
-            accepted = true;
             next = curr_state->next;
-            break;
+            goto skip_acceptance_test;
 
          case state_type::look_ahead:
             // TODO: implement look-ahead assertions.
@@ -330,6 +320,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
       }
 
       if (accepted) {
+skip_acceptance_test:
          if (!next) {
             // No more states; this means that the input was accepted.
             break;
