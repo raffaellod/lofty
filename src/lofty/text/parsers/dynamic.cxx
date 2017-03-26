@@ -303,10 +303,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             // This capture is over; resume its parent.
             curr_capture = curr_capture->parent;
             goto skip_acceptance_test;
-
-         case state_type::look_ahead:
-            // TODO: implement look-ahead assertions.
-            break;
       }
 
       if (accepted) {

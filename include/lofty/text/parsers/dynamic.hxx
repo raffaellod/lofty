@@ -56,8 +56,6 @@ public:
       capture_end,
       //! End matcher: /$/ .
       end,
-      //! Look-ahead matcher: /(?=...)/ .
-      look_ahead,
       //! Code point or code point range matcher: /a/ , /[a-z]/ , etc.
       range,
       //! Repetition matcher; repeatedly matches the states that follow it: /.{n,m}/ .
@@ -218,13 +216,6 @@ public:
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
    state * create_end_state();
-
-   /*! Creates a state that matches the end of the input.
-
-   @return
-      Pointer to the newly-created state, which is owned by the parser and must not be released.
-   */
-   state * create_look_ahead_state(state const * repeated_state);
 
    /*! Creates a state that matches a number of repetitions of another state list. The last state in the list
    should have this new state assigned as its next.
