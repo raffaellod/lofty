@@ -124,6 +124,21 @@ struct dynamic::match::capture_node {
       ret->parent = this;
       return ret;
    }
+
+   /*! Deletes *this by resetting its owner’s pointer, and returns parent.
+
+   @return
+      Pointer to the parent of the deleted node.
+   */
+   capture_node * delete_and_get_parent() {
+      auto ret = parent;
+      if (prev_sibling) {
+         prev_sibling->next_sibling.reset();
+      } else {
+         parent->first_nested.reset();
+      }
+      return ret;
+   }
 };
 
 
@@ -367,17 +382,10 @@ skip_acceptance_test:
                      goto break_outer_while;
                   }
 
-               case state_type::capture_begin: {
-                  // Discard *curr_capture (by resetting its owner’s pointer) and move back to its parent.
-                  auto parent_capture = curr_capture->parent;
-                  if (auto prev_sibling = curr_capture->prev_sibling) {
-                     prev_sibling->next_sibling.reset();
-                  } else {
-                     parent_capture->first_nested.reset();
-                  }
-                  curr_capture = parent_capture;
+               case state_type::capture_begin:
+                  // Discard *curr_capture and move back to its parent.
+                  curr_capture = curr_capture->delete_and_get_parent();
                   break;
-               }
 
                case state_type::capture_end:
                   // Re-enter the last (closed) nested capture.
