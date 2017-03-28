@@ -33,6 +33,7 @@ struct backtrack {
    dynamic::state const * state;
    //! true if *state accepted the input, or false otherwise.
    bool accepted;
+   bool group_closed;
 
    /*! Constructor.
 
@@ -43,7 +44,8 @@ struct backtrack {
    */
    backtrack(dynamic::state const * state_, bool accepted_) :
       state(state_),
-      accepted(accepted_) {
+      accepted(accepted_),
+      group_closed(false) {
    }
 };
 
@@ -68,30 +70,38 @@ struct repetition {
 } //namespace
 
 
-struct dynamic::match::capture_node {
-   //! Pointer to the related capture_begin state.
+struct dynamic::match::group_node {
+   //! Pointer to the related group state.
    struct state const * state;
-   //! Pointer to the parent (containing) capture. Only nullptr for capture 0.
-   capture_node * parent;
-   //! Owning pointer to the first nested capture, if any.
-   _std::unique_ptr<capture_node> first_nested;
-   //! Non-owning pointer to the last nested capture, if any.
-   capture_node * last_nested;
-   //! Non-owning pointer to the previous same-level capture, if any.
-   capture_node * prev_sibling;
-   //! Owning pointer to the next same-level capture, if any.
-   _std::unique_ptr<capture_node> next_sibling;
-   //! Offset of the start of the capture.
-   std::size_t begin;
-   //! Offset of the end of the capture.
-   std::size_t end;
+   //! Pointer to the parent (containing) group. Only nullptr for capture 0.
+   group_node * parent;
+   //! Owning pointer to the first nested group, if any.
+   _std::unique_ptr<group_node> first_nested;
+   //! Non-owning pointer to the last nested group, if any.
+   group_node * last_nested;
+   //! Non-owning pointer to the previous same-level group, if any.
+   group_node * prev_sibling;
+   //! Owning pointer to the next same-level group, if any.
+   _std::unique_ptr<group_node> next_sibling;
+   union {
+      struct {
+         //! Offset of the start of the capture.
+         std::size_t begin;
+         //! Offset of the end of the capture.
+         std::size_t end;
+      } capture;
+      struct {
+         //! Number of times the repetition has occurred.
+         unsigned count;
+      } repetition;
+   } u;
 
    /*! Constructor.
 
    @param state_
-      Pointer to the related capture_begin state.
+      Pointer to the related group state.
    */
-   explicit capture_node(struct state const * state_) :
+   explicit group_node(struct state const * state_) :
       state(state_),
       parent(nullptr),
       last_nested(nullptr),
@@ -99,20 +109,20 @@ struct dynamic::match::capture_node {
    }
 
    //! Destructor.
-   ~capture_node() {
+   ~group_node() {
       // last_nested is the only non-owning forward pointer, so it must be updated manually.
       if (parent && parent->last_nested == this) {
          parent->last_nested = prev_sibling;
       }
    }
 
-   /*! Adds a new capture_node at the end of the nested capture nodes list.
+   /*! Adds a new group_node at the end of the nested group nodes list.
 
    @param state_
-      Pointer to the related capture_begin state.
+      Pointer to the related group state.
    */
-   capture_node * append_nested(struct state const * state_) {
-      _std::unique_ptr<capture_node> ret_owner(new capture_node(state_));
+   group_node * append_nested(struct state const * state_) {
+      _std::unique_ptr<group_node> ret_owner(new group_node(state_));
       auto ret = ret_owner.get();
       if (last_nested) {
          last_nested->next_sibling = _std::move(ret_owner);
@@ -130,7 +140,7 @@ struct dynamic::match::capture_node {
    @return
       Pointer to the parent of the deleted node.
    */
-   capture_node * delete_and_get_parent() {
+   group_node * delete_and_get_parent() {
       auto ret = parent;
       if (prev_sibling) {
          prev_sibling->next_sibling.reset();
@@ -172,12 +182,10 @@ dynamic::state * dynamic::create_begin_state() {
    return create_uninitialized_state(state_type::begin);
 }
 
-dynamic::state * dynamic::create_capture_begin_state() {
-   return create_uninitialized_state(state_type::capture_begin);
-}
-
-dynamic::state * dynamic::create_capture_end_state() {
-   return create_uninitialized_state(state_type::capture_end);
+dynamic::state * dynamic::create_capture_group(state const * first_state) {
+   auto ret = create_uninitialized_state(state_type::capture_group);
+   ret->u.capture.first_state = first_state;
+   return ret;
 }
 
 dynamic::state * dynamic::create_code_point_state(char32_t cp) {
@@ -235,8 +243,9 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    auto history_begin_itr(history_buf.cbegin()), history_end(history_buf.cend());
    auto history_itr(history_begin_itr), peek_itr(peek_buf.cbegin()), peek_end(peek_buf.cend());
 
-   ret.capture0.reset(new match::capture_node(curr_state));
-   auto curr_capture = ret.capture0.get();
+   ret.capture0.reset(new match::group_node(curr_state));
+   ret.capture0->u.capture.begin = history_itr.char_index();
+   auto curr_group = ret.capture0.get();
 
    // TODO: change these two variables to use collections::stack once that’s available.
    collections::vector<backtrack> backtracking_stack;
@@ -305,7 +314,9 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                accepted = true;
                reps_stack.pop_back();
             }
-            goto skip_acceptance_test;
+            backtracking_stack.push_back(backtrack(curr_state, accepted));
+            curr_state = next_state;
+            continue;
          }
 
          case state_type::begin:
@@ -326,27 +337,31 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             }
             break;
 
-         case state_type::capture_begin:
+         case state_type::capture_group:
             // Nest this capture into the currently-open capture.
-            curr_capture = curr_capture->append_nested(curr_state);
-            curr_capture->begin = history_itr.char_index();
-            goto skip_acceptance_test;
-
-         case state_type::capture_end:
-            curr_capture->end = history_itr.char_index();
-            // This capture is over; resume its parent.
-            curr_capture = curr_capture->parent;
+            curr_group = curr_group->append_nested(curr_state);
+            curr_group->u.capture.begin = history_itr.char_index();
+            next_state = curr_state->u.capture.first_state;
             goto skip_acceptance_test;
       }
 
       if (accepted) {
 skip_acceptance_test:
-         if (!next_state) {
-            // No more states; this means that the input was accepted.
-            break;
-         }
-         // Still one or more states to check; this means that we can’t accept the input just yet.
          backtracking_stack.push_back(backtrack(curr_state, accepted));
+         while (!next_state && curr_group->parent) {
+            // A nullptr as next state means the end of the current group.
+            backtracking_stack.push_back(backtrack(curr_group->state, accepted));
+            backtracking_stack.back().group_closed = true;
+            switch (curr_group->state->type) {
+               case state_type::capture_group:
+                  curr_group->u.capture.end = history_itr.char_index();
+                  break;
+               default:
+                  break;
+            }
+            next_state = curr_group->state->next;
+            curr_group = curr_group->parent;
+         }
          curr_state = next_state;
       } else {
          // Consider the next alternative of the current state or a prior one.
@@ -382,14 +397,14 @@ skip_acceptance_test:
                      goto break_outer_while;
                   }
 
-               case state_type::capture_begin:
-                  // Discard *curr_capture and move back to its parent.
-                  curr_capture = curr_capture->delete_and_get_parent();
-                  break;
-
-               case state_type::capture_end:
-                  // Re-enter the last (closed) nested capture.
-                  curr_capture = curr_capture->last_nested;
+               case state_type::capture_group:
+                  if (backtrack.group_closed) {
+                     // Re-enter the last (closed) nested capture.
+                     curr_group = curr_group->last_nested;
+                  } else {
+                     // Discard *curr_group and move back to its parent.
+                     curr_group = curr_group->delete_and_get_parent();
+                  }
                   break;
 
                default:

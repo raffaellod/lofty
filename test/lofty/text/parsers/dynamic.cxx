@@ -310,13 +310,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TRACE_FUNC(this);
 
    text::parsers::dynamic parser;
-   parser.set_initial_state(parser.create_repetition_state(parser.create_capture_begin_state()->set_next(
-      parser.create_capture_begin_state()->set_next(parser.create_code_point_state('a')->set_next(
-         parser.create_capture_end_state()->set_next(
-            parser.create_capture_begin_state()->set_next(parser.create_code_point_state('b')->set_next(
-               parser.create_capture_end_state()->set_next(parser.create_capture_end_state())
-            ))
-         ))
+   parser.set_initial_state(parser.create_repetition_state(parser.create_capture_group(
+      parser.create_capture_group(parser.create_code_point_state('a'))->set_next(
+         parser.create_capture_group(parser.create_code_point_state('b'))
       )
    ), 1));
 

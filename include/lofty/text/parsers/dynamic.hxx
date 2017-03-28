@@ -49,11 +49,8 @@ public:
    LOFTY_ENUM_AUTO_VALUES(state_type,
       //! Begin matcher: /^/ .
       begin,
-      /*! Mark the start of a capture. Can’t just be a flag on another state type because multiple captures
-      may begin or end on the same code point. */
-      capture_begin,
-      //! Marks the end of the highest-index open capture.
-      capture_end,
+      //! Capture group: /(…)/ .
+      capture_group,
       //! End matcher: /$/ .
       end,
       //! Code point or code point range matcher: /a/ , /[a-z]/ , etc.
@@ -68,7 +65,7 @@ public:
 
    protected:
       //! Capture tree node.
-      struct capture_node;
+      struct group_node;
 
    public:
       //! Constructor.
@@ -97,7 +94,7 @@ public:
       //! Contains all captures, which are expressed as offset in this string.
       str captures_buffer;
       //! Top-level, mandatory capture.
-      _std::unique_ptr<capture_node> capture0;
+      _std::unique_ptr<group_node> capture0;
    };
 
    /*! State representation. Instances can be statically allocated, or generated at run-time by calling one of
@@ -132,6 +129,11 @@ public:
       //! Pointer to an alternate state to try if this one does not accept.
       state const * alternative;
       union {
+         //! Capture data.
+         struct {
+            //! Pointer to the first state whose matching input is to be captured.
+            state const * first_state;
+         } capture;
          //! Range data.
          struct {
             //! First character accepted by the range.
@@ -176,19 +178,15 @@ public:
    */
    state * create_begin_state();
 
-   /*! Creates a state that marks the start of a capture.
+   /*! Creates a capture group.
 
+   @param first_state
+      Pointer to the first state in the group. The last state shall have nullptr as next state, so that the
+      parser will resume from the capture group’s next state.
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_capture_begin_state();
-
-   /*! Creates a state that marks the end of the highest-index open capture.
-
-   @return
-      Pointer to the newly-created state, which is owned by the parser and must not be released.
-   */
-   state * create_capture_end_state();
+   state * create_capture_group(state const * first_state);
 
    /*! Creates a state that matches a specific code point.
 
