@@ -438,7 +438,9 @@ skip_acceptance_test:
       }
    }
 break_outer_while:
-   if (!accepted) {
+   if (accepted) {
+      ret.capture0->u.capture.end = history_itr.char_index();
+   } else {
       ret.capture0.reset();
    }
    return _std::move(ret);
