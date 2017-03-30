@@ -29,41 +29,46 @@ namespace {
 
 //! Backtracking data structure.
 struct backtrack {
-   //! Pointer to the state the backtrack refers to.
-   dynamic::state const * state;
+   union {
+      //! Pointer to the state the backtrack refers to.
+      dynamic::state const * state;
+      //! Pointer to the group the backtrack refers to.
+      dynamic::match::group_node * group;
+   } u;
+   //! true if u contains a group, or false if it contains a state.
+   bool u_is_group;
    //! true if *state accepted the input, or false otherwise.
    bool accepted;
-   bool group_closed;
+   //! true if entering a group, false if leaving it.
+   bool entered_group;
 
-   /*! Constructor.
+   /*! Constructor for states.
 
-   @param state_
+   @param state
       Pointer to the state the backtrack refers to.
    @param accepted_
       true if *state accepted the input, or false otherwise.
    */
-   backtrack(dynamic::state const * state_, bool accepted_) :
-      state(state_),
-      accepted(accepted_),
-      group_closed(false) {
+   backtrack(dynamic::state const * state, bool accepted_) :
+      u_is_group(false),
+      accepted(accepted_) {
+      u.state = state;
    }
-};
 
-//! Used to track the acceptance of repetition states.
-struct repetition {
-   //! Pointer to the related repetition state.
-   dynamic::state const * state;
-   //! Number of times the repetition has occurred.
-   unsigned count;
+   /*! Constructor for groups.
 
-   /*! Constructor.
-
-   @param state_
-      Pointer to the related repetition state.
+   @param group
+      Pointer to the group the backtrack refers to.
+   @param entered_group_
+      true if entering a group, false if leaving it.
+   @param accepted_
+      true if *group->state accepted the input, or false otherwise.
    */
-   explicit repetition(dynamic::state const * state_) :
-      state(state_),
-      count(0) {
+   backtrack(dynamic::match::group_node * group, bool entered_group_, bool accepted_) :
+      u_is_group(true),
+      accepted(accepted_),
+      entered_group(entered_group_) {
+      u.group = group;
    }
 };
 
@@ -93,6 +98,8 @@ struct dynamic::match::group_node {
       struct {
          //! Number of times the repetition has occurred.
          unsigned count;
+         //! true if the group is being repeatedly matched, or false if the parser has moved on.
+         bool counting;
       } repetition;
    } u;
 
@@ -206,11 +213,11 @@ dynamic::state * dynamic::create_end_state() {
    return create_uninitialized_state(state_type::end);
 }
 
-dynamic::state * dynamic::create_repetition_state(
-   state const * repeated_state, std::uint16_t min, std::uint16_t max /*= 0*/
+dynamic::state * dynamic::create_repetition_group(
+   state const * first_state, std::uint16_t min, std::uint16_t max /*= 0*/
 ) {
-   state * ret = create_uninitialized_state(state_type::repetition);
-   ret->u.repetition.repeated_state = repeated_state;
+   state * ret = create_uninitialized_state(state_type::repetition_group);
+   ret->u.repetition.first_state = first_state;
    ret->u.repetition.min = min;
    ret->u.repetition.max = max;
    ret->u.repetition.greedy = true;
@@ -247,11 +254,8 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    ret.capture0->u.capture.begin = history_itr.char_index();
    auto curr_group = ret.capture0.get();
 
-   // TODO: change these two variables to use collections::stack once that’s available.
+   // TODO: change this variable to use collections::stack once that’s available.
    collections::vector<backtrack> backtracking_stack;
-   /* Stack of repetition counters. A new counter is pushed when a new repetition is started, and popped when
-   that repetition is a) matched max times or b) backtracked over. */
-   collections::vector<repetition> reps_stack;
 
    bool accepted = (curr_state == nullptr);
    while (curr_state) {
@@ -292,33 +296,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
          }
 
-         case state_type::repetition: {
-            repetition * rep;
-            if (reps_stack && (rep = &reps_stack.back())->state == curr_state) {
-               ++rep->count;
-            } else {
-               // New repetition: save it on the stack and begin counting.
-               reps_stack.push_back(repetition(curr_state));
-               rep = &reps_stack.back();
-            }
-            if (
-               curr_state->u.repetition.max == 0 ||
-               rep->count <= static_cast<unsigned>(curr_state->u.repetition.max)
-            ) {
-               // Repetitions within [min, max] are accepting.
-               accepted = (rep->count >= static_cast<unsigned>(curr_state->u.repetition.min));
-               // Try one more repetition.
-               next_state = curr_state->u.repetition.repeated_state;
-            } else {
-               // Repeated max times; pop the stack and move on to the next state.
-               accepted = true;
-               reps_stack.pop_back();
-            }
-            backtracking_stack.push_back(backtrack(curr_state, accepted));
-            curr_state = next_state;
-            continue;
-         }
-
          case state_type::begin:
             accepted = (history_itr == history_begin_itr);
             break;
@@ -338,72 +315,112 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
 
          case state_type::capture_group:
-            // Nest this capture into the currently-open capture.
+            // Nest this capture into the currently-open group.
             curr_group = curr_group->append_nested(curr_state);
             curr_group->u.capture.begin = history_itr.char_index();
             next_state = curr_state->u.capture.first_state;
-            goto skip_acceptance_test;
+            backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
+            goto next_state_after_accepted;
+
+         case state_type::repetition_group:
+            // Nest this repetition into the currently-open group.
+            curr_group = curr_group->append_nested(curr_state);
+            curr_group->u.repetition.count = 0;
+            curr_group->u.repetition.counting = true;
+            accepted = (curr_state->u.repetition.min == 0);
+            if (!accepted || curr_state->u.repetition.greedy) {
+               // Want (greedy) or need (min reps > 0) at least one repetition.
+               next_state = curr_state->u.repetition.first_state;
+               /* Else, we’ll move on to next for now; later, if the input is not accepted, we’ll try with
+               more repetitions. */
+            }
+            backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
+            goto next_state_after_accepted;
       }
 
       if (accepted) {
-skip_acceptance_test:
          backtracking_stack.push_back(backtrack(curr_state, accepted));
+next_state_after_accepted:
+         // The lack of a next state in a non-topmost group means the end of the current group.
          while (!next_state && curr_group->parent) {
-            // A nullptr as next state means the end of the current group.
-            backtracking_stack.push_back(backtrack(curr_group->state, accepted));
-            backtracking_stack.back().group_closed = true;
-            switch (curr_group->state->type) {
+            auto prev_group = curr_group;
+            auto group_state = curr_group->state;
+            switch (group_state->type) {
                case state_type::capture_group:
                   curr_group->u.capture.end = history_itr.char_index();
+                  curr_group = curr_group->parent;
+                  next_state = group_state->next;
                   break;
+
+               case state_type::repetition_group:
+                  ++curr_group->u.repetition.count;
+                  // Repetitions within [min, max] are accepting.
+                  accepted = (
+                     curr_group->u.repetition.count >= static_cast<unsigned>(group_state->u.repetition.min) &&
+                     (
+                        group_state->u.repetition.max == 0 ||
+                        curr_group->u.repetition.count <= static_cast<unsigned>(group_state->u.repetition.max)
+                     )
+                  );
+                  if (!accepted || (group_state->u.repetition.greedy && (
+                     group_state->u.repetition.max == 0 ||
+                     curr_group->u.repetition.count < static_cast<unsigned>(group_state->u.repetition.max)
+                  ))) {
+                     // Want (greedy) or need (min reps > count) at least one more repetition.
+                     curr_group->u.repetition.counting = true;
+                     next_state = group_state->u.repetition.first_state;
+                     // Stay in curr_group.
+                  } else {
+                     curr_group->u.repetition.counting = false;
+                     next_state = group_state->next;
+                     curr_group = curr_group->parent;
+                  }
+                  break;
+
                default:
                   break;
             }
-            next_state = curr_group->state->next;
-            curr_group = curr_group->parent;
+            // Inject one more backtrack to allow getting back in the group.
+            backtracking_stack.push_back(backtrack(prev_group, false /*leaving group*/, accepted));
          }
          curr_state = next_state;
       } else {
          // Consider the next alternative of the current state or a prior one.
          curr_state = curr_state->alternative;
          while (!curr_state && backtracking_stack) {
-            auto backtrack(backtracking_stack.pop_back());
-            switch (backtrack.state->type) {
+            auto const & backtrack = backtracking_stack.back();
+            auto backtrack_state = backtrack.u_is_group ? backtrack.u.group->state : backtrack.u.state;
+            switch (backtrack_state->type) {
                case state_type::range:
-                  /* If the state we’re rolling back accepted (and consumed) a code point, it must’ve saved
-                  it in history_buf, so recover it from there. */
+                  /* If the state we’re rolling back accepted (and consumed) a code point, it must’ve saved it
+                  in history_buf, so recover it from there. */
                   if (backtrack.accepted) {
                      --history_itr;
                   }
                   break;
 
-               case state_type::repetition:
-                  // If we’re backtracking the current top-of-the-stack repetition, pop it out of it.
-                  if (reps_stack && reps_stack.back().state == backtrack.state) {
-                     reps_stack.pop_back();
-                  }
-                  /* This is a repetition’s Nth occurrence; decide what to do depending on whether N is in the
-                  acceptable range. */
-                  if (!backtrack.accepted) {
-                     // Move on to the alternative, like non-repeating states.
-                     break;
-                  } else if (backtrack.state->next) {
-                     // Move past the repetition, ignoring any alternatives.
-                     curr_state = backtrack.state->next;
-                     continue;
-                  } else {
-                     // If there was no following state, the input is accepted.
+               case state_type::repetition_group:
+                  if (backtrack.accepted && curr_group->u.repetition.counting) {
+                     /* Backtracking to an accepted repetition after a rejected one: leave the group and
+                     continue, ending the repetitions for the group. */
+                     curr_group->u.repetition.counting = false;
+                     curr_group = curr_group->parent;
+                     next_state = backtrack_state->next;
                      accepted = true;
-                     goto break_outer_while;
+                     /* Decide what to do depending on whether the number of repetitions is in the
+                     acceptable range. */
+                     goto next_state_after_accepted;
                   }
+                  // Move on to the alternative, like non-repeating groups and states.
+                  //no break
 
                case state_type::capture_group:
-                  if (backtrack.group_closed) {
-                     // Re-enter the last (closed) nested capture.
-                     curr_group = curr_group->last_nested;
-                  } else {
+                  if (backtrack.entered_group) {
                      // Discard *curr_group and move back to its parent.
                      curr_group = curr_group->delete_and_get_parent();
+                  } else {
+                     // Re-enter the group.
+                     curr_group = backtrack.u.group;
                   }
                   break;
 
@@ -411,8 +428,9 @@ skip_acceptance_test:
                   // No special action needed.
                   break;
             }
-            // Not a repetition, or Nth occurrence with N not in the acceptable range.
-            curr_state = backtrack.state->alternative;
+            // Consider the alternative to the backtracked state and discard the backtrack.
+            curr_state = backtrack_state->alternative;
+            backtracking_stack.pop_back();
          }
          /* If we run out of alternatives and can’t backtrack any further, and the pattern is not anchored,
          we’re allowed to move one code point to history and try the whole pattern again from the initial
@@ -437,7 +455,6 @@ skip_acceptance_test:
          }
       }
    }
-break_outer_while:
    if (accepted) {
       ret.capture0->u.capture.end = history_itr.char_index();
    } else {

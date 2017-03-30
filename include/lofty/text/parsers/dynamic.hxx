@@ -56,14 +56,14 @@ public:
       //! Code point or code point range matcher: /a/ , /[a-z]/ , etc.
       range,
       //! Repetition matcher; repeatedly matches the states that follow it: /.{n,m}/ .
-      repetition
+      repetition_group
    );
 
    class LOFTY_SYM match : public support_explicit_operator_bool<match>, public noncopyable {
    private:
       friend class dynamic;
 
-   protected:
+   public:
       //! Capture tree node.
       struct group_node;
 
@@ -143,8 +143,8 @@ public:
          } range;
          //! Repetition data.
          struct {
-            //! Pointer to the first state to be matched repeatedly.
-            state const * repeated_state;
+            //! Pointer to the first state to match repeatedly.
+            state const * first_state;
             //! Minimum number of repetitions needed to accept.
             std::uint16_t min;
             //! Maximum number of repetitions needed to accept.
@@ -218,8 +218,8 @@ public:
    /*! Creates a state that matches a number of repetitions of another state list. The last state in the list
    should have this new state assigned as its next.
 
-   @param repeated_state
-      Pointer to the first state of the repetition.
+   @param first_state
+      Pointer to the first state to match repeatedly.
    @param min
       Minimum number of repetitions needed to accept.
    @param max
@@ -228,7 +228,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_repetition_state(state const * repeated_state, std::uint16_t min, std::uint16_t max = 0);
+   state * create_repetition_group(state const * first_state, std::uint16_t min, std::uint16_t max = 0);
 
    /*! Runs the parser against the specified string.
 
