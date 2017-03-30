@@ -64,8 +64,12 @@ public:
       friend class dynamic;
 
    public:
-      //! Capture tree node.
-      struct group_node;
+      //! Base tree node.
+      class group_node;
+      //! Tree node with extra data to track captures.
+      class capture_group_node;
+      //! Tree node with extra data to track repetitions.
+      class repetition_group_node;
 
    public:
       //! Constructor.
@@ -124,6 +128,8 @@ public:
          return this;
       }
 
+      //! State type.
+      state_type::enum_type type;
       //! Pointer to the next state if this one accepts.
       state const * next;
       //! Pointer to an alternate state to try if this one does not accept.
@@ -153,8 +159,6 @@ public:
             bool greedy;
          } repetition;
       } u;
-      //! State type.
-      state_type::enum_type type;
    };
 
 public:

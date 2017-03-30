@@ -88,32 +88,6 @@ struct dynamic::match::group_node {
    group_node * prev_sibling;
    //! Owning pointer to the next same-level group, if any.
    _std::unique_ptr<group_node> next_sibling;
-   union {
-      struct {
-         //! Offset of the start of the capture.
-         std::size_t begin;
-         //! Offset of the end of the capture.
-         std::size_t end;
-      } capture;
-      struct {
-         //! Number of times the repetition has occurred.
-         unsigned count;
-         //! true if the group is being repeatedly matched, or false if the parser has moved on.
-         bool counting;
-      } repetition;
-   } u;
-
-   /*! Constructor.
-
-   @param state_
-      Pointer to the related group state.
-   */
-   explicit group_node(struct state const * state_) :
-      state(state_),
-      parent(nullptr),
-      last_nested(nullptr),
-      prev_sibling(nullptr) {
-   }
 
    //! Destructor.
    ~group_node() {
@@ -123,24 +97,19 @@ struct dynamic::match::group_node {
       }
    }
 
-   /*! Adds a new group_node at the end of the nested group nodes list.
+   /*! Casts the group as a capture group, if applicable.
 
-   @param state_
-      Pointer to the related group state.
+   @return
+      Pointer to *this as a capture group, or nullptr if *this is not a capture_group_node.
    */
-   group_node * append_nested(struct state const * state_) {
-      _std::unique_ptr<group_node> ret_owner(new group_node(state_));
-      auto ret = ret_owner.get();
-      if (last_nested) {
-         last_nested->next_sibling = _std::move(ret_owner);
-         ret->prev_sibling = last_nested;
-      } else {
-         first_nested = _std::move(ret_owner);
-         last_nested = ret;
-      }
-      ret->parent = this;
-      return ret;
-   }
+   capture_group_node * as_capture();
+
+   /*! Casts the group as a repetition group, if applicable.
+
+   @return
+      Pointer to *this as a repetition group, or nullptr if *this is not a repetition_group_node.
+   */
+   repetition_group_node * as_repetition();
 
    /*! Deletes *this by resetting its owner’s pointer, and returns parent.
 
@@ -156,7 +125,114 @@ struct dynamic::match::group_node {
       }
       return ret;
    }
+
+   /*! Determines whether *this is a capture_group_node.
+
+   @return
+      true if *this is a capture_group_node, or nullptr if it’s not.
+   */
+   bool is_capture() const {
+      return state->type == state_type::capture_group;
+   }
+
+   /*! Determines whether *this is a repetition_group_node.
+
+   @return
+      true if *this is a repetition_group_node, or nullptr if it’s not.
+   */
+   bool is_repetition() const {
+      return state->type == state_type::repetition_group;
+   }
+
+protected:
+   /*! Constructor.
+
+   @param state_
+      Pointer to the related group state.
+   */
+   explicit group_node(struct state const * state_) :
+      state(state_),
+      parent(nullptr),
+      last_nested(nullptr),
+      prev_sibling(nullptr) {
+   }
+
+   /*! Constructor that inserts the node as the last_nested of a parent node.
+
+   @param parent_
+      Pointer to the parent (containing) group.
+   @param state_
+      Pointer to the related group state.
+   */
+   group_node(group_node * parent_, struct state const * state_) :
+      state(state_),
+      parent(parent_),
+      last_nested(nullptr),
+      prev_sibling(parent->last_nested) {
+      if (prev_sibling) {
+         prev_sibling = parent->last_nested;
+         parent->last_nested->next_sibling.reset(this);
+      } else {
+         parent->first_nested.reset(this);
+      }
+      parent->last_nested = this;
+   }
 };
+
+
+struct dynamic::match::capture_group_node : group_node {
+   //! Offset of the start of the capture.
+   std::size_t begin;
+   //! Offset of the end of the capture.
+   std::size_t end;
+
+   /*! Constructor.
+
+   @param state_
+      Pointer to the related group state.
+   */
+   explicit capture_group_node(struct state const * state_) :
+      group_node(state_) {
+   }
+
+   /*! Constructor that inserts the node as the last_nested of a parent node.
+
+   @param parent_
+      Pointer to the parent (containing) group.
+   @param state_
+      Pointer to the related group state.
+   */
+   capture_group_node(group_node * parent_, struct state const * state_) :
+      group_node(parent_, state_) {
+   }
+};
+
+dynamic::match::capture_group_node * dynamic::match::group_node::as_capture() {
+   return is_capture() ? static_cast<capture_group_node *>(this) : nullptr;
+}
+
+
+struct dynamic::match::repetition_group_node : group_node {
+   //! Number of times the repetition has occurred.
+   unsigned count;
+   //! true if the group is being repeatedly matched, or false if the parser has moved on.
+   bool counting;
+
+   /*! Constructor that inserts the node as the last_nested of a parent node.
+
+   @param parent_
+      Pointer to the parent (containing) group.
+   @param state_
+      Pointer to the related group state.
+   */
+   repetition_group_node(group_node * parent_, struct state const * state_) :
+      group_node(parent_, state_) {
+   }
+};
+
+dynamic::match::repetition_group_node * dynamic::match::group_node::as_repetition() {
+   return is_repetition() ? static_cast<repetition_group_node *>(this) : nullptr;
+}
 
 
 dynamic::match::match() {
@@ -250,8 +326,16 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    auto history_begin_itr(history_buf.cbegin()), history_end(history_buf.cend());
    auto history_itr(history_begin_itr), peek_itr(peek_buf.cbegin()), peek_end(peek_buf.cend());
 
-   ret.capture0.reset(new match::group_node(curr_state));
-   ret.capture0->u.capture.begin = history_itr.char_index();
+   // Empty state to which to associate capture0. Only its type is used.
+   static state const capture0_state = {
+      /*type*/        state_type::capture_group,
+      /*next*/        nullptr,
+      /*alternative*/ nullptr,
+      {
+      }
+   };
+   ret.capture0.reset(new match::capture_group_node(&capture0_state));
+   ret.capture0->as_capture()->begin = history_itr.char_index();
    auto curr_group = ret.capture0.get();
 
    // TODO: change this variable to use collections::stack once that’s available.
@@ -314,19 +398,20 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             }
             break;
 
-         case state_type::capture_group:
-            // Nest this capture into the currently-open group.
-            curr_group = curr_group->append_nested(curr_state);
-            curr_group->u.capture.begin = history_itr.char_index();
+         case state_type::capture_group: {
+            auto capture_group = new match::capture_group_node(curr_group, curr_state);
+            capture_group->begin = history_itr.char_index();
+            curr_group = capture_group;
             next_state = curr_state->u.capture.first_state;
             backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
             goto next_state_after_accepted;
+         }
 
-         case state_type::repetition_group:
-            // Nest this repetition into the currently-open group.
-            curr_group = curr_group->append_nested(curr_state);
-            curr_group->u.repetition.count = 0;
-            curr_group->u.repetition.counting = true;
+         case state_type::repetition_group: {
+            auto repetition_group = new match::repetition_group_node(curr_group, curr_state);
+            repetition_group->count = 0;
+            repetition_group->counting = true;
+            curr_group = repetition_group;
             accepted = (curr_state->u.repetition.min == 0);
             if (!accepted || curr_state->u.repetition.greedy) {
                // Want (greedy) or need (min reps > 0) at least one repetition.
@@ -336,6 +421,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             }
             backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
             goto next_state_after_accepted;
+         }
       }
 
       if (accepted) {
@@ -344,41 +430,33 @@ next_state_after_accepted:
          // The lack of a next state in a non-topmost group means the end of the current group.
          while (!next_state && curr_group->parent) {
             auto prev_group = curr_group;
-            auto group_state = curr_group->state;
-            switch (group_state->type) {
-               case state_type::capture_group:
-                  curr_group->u.capture.end = history_itr.char_index();
+            if (auto capture_group = curr_group->as_capture()) {
+               capture_group->end = history_itr.char_index();
+               next_state = curr_group->state->next;
+               curr_group = curr_group->parent;
+            } else if (auto repetition_group = curr_group->as_repetition()) {
+               ++repetition_group->count;
+               // Repetitions within [min, max] are accepting.
+               accepted = (
+                  repetition_group->count >= static_cast<unsigned>(curr_group->state->u.repetition.min) &&
+                  (
+                     curr_group->state->u.repetition.max == 0 ||
+                     repetition_group->count <= static_cast<unsigned>(curr_group->state->u.repetition.max)
+                  )
+               );
+               if (!accepted || (curr_group->state->u.repetition.greedy && (
+                  curr_group->state->u.repetition.max == 0 ||
+                  repetition_group->count < static_cast<unsigned>(curr_group->state->u.repetition.max)
+               ))) {
+                  // Want (greedy) or need (min reps > count) at least one more repetition.
+                  repetition_group->counting = true;
+                  next_state = curr_group->state->u.repetition.first_state;
+                  // Stay in curr_group.
+               } else {
+                  repetition_group->counting = false;
+                  next_state = curr_group->state->next;
                   curr_group = curr_group->parent;
-                  next_state = group_state->next;
-                  break;
-
-               case state_type::repetition_group:
-                  ++curr_group->u.repetition.count;
-                  // Repetitions within [min, max] are accepting.
-                  accepted = (
-                     curr_group->u.repetition.count >= static_cast<unsigned>(group_state->u.repetition.min) &&
-                     (
-                        group_state->u.repetition.max == 0 ||
-                        curr_group->u.repetition.count <= static_cast<unsigned>(group_state->u.repetition.max)
-                     )
-                  );
-                  if (!accepted || (group_state->u.repetition.greedy && (
-                     group_state->u.repetition.max == 0 ||
-                     curr_group->u.repetition.count < static_cast<unsigned>(group_state->u.repetition.max)
-                  ))) {
-                     // Want (greedy) or need (min reps > count) at least one more repetition.
-                     curr_group->u.repetition.counting = true;
-                     next_state = group_state->u.repetition.first_state;
-                     // Stay in curr_group.
-                  } else {
-                     curr_group->u.repetition.counting = false;
-                     next_state = group_state->next;
-                     curr_group = curr_group->parent;
-                  }
-                  break;
-
-               default:
-                  break;
+               }
             }
             // Inject one more backtrack to allow getting back in the group.
             backtracking_stack.push_back(backtrack(prev_group, false /*leaving group*/, accepted));
@@ -400,24 +478,27 @@ next_state_after_accepted:
                   break;
 
                case state_type::repetition_group:
-                  if (backtrack.accepted && curr_group->u.repetition.counting) {
-                     /* Backtracking to an accepted repetition after a rejected one: leave the group and
-                     continue, ending the repetitions for the group. */
-                     curr_group->u.repetition.counting = false;
-                     curr_group = curr_group->parent;
-                     next_state = backtrack_state->next;
-                     accepted = true;
-                     /* Decide what to do depending on whether the number of repetitions is in the
-                     acceptable range. */
-                     goto next_state_after_accepted;
+                  if (backtrack.accepted) {
+                     auto repetition_group = backtrack.u.group->as_repetition();
+                     if (repetition_group->counting) {
+                        /* Backtracking to an accepted repetition after a rejected one: leave the group and
+                        continue, ending the repetitions for the group. */
+                        repetition_group->counting = false;
+                        curr_group = backtrack.u.group->parent;
+                        next_state = backtrack_state->next;
+                        accepted = true;
+                        /* Decide what to do depending on whether the number of repetitions is in the
+                        acceptable range. */
+                        goto next_state_after_accepted;
+                     }
                   }
                   // Move on to the alternative, like non-repeating groups and states.
                   //no break
 
                case state_type::capture_group:
                   if (backtrack.entered_group) {
-                     // Discard *curr_group and move back to its parent.
-                     curr_group = curr_group->delete_and_get_parent();
+                     // Discard *backtrack.u.group and move back to its parent.
+                     curr_group = backtrack.u.group->delete_and_get_parent();
                   } else {
                      // Re-enter the group.
                      curr_group = backtrack.u.group;
@@ -456,7 +537,7 @@ next_state_after_accepted:
       }
    }
    if (accepted) {
-      ret.capture0->u.capture.end = history_itr.char_index();
+      ret.capture0->as_capture()->end = history_itr.char_index();
    } else {
       ret.capture0.reset();
    }
