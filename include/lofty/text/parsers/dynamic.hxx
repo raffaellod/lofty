@@ -44,6 +44,14 @@ For the ERE pattern “a”, the state machine would be:
    @endverbatim
 */
 class LOFTY_SYM dynamic {
+protected:
+   //! Base tree node.
+   class group_node;
+   //! Tree node with extra data to track captures.
+   class capture_group_node;
+   //! Tree node with extra data to track repetitions.
+   class repetition_group_node;
+
 public:
    //! Possible state types.
    LOFTY_ENUM_AUTO_VALUES(state_type,
@@ -62,14 +70,6 @@ public:
    class LOFTY_SYM match : public support_explicit_operator_bool<match>, public noncopyable {
    private:
       friend class dynamic;
-
-   public:
-      //! Base tree node.
-      class group_node;
-      //! Tree node with extra data to track captures.
-      class capture_group_node;
-      //! Tree node with extra data to track repetitions.
-      class repetition_group_node;
 
    public:
       //! Constructor.
@@ -104,10 +104,20 @@ public:
       }
 
    protected:
+      /*! Constructor for use by the parser.
+
+      @param captures_buffer
+         Contains all captures, which are expressed as offset in this string.
+      @param capture0
+         Top-level, mandatory capture.
+      */
+      match(str && captures_buffer, _std::unique_ptr<capture_group_node> capture0);
+
+   protected:
       //! Contains all captures, which are expressed as offset in this string.
       str captures_buffer;
       //! Top-level, mandatory capture.
-      _std::unique_ptr<group_node> capture0;
+      _std::unique_ptr<capture_group_node> capture0;
    };
 
    /*! State representation. Instances can be statically allocated, or generated at run-time by calling one of

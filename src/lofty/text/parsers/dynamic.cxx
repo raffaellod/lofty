@@ -33,7 +33,7 @@ struct backtrack {
       //! Pointer to the state the backtrack refers to.
       dynamic::state const * state;
       //! Pointer to the group the backtrack refers to.
-      dynamic::match::group_node * group;
+      dynamic::group_node * group;
    } u;
    //! true if u contains a group, or false if it contains a state.
    bool u_is_group;
@@ -64,7 +64,7 @@ struct backtrack {
    @param accepted_
       true if *group->state accepted the input, or false otherwise.
    */
-   backtrack(dynamic::match::group_node * group, bool entered_group_, bool accepted_) :
+   backtrack(dynamic::group_node * group, bool entered_group_, bool accepted_) :
       u_is_group(true),
       accepted(accepted_),
       entered_group(entered_group_) {
@@ -75,7 +75,7 @@ struct backtrack {
 } //namespace
 
 
-struct dynamic::match::group_node {
+struct dynamic::group_node {
    //! Pointer to the related group state.
    struct state const * state;
    //! Pointer to the parent (containing) group. Only nullptr for capture 0.
@@ -180,7 +180,7 @@ protected:
 };
 
 
-struct dynamic::match::capture_group_node : group_node {
+struct dynamic::capture_group_node : group_node {
    //! Offset of the start of the capture.
    std::size_t begin;
    //! Offset of the end of the capture.
@@ -207,12 +207,12 @@ struct dynamic::match::capture_group_node : group_node {
    }
 };
 
-dynamic::match::capture_group_node * dynamic::match::group_node::as_capture() {
+dynamic::capture_group_node * dynamic::group_node::as_capture() {
    return is_capture() ? static_cast<capture_group_node *>(this) : nullptr;
 }
 
 
-struct dynamic::match::repetition_group_node : group_node {
+struct dynamic::repetition_group_node : group_node {
    //! Number of times the repetition has occurred.
    unsigned count;
    //! true if the group is being repeatedly matched, or false if the parser has moved on.
@@ -230,7 +230,7 @@ struct dynamic::match::repetition_group_node : group_node {
    }
 };
 
-dynamic::match::repetition_group_node * dynamic::match::group_node::as_repetition() {
+dynamic::repetition_group_node * dynamic::group_node::as_repetition() {
    return is_repetition() ? static_cast<repetition_group_node *>(this) : nullptr;
 }
 
@@ -241,6 +241,11 @@ dynamic::match::match() {
 dynamic::match::match(match && src) :
    captures_buffer(_std::move(src.captures_buffer)),
    capture0(_std::move(src.capture0)) {
+}
+
+dynamic::match::match(str && captures_buffer_, _std::unique_ptr<capture_group_node> capture0_) :
+   captures_buffer(_std::move(captures_buffer_)),
+   capture0(_std::move(capture0_)) {
 }
 
 dynamic::match & dynamic::match::operator=(match && src) {
@@ -323,12 +328,11 @@ dynamic::match dynamic::run(str const & s) const {
 dynamic::match dynamic::run(io::text::istream * istream) const {
    LOFTY_TRACE_FUNC(this, istream);
 
-   match ret;
    auto curr_state = initial_state;
    // Cache this condition to quickly determine whether we’re allowed to skip input code points.
    bool begin_anchor = (curr_state && curr_state->type == state_type::begin && !curr_state->alternative);
    // Setup the two sources of code points: a history and a peek buffer from the input stream.
-   str & history_buf = ret.captures_buffer, peek_buf = istream->peek_chars(1);
+   str history_buf, peek_buf = istream->peek_chars(1);
    auto history_begin_itr(history_buf.cbegin()), history_end(history_buf.cend());
    auto history_itr(history_begin_itr), peek_itr(peek_buf.cbegin()), peek_end(peek_buf.cend());
 
@@ -340,9 +344,9 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
       {
       }
    };
-   ret.capture0.reset(new match::capture_group_node(&capture0_state));
-   ret.capture0->as_capture()->begin = history_itr.char_index();
-   auto curr_group = ret.capture0.get();
+   _std::unique_ptr<capture_group_node> capture0_group_node(new capture_group_node(&capture0_state));
+   capture0_group_node->begin = history_itr.char_index();
+   group_node * curr_group = capture0_group_node.get();
 
    // TODO: change this variable to use collections::stack once that’s available.
    collections::vector<backtrack> backtracking_stack;
@@ -405,7 +409,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
 
          case state_type::capture_group: {
-            auto capture_group = new match::capture_group_node(curr_group, curr_state);
+            auto capture_group = new capture_group_node(curr_group, curr_state);
             capture_group->begin = history_itr.char_index();
             curr_group = capture_group;
             next_state = curr_state->u.capture.first_state;
@@ -414,7 +418,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
          }
 
          case state_type::repetition_group: {
-            auto repetition_group = new match::repetition_group_node(curr_group, curr_state);
+            auto repetition_group = new repetition_group_node(curr_group, curr_state);
             repetition_group->count = 0;
             repetition_group->counting = true;
             curr_group = repetition_group;
@@ -543,11 +547,11 @@ next_state_after_accepted:
       }
    }
    if (accepted) {
-      ret.capture0->as_capture()->end = history_itr.char_index();
+      capture0_group_node->end = history_itr.char_index();
+      return match(_std::move(history_buf), _std::move(capture0_group_node));
    } else {
-      ret.capture0.reset();
+      return match();
    }
-   return _std::move(ret);
 }
 
 }}} //namespace lofty::text::parsers
