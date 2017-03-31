@@ -243,6 +243,12 @@ dynamic::match::match(match && src) :
    capture0(_std::move(src.capture0)) {
 }
 
+dynamic::match & dynamic::match::operator=(match && src) {
+   captures_buffer = _std::move(src.captures_buffer);
+   capture0 = _std::move(src.capture0);
+   return *this;
+}
+
 
 dynamic::match::~match() {
 }

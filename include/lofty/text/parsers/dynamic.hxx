@@ -85,6 +85,15 @@ public:
       //! Destructor.
       ~match();
 
+      /*! Move-assignment operator.
+
+      @param src
+         Source object.
+      @return
+         *this.
+      */
+      match & operator=(match && src);
+
       /*! Boolean evaluation operator.
 
       @return
