@@ -144,15 +144,16 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    text::parsers::dynamic parser;
    auto a_state = parser.create_code_point_state('a');
-   auto a_rep_state = parser.create_repetition_group(a_state, 0, 1);
-   parser.set_initial_state(a_rep_state);
+   auto a_rep_group = parser.create_repetition_group(a_state, 0, 1);
+   parser.set_initial_state(a_rep_group);
 
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("a")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("aa")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("b")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("ba")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("ab")));
+   text::parsers::dynamic::match match;
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL(""))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("a"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aa"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("b"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ba"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ab"))));
 }
 
 LOFTY_TESTING_TEST_CASE_FUNC(
@@ -163,8 +164,8 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    text::parsers::dynamic parser;
    auto a_state = parser.create_code_point_state('a');
-   auto a_rep_state = parser.create_repetition_group(a_state, 1);
-   parser.set_initial_state(a_rep_state);
+   auto a_rep_group = parser.create_repetition_group(a_state, 1);
+   parser.set_initial_state(a_rep_group);
 
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
    LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("a")));
@@ -182,11 +183,11 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    text::parsers::dynamic parser;
    auto b_state = parser.create_code_point_state('b');
-   auto b_rep_state = parser.create_repetition_group(b_state, 1);
+   auto b_rep_group = parser.create_repetition_group(b_state, 1);
    auto a_state = parser.create_code_point_state('a');
-   auto a_rep_state = parser.create_repetition_group(a_state, 1);
-   a_rep_state->set_next(b_rep_state);
-   parser.set_initial_state(a_rep_state);
+   auto a_rep_group = parser.create_repetition_group(a_state, 1);
+   a_rep_group->set_next(b_rep_group);
+   parser.set_initial_state(a_rep_group);
 
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("a")));
@@ -211,12 +212,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    text::parsers::dynamic parser;
    auto b_state = parser.create_code_point_state('b');
-   auto b_rep_state = parser.create_repetition_group(b_state, 1);
-   b_rep_state->set_next(parser.create_end_state());
+   auto b_rep_group = parser.create_repetition_group(b_state, 1);
+   b_rep_group->set_next(parser.create_end_state());
    auto a_state = parser.create_code_point_state('a');
-   auto a_rep_state = parser.create_repetition_group(a_state, 1);
-   a_rep_state->set_next(b_rep_state);
-   parser.set_initial_state(parser.create_begin_state()->set_next(a_rep_state));
+   auto a_rep_group = parser.create_repetition_group(a_state, 1);
+   a_rep_group->set_next(b_rep_group);
+   parser.set_initial_state(parser.create_begin_state()->set_next(a_rep_group));
 
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("a")));
@@ -246,8 +247,8 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    auto b_state = parser.create_code_point_state('b');
    auto a_state = parser.create_code_point_state('a');
    a_state->set_alternative(b_state);
-   auto a_or_b_rep_state = parser.create_repetition_group(a_state, 1);
-   parser.set_initial_state(a_or_b_rep_state);
+   auto a_or_b_rep_group = parser.create_repetition_group(a_state, 1);
+   parser.set_initial_state(a_or_b_rep_group);
 
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
    LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("a")));
@@ -274,9 +275,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    auto b_state = parser.create_code_point_state('b');
    auto a_state = parser.create_code_point_state('a');
    a_state->set_alternative(b_state);
-   auto a_or_b_rep_state = parser.create_repetition_group(a_state, 1);
-   a_or_b_rep_state->set_next(parser.create_end_state());
-   parser.set_initial_state(parser.create_begin_state()->set_next(a_or_b_rep_state));
+   auto a_or_b_rep_group = parser.create_repetition_group(a_state, 1);
+   a_or_b_rep_group->set_next(parser.create_end_state());
+   parser.set_initial_state(parser.create_begin_state()->set_next(a_or_b_rep_group));
 
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
    LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("a")));
@@ -300,28 +301,32 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TRACE_FUNC(this);
 
    text::parsers::dynamic parser;
-   parser.set_initial_state(parser.create_repetition_group(parser.create_capture_group(
-      parser.create_capture_group(parser.create_code_point_state('a'))->set_next(
-         parser.create_capture_group(parser.create_code_point_state('b'))
-      )
-   ), 1));
+   auto b_state = parser.create_code_point_state('b');
+   auto b_cap_group = parser.create_capture_group(b_state);
+   auto a_state = parser.create_code_point_state('a');
+   auto a_cap_group = parser.create_capture_group(a_state);
+   a_cap_group->set_next(b_cap_group);
+   auto a_or_b_cap_group = parser.create_capture_group(a_cap_group);
+   auto a_or_b_rep_group = parser.create_repetition_group(a_or_b_cap_group, 1);
+   parser.set_initial_state(a_or_b_rep_group);
 
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("a")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("aa")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("ab")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("abc")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("b")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("bb")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("ba")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("bac")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("c")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("ca")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("cab")));
-   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("cc")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("aab")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("abb")));
-   LOFTY_TESTING_ASSERT_TRUE(parser.run(LOFTY_SL("abab")));
+   text::parsers::dynamic::match match;
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL(""))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("a"))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("aa"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ab"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("abc"))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("b"))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("bb"))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("ba"))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("bac"))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("c"))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("ca"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("cab"))));
+   LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("cc"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aab"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("abb"))));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("abab"))));
 }
 
 }} //namespace lofty::test
