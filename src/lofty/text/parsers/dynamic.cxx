@@ -321,7 +321,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
       }
    };
    _std::unique_ptr<_capture_group_node> capture0_group_node(new _capture_group_node(&capture0_state));
-   capture0_group_node->begin = history_itr.char_index();
+   auto capture0_begin = history_begin_itr;
    _group_node * curr_group = capture0_group_node.get();
 
    // TODO: change this variable to use collections::stack once that’s available.
@@ -518,11 +518,13 @@ next_state_after_accepted:
                ++history_end;
             }
             ++history_itr;
+            capture0_begin = history_itr;
             curr_state = initial_state;
          }
       }
    }
    if (accepted) {
+      capture0_group_node->begin = capture0_begin.char_index();
       capture0_group_node->end = history_itr.char_index();
       return match(_std::move(history_buf), _std::move(capture0_group_node));
    } else {
