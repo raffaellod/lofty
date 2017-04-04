@@ -149,11 +149,17 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    text::parsers::dynamic::match match;
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL(""))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 0u);
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("a"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 1u);
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aa"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 1u);
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("b"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 0u);
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ba"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 0u);
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 1u);
 }
 
 LOFTY_TESTING_TEST_CASE_FUNC(
@@ -315,6 +321,11 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("a"))));
    LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("aa"))));
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[0].capture_group(0).begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[0].capture_group(0).end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[0].capture_group(1).begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[0].capture_group(1).end_char_index(),   2u);
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("abc"))));
    LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("b"))));
    LOFTY_TESTING_ASSERT_FALSE((match = parser.run(LOFTY_SL("bb"))));
@@ -327,6 +338,15 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aab"))));
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("abb"))));
    LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("abab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[0].capture_group(0).begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[0].capture_group(0).end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[0].capture_group(1).begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[0].capture_group(1).end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[1].capture_group(0).begin_char_index(), 2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[1].capture_group(0).end_char_index(),   3u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[1].capture_group(1).begin_char_index(), 3u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[1].capture_group(1).end_char_index(),   4u);
 }
 
 }} //namespace lofty::test

@@ -44,15 +44,17 @@ For the ERE pattern “a”, the state machine would be:
    @endverbatim
 */
 class LOFTY_SYM dynamic {
-protected:
-   //! Base tree node.
-   class group_node;
-   //! Tree node with extra data to track captures.
-   class capture_group_node;
-   //! Tree node with extra data to track repetitions.
-   class repetition_group_node;
-
 public:
+   //! Tree node with extra data to track captures.
+   class _capture_group_node;
+   //! Base tree node.
+   class _group_node;
+   /*! Match returned by run(), providing access to the matched groups. It is the only owner of all resources
+   related to a match. */
+   class match;
+   //! Tree node with extra data to track repetitions.
+   class _repetition_group_node;
+
    //! Possible state types.
    LOFTY_ENUM_AUTO_VALUES(state_type,
       //! Begin matcher: /^/ .
@@ -66,59 +68,6 @@ public:
       //! Repetition matcher; repeatedly matches the states that follow it: /.{n,m}/ .
       repetition_group
    );
-
-   class LOFTY_SYM match : public support_explicit_operator_bool<match>, public noncopyable {
-   private:
-      friend class dynamic;
-
-   public:
-      //! Constructor.
-      match();
-
-      /*! Move constructor.
-
-      @param src
-         Source object.
-      */
-      match(match && src);
-
-      //! Destructor.
-      ~match();
-
-      /*! Move-assignment operator.
-
-      @param src
-         Source object.
-      @return
-         *this.
-      */
-      match & operator=(match && src);
-
-      /*! Boolean evaluation operator.
-
-      @return
-         true if the input was accepted by the parser, or false otherwise.
-      */
-      LOFTY_EXPLICIT_OPERATOR_BOOL() const {
-         return capture0 != nullptr;
-      }
-
-   protected:
-      /*! Constructor for use by the parser.
-
-      @param captures_buffer
-         Contains all captures, which are expressed as offset in this string.
-      @param capture0
-         Top-level, mandatory capture.
-      */
-      match(str && captures_buffer, _std::unique_ptr<capture_group_node> capture0);
-
-   protected:
-      //! Contains all captures, which are expressed as offset in this string.
-      str captures_buffer;
-      //! Top-level, mandatory capture.
-      _std::unique_ptr<capture_group_node> capture0;
-   };
 
    /*! State representation. Instances can be statically allocated, or generated at run-time by calling one of
    the dynamic::create_*_state() methods. */
@@ -300,6 +249,264 @@ protected:
    collections::queue<state> states_list;
    //! Pointer to the initial state.
    state const * initial_state;
+};
+
+//! Matched input captured by lofty::text::parsers::dynamic::run().
+class dynamic_match_capture;
+
+}}} //namespace lofty::text::parsers
+
+namespace lofty { namespace text { namespace parsers { namespace _pvt {
+
+//! Base class for dynamic_match_*, providing access to nested groups.
+class LOFTY_SYM dm_group : public noncopyable {
+public:
+   //! Individual repetition occurrence.
+   class _repetition_occurrence;
+
+   //! Virtual array of repetition occurrences.
+   class LOFTY_SYM _repetition : public noncopyable, public support_explicit_operator_bool<_repetition> {
+   private:
+      friend class dm_group;
+
+   public:
+      /*! Move constructor.
+
+      @param src
+         Source object.
+      */
+      _repetition(_repetition && src) :
+         group_node(src.group_node) {
+         src.group_node = nullptr;
+      }
+
+      /*! Element access operator.
+
+      @param index
+         Repetition occurrence index.
+      @return
+         Accessor to the index-th occurrence.
+      */
+      _repetition_occurrence operator[](unsigned index) const;
+
+      /*! Boolean evaluation operator.
+
+      @return
+         true if the repetition occurred at least once, or false otherwise.
+      */
+      LOFTY_EXPLICIT_OPERATOR_BOOL() const {
+         return size() > 0;
+      }
+
+      /*! Returns how many time the repetition occurred in the containing scope.
+
+      @return
+         Count of occurrences for the occurrence group.
+      */
+      std::size_t size() const;
+
+      /* TODO: iterator starts from first_nested, and incrementing it makes it scan for the next occurrence of
+      first_nested->state, which is the first group of the next repetition. */
+
+   protected:
+      /*! Constructor.
+
+      @param group_node
+         Pointer to the node containing data for the repetition group.
+      */
+      explicit _repetition(dynamic::_group_node const * group_node);
+
+   protected:
+      //! Pointer to the node containing data for the repetition group.
+      dynamic::_repetition_group_node const * group_node;
+   };
+
+public:
+   /*! Move constructor.
+
+   @param src
+      Source object.
+   */
+   dm_group(dm_group && src) :
+      group_node(_std::move(src.group_node)) {
+   }
+
+   /*! Move-assignment operator.
+
+   @param src
+      Source object.
+   @return
+      *this.
+   */
+   dm_group & operator=(dm_group && src) {
+      group_node = _std::move(src.group_node);
+      return *this;
+   }
+
+   /*! Returns the capture group inserted at the specified index in the parser state tree.
+
+   @param index
+      Capture group index.
+   @return
+      Corresponding capture group.
+   */
+   dynamic_match_capture capture_group(unsigned index) const;
+
+   /*! Returns the repetition group inserted at the specified index in the parser state tree.
+
+   @param index
+      Repetition group index.
+   @return
+      Corresponding repetition group.
+   */
+   _repetition repetition_group(unsigned index) const;
+
+protected:
+   /*! Constructor.
+
+   @param group_node
+      Pointer to the node containing data for the group.
+   */
+   explicit dm_group(dynamic::_group_node const * group_node_) :
+      group_node(group_node_) {
+   }
+
+protected:
+   //! Pointer to the node containing data for the group.
+   dynamic::_group_node const * group_node;
+};
+
+class LOFTY_SYM dm_group::_repetition_occurrence : public dm_group {
+private:
+   friend class dm_group;
+
+public:
+   /*! Move constructor.
+
+   @param src
+      Source object.
+   */
+   _repetition_occurrence(_repetition_occurrence && src) :
+      dm_group(_std::move(src)) {
+   }
+
+protected:
+   /*! Constructor.
+
+   @param group_node
+      Pointer to the node containing data for the group.
+   */
+   explicit _repetition_occurrence(dynamic::_group_node const * group_node_) :
+      dm_group(group_node_) {
+   }
+};
+
+}}}} //namespace lofty::text::parsers::_pvt
+
+namespace lofty { namespace text { namespace parsers {
+
+class LOFTY_SYM dynamic_match_capture : public _pvt::dm_group {
+private:
+   friend class _pvt::dm_group;
+
+public:
+   /*! Move constructor.
+
+   @param src
+      Source object.
+   */
+   dynamic_match_capture(dynamic_match_capture && src) :
+      _pvt::dm_group(_std::move(src)) {
+   }
+
+   /*! Move-assignment operator.
+
+   @param src
+      Source object.
+   @return
+      *this.
+   */
+   dynamic_match_capture & operator=(dynamic_match_capture && src) {
+      _pvt::dm_group::operator=(_std::move(src));
+      return *this;
+   }
+
+   /*! Returns the index of the character at the beginning of the capture.
+
+   @return
+      Character index.
+   */
+   std::size_t begin_char_index() const;
+
+   /*! Returns the index of the character past the end of the capture.
+
+   @return
+      Character index.
+   */
+   std::size_t end_char_index() const;
+
+protected:
+   /*! Constructor.
+
+   @param group_node
+      Pointer to the node containing data for the group.
+   */
+   explicit dynamic_match_capture(dynamic::_group_node const * group_node_) :
+      _pvt::dm_group(group_node_) {
+   }
+};
+
+class LOFTY_SYM dynamic::match : public dynamic_match_capture, public support_explicit_operator_bool<match> {
+private:
+   friend match dynamic::run(io::text::istream * istream) const;
+
+public:
+   //! Constructor.
+   match() :
+      dynamic_match_capture(nullptr) {
+   }
+
+   /*! Move constructor.
+
+   @param src
+      Source object.
+   */
+   match(match && src);
+
+   //! Destructor.
+   ~match();
+
+   /*! Move-assignment operator.
+
+   @param src
+      Source object.
+   @return
+      *this.
+   */
+   match & operator=(match && src);
+
+   /*! Boolean evaluation operator.
+
+   @return
+      true if the input was accepted by the parser, or false otherwise.
+   */
+   LOFTY_EXPLICIT_OPERATOR_BOOL() const {
+      return group_node != nullptr;
+   }
+
+protected:
+   /*! Constructor for use by the parser.
+
+   @param captures_buffer
+      Contains all captures, which are expressed as offset in this string.
+   @param capture0_group_node
+      Poimter to the top-level implicit capture.
+   */
+   match(str && captures_buffer, _std::unique_ptr<_capture_group_node const> && capture0_group_node);
+
+protected:
+   //! Contains all captures, which are expressed as offset in this string.
+   str captures_buffer;
 };
 
 }}} //namespace lofty::text::parsers
