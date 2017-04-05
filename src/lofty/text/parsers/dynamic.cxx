@@ -261,16 +261,16 @@ dynamic::state * dynamic::create_capture_group(state const * first_state) {
 }
 
 dynamic::state * dynamic::create_code_point_state(char32_t cp) {
-   state * ret = create_uninitialized_state(state_type::range);
-   ret->u.range.first_cp = cp;
-   ret->u.range.last_cp = cp;
+   state * ret = create_uninitialized_state(state_type::cp_range);
+   ret->u.cp_range.first = cp;
+   ret->u.cp_range.last = cp;
    return ret;
 }
 
 dynamic::state * dynamic::create_code_point_range_state(char32_t first_cp, char32_t last_cp) {
-   state * ret = create_uninitialized_state(state_type::range);
-   ret->u.range.first_cp = first_cp;
-   ret->u.range.last_cp = last_cp;
+   state * ret = create_uninitialized_state(state_type::cp_range);
+   ret->u.cp_range.first = first_cp;
+   ret->u.cp_range.last = last_cp;
    return ret;
 }
 
@@ -333,7 +333,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    while (curr_state) {
       state const * next_state = curr_state->next;
       switch (curr_state->type) {
-         case state_type::range: {
+         case state_type::cp_range: {
             // Get a code point from either history or the peek buffer.
             char32_t cp;
             bool save_peeked_cp_to_history;
@@ -356,7 +356,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                save_peeked_cp_to_history = true;
             }
 
-            accepted = (cp >= curr_state->u.range.first_cp && cp <= curr_state->u.range.last_cp);
+            accepted = (cp >= curr_state->u.cp_range.first && cp <= curr_state->u.cp_range.last);
             if (accepted) {
                if (save_peeked_cp_to_history) {
                   history_buf += cp;
@@ -454,7 +454,7 @@ next_state_after_accepted:
             auto & backtrack = backtracking_stack.back();
             auto backtrack_state = backtrack.u_is_group ? backtrack.u.group->state : backtrack.u.state;
             switch (backtrack_state->type) {
-               case state_type::range:
+               case state_type::cp_range:
                   /* If the state we’re rolling back accepted (and consumed) a code point, it must’ve saved it
                   in history_buf, so recover it from there. */
                   if (backtrack.accepted) {

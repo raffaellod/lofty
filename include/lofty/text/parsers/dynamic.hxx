@@ -61,10 +61,10 @@ public:
       begin,
       //! Capture group: /(…)/ .
       capture_group,
+      //! Code point or code point range matcher: /a/ , /[a-z]/ , etc.
+      cp_range,
       //! End matcher: /$/ .
       end,
-      //! Code point or code point range matcher: /a/ , /[a-z]/ , etc.
-      range,
       //! Repetition matcher; repeatedly matches the states that follow it: /.{n,m}/ .
       repetition_group
    );
@@ -111,10 +111,10 @@ public:
          //! Range data.
          struct {
             //! First character accepted by the range.
-            char32_t first_cp;
+            char32_t first;
             //! Last character accepted by the range.
-            char32_t last_cp;
-         } range;
+            char32_t last;
+         } cp_range;
          //! Repetition data.
          struct {
             //! Pointer to the first state to match repeatedly.
