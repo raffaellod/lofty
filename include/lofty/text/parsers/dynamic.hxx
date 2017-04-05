@@ -26,7 +26,7 @@ You should have received a copy of the GNU Lesser General Public License along w
    #pragma once
 #endif
 
-#include <lofty/collections/queue.hxx>
+#include <lofty/collections/vector.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,9 +69,20 @@ public:
       repetition_group
    );
 
+   //! Combines state with additional state type-dependent data.
+   template <typename T>
+   struct _state_aggregator;
+
    /*! State representation. Instances can be statically allocated, or generated at run-time by calling one of
    the dynamic::create_*_state() methods. */
    struct state {
+      //! State type.
+      state_type::enum_type type;
+      //! Pointer to the next state if this one accepts.
+      state const * next;
+      //! Pointer to an alternate state to try if this one does not accept.
+      state const * alternative;
+
       /*! Assigns the state that will be tried if this one does not accept.
 
       @param alternative_
@@ -96,37 +107,77 @@ public:
          return this;
       }
 
-      //! State type.
-      state_type::enum_type type;
-      //! Pointer to the next state if this one accepts.
-      state const * next;
-      //! Pointer to an alternate state to try if this one does not accept.
-      state const * alternative;
-      union {
-         //! Capture data.
-         struct {
-            //! Pointer to the first state whose matching input is to be captured.
-            state const * first_state;
-         } capture;
-         //! Range data.
-         struct {
-            //! First character accepted by the range.
-            char32_t first;
-            //! Last character accepted by the range.
-            char32_t last;
-         } cp_range;
-         //! Repetition data.
-         struct {
-            //! Pointer to the first state to match repeatedly.
-            state const * first_state;
-            //! Minimum number of repetitions needed to accept.
-            std::uint16_t min;
-            //! Maximum number of repetitions needed to accept.
-            std::uint16_t max;
-            //! If true, more repetitions than min will be attempted first.
-            bool greedy;
-         } repetition;
-      } u;
+      /*! Casts this into a pointer of an aggregated type.
+
+      @return
+         Pointer to the aggregated state.
+      */
+      template <typename T>
+      _state_aggregator<T> const * with_data() const {
+         return static_cast<_state_aggregator<T> const *>(this);
+      }
+   };
+
+   //! Begin additional state data.
+   struct _state_begin_data {
+      static state_type::enum_type const type = state_type::begin;
+   };
+
+   //! Capture additional state data.
+   struct _state_capture_group_data {
+      static state_type::enum_type const type = state_type::capture_group;
+
+      //! Pointer to the first state whose matching input is to be captured.
+      state const * first_state;
+   };
+
+   //! Code point range additional state data.
+   struct _state_cp_range_data {
+      static state_type::enum_type const type = state_type::cp_range;
+
+      //! First code point accepted by the range.
+      char32_t first;
+      //! Last code point accepted by the range.
+      char32_t last;
+   };
+
+   //! End additional state data.
+   struct _state_end_data {
+      static state_type::enum_type const type = state_type::end;
+   };
+
+   //! Repetition additional state data.
+   struct _state_repetition_group_data {
+      static state_type::enum_type const type = state_type::repetition_group;
+
+      //! Pointer to the first state to match repeatedly.
+      state const * first_state;
+      //! Minimum number of repetitions needed to accept.
+      std::uint16_t min;
+      //! Maximum number of repetitions needed to accept.
+      std::uint16_t max;
+      //! If true, more repetitions than min will be attempted first.
+      bool greedy;
+   };
+
+   template <typename T>
+   class _state_aggregator : public noncopyable, public state, public T {
+   public:
+      //! Constructor.
+      explicit _state_aggregator() {
+         state::type = T::type;
+         next = nullptr;
+         alternative = nullptr;
+      }
+   };
+
+   //! Allows to statically assemble a structure with the same layout as _state_aggregator<T>.
+   template <typename T>
+   struct _static_state_aggregator {
+      //! State base.
+      state base;
+      //! Additional state_type-specific data.
+      T extra;
    };
 
 public:
@@ -234,19 +285,20 @@ public:
 protected:
    /*! Creates an uninitialized parser state.
 
-   @param type
-      Type of state to create.
    @return
-      Pointer to the newly-created state, which is owned by the parser and must not be released.
+      Pointer to the newly-created state, which is owned by the parser and must not be released by other code.
    */
-   state * create_uninitialized_state(state_type type);
+   template <typename T>
+   _state_aggregator<T> * create_owned_state() {
+      _std::unique_ptr<_state_aggregator<T>> new_state(new _state_aggregator<T>());
+      auto ret = new_state.get();
+      owned_states.push_back(_std::move(new_state));
+      return ret;
+   }
 
 protected:
-   //! List of states.
-   /* TODO: this member doesn’t need to support iteration, and we also never remove states from the parser,
-   only add; it’s really just a storage dump. The only reason it’s not a plain array or collections::vector is
-   that it needs to be able to grow without changing the address of existing elements. */
-   collections::queue<state> states_list;
+   //! Keeps ownership of all dynamically-allocated states.
+   collections::vector<_std::unique_ptr<state>> owned_states;
    //! Pointer to the initial state.
    state const * initial_state;
 };

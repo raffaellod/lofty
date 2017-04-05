@@ -242,7 +242,7 @@ dynamic::dynamic() :
 }
 
 dynamic::dynamic(dynamic && src) :
-   states_list(_std::move(src.states_list)),
+   owned_states(_std::move(src.owned_states)),
    initial_state(src.initial_state) {
    src.initial_state = nullptr;
 }
@@ -251,50 +251,41 @@ dynamic::~dynamic() {
 }
 
 dynamic::state * dynamic::create_begin_state() {
-   return create_uninitialized_state(state_type::begin);
+   return create_owned_state<_state_begin_data>();
 }
 
 dynamic::state * dynamic::create_capture_group(state const * first_state) {
-   auto ret = create_uninitialized_state(state_type::capture_group);
-   ret->u.capture.first_state = first_state;
+   auto ret = create_owned_state<_state_capture_group_data>();
+   ret->first_state = first_state;
    return ret;
 }
 
 dynamic::state * dynamic::create_code_point_state(char32_t cp) {
-   state * ret = create_uninitialized_state(state_type::cp_range);
-   ret->u.cp_range.first = cp;
-   ret->u.cp_range.last = cp;
+   auto ret = create_owned_state<_state_cp_range_data>();
+   ret->first = cp;
+   ret->last = cp;
    return ret;
 }
 
 dynamic::state * dynamic::create_code_point_range_state(char32_t first_cp, char32_t last_cp) {
-   state * ret = create_uninitialized_state(state_type::cp_range);
-   ret->u.cp_range.first = first_cp;
-   ret->u.cp_range.last = last_cp;
+   auto ret = create_owned_state<_state_cp_range_data>();
+   ret->first = first_cp;
+   ret->last = last_cp;
    return ret;
 }
 
 dynamic::state * dynamic::create_end_state() {
-   return create_uninitialized_state(state_type::end);
+   return create_owned_state<_state_end_data>();
 }
 
 dynamic::state * dynamic::create_repetition_group(
    state const * first_state, std::uint16_t min, std::uint16_t max /*= 0*/
 ) {
-   state * ret = create_uninitialized_state(state_type::repetition_group);
-   ret->u.repetition.first_state = first_state;
-   ret->u.repetition.min = min;
-   ret->u.repetition.max = max;
-   ret->u.repetition.greedy = true;
-   return ret;
-}
-
-dynamic::state * dynamic::create_uninitialized_state(state_type type) {
-   states_list.push_back(state());
-   state * ret = static_cast<state *>(&states_list.back());
-   ret->type = type.base();
-   ret->next = nullptr;
-   ret->alternative = nullptr;
+   auto ret = create_owned_state<_state_repetition_group_data>();
+   ret->first_state = first_state;
+   ret->min = min;
+   ret->max = max;
+   ret->greedy = true;
    return ret;
 }
 
@@ -318,9 +309,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    static state const capture0_state = {
       /*type*/        state_type::capture_group,
       /*next*/        nullptr,
-      /*alternative*/ nullptr,
-      {
-      }
+      /*alternative*/ nullptr
    };
    _std::unique_ptr<_capture_group_node> capture0_group_node(new _capture_group_node(&capture0_state));
    auto capture0_begin = history_begin_itr;
@@ -338,16 +327,18 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
 
          case state_type::capture_group: {
+            auto state_with_data = curr_state->with_data<_state_capture_group_data>();
             // Pointed-to object is owned by curr_group.
-            auto capture_group = new _capture_group_node(curr_group, curr_state);
+            auto capture_group = new _capture_group_node(curr_group, state_with_data);
             capture_group->begin = history_itr.char_index();
             curr_group = capture_group;
-            next_state = curr_state->u.capture.first_state;
+            next_state = state_with_data->first_state;
             backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
             goto next_state_after_accepted;
          }
 
          case state_type::cp_range: {
+            auto state_with_data = curr_state->with_data<_state_cp_range_data>();
             // Get a code point from either history or the peek buffer.
             char32_t cp;
             bool save_peeked_cp_to_history;
@@ -370,7 +361,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                save_peeked_cp_to_history = true;
             }
 
-            accepted = (cp >= curr_state->u.cp_range.first && cp <= curr_state->u.cp_range.last);
+            accepted = (cp >= state_with_data->first && cp <= state_with_data->last);
             if (accepted) {
                if (save_peeked_cp_to_history) {
                   history_buf += cp;
@@ -397,14 +388,15 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
 
          case state_type::repetition_group: {
+            auto state_with_data = curr_state->with_data<_state_repetition_group_data>();
             // Pointed-to object is owned by curr_group.
-            auto repetition_group = new _repetition_group_node(curr_group, curr_state);
+            auto repetition_group = new _repetition_group_node(curr_group, state_with_data);
             repetition_group->count = 0;
             curr_group = repetition_group;
-            accepted = (curr_state->u.repetition.min == 0);
-            if (!accepted || curr_state->u.repetition.greedy) {
+            accepted = (state_with_data->min == 0);
+            if (!accepted || state_with_data->greedy) {
                // Want (greedy) or need (min reps > 0) at least one repetition.
-               next_state = curr_state->u.repetition.first_state;
+               next_state = state_with_data->first_state;
                /* Else, we’ll move on to next for now; later, if the input is not accepted, we’ll try with
                more repetitions. */
             }
@@ -424,24 +416,25 @@ next_state_after_accepted:
                next_state = curr_group->state->next;
                curr_group = curr_group->parent;
             } else if (auto repetition_group = curr_group->as_repetition()) {
+               auto state_with_data = curr_group->state->with_data<_state_repetition_group_data>();
                ++repetition_group->count;
                // Repetitions within [min, max] are accepting.
                accepted = (
-                  repetition_group->count >= static_cast<unsigned>(curr_group->state->u.repetition.min) &&
+                  repetition_group->count >= static_cast<unsigned>(state_with_data->min) &&
                   (
-                     curr_group->state->u.repetition.max == 0 ||
-                     repetition_group->count <= static_cast<unsigned>(curr_group->state->u.repetition.max)
+                     state_with_data->max == 0 ||
+                     repetition_group->count <= static_cast<unsigned>(state_with_data->max)
                   )
                );
-               if (!accepted || (curr_group->state->u.repetition.greedy && (
-                  curr_group->state->u.repetition.max == 0 ||
-                  repetition_group->count < static_cast<unsigned>(curr_group->state->u.repetition.max)
+               if (!accepted || (state_with_data->greedy && (
+                  state_with_data->max == 0 ||
+                  repetition_group->count < static_cast<unsigned>(state_with_data->max)
                ))) {
                   // Want (greedy) or need (min reps > count) at least one more repetition.
-                  next_state = curr_group->state->u.repetition.first_state;
+                  next_state = state_with_data->first_state;
                   // Stay in curr_group.
                } else {
-                  next_state = curr_group->state->next;
+                  next_state = state_with_data->next;
                   curr_group = curr_group->parent;
                }
             }
