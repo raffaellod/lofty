@@ -333,6 +333,20 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    while (curr_state) {
       state const * next_state = curr_state->next;
       switch (curr_state->type) {
+         case state_type::begin:
+            accepted = (history_itr == history_begin_itr);
+            break;
+
+         case state_type::capture_group: {
+            // Pointed-to object is owned by curr_group.
+            auto capture_group = new _capture_group_node(curr_group, curr_state);
+            capture_group->begin = history_itr.char_index();
+            curr_group = capture_group;
+            next_state = curr_state->u.capture.first_state;
+            backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
+            goto next_state_after_accepted;
+         }
+
          case state_type::cp_range: {
             // Get a code point from either history or the peek buffer.
             char32_t cp;
@@ -368,10 +382,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             break;
          }
 
-         case state_type::begin:
-            accepted = (history_itr == history_begin_itr);
-            break;
-
          case state_type::end:
             if (history_itr == history_end && peek_itr == peek_end) {
                /* We consumed history and peek buffer, but “end” really means end, so also check that the
@@ -386,16 +396,8 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             }
             break;
 
-         case state_type::capture_group: {
-            auto capture_group = new _capture_group_node(curr_group, curr_state);
-            capture_group->begin = history_itr.char_index();
-            curr_group = capture_group;
-            next_state = curr_state->u.capture.first_state;
-            backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
-            goto next_state_after_accepted;
-         }
-
          case state_type::repetition_group: {
+            // Pointed-to object is owned by curr_group.
             auto repetition_group = new _repetition_group_node(curr_group, curr_state);
             repetition_group->count = 0;
             curr_group = repetition_group;
