@@ -41,6 +41,8 @@ struct backtrack {
    bool accepted;
    //! true if entering a group, false if leaving it.
    bool entered_group;
+   //! true if the backtrack has been rolled back to once. Only used for repetition groups.
+   bool hit_once;
 
    /*! Constructor for states.
 
@@ -51,7 +53,8 @@ struct backtrack {
    */
    backtrack(dynamic::state const * state, bool accepted_) :
       u_is_group(false),
-      accepted(accepted_) {
+      accepted(accepted_),
+      hit_once(false) {
       u.state = state;
    }
 
@@ -59,15 +62,16 @@ struct backtrack {
 
    @param group_node
       Pointer to the group the backtrack refers to.
-   @param entered_group_
+   @param entering_group
       true if entering a group, false if leaving it.
    @param accepted_
       true if *group->state accepted the input, or false otherwise.
    */
-   backtrack(dynamic::_group_node * group_node, bool entered_group_, bool accepted_) :
+   backtrack(dynamic::_group_node * group_node, bool entering_group, bool accepted_) :
       u_is_group(true),
       accepted(accepted_),
-      entered_group(entered_group_) {
+      entered_group(entering_group),
+      hit_once(false) {
       u.group = group_node;
    }
 };
@@ -215,8 +219,6 @@ dynamic::_capture_group_node * dynamic::_group_node::as_capture() {
 struct dynamic::_repetition_group_node : _group_node {
    //! Number of times the repetition has occurred.
    unsigned count;
-   //! true if the group is being repeatedly matched, or false if the parser has moved on.
-   bool counting;
 
    /*! Constructor that inserts the node as the last_nested of a parent node.
 
@@ -396,7 +398,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
          case state_type::repetition_group: {
             auto repetition_group = new _repetition_group_node(curr_group, curr_state);
             repetition_group->count = 0;
-            repetition_group->counting = true;
             curr_group = repetition_group;
             accepted = (curr_state->u.repetition.min == 0);
             if (!accepted || curr_state->u.repetition.greedy) {
@@ -435,11 +436,9 @@ next_state_after_accepted:
                   repetition_group->count < static_cast<unsigned>(curr_group->state->u.repetition.max)
                ))) {
                   // Want (greedy) or need (min reps > count) at least one more repetition.
-                  repetition_group->counting = true;
                   next_state = curr_group->state->u.repetition.first_state;
                   // Stay in curr_group.
                } else {
-                  repetition_group->counting = false;
                   next_state = curr_group->state->next;
                   curr_group = curr_group->parent;
                }
@@ -452,7 +451,7 @@ next_state_after_accepted:
          // Consider the next alternative of the current state or a prior one.
          curr_state = curr_state->alternative;
          while (!curr_state && backtracking_stack) {
-            auto const & backtrack = backtracking_stack.back();
+            auto & backtrack = backtracking_stack.back();
             auto backtrack_state = backtrack.u_is_group ? backtrack.u.group->state : backtrack.u.state;
             switch (backtrack_state->type) {
                case state_type::range:
@@ -466,13 +465,13 @@ next_state_after_accepted:
                case state_type::repetition_group:
                   if (backtrack.accepted) {
                      auto repetition_group = backtrack.u.group->as_repetition();
-                     if (repetition_group->counting) {
+                     if (!backtrack.hit_once) {
                         /* Backtracking to an accepted repetition after a rejected one: leave the group and
                         continue, ending the repetitions for the group. */
-                        repetition_group->counting = false;
                         curr_group = backtrack.u.group->parent;
                         next_state = backtrack_state->next;
                         accepted = true;
+                        backtrack.hit_once = true;
                         /* Decide what to do depending on whether the number of repetitions is in the
                         acceptable range. */
                         goto next_state_after_accepted;
