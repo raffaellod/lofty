@@ -259,6 +259,57 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 }
 
 LOFTY_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_backtracking_greedy_a_star_a,
+   "lofty::text::parsers::dynamic – pattern “a*a”"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   text::parsers::dynamic parser;
+   auto a_state_2 = parser.create_code_point_state('a');
+   auto a_state_1 = parser.create_code_point_state('a');
+   auto a_rep_group = parser.create_repetition_group(a_state_1, 0);
+   a_rep_group->set_next(a_state_2);
+   parser.set_initial_state(a_rep_group);
+
+   text::parsers::dynamic::match match;
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("a"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 0u);
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aa"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 1u);
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aaa"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   3u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 2u);
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("b")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ba"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 0u);
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("baa"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   3u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 1u);
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("bb")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 0u);
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aba"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 0u);
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aaba"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0).size(), 1u);
+}
+
+LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_plus_b_plus,
    "lofty::text::parsers::dynamic – pattern “a+b+”"
 ) {
