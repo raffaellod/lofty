@@ -462,9 +462,9 @@ next_state_after_accepted:
                   }
                   break;
 
-               case state_type::repetition_group:
+               case state_type::repetition_group: {
+                  auto repetition_group = backtrack.u.group->as_repetition();
                   if (backtrack.accepted) {
-                     auto repetition_group = backtrack.u.group->as_repetition();
                      if (!backtrack.hit_once) {
                         /* Backtracking to an accepted repetition after a rejected one: leave the group and
                         continue, ending the repetitions for the group. */
@@ -477,8 +477,10 @@ next_state_after_accepted:
                         goto next_state_after_accepted;
                      }
                   }
+                  --repetition_group->count;
                   // Move on to the alternative, like non-repeating groups and states.
                   //no break
+               }
 
                case state_type::capture_group:
                   if (backtrack.entered_group) {
