@@ -303,6 +303,58 @@ protected:
    state const * initial_state;
 };
 
+#define _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(extra_type, name, next, alternative) \
+   static ::lofty::text::parsers::dynamic::_static_state_aggregator< \
+      ::lofty::text::parsers::dynamic::extra_type \
+   > const name = { \
+      /*base*/ { \
+         /*type       */ ::lofty::text::parsers::dynamic::extra_type::type, \
+         /*next       */ next, \
+         /*alternative*/ alternative \
+      }, \
+      /*extra*/ {
+
+#define _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END() \
+      } \
+   }
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_BEGIN_STATE(name, next, alternative) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_begin_data, name, next, alternative) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_CAPTURE_GROUP(name, next, alternative, first_state) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_capture_group_data, name, next, alternative) \
+      /*first_state*/ first_state \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(name, next, alternative, cp) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_cp_range_data, name, next, alternative) \
+      /*first*/ cp, \
+      /*last */ cp \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_CP_RANGE_STATE(name, next, alternative, first_cp, last_cp) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_cp_range_data, name, next, alternative) \
+      /*first*/ first_cp, \
+      /*last */ last_cp \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_END_STATE(name, next, alternative) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_end_data, name, next, alternative) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_GROUP(name, next, alternative, first_state, min, max) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_repetition_group_data, name, next, alternative) \
+      /*first_state*/ first_state, \
+      /*min        */ min, \
+      /*max        */ max, \
+      /*greedy     */ true \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(name, next, alternative, first_state, min) \
+   LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_GROUP(name, next, alternative, first_state, min, 0)
+
+
 //! Matched input captured by lofty::text::parsers::dynamic::run().
 class dynamic_match_capture;
 
