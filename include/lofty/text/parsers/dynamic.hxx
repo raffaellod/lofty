@@ -90,7 +90,7 @@ public:
       @return
          this.
       */
-      state * set_alternative(state * alternative_) {
+      state * set_alternative(state const * alternative_) {
          alternative = alternative_;
          return this;
       }
@@ -102,7 +102,7 @@ public:
       @return
          this.
       */
-      state * set_next(state * next_) {
+      state * set_next(state const * next_) {
          next = next_;
          return this;
       }
