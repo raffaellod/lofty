@@ -289,6 +289,13 @@ dynamic::state * dynamic::create_repetition_group(
    return ret;
 }
 
+dynamic::state * dynamic::create_string_state(char_t const * begin, char_t const * end) {
+   auto ret = create_owned_state<_state_string_data>();
+   ret->begin = begin;
+   ret->end = end;
+   return ret;
+}
+
 dynamic::match dynamic::run(str const & s) const {
    io::text::str_istream istream(external_buffer, &s);
    return run(&istream);
@@ -402,6 +409,11 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             }
             backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
             goto next_state_after_accepted;
+         }
+
+         case state_type::string: {
+            auto state_with_data = curr_state->with_data<_state_string_data>();
+            break;
          }
       }
 

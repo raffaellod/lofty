@@ -66,7 +66,9 @@ public:
       //! End matcher: /$/ .
       end,
       //! Repetition matcher; repeatedly matches the states that follow it: /.{n,m}/ .
-      repetition_group
+      repetition_group,
+      //! String matcher: /abc/ , /qwerty/ , etc. Improves performance compared to a chain of cp_range states.
+      string
    );
 
    //! Combines state with additional state type-dependent data.
@@ -158,6 +160,16 @@ public:
       std::uint16_t max;
       //! If true, more repetitions than min will be attempted first.
       bool greedy;
+   };
+
+   //! String additional state data.
+   struct _state_string_data {
+      static state_type::enum_type const type = state_type::string;
+
+      //! Pointer to the start of the string to match.
+      char_t const * begin;
+      //! Pointer to the end of the string to match.
+      char_t const * end;
    };
 
    template <typename T>
@@ -252,6 +264,17 @@ public:
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
    state * create_repetition_group(state const * first_state, std::uint16_t min, std::uint16_t max = 0);
+
+   /*! Creates a state that matches the specified string.
+
+   @param begin
+      Pointer to the start of the string.
+   @param end
+      Pointer to the end of the string.
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_string_state(char_t const * begin, char_t const * end);
 
    /*! Runs the parser against the specified string.
 
@@ -353,6 +376,12 @@ protected:
 
 #define LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(name, next, alternative, first_state, min) \
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_GROUP(name, next, alternative, first_state, min, 0)
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(name, next, alternative, begin, end) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_string_data, name, next, alternative) \
+      /*begin*/ begin, \
+      /*end  */ end \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
 
 
 //! Matched input captured by lofty::text::parsers::dynamic::run().
