@@ -55,15 +55,15 @@ LOFTY_ENUM(encoding,
 LOFTY_ENUM(line_terminator,
    /*! In the context of a text stream, accept as line ending any line terminator read, or write LF characters
    as the host line terminator. */
-   (any,               0),
+   (any,   0),
    //! Old Mac style: Carriage Return, '\r'.
-   (cr,                1),
+   (cr,    1),
    //! Unix/POSIX style: Line Feed, '\n'.
-   (lf,                2),
+   (lf,    2),
    //! DOS/Windows style: Carriage Return + Line Feed, '\r', '\n'.
-   (cr_lf,             3),
+   (cr_lf, 3),
    //! Default host line terminator.
-   (host,              (LOFTY_HOST_API_WIN32 ? cr_lf : lf))
+   (host,  (LOFTY_HOST_API_WIN32 ? cr_lf : lf))
 );
 
 /*! Casts a single character into a code point.
