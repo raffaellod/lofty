@@ -409,7 +409,9 @@ public:
          Source object.
       */
       _repetition(_repetition && src) :
-         group_node(src.group_node) {
+         match(_std::move(src.match)),
+         group_node(_std::move(src.group_node)) {
+         src.match = nullptr;
          src.group_node = nullptr;
       }
 
@@ -444,12 +446,16 @@ public:
    protected:
       /*! Constructor.
 
+      @param match
+         Pointer to the match, which contains the input offset and capture 0.
       @param group_node
          Pointer to the node containing data for the repetition group.
       */
-      explicit _repetition(dynamic::_group_node const * group_node);
+      _repetition(dynamic::match const * match, dynamic::_group_node const * group_node);
 
    protected:
+      //! Pointer to the match, which contains the input offset and capture 0.
+      dynamic::match const * match;
       //! Pointer to the node containing data for the repetition group.
       dynamic::_repetition_group_node const * group_node;
    };
@@ -461,7 +467,10 @@ public:
       Source object.
    */
    dm_group(dm_group && src) :
+      match(_std::move(src.match)),
       group_node(_std::move(src.group_node)) {
+      src.match = nullptr;
+      src.group_node = nullptr;
    }
 
    /*! Move-assignment operator.
@@ -472,7 +481,10 @@ public:
       *this.
    */
    dm_group & operator=(dm_group && src) {
+      match = _std::move(src.match);
       group_node = _std::move(src.group_node);
+      src.match = nullptr;
+      src.group_node = nullptr;
       return *this;
    }
 
@@ -497,14 +509,19 @@ public:
 protected:
    /*! Constructor.
 
-   @param group_node
+   @param match_
+      Pointer to the match, which contains the input offset and capture 0.
+   @param group_node_
       Pointer to the node containing data for the group.
    */
-   explicit dm_group(dynamic::_group_node const * group_node_) :
-      group_node(group_node_) {
+   dm_group(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
+      match(_std::move(match_)),
+      group_node(_std::move(group_node_)) {
    }
 
 protected:
+   //! Pointer to the match, which contains the input offset and capture 0.
+   dynamic::match const * match;
    //! Pointer to the node containing data for the group.
    dynamic::_group_node const * group_node;
 };
@@ -526,11 +543,13 @@ public:
 protected:
    /*! Constructor.
 
-   @param group_node
+   @param match_
+      Pointer to the match, which contains the input offset and capture 0.
+   @param group_node_
       Pointer to the node containing data for the group.
    */
-   explicit _repetition_occurrence(dynamic::_group_node const * group_node_) :
-      dm_group(group_node_) {
+   _repetition_occurrence(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
+      dm_group(_std::move(match_), _std::move(group_node_)) {
    }
 };
 
@@ -581,22 +600,24 @@ public:
 protected:
    /*! Constructor.
 
-   @param group_node
+   @param match_
+      Pointer to the match, which contains the input offset and capture 0.
+   @param group_node_
       Pointer to the node containing data for the group.
    */
-   explicit dynamic_match_capture(dynamic::_group_node const * group_node_) :
-      _pvt::dm_group(group_node_) {
+   dynamic_match_capture(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
+      _pvt::dm_group(_std::move(match_), _std::move(group_node_)) {
    }
 };
 
-class LOFTY_SYM dynamic::match : public dynamic_match_capture, public support_explicit_operator_bool<match> {
+class LOFTY_SYM dynamic::match : private dynamic_match_capture, public support_explicit_operator_bool<match> {
 private:
    friend match dynamic::run(io::text::istream * istream) const;
 
 public:
    //! Constructor.
    match() :
-      dynamic_match_capture(nullptr) {
+      dynamic_match_capture(this, nullptr) {
    }
 
    /*! Move constructor.
@@ -626,6 +647,24 @@ public:
    LOFTY_EXPLICIT_OPERATOR_BOOL() const {
       return group_node != nullptr;
    }
+
+   /*! Returns the index of the character at the beginning of capture 0.
+
+   @return
+      Character index.
+   */
+   std::size_t begin_char_index() const;
+
+   using dynamic_match_capture::capture_group;
+
+   /*! Returns the index of the character past the end of capture 0.
+
+   @return
+      Character index.
+   */
+   std::size_t end_char_index() const;
+
+   using dynamic_match_capture::repetition_group;
 
 protected:
    /*! Constructor for use by the parser.

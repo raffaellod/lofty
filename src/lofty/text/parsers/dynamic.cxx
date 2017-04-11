@@ -305,12 +305,13 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    LOFTY_TRACE_FUNC(this, istream);
 
    auto curr_state = initial_state;
-   // Cache this condition to quickly determine whether we’re allowed to skip input code points.
+   // Cache this condition to quickly determine whether we’re allowed to skip input code points…
    bool begin_anchor = (curr_state && curr_state->type == state_type::begin && !curr_state->alternative);
-   // Setup the two sources of code points: a history and a peek buffer from the input stream.
-   str history_buf, peek_buf = istream->peek_chars(1);
-   auto history_begin_itr(history_buf.cbegin()), history_end(history_buf.cend());
-   auto history_itr(history_begin_itr), peek_itr(peek_buf.cbegin()), peek_end(peek_buf.cend());
+   // …and this one to remember how many.
+   unsigned skipped_input_cps = 0;
+   // Setup the buffer into which code points are read from the input stream.
+   str buf = istream->peek_chars(1);
+   auto buf_itr(buf.cbegin()), buf_end(buf.cend());
 
    // Empty state to which to associate capture0. Only its type is used.
    static state const capture0_state = {
@@ -319,7 +320,6 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
       /*alternative*/ nullptr
    };
    _std::unique_ptr<_capture_group_node> capture0_group_node(new _capture_group_node(&capture0_state));
-   auto capture0_begin = history_begin_itr;
    _group_node * curr_group = capture0_group_node.get();
 
    // TODO: change this variable to use collections::stack once that’s available.
@@ -330,14 +330,14 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
       state const * next_state = curr_state->next;
       switch (curr_state->type) {
          case state_type::begin:
-            accepted = (history_itr == history_begin_itr);
+            accepted = (skipped_input_cps == 0 && buf_itr.char_index() == 0);
             break;
 
          case state_type::capture_group: {
             auto state_with_data = curr_state->with_data<_state_capture_group_data>();
             // Pointed-to object is owned by curr_group.
             auto capture_group = new _capture_group_node(curr_group, state_with_data);
-            capture_group->begin = history_itr.char_index();
+            capture_group->begin = buf_itr.char_index();
             curr_group = capture_group;
             next_state = state_with_data->first_state;
             backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
@@ -346,49 +346,31 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
          case state_type::cp_range: {
             auto state_with_data = curr_state->with_data<_state_cp_range_data>();
-            // Get a code point from either history or the peek buffer.
-            char32_t cp;
-            bool save_peeked_cp_to_history;
-            if (history_itr != history_end) {
-               cp = *history_itr;
-               save_peeked_cp_to_history = false;
-            } else {
-               if (peek_itr == peek_end) {
-                  istream->consume_chars(peek_buf.size_in_chars());
-                  peek_buf = istream->peek_chars(1);
-                  peek_itr = peek_buf.cbegin();
-                  peek_end = peek_buf.cend();
-                  if (peek_itr == peek_end) {
-                     // Run out of code points.
-                     accepted = false;
-                     break;
-                  }
+            // Get a code point from the buffer, peeking more code points if needed.
+            if (buf_itr == buf_end) {
+               buf = istream->peek_chars(buf.size_in_chars() + 1);
+               buf_end = buf.cend();
+               if (buf_itr == buf_end) {
+                  // Run out of code points.
+                  accepted = false;
+                  break;
                }
-               cp = *peek_itr;
-               save_peeked_cp_to_history = true;
             }
-
+            char32_t cp = *buf_itr;
             accepted = (cp >= state_with_data->first && cp <= state_with_data->last);
             if (accepted) {
-               if (save_peeked_cp_to_history) {
-                  history_buf += cp;
-                  ++history_end;
-                  ++peek_itr;
-               }
-               ++history_itr;
+               ++buf_itr;
             }
             break;
          }
 
          case state_type::end:
-            if (history_itr == history_end && peek_itr == peek_end) {
-               /* We consumed history and peek buffer, but “end” really means end, so also check that the
-               stream is empty. */
-               /* TODO: this might be redundant, since other code point consumers in this function always do
-               this after consuming a code point. */
-               istream->consume_chars(peek_buf.size_in_chars());
-               peek_buf = istream->peek_chars(1);
-               accepted = !peek_buf;
+            if (buf_itr == buf_end) {
+               /* We parsed everything we peeked, but “end” really means end, so check that the stream is
+               really empty. */
+               buf = istream->peek_chars(buf.size_in_chars() + 1);
+               buf_end = buf.cend();
+               accepted = (buf_itr == buf_end);
             } else {
                accepted = false;
             }
@@ -424,7 +406,7 @@ next_state_after_accepted:
          while (!next_state && curr_group->parent) {
             auto prev_group = curr_group;
             if (auto capture_group = curr_group->as_capture()) {
-               capture_group->end = history_itr.char_index();
+               capture_group->end = buf_itr.char_index();
                next_state = curr_group->state->next;
                curr_group = curr_group->parent;
             } else if (auto repetition_group = curr_group->as_repetition()) {
@@ -462,10 +444,10 @@ next_state_after_accepted:
             auto backtrack_state = backtrack.u_is_group ? backtrack.u.group->state : backtrack.u.state;
             switch (backtrack_state->type) {
                case state_type::cp_range:
-                  /* If the state we’re rolling back accepted (and consumed) a code point, it must’ve saved it
-                  in history_buf, so recover it from there. */
+                  /* If the state we’re rolling back accepted (and consumed) a code point, rewind the iterator
+                  to pretend that never happened. */
                   if (backtrack.accepted) {
-                     --history_itr;
+                     --buf_itr;
                   }
                   break;
 
@@ -507,34 +489,27 @@ next_state_after_accepted:
             curr_state = backtrack_state->alternative;
             backtracking_stack.pop_back();
          }
-         /* If we run out of alternatives and can’t backtrack any further, and the pattern is not anchored,
-         we’re allowed to move one code point to history and try the whole pattern again from the initial
-         state. */
-         if (!curr_state && !begin_anchor) {
-            if (history_itr == history_end) {
-               if (peek_itr == peek_end) {
-                  istream->consume_chars(peek_buf.size_in_chars());
-                  peek_buf = istream->peek_chars(1);
-                  if (!peek_buf) {
-                     // Run out of code points.
-                     break;
-                  }
-                  peek_itr = peek_buf.cbegin();
-                  peek_end = peek_buf.cend();
-               }
-               history_buf += *peek_itr++;
-               ++history_end;
-            }
-            ++history_itr;
-            capture0_begin = history_itr;
+         /* If we run out of alternatives and can’t backtrack any further, and the pattern is not anchored, we
+         can skip (discard) one input code point and try the whole pattern again from the initial state. */
+         if (!curr_state && !begin_anchor && buf) {
+            istream->consume_chars((buf.cbegin() + 1).char_index());
+            ++skipped_input_cps;
+            buf = istream->peek_chars(1);
+            // buf_itr already rewound to index 0, so leave it there.
+            buf_end = buf.cend();
             curr_state = initial_state;
          }
       }
    }
    if (accepted) {
-      capture0_group_node->begin = capture0_begin.char_index();
-      capture0_group_node->end = history_itr.char_index();
-      return match(_std::move(history_buf), _std::move(capture0_group_node));
+      // Retain and consume the accepted part of buf.
+      /* TODO: this could be optimized to make no copy of buf once vextr external_buffer can keep the buffer
+      alive. */
+      buf = str(buf.data(), buf.data() + buf_itr.char_index());
+      istream->consume_chars(buf.size_in_chars());
+      capture0_group_node->begin = skipped_input_cps;
+      capture0_group_node->end = skipped_input_cps + buf_itr.char_index();
+      return match(_std::move(buf), _std::move(capture0_group_node));
    } else {
       return match();
    }
@@ -552,13 +527,13 @@ dynamic_match_capture dm_group::capture_group(unsigned index) const {
    ) {
       if (nested->is_capture()) {
          if (index == 0) {
-            return dynamic_match_capture(nested);
+            return dynamic_match_capture(match, nested);
          }
          --index;
       }
    }
    // TODO: throw logic_error or out_of_range.
-   return dynamic_match_capture(nullptr);
+   return dynamic_match_capture(nullptr, nullptr);
 }
 
 dm_group::_repetition dm_group::repetition_group(unsigned index) const {
@@ -569,17 +544,20 @@ dm_group::_repetition dm_group::repetition_group(unsigned index) const {
    ) {
       if (nested->is_repetition()) {
          if (index == 0) {
-            return _repetition(nested);
+            return _repetition(match, nested);
          }
          --index;
       }
    }
    // TODO: throw logic_error or out_of_range.
-   return _repetition(nullptr);
+   return _repetition(nullptr, nullptr);
 }
 
 
-/*explicit*/ dm_group::_repetition::_repetition(dynamic::_group_node const * group_node_) :
+/*explicit*/ dm_group::_repetition::_repetition(
+   dynamic::match const * match_, dynamic::_group_node const * group_node_
+) :
+   match(_std::move(match_)),
    group_node(static_cast<dynamic::_repetition_group_node const *>(group_node_)) {
 }
 
@@ -592,13 +570,13 @@ dm_group::_repetition_occurrence dm_group::_repetition::operator[](unsigned inde
    ) {
       if (nested->state == first_state) {
          if (index == 0) {
-            return _repetition_occurrence(nested);
+            return _repetition_occurrence(match, nested);
          }
          --index;
       }
    }
    // TODO: throw logic_error or out_of_range.
-   return _repetition_occurrence(nullptr);
+   return _repetition_occurrence(nullptr, nullptr);
 }
 
 std::size_t dm_group::_repetition::size() const {
@@ -610,37 +588,45 @@ std::size_t dm_group::_repetition::size() const {
 namespace lofty { namespace text { namespace parsers {
 
 std::size_t dynamic_match_capture::begin_char_index() const {
-   return static_cast<dynamic::_capture_group_node const *>(group_node)->begin;
+   return match->begin_char_index() + static_cast<dynamic::_capture_group_node const *>(group_node)->begin;
 }
 
 std::size_t dynamic_match_capture::end_char_index() const {
-   return static_cast<dynamic::_capture_group_node const *>(group_node)->end;
+   return match->begin_char_index() + static_cast<dynamic::_capture_group_node const *>(group_node)->end;
 }
 
-
-dynamic::match::match(match && src) :
-   dynamic_match_capture(_std::move(src)),
-   captures_buffer(_std::move(src.captures_buffer)) {
-   src.group_node = nullptr;
-}
 
 dynamic::match::match(str && captures_buffer_, _std::unique_ptr<_capture_group_node const> && capture0) :
-   dynamic_match_capture(capture0.get()),
+   dynamic_match_capture(this, capture0.get()),
    captures_buffer(_std::move(captures_buffer_)) {
    // Take ownership of the whole tree.
    capture0.release();
 }
 
-dynamic::match & dynamic::match::operator=(match && src) {
-   dynamic_match_capture::operator=(_std::move(src));
-   captures_buffer = _std::move(src.captures_buffer);
+dynamic::match::match(match && src) :
+   dynamic_match_capture(this, _std::move(src.group_node)),
+   captures_buffer(_std::move(src.captures_buffer)) {
    src.group_node = nullptr;
+}
+
+dynamic::match & dynamic::match::operator=(match && src) {
+   group_node = _std::move(src.group_node);
+   src.group_node = nullptr;
+   captures_buffer = _std::move(src.captures_buffer);
    return *this;
 }
 
 dynamic::match::~match() {
    // This will cascade to delete the entire tree.
    delete group_node;
+}
+
+std::size_t dynamic::match::begin_char_index() const {
+   return static_cast<_capture_group_node const *>(group_node)->begin;
+}
+
+std::size_t dynamic::match::end_char_index() const {
+   return static_cast<_capture_group_node const *>(group_node)->end;
 }
 
 }}} //namespace lofty::text::parsers
