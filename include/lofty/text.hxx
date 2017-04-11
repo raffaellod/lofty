@@ -67,8 +67,9 @@ LOFTY_SYM str get_line_terminator_str(line_terminator lterm);
 /*! Tries to guess the encoding of a sequence of bytes, optionally also taking into account the total number
 of bytes in the source of which the buffer is the beginning.
 
-While this function can check for validity of some encodings, it does not guarantee that, for example, for a
-return value of utf8_encoding str_traits::validate() will return true for the same buffer.
+While this function can check for validity of some encodings, it currently does not guarantee it; this means
+that for example, for a return value of encoding::utf8, str_traits::validate() will return true for the same
+buffer.
 TODO: why not guarantee validity? It would help weed out more encodings with fewer bytes.
 
 @param buf_begin
