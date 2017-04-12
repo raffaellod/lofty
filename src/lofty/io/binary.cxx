@@ -492,25 +492,27 @@ buffered_istream::buffered_istream() {
 /*virtual*/ std::size_t buffered_istream::read(void * dst, std::size_t dst_max) /*override*/ {
    LOFTY_TRACE_FUNC(this, dst, dst_max);
 
-   std::size_t read_total = 0;
-   while (dst_max) {
-      // Attempt to read at least the count of bytes requested by the caller.
-      std::int8_t const * buf;
-      std::size_t buf_size;
-      _std::tie(buf, buf_size) = peek<std::int8_t>(dst_max);
-      if (buf_size == 0) {
-         // No more data available.
-         break;
-      }
-      // Copy whatever was read into the caller-supplied buffer.
-      memory::copy(static_cast<std::int8_t *>(dst), buf, buf_size);
-      read_total += buf_size;
-      /* Advance the pointer and decrease the count of bytes to read, so that the next iteration will attempt
-      to fill in the remaining buffer space. */
-      dst = static_cast<std::int8_t *>(dst) + buf_size;
-      dst_max -= buf_size;
+   if (dst_max == 0) {
+      // No need to read anything.
+      return 0;
    }
-   return read_total;
+   // Attempt to read at least the count of bytes requested by the caller.
+   std::int8_t const * buf;
+   std::size_t ret_byte_size;
+   _std::tie(buf, ret_byte_size) = peek<std::int8_t>(dst_max);
+   if (ret_byte_size == 0) {
+      // No more data available (EOF).
+      return 0;
+   }
+   if (ret_byte_size > dst_max) {
+      // The caller can’t/won’t get more than dst_max bytes.
+      ret_byte_size = dst_max;
+   }
+   /* Copy whatever was read into the caller-supplied buffer. This extra buffer-to-buffer copy is why using
+   peek() directly is preferred. */
+   memory::copy(static_cast<std::int8_t *>(dst), buf, ret_byte_size);
+   consume<std::int8_t>(ret_byte_size);
+   return ret_byte_size;
 }
 
 }}} //namespace lofty::io::binary

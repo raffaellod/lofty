@@ -105,7 +105,7 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
 ) /*override*/ {
    LOFTY_TRACE_FUNC(this, count);
 
-   if (count > read_buf.used_size()) {
+   while (count > read_buf.used_size()) {
       // The caller wants more data than what’s currently in the buffer: try to load more.
       std::size_t read_byte_size_min = count - read_buf.used_size();
       if (read_byte_size_min > read_buf.available_size()) {
@@ -121,6 +121,10 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
       }
       // Try to fill the available part of the buffer.
       std::size_t read_bytes = bin_istream->read(read_buf.get_available(), read_buf.available_size());
+      if (read_bytes == 0) {
+         // No more data available (EOF).
+         break;
+      }
       // Account for the additional data read.
       read_buf.mark_as_used(read_bytes);
    }

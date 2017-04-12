@@ -226,11 +226,11 @@ public:
    */
    virtual void consume_bytes(std::size_t count) = 0;
 
-   /*! Returns a view of the internal read buffer, performing at most one read from the underlying binary
+   /*! Returns a view of the internal read buffer, performing zero or more reads from the underlying binary
    input stream.
 
    @param count
-      Count of items to peek. If greater than the size of the read buffer’s contents, an additional read from
+      Count of items to peek. If greater than the size of the read buffer’s contents, additional reads from
       the underlying binary stream will be made, adding to the contents of the read buffer; if the internal
       buffer is not large enough to hold the cumulative data, it will be enlarged.
    @return
