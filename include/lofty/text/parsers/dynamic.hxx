@@ -633,14 +633,14 @@ protected:
    }
 };
 
-class LOFTY_SYM dynamic::match : private dynamic_match_capture, public support_explicit_operator_bool<match> {
+class LOFTY_SYM dynamic::match : public dynamic_match_capture, public support_explicit_operator_bool<match> {
 private:
    friend match dynamic::run(io::text::istream * istream) const;
 
 public:
    //! Default constructor.
    match() :
-      dynamic_match_capture(this, nullptr) {
+      dynamic_match_capture(nullptr, nullptr) {
    }
 
    /*! Move constructor.
@@ -671,24 +671,6 @@ public:
       return group_node != nullptr;
    }
 
-   /*! Returns the index of the character at the beginning of capture 0.
-
-   @return
-      Character index.
-   */
-   std::size_t begin_char_index() const;
-
-   using dynamic_match_capture::capture_group;
-
-   /*! Returns the index of the character past the end of capture 0.
-
-   @return
-      Character index.
-   */
-   std::size_t end_char_index() const;
-
-   using dynamic_match_capture::repetition_group;
-
 protected:
    /*! Constructor for use by the parser.
 
@@ -697,11 +679,11 @@ protected:
    @param capture0_group_node
       Poimter to the top-level implicit capture.
    */
-   match(str && captures_buffer, _std::unique_ptr<_capture_group_node const> && capture0_group_node);
+   match(text::str && captures_buffer, _std::unique_ptr<_capture_group_node const> && capture0_group_node);
 
 protected:
    //! Contains all captures, which are expressed as offset in this string.
-   str captures_buffer;
+   text::str captures_buffer;
 };
 
 }}} //namespace lofty::text::parsers

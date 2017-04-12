@@ -619,23 +619,27 @@ std::size_t dm_group::_repetition::size() const {
 namespace lofty { namespace text { namespace parsers {
 
 std::size_t dynamic_match_capture::begin_char_index() const {
-   return match->begin_char_index() + static_cast<dynamic::_capture_group_node const *>(group_node)->begin;
+   return (match ? match->begin_char_index() : 0) +
+      static_cast<dynamic::_capture_group_node const *>(group_node)->begin;
 }
 
 std::size_t dynamic_match_capture::end_char_index() const {
-   return match->begin_char_index() + static_cast<dynamic::_capture_group_node const *>(group_node)->end;
+   return (match ? match->begin_char_index() : 0) +
+      static_cast<dynamic::_capture_group_node const *>(group_node)->end;
 }
 
 
-dynamic::match::match(str && captures_buffer_, _std::unique_ptr<_capture_group_node const> && capture0) :
-   dynamic_match_capture(this, capture0.get()),
+dynamic::match::match(
+   text::str && captures_buffer_, _std::unique_ptr<_capture_group_node const> && capture0
+) :
+   dynamic_match_capture(nullptr, capture0.get()),
    captures_buffer(_std::move(captures_buffer_)) {
    // Take ownership of the whole tree.
    capture0.release();
 }
 
 dynamic::match::match(match && src) :
-   dynamic_match_capture(this, _std::move(src.group_node)),
+   dynamic_match_capture(nullptr, _std::move(src.group_node)),
    captures_buffer(_std::move(src.captures_buffer)) {
    src.group_node = nullptr;
 }
@@ -650,14 +654,6 @@ dynamic::match & dynamic::match::operator=(match && src) {
 dynamic::match::~match() {
    // This will cascade to delete the entire tree.
    delete group_node;
-}
-
-std::size_t dynamic::match::begin_char_index() const {
-   return static_cast<_capture_group_node const *>(group_node)->begin;
-}
-
-std::size_t dynamic::match::end_char_index() const {
-   return static_cast<_capture_group_node const *>(group_node)->end;
 }
 
 }}} //namespace lofty::text::parsers
