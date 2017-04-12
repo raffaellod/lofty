@@ -289,6 +289,13 @@ dynamic::state * dynamic::create_repetition_group(
    return ret;
 }
 
+dynamic::state * dynamic::create_string_state(str const * s) {
+   auto ret = create_owned_state<_state_string_data>();
+   ret->begin = s->data();
+   ret->end = s->data_end();
+   return ret;
+}
+
 dynamic::state * dynamic::create_string_state(char_t const * begin, char_t const * end) {
    auto ret = create_owned_state<_state_string_data>();
    ret->begin = begin;

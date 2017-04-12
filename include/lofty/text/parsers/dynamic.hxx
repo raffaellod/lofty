@@ -269,12 +269,22 @@ public:
    */
    state * create_repetition_group(state const * first_state, std::uint16_t min, std::uint16_t max = 0);
 
-   /*! Creates a state that matches the specified string.
+   /*! Creates a state that matches the specified string. The string must remain accessible for the lifetime
+   of the parser.
+
+   @param s
+      Pointer to the string.
+   @return
+      Pointer to the newly-created state, which is owned by the parser and must not be released.
+   */
+   state * create_string_state(str const * s);
+
+   /*! Creates a state that matches the specified char_t array.
 
    @param begin
-      Pointer to the start of the string.
+      Pointer to the start of the array.
    @param end
-      Pointer to the end of the string.
+      Pointer to the end of the array.
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
