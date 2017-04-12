@@ -395,6 +395,23 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
          case state_type::string: {
             auto state_with_data = curr_state->with_data<_state_string_data>();
+            std::size_t needed_min_buf_char_size = state_with_data->size() + buf_itr.char_index();
+            if (needed_min_buf_char_size > buf.size_in_chars()) {
+               // Try to enlarge buf so that it has enough characters to compare to the string to match.
+               buf = istream->peek_chars(needed_min_buf_char_size);
+               buf_end = buf.cend();
+               accepted = (buf.size() >= needed_min_buf_char_size);
+               if (!accepted) {
+                  break;
+               }
+            }
+            accepted = (str_traits::compare(
+               buf_itr.ptr(), buf.data() + needed_min_buf_char_size,
+               state_with_data->begin, state_with_data->end
+            ) == 0);
+            if (accepted) {
+               buf_itr = buf.iterator_from_char_index(buf_itr.char_index() + state_with_data->size());
+            }
             break;
          }
       }
@@ -480,6 +497,13 @@ next_state_after_accepted:
                      curr_group = backtrack.u.group;
                   }
                   break;
+
+               case state_type::string:  {
+                  auto state_with_data = backtrack_state->with_data<_state_string_data>();
+                  // Move the iterator back, pretending the string was never consumed.
+                  buf_itr = buf.iterator_from_char_index(buf_itr.char_index() - state_with_data->size());
+                  break;
+               }
 
                default:
                   // No special action needed.

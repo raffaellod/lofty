@@ -196,6 +196,45 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 }
 
 LOFTY_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_abc,
+   "lofty::text::parsers::dynamic – pattern “abc”"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(abc_state, nullptr, nullptr, LOFTY_SL("abc"));
+   text::parsers::dynamic parser;
+   parser.set_initial_state(&abc_state.base);
+
+   text::parsers::dynamic::match match;
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("a")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("aa")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("b")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("ab")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("abc"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   3u);
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("aab")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aabc"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   4u);
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("babc"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   4u);
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("aaba")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aabca"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   4u);
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("aabab")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aababc"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 3u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   6u);
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aabcabc"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   4u);
+}
+
+LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_qmark,
    "lofty::text::parsers::dynamic – pattern “a?”"
 ) {

@@ -170,6 +170,10 @@ public:
       char_t const * begin;
       //! Pointer to the end of the string to match.
       char_t const * end;
+
+      std::size_t size() const {
+         return static_cast<std::size_t>(end - begin);
+      }
    };
 
    template <typename T>
@@ -377,10 +381,10 @@ protected:
 #define LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(name, next, alternative, first_state, min) \
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_GROUP(name, next, alternative, first_state, min, 0)
 
-#define LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(name, next, alternative, begin, end) \
+#define LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(name, next, alternative, str) \
    _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_string_data, name, next, alternative) \
-      /*begin*/ begin, \
-      /*end  */ end \
+      /*begin*/ str, \
+      /*end  */ str + LOFTY_SL_SIZE(str) \
    _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
 
 
