@@ -31,7 +31,7 @@ namespace {
 struct backtrack {
    union {
       //! Pointer to the state the backtrack refers to.
-      dynamic::state const * state;
+      dynamic_state const * state;
       //! Pointer to the group the backtrack refers to.
       dynamic::_group_node * group;
    } u;
@@ -51,7 +51,7 @@ struct backtrack {
    @param accepted_
       true if *state accepted the input, or false otherwise.
    */
-   backtrack(dynamic::state const * state, bool accepted_) :
+   backtrack(dynamic_state const * state, bool accepted_) :
       u_is_group(false),
       accepted(accepted_),
       hit_once(false) {
@@ -81,7 +81,7 @@ struct backtrack {
 
 struct dynamic::_group_node {
    //! Pointer to the related group state.
-   struct state const * state;
+   dynamic_state const * state;
    //! Pointer to the parent (containing) group. Only nullptr for capture 0.
    _group_node * parent;
    //! Owning pointer to the first nested group, if any.
@@ -154,7 +154,7 @@ protected:
    @param state_
       Pointer to the related group state.
    */
-   explicit _group_node(struct state const * state_) :
+   explicit _group_node(dynamic_state const * state_) :
       state(state_),
       parent(nullptr),
       last_nested(nullptr),
@@ -168,7 +168,7 @@ protected:
    @param state_
       Pointer to the related group state.
    */
-   _group_node(_group_node * parent_, struct state const * state_) :
+   _group_node(_group_node * parent_, dynamic_state const * state_) :
       state(state_),
       parent(parent_),
       last_nested(nullptr),
@@ -195,7 +195,7 @@ struct dynamic::_capture_group_node : _group_node {
    @param state_
       Pointer to the related group state.
    */
-   explicit _capture_group_node(struct state const * state_) :
+   explicit _capture_group_node(dynamic_state const * state_) :
       _group_node(state_) {
    }
 
@@ -206,7 +206,7 @@ struct dynamic::_capture_group_node : _group_node {
    @param state_
       Pointer to the related group state.
    */
-   _capture_group_node(_group_node * parent_, struct state const * state_) :
+   _capture_group_node(_group_node * parent_, dynamic_state const * state_) :
       _group_node(parent_, state_) {
    }
 };
@@ -227,7 +227,7 @@ struct dynamic::_repetition_group_node : _group_node {
    @param state_
       Pointer to the related group state.
    */
-   _repetition_group_node(_group_node * parent_, struct state const * state_) :
+   _repetition_group_node(_group_node * parent_, dynamic_state const * state_) :
       _group_node(parent_, state_) {
    }
 };
@@ -250,36 +250,36 @@ dynamic::dynamic(dynamic && src) :
 dynamic::~dynamic() {
 }
 
-dynamic::state * dynamic::create_begin_state() {
+dynamic_state * dynamic::create_begin_state() {
    return create_owned_state<_state_begin_data>();
 }
 
-dynamic::state * dynamic::create_capture_group(state const * first_state) {
+dynamic_state * dynamic::create_capture_group(dynamic_state const * first_state) {
    auto ret = create_owned_state<_state_capture_group_data>();
    ret->first_state = first_state;
    return ret;
 }
 
-dynamic::state * dynamic::create_code_point_state(char32_t cp) {
+dynamic_state * dynamic::create_code_point_state(char32_t cp) {
    auto ret = create_owned_state<_state_cp_range_data>();
    ret->first = cp;
    ret->last = cp;
    return ret;
 }
 
-dynamic::state * dynamic::create_code_point_range_state(char32_t first_cp, char32_t last_cp) {
+dynamic_state * dynamic::create_code_point_range_state(char32_t first_cp, char32_t last_cp) {
    auto ret = create_owned_state<_state_cp_range_data>();
    ret->first = first_cp;
    ret->last = last_cp;
    return ret;
 }
 
-dynamic::state * dynamic::create_end_state() {
+dynamic_state * dynamic::create_end_state() {
    return create_owned_state<_state_end_data>();
 }
 
-dynamic::state * dynamic::create_repetition_group(
-   state const * first_state, std::uint16_t min, std::uint16_t max /*= 0*/
+dynamic_state * dynamic::create_repetition_group(
+   dynamic_state const * first_state, std::uint16_t min, std::uint16_t max /*= 0*/
 ) {
    auto ret = create_owned_state<_state_repetition_group_data>();
    ret->first_state = first_state;
@@ -289,14 +289,14 @@ dynamic::state * dynamic::create_repetition_group(
    return ret;
 }
 
-dynamic::state * dynamic::create_string_state(str const * s) {
+dynamic_state * dynamic::create_string_state(str const * s) {
    auto ret = create_owned_state<_state_string_data>();
    ret->begin = s->data();
    ret->end = s->data_end();
    return ret;
 }
 
-dynamic::state * dynamic::create_string_state(char_t const * begin, char_t const * end) {
+dynamic_state * dynamic::create_string_state(char_t const * begin, char_t const * end) {
    auto ret = create_owned_state<_state_string_data>();
    ret->begin = begin;
    ret->end = end;
@@ -321,7 +321,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
    auto buf_itr(buf.cbegin()), buf_end(buf.cend());
 
    // Empty state to which to associate capture0. Only its type is used.
-   static state const capture0_state = {
+   static dynamic_state const capture0_state = {
       /*type*/        state_type::capture_group,
       /*next*/        nullptr,
       /*alternative*/ nullptr
@@ -334,7 +334,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
    bool accepted = (curr_state == nullptr);
    while (curr_state) {
-      state const * next_state = curr_state->next;
+      dynamic_state const * next_state = curr_state->next;
       switch (curr_state->type) {
          case state_type::begin:
             accepted = (skipped_input_cps == 0 && buf_itr.char_index() == 0);

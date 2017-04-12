@@ -33,30 +33,16 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 namespace lofty { namespace text { namespace parsers {
 
-/*! Parser that accepts input based on a dynamically-configurable state machine.
-
-For the ERE pattern “a”, the state machine would be:
-
-   @verbatim
-   ┌───┬───────┐
-   │“a”│nullptr│
-   └───┴───────┘
-   @endverbatim
-*/
-class LOFTY_SYM dynamic {
+/*! State representation. Instances can be statically allocated, or generated at run-time by calling one of
+the lofty::text::parsers::dynamic::create_*_state() methods. */
+struct dynamic_state {
 public:
-   //! Tree node with extra data to track captures.
-   class _capture_group_node;
-   //! Base tree node.
-   class _group_node;
-   /*! Match returned by run(), providing access to the matched groups. It is the only owner of all resources
-   related to a match. */
-   class match;
-   //! Tree node with extra data to track repetitions.
-   class _repetition_group_node;
+   //! Combines state with additional state type-dependent data.
+   template <typename T>
+   struct _aggregator;
 
    //! Possible state types.
-   LOFTY_ENUM_AUTO_VALUES(state_type,
+   LOFTY_ENUM_AUTO_VALUES(_type,
       //! Begin matcher: /^/ .
       begin,
       //! Capture group: /(…)/ .
@@ -71,54 +57,86 @@ public:
       string
    );
 
-   //! Combines state with additional state type-dependent data.
+public:
+   //! State type.
+   _type::enum_type type;
+   //! Pointer to the next state if this one accepts.
+   dynamic_state const * next;
+   //! Pointer to an alternate state to try if this one does not accept.
+   dynamic_state const * alternative;
+
+public:
+   /*! Assigns the state that will be tried if this one does not accept.
+
+   @param alternative_
+      Alternate state.
+   @return
+      this.
+   */
+   dynamic_state * set_alternative(dynamic_state const * alternative_) {
+      alternative = alternative_;
+      return this;
+   }
+
+   /*! Assigns the state that will follow if this one accepts.
+
+   @param next_
+      Next state.
+   @return
+      this.
+   */
+   dynamic_state * set_next(dynamic_state const * next_) {
+      next = next_;
+      return this;
+   }
+
+   /*! Casts this into a pointer of an aggregated type.
+
+   @return
+      Pointer to the aggregated state.
+   */
    template <typename T>
-   struct _state_aggregator;
+   _aggregator<T> const * with_data() const {
+      return static_cast<_aggregator<T> const *>(this);
+   }
+};
 
-   /*! State representation. Instances can be statically allocated, or generated at run-time by calling one of
-   the dynamic::create_*_state() methods. */
-   struct state {
-      //! State type.
-      state_type::enum_type type;
-      //! Pointer to the next state if this one accepts.
-      state const * next;
-      //! Pointer to an alternate state to try if this one does not accept.
-      state const * alternative;
+template <typename T>
+class dynamic_state::_aggregator : public noncopyable, public dynamic_state, public T {
+public:
+   //! Default constructor.
+   _aggregator() {
+      dynamic_state::type = T::type;
+      next = nullptr;
+      alternative = nullptr;
+   }
+};
 
-      /*! Assigns the state that will be tried if this one does not accept.
+/*! Parser that accepts input based on a dynamically-configurable state machine.
 
-      @param alternative_
-         Alternate state.
-      @return
-         this.
-      */
-      state * set_alternative(state const * alternative_) {
-         alternative = alternative_;
-         return this;
-      }
+For the ERE pattern “a”, the state machine would be:
 
-      /*! Assigns the state that will follow if this one accepts.
+   @verbatim
+   ┌───┬───────┐
+   │“a”│nullptr│
+   └───┴───────┘
+   @endverbatim
+*/
+class LOFTY_SYM dynamic {
+private:
+   //! Shortcut.
+   typedef dynamic_state::_type state_type;
 
-      @param next_
-         Next state.
-      @return
-         this.
-      */
-      state * set_next(state const * next_) {
-         next = next_;
-         return this;
-      }
-
-      /*! Casts this into a pointer of an aggregated type.
-
-      @return
-         Pointer to the aggregated state.
-      */
-      template <typename T>
-      _state_aggregator<T> const * with_data() const {
-         return static_cast<_state_aggregator<T> const *>(this);
-      }
-   };
+public:
+   //! Tree node with extra data to track captures.
+   class _capture_group_node;
+   //! Base tree node.
+   class _group_node;
+   /*! Match returned by run(), providing access to the matched groups. It is the only owner of all resources
+   related to a match. */
+   class match;
+   //! Tree node with extra data to track repetitions.
+   class _repetition_group_node;
 
    //! Begin additional state data.
    struct _state_begin_data {
@@ -130,7 +148,7 @@ public:
       static state_type::enum_type const type = state_type::capture_group;
 
       //! Pointer to the first state whose matching input is to be captured.
-      state const * first_state;
+      dynamic_state const * first_state;
    };
 
    //! Code point range additional state data.
@@ -153,7 +171,7 @@ public:
       static state_type::enum_type const type = state_type::repetition_group;
 
       //! Pointer to the first state to match repeatedly.
-      state const * first_state;
+      dynamic_state const * first_state;
       //! Minimum number of repetitions needed to accept.
       std::uint16_t min;
       //! Maximum number of repetitions needed to accept.
@@ -176,22 +194,11 @@ public:
       }
    };
 
-   template <typename T>
-   class _state_aggregator : public noncopyable, public state, public T {
-   public:
-      //! Default constructor.
-      _state_aggregator() {
-         state::type = T::type;
-         next = nullptr;
-         alternative = nullptr;
-      }
-   };
-
-   //! Allows to statically assemble a structure with the same layout as _state_aggregator<T>.
+   //! Allows to statically assemble a structure with the same layout as state::_aggregator<T>.
    template <typename T>
    struct _static_state_aggregator {
       //! State base.
-      state base;
+      dynamic_state base;
       //! Additional state_type-specific data.
       T extra;
    };
@@ -215,7 +222,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_begin_state();
+   dynamic_state * create_begin_state();
 
    /*! Creates a capture group.
 
@@ -225,7 +232,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_capture_group(state const * first_state);
+   dynamic_state * create_capture_group(dynamic_state const * first_state);
 
    /*! Creates a state that matches a specific code point.
 
@@ -234,7 +241,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_code_point_state(char32_t cp);
+   dynamic_state * create_code_point_state(char32_t cp);
 
    /*! Creates a state that matches a code point from the specified inclusive range.
 
@@ -245,14 +252,14 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_code_point_range_state(char32_t first_cp, char32_t last_cp);
+   dynamic_state * create_code_point_range_state(char32_t first_cp, char32_t last_cp);
 
    /*! Creates a state that matches the end of the input.
 
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_end_state();
+   dynamic_state * create_end_state();
 
    /*! Creates a state that matches a number of repetitions of another state list. The last state in the list
    should have this new state assigned as its next.
@@ -267,7 +274,9 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_repetition_group(state const * first_state, std::uint16_t min, std::uint16_t max = 0);
+   dynamic_state * create_repetition_group(
+      dynamic_state const * first_state, std::uint16_t min, std::uint16_t max = 0
+   );
 
    /*! Creates a state that matches the specified string. The string must remain accessible for the lifetime
    of the parser.
@@ -277,7 +286,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_string_state(str const * s);
+   dynamic_state * create_string_state(str const * s);
 
    /*! Creates a state that matches the specified char_t array.
 
@@ -288,7 +297,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   state * create_string_state(char_t const * begin, char_t const * end);
+   dynamic_state * create_string_state(char_t const * begin, char_t const * end);
 
    /*! Runs the parser against the specified string.
 
@@ -315,7 +324,7 @@ public:
    @param initial_state_
       Pointer to the new initial state.
    */
-   void set_initial_state(state const * initial_state_) {
+   void set_initial_state(dynamic_state const * initial_state_) {
       initial_state = initial_state_;
    }
 
@@ -326,8 +335,8 @@ protected:
       Pointer to the newly-created state, which is owned by the parser and must not be released by other code.
    */
    template <typename T>
-   _state_aggregator<T> * create_owned_state() {
-      _std::unique_ptr<_state_aggregator<T>> new_state(new _state_aggregator<T>());
+   dynamic_state::_aggregator<T> * create_owned_state() {
+      _std::unique_ptr<dynamic_state::_aggregator<T>> new_state(new dynamic_state::_aggregator<T>());
       auto ret = new_state.get();
       owned_states.push_back(_std::move(new_state));
       return ret;
@@ -335,9 +344,9 @@ protected:
 
 protected:
    //! Keeps ownership of all dynamically-allocated states.
-   collections::vector<_std::unique_ptr<state>> owned_states;
+   collections::vector<_std::unique_ptr<dynamic_state>> owned_states;
    //! Pointer to the initial state.
-   state const * initial_state;
+   dynamic_state const * initial_state;
 };
 
 #define _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(extra_type, name, next, alternative) \
