@@ -189,6 +189,11 @@ public:
       //! Pointer to the end of the string to match.
       char_t const * end;
 
+      /*! Returns the size of the string.
+
+      @return
+         Length of the string, in characters.
+      */
       std::size_t size() const {
          return static_cast<std::size_t>(end - begin);
       }
@@ -620,6 +625,14 @@ public:
    */
    std::size_t end_char_index() const;
 
+   /*! Returns a string containing the captured portion of the matched input. The string must not be stored
+   anywhere, since its buffer has the same scope as the match object.
+
+   @return
+      Matched string.
+   */
+   text::str str() const;
+
 protected:
    /*! Constructor.
 
@@ -635,6 +648,7 @@ protected:
 
 class LOFTY_SYM dynamic::match : public dynamic_match_capture, public support_explicit_operator_bool<match> {
 private:
+   friend text::str dynamic_match_capture::str() const;
    friend match dynamic::run(io::text::istream * istream) const;
 
 public:

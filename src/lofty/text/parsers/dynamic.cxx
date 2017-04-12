@@ -209,6 +209,15 @@ struct dynamic::_capture_group_node : _group_node {
    _capture_group_node(_group_node * parent_, dynamic_state const * state_) :
       _group_node(parent_, state_) {
    }
+
+   /*! Returns the size of the capture.
+
+   @return
+      Length of the capture, in characters.
+   */
+   std::size_t size() const {
+      return end - begin;
+   }
 };
 
 dynamic::_capture_group_node * dynamic::_group_node::as_capture() {
@@ -538,6 +547,7 @@ next_state_after_accepted:
       alive. */
       buf = str(buf.data(), buf_itr.ptr());
       istream->consume_chars(buf.size_in_chars());
+      // Repurpose capture 0’s begin to record the offset of the match in the input.
       capture0_group_node->begin = skipped_input_cps;
       capture0_group_node->end = skipped_input_cps + buf_itr.char_index();
       return match(_std::move(buf), _std::move(capture0_group_node));
@@ -558,7 +568,7 @@ dynamic_match_capture dm_group::capture_group(unsigned index) const {
    ) {
       if (nested->is_capture()) {
          if (index == 0) {
-            return dynamic_match_capture(match, nested);
+            return dynamic_match_capture(match ? match : static_cast<dynamic::match const *>(this), nested);
          }
          --index;
       }
@@ -575,7 +585,7 @@ dm_group::_repetition dm_group::repetition_group(unsigned index) const {
    ) {
       if (nested->is_repetition()) {
          if (index == 0) {
-            return _repetition(match, nested);
+            return _repetition(match ? match : static_cast<dynamic::match const *>(this), nested);
          }
          --index;
       }
@@ -619,13 +629,29 @@ std::size_t dm_group::_repetition::size() const {
 namespace lofty { namespace text { namespace parsers {
 
 std::size_t dynamic_match_capture::begin_char_index() const {
-   return (match ? match->begin_char_index() : 0) +
-      static_cast<dynamic::_capture_group_node const *>(group_node)->begin;
+   auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
+   return (match ? match->begin_char_index() : 0) + capture_group_->begin;
 }
 
 std::size_t dynamic_match_capture::end_char_index() const {
-   return (match ? match->begin_char_index() : 0) +
-      static_cast<dynamic::_capture_group_node const *>(group_node)->end;
+   auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
+   return (match ? match->begin_char_index() : 0) + capture_group_->end;
+}
+
+text::str dynamic_match_capture::str() const {
+   char_t const * ret_begin;
+   std::size_t ret_size;
+   if (match) {
+      auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
+      ret_begin = match->captures_buffer.data() + capture_group_->begin;
+      ret_size = capture_group_->size();
+   } else {
+      // Upcast and return all of capture 0.
+      auto const & capture_0 = static_cast<dynamic::match const *>(this)->captures_buffer;
+      ret_begin = capture_0.data();
+      ret_size = capture_0.size_in_chars();
+   }
+   return text::str(external_buffer, ret_begin, ret_size);
 }
 
 
