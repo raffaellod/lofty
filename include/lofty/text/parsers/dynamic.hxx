@@ -179,8 +179,8 @@ public:
    template <typename T>
    class _state_aggregator : public noncopyable, public state, public T {
    public:
-      //! Constructor.
-      explicit _state_aggregator() {
+      //! Default constructor.
+      _state_aggregator() {
          state::type = T::type;
          next = nullptr;
          alternative = nullptr;
@@ -619,7 +619,7 @@ private:
    friend match dynamic::run(io::text::istream * istream) const;
 
 public:
-   //! Constructor.
+   //! Default constructor.
    match() :
       dynamic_match_capture(this, nullptr) {
    }
