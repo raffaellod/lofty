@@ -529,7 +529,7 @@ next_state_after_accepted:
       // Retain and consume the accepted part of buf.
       /* TODO: this could be optimized to make no copy of buf once vextr external_buffer can keep the buffer
       alive. */
-      buf = str(buf.data(), buf.data() + buf_itr.char_index());
+      buf = str(buf.data(), buf_itr.ptr());
       istream->consume_chars(buf.size_in_chars());
       capture0_group_node->begin = skipped_input_cps;
       capture0_group_node->end = skipped_input_cps + buf_itr.char_index();
