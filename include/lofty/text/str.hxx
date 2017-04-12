@@ -1318,6 +1318,28 @@ public:
       vextr_impl::insert_remove(sizeof(char_t) * offset.char_index(), src, sizeof(char_t) * src_char_size, 0);
    }
 
+   /*! Converts a character index into an iterator set to the corresponding code point.
+
+   @param char_index
+      Character index. No validation is performed on it.
+   @return
+      Iterator. If char_index is not a valid character index for the string, the return value is undefined.
+   */
+   const_iterator iterator_from_char_index(std::size_t char_index) const {
+      return const_iterator(this, char_index);
+   }
+
+   /*! Converts a character index into an iterator set to the corresponding code point.
+
+   @param char_index
+      Character index. No validation is performed on it.
+   @return
+      Iterator. If char_index is not a valid character index for the string, the return value is undefined.
+   */
+   iterator iterator_from_char_index(std::size_t char_index) {
+      return iterator(this, char_index);
+   }
+
    /*! Returns a reverse iterator set to the last character.
 
    @return
@@ -1799,6 +1821,7 @@ public:
    using text::str::format;
    using text::str::index_from_char_index;
    using text::str::insert;
+   using text::str::iterator_from_char_index;
    using text::str::rbegin;
    using text::str::rend;
    using text::str::replace;
