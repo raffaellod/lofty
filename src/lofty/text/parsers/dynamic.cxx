@@ -598,7 +598,7 @@ dm_group::_repetition dm_group::repetition_group(unsigned index) const {
 /*explicit*/ dm_group::_repetition::_repetition(
    dynamic::match const * match_, dynamic::_group_node const * group_node_
 ) :
-   match(_std::move(match_)),
+   match(match_),
    group_node(static_cast<dynamic::_repetition_group_node const *>(group_node_)) {
 }
 
@@ -665,13 +665,13 @@ dynamic::match::match(
 }
 
 dynamic::match::match(match && src) :
-   dynamic_match_capture(nullptr, _std::move(src.group_node)),
+   dynamic_match_capture(nullptr, src.group_node),
    captures_buffer(_std::move(src.captures_buffer)) {
    src.group_node = nullptr;
 }
 
 dynamic::match & dynamic::match::operator=(match && src) {
-   group_node = _std::move(src.group_node);
+   group_node = src.group_node;
    src.group_node = nullptr;
    captures_buffer = _std::move(src.captures_buffer);
    return *this;

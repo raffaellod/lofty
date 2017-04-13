@@ -437,8 +437,8 @@ public:
          Source object.
       */
       _repetition(_repetition && src) :
-         match(_std::move(src.match)),
-         group_node(_std::move(src.group_node)) {
+         match(src.match),
+         group_node(src.group_node) {
          src.match = nullptr;
          src.group_node = nullptr;
       }
@@ -495,8 +495,8 @@ public:
       Source object.
    */
    dm_group(dm_group && src) :
-      match(_std::move(src.match)),
-      group_node(_std::move(src.group_node)) {
+      match(src.match),
+      group_node(src.group_node) {
       src.match = nullptr;
       src.group_node = nullptr;
    }
@@ -509,8 +509,8 @@ public:
       *this.
    */
    dm_group & operator=(dm_group && src) {
-      match = _std::move(src.match);
-      group_node = _std::move(src.group_node);
+      match = src.match;
+      group_node = src.group_node;
       src.match = nullptr;
       src.group_node = nullptr;
       return *this;
@@ -543,8 +543,8 @@ protected:
       Pointer to the node containing data for the group.
    */
    dm_group(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
-      match(_std::move(match_)),
-      group_node(_std::move(group_node_)) {
+      match(match_),
+      group_node(group_node_) {
    }
 
 protected:
@@ -577,7 +577,7 @@ protected:
       Pointer to the node containing data for the group.
    */
    _repetition_occurrence(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
-      dm_group(_std::move(match_), _std::move(group_node_)) {
+      dm_group(match_, group_node_) {
    }
 };
 
@@ -642,7 +642,7 @@ protected:
       Pointer to the node containing data for the group.
    */
    dynamic_match_capture(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
-      _pvt::dm_group(_std::move(match_), _std::move(group_node_)) {
+      _pvt::dm_group(match_, group_node_) {
    }
 };
 
