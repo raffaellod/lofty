@@ -42,66 +42,16 @@ LOFTY_SYM void throw_on_unused_streaming_format_chars(
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace _pvt {
-
-/*! Defines a member named value that is true if “void T::from_text_istream(io::text::istream * istream)” is
-declared, or false otherwise. */
-template <typename T>
-struct has_from_text_istream_member {
-   template <typename U, void (U::*)(io::text::istream *)>
-   struct member_test {};
-   template <typename U>
-   static long test(member_test<U, &U::from_text_istream> *);
-   template <typename>
-   static short test(...);
-
-   static bool const value = (sizeof(test<T>(nullptr)) == sizeof(long));
-};
-
-}} //namespace lofty::_pvt
-
 namespace lofty {
 
 /*! Reads and parses a string representation of an object of type T, according to an optional format string.
 Once constructed with the desired format specification, an instance must be able to convert into T instances
 any number of strings.
 
-The default implementation assumes that a public T member with signature 
-“void T::from_text_istream(io::text::istream * istream)” is declared, and offers no support for a format
-string.
-
 This class template and its specializations are at the core of lofty::from_str() and 
 lofty::io::text::istream::scan(). */
 template <typename T>
-class from_text_istream {
-public:
-   static_assert(
-      _pvt::has_from_text_istream_member<T>::value,
-      "specialization lofty::from_text_istream<T> must be provided, or public " \
-      "“void T::from_text_istream(lofty::io::text::istream * istream)” must be declared"
-   );
-
-   /*! Changes the input format.
-
-   @param format
-      Formatting options.
-   */
-   void set_format(str const & format) {
-      // No format expected/allowed.
-      throw_on_unused_streaming_format_chars(format.cbegin(), format);
-   }
-
-   /*! Sets a T instance from its string representation.
-
-   @param dst
-      Pointer to the T instance to read into.
-   @param src
-      Pointer to the stream to read from.
-   */
-   void read(T * dst, io::text::istream * src) {
-      dst->from_text_istream(src);
-   }
-};
+class from_text_istream;
 
 } //namespace lofty
 
@@ -116,21 +66,23 @@ public:
    //! Default constructor.
    from_text_istream();
 
+   /*! Converts string into a boolean value.
+
+   @param dst
+      Boolean value to read into.
+   @param capture0
+      Pointer to the captured string.
+   */
+   void convert_capture(text::parsers::dynamic_match_capture const & capture0, bool * dst);
+
    /*! Changes the input format.
 
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
-
-   /*! Converts string into a boolean value.
-
-   @param dst
-      Boolean value to read into.
-   @param src
-      Pointer to the stream to read from.
-   */
-   void read(bool * dst, io::text::istream * src);
+   text::parsers::dynamic_state const * format_to_parser_states(
+      str const & format, text::parsers::dynamic * parser
+   );
 
 protected:
    //! String that will be translated to true.

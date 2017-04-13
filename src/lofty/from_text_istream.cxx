@@ -19,21 +19,17 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty.hxx>
 #include <lofty/from_str.hxx>
 #include <lofty/text.hxx>
+#include <lofty/text/parsers/dynamic.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _pvt {
 
-void throw_on_unused_from_str_chars(io::text::str_istream const & src) {
-   if (std::size_t remaining_chars = src.remaining_size_in_chars()) {
-      // There are still unused characters in src, so the conversion failed.
-      str const & src_str = src.get_str();
-      LOFTY_THROW(text::syntax_error, (
-         LOFTY_SL("unexpected character"), src_str,
-         static_cast<unsigned>(src_str.index_from_char_index(src_str.size_in_chars() - remaining_chars))
-      ));
-   }
+void throw_after_from_str_parse_failed(str const & src) {
+   /* TODO: with a fair bit of work, parsers::dynamic could be modified to track the farthest character index
+   it could parse successfully. */
+   LOFTY_THROW(text::syntax_error, (LOFTY_SL("malformed input"), src, 0));
 }
 
 }} //namespace lofty::_pvt
@@ -62,38 +58,23 @@ from_text_istream<bool>::from_text_istream() :
    false_str(LOFTY_SL("false")) {
 }
 
-void from_text_istream<bool>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
-   throw_on_unused_streaming_format_chars(format.cbegin(), format);
+void from_text_istream<bool>::convert_capture(
+   text::parsers::dynamic_match_capture const & capture0, bool * dst
+) {
+   *dst = (capture0.str() == true_str);
 }
 
-void from_text_istream<bool>::read(bool * dst, io::text::istream * src) {
-   LOFTY_TRACE_FUNC(this, dst, src);
+text::parsers::dynamic_state const * from_text_istream<bool>::format_to_parser_states(
+   str const & format, text::parsers::dynamic * parser
+) {
+   LOFTY_TRACE_FUNC(this, format, parser);
 
-   sstr<16> read_word;
-   for (str peek_buf; (peek_buf = src->peek_chars(1)); src->consume_chars(peek_buf.size_in_chars())) {
-      for (auto itr(peek_buf.cbegin()), end(peek_buf.cend()); itr != end; ++itr) {
-         char32_t cp = *itr;
-         // TODO: replace this with the UCD equivalent of \w from lofty::text.
-         if ((cp < '0' || cp > '9') && (cp < 'A' || cp > 'Z') && (cp < 'a' || cp > 'z')) {
-            // Consume all preceding characters and stop.
-            src->consume_chars(itr.char_index());
-            goto break_outer_for;
-         }
-         read_word += cp;
-      }
-   }
-break_outer_for:
-   if (read_word == true_str) {
-      *dst = true;
-   } else if (read_word == false_str) {
-      *dst = false;
-   } else {
-      src->unconsume_chars(read_word.str());
-      // TODO: provide more information in the exception and/or use a better exception class.
-      LOFTY_THROW(text::syntax_error, (LOFTY_SL("unrecognized input"), read_word.str()));
-   }
+   throw_on_unused_streaming_format_chars(format.cbegin(), format);
+
+   auto true_state = parser->create_string_state(&true_str);
+   auto false_state = parser->create_string_state(&false_str);
+   true_state->set_alternative(false_state);
+   return true_state;
 }
 
 } //namespace lofty

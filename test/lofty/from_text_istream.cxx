@@ -26,25 +26,10 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 namespace lofty { namespace test { namespace {
 
-class type_with_member_ftis {
+class type_with_ftis {
 public:
-   str const & get() const {
-      return s;
-   }
+   static str const twf;
 
-   void from_text_istream(io::text::istream * istream) {
-      s.clear();
-      while (str peeked = istream->peek_chars(1)) {
-         s += peeked;
-         istream->consume_chars(peeked.size_in_chars());
-      }
-   }
-
-private:
-   str s;
-};
-
-class type_with_nonmember_ftis {
 public:
    str & get() {
       return s;
@@ -52,26 +37,28 @@ public:
 
 private:
    str s;
+
 };
+
+str const type_with_ftis::twf(LOFTY_SL("TWF"));
 
 }}} //namespace lofty::test::
 
 namespace lofty {
 
 template <>
-class from_text_istream<test::type_with_nonmember_ftis> {
+class from_text_istream<test::type_with_ftis> {
 public:
-   void set_format(str const & format) {
-      LOFTY_UNUSED_ARG(format);
+   void convert_capture(text::parsers::dynamic_match_capture const & capture0, test::type_with_ftis * dst) {
+      dst->get() = capture0.str_copy();
    }
 
-   void read(test::type_with_nonmember_ftis * ptwnmt, io::text::istream * istream) {
-      str & s = ptwnmt->get();
-      s.clear();
-      while (str peeked = istream->peek_chars(1)) {
-         s += peeked;
-         istream->consume_chars(peeked.size_in_chars());
-      }
+   text::parsers::dynamic_state const * format_to_parser_states(
+      str const & format, text::parsers::dynamic * parser
+   ) {
+      LOFTY_UNUSED_ARG(format);
+
+      return parser->create_string_state(&test::type_with_ftis::twf);
    }
 };
 
@@ -80,17 +67,14 @@ public:
 namespace lofty { namespace test {
 
 LOFTY_TESTING_TEST_CASE_FUNC(
-   from_text_istream_member_nonmember,
-   "lofty::from_text_istream – member and non-member from_text_istream"
+   from_text_istream_basic,
+   "lofty::from_text_istream – basic"
 ) {
    LOFTY_TRACE_FUNC(this);
 
-   str twmf(LOFTY_SL("TWMF")), twnf(LOFTY_SL("TWNF"));
-
-   /* These assertions are more important at compile time than at run time; if the from_str() calls compile,
-   they won’t return the wrong value. */
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<type_with_member_ftis>(twmf).get(), twmf);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<type_with_nonmember_ftis>(twnf).get(), twnf);
+   /* This assertion is more important at compile time than at run time; if the from_str() call compiles, it
+   will return the correct value. */
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<type_with_ftis>(type_with_ftis::twf).get(), type_with_ftis::twf);
 }
 
 }} //namespace lofty::test
@@ -109,6 +93,8 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(from_str<bool>(LOFTY_SL("true")), true);
    LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("")));
    LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("a")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("atrue")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("falseb")));
 }
 
 }} //namespace lofty::test

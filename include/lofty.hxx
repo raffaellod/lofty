@@ -517,6 +517,14 @@ using text::sstr;
 
 } //namespace lofty
 
+namespace lofty { namespace text { namespace parsers {
+
+class dynamic;
+struct dynamic_state;
+class dynamic_match_capture;
+
+}}} //namespace lofty::text::parsers
+
 #include <lofty/collections/static_list.hxx>
 #include <lofty/_pvt/context_local.hxx>
 #include <lofty/coroutine_local.hxx>

@@ -26,18 +26,20 @@ You should have received a copy of the GNU Lesser General Public License along w
    #pragma once
 #endif
 
+#include <lofty/text/parsers/dynamic.hxx>
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _pvt {
 
-/*! Throws a lofty::text::syntax_error if a call to lofty::from_str() did not consume the entire source
-string.
+/*! Throws a lofty::text::syntax_error after a call to lofty::from_str() failed to perform the requested
+conversion.
 
 @param src
-   Temporary stream used by the implementation of lofty::from_str().
+   Source string that could not be converted.
 */
-LOFTY_SYM void throw_on_unused_from_str_chars(io::text::str_istream const & src);
+LOFTY_SYM void LOFTY_FUNC_NORETURN throw_after_from_str_parse_failed(str const & src);
 
 }} //namespace lofty::_pvt
 
@@ -53,14 +55,24 @@ namespace lofty {
    Object reconstructed from s according to format.
 */
 template <typename T>
-inline T from_str(str const & s, str const & format = str::empty) {
-   io::text::str_istream istream(external_buffer, &s);
+inline T from_str(str const & src, str const & format = str::empty) {
+   text::parsers::dynamic parser;
    from_text_istream<T> ftis;
-   ftis.set_format(format);
-   T t;
-   ftis.read(&t, &istream);
-   _pvt::throw_on_unused_from_str_chars(istream);
-   return _std::move(t);
+   auto format_first = ftis.format_to_parser_states(format, &parser);
+   auto end = parser.create_end_state();
+   auto capture1 = parser.create_capture_group(format_first);
+   capture1->set_next(end);
+   auto begin = parser.create_begin_state();
+   begin->set_next(capture1);
+   parser.set_initial_state(begin);
+
+   auto match(parser.run(src));
+   if (!match) {
+      _pvt::throw_after_from_str_parse_failed(src);
+   }
+   T ret;
+   ftis.convert_capture(match.capture_group(0), &ret);
+   return _std::move(ret);
 }
 
 } //namespace lofty
