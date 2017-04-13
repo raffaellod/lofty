@@ -654,6 +654,11 @@ text::str dynamic_match_capture::str() const {
    return text::str(external_buffer, ret_begin, ret_size);
 }
 
+text::str dynamic_match_capture::str_copy() const {
+   auto s(str());
+   return text::str(s.data(), s.data_end());
+}
+
 
 dynamic::match::match(
    text::str && captures_buffer_, _std::unique_ptr<_capture_group_node const> && capture0

@@ -633,6 +633,13 @@ public:
    */
    text::str str() const;
 
+   /*! Returns a string containing the captured portion of the matched input.
+
+   @return
+      Matched string.
+   */
+   text::str str_copy() const;
+
 protected:
    /*! Constructor.
 
