@@ -78,3 +78,265 @@ text::parsers::dynamic_state const * from_text_istream<bool>::format_to_parser_s
 }
 
 } //namespace lofty
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace _pvt {
+
+int_from_text_istream_base::int_from_text_istream_base(bool is_signed_) :
+   is_signed(is_signed_),
+   prefix(false),
+   unprefixed_base_or_shift(0) {
+}
+
+text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parser_states(
+   str const & format, text::parsers::dynamic * parser
+) {
+   LOFTY_TRACE_FUNC(this, format, parser);
+
+   /* If > 0, support base prefixes 0b, 0B, 0, 0o, 0O, 0x, or 0X. That also implies that we can parse multiple
+   bases; if omitted, format may only specify a single base because otherwise we wouldn’t be able to parse the
+   digits. */
+   auto itr(format.cbegin());
+   if (itr != format.cend() && *itr == '#') {
+      prefix = true;
+      ++itr;
+   }
+   /* Groups for each base must be listed as alternatives in a specific order due to base 8 with its weird “0”
+   prefix. */
+   bool add_base2 = false, add_base8 = false, add_base10 = false, add_base16 = false;
+   text::parsers::dynamic_state const * first_base_cap_group = nullptr;
+   for (; itr != format.cend(); ++itr) {
+      if (first_base_cap_group && !prefix) {
+         LOFTY_THROW(text::syntax_error, (
+            LOFTY_SL("prefix (#) required if multiple bases are specified"), format,
+            static_cast<unsigned>(itr - format.cbegin())
+         ));
+      }
+      char32_t cp = *itr;
+      switch (cp) {
+         case 'b':
+            add_base2 = true;
+            break;
+         case 'd':
+            add_base10 = true;
+            break;
+         case 'o':
+            add_base8 = true;
+            break;
+         case 'x':
+            add_base16 = true;
+            break;
+         default:
+            LOFTY_THROW(text::syntax_error, (
+               LOFTY_SL("unexpected character"), format, static_cast<unsigned>(itr - format.cbegin())
+            ));
+      }
+   }
+   if (add_base2) {
+      auto base2_digit_state = parser->create_code_point_range_state('0', '1');
+      auto base2_digits_rep_group = parser->create_repetition_group(base2_digit_state, 1);
+      auto base2_digits_cap_group = parser->create_capture_group(base2_digits_rep_group);
+      text::parsers::dynamic_state * base_first_state;
+      if (prefix) {
+         auto base2_prefix_upper_b_state = parser->create_code_point_state('B');
+         auto base2_prefix_lower_b_state = parser->create_code_point_state('b');
+         base2_prefix_lower_b_state->set_alternative(base2_prefix_upper_b_state);
+         auto base2_prefix_0_state = parser->create_code_point_state('0');
+         base2_prefix_0_state->set_next(base2_prefix_lower_b_state);
+         auto base2_prefix_cap_group = parser->create_capture_group(base2_prefix_0_state);
+         base2_prefix_cap_group->set_next(base2_digits_cap_group);
+         base_first_state = base2_prefix_cap_group;
+      } else {
+         unprefixed_base_or_shift = 1;
+         base_first_state = base2_digits_cap_group;
+      }
+      first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
+   }
+   if (add_base16) {
+      auto base16_upper_alpha_digit_state = parser->create_code_point_range_state('A', 'F');
+      auto base16_lower_alpha_digit_state = parser->create_code_point_range_state('a', 'f');
+      base16_lower_alpha_digit_state->set_alternative(base16_upper_alpha_digit_state);
+      auto base16_num_digit_state = parser->create_code_point_range_state('0', '9');
+      base16_num_digit_state->set_alternative(base16_lower_alpha_digit_state);
+      auto base16_digits_rep_group = parser->create_repetition_group(base16_num_digit_state, 1);
+      auto base16_digits_cap_group = parser->create_capture_group(base16_digits_rep_group);
+      text::parsers::dynamic_state * base_first_state;
+      if (prefix) {
+         auto base16_prefix_upper_x_state = parser->create_code_point_state('X');
+         auto base16_prefix_lower_x_state = parser->create_code_point_state('x');
+         base16_prefix_lower_x_state->set_alternative(base16_prefix_upper_x_state);
+         auto base16_prefix_0_state = parser->create_code_point_state('0');
+         base16_prefix_0_state->set_next(base16_prefix_lower_x_state);
+         auto base16_prefix_cap_group = parser->create_capture_group(base16_prefix_0_state);
+         base16_prefix_cap_group->set_next(base16_digits_cap_group);
+         base_first_state = base16_prefix_cap_group;
+      } else {
+         unprefixed_base_or_shift = 4;
+         base_first_state = base16_digits_cap_group;
+      }
+      first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
+   }
+   // Base 10 is made available also if no other bases are.
+   if (add_base10 || (!add_base2 && !add_base8 && !add_base16)) {
+      auto base10_digit_state = parser->create_code_point_range_state('0', '9');
+      auto base10_digits_rep_group = parser->create_repetition_group(base10_digit_state, 1);
+      auto base10_digits_cap_group = parser->create_capture_group(base10_digits_rep_group);
+      text::parsers::dynamic_state * base_first_state;
+      if (prefix) {
+         /* Must add a capture group even if base 10 has no prefix, otherwise the index of the last capture
+         group will be off by 1. */
+         auto base10_prefix_cap_group = parser->create_capture_group(nullptr);
+         base10_prefix_cap_group->set_next(base10_digits_cap_group);
+         base_first_state = base10_prefix_cap_group;
+      } else {
+         unprefixed_base_or_shift = 10;
+         base_first_state = base10_digits_cap_group;
+      }
+      first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
+   }
+   if (add_base8) {
+      auto base8_digit_state = parser->create_code_point_range_state('0', '7');
+      auto base8_digits_rep_group = parser->create_repetition_group(base8_digit_state, 1);
+      auto base8_digits_cap_group = parser->create_capture_group(base8_digits_rep_group);
+      text::parsers::dynamic_state * base_first_state;
+      if (prefix) {
+         auto base8_prefix_upper_o_state = parser->create_code_point_state('O');
+         auto base8_prefix_lower_o_state = parser->create_code_point_state('o');
+         base8_prefix_lower_o_state->set_alternative(base8_prefix_upper_o_state);
+         // For octal it’s “0[Oo]?”, unlike hexadecimal’s “0[Xx]” (“o” is optional).
+         auto base8_prefix_o_rep_group = parser->create_repetition_group(base8_prefix_lower_o_state, 0, 1);
+         auto base8_prefix_0_state = parser->create_code_point_state('0');
+         base8_prefix_0_state->set_next(base8_prefix_o_rep_group);
+         auto base8_prefix_cap_group = parser->create_capture_group(base8_prefix_0_state);
+         base8_prefix_cap_group->set_next(base8_digits_cap_group);
+         base_first_state = base8_prefix_cap_group;
+      } else {
+         unprefixed_base_or_shift = 3;
+         base_first_state = base8_digits_cap_group;
+      }
+      first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
+   }
+
+   if (is_signed) {
+      auto plus_state = parser->create_code_point_state('+');
+      auto minus_state = parser->create_code_point_state('-');
+      minus_state->set_alternative(plus_state);
+      auto plus_minus_rep_group = parser->create_repetition_group(minus_state, 0, 1);
+      auto plus_minus_cap_group = parser->create_capture_group(plus_minus_rep_group);
+      plus_minus_cap_group->set_next(first_base_cap_group);
+      return plus_minus_cap_group;
+   } else {
+      // The integer type is unsigned, so we won’t accept a sign at all.
+      return first_base_cap_group;
+   }
+}
+
+template <typename I>
+inline void int_from_text_istream_base::convert_capture_impl(
+   text::parsers::dynamic_match_capture const & capture0, I * dst
+) const {
+   LOFTY_TRACE_FUNC(this/*, capture0*/, dst);
+
+   unsigned cap_group_index = 0;
+   bool negative = false;
+   if (is_signed) {
+      if (auto sign_cap = capture0.capture_group(cap_group_index).str()) {
+         negative = (sign_cap[0] == '-');
+      }
+      ++cap_group_index;
+   }
+   unsigned base_or_shift;
+   if (prefix) {
+      if (auto prefix_cap = capture0.capture_group(cap_group_index).str()) {
+         switch (*prefix_cap.rbegin()) {
+            case 'B':
+            case 'b':
+               base_or_shift = 1;
+               break;
+            case '0':
+            case 'O':
+            case 'o':
+               base_or_shift = 3;
+               break;
+            case 'X':
+            case 'x':
+               base_or_shift = 4;
+               break;
+            LOFTY_SWITCH_WITHOUT_DEFAULT
+         }
+      } else {
+         // We expected a prefix, but found none: it must be base 10.
+         base_or_shift = 10;
+      }
+      ++cap_group_index;
+   } else {
+      base_or_shift = unprefixed_base_or_shift;
+   }
+   I ret = 0;
+   if (base_or_shift == 10) {
+      // TODO: use the UCD to determine the numeric value of each code point.
+      LOFTY_FOR_EACH(char32_t cp, capture0.capture_group(cap_group_index).str()) {
+         ret *= 10;
+         ret += static_cast<I>(cp - '0');
+      }
+   } else {
+      // Base 2 ^ n: can use | and <<.
+      LOFTY_FOR_EACH(char32_t cp, capture0.capture_group(cap_group_index).str()) {
+         ret <<= base_or_shift;
+         if (cp >= '0' && cp <= '9') {
+            ret |= static_cast<I>(cp - '0');
+         } else if (cp >= 'a' && cp <= 'f') {
+            ret |= static_cast<I>(cp - 'a' + 10);
+         } else if (cp >= 'A' && cp <= 'F') {
+            ret |= static_cast<I>(cp - 'A' + 10);
+         }
+      }
+   }
+   if (negative) {
+      ret = -ret;
+   }
+   *dst = ret;
+}
+
+void int_from_text_istream_base::convert_capture_s64(
+   text::parsers::dynamic_match_capture const & capture0, std::int64_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+void int_from_text_istream_base::convert_capture_u64(
+   text::parsers::dynamic_match_capture const & capture0, std::uint64_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+#if LOFTY_HOST_WORD_SIZE < 64
+void int_from_text_istream_base::convert_capture_s32(
+   text::parsers::dynamic_match_capture const & capture0, std::int32_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+void int_from_text_istream_base::convert_capture_u32(
+   text::parsers::dynamic_match_capture const & capture0, std::uint32_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+#if LOFTY_HOST_WORD_SIZE < 32
+void int_from_text_istream_base::convert_capture_s16(
+   text::parsers::dynamic_match_capture const & capture0, std::int16_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+void int_from_text_istream_base::convert_capture_u16(
+   text::parsers::dynamic_match_capture const & capture0, std::uint16_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+#endif //if LOFTY_HOST_WORD_SIZE < 32
+#endif //if LOFTY_HOST_WORD_SIZE < 64
+
+}} //namespace lofty::_pvt

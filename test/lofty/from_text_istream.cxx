@@ -98,3 +98,54 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 }
 
 }} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   from_text_istream_int,
+   "lofty::from_text_istream – int"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0")), 0);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("d")), 0);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("#d")), 0);
+
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1")), 1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1"), LOFTY_SL("d")), 1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1"), LOFTY_SL("#d")), 1);
+
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1")), -1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1"), LOFTY_SL("d")), -1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1"), LOFTY_SL("#d")), -1);
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   from_text_istream_std_int8_t,
+   "lofty::from_text_istream – std::int8_t"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0"), LOFTY_SL("x")), 0);
+
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("1"), LOFTY_SL("x")), 1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("f"), LOFTY_SL("x")), 15);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0Xf"), LOFTY_SL("#x")), 15);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("7f"), LOFTY_SL("x")), 127);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0x7f"), LOFTY_SL("#x")), 127);
+
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("ff"), LOFTY_SL("x")), -1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0Xff"), LOFTY_SL("#x")), -1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("ff"), LOFTY_SL("x")), -1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0xff"), LOFTY_SL("#x")), -1);
+}
+
+}} //namespace lofty::test
