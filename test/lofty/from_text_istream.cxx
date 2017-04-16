@@ -109,16 +109,38 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC(this);
 
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("q")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-w")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-1-")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0x1")));
+
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL(""), LOFTY_SL("#")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("q"), LOFTY_SL("#")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-"), LOFTY_SL("#")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-w"), LOFTY_SL("#")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-1-"), LOFTY_SL("#")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0b"), LOFTY_SL("#")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0p1"), LOFTY_SL("#")));
+
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0")), 0);
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("d")), 0);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("#")), 0);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0b0"), LOFTY_SL("#")), 0);
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("#d")), 0);
 
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1")), 1);
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1"), LOFTY_SL("d")), 1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("01"), LOFTY_SL("d")), 1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1"), LOFTY_SL("#")), 1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("01"), LOFTY_SL("#")), 1);
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1"), LOFTY_SL("#d")), 1);
 
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1")), -1);
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1"), LOFTY_SL("d")), -1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1"), LOFTY_SL("#")), -1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-0x1"), LOFTY_SL("#")), -1);
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1"), LOFTY_SL("#d")), -1);
 }
 
