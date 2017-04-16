@@ -20,6 +20,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/collections.hxx>
 #include <lofty/collections/vector.hxx>
 #include <lofty/text.hxx>
+#include <lofty/text/parsers/dynamic.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -382,6 +383,35 @@ std::size_t hash<lofty::text::str>::operator()(lofty::text::str const & s) const
 }
 
 } //namespace std
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty {
+
+void from_text_istream<text::str>::convert_capture(
+   text::parsers::dynamic_match_capture const & capture0, text::str * dst
+) {
+   LOFTY_TRACE_FUNC(this, /*capture0, */ dst);
+
+   *dst = capture0.str();
+}
+
+text::parsers::dynamic_state const * from_text_istream<text::str>::format_to_parser_states(
+   str const & format, text::parsers::dynamic * parser
+) {
+   LOFTY_TRACE_FUNC(this, format, parser);
+
+   auto itr(format.cbegin());
+
+   // TODO: add parsing of the format string here.
+
+   throw_on_unused_streaming_format_chars(itr, format);
+
+   auto any_cp_state = parser->create_code_point_range_state(0, 0xffffff);
+   return parser->create_repetition_group(any_cp_state, 0);
+}
+
+} //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

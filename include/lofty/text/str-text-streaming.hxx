@@ -23,6 +23,57 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//! @cond
+namespace lofty {
+
+template <>
+class LOFTY_SYM from_text_istream<text::str> {
+public:
+   /*! Converts a capture into a value of the appropriate type.
+
+   @param capture0
+      Pointer to the top-level capture.
+   @param dst
+      Pointer to the destination object.
+   */
+   void convert_capture(text::parsers::dynamic_match_capture const & capture0, text::str * dst);
+
+   /*! Creates parser states for the specified input format.
+
+   @param format
+      Formatting options.
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
+   */
+   text::parsers::dynamic_state const * format_to_parser_states(
+      text::str const & format, text::parsers::dynamic * parser
+   );
+};
+
+template <std::size_t dst_embedded_capacity>
+class from_text_istream<text::sstr<dst_embedded_capacity>> : public from_text_istream<text::str> {
+public:
+   /*! Converts a capture into a value of the appropriate type.
+
+   @param capture0
+      Pointer to the top-level capture.
+   @param dst
+      Pointer to the destination object.
+   */
+   void convert_capture(
+      text::parsers::dynamic_match_capture const & capture0, text::sstr<dst_embedded_capacity> * dst
+   ) {
+      from_text_istream<text::str>::convert_capture(capture0, dst.str_ptr());
+   }
+};
+
+} //namespace lofty
+//! @endcond
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace lofty { namespace text { namespace _pvt {
 
 /*! Base class for the specializations of to_text_ostream for string types. Not using templates, so the

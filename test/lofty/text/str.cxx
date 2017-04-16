@@ -18,6 +18,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 #include <lofty.hxx>
 #include <lofty/collections.hxx>
+#include <lofty/from_str.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/testing/utility.hxx>
 
@@ -528,6 +529,38 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_TRUE(s.ends_with(s));
    LOFTY_TESTING_ASSERT_FALSE(s.ends_with(s + '-'));
    LOFTY_TESTING_ASSERT_FALSE(s.ends_with('-' + s));
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   text_str_from_str,
+   "lofty::text::str – from_str()"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<text::str>(LOFTY_SL("")), LOFTY_SL(""));
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<text::str>(LOFTY_SL("abc")), LOFTY_SL("abc"));
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   text_str_to_str,
+   "lofty::text::str – to_str()"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   LOFTY_TESTING_ASSERT_EQUAL(to_str<text::str>(LOFTY_SL("")), LOFTY_SL(""));
+   LOFTY_TESTING_ASSERT_EQUAL(to_str<text::str>(LOFTY_SL("abc")), LOFTY_SL("abc"));
 }
 
 }} //namespace lofty::test
