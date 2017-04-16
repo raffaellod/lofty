@@ -71,7 +71,7 @@ public:
    @param capture0
       Pointer to the top-level capture.
    @param dst
-      Object to return into.
+      Pointer to the destination object.
    */
    void convert_capture(text::parsers::dynamic_match_capture const & capture0, bool * dst);
 
@@ -130,7 +130,7 @@ protected:
    @param capture0
       Pointer to the top-level capture.
    @param dst
-      Object to return into.
+      Pointer to the destination object.
    */
    template <typename I>
    void convert_capture_impl(text::parsers::dynamic_match_capture const & capture0, I * dst) const;
@@ -291,7 +291,7 @@ public:
    @param capture0
       Pointer to the captured string.
    @param dst
-      Object to return into.
+      Pointer to the destination object.
    */
    void convert_capture(text::parsers::dynamic_match_capture const & capture0, I * dst) {
       switch (sizeof *dst) {
