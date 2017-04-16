@@ -133,6 +133,13 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
             ));
       }
    }
+   if (prefix && !add_base2 && !add_base8 && !add_base10 && !add_base16) {
+      // If prefixed and no base was explicitly selected, allow all of them.
+      add_base2 = add_base8 = add_base10 = add_base16 = true;
+   } else if (!add_base2 && !add_base8 && !add_base16) {
+      // If not prefixed and no bases were selected, force base 10.
+      add_base10 = true;
+   }
    if (add_base2) {
       auto base2_digit_state = parser->create_code_point_range_state('0', '1');
       auto base2_digits_rep_group = parser->create_repetition_group(base2_digit_state, 1);
@@ -177,8 +184,7 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
       }
       first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
    }
-   // Base 10 is made available also if no other bases are.
-   if (add_base10 || (!add_base2 && !add_base8 && !add_base16)) {
+   if (add_base10) {
       auto base10_digit_state = parser->create_code_point_range_state('0', '9');
       auto base10_digits_rep_group = parser->create_repetition_group(base10_digit_state, 1);
       auto base10_digits_cap_group = parser->create_capture_group(base10_digits_rep_group);
