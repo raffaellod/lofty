@@ -89,6 +89,113 @@ int_from_text_istream_base::int_from_text_istream_base(bool is_signed_) :
    unprefixed_base_or_shift(0) {
 }
 
+template <typename I>
+inline void int_from_text_istream_base::convert_capture_impl(
+   text::parsers::dynamic_match_capture const & capture0, I * dst
+) const {
+   LOFTY_TRACE_FUNC(this/*, capture0*/, dst);
+
+   unsigned cap_group_index = 0;
+   bool negative = false;
+   if (is_signed) {
+      if (auto sign_cap = capture0.capture_group(cap_group_index).str()) {
+         negative = (sign_cap[0] == '-');
+      }
+      ++cap_group_index;
+   }
+   unsigned base_or_shift;
+   if (prefix) {
+      if (auto prefix_cap = capture0.capture_group(cap_group_index).str()) {
+         switch (*prefix_cap.rbegin()) {
+            case 'B':
+            case 'b':
+               base_or_shift = 1;
+               break;
+            case '0':
+            case 'O':
+            case 'o':
+               base_or_shift = 3;
+               break;
+            case 'X':
+            case 'x':
+               base_or_shift = 4;
+               break;
+            LOFTY_SWITCH_WITHOUT_DEFAULT
+         }
+      } else {
+         // We expected a prefix, but found none: it must be base 10.
+         base_or_shift = 10;
+      }
+      ++cap_group_index;
+   } else {
+      base_or_shift = unprefixed_base_or_shift;
+   }
+   I ret = 0;
+   if (base_or_shift == 10) {
+      // TODO: use the UCD to determine the numeric value of each code point.
+      LOFTY_FOR_EACH(char32_t cp, capture0.capture_group(cap_group_index).str()) {
+         ret *= 10;
+         ret += static_cast<I>(cp - '0');
+      }
+   } else {
+      // Base 2 ^ n: can use | and <<.
+      LOFTY_FOR_EACH(char32_t cp, capture0.capture_group(cap_group_index).str()) {
+         ret <<= base_or_shift;
+         if (cp >= '0' && cp <= '9') {
+            ret |= static_cast<I>(cp - '0');
+         } else if (cp >= 'a' && cp <= 'f') {
+            ret |= static_cast<I>(cp - 'a' + 10);
+         } else if (cp >= 'A' && cp <= 'F') {
+            ret |= static_cast<I>(cp - 'A' + 10);
+         }
+      }
+   }
+   if (negative) {
+      ret = -ret;
+   }
+   *dst = ret;
+}
+
+void int_from_text_istream_base::convert_capture_s64(
+   text::parsers::dynamic_match_capture const & capture0, std::int64_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+void int_from_text_istream_base::convert_capture_u64(
+   text::parsers::dynamic_match_capture const & capture0, std::uint64_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+#if LOFTY_HOST_WORD_SIZE < 64
+void int_from_text_istream_base::convert_capture_s32(
+   text::parsers::dynamic_match_capture const & capture0, std::int32_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+void int_from_text_istream_base::convert_capture_u32(
+   text::parsers::dynamic_match_capture const & capture0, std::uint32_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+#if LOFTY_HOST_WORD_SIZE < 32
+void int_from_text_istream_base::convert_capture_s16(
+   text::parsers::dynamic_match_capture const & capture0, std::int16_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+
+void int_from_text_istream_base::convert_capture_u16(
+   text::parsers::dynamic_match_capture const & capture0, std::uint16_t * dst
+) const {
+   convert_capture_impl(capture0, dst);
+}
+#endif //if LOFTY_HOST_WORD_SIZE < 32
+#endif //if LOFTY_HOST_WORD_SIZE < 64
+
 text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parser_states(
    str const & format, text::parsers::dynamic * parser
 ) {
@@ -229,112 +336,5 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
       return first_base_cap_group;
    }
 }
-
-template <typename I>
-inline void int_from_text_istream_base::convert_capture_impl(
-   text::parsers::dynamic_match_capture const & capture0, I * dst
-) const {
-   LOFTY_TRACE_FUNC(this/*, capture0*/, dst);
-
-   unsigned cap_group_index = 0;
-   bool negative = false;
-   if (is_signed) {
-      if (auto sign_cap = capture0.capture_group(cap_group_index).str()) {
-         negative = (sign_cap[0] == '-');
-      }
-      ++cap_group_index;
-   }
-   unsigned base_or_shift;
-   if (prefix) {
-      if (auto prefix_cap = capture0.capture_group(cap_group_index).str()) {
-         switch (*prefix_cap.rbegin()) {
-            case 'B':
-            case 'b':
-               base_or_shift = 1;
-               break;
-            case '0':
-            case 'O':
-            case 'o':
-               base_or_shift = 3;
-               break;
-            case 'X':
-            case 'x':
-               base_or_shift = 4;
-               break;
-            LOFTY_SWITCH_WITHOUT_DEFAULT
-         }
-      } else {
-         // We expected a prefix, but found none: it must be base 10.
-         base_or_shift = 10;
-      }
-      ++cap_group_index;
-   } else {
-      base_or_shift = unprefixed_base_or_shift;
-   }
-   I ret = 0;
-   if (base_or_shift == 10) {
-      // TODO: use the UCD to determine the numeric value of each code point.
-      LOFTY_FOR_EACH(char32_t cp, capture0.capture_group(cap_group_index).str()) {
-         ret *= 10;
-         ret += static_cast<I>(cp - '0');
-      }
-   } else {
-      // Base 2 ^ n: can use | and <<.
-      LOFTY_FOR_EACH(char32_t cp, capture0.capture_group(cap_group_index).str()) {
-         ret <<= base_or_shift;
-         if (cp >= '0' && cp <= '9') {
-            ret |= static_cast<I>(cp - '0');
-         } else if (cp >= 'a' && cp <= 'f') {
-            ret |= static_cast<I>(cp - 'a' + 10);
-         } else if (cp >= 'A' && cp <= 'F') {
-            ret |= static_cast<I>(cp - 'A' + 10);
-         }
-      }
-   }
-   if (negative) {
-      ret = -ret;
-   }
-   *dst = ret;
-}
-
-void int_from_text_istream_base::convert_capture_s64(
-   text::parsers::dynamic_match_capture const & capture0, std::int64_t * dst
-) const {
-   convert_capture_impl(capture0, dst);
-}
-
-void int_from_text_istream_base::convert_capture_u64(
-   text::parsers::dynamic_match_capture const & capture0, std::uint64_t * dst
-) const {
-   convert_capture_impl(capture0, dst);
-}
-
-#if LOFTY_HOST_WORD_SIZE < 64
-void int_from_text_istream_base::convert_capture_s32(
-   text::parsers::dynamic_match_capture const & capture0, std::int32_t * dst
-) const {
-   convert_capture_impl(capture0, dst);
-}
-
-void int_from_text_istream_base::convert_capture_u32(
-   text::parsers::dynamic_match_capture const & capture0, std::uint32_t * dst
-) const {
-   convert_capture_impl(capture0, dst);
-}
-
-#if LOFTY_HOST_WORD_SIZE < 32
-void int_from_text_istream_base::convert_capture_s16(
-   text::parsers::dynamic_match_capture const & capture0, std::int16_t * dst
-) const {
-   convert_capture_impl(capture0, dst);
-}
-
-void int_from_text_istream_base::convert_capture_u16(
-   text::parsers::dynamic_match_capture const & capture0, std::uint16_t * dst
-) const {
-   convert_capture_impl(capture0, dst);
-}
-#endif //if LOFTY_HOST_WORD_SIZE < 32
-#endif //if LOFTY_HOST_WORD_SIZE < 64
 
 }} //namespace lofty::_pvt
