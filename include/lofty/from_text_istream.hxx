@@ -69,7 +69,7 @@ public:
    /*! Converts a capture into a value of the appropriate type.
 
    @param capture0
-      Pointer to the captured string.
+      Pointer to the top-level capture.
    @param dst
       Object to return into.
    */
@@ -79,6 +79,10 @@ public:
 
    @param format
       Formatting options.
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
       str const & format, text::parsers::dynamic * parser
@@ -111,6 +115,10 @@ public:
 
    @param format
       Formatting options.
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
       str const & format, text::parsers::dynamic * parser
@@ -120,7 +128,7 @@ protected:
    /*! Converts a capture into a value of the appropriate type.
 
    @param capture0
-      Pointer to the captured string.
+      Pointer to the top-level capture.
    @param dst
       Object to return into.
    */
@@ -158,6 +166,43 @@ protected:
       convert_capture_u16(capture0, &dst16);
       *dst = static_cast<std::uint8_t>(dst16);
    }
+
+private:
+   /*! Creates parser states for parsing numbers in base 2.
+
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
+   */
+   text::parsers::dynamic_state * create_base2_parser_states(text::parsers::dynamic * parser);
+
+   /*! Creates parser states for parsing numbers in base 8.
+
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
+   */
+   text::parsers::dynamic_state * create_base8_parser_states(text::parsers::dynamic * parser);
+
+   /*! Creates parser states for parsing numbers in base 10.
+
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
+   */
+   text::parsers::dynamic_state * create_base10_parser_states(text::parsers::dynamic * parser);
+
+   /*! Creates parser states for parsing numbers in base 16.
+
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
+   */
+   text::parsers::dynamic_state * create_base16_parser_states(text::parsers::dynamic * parser);
 
 protected:
    //! true if the integer type is signed, or false otherwise.

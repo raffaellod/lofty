@@ -83,7 +83,7 @@ text::parsers::dynamic_state const * from_text_istream<bool>::format_to_parser_s
 
 namespace lofty { namespace _pvt {
 
-int_from_text_istream_base::int_from_text_istream_base(bool is_signed_) :
+/*explicit*/ int_from_text_istream_base::int_from_text_istream_base(bool is_signed_) :
    is_signed(is_signed_),
    prefix(false),
    unprefixed_base_or_shift(0) {
@@ -249,79 +249,16 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
    }
 
    if (add_base2) {
-      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(base2_digit_state, nullptr, nullptr, '0', '1');
-      LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(base2_digits_rep_group, nullptr, nullptr, &base2_digit_state.base, 1);
-      auto base2_digits_cap_group = parser->create_capture_group(&base2_digits_rep_group.base);
-      text::parsers::dynamic_state * base_first_state;
-      if (prefix) {
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base2_prefix_upper_b_state, nullptr, nullptr, 'B');
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base2_prefix_lower_b_state, nullptr, &base2_prefix_upper_b_state.base, 'b');
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base2_prefix_0_state, &base2_prefix_lower_b_state.base, nullptr, '0');
-         auto base2_prefix_cap_group = parser->create_capture_group(&base2_prefix_0_state.base);
-         base2_prefix_cap_group->set_next(base2_digits_cap_group);
-         base_first_state = base2_prefix_cap_group;
-      } else {
-         unprefixed_base_or_shift = 1;
-         base_first_state = base2_digits_cap_group;
-      }
-      first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
+      first_base_cap_group = create_base2_parser_states(parser)->set_alternative(first_base_cap_group);
    }
    if (add_base16) {
-      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(base16_upper_alpha_digit_state, nullptr, nullptr, 'A', 'F');
-      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(base16_lower_alpha_digit_state, nullptr, &base16_upper_alpha_digit_state.base, 'a', 'f');
-      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(base16_num_digit_state, nullptr, &base16_lower_alpha_digit_state.base, '0', '9');
-      LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(base16_digits_rep_group, nullptr, nullptr, &base16_num_digit_state.base, 1);
-      auto base16_digits_cap_group = parser->create_capture_group(&base16_digits_rep_group.base);
-      text::parsers::dynamic_state * base_first_state;
-      if (prefix) {
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base16_prefix_upper_x_state, nullptr, nullptr, 'X');
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base16_prefix_lower_x_state, nullptr, &base16_prefix_upper_x_state.base, 'x');
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base16_prefix_0_state, &base16_prefix_lower_x_state.base, nullptr, '0');
-         auto base16_prefix_cap_group = parser->create_capture_group(&base16_prefix_0_state.base);
-         base16_prefix_cap_group->set_next(base16_digits_cap_group);
-         base_first_state = base16_prefix_cap_group;
-      } else {
-         unprefixed_base_or_shift = 4;
-         base_first_state = base16_digits_cap_group;
-      }
-      first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
+      first_base_cap_group = create_base16_parser_states(parser)->set_alternative(first_base_cap_group);
    }
    if (add_base10) {
-      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(base10_digit_state, nullptr, nullptr, '0', '9');
-      LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(base10_digits_rep_group, nullptr, nullptr, &base10_digit_state.base, 1);
-      auto base10_digits_cap_group = parser->create_capture_group(&base10_digits_rep_group.base);
-      text::parsers::dynamic_state * base_first_state;
-      if (prefix) {
-         /* Must add a capture group even if base 10 has no prefix, otherwise the index of the last capture
-         group will be off by 1. */
-         auto base10_prefix_cap_group = parser->create_capture_group(nullptr);
-         base10_prefix_cap_group->set_next(base10_digits_cap_group);
-         base_first_state = base10_prefix_cap_group;
-      } else {
-         unprefixed_base_or_shift = 10;
-         base_first_state = base10_digits_cap_group;
-      }
-      first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
+      first_base_cap_group = create_base10_parser_states(parser)->set_alternative(first_base_cap_group);
    }
    if (add_base8) {
-      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(base8_digit_state, nullptr, nullptr, '0', '7');
-      LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(base8_digits_rep_group, nullptr, nullptr, &base8_digit_state.base, 1);
-      auto base8_digits_cap_group = parser->create_capture_group(&base8_digits_rep_group.base);
-      text::parsers::dynamic_state * base_first_state;
-      if (prefix) {
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base8_prefix_upper_o_state, nullptr, nullptr, 'O');
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base8_prefix_lower_o_state, nullptr, &base8_prefix_upper_o_state.base, 'o');
-         // For octal it’s “0[Oo]?”, unlike hexadecimal’s “0[Xx]” (“o” is optional).
-         LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_GROUP(base8_prefix_o_rep_group, nullptr, nullptr, &base8_prefix_lower_o_state.base, 0, 1);
-         LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(base8_prefix_0_state, &base8_prefix_o_rep_group.base, nullptr, '0');
-         auto base8_prefix_cap_group = parser->create_capture_group(&base8_prefix_0_state.base);
-         base8_prefix_cap_group->set_next(base8_digits_cap_group);
-         base_first_state = base8_prefix_cap_group;
-      } else {
-         unprefixed_base_or_shift = 3;
-         base_first_state = base8_digits_cap_group;
-      }
-      first_base_cap_group = base_first_state->set_alternative(first_base_cap_group);
+      first_base_cap_group = create_base8_parser_states(parser)->set_alternative(first_base_cap_group);
    }
 
    if (is_signed) {
@@ -334,6 +271,85 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
    } else {
       // The integer type is unsigned, so we won’t accept a sign at all.
       return first_base_cap_group;
+   }
+}
+
+text::parsers::dynamic_state * int_from_text_istream_base::create_base2_parser_states(
+   text::parsers::dynamic * parser
+) {
+   LOFTY_TRACE_FUNC(this, parser);
+
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(digit_state, nullptr, nullptr, '0', '1');
+   LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(digits_rep_group, nullptr, nullptr, &digit_state.base, 1);
+   auto digits_cap_group = parser->create_capture_group(&digits_rep_group.base);
+   if (prefix) {
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_upper_b_state, nullptr, nullptr, 'B');
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_lower_b_state, nullptr, &prefix_upper_b_state.base, 'b');
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_0_state, &prefix_lower_b_state.base, nullptr, '0');
+      return parser->create_capture_group(&prefix_0_state.base)->set_next(digits_cap_group);
+   } else {
+      unprefixed_base_or_shift = 1;
+      return digits_cap_group;
+   }
+}
+
+text::parsers::dynamic_state * int_from_text_istream_base::create_base8_parser_states(
+   text::parsers::dynamic * parser
+) {
+   LOFTY_TRACE_FUNC(this, parser);
+
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(digit_state, nullptr, nullptr, '0', '7');
+   LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(digits_rep_group, nullptr, nullptr, &digit_state.base, 1);
+   auto digits_cap_group = parser->create_capture_group(&digits_rep_group.base);
+   if (prefix) {
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_upper_o_state, nullptr, nullptr, 'O');
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_lower_o_state, nullptr, &prefix_upper_o_state.base, 'o');
+      // For octal it’s “0[Oo]?”, unlike hexadecimal’s “0[Xx]” (“o” is optional).
+      LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_GROUP(prefix_o_rep_group, nullptr, nullptr, &prefix_lower_o_state.base, 0, 1);
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_0_state, &prefix_o_rep_group.base, nullptr, '0');
+      return parser->create_capture_group(&prefix_0_state.base)->set_next(digits_cap_group);
+   } else {
+      unprefixed_base_or_shift = 3;
+      return digits_cap_group;
+   }
+}
+
+text::parsers::dynamic_state * int_from_text_istream_base::create_base10_parser_states(
+   text::parsers::dynamic * parser
+) {
+   LOFTY_TRACE_FUNC(this, parser);
+
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(digit_state, nullptr, nullptr, '0', '9');
+   LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(digits_rep_group, nullptr, nullptr, &digit_state.base, 1);
+   auto digits_cap_group = parser->create_capture_group(&digits_rep_group.base);
+   if (prefix) {
+      /* Must add a capture group even if base 10 has no prefix, otherwise the index of the last capture
+      group will be off by 1. */
+      return parser->create_capture_group(nullptr)->set_next(digits_cap_group);
+   } else {
+      unprefixed_base_or_shift = 10;
+      return digits_cap_group;
+   }
+}
+
+text::parsers::dynamic_state * int_from_text_istream_base::create_base16_parser_states(
+   text::parsers::dynamic * parser
+) {
+   LOFTY_TRACE_FUNC(this, parser);
+
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(upper_alpha_digit_state, nullptr, nullptr, 'A', 'F');
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(lower_alpha_digit_state, nullptr, &upper_alpha_digit_state.base, 'a', 'f');
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(num_digit_state, nullptr, &lower_alpha_digit_state.base, '0', '9');
+   LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(digits_rep_group, nullptr, nullptr, &num_digit_state.base, 1);
+   auto digits_cap_group = parser->create_capture_group(&digits_rep_group.base);
+   if (prefix) {
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_upper_x_state, nullptr, nullptr, 'X');
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_lower_x_state, nullptr, &prefix_upper_x_state.base, 'x');
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(prefix_0_state, &prefix_lower_x_state.base, nullptr, '0');
+      return parser->create_capture_group(&prefix_0_state.base)->set_next(digits_cap_group);
+   } else {
+      unprefixed_base_or_shift = 4;
+      return digits_cap_group;
    }
 }
 
