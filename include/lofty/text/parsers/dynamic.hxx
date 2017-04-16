@@ -384,7 +384,7 @@ protected:
       /*last */ cp \
    _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
 
-#define LOFTY_TEXT_PARSERS_DYNAMIC_CP_RANGE_STATE(name, next, alternative, first_cp, last_cp) \
+#define LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(name, next, alternative, first_cp, last_cp) \
    _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_cp_range_data, name, next, alternative) \
       /*first*/ first_cp, \
       /*last */ last_cp \
