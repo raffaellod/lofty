@@ -249,31 +249,37 @@ public:
       Object to return into.
    */
    void convert_capture(text::parsers::dynamic_match_capture const & capture0, I * dst) {
-      if (sizeof *dst <= sizeof(std::int8_t)) {
-         if (_std::is_signed<I>::value) {
-            convert_capture_s8(capture0, reinterpret_cast<std::int8_t *>(dst));
-         } else {
-            convert_capture_u8(capture0, reinterpret_cast<std::uint8_t *>(dst));
-         }
-      } else if (sizeof *dst <= sizeof(std::int16_t)) {
-         if (_std::is_signed<I>::value) {
-            convert_capture_s16(capture0, reinterpret_cast<std::int16_t *>(dst));
-         } else {
-            convert_capture_u16(capture0, reinterpret_cast<std::uint16_t *>(dst));
-         }
-      } else if (sizeof *dst <= sizeof(std::int32_t)) {
-         if (_std::is_signed<I>::value) {
-            convert_capture_s32(capture0, reinterpret_cast<std::int32_t *>(dst));
-         } else {
-            convert_capture_u32(capture0, reinterpret_cast<std::uint32_t *>(dst));
-         }
-      } else {
-         static_assert(sizeof *dst <= sizeof(std::int64_t), "unsupported integer size");
-         if (_std::is_signed<I>::value) {
-            convert_capture_s64(capture0, reinterpret_cast<std::int64_t *>(dst));
-         } else {
-            convert_capture_u64(capture0, reinterpret_cast<std::uint64_t *>(dst));
-         }
+      switch (sizeof *dst) {
+         case sizeof(std::int8_t):
+            if (_std::is_signed<I>::value) {
+               convert_capture_s8(capture0, reinterpret_cast<std::int8_t *>(dst));
+            } else {
+               convert_capture_u8(capture0, reinterpret_cast<std::uint8_t *>(dst));
+            }
+            break;
+         case sizeof(std::int16_t):
+            if (_std::is_signed<I>::value) {
+               convert_capture_s16(capture0, reinterpret_cast<std::int16_t *>(dst));
+            } else {
+               convert_capture_u16(capture0, reinterpret_cast<std::uint16_t *>(dst));
+            }
+            break;
+         case sizeof(std::int32_t):
+            if (_std::is_signed<I>::value) {
+               convert_capture_s32(capture0, reinterpret_cast<std::int32_t *>(dst));
+            } else {
+               convert_capture_u32(capture0, reinterpret_cast<std::uint32_t *>(dst));
+            }
+            break;
+         case sizeof(std::int64_t):
+            if (_std::is_signed<I>::value) {
+               convert_capture_s64(capture0, reinterpret_cast<std::int64_t *>(dst));
+            } else {
+               convert_capture_u64(capture0, reinterpret_cast<std::uint64_t *>(dst));
+            }
+            break;
+         default:
+            static_assert(sizeof *dst > sizeof(std::int64_t), "unsupported integer size");
       }
    }
 };
