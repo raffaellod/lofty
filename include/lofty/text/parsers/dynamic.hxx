@@ -39,7 +39,7 @@ struct dynamic_state {
 public:
    //! Combines state with additional state type-dependent data.
    template <typename T>
-   struct _aggregator;
+   class _aggregator;
 
    //! Possible state types.
    LOFTY_ENUM_AUTO_VALUES(_type,
