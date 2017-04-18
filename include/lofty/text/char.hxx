@@ -96,7 +96,7 @@ Macros to generate proper Unicode characters. */
       8-didnt-support-in-vc-2012>).
 
       Here we assume that no other compiler exhibits such a random behavior, and they will all emit valid
-      UTF-8 string literals it the source file is UTF-8+BOM-encoded. */
+      UTF-8 string literals if the source file is UTF-8+BOM-encoded. */
       #undef LOFTY_CXX_UTF8LIT
       #define LOFTY_CXX_UTF8LIT 1
 
