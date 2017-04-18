@@ -122,7 +122,7 @@ For the ERE pattern “a”, the state machine would be:
    └───┴───────┘
    @endverbatim
 */
-class LOFTY_SYM dynamic {
+class LOFTY_SYM dynamic : public noncopyable {
 private:
    //! Shortcut.
    typedef dynamic_state::_type state_type;
