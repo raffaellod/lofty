@@ -146,7 +146,7 @@ namespace lofty { namespace _std {
    using ::std::unique_ptr;
    using ::std::weak_ptr;
 
-   #ifdef _LOFTY_STLIMPL_IS_COPY_CONSTRUCTIBLE
+   #ifdef _LOFTY_STD_TYPE_TRAITS_IS_COPY_CONSTRUCTIBLE
       // (Partially-) specialize is_copy_constructible for stock STL types.
       template <typename T, typename TDeleter>
       struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
