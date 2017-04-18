@@ -324,7 +324,7 @@ public:
             }
             break;
          default:
-            static_assert(sizeof *dst > sizeof(std::int64_t), "unsupported integer size");
+            static_assert(sizeof *dst <= sizeof(std::int64_t), "unsupported integer size");
       }
    }
 };
