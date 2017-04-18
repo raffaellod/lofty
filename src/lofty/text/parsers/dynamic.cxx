@@ -79,20 +79,8 @@ struct backtrack {
 } //namespace
 
 
-struct dynamic::_group_node {
-   //! Pointer to the related group state.
-   dynamic_state const * state;
-   //! Pointer to the parent (containing) group. Only nullptr for capture 0.
-   _group_node * parent;
-   //! Owning pointer to the first nested group, if any.
-   _std::unique_ptr<_group_node> first_nested;
-   //! Non-owning pointer to the last nested group, if any.
-   _group_node * last_nested;
-   //! Non-owning pointer to the previous same-level group, if any.
-   _group_node * prev_sibling;
-   //! Owning pointer to the next same-level group, if any.
-   _std::unique_ptr<_group_node> next_sibling;
-
+class dynamic::_group_node {
+public:
    //! Destructor.
    ~_group_node() {
       // last_nested is the only non-owning forward pointer, so it must be updated manually.
@@ -181,15 +169,25 @@ protected:
       }
       parent->last_nested = this;
    }
+
+public:
+   //! Pointer to the related group state.
+   dynamic_state const * state;
+   //! Pointer to the parent (containing) group. Only nullptr for capture 0.
+   _group_node * parent;
+   //! Owning pointer to the first nested group, if any.
+   _std::unique_ptr<_group_node> first_nested;
+   //! Non-owning pointer to the last nested group, if any.
+   _group_node * last_nested;
+   //! Non-owning pointer to the previous same-level group, if any.
+   _group_node * prev_sibling;
+   //! Owning pointer to the next same-level group, if any.
+   _std::unique_ptr<_group_node> next_sibling;
 };
 
 
-struct dynamic::_capture_group_node : _group_node {
-   //! Offset of the start of the capture.
-   std::size_t begin;
-   //! Offset of the end of the capture.
-   std::size_t end;
-
+class dynamic::_capture_group_node : public _group_node {
+public:
    /*! Constructor.
 
    @param state_
@@ -218,6 +216,12 @@ struct dynamic::_capture_group_node : _group_node {
    std::size_t size() const {
       return end - begin;
    }
+
+public:
+   //! Offset of the start of the capture.
+   std::size_t begin;
+   //! Offset of the end of the capture.
+   std::size_t end;
 };
 
 dynamic::_capture_group_node * dynamic::_group_node::as_capture() {
@@ -225,10 +229,8 @@ dynamic::_capture_group_node * dynamic::_group_node::as_capture() {
 }
 
 
-struct dynamic::_repetition_group_node : _group_node {
-   //! Number of times the repetition has occurred.
-   unsigned count;
-
+class dynamic::_repetition_group_node : public _group_node {
+public:
    /*! Constructor that inserts the node as the last_nested of a parent node.
 
    @param parent_
@@ -239,6 +241,10 @@ struct dynamic::_repetition_group_node : _group_node {
    _repetition_group_node(_group_node * parent_, dynamic_state const * state_) :
       _group_node(parent_, state_) {
    }
+
+public:
+   //! Number of times the repetition has occurred.
+   unsigned count;
 };
 
 dynamic::_repetition_group_node * dynamic::_group_node::as_repetition() {
