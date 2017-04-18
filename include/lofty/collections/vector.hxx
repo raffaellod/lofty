@@ -151,10 +151,6 @@ protected:
    vector_impl(T const * const_src, std::size_t const_src_size) :
       complex_vextr_impl(const_src, const_src_size) {
    }
-
-private:
-   // Hide these complex_vextr_impl methods to trigger errors as a debugging aid.
-   void assign_copy(type_void_adapter const & type, T const * src_begin, T const * src_end);
 };
 
 // Partial specialization for copyable, non-trivial types.
@@ -643,7 +639,7 @@ protected:
 
 namespace lofty { namespace collections {
 
-// Partial specialization for non-copyable types.
+// Partial specialization with no embedded array (default).
 template <typename T>
 class vector<T, 0> :
    public _pvt::vector_impl<T>,
