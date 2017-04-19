@@ -393,7 +393,7 @@ void from_text_istream<text::str>::convert_capture(
 ) {
    LOFTY_TRACE_FUNC(this, /*capture0, */ dst);
 
-   *dst = capture0.str();
+   *dst = capture0.str_copy();
 }
 
 text::parsers::dynamic_state const * from_text_istream<text::str>::format_to_parser_states(
