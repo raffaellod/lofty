@@ -65,7 +65,7 @@ public:
    void convert_capture(
       text::parsers::dynamic_match_capture const & capture0, text::sstr<dst_embedded_capacity> * dst
    ) {
-      from_text_istream<text::str>::convert_capture(capture0, dst.str_ptr());
+      from_text_istream<text::str>::convert_capture(capture0, dst->str_ptr());
    }
 };
 
