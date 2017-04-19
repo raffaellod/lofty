@@ -405,11 +405,17 @@ protected:
 #define LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(name, next, alternative, first_state, min) \
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_GROUP(name, next, alternative, first_state, min, 0)
 
-#define LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(name, next, alternative, str) \
+#define _LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE_IMPL(str_name, name, next, alternative, str) \
+   static ::lofty::text::char_t const str_name[] = str; \
    _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_string_data, name, next, alternative) \
-      /*begin*/ str, \
-      /*end  */ str + LOFTY_SL_SIZE(str) \
+      /*begin*/ str_name, \
+      /*end  */ str_name + LOFTY_COUNTOF(str_name) - 1 /*NUL*/ \
    _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_END()
+
+#define LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(name, next, alternative, str) \
+   _LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE_IMPL( \
+      LOFTY_CPP_CAT(__, name, _str), name, next, alternative, str \
+   )
 
 
 //! Matched input captured by lofty::text::parsers::dynamic::run().
