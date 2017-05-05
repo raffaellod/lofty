@@ -131,17 +131,17 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("#d")), 0);
 
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1")), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1"), LOFTY_SL("d")), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("01"), LOFTY_SL("d")), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1"), LOFTY_SL("#")), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("01"), LOFTY_SL("#")), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1"), LOFTY_SL("#d")), 1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("8"), LOFTY_SL("d")), 8);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("012"), LOFTY_SL("d")), 12);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("15"), LOFTY_SL("#")), 15);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("013"), LOFTY_SL("#")), 11);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("16"), LOFTY_SL("#d")), 16);
 
    LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1")), -1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1"), LOFTY_SL("d")), -1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1"), LOFTY_SL("#")), -1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-0x1"), LOFTY_SL("#")), -1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1"), LOFTY_SL("#d")), -1);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-5"), LOFTY_SL("d")), -5);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-021"), LOFTY_SL("#")), -17);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-0xa"), LOFTY_SL("#")), -10);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-32"), LOFTY_SL("#d")), -32);
 }
 
 }} //namespace lofty::test
