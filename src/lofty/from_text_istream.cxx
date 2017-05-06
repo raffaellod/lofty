@@ -248,17 +248,17 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
       add_base10 = true;
    }
 
-   if (add_base2) {
-      first_base_cap_group = create_base2_parser_states(parser)->set_alternative(first_base_cap_group);
-   }
-   if (add_base16) {
-      first_base_cap_group = create_base16_parser_states(parser)->set_alternative(first_base_cap_group);
-   }
    if (add_base10) {
       first_base_cap_group = create_base10_parser_states(parser)->set_alternative(first_base_cap_group);
    }
    if (add_base8) {
       first_base_cap_group = create_base8_parser_states(parser)->set_alternative(first_base_cap_group);
+   }
+   if (add_base16) {
+      first_base_cap_group = create_base16_parser_states(parser)->set_alternative(first_base_cap_group);
+   }
+   if (add_base2) {
+      first_base_cap_group = create_base2_parser_states(parser)->set_alternative(first_base_cap_group);
    }
 
    if (is_signed) {
