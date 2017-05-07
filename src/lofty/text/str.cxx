@@ -21,6 +21,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/collections/vector.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
+#include <lofty/text/parsers/ere.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -401,14 +402,23 @@ text::parsers::dynamic_state const * from_text_istream<text::str>::format_to_par
 ) {
    LOFTY_TRACE_FUNC(this, format, parser);
 
-   auto itr(format.cbegin());
-
-   // TODO: add parsing of the format string here.
-
-   throw_on_unused_streaming_format_chars(itr, format);
-
-   auto any_cp_state = parser->create_code_point_range_state(0, 0xffffff);
-   return parser->create_repetition_group(any_cp_state, 0);
+   if (format) {
+      text::parsers::ere ere(parser, format);
+      text::parsers::dynamic_state * first_state;
+      str capture_format;
+      if (ere.parse_up_to_next_capture(&capture_format, &first_state) >= 0) {
+         LOFTY_THROW(
+            text::syntax_error,
+            (LOFTY_SL("string capture format cannot specify nested capturing groups"), format)
+         );
+      }
+      return first_state;
+   } else {
+      // Default to “.*”.
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(any_cp_state, nullptr, nullptr, 0, 0xffffff);
+      LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(any_cp_rep_group, nullptr, nullptr, &any_cp_state.base, 0);
+      return &any_cp_rep_group.base;
+   }
 }
 
 } //namespace lofty
