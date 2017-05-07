@@ -55,6 +55,7 @@ targets:
       -  src/lofty/text/char_traits.cxx
       -  src/lofty/text/parsers/ansi_escape_sequences.cxx
       -  src/lofty/text/parsers/dynamic.cxx
+      -  src/lofty/text/parsers/ere.cxx
       -  src/lofty/text/str.cxx
       -  src/lofty/text/str_traits.cxx
       -  src/lofty/text/ucd.cxx

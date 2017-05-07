@@ -564,6 +564,8 @@ next_state_after_accepted:
 
 }}} //namespace lofty::text::parsers
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace lofty { namespace text { namespace parsers { namespace _pvt {
 
 dynamic_match_capture dm_group::capture_group(unsigned index) const {
@@ -631,6 +633,8 @@ std::size_t dm_group::_repetition::size() const {
 }
 
 }}}} //namespace lofty::text::parsers::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
 

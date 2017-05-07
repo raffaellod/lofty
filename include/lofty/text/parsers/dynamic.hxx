@@ -99,6 +99,16 @@ public:
    _aggregator<T> const * with_data() const {
       return static_cast<_aggregator<T> const *>(this);
    }
+
+   /*! Casts this into a pointer of an aggregated type.
+
+   @return
+      Pointer to the aggregated state.
+   */
+   template <typename T>
+   _aggregator<T> * with_data() {
+      return static_cast<_aggregator<T> *>(this);
+   }
 };
 
 template <typename T>
@@ -111,6 +121,12 @@ public:
       alternative = nullptr;
    }
 };
+
+}}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace text { namespace parsers {
 
 /*! Parser that accepts input based on a dynamically-configurable state machine.
 
@@ -417,11 +433,18 @@ protected:
       LOFTY_CPP_CAT(__, name, _str), name, next, alternative, str \
    )
 
+}}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace text { namespace parsers {
 
 //! Matched input captured by lofty::text::parsers::dynamic::run().
 class dynamic_match_capture;
 
 }}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers { namespace _pvt {
 
@@ -589,13 +612,21 @@ protected:
 
 }}}} //namespace lofty::text::parsers::_pvt
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace lofty { namespace text { namespace parsers {
 
+// Now this can be defined.
 class LOFTY_SYM dynamic_match_capture : public _pvt::dm_group {
 private:
    friend class _pvt::dm_group;
 
 public:
+   //! Default constructor.
+   dynamic_match_capture() :
+      _pvt::dm_group(nullptr, nullptr) {
+   }
+
    /*! Move constructor.
 
    @param src
@@ -659,6 +690,13 @@ protected:
    }
 };
 
+}}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace text { namespace parsers {
+
+// Now this can be defined.
 class LOFTY_SYM dynamic::match : public dynamic_match_capture, public support_explicit_operator_bool<match> {
 private:
    friend text::str dynamic_match_capture::str() const;
