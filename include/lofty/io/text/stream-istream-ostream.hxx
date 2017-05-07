@@ -280,6 +280,69 @@ public:
     */
    virtual bool read_line(str * dst);
 
+   /*! Reads multiple values at once, separating them according to the specified format.
+
+   Conceptually this is the same as matching against a group-capturing regular expression; however, unlike a
+   regex, this method is able to infer the format of each capturing group from the type of the corresponding
+   argument, much like ostream::print().
+
+   The format string passed as first argument is used as a regular expression against which to match the
+   input, and can contain capturing groups delimited by parentheses (‘(’ and ‘)’).
+
+   A capturing group can specify, in the parentheses, an optional type-dependent format specification; this
+   will be passed as-is to the specialization of lofty::from_text_istream for the selected argument.
+
+   @param format
+      Format string specifying the regular expression to match, including any captures.
+   @param dsts
+      Pointers to variables that will receive the captured values if the return value is true, or will have
+      undefined contents if the return value is false.
+   @return
+      true if the input matched the format, or false otherwise. The input will have been consumed regardless.
+   */
+#ifdef LOFTY_CXX_VARIADIC_TEMPLATES
+   template <typename... Ts>
+   bool scan(str const & format, Ts *... dsts);
+#else //ifdef LOFTY_CXX_VARIADIC_TEMPLATES
+   bool scan(str const & format);
+   template <typename T0>
+   bool scan(str const & format, T0 * dst0);
+   template <typename T0, typename T1>
+   bool scan(str const & format, T0 * dst0, T1 * dst1);
+   template <typename T0, typename T1, typename T2>
+   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2);
+   template <typename T0, typename T1, typename T2, typename T3>
+   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3);
+   template <typename T0, typename T1, typename T2, typename T3, typename T4>
+   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4);
+   template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5);
+   template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6);
+   template <
+      typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7
+   >
+   bool scan(
+      str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6,
+      T7 * dst7
+   );
+   template <
+      typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
+      typename T8
+   >
+   bool scan(
+      str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6,
+      T7 * dst7, T8 * dst8
+   );
+   template <
+      typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
+      typename T8, typename T9
+   >
+   bool scan(
+      str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6,
+      T7 * dst7, T8 * dst8, T9 * dst9
+   );
+#endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
    /*! Pushes character previously consumed with consume_chars() back in the stream, making them the next
    characters thar will be yielded by peek_chars().
@@ -331,20 +394,19 @@ public:
    Designed after Python’s str.format(), this allows to combine objects together as strings using a format
    string.
 
-   The implementation of print() is entirely contained in lofty::io::text::_pvt::ostream_print_helper, which
-   accesses the individual arguments in a recursive way, from the most-derived class down to the base class,
-   which also contains most of the implementation. Combined with the usage of lofty::to_text_ostream() (that
-   it shares with lofty::to_str()), this enables a type-safe variadic alternative to C’s printf, and voids the
-   requirement for explicit specification of the argument types (such as %d, %s), much like Python’s
+   The implementation of this method is entirely contained in lofty::io::text::_pvt::ostream_print_helper,
+   which accesses the individual arguments in a recursive way, from the most-derived class down to the base
+   class, which also contains most of the implementation. Combined with the usage of lofty::to_text_ostream()
+   (which it shares with lofty::to_str()), this enables a type-safe variadic alternative to C’s printf, and
+   voids the requirement for explicit specification of the argument types (such as %d, %s), much like Python’s
    str.format().
 
-   Because of its type-safety, print() is also the core of @ref stack-tracing, as it allows to print a
+   Because of its type-safety, this method is also the core of @ref stack-tracing, as it allows to print a
    variable by automatically deducing its type.
 
-   The format string passed as first argument to lofty::io::text::ostream::print() can contain “replacement
-   fields” delimited by curly braces (‘{’ and ‘}’). Anything not contained in curly braces is considered
-   literal text and emitted as-is; the only exceptions are the substrings “{{” and “}}”, which allow to print
-   “{” and “}” respectively.
+   The format string passed as first argument can contain “replacement fields” delimited by curly braces (‘{’
+   and ‘}’). Anything not contained in curly braces is considered literal text and emitted as-is; the only
+   exceptions are the substrings “{{” and “}}”, which allow to print “{” and “}” respectively.
 
    A replacement field can specify an argument index; if omitted, the argument used will be the one following
    the last used one, or the first if no arguments have been used up to that point. After the optional
@@ -454,6 +516,579 @@ protected:
    //! Default constructor.
    ostream();
 };
+
+}}} //namespace lofty::io::text
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//! @cond
+namespace lofty { namespace io { namespace text { namespace _pvt {
+
+/*! Template-free implementation of istream_scan_helper; gives that class the ability to refecence parsers’
+methods, without including additional header files. */
+class LOFTY_SYM istream_scan_helper_impl : public noncopyable {
+private:
+   //! Stores members of types not defined at this point.
+   struct impl;
+
+public:
+   /*! Constructor.
+
+   @param istream_
+      Source stream.
+   @param format
+      Format string specifying the expression to match, including any captures.
+   */
+   istream_scan_helper_impl(class istream * istream_, str const & format);
+
+   //! Destructor.
+   ~istream_scan_helper_impl();
+
+   /*! Invokes the dynamic parser configured with the states generated by the ere parser, updating the
+   internal match instance in *pimpl.
+
+   @return
+      true if the input matched the expression, or false otherwise.
+   */
+   bool run();
+
+protected:
+   /*! Wrapper for pimpl->ere.insert_capture_group().
+
+   @param first_state
+      First state of the state tree to be wrapped in a capture group.
+   */
+   void insert_capture_group(lofty::text::parsers::dynamic_state const * first_state);
+
+   /*! Wrapper for pimpl->match.capture_group().
+
+   @param index
+      Capture group index.
+   @return
+      Reference to the capture help in *pimpl.
+   */
+   lofty::text::parsers::dynamic_match_capture const & match_capture_group(unsigned index);
+
+   /*! Returns a pointer to the dynamic parser instance.
+
+   @return
+      Pointer to the parser stored in *pimpl.
+   */
+   lofty::text::parsers::dynamic * parser_ptr();
+
+   /*! Calls pimpl->parser.parse_up_to_next_capture(), terminating the expression once no more captures are
+   found.
+
+   @return
+      An index greater than or equal to 0 if a capturing group was found, or a number less than 0 if the end
+      of the expression was reached.
+   */
+   int parse_up_to_next_capture();
+
+   /*! Throws an instance of lofty::collections::out_of_range, providing the invalid replacement index found
+   in the format string. */
+   LOFTY_FUNC_NORETURN void throw_collections_out_of_range();
+
+protected:
+   //! Current capture format, maintained by parse_up_to_next_capture().
+   str curr_capture_format;
+
+private:
+   //! Pointer to the source stream.
+   class istream * istream;
+   //! Pointer to members of complex types that would require additional files to be #included.
+   _std::unique_ptr<impl> pimpl;
+};
+
+//! Helper for/implementation of lofty::io::text::istream::scan().
+#ifdef LOFTY_CXX_VARIADIC_TEMPLATES
+
+template <typename... Ts>
+class istream_scan_helper;
+
+template <>
+class istream_scan_helper<> : public istream_scan_helper_impl {
+public:
+   /*! Constructor.
+
+   @param istream_
+      Source stream.
+   @param format
+      Format string specifying the expression to match, including any captures.
+   */
+   istream_scan_helper(class istream * istream_, str const & format) :
+      istream_scan_helper_impl(istream_, format) {
+   }
+
+   /*! Uses from_text_istream<> instances to generate dynamic parser states for the types of the variables
+   pointed to by the arguments provided to the constructor. */
+   void create_parser_states() {
+      int arg_index = parse_up_to_next_capture();
+      if (arg_index >= 0) {
+         istream_scan_helper_impl::throw_collections_out_of_range();
+      }
+   }
+
+   /*! Invokes the dynamic parser configured with the states generated by the ere parser. If the input matched
+   the format, it also converts all captures into the variables pointed to by the arguments provided to the
+   constructor.
+
+   @return
+      true if the input matched the expression, or false otherwise.
+   */
+   bool run_and_convert_captures() {
+      return istream_scan_helper_impl::run();
+      // Don’t bother calling convert_captures().
+   }
+
+protected:
+   /*! Converts all captures into the variables pointed to by the arguments provided to the constructor.
+
+   @param arg_index
+      Index of the argument associated to the capture.
+   */
+   void convert_captures(unsigned arg_index) {
+      LOFTY_UNUSED_ARG(arg_index);
+      // Nothing to do.
+   }
+
+   /*! Recursive implementation of create_parser_states().
+
+   @param arg_index
+      Index of the argument associated to the capture.
+   @return
+      Pointer to the first state for the capture.
+   */
+   LOFTY_FUNC_NORETURN lofty::text::parsers::dynamic_state const * format_to_parser_states(
+      unsigned arg_index
+   ) {
+      /* This is the last recursion stage, with no capture destinations available, so if we got here
+      istream::scan() was called with insufficient capture destinations for the given expression. */
+      LOFTY_UNUSED_ARG(arg_index);
+      istream_scan_helper_impl::throw_collections_out_of_range();
+   }
+};
+
+template <typename T0, typename... Ts>
+class istream_scan_helper<T0, Ts...> : public istream_scan_helper<Ts...> {
+private:
+   typedef istream_scan_helper<Ts...> helper_base;
+
+public:
+   /*! Constructor.
+
+   @param istream_
+      Source stream.
+   @param format
+      Regular expression to parse.
+   @param dst0_
+      Pointer to the Nth capture destination.
+   @param dsts
+      Pointer to the remaining capture destinations.
+   */
+   istream_scan_helper(class istream * istream_, str const & format, T0 * dst0_, Ts *... dsts) :
+      helper_base(istream_, format, dsts...),
+      dst0(dst0_) {
+   }
+
+   //! See istream_scan_helper<>::create_parser_states().
+   void create_parser_states() {
+      int arg_index;
+      while ((arg_index = helper_base::parse_up_to_next_capture()) >= 0) {
+         // Perform and write the replacement.
+         helper_base::insert_capture_group(format_to_parser_states(static_cast<unsigned>(arg_index)));
+      }
+   }
+
+   //! See istream_scan_helper<>::run_and_convert_captures().
+   bool run_and_convert_captures() {
+      if (istream_scan_helper_impl::run()) {
+         convert_captures(0);
+         return true;
+      } else {
+         return false;
+      }
+   }
+
+protected:
+   //! See istream_scan_helper<>::convert_captures().
+   void convert_captures(unsigned arg_index) {
+      ftis.convert_capture(helper_base::match_capture_group(arg_index), dst0);
+      // Recurse to the previous level.
+      helper_base::convert_captures(arg_index + 1);
+   }
+
+   //! See istream_scan_helper<>::format_to_parser_states().
+   lofty::text::parsers::dynamic_state const * format_to_parser_states(unsigned arg_index) {
+      if (arg_index == 0) {
+         return ftis.format_to_parser_states(helper_base::curr_capture_format, helper_base::parser_ptr());
+      } else {
+         // Recurse to the previous level.
+         return helper_base::format_to_parser_states(arg_index - 1);
+      }
+   }
+
+private:
+   //! Nth capture destination.
+   T0 * dst0;
+   //! Generates parser states for T0, and converts captured strings into T0.
+   from_text_istream<T0> ftis;
+};
+
+#else //ifdef LOFTY_CXX_VARIADIC_TEMPLATES
+
+// Recursion step: extract one argument, recurse with the rest.
+template <
+   typename T0 = void, typename T1 = void, typename T2 = void, typename T3 = void, typename T4 = void,
+   typename T5 = void, typename T6 = void, typename T7 = void, typename T8 = void, typename T9 = void
+>
+class istream_scan_helper : public istream_scan_helper<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+private:
+   typedef istream_scan_helper<T1, T2, T3, T4, T5, T6, T7, T8, T9> helper_base;
+
+public:
+   /*! Constructor.
+
+   @param istream_
+      Source stream.
+   @param format
+      Format string specifying the expression to match, including any captures.
+   @param dst0
+      Pointer to the first capture destination.
+   @param dst1
+      Pointer to the second capture destination.
+   @param dst2
+      Pointer to the third capture destination.
+   @param dst3
+      Pointer to the fourth capture destination.
+   @param dst4
+      Pointer to the fifth capture destination.
+   @param dst5
+      Pointer to the sixth capture destination.
+   @param dst6
+      Pointer to the seventh capture destination.
+   @param dst7
+      Pointer to the eighth capture destination.
+   @param dst8
+      Pointer to the ninth capture destination.
+   @param dst9
+      Pointer to the tenth capture destination.
+   */
+   template <typename U0>
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_
+   ) :
+      helper_base(istream_, format_),
+      dst0(dst0_) {
+   }
+   template <typename U0, typename U1>
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1
+   ) :
+      helper_base(istream_, format_, dst1),
+      dst0(dst0_) {
+   }
+   template <typename U0, typename U1, typename U2>
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2
+   ) :
+      helper_base(istream_, format_, dst1, dst2),
+      dst0(dst0_) {
+   }
+   template <typename U0, typename U1, typename U2, typename U3>
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3
+   ) :
+      helper_base(istream_, format_, dst1, dst2, dst3),
+      dst0(dst0_) {
+   }
+   template <typename U0, typename U1, typename U2, typename U3, typename U4>
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4
+   ) :
+      helper_base(istream_, format_, dst1, dst2, dst3, dst4),
+      dst0(dst0_) {
+   }
+   template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5
+   ) :
+      helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5),
+      dst0(dst0_) {
+   }
+   template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6>
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6
+   ) :
+      helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5, dst6),
+      dst0(dst0_) {
+   }
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6, typename U7
+   >
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6,
+      U7 * dst7
+   ) :
+      helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5, dst6, dst7),
+      dst0(dst0_) {
+   }
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6, typename U7,
+      typename U8
+   >
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6,
+      U7 * dst7, U8 * dst8
+   ) :
+      helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst8),
+      dst0(dst0_) {
+   }
+   template <
+      typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6, typename U7,
+      typename U8, typename U9
+   >
+   istream_scan_helper(
+      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
+      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6,
+      U7 * dst7, U8 * dst8, U9 * dst9
+   ) :
+      helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst8, dst9),
+      dst0(dst0_) {
+   }
+
+   //! See istream_scan_helper<>::create_parser_states().
+   void create_parser_states() {
+      int arg_index;
+      while ((arg_index = helper_base::parse_up_to_next_capture()) >= 0) {
+         // Perform and write the replacement.
+         helper_base::insert_capture_group(format_to_parser_states(static_cast<unsigned>(arg_index)));
+      }
+   }
+
+   //! See istream_scan_helper<>::run_and_convert_captures().
+   bool run_and_convert_captures() {
+      if (istream_scan_helper_impl::run()) {
+         convert_captures(0);
+         return true;
+      } else {
+         return false;
+      }
+   }
+
+protected:
+   //! See istream_scan_helper<>::convert_captures().
+   void convert_captures(unsigned arg_index) {
+      ftis.convert_capture(helper_base::match_capture_group(arg_index), dst0);
+      // Recurse to the previous level.
+      helper_base::convert_captures(arg_index + 1);
+   }
+
+   //! See istream_scan_helper<>::format_to_parser_states().
+   lofty::text::parsers::dynamic_state const * format_to_parser_states(unsigned arg_index) {
+      if (arg_index == 0) {
+         return ftis.format_to_parser_states(helper_base::curr_capture_format, helper_base::parser_ptr());
+      } else {
+         // Recurse to the previous level.
+         return helper_base::format_to_parser_states(arg_index - 1);
+      }
+   }
+
+private:
+   //! Nth capture destination.
+   T0 * dst0;
+   //! Generates parser states for T0, and converts captured strings into T0.
+   from_text_istream<T0> ftis;
+};
+
+// Base recursion step: no arguments to replace.
+template <>
+class istream_scan_helper<> : public istream_scan_helper_impl {
+public:
+   /*! Constructor.
+
+   @param istream_
+      Source stream.
+   @param format
+      Format string specifying the expression to match, including any captures.
+   */
+   istream_scan_helper(class istream * istream_, str const & format) :
+      istream_scan_helper_impl(istream_, format) {
+   }
+
+   /*! Uses from_text_istream<> instances to generate dynamic parser states for the types of the variables
+   pointed to by the arguments provided to the constructor. */
+   void create_parser_states() {
+      int arg_index = parse_up_to_next_capture();
+      if (arg_index >= 0) {
+         istream_scan_helper_impl::throw_collections_out_of_range();
+      }
+   }
+
+   /*! Invokes the dynamic parser configured with the states generated by the ere parser. If the input matched
+   the format, it also converts all captures into the variables pointed to by the arguments provided to the
+   constructor.
+
+   @return
+      true if the input matched the expression, or false otherwise.
+   */
+   bool run_and_convert_captures() {
+      return istream_scan_helper_impl::run();
+      // Don’t bother calling convert_captures().
+   }
+
+protected:
+   /*! Converts all captures into the variables pointed to by the arguments provided to the constructor.
+
+   @param arg_index
+      Index of the argument associated to the capture.
+   */
+   void convert_captures(unsigned arg_index) {
+      LOFTY_UNUSED_ARG(arg_index);
+      // Nothing to do.
+   }
+
+   /*! Recursive implementation of create_parser_states().
+
+   @param arg_index
+      Index of the argument associated to the capture.
+   @return
+      Pointer to the first state for the capture.
+   */
+   LOFTY_FUNC_NORETURN lofty::text::parsers::dynamic_state const * format_to_parser_states(
+      unsigned arg_index
+   ) {
+      /* This is the last recursion stage, with no capture destinations available, so if we got here
+      istream::scan() was called with insufficient capture destinations for the given expression. */
+      LOFTY_UNUSED_ARG(arg_index);
+      istream_scan_helper_impl::throw_collections_out_of_range();
+   }
+};
+
+#endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
+
+}}}} //namespace lofty::io::text::_pvt
+//! @endcond
+
+// Now it’s possible to implement this.
+
+namespace lofty { namespace io { namespace text {
+
+#ifdef LOFTY_CXX_VARIADIC_TEMPLATES
+
+template <typename... Ts>
+inline bool istream::scan(str const & format, Ts *... dsts) {
+   _pvt::istream_scan_helper<Ts...> helper(this, format, dsts...);
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+
+#else //ifdef LOFTY_CXX_VARIADIC_TEMPLATES
+
+inline bool istream::scan(str const & format) {
+   _pvt::istream_scan_helper<> helper(this, format);
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <typename T0>
+inline bool istream::scan(str const & format, T0 * dst0) {
+   _pvt::istream_scan_helper<T0> helper(this, format, dst0);
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <typename T0, typename T1>
+inline bool istream::scan(str const & format, T0 * dst0, T1 * dst1) {
+   _pvt::istream_scan_helper<T0, T1> helper(this, format, dst0, dst1);
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <typename T0, typename T1, typename T2>
+inline bool istream::scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2) {
+   _pvt::istream_scan_helper<T0, T1, T2> helper(this, format, dst0, dst1, dst2);
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <typename T0, typename T1, typename T2, typename T3>
+inline bool istream::scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3) {
+   _pvt::istream_scan_helper<T0, T1, T2, T3> helper(this, format, dst0, dst1, dst2, dst3);
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4>
+inline bool istream::scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4) {
+   _pvt::istream_scan_helper<T0, T1, T2, T3, T4> helper(this, format, dst0, dst1, dst2, dst3, dst4);
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+inline bool istream::scan(
+   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5
+) {
+   _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5> helper(this, format, dst0, dst1, dst2, dst3, dst4, dst5);
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+inline bool istream::scan(
+   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6
+) {
+   _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5, T6> helper(
+      this, format, dst0, dst1, dst2, dst3, dst4, dst5, dst6
+   );
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7
+>
+inline bool istream::scan(
+   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6, T7 * dst7
+) {
+   _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5, T6, T7> helper(
+      this, format, dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7
+   );
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
+   typename T8
+>
+inline bool istream::scan(
+   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6, T7 * dst7,
+   T8 * dst8
+) {
+   _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8> helper(
+      this, format, dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst8
+   );
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+template <
+   typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
+   typename T8, typename T9
+>
+inline bool istream::scan(
+   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6, T7 * dst7,
+   T8 * dst8, T9 * dst9
+) {
+   _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> helper(
+      this, format, dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst8, dst9
+   );
+   helper.create_parser_states();
+   return helper.run_and_convert_captures();
+}
+
+#endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
 }}} //namespace lofty::io::text
 

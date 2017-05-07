@@ -102,6 +102,15 @@ public:
    //! Destructor.
    ~ere();
 
+   /*! Returns the highest capture group index, equivalent to the count of capture groups minus one.
+
+   @return
+      Maximum capture group index.
+   */
+   int capture_index_max() const {
+      return static_cast<int>(next_capture_index) - 1;
+   }
+
    /*! Creates a new capture group for the specified state or tree of states, then inserts it as next state.
 
    @param first_state

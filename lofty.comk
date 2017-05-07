@@ -78,6 +78,7 @@ targets:
             -  test/lofty/from_text_istream.cxx
             -  test/lofty/io/binary/pipe.cxx
             -  test/lofty/io/text/binbuf_istream-read.cxx
+            -  test/lofty/io/text/istream-scan.cxx
             -  test/lofty/io/text/ostream-print.cxx
             -  test/lofty/lofty-test.cxx
             -  test/lofty/net.cxx
