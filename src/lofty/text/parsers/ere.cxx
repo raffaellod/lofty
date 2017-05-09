@@ -88,7 +88,7 @@ void ere::insert_capture_group(dynamic_state const * first_state) {
    push_state(parser->create_capture_group(first_state));
 }
 
-int ere::parse_up_to_next_capture(str * capture_format, dynamic_state ** first_state) {
+int ere::parse_up_to_next_capture(from_text_istream_format * capture_format, dynamic_state ** first_state) {
    LOFTY_TRACE_FUNC(this, capture_format, first_state);
 
    bool escape = false;
@@ -188,12 +188,12 @@ void ere::throw_syntax_error(str const & description) const {
    ));
 }
 
-void ere::extract_capture(str * format) {
+void ere::extract_capture(from_text_istream_format * format) {
    LOFTY_TRACE_FUNC(this, format);
 
    if (expr_itr != expr_end) {
-      // The capture specifies a format.
-      auto format_begin(expr_itr);
+      // The capture specifies a format expression.
+      auto expr_begin(expr_itr);
       bool escape = false;
       for (; expr_itr != expr_end; ++expr_itr) {
          if (escape) {
@@ -210,9 +210,9 @@ void ere::extract_capture(str * format) {
       if (expr_itr == expr_end) {
          throw_syntax_error(LOFTY_SL("unterminated capturing group"));
       }
-      *format = str(external_buffer, format_begin.ptr(), expr_itr.char_index() - format_begin.char_index());
+      format->expr = str(external_buffer, expr_begin.ptr(), expr_itr.char_index() - expr_begin.char_index());
    } else {
-      format->clear();
+      format->expr.clear();
    }
 
    if (expr_itr == expr_end || *expr_itr != ')') {

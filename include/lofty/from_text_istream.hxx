@@ -53,6 +53,10 @@ lofty::io::text::istream::scan(). */
 template <typename T>
 class from_text_istream;
 
+struct from_text_istream_format {
+   str expr;
+};
+
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +89,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      str const & format, text::parsers::dynamic * parser
+      from_text_istream_format const & format, text::parsers::dynamic * parser
    );
 
 protected:
@@ -121,7 +125,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      str const & format, text::parsers::dynamic * parser
+      from_text_istream_format const & format, text::parsers::dynamic * parser
    );
 
 protected:

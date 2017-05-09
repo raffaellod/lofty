@@ -65,11 +65,12 @@ void from_text_istream<bool>::convert_capture(
 }
 
 text::parsers::dynamic_state const * from_text_istream<bool>::format_to_parser_states(
-   str const & format, text::parsers::dynamic * parser
+   from_text_istream_format const & format, text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this, format, parser);
+   LOFTY_TRACE_FUNC(this/*, format*/, parser);
 
-   throw_on_unused_streaming_format_chars(format.cbegin(), format);
+   // TODO: more format validation.
+   throw_on_unused_streaming_format_chars(format.expr.cbegin(), format.expr);
 
    auto true_state = parser->create_string_state(&true_str);
    auto false_state = parser->create_string_state(&false_str);
@@ -197,15 +198,17 @@ void int_from_text_istream_base::convert_capture_u16(
 #endif //if LOFTY_HOST_WORD_SIZE < 64
 
 text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parser_states(
-   str const & format, text::parsers::dynamic * parser
+   from_text_istream_format const & format, text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this, format, parser);
+   LOFTY_TRACE_FUNC(this/*, format*/, parser);
+
+   // TODO: more format validation.
 
    /* If > 0, support base prefixes 0b, 0B, 0, 0o, 0O, 0x, or 0X. That also implies that we can parse multiple
    bases; if omitted, format may only specify a single base because otherwise we wouldn’t be able to parse the
    digits. */
-   auto itr(format.cbegin());
-   if (itr != format.cend() && *itr == '#') {
+   auto itr(format.expr.cbegin());
+   if (itr != format.expr.cend() && *itr == '#') {
       prefix = true;
       ++itr;
    }
@@ -213,11 +216,11 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
    prefix. */
    bool add_base2 = false, add_base8 = false, add_base10 = false, add_base16 = false;
    text::parsers::dynamic_state const * first_base_cap_group = nullptr;
-   for (; itr != format.cend(); ++itr) {
+   for (; itr != format.expr.cend(); ++itr) {
       if (first_base_cap_group && !prefix) {
          LOFTY_THROW(text::syntax_error, (
-            LOFTY_SL("prefix (#) required if multiple bases are specified"), format,
-            static_cast<unsigned>(itr - format.cbegin())
+            LOFTY_SL("prefix (#) required if multiple bases are specified"), format.expr,
+            static_cast<unsigned>(itr - format.expr.cbegin())
          ));
       }
       char32_t cp = *itr;
@@ -236,7 +239,8 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
             break;
          default:
             LOFTY_THROW(text::syntax_error, (
-               LOFTY_SL("unexpected character"), format, static_cast<unsigned>(itr - format.cbegin())
+               LOFTY_SL("unexpected character"),
+               format.expr, static_cast<unsigned>(itr - format.expr.cbegin())
             ));
       }
    }

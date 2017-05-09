@@ -591,7 +591,7 @@ protected:
 
 protected:
    //! Current capture format, maintained by parse_up_to_next_capture().
-   str curr_capture_format;
+   from_text_istream_format curr_capture_format;
 
 private:
    //! Pointer to the source stream.

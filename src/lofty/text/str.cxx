@@ -398,18 +398,20 @@ void from_text_istream<text::str>::convert_capture(
 }
 
 text::parsers::dynamic_state const * from_text_istream<text::str>::format_to_parser_states(
-   str const & format, text::parsers::dynamic * parser
+   from_text_istream_format const & format, text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this, format, parser);
+   LOFTY_TRACE_FUNC(this/*, format*/, parser);
 
-   if (format) {
-      text::parsers::ere ere(parser, format);
+   // TODO: more format validation.
+
+   if (format.expr) {
+      text::parsers::ere ere(parser, format.expr);
       text::parsers::dynamic_state * first_state;
-      str capture_format;
+      from_text_istream_format capture_format;
       if (ere.parse_up_to_next_capture(&capture_format, &first_state) >= 0) {
          LOFTY_THROW(
             text::syntax_error,
-            (LOFTY_SL("string capture format cannot specify nested capturing groups"), format)
+            (LOFTY_SL("string capture format cannot specify nested capturing groups"), format.expr)
          );
       }
       return first_state;

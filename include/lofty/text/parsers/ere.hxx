@@ -33,19 +33,37 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 namespace lofty { namespace text { namespace parsers {
 
-/*! Parses regular expressions with a syntax similar to POSIX Extended Regular Expression, generating a chain
-of states that will have the specified next state. The ERE string must remain accessible for the lifetime of
-the parser.
+/*! Parses regular expressions with a syntax similar to POSIX Extended Regular Expression and Perl’s regular
+expressions, generating a tree of states that will have the specified next state. The expression string must
+remain accessible for the lifetime of the dynamic::parser instance.
 
-The only difference from POSIX ERE is that groups specified with just “(…)” are capturing groups, which must
-be handled by the client; non-capturing groups are to be specified by “(?:…)”, like in PCRE.
+The biggest difference between this class and other ERE/PCRE implementations is that capturing groups
+specified with just “(…)” are to be parsed by the clients of this class.
 
-See <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html> for the supported syntax (aside
-from the differences mentioned above).
+TODO: (?D) for debugging (e.g. dump tree to stderr).
 
 Current limitations:
 •  Ranges are expected to be sorted (e.g. [ACGT], not [TAGC]);
 •  Backreferences are not yet supported.
+
+For compatibility with Python’s re module, these special groups shall not be used unless to implement
+functionality identical to that of Python’s re module:
+
+•  (…)
+•  (?…)
+•  (?aiLmsux)
+•  (?:…)
+•  (?P<name>…)
+•  (?P=name)
+•  (?#…)
+•  (?=…)
+•  (?!…)
+•  (?<=…)
+•  (?<!…)
+•  (?(id/name)yes-pattern|no-pattern)
+
+See also Python’s re module: <https://docs.python.org/3.5/library/re.html>.
+See also POSIX ERE: <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html>.
 */
 class LOFTY_SYM ere : public noncopyable {
 private:
@@ -122,7 +140,7 @@ public:
    expression.
 
    @param capture_format
-      If the return value is 0 or greater, indicating that a capture group was found, the string pointed to by
+      If the return value is 0 or greater, indicating that a capture group was found, the object pointed to by
       this argument will be set to the contents of the capture group parentheses, which is to be used as
       format in a way defined by the caller.
    @param first_state
@@ -134,15 +152,15 @@ public:
       group and *capture_format will be set accordingly; if the parser reached the end of the expression, the
       return value will be less than 0.
    */
-   int parse_up_to_next_capture(str * capture_format, dynamic_state ** first_state);
+   int parse_up_to_next_capture(from_text_istream_format * capture_format, dynamic_state ** first_state);
 
 private:
    /*! Parses the contents of a capture group (i.e. the “…” in a “(…)”).
 
    @param format
-      Pointer to a string that will receive the contents of the group.
+      Pointer to an object that will receive the contents of the group.
    */
-   void extract_capture(str * format);
+   void extract_capture(from_text_istream_format * format);
 
    //! Throws a lofty::text::syntax_error for the current position in the expression (expr_itr).
    void throw_syntax_error(str const & description) const;

@@ -47,17 +47,23 @@ namespace lofty {
 
 /*! Returns an object constructed from its string representation, optionally with a custom format.
 
+TODO: needs an overload that allows to specify a full from_text_istream_format instance, probably in a more
+convenient syntax than just taking from_text_istream_format const & .
+
 @param s
    String to reconstruct into an object.
-@param format
-   Type-specific format string.
+@param format_expr
+   Type-specific format string expression.
 @return
    Object reconstructed from s according to format.
 */
 template <typename T>
-inline T from_str(str const & src, str const & format = str::empty) {
+inline T from_str(str const & src, str format_expr = str::empty) {
+   // TODO: way too much templated code in here; please de-template most of it!
    text::parsers::dynamic parser;
    from_text_istream<T> ftis;
+   from_text_istream_format format;
+   format.expr = _std::move(format_expr);
    auto format_first = ftis.format_to_parser_states(format, &parser);
    auto end = parser.create_end_state();
    auto capture1 = parser.create_capture_group(format_first);

@@ -48,7 +48,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      text::str const & format, text::parsers::dynamic * parser
+      from_text_istream_format const & format, text::parsers::dynamic * parser
    );
 };
 
