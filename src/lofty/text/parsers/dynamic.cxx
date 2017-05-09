@@ -610,7 +610,7 @@ dm_group::_repetition dm_group::repetition_group(unsigned index) const {
    group_node(static_cast<dynamic::_repetition_group_node const *>(group_node_)) {
 }
 
-dm_group::_repetition_occurrence dm_group::_repetition::operator[](unsigned index) const {
+dm_group::_repetition_occurrence dm_group::_repetition::operator[](std::size_t index) const {
    auto first_state = group_node->first_nested->state;
    for (
       dynamic::_group_node const * nested = group_node->first_nested.get();

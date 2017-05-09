@@ -479,7 +479,7 @@ public:
       @return
          Accessor to the index-th occurrence.
       */
-      _repetition_occurrence operator[](unsigned index) const;
+      _repetition_occurrence operator[](std::size_t index) const;
 
       /*! Boolean evaluation operator.
 
