@@ -159,7 +159,7 @@ void test_case::assert_does_not_throw(
    try {
       expr_fn();
    } catch (_std::exception const & x) {
-      caught.format(LOFTY_SL("throws {}"), typeid(x));
+      caught.format(LOFTY_SL("throws {}: {}"), typeid(x), text::char_ptr_to_str_adapter(x.what()));
    } catch (...) {
       caught = LOFTY_SL("unknown type");
    }
@@ -198,7 +198,7 @@ void test_case::assert_throws(
       if (instanceof_fn(x)) {
          pass = true;
       }
-      caught.format(LOFTY_SL("throws {}"), typeid(x));
+      caught.format(LOFTY_SL("throws {}: {}"), typeid(x), text::char_ptr_to_str_adapter(x.what()));
    } catch (...) {
       caught = LOFTY_SL("unknown type");
    }
