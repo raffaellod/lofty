@@ -18,6 +18,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 #include <lofty.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/io/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 
 
@@ -316,6 +317,56 @@ dynamic_state * dynamic::create_string_state(char_t const * begin, char_t const 
    ret->begin = begin;
    ret->end = end;
    return ret;
+}
+
+void dynamic::dump() const {
+   collections::vector<dynamic_state const *> context_stack;
+   auto curr_state = initial_state;
+   auto out(io::text::stdout);
+   while (curr_state) {
+      // TODO: find a reasonable way to display alternatives.
+      auto next_state = curr_state->next;
+      for (unsigned i = 0; i < static_cast<unsigned>(context_stack.size()); ++i) {
+         out->print(LOFTY_SL("   "));
+      }
+      out->print(LOFTY_SL("{}"), state_type(curr_state->type));
+      switch (curr_state->type) {
+         case state_type::capture_group: {
+            auto state_with_data = curr_state->with_data<_state_capture_group_data>();
+            context_stack.push_back(next_state);
+            next_state = state_with_data->first_state;
+            break;
+         }
+
+         case state_type::cp_range: {
+            auto state_with_data = curr_state->with_data<_state_cp_range_data>();
+            out->print(LOFTY_SL(" [‘{}’-‘{}’]"), state_with_data->first, state_with_data->last);
+            break;
+         }
+
+         case state_type::repetition_group: {
+            auto state_with_data = curr_state->with_data<_state_repetition_group_data>();
+            out->print(LOFTY_SL(" [{}-{}]"), state_with_data->min, state_with_data->max);
+            context_stack.push_back(next_state);
+            next_state = state_with_data->first_state;
+            break;
+         }
+
+         case state_type::string: {
+            auto state_with_data = curr_state->with_data<_state_string_data>();
+            out->print(LOFTY_SL(" “{}”"), str(external_buffer, state_with_data->begin, state_with_data->size()));
+            break;
+         }
+
+         default:
+            break;
+      }
+      out->print(" @ {}\n", curr_state);
+      while (!next_state && context_stack) {
+         next_state = context_stack.pop_back();
+      }
+      curr_state = next_state;
+   }
 }
 
 dynamic::match dynamic::run(str const & s) const {
@@ -695,6 +746,28 @@ dynamic::match & dynamic::match::operator=(match && src) {
 dynamic::match::~match() {
    // This will cascade to delete the entire tree.
    delete group_node;
+}
+
+void dynamic::match::dump() const {
+   collections::vector<dynamic::_group_node const *> context_stack;
+   dynamic::_group_node const * curr_group = group_node;
+   auto out(io::text::stdout);
+   while (curr_group) {
+      // TODO: find a reasonable way to display alternatives.
+      dynamic::_group_node const * next_group = curr_group->next_sibling.get();
+      for (unsigned i = 0; i < static_cast<unsigned>(context_stack.size()); ++i) {
+         out->print(LOFTY_SL("   "));
+      }
+      out->print(LOFTY_SL("{} @ {}\n"), state_type(curr_group->state->type), curr_group->state);
+      if (curr_group->first_nested) {
+         context_stack.push_back(next_group);
+         next_group = curr_group->first_nested.get();
+      }
+      while (!next_group && context_stack) {
+         next_group = context_stack.pop_back();
+      }
+      curr_group = next_group;
+   }
 }
 
 }}} //namespace lofty::text::parsers

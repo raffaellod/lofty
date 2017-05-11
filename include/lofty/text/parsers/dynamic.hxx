@@ -320,6 +320,9 @@ public:
    */
    dynamic_state * create_string_state(char_t const * begin, char_t const * end);
 
+   //! Dumps the parser’s state tree.
+   void dump() const;
+
    /*! Runs the parser against the specified string.
 
    @param s
@@ -735,6 +738,9 @@ public:
    LOFTY_EXPLICIT_OPERATOR_BOOL() const {
       return group_node != nullptr;
    }
+
+   //! Dumps the matched group tree.
+   void dump() const;
 
 protected:
    /*! Constructor for use by the parser.
