@@ -617,9 +617,84 @@ next_state_after_accepted:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace text { namespace parsers { namespace _pvt {
+namespace lofty { namespace text { namespace parsers {
 
-dynamic_match_capture dm_group::capture_group(unsigned index) const {
+dynamic_match_capture dynamic_match_repetition::occurrence::capture_group(unsigned index) const {
+   for (
+      dynamic::_group_node const * nested = group_node->first_nested.get();
+      nested;
+      nested = nested->next_sibling.get()
+   ) {
+      if (nested->is_capture()) {
+         if (index == 0) {
+            return dynamic_match_capture(match, nested);
+         }
+         --index;
+      }
+   }
+   // TODO: throw logic_error or out_of_range.
+   return dynamic_match_capture(nullptr, nullptr);
+}
+
+dynamic_match_repetition dynamic_match_repetition::occurrence::repetition_group(unsigned index) const {
+   for (
+      dynamic::_group_node const * nested = group_node->first_nested.get();
+      nested;
+      nested = nested->next_sibling.get()
+   ) {
+      if (nested->is_repetition()) {
+         if (index == 0) {
+            return dynamic_match_repetition(match, nested);
+         }
+         --index;
+      }
+   }
+   // TODO: throw logic_error or out_of_range.
+   return dynamic_match_repetition(nullptr, nullptr);
+}
+
+
+/*explicit*/ dynamic_match_repetition::dynamic_match_repetition(
+   dynamic::match const * match_, dynamic::_group_node const * group_node_
+) :
+   match(match_),
+   group_node(static_cast<dynamic::_repetition_group_node const *>(group_node_)) {
+}
+
+dynamic_match_repetition::occurrence dynamic_match_repetition::operator[](std::size_t index) const {
+   auto first_state = group_node->first_nested->state;
+   for (
+      dynamic::_group_node const * nested = group_node->first_nested.get();
+      nested;
+      nested = nested->next_sibling.get()
+   ) {
+      if (nested->state == first_state) {
+         if (index == 0) {
+            return occurrence(match, nested);
+         }
+         --index;
+      }
+   }
+   // TODO: throw logic_error or out_of_range.
+   return occurrence(nullptr, nullptr);
+}
+
+std::size_t dynamic_match_repetition::size() const {
+   return group_node->count;
+}
+
+}}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace text { namespace parsers {
+
+std::size_t dynamic_match_capture::begin_char_index() const {
+   auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
+   return (match ? match->begin_char_index() : 0) + capture_group_->begin;
+}
+
+dynamic_match_capture dynamic_match_capture::capture_group(unsigned index) const {
    for (
       dynamic::_group_node const * nested = group_node->first_nested.get();
       nested;
@@ -636,7 +711,12 @@ dynamic_match_capture dm_group::capture_group(unsigned index) const {
    return dynamic_match_capture(nullptr, nullptr);
 }
 
-dm_group::_repetition dm_group::repetition_group(unsigned index) const {
+std::size_t dynamic_match_capture::end_char_index() const {
+   auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
+   return (match ? match->begin_char_index() : 0) + capture_group_->end;
+}
+
+dynamic_match_repetition dynamic_match_capture::repetition_group(unsigned index) const {
    for (
       dynamic::_group_node const * nested = group_node->first_nested.get();
       nested;
@@ -644,59 +724,13 @@ dm_group::_repetition dm_group::repetition_group(unsigned index) const {
    ) {
       if (nested->is_repetition()) {
          if (index == 0) {
-            return _repetition(match ? match : static_cast<dynamic::match const *>(this), nested);
+            return dynamic_match_repetition(match ? match : static_cast<dynamic::match const *>(this), nested);
          }
          --index;
       }
    }
    // TODO: throw logic_error or out_of_range.
-   return _repetition(nullptr, nullptr);
-}
-
-
-/*explicit*/ dm_group::_repetition::_repetition(
-   dynamic::match const * match_, dynamic::_group_node const * group_node_
-) :
-   match(match_),
-   group_node(static_cast<dynamic::_repetition_group_node const *>(group_node_)) {
-}
-
-dm_group::_repetition_occurrence dm_group::_repetition::operator[](std::size_t index) const {
-   auto first_state = group_node->first_nested->state;
-   for (
-      dynamic::_group_node const * nested = group_node->first_nested.get();
-      nested;
-      nested = nested->next_sibling.get()
-   ) {
-      if (nested->state == first_state) {
-         if (index == 0) {
-            return _repetition_occurrence(match, nested);
-         }
-         --index;
-      }
-   }
-   // TODO: throw logic_error or out_of_range.
-   return _repetition_occurrence(nullptr, nullptr);
-}
-
-std::size_t dm_group::_repetition::size() const {
-   return group_node->count;
-}
-
-}}}} //namespace lofty::text::parsers::_pvt
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace text { namespace parsers {
-
-std::size_t dynamic_match_capture::begin_char_index() const {
-   auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
-   return (match ? match->begin_char_index() : 0) + capture_group_->begin;
-}
-
-std::size_t dynamic_match_capture::end_char_index() const {
-   auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
-   return (match ? match->begin_char_index() : 0) + capture_group_->end;
+   return dynamic_match_repetition(nullptr, nullptr);
 }
 
 text::str dynamic_match_capture::str() const {
@@ -720,6 +754,11 @@ text::str dynamic_match_capture::str_copy() const {
    return text::str(s.data(), s.data_end());
 }
 
+}}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace text { namespace parsers {
 
 dynamic::match::match(
    text::str && captures_buffer_, _std::unique_ptr<_capture_group_node const> && capture0

@@ -445,80 +445,17 @@ namespace lofty { namespace text { namespace parsers {
 //! Matched input captured by lofty::text::parsers::dynamic::run().
 class dynamic_match_capture;
 
-}}} //namespace lofty::text::parsers
+/*! Repetition accepted by lofty::text::parsers::dynamic::run(), modeled as a virtual array of repetition
+occurrences. */
+class LOFTY_SYM dynamic_match_repetition :
+   public noncopyable,
+   public support_explicit_operator_bool<dynamic_match_repetition> {
+private:
+   friend class dynamic_match_capture;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace text { namespace parsers { namespace _pvt {
-
-//! Base class for dynamic_match_*, providing access to nested groups.
-class LOFTY_SYM dm_group : public noncopyable {
 public:
-   //! Individual repetition occurrence.
-   class _repetition_occurrence;
-
-   //! Virtual array of repetition occurrences.
-   class LOFTY_SYM _repetition : public noncopyable, public support_explicit_operator_bool<_repetition> {
-   private:
-      friend class dm_group;
-
-   public:
-      /*! Move constructor.
-
-      @param src
-         Source object.
-      */
-      _repetition(_repetition && src) :
-         match(src.match),
-         group_node(src.group_node) {
-         src.match = nullptr;
-         src.group_node = nullptr;
-      }
-
-      /*! Element access operator.
-
-      @param index
-         Repetition occurrence index.
-      @return
-         Accessor to the index-th occurrence.
-      */
-      _repetition_occurrence operator[](std::size_t index) const;
-
-      /*! Boolean evaluation operator.
-
-      @return
-         true if the repetition occurred at least once, or false otherwise.
-      */
-      LOFTY_EXPLICIT_OPERATOR_BOOL() const {
-         return size() > 0;
-      }
-
-      /*! Returns how many time the repetition occurred in the containing scope.
-
-      @return
-         Count of occurrences for the occurrence group.
-      */
-      std::size_t size() const;
-
-      /* TODO: iterator starts from first_nested, and incrementing it makes it scan for the next occurrence of
-      first_nested->state, which is the first group of the next repetition. */
-
-   protected:
-      /*! Constructor.
-
-      @param match
-         Pointer to the match, which contains the input offset and capture 0.
-      @param group_node
-         Pointer to the node containing data for the repetition group.
-      */
-      _repetition(dynamic::match const * match, dynamic::_group_node const * group_node);
-
-   protected:
-      //! Pointer to the match, which contains the input offset and capture 0.
-      dynamic::match const * match;
-      //! Pointer to the node containing data for the repetition group.
-      dynamic::_repetition_group_node const * group_node;
-   };
+   //! Individual occurrence of a repetition accepted by lofty::text::parsers::dynamic::run().
+   class occurrence;
 
 public:
    /*! Move constructor.
@@ -526,7 +463,69 @@ public:
    @param src
       Source object.
    */
-   dm_group(dm_group && src) :
+   dynamic_match_repetition(dynamic_match_repetition && src) :
+      match(src.match),
+      group_node(src.group_node) {
+      src.match = nullptr;
+      src.group_node = nullptr;
+   }
+
+   /*! Element access operator.
+
+   @param index
+      Repetition occurrence index.
+   @return
+      Accessor to the index-th occurrence.
+   */
+   occurrence operator[](std::size_t index) const;
+
+   /*! Boolean evaluation operator.
+
+   @return
+      true if the repetition occurred at least once, or false otherwise.
+   */
+   LOFTY_EXPLICIT_OPERATOR_BOOL() const {
+      return size() > 0;
+   }
+
+   /*! Returns how many time the repetition occurred in the containing scope.
+
+   @return
+      Count of occurrences for the occurrence group.
+   */
+   std::size_t size() const;
+
+   /* TODO: iterator starts from first_nested, and incrementing it makes it scan for the next occurrence of
+   first_nested->state, which is the first group of the next repetition. */
+
+protected:
+   /*! Constructor.
+
+   @param match
+      Pointer to the match, which contains the input offset and capture 0.
+   @param group_node
+      Pointer to the node containing data for the repetition group.
+   */
+   dynamic_match_repetition(dynamic::match const * match, dynamic::_group_node const * group_node);
+
+protected:
+   //! Pointer to the match, which contains the input offset and capture 0.
+   dynamic::match const * match;
+   //! Pointer to the node containing data for the repetition group.
+   dynamic::_repetition_group_node const * group_node;
+};
+
+class LOFTY_SYM dynamic_match_repetition::occurrence : public noncopyable {
+private:
+   friend occurrence dynamic_match_repetition::operator[](std::size_t index) const;
+
+public:
+   /*! Move constructor.
+
+   @param src
+      Source object.
+   */
+   occurrence(occurrence && src) :
       match(src.match),
       group_node(src.group_node) {
       src.match = nullptr;
@@ -540,7 +539,7 @@ public:
    @return
       *this.
    */
-   dm_group & operator=(dm_group && src) {
+   occurrence & operator=(occurrence && src) {
       match = src.match;
       group_node = src.group_node;
       src.match = nullptr;
@@ -564,7 +563,7 @@ public:
    @return
       Corresponding repetition group.
    */
-   _repetition repetition_group(unsigned index) const;
+   dynamic_match_repetition repetition_group(unsigned index) const;
 
 protected:
    /*! Constructor.
@@ -574,7 +573,7 @@ protected:
    @param group_node_
       Pointer to the node containing data for the group.
    */
-   dm_group(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
+   occurrence(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
       match(match_),
       group_node(group_node_) {
    }
@@ -586,48 +585,22 @@ protected:
    dynamic::_group_node const * group_node;
 };
 
-class LOFTY_SYM dm_group::_repetition_occurrence : public dm_group {
-private:
-   friend class dm_group;
-
-public:
-   /*! Move constructor.
-
-   @param src
-      Source object.
-   */
-   _repetition_occurrence(_repetition_occurrence && src) :
-      dm_group(_std::move(src)) {
-   }
-
-protected:
-   /*! Constructor.
-
-   @param match_
-      Pointer to the match, which contains the input offset and capture 0.
-   @param group_node_
-      Pointer to the node containing data for the group.
-   */
-   _repetition_occurrence(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
-      dm_group(match_, group_node_) {
-   }
-};
-
-}}}} //namespace lofty::text::parsers::_pvt
+}}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
 
 // Now this can be defined.
-class LOFTY_SYM dynamic_match_capture : public _pvt::dm_group {
+class LOFTY_SYM dynamic_match_capture : public noncopyable {
 private:
-   friend class _pvt::dm_group;
+   friend dynamic_match_capture dynamic_match_repetition::occurrence::capture_group(unsigned index) const;
 
 public:
    //! Default constructor.
    dynamic_match_capture() :
-      _pvt::dm_group(nullptr, nullptr) {
+      match(nullptr),
+      group_node(nullptr) {
    }
 
    /*! Move constructor.
@@ -636,7 +609,10 @@ public:
       Source object.
    */
    dynamic_match_capture(dynamic_match_capture && src) :
-      _pvt::dm_group(_std::move(src)) {
+      match(src.match),
+      group_node(src.group_node) {
+      src.match = nullptr;
+      src.group_node = nullptr;
    }
 
    /*! Move-assignment operator.
@@ -647,7 +623,10 @@ public:
       *this.
    */
    dynamic_match_capture & operator=(dynamic_match_capture && src) {
-      _pvt::dm_group::operator=(_std::move(src));
+      match = src.match;
+      group_node = src.group_node;
+      src.match = nullptr;
+      src.group_node = nullptr;
       return *this;
    }
 
@@ -658,12 +637,30 @@ public:
    */
    std::size_t begin_char_index() const;
 
+   /*! Returns the capture group inserted at the specified index in the parser state tree.
+
+   @param index
+      Capture group index.
+   @return
+      Corresponding capture group.
+   */
+   dynamic_match_capture capture_group(unsigned index) const;
+
    /*! Returns the index of the character past the end of the capture.
 
    @return
       Character index.
    */
    std::size_t end_char_index() const;
+
+   /*! Returns the repetition group inserted at the specified index in the parser state tree.
+
+   @param index
+      Repetition group index.
+   @return
+      Corresponding repetition group.
+   */
+   dynamic_match_repetition repetition_group(unsigned index) const;
 
    /*! Returns a string containing the captured portion of the matched input. The string must not be stored
    anywhere, since its buffer has the same scope as the match object.
@@ -689,8 +686,15 @@ protected:
       Pointer to the node containing data for the group.
    */
    dynamic_match_capture(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
-      _pvt::dm_group(match_, group_node_) {
+      match(match_),
+      group_node(group_node_) {
    }
+
+protected:
+   //! Pointer to the match, which contains the input offset and capture 0.
+   dynamic::match const * match;
+   //! Pointer to the node containing data for the group.
+   dynamic::_group_node const * group_node;
 };
 
 }}} //namespace lofty::text::parsers
