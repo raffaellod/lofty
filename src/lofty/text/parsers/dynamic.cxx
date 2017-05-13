@@ -323,7 +323,7 @@ dynamic_state * dynamic::create_string_state(char_t const * begin, char_t const 
 void dynamic::dump() const {
    collections::vector<dynamic_state const *> context_stack;
    auto curr_state = initial_state;
-   auto out(io::text::stdout);
+   auto out(io::text::stderr);
    while (curr_state) {
       // TODO: find a reasonable way to display alternatives.
       auto next_state = curr_state->next;
@@ -797,7 +797,7 @@ dynamic::match::~match() {
 void dynamic::match::dump() const {
    collections::vector<dynamic::_group_node const *> context_stack;
    dynamic::_group_node const * curr_group = group_node;
-   auto out(io::text::stdout);
+   auto out(io::text::stderr);
    while (curr_group) {
       // TODO: find a reasonable way to display alternatives.
       dynamic::_group_node const * next_group = curr_group->next_sibling.get();
