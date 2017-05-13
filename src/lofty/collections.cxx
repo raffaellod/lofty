@@ -20,8 +20,9 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/collections.hxx>
 #include <lofty/collections/_pvt/doubly_linked_list_impl.hxx>
 #include <lofty/collections/_pvt/singly_linked_list_impl.hxx>
-#include <lofty/type_void_adapter.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/type_void_adapter.hxx>
+#include <lofty/text/parsers/dynamic.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -489,6 +490,19 @@ void singly_linked_list_impl::pop_front(type_void_adapter const & type) {
    type.destruct(nd->value_ptr(type));
    --size_;
    delete nd;
+}
+
+}}} //namespace lofty::collections::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace collections { namespace _pvt {
+
+vector_from_text_istream::vector_from_text_istream() :
+   lofty::_pvt::sequence_from_text_istream(LOFTY_SL("\\{"), LOFTY_SL("\\}")) {
+}
+
+vector_from_text_istream::~vector_from_text_istream() {
 }
 
 }}} //namespace lofty::collections::_pvt

@@ -1576,6 +1576,78 @@ bool operator!=(
 
 namespace lofty { namespace collections { namespace _pvt {
 
+/*! Base class for the specializations of from_text_istream for vector types. Not using templates, so the
+implementation can be in a cxx file. */
+class LOFTY_SYM vector_from_text_istream : public lofty::_pvt::sequence_from_text_istream {
+public:
+   //! Default constructor.
+   vector_from_text_istream();
+
+   //! Destructor.
+   ~vector_from_text_istream();
+};
+
+}}} //namespace lofty::collections::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//! @cond
+namespace lofty {
+
+template <typename T, std::size_t embedded_capacity>
+class from_text_istream<collections::vector<T, embedded_capacity>> :
+   public collections::_pvt::vector_from_text_istream {
+private:
+   typedef collections::_pvt::vector_from_text_istream vector_from_text_istream;
+
+public:
+   /*! Converts a capture into a value of the appropriate type.
+
+   @param capture0
+      Pointer to the top-level capture.
+   @param dst
+      Pointer to the destination object.
+   */
+   void convert_capture(
+      text::parsers::dynamic_match_capture const & capture0, collections::vector<T, embedded_capacity> * dst
+   ) {
+      std::size_t count = vector_from_text_istream::captures_count(capture0);
+      dst->set_size(count);
+      for (std::size_t i = 0; i < count; ++i) {
+         auto const & elt_capture = vector_from_text_istream::capture_at(capture0, i);
+         elt_ftis.convert_capture(elt_capture, &(*dst)[static_cast<std::ptrdiff_t>(i)]);
+      }
+   }
+
+   /*! Creates parser states for the specified input format.
+
+   @param format
+      Formatting options.
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
+   */
+   text::parsers::dynamic_state const * format_to_parser_states(
+      from_text_istream_format const & format, text::parsers::dynamic * parser
+   ) {
+      auto elt_format(vector_from_text_istream::extract_elt_format(format));
+      auto elt_first_state = elt_ftis.format_to_parser_states(elt_format, parser);
+      return vector_from_text_istream::format_to_parser_states(format, parser, elt_first_state);
+   }
+
+protected:
+   //! Backend for the individual elements.
+   from_text_istream<T> elt_ftis;
+};
+
+} //namespace lofty
+//! @endcond
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace collections { namespace _pvt {
+
 /*! Base class for the specializations of to_text_ostream for vector types. Not using templates, so the
 implementation can be in a cxx file. */
 class LOFTY_SYM vector_to_text_ostream : public lofty::_pvt::sequence_to_text_ostream {

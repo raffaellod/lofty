@@ -20,6 +20,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/from_str.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
+#include <lofty/text/parsers/ere.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -355,6 +356,105 @@ text::parsers::dynamic_state * int_from_text_istream_base::create_base16_parser_
       unprefixed_base_or_shift = 4;
       return digits_cap_group;
    }
+}
+
+}} //namespace lofty::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace _pvt {
+
+struct sequence_from_text_istream::impl {
+   text::parsers::dynamic_match_capture curr_capture;
+};
+
+
+sequence_from_text_istream::sequence_from_text_istream(str const & start_delim_, str const & end_delim_) :
+   separator(LOFTY_SL(", ")),
+   start_delim(start_delim_),
+   end_delim(end_delim_),
+   pimpl(new impl()) {
+}
+
+sequence_from_text_istream::~sequence_from_text_istream() {
+}
+
+std::size_t sequence_from_text_istream::captures_count(
+   text::parsers::dynamic_match_capture const & capture0
+) const {
+   LOFTY_TRACE_FUNC(this/*, capture0*/);
+
+   std::size_t captures = capture0.repetition_group(1).size();
+   if (captures > 0) {
+      captures += capture0.repetition_group(1)[0].repetition_group(0).size();
+   }
+   return captures;
+}
+
+text::parsers::dynamic_match_capture const & sequence_from_text_istream::capture_at(
+   text::parsers::dynamic_match_capture const & capture0, std::size_t i
+) {
+   LOFTY_TRACE_FUNC(this/*, capture0*/, i);
+
+   auto all_elts_group(capture0.repetition_group(1)[0]);
+   if (i == 0) {
+      pimpl->curr_capture = all_elts_group.capture_group(0);
+   } else {
+      pimpl->curr_capture = all_elts_group.repetition_group(0)[i - 1].capture_group(0);
+   }
+   return pimpl->curr_capture;
+}
+
+from_text_istream_format sequence_from_text_istream::extract_elt_format(
+   from_text_istream_format const & format
+) {
+   LOFTY_TRACE_FUNC(this/*, format*/);
+
+   // TODO: more format validation.
+
+   from_text_istream_format ret;
+   // TODO: parse format.expr with ere::parse_capture_format() (itself a TODO).
+   ret.expr = str(external_buffer, format.expr.data(), format.expr.size());
+   return _std::move(ret);
+}
+
+static text::parsers::dynamic_state * expr_to_group(text::parsers::dynamic * parser, str const & expr) {
+   LOFTY_TRACE_FUNC(parser, expr);
+
+   text::parsers::dynamic_state * first_state;
+   if (expr) {
+      text::parsers::ere ere(parser, expr);
+      from_text_istream_format capture_format;
+      if (ere.parse_up_to_next_capture(&capture_format, &first_state) >= 0) {
+         LOFTY_THROW(text::syntax_error, (LOFTY_SL("delimiter cannot specify capturing groups"), expr));
+      }
+   } else {
+      first_state = nullptr;
+   }
+   return parser->create_repetition_group(first_state, 1, 1);
+}
+
+text::parsers::dynamic_state const * sequence_from_text_istream::format_to_parser_states(
+   from_text_istream_format const & format, text::parsers::dynamic * parser,
+   text::parsers::dynamic_state const * elt_first_state
+) {
+   LOFTY_TRACE_FUNC(this/*, format*/, parser, elt_first_state);
+
+   // TODO: more format validation.
+   LOFTY_UNUSED_ARG(format);
+
+   auto more_elt_cap_group = parser->create_capture_group(elt_first_state);
+   auto separator_first_state = expr_to_group(parser, separator);
+   separator_first_state->set_next(more_elt_cap_group);
+   auto more_elt_cap_rep_group = parser->create_repetition_group(separator_first_state, 0);
+   auto first_elt_cap_group = parser->create_capture_group(elt_first_state);
+   first_elt_cap_group->set_next(more_elt_cap_rep_group);
+   auto all_elt_rep_group = parser->create_repetition_group(first_elt_cap_group, 0, 1);
+   auto end_first_state = expr_to_group(parser, end_delim);
+   all_elt_rep_group->set_next(end_first_state);
+   auto start_first_state = expr_to_group(parser, start_delim);
+   start_first_state->set_next(all_elt_rep_group);
+   return start_first_state;
 }
 
 }} //namespace lofty::_pvt

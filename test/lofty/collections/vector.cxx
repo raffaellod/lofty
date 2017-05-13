@@ -18,6 +18,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 #include <lofty.hxx>
 #include <lofty/collections.hxx>
+#include <lofty/from_str.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <algorithm>
 #include <lofty/testing/utility.hxx>
@@ -503,6 +504,39 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       LOFTY_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
       instances_counter::reset_counts();
    }
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   from_text_istream_vector,
+   "lofty::from_text_istream – lofty::collections::vector"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   collections::vector<int> v;
+
+   LOFTY_TESTING_ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{}"))));
+   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 0u);
+
+   LOFTY_TESTING_ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{5}"))));
+   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(v[0], 5);
+
+   LOFTY_TESTING_ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{3, 50}"))));
+   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
+   LOFTY_TESTING_ASSERT_EQUAL(v[0], 3);
+   LOFTY_TESTING_ASSERT_EQUAL(v[1], 50);
+
+   LOFTY_TESTING_ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{16, 8, 4}"))));
+   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 3u);
+   LOFTY_TESTING_ASSERT_EQUAL(v[0], 16);
+   LOFTY_TESTING_ASSERT_EQUAL(v[1], 8);
+   LOFTY_TESTING_ASSERT_EQUAL(v[2], 4);
 }
 
 }} //namespace lofty::test

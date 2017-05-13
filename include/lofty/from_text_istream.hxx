@@ -355,3 +355,93 @@ LOFTY_SPECIALIZE_from_text_istream_FOR_TYPE(unsigned long long)
 #undef LOFTY_SPECIALIZE_from_text_istream_FOR_TYPE
 
 } //namespace lofty
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace _pvt {
+
+/*! Base class for the specializations of from_text_istream for sequence types. Not using templates, so the
+implementation can be in a .cxx file.
+
+In order to ensure constant indices for the repetitions and captures generated, this class will wrap the
+expressions for start, end and separators into {1} repetitions; in the end the resulting parser states will
+look like the expression “(?:start_delim){1}(?:(elt)(?:(?:separator){1}(elt))*)?(?:end_delim){1}”. */
+class LOFTY_SYM sequence_from_text_istream {
+private:
+   //! Stores members of types not defined at this point.
+   struct impl;
+
+public:
+   /*! Constructor.
+
+   @param start_delim
+      Sequence start delimiter.
+   @param end_delim
+      Sequence end delimiter.
+   */
+   sequence_from_text_istream(str const & start_delim, str const & end_delim);
+
+   //! Destructor.
+   ~sequence_from_text_istream();
+
+   /*! Returns the captured element at index i.
+
+   @param capture0
+      Top-level capture.
+   @param i
+      Index of the element to return.
+   @return
+      Capture containing the element.
+   */
+   text::parsers::dynamic_match_capture const & capture_at(
+      text::parsers::dynamic_match_capture const & capture0, std::size_t i
+   );
+
+   /*! Returns the count of captured elements.
+
+   @param capture0
+      Top-level capture.
+   @return
+      Count of captured elements.
+   */
+   std::size_t captures_count(text::parsers::dynamic_match_capture const & capture0) const;
+
+   /*! Extracts the format in which elements should be matched.
+
+   @param format
+      Format for the collection as a whole.
+   @return
+      Format for individual elements.
+   */
+   from_text_istream_format extract_elt_format(from_text_istream_format const & format);
+
+   /*! Creates parser states for the specified input format.
+
+   @param format
+      Formatting options.
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @param elt_first_state
+      Parser states that match a single element in the collection.
+   @return
+      First parser state.
+   */
+   text::parsers::dynamic_state const * format_to_parser_states(
+      from_text_istream_format const & format, text::parsers::dynamic * parser,
+      text::parsers::dynamic_state const * elt_first_state
+   );
+
+protected:
+   //! Separator to be output between elements.
+   str separator;
+   //! Sequence start delimiter.
+   str start_delim;
+   //! Sequence end delimiter.
+   str end_delim;
+
+private:
+   //! Pointer to members of complex types that would require additional files to be #included.
+   _std::unique_ptr<impl> pimpl;
+};
+
+}} //namespace lofty::_pvt
