@@ -17,6 +17,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
+#include <lofty/collections.hxx>
 #include <lofty/collections/vector.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
@@ -620,37 +621,43 @@ next_state_after_accepted:
 namespace lofty { namespace text { namespace parsers {
 
 dynamic_match_capture dynamic_match_repetition::occurrence::capture_group(unsigned index) const {
-   for (
-      dynamic::_group_node const * nested = group_node->first_nested.get();
-      nested;
-      nested = nested->next_sibling.get()
-   ) {
-      if (nested->is_capture()) {
+   LOFTY_TRACE_FUNC(this, index);
+
+   auto requested_index = static_cast<std::ptrdiff_t>(index);
+   auto first_state = first_group_node->state;
+   for (auto curr = first_group_node; curr; ) {
+      if (curr->is_capture()) {
          if (index == 0) {
-            return dynamic_match_capture(match, nested);
+            return dynamic_match_capture(match, curr);
          }
          --index;
       }
+      curr = curr->next_sibling.get();
+      if (curr->state == first_state) {
+         break;
+      }
    }
-   // TODO: throw logic_error or out_of_range.
-   return dynamic_match_capture(nullptr, nullptr);
+   LOFTY_THROW(collections::out_of_range, (requested_index, 0, requested_index - 1));
 }
 
 dynamic_match_repetition dynamic_match_repetition::occurrence::repetition_group(unsigned index) const {
-   for (
-      dynamic::_group_node const * nested = group_node->first_nested.get();
-      nested;
-      nested = nested->next_sibling.get()
-   ) {
-      if (nested->is_repetition()) {
+   LOFTY_TRACE_FUNC(this, index);
+
+   auto requested_index = static_cast<std::ptrdiff_t>(index);
+   auto first_state = first_group_node->state;
+   for (auto curr = first_group_node; curr; ) {
+      if (curr->is_repetition()) {
          if (index == 0) {
-            return dynamic_match_repetition(match, nested);
+            return dynamic_match_repetition(match, curr);
          }
          --index;
       }
+      curr = curr->next_sibling.get();
+      if (curr->state == first_state) {
+         break;
+      }
    }
-   // TODO: throw logic_error or out_of_range.
-   return dynamic_match_repetition(nullptr, nullptr);
+   LOFTY_THROW(collections::out_of_range, (requested_index, 0, requested_index - 1));
 }
 
 
@@ -662,12 +669,11 @@ dynamic_match_repetition dynamic_match_repetition::occurrence::repetition_group(
 }
 
 dynamic_match_repetition::occurrence dynamic_match_repetition::operator[](std::size_t index) const {
+   LOFTY_TRACE_FUNC(this, index);
+
+   auto requested_index = static_cast<std::ptrdiff_t>(index);
    auto first_state = group_node->first_nested->state;
-   for (
-      dynamic::_group_node const * nested = group_node->first_nested.get();
-      nested;
-      nested = nested->next_sibling.get()
-   ) {
+   for (auto nested = group_node->first_nested.get(); nested; nested = nested->next_sibling.get()) {
       if (nested->state == first_state) {
          if (index == 0) {
             return occurrence(match, nested);
@@ -675,8 +681,7 @@ dynamic_match_repetition::occurrence dynamic_match_repetition::operator[](std::s
          --index;
       }
    }
-   // TODO: throw logic_error or out_of_range.
-   return occurrence(nullptr, nullptr);
+   LOFTY_THROW(collections::out_of_range, (requested_index, 0, requested_index - 1));
 }
 
 std::size_t dynamic_match_repetition::size() const {
@@ -690,16 +695,17 @@ std::size_t dynamic_match_repetition::size() const {
 namespace lofty { namespace text { namespace parsers {
 
 std::size_t dynamic_match_capture::begin_char_index() const {
+   LOFTY_TRACE_FUNC(this);
+
    auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
    return (match ? match->begin_char_index() : 0) + capture_group_->begin;
 }
 
 dynamic_match_capture dynamic_match_capture::capture_group(unsigned index) const {
-   for (
-      dynamic::_group_node const * nested = group_node->first_nested.get();
-      nested;
-      nested = nested->next_sibling.get()
-   ) {
+   LOFTY_TRACE_FUNC(this, index);
+
+   auto requested_index = static_cast<std::ptrdiff_t>(index);
+   for (auto nested = group_node->first_nested.get(); nested; nested = nested->next_sibling.get()) {
       if (nested->is_capture()) {
          if (index == 0) {
             return dynamic_match_capture(match ? match : static_cast<dynamic::match const *>(this), nested);
@@ -707,21 +713,21 @@ dynamic_match_capture dynamic_match_capture::capture_group(unsigned index) const
          --index;
       }
    }
-   // TODO: throw logic_error or out_of_range.
-   return dynamic_match_capture(nullptr, nullptr);
+   LOFTY_THROW(collections::out_of_range, (requested_index, 0, requested_index - 1));
 }
 
 std::size_t dynamic_match_capture::end_char_index() const {
+   LOFTY_TRACE_FUNC(this);
+
    auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
    return (match ? match->begin_char_index() : 0) + capture_group_->end;
 }
 
 dynamic_match_repetition dynamic_match_capture::repetition_group(unsigned index) const {
-   for (
-      dynamic::_group_node const * nested = group_node->first_nested.get();
-      nested;
-      nested = nested->next_sibling.get()
-   ) {
+   LOFTY_TRACE_FUNC(this, index);
+
+   auto requested_index = static_cast<std::ptrdiff_t>(index);
+   for (auto nested = group_node->first_nested.get(); nested; nested = nested->next_sibling.get()) {
       if (nested->is_repetition()) {
          if (index == 0) {
             return dynamic_match_repetition(match ? match : static_cast<dynamic::match const *>(this), nested);
@@ -729,11 +735,12 @@ dynamic_match_repetition dynamic_match_capture::repetition_group(unsigned index)
          --index;
       }
    }
-   // TODO: throw logic_error or out_of_range.
-   return dynamic_match_repetition(nullptr, nullptr);
+   LOFTY_THROW(collections::out_of_range, (requested_index, 0, requested_index - 1));
 }
 
 text::str dynamic_match_capture::str() const {
+   LOFTY_TRACE_FUNC(this);
+
    char_t const * ret_begin;
    std::size_t ret_size;
    if (match) {

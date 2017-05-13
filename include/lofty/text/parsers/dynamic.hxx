@@ -527,9 +527,9 @@ public:
    */
    occurrence(occurrence && src) :
       match(src.match),
-      group_node(src.group_node) {
+      first_group_node(src.first_group_node) {
       src.match = nullptr;
-      src.group_node = nullptr;
+      src.first_group_node = nullptr;
    }
 
    /*! Move-assignment operator.
@@ -541,9 +541,9 @@ public:
    */
    occurrence & operator=(occurrence && src) {
       match = src.match;
-      group_node = src.group_node;
+      first_group_node = src.first_group_node;
       src.match = nullptr;
-      src.group_node = nullptr;
+      src.first_group_node = nullptr;
       return *this;
    }
 
@@ -570,19 +570,19 @@ protected:
 
    @param match_
       Pointer to the match, which contains the input offset and capture 0.
-   @param group_node_
-      Pointer to the node containing data for the group.
+   @param first_group_node_
+      Pointer to the node of the first repetition of the group.
    */
-   occurrence(dynamic::match const * match_, dynamic::_group_node const * group_node_) :
+   occurrence(dynamic::match const * match_, dynamic::_group_node const * first_group_node_) :
       match(match_),
-      group_node(group_node_) {
+      first_group_node(first_group_node_) {
    }
 
 protected:
    //! Pointer to the match, which contains the input offset and capture 0.
    dynamic::match const * match;
    //! Pointer to the node containing data for the group.
-   dynamic::_group_node const * group_node;
+   dynamic::_group_node const * first_group_node;
 };
 
 }}} //namespace lofty::text::parsers

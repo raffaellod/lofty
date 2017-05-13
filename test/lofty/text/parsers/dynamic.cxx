@@ -648,8 +648,8 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 }
 
 LOFTY_TESTING_TEST_CASE_FUNC(
-   text_parsers_dynamic_pattern_capturing_plus_capture_a_capture_b,
-   "lofty::text::parsers::dynamic – pattern “((a)(b))+”"
+   text_parsers_dynamic_pattern_capture_a_capture_b_plus,
+   "lofty::text::parsers::dynamic – pattern “(?:(a)(b))+”"
 ) {
    LOFTY_TRACE_FUNC(this);
 
@@ -657,12 +657,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, nullptr, 'a');
    LOFTY_TEXT_PARSERS_DYNAMIC_CAPTURE_GROUP(b_cap_group, nullptr, nullptr, &b_state.base);
    LOFTY_TEXT_PARSERS_DYNAMIC_CAPTURE_GROUP(a_cap_group, &b_cap_group.base, nullptr, &a_state.base);
-   LOFTY_TEXT_PARSERS_DYNAMIC_CAPTURE_GROUP(a_or_b_cap_group, nullptr, nullptr, &a_cap_group.base);
-   LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(
-      a_or_b_rep_group, nullptr, nullptr, &a_or_b_cap_group.base, 1
-   );
+   LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(a_b_rep_group, nullptr, nullptr, &a_cap_group.base, 1);
    text::parsers::dynamic parser;
-   parser.set_initial_state(&a_or_b_rep_group.base);
+   parser.set_initial_state(&a_b_rep_group.base);
 
    text::parsers::dynamic::match match;
    LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
