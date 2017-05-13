@@ -25,16 +25,6 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace _pvt {
-
-void throw_after_from_str_parse_failed(str const & src) {
-   /* TODO: with a fair bit of work, parsers::dynamic could be modified to track the farthest character index
-   it could parse successfully. */
-   LOFTY_THROW(text::syntax_error, (LOFTY_SL("malformed input"), src, 0));
-}
-
-}} //namespace lofty::_pvt
-
 namespace lofty {
 
 void throw_on_unused_streaming_format_chars(

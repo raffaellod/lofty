@@ -20,8 +20,10 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/bitmanip.hxx>
 #include <lofty/byte_order.hxx>
 #include <lofty/destructing_unfinalized_object.hxx>
+#include <lofty/from_str.hxx>
 #include <lofty/math.hxx>
 #include <lofty/text.hxx>
+#include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/type_void_adapter.hxx>
 
 #include <cstdlib> // std::abort() std::free() std::malloc() std::realloc()
@@ -215,6 +217,54 @@ void enum_to_text_ostream_impl::write_impl(int i, enum_member const * members, i
 
    auto member = enum_member::find_in_map(members, i);
    dst->write(str(external_buffer, member->name));
+}
+
+}} //namespace lofty::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace _pvt {
+
+struct from_str_helper::impl {
+   from_text_istream_format format;
+   text::parsers::dynamic parser;
+   text::parsers::dynamic::match match;
+   text::parsers::dynamic_match_capture t_capture;
+};
+
+
+from_str_helper::from_str_helper() :
+   pimpl(new impl()),
+   parser(&pimpl->parser) {
+}
+
+from_str_helper::~from_str_helper() {
+}
+
+text::parsers::dynamic_match_capture const & from_str_helper::parse_src(
+   str const & src, text::parsers::dynamic_state const * t_first_state
+) {
+   auto end_state = parser->create_end_state();
+   auto t_cap_state = parser->create_capture_group(t_first_state);
+   t_cap_state->set_next(end_state);
+   auto begin_state = parser->create_begin_state();
+   begin_state->set_next(t_cap_state);
+   parser->set_initial_state(begin_state);
+
+   pimpl->match = parser->run(src);
+   if (!pimpl->match) {
+      /* TODO: with a fair bit of work, parsers::dynamic could be modified to track the farthest code point
+      index it could parse successfully. */
+      LOFTY_THROW(text::syntax_error, (LOFTY_SL("malformed input"), src, 0));
+   }
+   pimpl->t_capture = pimpl->match.capture_group(0);
+   return pimpl->t_capture;
+}
+
+from_text_istream_format const & from_str_helper::parse_format_expr(str const & format_expr) {
+   pimpl->format.expr = str(external_buffer, format_expr.data(), format_expr.size());
+   // TODO: more format parsing.
+   return pimpl->format;
 }
 
 }} //namespace lofty::_pvt

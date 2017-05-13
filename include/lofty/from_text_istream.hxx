@@ -54,6 +54,7 @@ template <typename T>
 class from_text_istream;
 
 struct from_text_istream_format {
+   //! Free-text expression, in a syntax dependent on the type (e.g. regex for lofty::text::str).
    str expr;
 };
 

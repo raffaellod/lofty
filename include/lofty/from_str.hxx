@@ -26,20 +26,55 @@ You should have received a copy of the GNU Lesser General Public License along w
    #pragma once
 #endif
 
-#include <lofty/text/parsers/dynamic.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _pvt {
 
-/*! Throws a lofty::text::syntax_error after a call to lofty::from_str() failed to perform the requested
-conversion.
+//! Helper to reduce the amount of templated code generated for each from_str() call.
+class LOFTY_SYM from_str_helper {
+private:
+   //! Stores members of types not defined at this point.
+   struct impl;
 
-@param src
-   Source string that could not be converted.
-*/
-LOFTY_SYM void LOFTY_FUNC_NORETURN throw_after_from_str_parse_failed(str const & src);
+public:
+   //! Default constructor.
+   from_str_helper();
+
+   //! Destructor.
+   ~from_str_helper();
+
+   /*! Parses a string into a from_text_istream_format instance.
+
+   @param format_expr
+      Type-specific format expression.
+   @return
+      Formatting options.
+   */
+   from_text_istream_format const & parse_format_expr(str const & format_expr);
+
+   /*! Runs the parser, and returns the match containing the read object, if matched, or throws an exception
+   if not.
+
+   @param src
+      Source string.
+   @param t_first_state
+      Pointer to the first state accepting the type to parse.
+   @return
+      Reference to the capture containing input matched by *t_first_state.
+   */
+   text::parsers::dynamic_match_capture const & parse_src(
+      str const & src, text::parsers::dynamic_state const * t_first_state
+   );
+
+private:
+   //! Pointer to members of complex types that would require additional files to be #included.
+   _std::unique_ptr<impl> pimpl;
+
+public:
+   //! Pointer to the parser in *pimpl. Having it here avoids one extra function call in from_str() to get it.
+   text::parsers::dynamic * const parser;
+};
 
 }} //namespace lofty::_pvt
 
@@ -53,31 +88,18 @@ convenient syntax than just taking from_text_istream_format const & .
 @param s
    String to reconstruct into an object.
 @param format_expr
-   Type-specific format string expression.
+   Type-specific format expression.
 @return
    Object reconstructed from s according to format.
 */
 template <typename T>
-inline T from_str(str const & src, str format_expr = str::empty) {
-   // TODO: way too much templated code in here; please de-template most of it!
-   text::parsers::dynamic parser;
+inline T from_str(str const & src, str const & format_expr = str::empty) {
    from_text_istream<T> ftis;
-   from_text_istream_format format;
-   format.expr = _std::move(format_expr);
-   auto format_first = ftis.format_to_parser_states(format, &parser);
-   auto end = parser.create_end_state();
-   auto capture1 = parser.create_capture_group(format_first);
-   capture1->set_next(end);
-   auto begin = parser.create_begin_state();
-   begin->set_next(capture1);
-   parser.set_initial_state(begin);
-
-   auto match(parser.run(src));
-   if (!match) {
-      _pvt::throw_after_from_str_parse_failed(src);
-   }
+   _pvt::from_str_helper helper;
    T ret;
-   ftis.convert_capture(match.capture_group(0), &ret);
+   ftis.convert_capture(helper.parse_src(src, ftis.format_to_parser_states(
+      helper.parse_format_expr(format_expr), helper.parser
+   )), &ret);
    return _std::move(ret);
 }
 

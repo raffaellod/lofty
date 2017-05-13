@@ -17,9 +17,10 @@ You should have received a copy of the GNU Lesser General Public License along w
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
-#include <lofty/testing/test_case.hxx>
 #include <lofty/from_str.hxx>
+#include <lofty/testing/test_case.hxx>
 #include <lofty/text.hxx>
+#include <lofty/text/parsers/dynamic.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
