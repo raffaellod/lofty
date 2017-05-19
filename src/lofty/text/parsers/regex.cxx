@@ -88,112 +88,6 @@ void regex::insert_capture_group(dynamic_state const * first_state) {
    push_state(parser->create_capture_group(first_state));
 }
 
-int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynamic_state ** first_state) {
-   LOFTY_TRACE_FUNC(this, capture_format, first_state);
-
-   bool escape = false;
-   while (expr_itr != expr_end) {
-      char32_t cp = *expr_itr++;
-      if (escape) {
-         escape = false;
-         goto escaped;
-      }
-      switch (cp) {
-         case '.':
-            push_state(parser->create_code_point_range_state(0x000000, 0xffffff));
-            break;
-         case '[':
-            if (expr_itr >= expr_end) {
-               throw_syntax_error(LOFTY_SL("unexpected end of bracket expression"));
-            }
-            subexpr_stack.push_back(subexpression());
-            if (*expr_itr == '^') {
-               if (++expr_itr >= expr_end) {
-                  throw_syntax_error(LOFTY_SL("unexpected end of negative bracket expression"));
-               }
-               parse_negative_bracket_expression();
-            } else {
-               parse_positive_bracket_expression();
-            }
-            end_subexpr = true;
-            break;
-         case '\\':
-            escape = true;
-            break;
-         case '(': {
-            if (expr_itr >= expr_end) {
-               throw_syntax_error(LOFTY_SL("unexpected end of group"));
-            }
-            if (*expr_itr != '?') {
-               if (capture_format) {
-                  extract_capture(capture_format);
-                  return static_cast<int>(next_capture_index++);
-               } else {
-                  /* The caller is not interested in receiving the capture’s format; just report that we found
-                  a capture. */
-                  return 0;
-               }
-            }
-            ++expr_itr;
-            if (expr_itr >= expr_end) {
-               throw_syntax_error(LOFTY_SL("unexpected end of non-capturing group"));
-            }
-            if (*expr_itr == ':') {
-               ++expr_itr;
-               enter_rep_group = true;
-            } else {
-               throw_syntax_error(LOFTY_SL("unsupported non-capturing group type"));
-            }
-            break;
-         }
-         case ')':
-            end_subexpr = true;
-            break;
-         case '*':
-            set_curr_state_repetitions(0, 0);
-            break;
-         case '+':
-            set_curr_state_repetitions(1, 0);
-            break;
-         case '?':
-            set_curr_state_repetitions(0, 1);
-            break;
-         case '{': {
-            auto range(parse_repetition_range());
-            set_curr_state_repetitions(_std::get<0>(range), _std::get<1>(range));
-            break;
-         }
-         case '|':
-            begin_alternative = true;
-            break;
-         case '^':
-            push_state(parser->create_begin_state());
-            break;
-         case '$':
-            push_state(parser->create_end_state());
-            break;
-         default:
-         escaped:
-            push_state(parser->create_code_point_state(cp));
-            break;
-      }
-   }
-   if (subexpr_stack.size() != 1) {
-      throw_syntax_error(LOFTY_SL("mismatched parentheses"));
-   }
-   *first_state = subexpr_stack.front().first_state;
-   // No need to terminate the last subexpression; it should be already nullptr-terminated.
-   subexpr_stack.clear();
-   return -1;
-}
-
-void regex::throw_syntax_error(str const & description) const {
-   LOFTY_THROW(syntax_error, (
-      // +1 because the first character is 1, to human beings.
-      description, expr, static_cast<unsigned>(expr_itr - expr.cbegin() + 1)
-   ));
-}
-
 void regex::extract_capture(regex_capture_format * format) {
    LOFTY_TRACE_FUNC(this, format);
 
@@ -353,6 +247,105 @@ _std::tuple<std::uint16_t, std::uint16_t> regex::parse_repetition_range() {
    return _std::make_tuple(begin, end);
 }
 
+int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynamic_state ** first_state) {
+   LOFTY_TRACE_FUNC(this, capture_format, first_state);
+
+   bool escape = false;
+   while (expr_itr != expr_end) {
+      char32_t cp = *expr_itr++;
+      if (escape) {
+         escape = false;
+         goto escaped;
+      }
+      switch (cp) {
+         case '.':
+            push_state(parser->create_code_point_range_state(0x000000, 0xffffff));
+            break;
+         case '[':
+            if (expr_itr >= expr_end) {
+               throw_syntax_error(LOFTY_SL("unexpected end of bracket expression"));
+            }
+            subexpr_stack.push_back(subexpression());
+            if (*expr_itr == '^') {
+               if (++expr_itr >= expr_end) {
+                  throw_syntax_error(LOFTY_SL("unexpected end of negative bracket expression"));
+               }
+               parse_negative_bracket_expression();
+            } else {
+               parse_positive_bracket_expression();
+            }
+            end_subexpr = true;
+            break;
+         case '\\':
+            escape = true;
+            break;
+         case '(': {
+            if (expr_itr >= expr_end) {
+               throw_syntax_error(LOFTY_SL("unexpected end of group"));
+            }
+            if (*expr_itr != '?') {
+               if (capture_format) {
+                  extract_capture(capture_format);
+                  return static_cast<int>(next_capture_index++);
+               } else {
+                  /* The caller is not interested in receiving the capture’s format; just report that we found
+                  a capture. */
+                  return 0;
+               }
+            }
+            ++expr_itr;
+            if (expr_itr >= expr_end) {
+               throw_syntax_error(LOFTY_SL("unexpected end of non-capturing group"));
+            }
+            if (*expr_itr == ':') {
+               ++expr_itr;
+               enter_rep_group = true;
+            } else {
+               throw_syntax_error(LOFTY_SL("unsupported non-capturing group type"));
+            }
+            break;
+         }
+         case ')':
+            end_subexpr = true;
+            break;
+         case '*':
+            set_curr_state_repetitions(0, 0);
+            break;
+         case '+':
+            set_curr_state_repetitions(1, 0);
+            break;
+         case '?':
+            set_curr_state_repetitions(0, 1);
+            break;
+         case '{': {
+            auto range(parse_repetition_range());
+            set_curr_state_repetitions(_std::get<0>(range), _std::get<1>(range));
+            break;
+         }
+         case '|':
+            begin_alternative = true;
+            break;
+         case '^':
+            push_state(parser->create_begin_state());
+            break;
+         case '$':
+            push_state(parser->create_end_state());
+            break;
+         default:
+         escaped:
+            push_state(parser->create_code_point_state(cp));
+            break;
+      }
+   }
+   if (subexpr_stack.size() != 1) {
+      throw_syntax_error(LOFTY_SL("mismatched parentheses"));
+   }
+   *first_state = subexpr_stack.front().first_state;
+   // No need to terminate the last subexpression; it should be already nullptr-terminated.
+   subexpr_stack.clear();
+   return -1;
+}
+
 dynamic_state * regex::parse_with_no_captures() {
    dynamic_state * ret;
    if (parse_up_to_next_capture(nullptr, &ret) >= 0) {
@@ -419,6 +412,13 @@ void regex::set_curr_state_repetitions(std::uint16_t min, std::uint16_t max) {
       }
       curr_subexpr.curr_state = repetition_group;
    }
+}
+
+void regex::throw_syntax_error(str const & description) const {
+   LOFTY_THROW(syntax_error, (
+      // +1 because the first character is 1, to human beings.
+      description, expr, static_cast<unsigned>(expr_itr - expr.cbegin() + 1)
+   ));
 }
 
 }}} //namespace lofty::text::parsers
