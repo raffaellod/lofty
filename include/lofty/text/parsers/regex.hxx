@@ -33,30 +33,65 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 namespace lofty { namespace text { namespace parsers {
 
-class regex_capture_format : public noncopyable {
+class LOFTY_SYM regex_capture_format : public noncopyable {
+public:
+   struct var_pair {
+      text::str name;
+      text::str value;
+   };
+
+public:
+   //! Default constructor.
+   regex_capture_format();
+
+   //! Destructor.
+   ~regex_capture_format();
+
 public:
    //! Free-text expression, in a syntax dependent on the type (e.g. regex for lofty::text::str).
    str expr;
+   //! List of format variables specified in the capture.
+   collections::vector<var_pair> vars;
 };
+
+}}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace text { namespace parsers {
 
 /*! Parses regular expressions with a syntax similar to POSIX Extended Regular Expression and Perl’s regular
 expressions, generating a tree of states that will have the specified next state. The expression string must
 remain accessible for the lifetime of the dynamic::parser instance.
 
-The biggest difference between this class and other ERE/PCRE implementations is that capturing groups
-specified with just “(…)” are to be parsed by the clients of this class.
+Notable differences between this and ERE/PCRE implementations:
+
+•  Quantified capturing groups (“(…)?”, “(…)+”, etc) are parsed as a non-capturing group with a quantifier,
+   containing a capturing group (“(?:(…))?”, “(?:(…))+”, etc); this makes sense considering how capture groups
+   are accessed via lofty::text::parsers::dynamic::match.
+
+•  Capturing groups (“(…)”, as opposed to non-capturing groups “(?:…)” are to be parsed by the client.
+
+At the start of a capturing group, one or more format variables may be set using this syntax:
+
+   (?.first='one',second='two';…)
+
+This will cause the parser to make the variables “first” and “second” available to the client, with values
+of “one” and “two” respectively. The rest of the capture group (“…”) will be made available as the format for
+the group. Capture group format variables must have strictly alphanumeric names ([A-Za-z][0-9A-Za-z]*).
 
 TODO: (?D) for debugging (e.g. dump tree to stderr).
 
 Current limitations:
 •  Ranges are expected to be sorted (e.g. [ACGT], not [TAGC]);
+•  Character classes are not yet supported;
+•  The non-greedy modifier (“…*?”, “…+?”, etc) is not yet supported;
 •  Backreferences are not yet supported.
 
 For compatibility with Python’s re module, these special groups shall not be used unless to implement
 functionality identical to that of Python’s re module:
 
 •  (…)
-•  (?…)
 •  (?aiLmsux)
 •  (?:…)
 •  (?P<name>…)
@@ -168,15 +203,17 @@ public:
    dynamic_state * parse_with_no_captures();
 
 private:
-   /*! Parses the contents of a capture group (i.e. the “…” in a “(…)”).
-
-   @param format
-      Pointer to an object that will receive the contents of the group.
-   */
-   void extract_capture(regex_capture_format * format);
-
    //! Throws a lofty::text::syntax_error for the current position in the expression (expr_itr).
    void throw_syntax_error(str const & description) const;
+
+   /*! Parses the contents of a group (i.e. the “…” in a “(…)”).
+
+   @param format
+      Pointer to an object that will receive the contents of the group, if it’s capturing.
+   @return
+      A 0-based capture group index, or -1 if the group is non-capturing.
+   */
+   int parse_group(regex_capture_format * format);
 
    //! Parses the contents of a negative bracket expression (i.e. the “…” in a “[^…]”).
    void parse_negative_bracket_expression();

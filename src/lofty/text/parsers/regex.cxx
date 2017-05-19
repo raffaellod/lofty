@@ -26,6 +26,18 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 namespace lofty { namespace text { namespace parsers {
 
+regex_capture_format::regex_capture_format() {
+}
+
+regex_capture_format::~regex_capture_format() {
+}
+
+}}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace text { namespace parsers {
+
 regex::subexpression::subexpression() :
    first_state(nullptr),
    curr_alternative_first_state(nullptr),
@@ -88,8 +100,84 @@ void regex::insert_capture_group(dynamic_state const * first_state) {
    push_state(parser->create_capture_group(first_state));
 }
 
-void regex::extract_capture(regex_capture_format * format) {
-   LOFTY_TRACE_FUNC(this, format);
+int regex::parse_group(regex_capture_format * capture_format) {
+   LOFTY_TRACE_FUNC(this, capture_format);
+
+   if (expr_itr >= expr_end) {
+      throw_syntax_error(LOFTY_SL("unexpected end of group"));
+   }
+   if (*expr_itr == '?') {
+      ++expr_itr;
+      if (expr_itr >= expr_end) {
+         throw_syntax_error(LOFTY_SL("unexpected end of group modifier"));
+      }
+      switch (*expr_itr) {
+         case ':':
+            ++expr_itr;
+            enter_rep_group = true;
+            return -1;
+         case '.': {
+            // We have a format variable assignment.
+            if (!capture_format) {
+               // The client just wants to make sure there are no capturing groups; report that we found one.
+               return 0;
+            }
+            do {
+               regex_capture_format::var_pair var;
+               ++expr_itr;
+               auto itr(expr.find('=', expr_itr));
+               if (itr >= expr_end) {
+                  throw_syntax_error(LOFTY_SL("expected “=” for “?.var='value';” group modifier"));
+               }
+               var.name = str(external_buffer, expr_itr.ptr(), itr.char_index() - expr_itr.char_index());
+               expr_itr = ++itr;
+               if (expr_itr >= expr_end) {
+                  throw_syntax_error(LOFTY_SL("unexpected end of “?.var='value';” group modifier"));
+               }
+               if (*expr_itr != '\'') {
+                  throw_syntax_error(
+                     LOFTY_SL("expected single quote for value of “?.var='value';” group modifier")
+                  );
+               }
+               ++expr_itr;
+               bool escape = false;
+               while (expr_itr != expr_end) {
+                  char32_t cp = *expr_itr++;
+                  if (escape) {
+                     var.value += cp;
+                     escape = false;
+                  } else {
+                     if (cp == '\\') {
+                        escape = true;
+                     } else if (cp == '\'') {
+                        break;
+                     }
+                  }
+               }
+               if (expr_itr == expr_end) {
+                  throw_syntax_error(
+                     LOFTY_SL("unexpected end of “?.var='value';” group modifier")
+                  );
+               }
+               capture_format->vars.push_back(_std::move(var));
+            } while (*expr_itr == ',');
+            if (*expr_itr != ';') {
+               throw_syntax_error(
+                  LOFTY_SL("expected “,” or “;” after value of “?.var='value';” group modifier")
+               );
+            }
+            ++expr_itr;
+            break;
+         }
+         default:
+            throw_syntax_error(LOFTY_SL("unsupported group modifier"));
+            break;
+      }
+   }
+   if (!capture_format) {
+      // The client just wants to make sure there are no capturing groups; report that we found one.
+      return 0;
+   }
 
    if (expr_itr != expr_end) {
       // The capture specifies a format expression.
@@ -110,9 +198,9 @@ void regex::extract_capture(regex_capture_format * format) {
       if (expr_itr == expr_end) {
          throw_syntax_error(LOFTY_SL("unterminated capturing group"));
       }
-      format->expr = str(external_buffer, expr_begin.ptr(), expr_itr.char_index() - expr_begin.char_index());
+      capture_format->expr = str(external_buffer, expr_begin.ptr(), expr_itr.char_index() - expr_begin.char_index());
    } else {
-      format->expr.clear();
+      capture_format->expr.clear();
    }
 
    if (expr_itr == expr_end || *expr_itr != ')') {
@@ -120,6 +208,8 @@ void regex::extract_capture(regex_capture_format * format) {
    }
    // Also consume the last parenthesis, so it won’t trigger end_subexpr in parse_up_to_next_capture().
    ++expr_itr;
+
+   return static_cast<int>(next_capture_index++);
 }
 
 void regex::parse_negative_bracket_expression() {
@@ -280,28 +370,9 @@ int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynam
             escape = true;
             break;
          case '(': {
-            if (expr_itr >= expr_end) {
-               throw_syntax_error(LOFTY_SL("unexpected end of group"));
-            }
-            if (*expr_itr != '?') {
-               if (capture_format) {
-                  extract_capture(capture_format);
-                  return static_cast<int>(next_capture_index++);
-               } else {
-                  /* The caller is not interested in receiving the capture’s format; just report that we found
-                  a capture. */
-                  return 0;
-               }
-            }
-            ++expr_itr;
-            if (expr_itr >= expr_end) {
-               throw_syntax_error(LOFTY_SL("unexpected end of non-capturing group"));
-            }
-            if (*expr_itr == ':') {
-               ++expr_itr;
-               enter_rep_group = true;
-            } else {
-               throw_syntax_error(LOFTY_SL("unsupported non-capturing group type"));
+            auto capture_index = parse_group(capture_format);
+            if (capture_index >= 0) {
+               return capture_index;
             }
             break;
          }
