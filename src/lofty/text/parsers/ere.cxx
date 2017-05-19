@@ -88,7 +88,7 @@ void ere::insert_capture_group(dynamic_state const * first_state) {
    push_state(parser->create_capture_group(first_state));
 }
 
-int ere::parse_up_to_next_capture(from_text_istream_format * capture_format, dynamic_state ** first_state) {
+int ere::parse_up_to_next_capture(ere_capture_format * capture_format, dynamic_state ** first_state) {
    LOFTY_TRACE_FUNC(this, capture_format, first_state);
 
    bool escape = false;
@@ -125,8 +125,14 @@ int ere::parse_up_to_next_capture(from_text_istream_format * capture_format, dyn
                throw_syntax_error(LOFTY_SL("unexpected end of group"));
             }
             if (*expr_itr != '?') {
-               extract_capture(capture_format);
-               return static_cast<int>(next_capture_index++);
+               if (capture_format) {
+                  extract_capture(capture_format);
+                  return static_cast<int>(next_capture_index++);
+               } else {
+                  /* The caller is not interested in receiving the capture’s format; just report that we found
+                  a capture. */
+                  return 0;
+               }
             }
             ++expr_itr;
             if (expr_itr >= expr_end) {
@@ -188,7 +194,7 @@ void ere::throw_syntax_error(str const & description) const {
    ));
 }
 
-void ere::extract_capture(from_text_istream_format * format) {
+void ere::extract_capture(ere_capture_format * format) {
    LOFTY_TRACE_FUNC(this, format);
 
    if (expr_itr != expr_end) {
@@ -345,6 +351,14 @@ _std::tuple<std::uint16_t, std::uint16_t> ere::parse_repetition_range() {
    // Consume the closing “}”.
    ++expr_itr;
    return _std::make_tuple(begin, end);
+}
+
+dynamic_state * ere::parse_with_no_captures() {
+   dynamic_state * ret;
+   if (parse_up_to_next_capture(nullptr, &ret) >= 0) {
+      throw_syntax_error(LOFTY_SL("capturing groups not supported in this expression"));
+   }
+   return ret;
 }
 
 void ere::push_state(dynamic_state * next_state) {

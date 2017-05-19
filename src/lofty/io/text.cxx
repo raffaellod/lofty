@@ -298,6 +298,8 @@ namespace lofty { namespace io { namespace text { namespace _pvt {
 struct istream_scan_helper_impl::impl {
    lofty::text::parsers::dynamic parser;
    lofty::text::parsers::ere ere;
+   //! Current capture format, maintained by parse_up_to_next_capture().
+   lofty::text::parsers::ere_capture_format curr_capture_format;
    lofty::text::parsers::dynamic::match match;
    lofty::text::parsers::dynamic_match_capture curr_capture_group;
 
@@ -312,6 +314,10 @@ istream_scan_helper_impl::istream_scan_helper_impl(class istream * istream_, str
 }
 
 istream_scan_helper_impl::~istream_scan_helper_impl() {
+}
+
+lofty::text::parsers::ere_capture_format const & istream_scan_helper_impl::curr_capture_format() const {
+   return pimpl->curr_capture_format;
 }
 
 void istream_scan_helper_impl::insert_capture_group(lofty::text::parsers::dynamic_state const * first_state) {
@@ -331,7 +337,7 @@ lofty::text::parsers::dynamic * istream_scan_helper_impl::parser_ptr() {
 
 int istream_scan_helper_impl::parse_up_to_next_capture() {
    lofty::text::parsers::dynamic_state * first_state;
-   int ret = pimpl->ere.parse_up_to_next_capture(&curr_capture_format, &first_state);
+   int ret = pimpl->ere.parse_up_to_next_capture(&pimpl->curr_capture_format, &first_state);
    if (ret < 0) {
       pimpl->parser.set_initial_state(first_state);
    }

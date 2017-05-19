@@ -53,11 +53,6 @@ lofty::io::text::istream::scan(). */
 template <typename T>
 class from_text_istream;
 
-struct from_text_istream_format {
-   //! Free-text expression, in a syntax dependent on the type (e.g. regex for lofty::text::str).
-   str expr;
-};
-
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +85,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      from_text_istream_format const & format, text::parsers::dynamic * parser
+      text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
    );
 
 protected:
@@ -126,7 +121,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      from_text_istream_format const & format, text::parsers::dynamic * parser
+      text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
    );
 
 protected:
@@ -414,7 +409,9 @@ public:
    @return
       Format for individual elements.
    */
-   from_text_istream_format extract_elt_format(from_text_istream_format const & format);
+   text::parsers::ere_capture_format const & extract_elt_format(
+      text::parsers::ere_capture_format const & format
+   );
 
    /*! Creates parser states for the specified input format.
 
@@ -428,7 +425,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      from_text_istream_format const & format, text::parsers::dynamic * parser,
+      text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser,
       text::parsers::dynamic_state const * elt_first_state
    );
 

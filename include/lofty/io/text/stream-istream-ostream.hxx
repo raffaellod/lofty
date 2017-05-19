@@ -553,6 +553,8 @@ public:
    bool run();
 
 protected:
+   lofty::text::parsers::ere_capture_format const & curr_capture_format() const;
+
    /*! Wrapper for pimpl->ere.insert_capture_group().
 
    @param first_state
@@ -588,10 +590,6 @@ protected:
    /*! Throws an instance of lofty::collections::out_of_range, providing the invalid replacement index found
    in the format string. */
    LOFTY_FUNC_NORETURN void throw_collections_out_of_range();
-
-protected:
-   //! Current capture format, maintained by parse_up_to_next_capture().
-   from_text_istream_format curr_capture_format;
 
 private:
    //! Pointer to the source stream.
@@ -721,7 +719,7 @@ protected:
    //! See istream_scan_helper<>::format_to_parser_states().
    lofty::text::parsers::dynamic_state const * format_to_parser_states(unsigned arg_index) {
       if (arg_index == 0) {
-         return ftis.format_to_parser_states(helper_base::curr_capture_format, helper_base::parser_ptr());
+         return ftis.format_to_parser_states(helper_base::curr_capture_format(), helper_base::parser_ptr());
       } else {
          // Recurse to the previous level.
          return helper_base::format_to_parser_states(arg_index - 1);
@@ -896,7 +894,7 @@ protected:
    //! See istream_scan_helper<>::format_to_parser_states().
    lofty::text::parsers::dynamic_state const * format_to_parser_states(unsigned arg_index) {
       if (arg_index == 0) {
-         return ftis.format_to_parser_states(helper_base::curr_capture_format, helper_base::parser_ptr());
+         return ftis.format_to_parser_states(helper_base::curr_capture_format(), helper_base::parser_ptr());
       } else {
          // Recurse to the previous level.
          return helper_base::format_to_parser_states(arg_index - 1);

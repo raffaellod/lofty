@@ -24,6 +24,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/math.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
+#include <lofty/text/parsers/ere.hxx>
 #include <lofty/type_void_adapter.hxx>
 
 #include <cstdlib> // std::abort() std::free() std::malloc() std::realloc()
@@ -226,7 +227,7 @@ void enum_to_text_ostream_impl::write_impl(int i, enum_member const * members, i
 namespace lofty { namespace _pvt {
 
 struct from_str_helper::impl {
-   from_text_istream_format format;
+   text::parsers::ere_capture_format format;
    text::parsers::dynamic parser;
    text::parsers::dynamic::match match;
    text::parsers::dynamic_match_capture t_capture;
@@ -261,9 +262,9 @@ text::parsers::dynamic_match_capture const & from_str_helper::parse_src(
    return pimpl->t_capture;
 }
 
-from_text_istream_format const & from_str_helper::parse_format_expr(str const & format_expr) {
+text::parsers::ere_capture_format const & from_str_helper::parse_format_expr(str const & format_expr) {
+   // TODO: parse format_expr with ere::parse_capture_format() (itself a TODO).
    pimpl->format.expr = str(external_buffer, format_expr.data(), format_expr.size());
-   // TODO: more format parsing.
    return pimpl->format;
 }
 

@@ -44,14 +44,14 @@ public:
    //! Destructor.
    ~from_str_helper();
 
-   /*! Parses a string into a from_text_istream_format instance.
+   /*! Parses a string into an ere_capture_format instance.
 
    @param format_expr
       Type-specific format expression.
    @return
       Formatting options.
    */
-   from_text_istream_format const & parse_format_expr(str const & format_expr);
+   text::parsers::ere_capture_format const & parse_format_expr(str const & format_expr);
 
    /*! Runs the parser, and returns the match containing the read object, if matched, or throws an exception
    if not.
@@ -82,8 +82,8 @@ namespace lofty {
 
 /*! Returns an object constructed from its string representation, optionally with a custom format.
 
-TODO: needs an overload that allows to specify a full from_text_istream_format instance, probably in a more
-convenient syntax than just taking from_text_istream_format const & .
+TODO: needs an overload that allows to specify a full ere_capture_format instance, probably in a more
+convenient syntax than just taking ere_capture_format const & .
 
 @param s
    String to reconstruct into an object.

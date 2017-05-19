@@ -519,6 +519,7 @@ using text::sstr;
 
 namespace lofty { namespace text { namespace parsers {
 
+class ere_capture_format;
 class dynamic;
 struct dynamic_state;
 class dynamic_match_capture;
