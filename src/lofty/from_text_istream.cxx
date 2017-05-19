@@ -20,7 +20,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/from_str.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
-#include <lofty/text/parsers/ere.hxx>
+#include <lofty/text/parsers/regex.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ void from_text_istream<bool>::convert_capture(
 }
 
 text::parsers::dynamic_state const * from_text_istream<bool>::format_to_parser_states(
-   text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
+   text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
 ) {
    LOFTY_TRACE_FUNC(this/*, format*/, parser);
 
@@ -189,7 +189,7 @@ void int_from_text_istream_base::convert_capture_u16(
 #endif //if LOFTY_HOST_WORD_SIZE < 64
 
 text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parser_states(
-   text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
+   text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
 ) {
    LOFTY_TRACE_FUNC(this/*, format*/, parser);
 
@@ -356,7 +356,7 @@ namespace lofty { namespace _pvt {
 
 struct sequence_from_text_istream::impl {
    text::parsers::dynamic_match_capture curr_capture;
-   text::parsers::ere_capture_format elt_format;
+   text::parsers::regex_capture_format elt_format;
 };
 
 
@@ -396,14 +396,14 @@ text::parsers::dynamic_match_capture const & sequence_from_text_istream::capture
    return pimpl->curr_capture;
 }
 
-text::parsers::ere_capture_format const & sequence_from_text_istream::extract_elt_format(
-   text::parsers::ere_capture_format const & format
+text::parsers::regex_capture_format const & sequence_from_text_istream::extract_elt_format(
+   text::parsers::regex_capture_format const & format
 ) {
    LOFTY_TRACE_FUNC(this/*, format*/);
 
    // TODO: more format validation.
 
-   // TODO: parse format.expr with ere::parse_capture_format() (itself a TODO).
+   // TODO: parse format.expr with regex::parse_capture_format() (itself a TODO).
    pimpl->elt_format.expr = str(external_buffer, format.expr.data(), format.expr.size());
    return pimpl->elt_format;
 }
@@ -413,8 +413,8 @@ static text::parsers::dynamic_state * expr_to_group(text::parsers::dynamic * par
 
    text::parsers::dynamic_state * first_state;
    if (expr) {
-      text::parsers::ere ere(parser, expr);
-      first_state = ere.parse_with_no_captures();
+      text::parsers::regex regex(parser, expr);
+      first_state = regex.parse_with_no_captures();
    } else {
       first_state = nullptr;
    }
@@ -422,7 +422,7 @@ static text::parsers::dynamic_state * expr_to_group(text::parsers::dynamic * par
 }
 
 text::parsers::dynamic_state const * sequence_from_text_istream::format_to_parser_states(
-   text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser,
+   text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser,
    text::parsers::dynamic_state const * elt_first_state
 ) {
    LOFTY_TRACE_FUNC(this/*, format*/, parser, elt_first_state);

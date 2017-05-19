@@ -33,7 +33,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 namespace lofty { namespace text { namespace parsers {
 
-class ere_capture_format : public noncopyable {
+class regex_capture_format : public noncopyable {
 public:
    //! Free-text expression, in a syntax dependent on the type (e.g. regex for lofty::text::str).
    str expr;
@@ -71,7 +71,7 @@ functionality identical to that of Python’s re module:
 See also Python’s re module: <https://docs.python.org/3.5/library/re.html>.
 See also POSIX ERE: <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html>.
 */
-class LOFTY_SYM ere : public noncopyable {
+class LOFTY_SYM regex : public noncopyable {
 private:
    /*! References one or more states owned by a dynamic parser, allowing for easy concatenation of multiple
    expressions. */
@@ -121,10 +121,10 @@ public:
    @param expr_
       Expression to parse.
    */
-   ere(dynamic * parser_, str const & expr_);
+   regex(dynamic * parser_, str const & expr_);
 
    //! Destructor.
-   ~ere();
+   ~regex();
 
    /*! Returns the highest capture group index, equivalent to the count of capture groups minus one.
 
@@ -158,7 +158,7 @@ public:
       group and *capture_format will be set accordingly; if the parser reached the end of the expression, the
       return value will be less than 0.
    */
-   int parse_up_to_next_capture(ere_capture_format * capture_format, dynamic_state ** first_state);
+   int parse_up_to_next_capture(regex_capture_format * capture_format, dynamic_state ** first_state);
 
    /*! Parses the expression, expecting to find no capture groups in it.
 
@@ -173,7 +173,7 @@ private:
    @param format
       Pointer to an object that will receive the contents of the group.
    */
-   void extract_capture(ere_capture_format * format);
+   void extract_capture(regex_capture_format * format);
 
    //! Throws a lofty::text::syntax_error for the current position in the expression (expr_itr).
    void throw_syntax_error(str const & description) const;

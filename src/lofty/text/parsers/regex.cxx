@@ -19,23 +19,23 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
-#include <lofty/text/parsers/ere.hxx>
+#include <lofty/text/parsers/regex.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
 
-ere::subexpression::subexpression() :
+regex::subexpression::subexpression() :
    first_state(nullptr),
    curr_alternative_first_state(nullptr),
    curr_state(nullptr) {
 }
 
-ere::subexpression::~subexpression() {
+regex::subexpression::~subexpression() {
 }
 
-void ere::subexpression::push_alternative(dynamic_state * new_state) {
+void regex::subexpression::push_alternative(dynamic_state * new_state) {
    if (curr_state) {
       alternative_last_states.push_back(curr_state);
       curr_alternative_first_state->set_alternative(new_state);
@@ -46,7 +46,7 @@ void ere::subexpression::push_alternative(dynamic_state * new_state) {
    curr_alternative_first_state = new_state;
 }
 
-void ere::subexpression::push_next(dynamic_state * new_state) {
+void regex::subexpression::push_next(dynamic_state * new_state) {
    if (curr_state) {
       curr_state->set_next(new_state);
    } else {
@@ -56,7 +56,7 @@ void ere::subexpression::push_next(dynamic_state * new_state) {
    curr_state = new_state;
 }
 
-void ere::subexpression::terminate_with_next_state(dynamic_state * next_state) {
+void regex::subexpression::terminate_with_next_state(dynamic_state * next_state) {
    if (curr_state) {
       alternative_last_states.push_back(curr_state);
       curr_state = nullptr;
@@ -67,7 +67,7 @@ void ere::subexpression::terminate_with_next_state(dynamic_state * next_state) {
 }
 
 
-ere::ere(dynamic * parser_, str const & expr_) :
+regex::regex(dynamic * parser_, str const & expr_) :
    parser(parser_),
    expr(expr_),
    expr_itr(expr.cbegin()),
@@ -79,16 +79,16 @@ ere::ere(dynamic * parser_, str const & expr_) :
    subexpr_stack.push_back(subexpression());
 }
 
-ere::~ere() {
+regex::~regex() {
 }
 
-void ere::insert_capture_group(dynamic_state const * first_state) {
+void regex::insert_capture_group(dynamic_state const * first_state) {
    LOFTY_TRACE_FUNC(this, first_state);
 
    push_state(parser->create_capture_group(first_state));
 }
 
-int ere::parse_up_to_next_capture(ere_capture_format * capture_format, dynamic_state ** first_state) {
+int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynamic_state ** first_state) {
    LOFTY_TRACE_FUNC(this, capture_format, first_state);
 
    bool escape = false;
@@ -187,14 +187,14 @@ int ere::parse_up_to_next_capture(ere_capture_format * capture_format, dynamic_s
    return -1;
 }
 
-void ere::throw_syntax_error(str const & description) const {
+void regex::throw_syntax_error(str const & description) const {
    LOFTY_THROW(syntax_error, (
       // +1 because the first character is 1, to human beings.
       description, expr, static_cast<unsigned>(expr_itr - expr.cbegin() + 1)
    ));
 }
 
-void ere::extract_capture(ere_capture_format * format) {
+void regex::extract_capture(regex_capture_format * format) {
    LOFTY_TRACE_FUNC(this, format);
 
    if (expr_itr != expr_end) {
@@ -228,7 +228,7 @@ void ere::extract_capture(ere_capture_format * format) {
    ++expr_itr;
 }
 
-void ere::parse_negative_bracket_expression() {
+void regex::parse_negative_bracket_expression() {
    LOFTY_TRACE_FUNC(this);
 
    char32_t next_range_begin = *expr_itr++ + 1;
@@ -277,7 +277,7 @@ void ere::parse_negative_bracket_expression() {
    throw_syntax_error(LOFTY_SL("unexpected end of bracket expression"));
 }
 
-void ere::parse_positive_bracket_expression() {
+void regex::parse_positive_bracket_expression() {
    LOFTY_TRACE_FUNC(this);
 
    auto last_range_state = parser->create_code_point_state(*expr_itr++);
@@ -321,7 +321,7 @@ void ere::parse_positive_bracket_expression() {
    throw_syntax_error(LOFTY_SL("unexpected end of bracket expression"));
 }
 
-_std::tuple<std::uint16_t, std::uint16_t> ere::parse_repetition_range() {
+_std::tuple<std::uint16_t, std::uint16_t> regex::parse_repetition_range() {
    LOFTY_TRACE_FUNC(this);
 
    bool empty = true;
@@ -353,7 +353,7 @@ _std::tuple<std::uint16_t, std::uint16_t> ere::parse_repetition_range() {
    return _std::make_tuple(begin, end);
 }
 
-dynamic_state * ere::parse_with_no_captures() {
+dynamic_state * regex::parse_with_no_captures() {
    dynamic_state * ret;
    if (parse_up_to_next_capture(nullptr, &ret) >= 0) {
       throw_syntax_error(LOFTY_SL("capturing groups not supported in this expression"));
@@ -361,7 +361,7 @@ dynamic_state * ere::parse_with_no_captures() {
    return ret;
 }
 
-void ere::push_state(dynamic_state * next_state) {
+void regex::push_state(dynamic_state * next_state) {
    LOFTY_TRACE_FUNC(this, next_state);
 
    if (enter_rep_group) {
@@ -396,7 +396,7 @@ void ere::push_state(dynamic_state * next_state) {
    }
 }
 
-void ere::set_curr_state_repetitions(std::uint16_t min, std::uint16_t max) {
+void regex::set_curr_state_repetitions(std::uint16_t min, std::uint16_t max) {
    LOFTY_TRACE_FUNC(this, min, max);
 
    // Make sure we have a repetition group to apply the number of occurrences to.

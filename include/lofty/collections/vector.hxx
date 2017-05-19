@@ -1629,7 +1629,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
+      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
    ) {
       auto const & elt_format = vector_from_text_istream::extract_elt_format(format);
       auto elt_first_state = elt_ftis.format_to_parser_states(elt_format, parser);

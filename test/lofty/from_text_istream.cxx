@@ -55,7 +55,7 @@ public:
    }
 
    text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
+      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
    ) {
       LOFTY_UNUSED_ARG(format);
 

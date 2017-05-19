@@ -21,7 +21,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/collections/vector.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
-#include <lofty/text/parsers/ere.hxx>
+#include <lofty/text/parsers/regex.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,15 +398,15 @@ void from_text_istream<text::str>::convert_capture(
 }
 
 text::parsers::dynamic_state const * from_text_istream<text::str>::format_to_parser_states(
-   text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
+   text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
 ) {
    LOFTY_TRACE_FUNC(this/*, format*/, parser);
 
    // TODO: more format validation.
 
    if (format.expr) {
-      text::parsers::ere ere(parser, format.expr);
-      return ere.parse_with_no_captures();
+      text::parsers::regex regex(parser, format.expr);
+      return regex.parse_with_no_captures();
    } else {
       // Default to “.*”.
       LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(any_cp_state, nullptr, nullptr, 0, 0xffffff);

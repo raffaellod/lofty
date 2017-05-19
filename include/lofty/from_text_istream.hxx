@@ -85,7 +85,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
+      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
    );
 
 protected:
@@ -121,7 +121,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser
+      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
    );
 
 protected:
@@ -409,8 +409,8 @@ public:
    @return
       Format for individual elements.
    */
-   text::parsers::ere_capture_format const & extract_elt_format(
-      text::parsers::ere_capture_format const & format
+   text::parsers::regex_capture_format const & extract_elt_format(
+      text::parsers::regex_capture_format const & format
    );
 
    /*! Creates parser states for the specified input format.
@@ -425,7 +425,7 @@ public:
       First parser state.
    */
    text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::ere_capture_format const & format, text::parsers::dynamic * parser,
+      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser,
       text::parsers::dynamic_state const * elt_first_state
    );
 

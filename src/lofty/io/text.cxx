@@ -24,7 +24,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/process.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
-#include <lofty/text/parsers/ere.hxx>
+#include <lofty/text/parsers/regex.hxx>
 #include "binary/file-subclasses.hxx"
 
 
@@ -297,14 +297,14 @@ namespace lofty { namespace io { namespace text { namespace _pvt {
 
 struct istream_scan_helper_impl::impl {
    lofty::text::parsers::dynamic parser;
-   lofty::text::parsers::ere ere;
+   lofty::text::parsers::regex regex;
    //! Current capture format, maintained by parse_up_to_next_capture().
-   lofty::text::parsers::ere_capture_format curr_capture_format;
+   lofty::text::parsers::regex_capture_format curr_capture_format;
    lofty::text::parsers::dynamic::match match;
    lofty::text::parsers::dynamic_match_capture curr_capture_group;
 
    explicit impl(str const & expr) :
-      ere(&parser, expr) {
+      regex(&parser, expr) {
    }
 };
 
@@ -316,12 +316,12 @@ istream_scan_helper_impl::istream_scan_helper_impl(class istream * istream_, str
 istream_scan_helper_impl::~istream_scan_helper_impl() {
 }
 
-lofty::text::parsers::ere_capture_format const & istream_scan_helper_impl::curr_capture_format() const {
+lofty::text::parsers::regex_capture_format const & istream_scan_helper_impl::curr_capture_format() const {
    return pimpl->curr_capture_format;
 }
 
 void istream_scan_helper_impl::insert_capture_group(lofty::text::parsers::dynamic_state const * first_state) {
-   pimpl->ere.insert_capture_group(first_state);
+   pimpl->regex.insert_capture_group(first_state);
 }
 
 lofty::text::parsers::dynamic_match_capture const & istream_scan_helper_impl::match_capture_group(
@@ -337,7 +337,7 @@ lofty::text::parsers::dynamic * istream_scan_helper_impl::parser_ptr() {
 
 int istream_scan_helper_impl::parse_up_to_next_capture() {
    lofty::text::parsers::dynamic_state * first_state;
-   int ret = pimpl->ere.parse_up_to_next_capture(&pimpl->curr_capture_format, &first_state);
+   int ret = pimpl->regex.parse_up_to_next_capture(&pimpl->curr_capture_format, &first_state);
    if (ret < 0) {
       pimpl->parser.set_initial_state(first_state);
    }
@@ -351,7 +351,7 @@ bool istream_scan_helper_impl::run() {
 
 void istream_scan_helper_impl::throw_collections_out_of_range() {
    LOFTY_THROW(collections::out_of_range, (
-      pimpl->ere.capture_index_max() + 1, 0, pimpl->ere.capture_index_max()
+      pimpl->regex.capture_index_max() + 1, 0, pimpl->regex.capture_index_max()
    ));
 }
 
