@@ -73,6 +73,9 @@ more details.
    #if LOFTY_HOST_ARCH_X86_64
       typedef ::x86_exception_state64_t arch_exception_state_t;
       typedef ::x86_thread_state64_t    arch_thread_state_t;
+      #ifdef EXCEPTION_STATE
+         #undef EXCEPTION_STATE
+      #endif
       static ::thread_state_flavor_t const EXCEPTION_STATE = x86_EXCEPTION_STATE64;
       static ::thread_state_flavor_t const THREAD_STATE    = x86_THREAD_STATE64;
       static ::mach_msg_type_number_t const EXCEPTION_STATE_COUNT = x86_EXCEPTION_STATE64_COUNT;
@@ -249,7 +252,7 @@ signal_dispatcher::signal_dispatcher() :
          proc_port, exceptions_port, exceptions_port, MACH_MSG_TYPE_MAKE_SEND
       ) == KERN_SUCCESS) {
          // Start the thread that will catch exceptions from all the others.
-         if (::pthread_create(&exception_handler_thread, nullptr, exception_handler_thread, this) == 0) {
+         if (::pthread_create(&exception_handler_thread, nullptr, &exception_handler, this) == 0) {
             // Now that the handler thread is running, set the process-wide exception port.
             if (::task_set_exception_ports(
                proc_port, EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
@@ -320,7 +323,7 @@ signal_dispatcher::~signal_dispatcher() {
 #endif
 
 #if LOFTY_HOST_API_MACH
-   /*static*/ void * signal_dispatcher::exception_handler_thread(void * p) {
+   /*static*/ void * signal_dispatcher::exception_handler(void * p) {
       signal_dispatcher * this_ptr = static_cast<signal_dispatcher *>(p);
       for (;;) {
          /* The exact definition of these structs is in the kernel’s sources; thankfully all we need to do

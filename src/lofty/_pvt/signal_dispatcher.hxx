@@ -138,7 +138,7 @@ private:
 
 #if LOFTY_HOST_API_MACH
    //! Handles exceptions for every thread. Runs in its own thread.
-   static void * exception_handler_thread(void *);
+   static void * exception_handler(void *);
 #elif LOFTY_HOST_API_POSIX
    /*! Translates POSIX signals into C++ exceptions, whenever possible. This works by injecting the stack
    frame of a call to throw_common_type(), and then returning, ending processing of the signal. Execution will
