@@ -358,7 +358,7 @@ void dynamic::dump() const {
          default:
             break;
       }
-      out->print(" @ {}\n", curr_state);
+      out->print(LOFTY_SL(" @ {}\n"), curr_state);
       while (!next_state && context_stack) {
          next_state = context_stack.pop_back();
       }
