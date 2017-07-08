@@ -94,13 +94,7 @@ struct max<char16_t> : public std::integral_constant<char16_t,
 template <>
 struct min<char32_t> : public std::integral_constant<char32_t,        0> {};
 template <>
-struct max<char32_t> : public std::integral_constant<char32_t,
-   #ifdef UINT_LEAST32_MAX
-   UINT_LEAST32_MAX
-   #else
-   0xffffffff
-   #endif
-> {};
+struct max<char32_t> : public std::integral_constant<char32_t, 0x10ffff> {};
 #endif //if LOFTY_CXX_CHAR32 > 0
 
 // Specialization of min and max for integer types.
