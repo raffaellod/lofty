@@ -43,7 +43,7 @@ public:
       return lterm;
    }
 
-   /*! Assigns a new line terminator that will be used for all following writes.
+   /*! Assigns a new line terminator that will be used for all following reads and/or writes.
 
    @param lterm_
       New line terminator.

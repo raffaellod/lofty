@@ -93,7 +93,7 @@ LOFTY_SYM encoding guess_encoding(
    Pointer to beyond the last character of the string.
 @return
    Detected line terminator sequence, or line_terminator::any if the source buffer did not include any known
-   line terminator sequence..
+   line terminator sequence.
 */
 LOFTY_SYM line_terminator guess_line_terminator(char_t const * chars_begin, char_t const * chars_end);
 
