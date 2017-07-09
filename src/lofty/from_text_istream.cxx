@@ -366,18 +366,6 @@ sequence_from_text_istream::sequence_from_text_istream(str const & start_delim_,
 sequence_from_text_istream::~sequence_from_text_istream() {
 }
 
-std::size_t sequence_from_text_istream::captures_count(
-   text::parsers::dynamic_match_capture const & capture0
-) const {
-   LOFTY_TRACE_FUNC(this/*, capture0*/);
-
-   std::size_t captures = capture0.repetition_group(1).size();
-   if (captures > 0) {
-      captures += capture0.repetition_group(1)[0].repetition_group(0).size();
-   }
-   return captures;
-}
-
 text::parsers::dynamic_match_capture const & sequence_from_text_istream::capture_at(
    text::parsers::dynamic_match_capture const & capture0, std::size_t i
 ) {
@@ -390,6 +378,18 @@ text::parsers::dynamic_match_capture const & sequence_from_text_istream::capture
       pimpl->curr_capture = all_elts_group.repetition_group(0)[i - 1].capture_group(0);
    }
    return pimpl->curr_capture;
+}
+
+std::size_t sequence_from_text_istream::captures_count(
+   text::parsers::dynamic_match_capture const & capture0
+) const {
+   LOFTY_TRACE_FUNC(this/*, capture0*/);
+
+   std::size_t captures = capture0.repetition_group(1).size();
+   if (captures > 0) {
+      captures += capture0.repetition_group(1)[0].repetition_group(0).size();
+   }
+   return captures;
 }
 
 text::parsers::regex_capture_format const & sequence_from_text_istream::extract_elt_format(
