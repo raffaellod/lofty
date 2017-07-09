@@ -40,6 +40,11 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("x")).scan(LOFTY_SL("^x$")));
    //? LOFTY_TESTING_ASSERT_DOES_NOT_THROW(io::text::str_istream(LOFTY_SL("xx")).scan(LOFTY_SL("^x$")));
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("x")).scan(LOFTY_SL("^x+$")));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("a")).scan(LOFTY_SL("^[a]$")));
+   LOFTY_TESTING_ASSERT_FALSE(io::text::str_istream(LOFTY_SL("a")).scan(LOFTY_SL("^[b]$")));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("a")).scan(LOFTY_SL("^[^m]$")));
+   LOFTY_TESTING_ASSERT_FALSE(io::text::str_istream(LOFTY_SL("m")).scan(LOFTY_SL("^[^m]$")));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("z")).scan(LOFTY_SL("^[^m]$")));
 }
 
 }} //namespace lofty::test
@@ -65,6 +70,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(captured1, LOFTY_SL("d"));
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("(e)")).scan(LOFTY_SL("^\\(()\\)$"), &captured1));
    LOFTY_TESTING_ASSERT_EQUAL(captured1, LOFTY_SL("e"));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("f")).scan(LOFTY_SL("^(f+)$"), &captured1));
+   LOFTY_TESTING_ASSERT_EQUAL(captured1, LOFTY_SL("f"));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("g")).scan(LOFTY_SL("^([a-z]+)$"), &captured1));
+   LOFTY_TESTING_ASSERT_EQUAL(captured1, LOFTY_SL("g"));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("h")).scan(LOFTY_SL("^([^ ]+)$"), &captured1));
+   LOFTY_TESTING_ASSERT_EQUAL(captured1, LOFTY_SL("h"));
 
    int captured2;
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("31")).scan(LOFTY_SL("^()$"), &captured2));
