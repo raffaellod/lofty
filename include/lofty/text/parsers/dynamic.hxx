@@ -62,6 +62,9 @@ public:
    dynamic_state const * alternative;
 
 public:
+   //! Dumps the state as a state sub-tree.
+   void dump() const;
+
    /*! Assigns the state that will be tried if this one does not accept.
 
    @param alternative_

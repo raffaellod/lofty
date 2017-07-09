@@ -23,6 +23,65 @@ more details.
 
 namespace lofty { namespace text { namespace parsers {
 
+void dynamic_state::dump() const {
+   collections::vector<dynamic_state const *> context_stack;
+   auto curr_state = this;
+   auto out(io::text::stderr);
+   while (curr_state) {
+      // TODO: find a reasonable way to display alternatives.
+      auto next_state = curr_state->next;
+      for (unsigned i = 0; i < static_cast<unsigned>(context_stack.size()); ++i) {
+         out->print(LOFTY_SL("   "));
+      }
+      out->print(LOFTY_SL("{}"), _type(curr_state->type));
+      switch (curr_state->type) {
+         case _type::capture_group: {
+            auto state_with_data = curr_state->with_data<dynamic::_state_capture_group_data>();
+            context_stack.push_back(next_state);
+            next_state = state_with_data->first_state;
+            break;
+         }
+
+         case _type::cp_range: {
+            auto state_with_data = curr_state->with_data<dynamic::_state_cp_range_data>();
+            out->print(LOFTY_SL(" [‘{}’-‘{}’]"), state_with_data->first, state_with_data->last);
+            break;
+         }
+
+         case _type::repetition_group: {
+            auto state_with_data = curr_state->with_data<dynamic::_state_repetition_group_data>();
+            out->print(LOFTY_SL(" [{}-{}]"), state_with_data->min, state_with_data->max);
+            context_stack.push_back(next_state);
+            next_state = state_with_data->first_state;
+            break;
+         }
+
+         case _type::string: {
+            auto state_with_data = curr_state->with_data<dynamic::_state_string_data>();
+            out->print(LOFTY_SL(" “{}”"), str(external_buffer, state_with_data->begin, state_with_data->size()));
+            break;
+         }
+
+         default:
+            break;
+      }
+      if (curr_state->alternative) {
+         out->print(LOFTY_SL(" (has alternatives)"));
+      }
+      out->print(LOFTY_SL(" @ {}\n"), curr_state);
+      while (!next_state && context_stack) {
+         next_state = context_stack.pop_back();
+      }
+      curr_state = next_state;
+   }
+}
+
+}}} //namespace lofty::text::parsers
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace text { namespace parsers {
+
 namespace {
 
 //! Backtracking data structure.
@@ -317,52 +376,8 @@ dynamic_state * dynamic::create_string_state(char_t const * begin, char_t const 
 }
 
 void dynamic::dump() const {
-   collections::vector<dynamic_state const *> context_stack;
-   auto curr_state = initial_state;
-   auto out(io::text::stderr);
-   while (curr_state) {
-      // TODO: find a reasonable way to display alternatives.
-      auto next_state = curr_state->next;
-      for (unsigned i = 0; i < static_cast<unsigned>(context_stack.size()); ++i) {
-         out->print(LOFTY_SL("   "));
-      }
-      out->print(LOFTY_SL("{}"), state_type(curr_state->type));
-      switch (curr_state->type) {
-         case state_type::capture_group: {
-            auto state_with_data = curr_state->with_data<_state_capture_group_data>();
-            context_stack.push_back(next_state);
-            next_state = state_with_data->first_state;
-            break;
-         }
-
-         case state_type::cp_range: {
-            auto state_with_data = curr_state->with_data<_state_cp_range_data>();
-            out->print(LOFTY_SL(" [‘{}’-‘{}’]"), state_with_data->first, state_with_data->last);
-            break;
-         }
-
-         case state_type::repetition_group: {
-            auto state_with_data = curr_state->with_data<_state_repetition_group_data>();
-            out->print(LOFTY_SL(" [{}-{}]"), state_with_data->min, state_with_data->max);
-            context_stack.push_back(next_state);
-            next_state = state_with_data->first_state;
-            break;
-         }
-
-         case state_type::string: {
-            auto state_with_data = curr_state->with_data<_state_string_data>();
-            out->print(LOFTY_SL(" “{}”"), str(external_buffer, state_with_data->begin, state_with_data->size()));
-            break;
-         }
-
-         default:
-            break;
-      }
-      out->print(LOFTY_SL(" @ {}\n"), curr_state);
-      while (!next_state && context_stack) {
-         next_state = context_stack.pop_back();
-      }
-      curr_state = next_state;
+   if (initial_state) {
+      initial_state->dump();
    }
 }
 
