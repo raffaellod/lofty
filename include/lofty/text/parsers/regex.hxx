@@ -254,14 +254,14 @@ private:
    /*! Tracks the last-closed group or range, or the previous state to support replacing it with a group if
    needed. */
    subexpression prev_subexpr;
-   //! Tracks the context of the current subexpression, which is always subexpr_stack.back() .
+   //! Tracks the context of the current sub-expression, which is always subexpr_stack.back() .
    collections::vector<subexpression, 3> subexpr_stack;
    //! Index of the next capture group.
-   unsigned next_capture_index;
+   std::uint8_t next_capture_index;
+   //! The next call to push_state() will terminate and pop this many sub-expressions.
+   std::uint8_t subexprs_to_end;
    //! If true, the next call to push_state() will create and enter a non-capturing (repetition) group.
    bool enter_rep_group:1;
-   //! If true, the next call to push_state() will terminate and pop the current subexpression.
-   bool end_subexpr:1;
    //! If true, the next call to push_state() will add an alternative instead of a next state.
    bool begin_alternative:1;
 };

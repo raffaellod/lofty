@@ -81,8 +81,8 @@ regex::regex(dynamic * parser_, str const & expr_) :
    expr_itr(expr.cbegin()),
    expr_end(expr.cend()),
    next_capture_index(0),
+   subexprs_to_end(0),
    enter_rep_group(false),
-   end_subexpr(false),
    begin_alternative(false) {
    subexpr_stack.push_back(subexpression());
 }
@@ -202,7 +202,7 @@ int regex::parse_group(regex_capture_format * capture_format) {
    if (expr_itr == expr_end || *expr_itr != ')') {
       throw_syntax_error(LOFTY_SL("unterminated capturing group"));
    }
-   // Also consume the last parenthesis, so it won’t trigger end_subexpr in parse_up_to_next_capture().
+   // Also consume the last parenthesis, so it won’t trigger subexprs_to_end in parse_up_to_next_capture().
    ++expr_itr;
 
    return static_cast<int>(next_capture_index++);
@@ -214,17 +214,19 @@ void regex::parse_negative_bracket_expression() {
    char32_t next_range_begin = *expr_itr++ + 1;
    // Start with the first alternative.
    // TODO: this is not right if *expr_itr is NUL (rare).
-   push_state(parser->create_code_point_range_state(0x000000, next_range_begin - 1));
+   push_state(parser->create_code_point_range_state(0, next_range_begin - 2));
    bool forming_range = false, escape = false;
    while (expr_itr != expr_end) {
       char32_t cp = *expr_itr++;
       if (cp == ']' && !escape) {
+         auto & curr_subexpr = subexpr_stack.back();
          if (forming_range) {
             // Turns out the dash/hyphen did not indicate a range; make two new states around it.
-            auto & curr_subexpr = subexpr_stack.back();
             curr_subexpr.push_alternative(parser->create_code_point_range_state(next_range_begin, '-' - 1));
-            curr_subexpr.push_alternative(parser->create_code_point_range_state('-' + 1, 0xffffff));
+            next_range_begin = '-' + 1;
          }
+         // Add an alternative from next_range_begin to ∞ to end the negative range.
+         curr_subexpr.push_alternative(parser->create_code_point_range_state(next_range_begin, 0xffffff));
          return;
       }
       if (forming_range) {
@@ -345,7 +347,7 @@ int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynam
       }
       switch (cp) {
          case '.':
-            push_state(parser->create_code_point_range_state(0x000000, 0xffffff));
+            push_state(parser->create_code_point_range_state(0, 0xffffff));
             break;
          case '[':
             if (expr_itr >= expr_end) {
@@ -360,7 +362,7 @@ int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynam
             } else {
                parse_positive_bracket_expression();
             }
-            end_subexpr = true;
+            ++subexprs_to_end;
             break;
          case '\\':
             escape = true;
@@ -373,7 +375,7 @@ int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynam
             break;
          }
          case ')':
-            end_subexpr = true;
+            ++subexprs_to_end;
             break;
          case '*':
             set_curr_state_repetitions(0, 0);
@@ -404,11 +406,17 @@ int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynam
             break;
       }
    }
+   if (enter_rep_group || begin_alternative) {
+      throw_syntax_error(LOFTY_SL("unexpected final state"));
+   }
+   if (subexprs_to_end > 0) {
+      push_state(nullptr);
+   }
    if (subexpr_stack.size() != 1) {
       throw_syntax_error(LOFTY_SL("mismatched parentheses"));
    }
    *first_state = subexpr_stack.front().first_state;
-   // No need to terminate the last subexpression; it should be already nullptr-terminated.
+   // No need to terminate the last sub-expression; it should be already nullptr-terminated.
    subexpr_stack.clear();
    return -1;
 }
@@ -434,12 +442,17 @@ void regex::push_state(dynamic_state * next_state) {
       begin_alternative = false;
       subexpr_stack.back().push_alternative(next_state);
    } else {
-      if (end_subexpr) {
-         /* Terminate the last sub-expression with the next state, popping it off the stack but tracking it as
-         the previous sub-expression. */
-         end_subexpr = false;
-         prev_subexpr = subexpr_stack.pop_back();
-         prev_subexpr.terminate_with_next_state(next_state);
+      if (subexprs_to_end > 0) {
+         /* A sub-expression to end always has a single top-level state, either because it’s a list of
+         character ranges (single state with alternatives) or because it’s a group (single state with separate
+         branching). This means that we can insert all the sub-expressions to end between the next_state and
+         the sub-expression it’s supposed to be the next state of (which has index
+         subexpr_stack.size() - subexprs_to_end). */
+         do {
+            prev_subexpr = subexpr_stack.pop_back();
+            prev_subexpr.terminate_with_next_state(next_state);
+            next_state = prev_subexpr.first_state;
+         } while (--subexprs_to_end > 0);
       } else {
          // Stay in the same sub-expression, but track the previous state as its own sub-expression.
          prev_subexpr.curr_state = nullptr;
