@@ -13,6 +13,7 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
+#include <lofty/numeric.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
@@ -214,7 +215,7 @@ void regex::parse_negative_bracket_expression() {
    char32_t next_range_begin = *expr_itr++ + 1;
    // Start with the first alternative.
    // TODO: this is not right if *expr_itr is NUL (rare).
-   push_state(parser->create_code_point_range_state(0, next_range_begin - 2));
+   push_state(parser->create_code_point_range_state(numeric::min<char32_t>::value, next_range_begin - 2));
    bool forming_range = false, escape = false;
    while (expr_itr != expr_end) {
       char32_t cp = *expr_itr++;
@@ -226,7 +227,7 @@ void regex::parse_negative_bracket_expression() {
             next_range_begin = '-' + 1;
          }
          // Add an alternative from next_range_begin to ∞ to end the negative range.
-         curr_subexpr.push_alternative(parser->create_code_point_range_state(next_range_begin, 0xffffff));
+         curr_subexpr.push_alternative(parser->create_code_point_range_state(next_range_begin, numeric::max<char32_t>::value));
          return;
       }
       if (forming_range) {
@@ -347,7 +348,9 @@ int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynam
       }
       switch (cp) {
          case '.':
-            push_state(parser->create_code_point_range_state(0, 0xffffff));
+            push_state(parser->create_code_point_range_state(
+               numeric::min<char32_t>::value, numeric::max<char32_t>::value
+            ));
             break;
          case '[':
             if (expr_itr >= expr_end) {

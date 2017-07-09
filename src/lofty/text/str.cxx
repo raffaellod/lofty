@@ -15,6 +15,7 @@ more details.
 #include <lofty.hxx>
 #include <lofty/collections.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/numeric.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
@@ -405,7 +406,9 @@ text::parsers::dynamic_state const * from_text_istream<text::str>::format_to_par
       return regex.parse_with_no_captures();
    } else {
       // Default to “.*”.
-      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(any_cp_state, nullptr, nullptr, 0, 0xffffff);
+      LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(
+         any_cp_state, nullptr, nullptr, numeric::min<char32_t>::value, numeric::max<char32_t>::value
+      );
       LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(any_cp_rep_group, nullptr, nullptr, &any_cp_state.base, 0);
       return &any_cp_rep_group.base;
    }
