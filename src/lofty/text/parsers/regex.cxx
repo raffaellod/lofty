@@ -216,10 +216,14 @@ void regex::parse_negative_bracket_expression() {
    // Start with the first alternative.
    // TODO: this is not right if *expr_itr is NUL (rare).
    push_state(parser->create_code_point_range_state(numeric::min<char32_t>::value, next_range_begin - 2));
-   bool forming_range = false, escape = false;
+   bool forming_range = false, escape = false, group_added = false;
    while (expr_itr != expr_end) {
       char32_t cp = *expr_itr++;
       if (cp == ']' && !escape) {
+         if (!group_added) {
+            set_curr_state_repetitions(1, 1);
+            group_added = true;
+         }
          auto & curr_subexpr = subexpr_stack.back();
          if (forming_range) {
             // Turns out the dash/hyphen did not indicate a range; make two new states around it.
@@ -249,6 +253,10 @@ void regex::parse_negative_bracket_expression() {
             escaped:
                if (cp > next_range_begin) {
                   // Skipping one or more code points; make a new range for the gap.
+                  if (!group_added) {
+                     set_curr_state_repetitions(1, 1);
+                     group_added = true;
+                  }
                   auto & curr_subexpr = subexpr_stack.back();
                   curr_subexpr.push_alternative(parser->create_code_point_range_state(next_range_begin, cp - 1));
                }
@@ -265,13 +273,17 @@ void regex::parse_positive_bracket_expression() {
 
    auto last_range_state = parser->create_code_point_state(*expr_itr++);
    push_state(last_range_state);
-   bool forming_range = false, escape = false;
+   bool forming_range = false, escape = false, group_added = false;
    // Start a series of alternatives.
    while (expr_itr != expr_end) {
       char32_t cp = *expr_itr++;
       if (cp == ']' && !escape) {
          if (forming_range) {
             // Turns out the dash/hyphen did not indicate a range; make a new state for it.
+            if (!group_added) {
+               set_curr_state_repetitions(1, 1);
+               group_added = true;
+            }
             subexpr_stack.back().push_alternative(parser->create_code_point_state('-'));
          }
          return;
@@ -296,6 +308,10 @@ void regex::parse_positive_bracket_expression() {
             escaped:
                // Individual code point: make a new state for it.
                last_range_state = parser->create_code_point_state(cp);
+               if (!group_added) {
+                  set_curr_state_repetitions(1, 1);
+                  group_added = true;
+               }
                subexpr_stack.back().push_alternative(last_range_state);
                break;
          }
@@ -480,10 +496,10 @@ void regex::set_curr_state_repetitions(std::uint16_t min, std::uint16_t max) {
    if (!curr_subexpr.curr_state) {
       throw_syntax_error(LOFTY_SL("expression cannot start with ?*+{"));
    }
-   if (curr_subexpr.curr_state->type == dynamic_state::_type::repetition_group) {
-      // Already a group; just adjust the range.
+   if (curr_subexpr.first_state->type == dynamic_state::_type::repetition_group) {
+      // This sub-expression is already a group; just adjust its range.
       // TODO: block expressions like “a{1,3}{2,4}”, which in this implementation become “a{2,4}”.
-      auto repetition_group = curr_subexpr.curr_state->with_data<dynamic::_state_repetition_group_data>();
+      auto repetition_group = curr_subexpr.first_state->with_data<dynamic::_state_repetition_group_data>();
       repetition_group->min = min;
       repetition_group->max = max;
    } else {

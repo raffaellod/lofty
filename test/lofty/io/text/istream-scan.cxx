@@ -41,10 +41,19 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    //? LOFTY_TESTING_ASSERT_DOES_NOT_THROW(io::text::str_istream(LOFTY_SL("xx")).scan(LOFTY_SL("^x$")));
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("x")).scan(LOFTY_SL("^x+$")));
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("a")).scan(LOFTY_SL("^[a]$")));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("aa")).scan(LOFTY_SL("^[a]+$")));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("ab")).scan(LOFTY_SL("^[ab]+$")));
+//   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("ba")).scan(LOFTY_SL("^[ab]+$")));
    LOFTY_TESTING_ASSERT_FALSE(io::text::str_istream(LOFTY_SL("a")).scan(LOFTY_SL("^[b]$")));
+   LOFTY_TESTING_ASSERT_FALSE(io::text::str_istream(LOFTY_SL("ab")).scan(LOFTY_SL("^[b]+$")));
+   LOFTY_TESTING_ASSERT_FALSE(io::text::str_istream(LOFTY_SL("ba")).scan(LOFTY_SL("^[b]+$")));
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("a")).scan(LOFTY_SL("^[^m]$")));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("ab")).scan(LOFTY_SL("^[^m]+$")));
    LOFTY_TESTING_ASSERT_FALSE(io::text::str_istream(LOFTY_SL("m")).scan(LOFTY_SL("^[^m]$")));
+   LOFTY_TESTING_ASSERT_FALSE(io::text::str_istream(LOFTY_SL("lm")).scan(LOFTY_SL("^[^m]+$")));
+   LOFTY_TESTING_ASSERT_FALSE(io::text::str_istream(LOFTY_SL("mn")).scan(LOFTY_SL("^[^m]+$")));
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("z")).scan(LOFTY_SL("^[^m]$")));
+//   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("yz")).scan(LOFTY_SL("^[^m]+$")));
 }
 
 }} //namespace lofty::test
@@ -86,6 +95,35 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(captured2, 33);
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("0x22")).scan(LOFTY_SL("^(#x)$"), &captured2));
    LOFTY_TESTING_ASSERT_EQUAL(captured2, 34);
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   io_text_istream_scan_2_captures,
+   "lofty::io::text::istream::scan() – two captures"
+) {
+   LOFTY_TRACE_FUNC(this);
+
+   str captured1, captured2;
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("a b")).scan(LOFTY_SL("^([^ ]+) ([^ ]+)$"), &captured1, &captured2));
+   LOFTY_TESTING_ASSERT_EQUAL(captured1, LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_EQUAL(captured2, LOFTY_SL("b"));
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("cd ef")).scan(LOFTY_SL("^([^ ]+) ([^ ]+)$"), &captured1, &captured2));
+   LOFTY_TESTING_ASSERT_EQUAL(captured1, LOFTY_SL("cd"));
+   LOFTY_TESTING_ASSERT_EQUAL(captured2, LOFTY_SL("ef"));
+
+   int captured3, captured4;
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("1 2")).scan(LOFTY_SL("^() ()$"), &captured3, &captured4));
+   LOFTY_TESTING_ASSERT_EQUAL(captured3, 1);
+   LOFTY_TESTING_ASSERT_EQUAL(captured4, 2);
+   LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("34 56")).scan(LOFTY_SL("^() ()$"), &captured3, &captured4));
+   LOFTY_TESTING_ASSERT_EQUAL(captured3, 34);
+   LOFTY_TESTING_ASSERT_EQUAL(captured4, 56);
 }
 
 }} //namespace lofty::test
