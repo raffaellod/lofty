@@ -98,9 +98,6 @@ private:
    void const * local_this;
    //! Pointer to the head of the scope_trace single-linked list for each thread.
    static coroutine_local_value<scope_trace const *> scope_traces_head;
-   /*! true if ~scope_trace() is being run; in that case, another call to it should not try to do anything,
-   otherwise we may get stuck in an infinite recursion. */
-   static coroutine_local_value<bool> reentering;
    //! Stream that collects the rendered scope trace when an exception is thrown.
    static coroutine_local_ptr<io::text::str_ostream> trace_ostream;
    //! Number of the next stack frame to be added to the rendered trace.

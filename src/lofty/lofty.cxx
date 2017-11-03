@@ -263,7 +263,6 @@ text::parsers::regex_capture_format const & from_str_helper::parse_format_expr(s
 namespace lofty { namespace _pvt {
 
 coroutine_local_value<scope_trace const *> scope_trace::scope_traces_head /*= nullptr*/;
-coroutine_local_value<bool> scope_trace::reentering /*= false*/;
 coroutine_local_ptr<io::text::str_ostream> scope_trace::trace_ostream;
 coroutine_local_value<unsigned> scope_trace::trace_ostream_refs /*= 0*/;
 coroutine_local_value<unsigned> scope_trace::curr_stack_depth /*= 0*/;
@@ -276,17 +275,13 @@ scope_trace::scope_trace(source_file_address const * source_file_addr_, void con
 }
 
 scope_trace::~scope_trace() {
-   /* The set-and-reset of reentering doesn’t need memory barriers because this is all contained in a single
-   thread (reentering is in TLS). */
-   if (!reentering && _std::uncaught_exception()) {
-      reentering = true;
+   if (_std::uncaught_exception()) {
       try {
          write(get_trace_ostream(), ++curr_stack_depth);
       } catch (...) {
          // Don’t allow a trace to interfere with the program flow.
          // FIXME: EXC-SWALLOW
       }
-      reentering = false;
    }
    // Restore the previous scope trace single-linked list head.
    scope_traces_head = prev_scope_trace;
