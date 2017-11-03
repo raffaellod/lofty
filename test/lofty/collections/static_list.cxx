@@ -78,7 +78,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_static_list_basic,
    "lofty::collections::static_list – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    auto & sl = static_list_test::instance();
 

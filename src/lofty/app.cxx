@@ -38,8 +38,6 @@ app::app() {
 }
 
 /*static*/ int app::call_main(app * app_ptr, _args_t * args) {
-   LOFTY_TRACE_FUNC(app_ptr, args);
-
    collections::vector<str, 8> args_vec;
 // TODO: find a way to define LOFTY_HOST_API_WIN32_GUI, and maybe come up with a better name.
 #if LOFTY_HOST_API_WIN32 && defined(LOFTY_HOST_API_WIN32_GUI)
@@ -58,8 +56,6 @@ app::app() {
 }
 
 /*static*/ bool app::deinitialize_stdio() {
-   LOFTY_TRACE_FUNC();
-
    bool errors = false;
    io::text::stdin.reset();
    io::binary::stdin.reset();

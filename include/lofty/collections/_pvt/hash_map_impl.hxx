@@ -73,8 +73,6 @@ protected:
          true if *this is an iterator to the same key/value pair as other, or false otherwise.
       */
       bool operator==(iterator_base const & other) const {
-         LOFTY_TRACE_FUNC(this/*, other*/);
-
          return owner_map == other.owner_map && bucket == other.bucket;
       }
 
@@ -86,8 +84,6 @@ protected:
          true if *this has a different key/value pair than other, or false otherwise.
       */
       bool operator!=(iterator_base const & other) const {
-         LOFTY_TRACE_FUNC(this/*, other*/);
-
          return !operator==(other);
       }
 
@@ -243,8 +239,6 @@ protected:
    void empty_bucket(
       type_void_adapter const & key_type, type_void_adapter const & value_type, iterator_base itr
    ) {
-      LOFTY_TRACE_FUNC(this/*, key_type, value_type, itr*/);
-
       itr.validate();
       empty_bucket(key_type, value_type, itr.bucket);
    }

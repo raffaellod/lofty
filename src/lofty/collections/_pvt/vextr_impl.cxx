@@ -55,8 +55,6 @@ vextr_impl_base::vextr_impl_base(
 /*static*/ std::size_t vextr_impl_base::calculate_increased_capacity(
    std::size_t old_size, std::size_t new_size
 ) {
-   LOFTY_TRACE_FUNC(old_size, new_size);
-
    std::size_t new_capacity;
    // Avoid a pointless multiplication by 0.
    if (old_size) {
@@ -110,22 +108,16 @@ namespace lofty { namespace collections { namespace _pvt {
 
 vextr_transaction::vextr_transaction(vextr_impl_base * target_, bool trivial, std::size_t new_size) :
    target(target_) {
-   LOFTY_TRACE_FUNC(this, target_, trivial, new_size);
-
    _construct(trivial, new_size);
 }
 vextr_transaction::vextr_transaction(
    vextr_impl_base * target_, bool trivial, std::size_t insert_size, std::size_t remove_size
 ) :
    target(target_) {
-   LOFTY_TRACE_FUNC(this, target_, trivial, insert_size, remove_size);
-
    _construct(trivial, target->size<std::int8_t>() + insert_size - remove_size);
 }
 
 void vextr_transaction::commit() {
-   LOFTY_TRACE_FUNC(this);
-
    // If we are abandoning the old item array, proceed to destruct it if necessary.
    if (will_replace_array()) {
       target->~vextr_impl_base();
@@ -139,8 +131,6 @@ void vextr_transaction::commit() {
 }
 
 void vextr_transaction::_construct(bool trivial, std::size_t new_size) {
-   LOFTY_TRACE_FUNC(this, trivial, new_size);
-
    work_copy_array_needs_free = false;
    if (new_size == 0) {
       // Empty string/array: no need to use an item array.
@@ -202,8 +192,6 @@ void complex_vextr_impl::assign_concat(
    type_void_adapter const & type, void const * src1_begin, void const * src1_end, void const * src2_begin,
    void const * src2_end, std::uint8_t move
 ) {
-   LOFTY_TRACE_FUNC(this, /*type, */src1_begin, src1_end, src2_begin, src2_end, move);
-
    auto src1_size = reinterpret_cast<std::size_t>(src1_end) - reinterpret_cast<std::size_t>(src1_begin);
    auto src2_size = reinterpret_cast<std::size_t>(src2_end) - reinterpret_cast<std::size_t>(src2_begin);
    vextr_transaction trn(this, false, src1_size + src2_size);
@@ -270,8 +258,6 @@ void complex_vextr_impl::assign_concat(
 void complex_vextr_impl::assign_move_desc_or_move_items(
    type_void_adapter const & type, complex_vextr_impl && src
 ) {
-   LOFTY_TRACE_FUNC(this/*, type, src*/);
-
    if (src.begin_ptr == begin_ptr) {
       return;
    }
@@ -310,8 +296,6 @@ src_end_v
 static void overlapping_move_construct(
    type_void_adapter const & type, void * dst_begin_v, void * src_begin_v, void * src_end_v
 ) {
-   LOFTY_TRACE_FUNC(/*type, */dst_begin_v, src_begin_v, src_end_v);
-
    if (dst_begin_v == src_begin_v) {
       return;
    }
@@ -392,8 +376,6 @@ static void overlapping_move_construct(
 void complex_vextr_impl::insert(
    type_void_adapter const & type, std::size_t offset, void const * src, std::size_t src_size, bool move
 ) {
-   LOFTY_TRACE_FUNC(this, /*type, */offset, src, src_size, move);
-
    vextr_transaction trn(this, false, src_size, 0);
    std::int8_t * dst = begin<std::int8_t>() + offset;
    void const * src_end = static_cast<std::int8_t const *>(src) + src_size;
@@ -430,8 +412,6 @@ void complex_vextr_impl::insert(
 }
 
 void complex_vextr_impl::remove(type_void_adapter const & type, std::size_t offset, std::size_t remove_size) {
-   LOFTY_TRACE_FUNC(this, /*type, */offset, remove_size);
-
    vextr_transaction trn(this, false, 0, remove_size);
    std::int8_t * remove_begin = begin<std::int8_t>() + offset;
    std::int8_t * remove_end = remove_begin + remove_size;
@@ -459,8 +439,6 @@ void complex_vextr_impl::remove(type_void_adapter const & type, std::size_t offs
 void complex_vextr_impl::set_capacity(
    type_void_adapter const & type, std::size_t new_capacity_min, bool preserve
 ) {
-   LOFTY_TRACE_FUNC(this, /*type, */new_capacity_min, preserve);
-
    vextr_transaction trn(this, false, new_capacity_min);
    std::size_t orig_size = size<std::int8_t>();
    if (trn.will_replace_array()) {
@@ -480,9 +458,8 @@ void complex_vextr_impl::set_capacity(
 }
 
 void complex_vextr_impl::set_size(type_void_adapter const & type, std::size_t new_size) {
-   LOFTY_TRACE_FUNC(this, /*type, */new_size);
-
    LOFTY_UNUSED_ARG(type);
+   LOFTY_UNUSED_ARG(new_size);
    // TODO: implement this.
 }
 
@@ -495,8 +472,6 @@ namespace lofty { namespace collections { namespace _pvt {
 void trivial_vextr_impl::assign_concat(
    void const * src1_begin, void const * src1_end, void const * src2_begin, void const * src2_end
 ) {
-   LOFTY_TRACE_FUNC(this, src1_begin, src1_end, src2_begin, src2_end);
-
    auto src1_size = reinterpret_cast<std::size_t>(src1_end) - reinterpret_cast<std::size_t>(src1_begin);
    auto src2_size = reinterpret_cast<std::size_t>(src2_end) - reinterpret_cast<std::size_t>(src2_begin);
    vextr_transaction trn(this, true, src1_size + src2_size);
@@ -513,8 +488,6 @@ void trivial_vextr_impl::assign_concat(
 }
 
 void trivial_vextr_impl::assign_move_desc_or_move_items(trivial_vextr_impl && src) {
-   LOFTY_TRACE_FUNC(this/*, src*/);
-
    if (src.begin_ptr == begin_ptr) {
       return;
    }
@@ -531,8 +504,6 @@ void trivial_vextr_impl::assign_move_desc_or_move_items(trivial_vextr_impl && sr
 }
 
 void trivial_vextr_impl::assign_share_raw_or_copy_desc(trivial_vextr_impl const & src) {
-   LOFTY_TRACE_FUNC(this/*, src*/);
-
    /* This also checks that the source pointer (&src) is safe to dereference, so the following code can
    proceed safely. */
    if (src.begin_ptr == begin_ptr) {
@@ -552,8 +523,6 @@ void trivial_vextr_impl::assign_share_raw_or_copy_desc(trivial_vextr_impl const 
 void trivial_vextr_impl::_insert_remove(
    std::size_t offset, void const * insert_src, std::size_t insert_size, std::size_t remove_size
 ) {
-   LOFTY_TRACE_FUNC(this, offset, insert_src, insert_size, remove_size);
-
    vextr_transaction trn(this, true, insert_size, remove_size);
    std::int8_t const * remove_end = begin<std::int8_t>() + offset + remove_size;
    std::int8_t * work_offset = trn.work_array<std::int8_t>() + offset;
@@ -575,8 +544,6 @@ void trivial_vextr_impl::_insert_remove(
 }
 
 void trivial_vextr_impl::set_capacity(std::size_t new_capacity_min, bool preserve) {
-   LOFTY_TRACE_FUNC(this, new_capacity_min, preserve);
-
    vextr_transaction trn(this, true, new_capacity_min);
    std::size_t orig_size = size<std::int8_t>();
    if (trn.will_replace_array()) {
@@ -593,8 +560,6 @@ void trivial_vextr_impl::set_capacity(std::size_t new_capacity_min, bool preserv
 }
 
 void trivial_vextr_impl::set_size(std::size_t new_size) {
-   LOFTY_TRACE_FUNC(this, new_size);
-
    if (new_size != size<std::int8_t>()) {
       if (new_size > capacity<std::int8_t>()) {
          // Enlarge the item array.

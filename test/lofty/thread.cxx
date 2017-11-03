@@ -28,17 +28,17 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    thread_concurrency,
    "lofty::thread – concurrent operation"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    _std::atomic<bool> thread1_completed(false), thread2_completed(false);
 
    thread thread1([this, &thread1_completed] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       thread1_completed.store(true);
    });
    thread thread2([this, &thread2_completed] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       thread2_completed.store(true);
    });
@@ -79,7 +79,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    thread_interruption,
    "lofty::thread – interruption"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    static std::size_t const workers_size = 5;
    _std::atomic<bool> workers_completed[workers_size], workers_interrupted[workers_size];
@@ -90,7 +90,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       worker_completed->store(false);
       worker_interrupted->store(false);
       worker_threads[i] = thread([this, worker_completed, worker_interrupted] () {
-         LOFTY_TRACE_FUNC(this);
+         LOFTY_TRACE_FUNC();
 
          try {
             /* Expect to be interrupted by the main thread. Make this sleep long enough so as not to cause
@@ -133,7 +133,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    thread_exception_propagation,
    "lofty::thread – exception propagation"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    bool exception_caught = false;
    /* Temporarily redirect stderr to a local string stream, so the exception trace from the thread won’t show
@@ -150,7 +150,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       stderr. */
       try {
          thread thread1([this] () {
-            LOFTY_TRACE_FUNC(this);
+            LOFTY_TRACE_FUNC();
 
             LOFTY_THROW(execution_interruption, ());
          });
@@ -178,12 +178,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    thread_interruption_exception_propagation,
    "lofty::thread – interruption exception propagation"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    bool exception_caught = false;
    _std::atomic<bool> thread1_completed(false);
    thread thread1([this, &thread1_completed] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       /* Make the sleep long enough so as not to cause sporadic test failures, but avoid slowing the test down
       by too much. */

@@ -92,14 +92,10 @@ regex::~regex() {
 }
 
 void regex::insert_capture_group(dynamic_state const * first_state) {
-   LOFTY_TRACE_FUNC(this, first_state);
-
    push_state(parser->create_capture_group(first_state));
 }
 
 int regex::parse_group(regex_capture_format * capture_format) {
-   LOFTY_TRACE_FUNC(this, capture_format);
-
    if (expr_itr >= expr_end) {
       throw_syntax_error(LOFTY_SL("unexpected end of group"));
    }
@@ -210,8 +206,6 @@ int regex::parse_group(regex_capture_format * capture_format) {
 }
 
 void regex::parse_negative_bracket_expression() {
-   LOFTY_TRACE_FUNC(this);
-
    char32_t next_range_begin = *expr_itr++ + 1;
    // Start with the first alternative.
    // TODO: this is not right if *expr_itr is NUL (rare).
@@ -269,8 +263,6 @@ void regex::parse_negative_bracket_expression() {
 }
 
 void regex::parse_positive_bracket_expression() {
-   LOFTY_TRACE_FUNC(this);
-
    auto last_range_state = parser->create_code_point_state(*expr_itr++);
    push_state(last_range_state);
    bool forming_range = false, escape = false, group_added = false;
@@ -321,8 +313,6 @@ void regex::parse_positive_bracket_expression() {
 }
 
 _std::tuple<std::uint16_t, std::uint16_t> regex::parse_repetition_range() {
-   LOFTY_TRACE_FUNC(this);
-
    bool empty = true;
    std::uint16_t begin = 0, end = 0;
    while (expr_itr != expr_end) {
@@ -353,8 +343,6 @@ _std::tuple<std::uint16_t, std::uint16_t> regex::parse_repetition_range() {
 }
 
 int regex::parse_up_to_next_capture(regex_capture_format * capture_format, dynamic_state ** first_state) {
-   LOFTY_TRACE_FUNC(this, capture_format, first_state);
-
    bool escape = false;
    while (expr_itr != expr_end) {
       char32_t cp = *expr_itr++;
@@ -449,8 +437,6 @@ dynamic_state * regex::parse_with_no_captures() {
 }
 
 void regex::push_state(dynamic_state * next_state) {
-   LOFTY_TRACE_FUNC(this, next_state);
-
    if (enter_rep_group) {
       auto repetition_group = parser->create_repetition_group(next_state, 1, 1);
       // Re-terminate the previous sub-expression with the newly-created group.
@@ -489,8 +475,6 @@ void regex::push_state(dynamic_state * next_state) {
 }
 
 void regex::set_curr_state_repetitions(std::uint16_t min, std::uint16_t max) {
-   LOFTY_TRACE_FUNC(this, min, max);
-
    // Make sure we have a repetition group to apply the number of occurrences to.
    auto & curr_subexpr = subexpr_stack.back();
    if (!curr_subexpr.curr_state) {

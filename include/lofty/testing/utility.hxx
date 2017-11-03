@@ -91,8 +91,6 @@ public:
       true if the internal pointer is valid, or false otherwise.
    */
    bool validate() {
-      LOFTY_TRACE_FUNC(this);
-
       return i == 0xcafe && p == &i;
    }
 
@@ -129,8 +127,6 @@ public:
       true if the data pointer has changed, or false otherwise.
    */
    bool changed() {
-      LOFTY_TRACE_FUNC(this);
-
       auto new_t_data = t->data();
       // Check if the data pointer has changed.
       if (new_t_data != t_data) {

@@ -23,8 +23,6 @@ namespace lofty { namespace text {
 /*static*/ void str_traits::_build_find_failure_restart_table(
    char_t const * substr_begin, char_t const * substr_end, collections::vector<std::size_t> * failure_restarts
 ) {
-   LOFTY_TRACE_FUNC(substr_begin, substr_end, failure_restarts);
-
    failure_restarts->set_size(static_cast<std::size_t>(substr_end - substr_begin));
    auto next_failure_restart_itr(failure_restarts->begin());
 
@@ -54,8 +52,6 @@ namespace lofty { namespace text {
 /*static*/ int str_traits::compare(
    char_t const * left_begin, char_t const * left_end, char_t const * right_begin, char_t const * right_end
 ) {
-   LOFTY_TRACE_FUNC(left_begin, left_end, right_begin, right_end);
-
    char_t const * left = left_begin, * right = right_begin;
    while (left < left_end && right < right_end) {
       char_t left_ch = *left++, right_ch = *right++;
@@ -99,8 +95,6 @@ namespace lofty { namespace text {
 /*static*/ char_t const * str_traits::find_char(
    char_t const * str_begin, char_t const * str_end, char32_t cp
 ) {
-   LOFTY_TRACE_FUNC(str_begin, str_end, cp);
-
    if (cp <= host_char_traits::max_single_char_codepoint) {
       // The code point can be encoded as a single character, so this faster search can be used.
       return find_char(str_begin, str_end, static_cast<char_t>(cp));
@@ -114,8 +108,6 @@ namespace lofty { namespace text {
 /*static*/ char_t const * str_traits::find_char(
    char_t const * str_begin, char_t const * str_end, char_t const * cp_chars
 ) {
-   LOFTY_TRACE_FUNC(str_begin, str_end, cp_chars);
-
 #if LOFTY_HOST_UTF == 8
    char8_t cp_lead_ch = *cp_chars;
    for (char8_t const * s = str_begin, * str_next; s < str_end; s = str_next) {
@@ -158,8 +150,6 @@ namespace lofty { namespace text {
 /*static*/ char_t const * str_traits::find_char_last(
    char_t const * str_begin, char_t const * str_end, char32_t cp
 ) {
-   LOFTY_TRACE_FUNC(str_begin, str_end, cp);
-
    if (cp <= host_char_traits::max_single_char_codepoint) {
       // The code point can be encoded as a single character, so this faster search can be used.
       return find_char_last(str_begin, str_end, static_cast<char_t>(cp));
@@ -176,8 +166,6 @@ namespace lofty { namespace text {
 /*static*/ char_t const * str_traits::find_substr(
    char_t const * str_begin, char_t const * str_end, char_t const * substr_begin, char_t const * substr_end
 ) {
-   LOFTY_TRACE_FUNC(str_begin, str_end, substr_begin, substr_end);
-
    if (substr_begin == substr_end) {
       // Empty substring, so just return the beginning of the str.
       return str_begin;
@@ -235,15 +223,15 @@ namespace lofty { namespace text {
 /*static*/ char_t const * str_traits::find_substr_last(
    char_t const * str_begin, char_t const * str_end, char_t const * substr_begin, char_t const * substr_end
 ) {
-   LOFTY_TRACE_FUNC(str_begin, str_end, substr_begin, substr_end);
-
+   LOFTY_UNUSED_ARG(str_begin);
+   LOFTY_UNUSED_ARG(str_end);
+   LOFTY_UNUSED_ARG(substr_begin);
+   LOFTY_UNUSED_ARG(substr_end);
    // TODO: implement this!
    return str_end;
 }
 
 /*static*/ std::size_t str_traits::size_in_codepoints(char_t const * begin, char_t const * end) {
-   LOFTY_TRACE_FUNC(begin, end);
-
    std::size_t size = 0;
    for (auto s = begin; s < end; s += host_char_traits::lead_char_to_codepoint_size(*s)) {
       ++size;
@@ -254,8 +242,6 @@ namespace lofty { namespace text {
 /*static*/ bool str_traits::validate(
    char_t const * begin, char_t const * end, bool throw_on_errors /*= false*/
 ) {
-   LOFTY_TRACE_FUNC(begin, end, throw_on_errors);
-
 #if LOFTY_HOST_UTF == 8
    for (auto s = begin; s < end; ) {
       std::uint8_t const * cp_begin = reinterpret_cast<std::uint8_t const *>(s);

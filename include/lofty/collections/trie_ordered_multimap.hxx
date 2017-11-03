@@ -459,8 +459,6 @@ public:
 
    //! Removes all elements from the map.
    void clear() {
-      LOFTY_TRACE_FUNC(this);
-
       type_void_adapter value_tva;
       value_tva.set_align<TValue>();
       value_tva.set_destruct<TValue>();
@@ -515,8 +513,6 @@ public:
       Reference to the first key/value in the map.
    */
    reference front() {
-      LOFTY_TRACE_FUNC(this);
-
       auto kvp(find_first_key(true));
       return reference(int_to_key(kvp.key), kvp.ln->template value_ptr<TValue>());
    }
@@ -538,8 +534,6 @@ public:
       Extracted key/value pair.
    */
    value_type pop(const_iterator itr) {
-      LOFTY_TRACE_FUNC(this/*, itr*/);
-
       validate_iterator(itr.ln);
       type_void_adapter value_tva;
       value_tva.set_align<TValue>();
@@ -555,8 +549,6 @@ public:
       Extracted key/value pair.
    */
    value_type pop_front() {
-      LOFTY_TRACE_FUNC(this);
-
       type_void_adapter value_tva;
       value_tva.set_align<TValue>();
       value_tva.set_destruct<TValue>();
@@ -572,8 +564,6 @@ public:
       Iterator to the key/value to remove.
    */
    void remove(const_iterator itr) {
-      LOFTY_TRACE_FUNC(this/*, itr*/);
-
       validate_iterator(itr.ln);
       type_void_adapter value_tva;
       value_tva.set_align<TValue>();

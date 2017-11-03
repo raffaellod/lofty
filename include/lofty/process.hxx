@@ -83,8 +83,6 @@ public:
       *this.
    */
    process & operator=(process && src) {
-      LOFTY_TRACE_FUNC(this/*, src*/);
-
       if (&src != this) {
          detach();
          handle = src.handle;
@@ -101,8 +99,6 @@ public:
       true if *this has the same id() as other, or false otherwise.
    */
    bool operator==(process const & other) const {
-      LOFTY_TRACE_FUNC(this/*, other*/);
-
       return id() == other.id();
    }
 
@@ -114,8 +110,6 @@ public:
       true if *this has a different id() than other, or false otherwise.
    */
    bool operator!=(process const & other) const {
-      LOFTY_TRACE_FUNC(this/*, other*/);
-
       return !operator==(other);
    }
 
@@ -151,8 +145,6 @@ public:
       OS-dependent ID/handle.
    */
    native_handle_type native_handle() const {
-      LOFTY_TRACE_FUNC(this);
-
       return handle;
    }
 

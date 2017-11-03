@@ -26,7 +26,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_trie_ordered_multimap_bitwise_basic,
    "lofty::collections::trie_ordered_multimap (bitwise) – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::trie_ordered_multimap<int, int> map;
 

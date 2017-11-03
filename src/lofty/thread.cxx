@@ -179,12 +179,6 @@ void thread::impl::inject_exception(
    , bool send_signal /*= true*/
 #endif
 ) {
-#if LOFTY_HOST_API_POSIX
-   LOFTY_TRACE_FUNC(this, x_type, send_signal);
-#else
-   LOFTY_TRACE_FUNC(this, x_type);
-#endif
-
    /* Avoid interrupting the thread if there’s already a pending interruption (expected_x_type != none). This
    is not meant to prevent multiple concurrent interruptions; see @ref interruption-points. */
    auto expected_x_type = exception::common_type::none;
@@ -220,8 +214,6 @@ void thread::impl::inject_exception(
 }
 
 void thread::impl::join() {
-   LOFTY_TRACE_FUNC(this);
-
    // TODO: wait using coroutine::scheduler.
 #if LOFTY_HOST_API_POSIX
    if (int err = ::pthread_join(handle, nullptr)) {
@@ -288,8 +280,6 @@ void thread::impl::join() {
 }
 
 void thread::impl::start(_std::shared_ptr<impl> * this_pimpl_ptr) {
-   LOFTY_TRACE_FUNC(this, this_pimpl_ptr);
-
    _pvt::simple_event started_event;
    started_event_ptr = &started_event;
    LOFTY_DEFER_TO_SCOPE_END(started_event_ptr = nullptr);
@@ -328,8 +318,6 @@ namespace lofty {
 
 /*explicit*/ thread::thread(_std::function<void ()> main_fn) :
    pimpl(_std::make_shared<impl>(_std::move(main_fn))) {
-   LOFTY_TRACE_FUNC(this);
-
    pimpl->start(&pimpl);
 }
 
@@ -340,8 +328,6 @@ thread::~thread() {
 }
 
 thread::id_type thread::id() const {
-   LOFTY_TRACE_FUNC(this);
-
 #if LOFTY_HOST_API_POSIX
    return pimpl ? pimpl->id : 0;
 #elif LOFTY_HOST_API_WIN32
@@ -360,8 +346,6 @@ thread::id_type thread::id() const {
 }
 
 void thread::interrupt() {
-   LOFTY_TRACE_FUNC(this);
-
    if (!pimpl) {
       // TODO: use a better exception class.
       LOFTY_THROW(argument_error, ());
@@ -370,13 +354,11 @@ void thread::interrupt() {
 }
 
 void thread::join() {
-   LOFTY_TRACE_FUNC(this);
-
    if (!pimpl) {
       // TODO: use a better exception class.
       LOFTY_THROW(argument_error, ());
    }
-   // Empty pimpl; this will also make joinable() return false.
+   // Empty pimpl immediately; this will also make joinable() return false.
    auto pimpl_(_std::move(pimpl));
    pimpl_->join();
 
@@ -394,8 +376,6 @@ thread::native_handle_type thread::native_handle() const {
 namespace lofty {
 
 void to_text_ostream<thread>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -404,8 +384,6 @@ void to_text_ostream<thread>::set_format(str const & format) {
 }
 
 void to_text_ostream<thread>::write(thread const & src, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
    dst->write(LOFTY_SL("TID:"));
    if (auto id = src.id()) {
       to_text_ostream<decltype(id)>::write(id, dst);
@@ -423,8 +401,6 @@ namespace lofty { namespace this_thread {
 _std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
    _std::shared_ptr<coroutine::scheduler> coro_sched /*= nullptr*/
 ) {
-   LOFTY_TRACE_FUNC(coro_sched);
-
    auto & curr_coro_sched = get_impl()->coroutine_scheduler();
    if (coro_sched) {
       if (curr_coro_sched) {

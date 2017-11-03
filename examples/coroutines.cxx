@@ -36,7 +36,7 @@ public:
       Return value of this program.
    */
    virtual int main(collections::vector<str> & args) override {
-      LOFTY_TRACE_FUNC(this/*, args*/);
+      LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
       this_thread::attach_coroutine_scheduler();
@@ -47,7 +47,7 @@ public:
 
       // Schedule the reader.
       coroutine([this, &pipe] () {
-         LOFTY_TRACE_FUNC(this/*, pipe*/);
+         LOFTY_TRACE_FUNC();
 
          io::text::stdout->write_line(LOFTY_SL("reader: starting"));
          for (;;) {
@@ -78,7 +78,7 @@ public:
 
       // Schedule the writer.
       coroutine([this, &pipe] () {
-         LOFTY_TRACE_FUNC(this/*, pipe*/);
+         LOFTY_TRACE_FUNC();
 
          /* Ensure that the pipe’s write end is finalized (closed) even in case of exceptions. In a real
          application, we would check for exceptions when doing so. This will be reported as EOF on the read
@@ -109,7 +109,7 @@ public:
 
       // Schedule the stdin reader.
       /*coroutine([this] () {
-         LOFTY_TRACE_FUNC(this);
+         LOFTY_TRACE_FUNC();
 
          io::text::stdout->print(LOFTY_SL("stdin: starting\n"));
          LOFTY_FOR_EACH(auto & line, io::text::stdin->lines()) {

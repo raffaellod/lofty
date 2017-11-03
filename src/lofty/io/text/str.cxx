@@ -93,8 +93,6 @@ str_istream::str_istream(external_buffer_t const & eb, str const * ext_buf) :
 }
 
 /*virtual*/ void str_istream::consume_chars(std::size_t count) /*override*/ {
-   LOFTY_TRACE_FUNC(this, count);
-
    if (count > remaining_size_in_chars()) {
       // TODO: use a better exception class.
       LOFTY_THROW(argument_error, ());
@@ -103,24 +101,18 @@ str_istream::str_istream(external_buffer_t const & eb, str const * ext_buf) :
 }
 
 /*virtual*/ str str_istream::peek_chars(std::size_t count_min) /*override*/ {
-   LOFTY_TRACE_FUNC(this, count_min);
-
    // Always return the whole string buffer after char_offset, ignoring count_min.
    LOFTY_UNUSED_ARG(count_min);
    return str(external_buffer, buf->data() + char_offset, remaining_size_in_chars());
 }
 
 /*virtual*/ void str_istream::read_all(str * dst) /*override*/ {
-   LOFTY_TRACE_FUNC(this, dst);
-
    *dst = _std::move(*buf);
    buf = &default_buf;
    char_offset = 0;
 }
 
 /*virtual*/ void str_istream::unconsume_chars(str const & s) /*override*/ {
-   LOFTY_TRACE_FUNC(this, s);
-
    std::size_t count = s.size_in_chars();
    if (count > char_offset) {
       // TODO: use a better exception class.
@@ -157,8 +149,6 @@ str_ostream::str_ostream(external_buffer_t const & eb, str * ext_buf) :
 }
 
 void str_ostream::clear() {
-   LOFTY_TRACE_FUNC(this);
-
    buf->set_size_in_chars(0);
    char_offset = 0;
 }
@@ -172,8 +162,6 @@ void str_ostream::clear() {
 }
 
 str str_ostream::release_content() {
-   LOFTY_TRACE_FUNC(this);
-
    char_offset = 0;
    return _std::move(*buf);
 }
@@ -181,8 +169,6 @@ str str_ostream::release_content() {
 /*virtual*/ void str_ostream::write_binary(
    void const * src, std::size_t src_byte_size, lofty::text::encoding enc
 ) /*override*/ {
-   LOFTY_TRACE_FUNC(this, src, src_byte_size, enc);
-
    if (src_byte_size == 0) {
       // Nothing to do.
       return;
@@ -253,8 +239,6 @@ char_ptr_ostream::char_ptr_ostream(char_ptr_ostream && src) :
 /*virtual*/ void char_ptr_ostream::write_binary(
    void const * src, std::size_t src_byte_size, lofty::text::encoding enc
 ) /*override*/ {
-   LOFTY_TRACE_FUNC(this, src, src_byte_size, enc);
-
    if (src_byte_size == 0) {
       // Nothing to do.
       return;

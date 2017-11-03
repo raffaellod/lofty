@@ -26,7 +26,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_hash_map_basic,
    "lofty::collections::hash_map – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::hash_map<int, int> map;
 
@@ -142,7 +142,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_hash_map_collisions_stress,
    "lofty::collections::hash_map – stress test with 100% collisions"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    static int const max = 1000;
    unsigned errors;
@@ -178,7 +178,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_hash_map_iterators,
    "lofty::collections::hash_map – operations with iterators"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::hash_map<int, int> map;
 

@@ -25,7 +25,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io_text_istream_scan_0_captures,
    "lofty::io::text::istream::scan() – no captures"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Syntax errors.
    LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, io::text::str_istream(str::empty).scan(LOFTY_SL("+")));
@@ -66,7 +66,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io_text_istream_scan_1_capture,
    "lofty::io::text::istream::scan() – one capture"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    str captured1;
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("a")).scan(LOFTY_SL("^()$"), &captured1));
@@ -107,7 +107,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io_text_istream_scan_2_captures,
    "lofty::io::text::istream::scan() – two captures"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    str captured1, captured2;
    LOFTY_TESTING_ASSERT_TRUE(io::text::str_istream(LOFTY_SL("a b")).scan(LOFTY_SL("^([^ ]+) ([^ ]+)$"), &captured1, &captured2));
@@ -136,7 +136,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io_text_istream_scan_competing_str_with_format,
    "lofty::io::text::istream::scan() – competing string captures with format"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    str captured1, captured2;
 

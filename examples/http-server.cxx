@@ -35,12 +35,12 @@ public:
       Return value of this program.
    */
    virtual int main(collections::vector<str> & args) override {
-      LOFTY_TRACE_FUNC(this/*, args*/);
+      LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
       // Schedule a TCP server.
       coroutine([this] () {
-         LOFTY_TRACE_FUNC(this);
+         LOFTY_TRACE_FUNC();
 
          net::ip::port port(9080);
          io::text::stdout->print(LOFTY_SL("server: starting, listening on port {}\n"), port);
@@ -55,7 +55,7 @@ public:
 
                // Add a coroutine that will process the newly-established connection.
                coroutine([conn] () {
-                  LOFTY_TRACE_FUNC(conn);
+                  LOFTY_TRACE_FUNC();
 
                   io::text::stdout->print(
                      LOFTY_SL("responder: handling request from {}:{}\n"),

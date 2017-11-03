@@ -34,8 +34,6 @@ binbuf_stream::binbuf_stream(lofty::text::encoding enc) :
 }
 
 /*virtual*/ lofty::text::encoding binbuf_stream::get_encoding() const /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    return default_enc;
 }
 
@@ -62,14 +60,10 @@ binbuf_istream::binbuf_istream(
 
 /*virtual*/ _std::shared_ptr<binary::buffered_stream> binbuf_istream::_binary_buffered_stream(
 ) const /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    return buf_bin_istream;
 }
 
 /*virtual*/ void binbuf_istream::consume_chars(std::size_t count) /*override*/ {
-   LOFTY_TRACE_FUNC(this, count);
-
    if (count > peek_buf.size_in_chars() - peek_buf_char_offset) {
       // TODO: use a better exception class.
       LOFTY_THROW(argument_error, ());
@@ -78,8 +72,6 @@ binbuf_istream::binbuf_istream(
 }
 
 std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_t buf_byte_size) {
-   LOFTY_TRACE_FUNC(this, buf, buf_byte_size);
-
    std::size_t total_byte_size, bom_byte_size;
    if (auto sized = _std::dynamic_pointer_cast<binary::sized>(buf_bin_istream->unbuffered())) {
       /* This special value prevents guess_encoding() from dismissing UTF-16/32 as impossible just because the
@@ -101,8 +93,6 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
 }
 
 /*virtual*/ str binbuf_istream::peek_chars(std::size_t count_min) /*override*/ {
-   LOFTY_TRACE_FUNC(this, count_min);
-
    // The peek buffer might already contain enough characters.
    std::size_t peek_buf_char_size = peek_buf.size_in_chars() - peek_buf_char_offset;
    if (peek_buf_char_size < count_min && !eof) {
@@ -178,8 +168,6 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
 }
 
 /*virtual*/ bool binbuf_istream::read_line(str * dst) /*override*/ {
-   LOFTY_TRACE_FUNC(this, dst);
-
    if (eof) {
       dst->clear();
       return false;
@@ -191,8 +179,6 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
 }
 
 /*virtual*/ void binbuf_istream::unconsume_chars(str const & s) /*override*/ {
-   LOFTY_TRACE_FUNC(this, s);
-
    if (std::size_t count = s.size_in_chars()) {
       peek_buf.set_size_in_chars(count + peek_buf.size_in_chars(), false /*don’t clear*/);
       memory::copy(peek_buf.data(), s.data(), count);
@@ -221,28 +207,20 @@ binbuf_ostream::binbuf_ostream(
 
 /*virtual*/ _std::shared_ptr<binary::buffered_stream> binbuf_ostream::_binary_buffered_stream(
 ) const /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    return buf_bin_ostream;
 }
 
 /*virtual*/ void binbuf_ostream::finalize() /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    buf_bin_ostream->finalize();
 }
 
 /*virtual*/ void binbuf_ostream::flush() /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    buf_bin_ostream->flush();
 }
 
 /*virtual*/ void binbuf_ostream::write_binary(
    void const * src, std::size_t src_byte_size, lofty::text::encoding enc
 ) /*override*/ {
-   LOFTY_TRACE_FUNC(this, src, src_byte_size, enc);
-
    LOFTY_ASSERT(enc != lofty::text::encoding::unknown, LOFTY_SL("cannot write data with unknown encoding"));
 
    // If no encoding has been set yet, default to UTF-8.

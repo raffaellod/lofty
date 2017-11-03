@@ -20,7 +20,7 @@ using namespace lofty;
 class test_app : public app {
 public:
    virtual int main(vector<str> & args) override {
-      LOFTY_TRACE_FUNC(this, args);
+      LOFTY_TRACE_METHOD();
 
       auto stdout(io::text::stdout());
       stdout->set_encoding(text::encoding::utf16be);

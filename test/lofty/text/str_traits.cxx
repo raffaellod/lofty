@@ -70,7 +70,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_traits_validation,
    "lofty::text::str_traits – validity of counted strings"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
 #if LOFTY_HOST_UTF == 8
 

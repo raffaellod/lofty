@@ -85,8 +85,6 @@ std::uint8_t const utf8_char_traits::valid_lead_chars_mask[] = {
 };
 
 /*static*/ char32_t utf8_char_traits::chars_to_codepoint(char8_t const * src_begin) {
-   LOFTY_TRACE_FUNC(src_begin);
-
    char8_t ch = *src_begin;
    unsigned trail_size = lead_char_to_codepoint_size(ch) - 1;
    // Convert the first byte.
@@ -99,8 +97,6 @@ std::uint8_t const utf8_char_traits::valid_lead_chars_mask[] = {
 }
 
 /*static*/ unsigned utf8_char_traits::codepoint_size(char32_t cp) {
-   LOFTY_TRACE_FUNC(cp);
-
    if (!text::is_codepoint_valid(cp)) {
       LOFTY_THROW(text::error, ());
    } else if (cp <= 0x00007f) {
@@ -119,8 +115,6 @@ std::uint8_t const utf8_char_traits::valid_lead_chars_mask[] = {
 }
 
 /*static*/ char8_t * utf8_char_traits::codepoint_to_chars(char32_t cp, char8_t * dst_begin) {
-   LOFTY_TRACE_FUNC(cp, dst_begin);
-
    // Compute the length of the UTF-8 sequence for this code point.
    unsigned seq_byte_size = codepoint_size(cp);
    // Calculate where the sequence will end, and write each byte backwards from there.
@@ -145,8 +139,6 @@ std::uint8_t const utf8_char_traits::valid_lead_chars_mask[] = {
 namespace lofty { namespace text {
 
 /*static*/ char32_t utf16_char_traits::chars_to_codepoint(char16_t const * src_begin) {
-   LOFTY_TRACE_FUNC(src_begin);
-
    char16_t src0 = *src_begin;
    if (!is_surrogate(src0)) {
       return src0;
@@ -157,8 +149,6 @@ namespace lofty { namespace text {
 }
 
 /*static*/ unsigned utf16_char_traits::codepoint_size(char32_t cp) {
-   LOFTY_TRACE_FUNC(cp);
-
    if (!text::is_codepoint_valid(cp)) {
       LOFTY_THROW(text::error, ());
    }
@@ -166,8 +156,6 @@ namespace lofty { namespace text {
 }
 
 /*static*/ char16_t * utf16_char_traits::codepoint_to_chars(char32_t cp, char16_t * dst_begin) {
-   LOFTY_TRACE_FUNC(cp, dst_begin);
-
    auto dst = dst_begin;
    if (codepoint_size(cp) > 1) {
       // The code point requires two UTF-16 characters: generate a surrogate pair.

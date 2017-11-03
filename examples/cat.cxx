@@ -38,7 +38,7 @@ public:
       Return value of this program.
    */
    virtual int main(collections::vector<str> & args) override {
-      LOFTY_TRACE_FUNC(this/*, args*/);
+      LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
       // Read one line at a time from stdin…

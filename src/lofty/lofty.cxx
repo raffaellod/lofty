@@ -171,8 +171,6 @@ void * context_local_storage_impl::get_storage(context_local_storage_node_impl c
 namespace lofty { namespace _pvt {
 
 /*static*/ enum_member const * enum_member::find_in_map(enum_member const * members, int value) {
-   LOFTY_TRACE_FUNC(members, value);
-
    for (; members->name; ++members) {
       if (value == members->value) {
          return members;
@@ -182,8 +180,6 @@ namespace lofty { namespace _pvt {
    LOFTY_THROW(domain_error, ());
 }
 /*static*/ enum_member const * enum_member::find_in_map(enum_member const * members, str const & name) {
-   LOFTY_TRACE_FUNC(members, name);
-
    for (; members->name; ++members) {
       if (name == str(external_buffer, members->name, members->name_size)) {
          return members;
@@ -200,8 +196,6 @@ namespace lofty { namespace _pvt {
 namespace lofty { namespace _pvt {
 
 void enum_to_text_ostream_impl::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -210,8 +204,6 @@ void enum_to_text_ostream_impl::set_format(str const & format) {
 }
 
 void enum_to_text_ostream_impl::write_impl(int i, enum_member const * members, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this, i, members, dst);
-
    auto member = enum_member::find_in_map(members, i);
    dst->write(str(external_buffer, member->name));
 }
@@ -276,10 +268,10 @@ coroutine_local_ptr<io::text::str_ostream> scope_trace::trace_ostream;
 coroutine_local_value<unsigned> scope_trace::trace_ostream_refs /*= 0*/;
 coroutine_local_value<unsigned> scope_trace::curr_stack_depth /*= 0*/;
 
-scope_trace::scope_trace(source_file_address const * source_file_addr_, scope_trace_tuple const * vars_) :
+scope_trace::scope_trace(source_file_address const * source_file_addr_, void const * local_this_) :
    prev_scope_trace(scope_traces_head),
    source_file_addr(source_file_addr_),
-   vars(vars_) {
+   local_this(local_this_) {
    scope_traces_head = this;
 }
 
@@ -302,11 +294,10 @@ scope_trace::~scope_trace() {
 
 void scope_trace::write(io::text::ostream * dst, unsigned stack_depth) const {
    dst->print(
-      LOFTY_SL("#{} {} with args: "), stack_depth, str(external_buffer, source_file_addr->function())
+      LOFTY_SL("#{} {} this={} at {}\n"),
+      stack_depth, str(external_buffer, source_file_addr->function()), local_this,
+      source_file_addr->file_address()
    );
-   // Write the variables tuple.
-   vars->write(dst);
-   dst->print(LOFTY_SL(" at {}\n"), source_file_addr->file_address());
 }
 
 /*static*/ void scope_trace::write_list(io::text::ostream * dst) {
@@ -314,16 +305,6 @@ void scope_trace::write(io::text::ostream * dst, unsigned stack_depth) const {
    for (scope_trace const * st = scope_traces_head; st; st = st->prev_scope_trace) {
       st->write(dst, ++stack_depth);
    }
-}
-
-}} //namespace lofty::_pvt
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace _pvt {
-
-/*static*/ void scope_trace_tuple::write_separator(io::text::ostream * dst) {
-   dst->write(LOFTY_SL(", "));
 }
 
 }} //namespace lofty::_pvt

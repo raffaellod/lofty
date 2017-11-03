@@ -35,12 +35,12 @@ public:
       Return value of this program.
    */
    virtual int main(collections::vector<str> & args) override {
-      LOFTY_TRACE_FUNC(this/*, args*/);
+      LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
       // Schedule a TCP server. To connect to it, use: socat - TCP4:127.0.0.1:9082
       coroutine([this] () {
-         LOFTY_TRACE_FUNC(this);
+         LOFTY_TRACE_FUNC();
 
          net::ip::port port(9082);
          io::text::stdout->print(LOFTY_SL("server: starting, listening on port {}\n"), port);
@@ -55,7 +55,7 @@ public:
 
                // Add a coroutine that will echo every line sent over the newly-established connection.
                coroutine([conn] () {
-                  LOFTY_TRACE_FUNC(conn);
+                  LOFTY_TRACE_FUNC();
 
                   io::text::stdout->print(
                      LOFTY_SL("responder: starting for {}:{}\n"), conn->remote_address(), conn->remote_port()

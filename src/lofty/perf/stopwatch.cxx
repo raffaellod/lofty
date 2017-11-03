@@ -58,8 +58,6 @@ static timepoint_t get_timepoint() {
 }
 
 static stopwatch::duration_type get_duration_ns(::timespec const & begin, ::timespec const & end) {
-   LOFTY_TRACE_FUNC();
-
    typedef stopwatch::duration_type duration_type;
    duration_type interval = static_cast<duration_type>(end.tv_sec - begin.tv_sec) * 1000000000;
    interval += static_cast<duration_type>(end.tv_nsec);
@@ -92,8 +90,6 @@ static timepoint_t get_timepoint() {
 }
 
 static stopwatch::duration_type get_duration_ns(::FILETIME const & begin, ::FILETIME const & end) {
-   LOFTY_TRACE_FUNC();
-
    // Compose the FILETIME arguments into 64-bit integers.
    ::ULARGE_INTEGER begin_int, end_int;
    begin_int.LowPart = begin.dwLowDateTime;
@@ -131,18 +127,12 @@ stopwatch & stopwatch::operator=(stopwatch const & src) {
 }
 
 void stopwatch::start() {
-   LOFTY_TRACE_FUNC(this);
-
    timepoint_t timepoint(get_timepoint());
    *static_cast<timepoint_t *>(start_time.get()) = _std::move(timepoint);
 }
 
 stopwatch::duration_type stopwatch::stop() {
    auto timepoint(get_timepoint());
-
-   // We do this here to avoid adding LOFTY_TRACE_FUNC() to the timed execution.
-   LOFTY_TRACE_FUNC(this);
-
    duration_type last_duration = get_duration_ns(
       *static_cast<timepoint_t *>(start_time.get()), _std::move(timepoint)
    );

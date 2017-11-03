@@ -387,8 +387,6 @@ dynamic::match dynamic::run(str const & s) const {
 }
 
 dynamic::match dynamic::run(io::text::istream * istream) const {
-   LOFTY_TRACE_FUNC(this, istream);
-
    auto curr_state = initial_state;
    // Cache this condition to quickly determine whether we’re allowed to skip input code points…
    bool begin_anchor = (curr_state && curr_state->type == state_type::begin && !curr_state->alternative);
@@ -632,8 +630,6 @@ next_state_after_accepted:
 namespace lofty { namespace text { namespace parsers {
 
 dynamic_match_capture dynamic_match_repetition::occurrence::capture_group(unsigned index) const {
-   LOFTY_TRACE_FUNC(this, index);
-
    auto requested_index = static_cast<std::ptrdiff_t>(index);
    auto first_state = first_group_node->state;
    for (auto curr = first_group_node; curr; ) {
@@ -652,8 +648,6 @@ dynamic_match_capture dynamic_match_repetition::occurrence::capture_group(unsign
 }
 
 dynamic_match_repetition dynamic_match_repetition::occurrence::repetition_group(unsigned index) const {
-   LOFTY_TRACE_FUNC(this, index);
-
    auto requested_index = static_cast<std::ptrdiff_t>(index);
    auto first_state = first_group_node->state;
    for (auto curr = first_group_node; curr; ) {
@@ -680,8 +674,6 @@ dynamic_match_repetition dynamic_match_repetition::occurrence::repetition_group(
 }
 
 dynamic_match_repetition::occurrence dynamic_match_repetition::operator[](std::size_t index) const {
-   LOFTY_TRACE_FUNC(this, index);
-
    auto requested_index = static_cast<std::ptrdiff_t>(index);
    auto first_state = group_node->first_nested->state;
    for (auto nested = group_node->first_nested.get(); nested; nested = nested->next_sibling.get()) {
@@ -706,15 +698,11 @@ std::size_t dynamic_match_repetition::size() const {
 namespace lofty { namespace text { namespace parsers {
 
 std::size_t dynamic_match_capture::begin_char_index() const {
-   LOFTY_TRACE_FUNC(this);
-
    auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
    return (match ? match->begin_char_index() : 0) + capture_group_->begin;
 }
 
 dynamic_match_capture dynamic_match_capture::capture_group(unsigned index) const {
-   LOFTY_TRACE_FUNC(this, index);
-
    auto requested_index = static_cast<std::ptrdiff_t>(index);
    for (auto nested = group_node->first_nested.get(); nested; nested = nested->next_sibling.get()) {
       if (nested->is_capture()) {
@@ -728,15 +716,11 @@ dynamic_match_capture dynamic_match_capture::capture_group(unsigned index) const
 }
 
 std::size_t dynamic_match_capture::end_char_index() const {
-   LOFTY_TRACE_FUNC(this);
-
    auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
    return (match ? match->begin_char_index() : 0) + capture_group_->end;
 }
 
 dynamic_match_repetition dynamic_match_capture::repetition_group(unsigned index) const {
-   LOFTY_TRACE_FUNC(this, index);
-
    auto requested_index = static_cast<std::ptrdiff_t>(index);
    for (auto nested = group_node->first_nested.get(); nested; nested = nested->next_sibling.get()) {
       if (nested->is_repetition()) {
@@ -750,8 +734,6 @@ dynamic_match_repetition dynamic_match_capture::repetition_group(unsigned index)
 }
 
 text::str dynamic_match_capture::str() const {
-   LOFTY_TRACE_FUNC(this);
-
    char_t const * ret_begin;
    std::size_t ret_size;
    if (match) {

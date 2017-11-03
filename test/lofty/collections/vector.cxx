@@ -28,7 +28,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_vector_basic,
    "lofty::collections::vector – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::vector<int> v;
 
@@ -114,7 +114,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_vector_relational_operators,
    "lofty::collections::vector – relational operators"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::vector<int> v1a, v1b, v2, v3;
    v1a.push_back(1);
@@ -153,7 +153,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_vector_iterators,
    "lofty::collections::vector – operations with iterators"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Default-constructed iterator.
    collections::vector<int>::const_iterator itr;
@@ -234,7 +234,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_vector_trivial_removal,
    "lofty::collections::vector – removal of trivial elements"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::vector<int> v, zero, one, two, one_two;
    one.push_back(1);
@@ -274,7 +274,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_vector_memory,
    "lofty::collections::vector – memory management"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    using testing::utility::make_container_data_ptr_tracker;
 
@@ -468,7 +468,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_vector_movement,
    "lofty::collections::vector – item and item array movement"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    typedef testing::utility::instances_counter instances_counter;
    {
@@ -512,7 +512,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    from_text_istream_vector,
    "lofty::from_text_istream – lofty::collections::vector"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::vector<int> v;
 

@@ -30,8 +30,6 @@ more details.
 namespace lofty {
 
 void to_text_ostream<bool>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -40,8 +38,6 @@ void to_text_ostream<bool>::set_format(str const & format) {
 }
 
 void to_text_ostream<bool>::write(bool src, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
    if (src) {
       dst->write(LOFTY_SL("true"));
    } else {
@@ -79,8 +75,6 @@ int_to_text_ostream_base::int_to_text_ostream_base(unsigned bytes_per_int_) :
 }
 
 void int_to_text_ostream_base::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    bool prefix = false;
    auto itr(format.cbegin());
    char32_t ch;
@@ -189,8 +183,6 @@ default_notation:
 void int_to_text_ostream_base::add_prefixes_and_write(
    bool negative, io::text::ostream * dst, str * buf, str::iterator buf_first_used_itr
 ) const {
-   LOFTY_TRACE_FUNC(this, negative, dst, buf, buf_first_used_itr);
-
    auto buf_end(buf->cend());
    auto itr(buf_first_used_itr);
    // Ensure that at least one digit is generated.
@@ -229,8 +221,6 @@ void int_to_text_ostream_base::add_prefixes_and_write(
 
 template <typename I>
 inline void int_to_text_ostream_base::write_impl(I i, io::text::ostream * dst) const {
-   LOFTY_TRACE_FUNC(this/*, i*/, dst);
-
    // Create a buffer of sufficient size for binary notation (the largest).
    sstr<2 /*prefix or sign*/ + sizeof(I) * CHAR_BIT> buf;
    /* Use clear = true since we need to iterate backwards on buf, which requires reading its otherwise
@@ -300,8 +290,6 @@ ptr_to_text_ostream::ptr_to_text_ostream() {
 }
 
 void ptr_to_text_ostream::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -310,8 +298,6 @@ void ptr_to_text_ostream::set_format(str const & format) {
 }
 
 void ptr_to_text_ostream::_write_impl(std::uintptr_t src, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
    if (src) {
       to_text_ostream<std::uintptr_t>::write(src, dst);
    } else {
@@ -332,8 +318,6 @@ to_text_ostream<_std::type_info>::~to_text_ostream() {
 }
 
 void to_text_ostream<_std::type_info>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -381,8 +365,6 @@ sequence_to_text_ostream::sequence_to_text_ostream(str const & start_delim_, str
 }
 
 void sequence_to_text_ostream::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.

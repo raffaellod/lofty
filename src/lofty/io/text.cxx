@@ -49,8 +49,6 @@ inherently PID-specific.
    Encoding appropriate for the requested standard stream.
 */
 static lofty::text::encoding get_stdio_encoding(binary::stream const * bin_stream, str const & env_var_name) {
-   LOFTY_TRACE_FUNC(bin_stream, env_var_name);
-
    lofty::text::encoding enc;
    if (dynamic_cast<binary::tty_file_stream const *>(bin_stream)) {
       /* Console files can only perform I/O in the host platform’s encoding, so force the correct encoding
@@ -77,8 +75,6 @@ _std::shared_ptr<binbuf_istream> make_istream(
    _std::shared_ptr<binary::istream> bin_istream,
    lofty::text::encoding enc /*= lofty::text::encoding::unknown*/
 ) {
-   LOFTY_TRACE_FUNC(bin_istream, enc);
-
    // See if *bin_istream is also a binary::buffered_istream.
    auto buf_bin_istream(_std::dynamic_pointer_cast<binary::buffered_istream>(bin_istream));
    if (!buf_bin_istream) {
@@ -92,8 +88,6 @@ _std::shared_ptr<binbuf_ostream> make_ostream(
    _std::shared_ptr<binary::ostream> bin_ostream,
    lofty::text::encoding enc /*= lofty::text::encoding::unknown*/
 ) {
-   LOFTY_TRACE_FUNC(bin_ostream, enc);
-
    // See if *bin_ostream is also a binary::buffered_ostream.
    auto buf_bin_ostream(_std::dynamic_pointer_cast<binary::buffered_ostream>(bin_ostream));
    if (!buf_bin_ostream) {
@@ -106,16 +100,12 @@ _std::shared_ptr<binbuf_ostream> make_ostream(
 _std::shared_ptr<binbuf_istream> open_istream(
    os::path const & path, lofty::text::encoding enc /*= lofty::text::encoding::unknown*/
 ) {
-   LOFTY_TRACE_FUNC(path, enc);
-
    return make_istream(binary::open_istream(path));
 }
 
 _std::shared_ptr<binbuf_ostream> open_ostream(
    os::path const & path, lofty::text::encoding enc /*= lofty::text::encoding::unknown*/
 ) {
-   LOFTY_TRACE_FUNC(path, enc);
-
    return make_ostream(binary::open_ostream(path));
 }
 
@@ -124,8 +114,6 @@ _std::shared_ptr<binbuf_ostream> open_ostream(
 namespace lofty { namespace io { namespace text { namespace _pvt {
 
 _std::shared_ptr<ostream> make_stderr() {
-   LOFTY_TRACE_FUNC();
-
    auto bin_ostream(binary::stderr);
    // See if *bin_ostream is also a binary::buffered_ostream.
    auto buf_bin_ostream(_std::dynamic_pointer_cast<binary::buffered_ostream>(bin_ostream));
@@ -138,8 +126,6 @@ _std::shared_ptr<ostream> make_stderr() {
 }
 
 _std::shared_ptr<istream> make_stdin() {
-   LOFTY_TRACE_FUNC();
-
    auto bin_istream(binary::stdin);
    // See if *bin_istream is also a binary::buffered_istream.
    auto buf_bin_istream(_std::dynamic_pointer_cast<binary::buffered_istream>(bin_istream));
@@ -152,8 +138,6 @@ _std::shared_ptr<istream> make_stdin() {
 }
 
 _std::shared_ptr<ostream> make_stdout() {
-   LOFTY_TRACE_FUNC();
-
    auto bin_ostream(binary::stdout);
    // See if *pbw is also a binary::buffered_ostream.
    auto buf_bin_ostream(_std::dynamic_pointer_cast<binary::buffered_ostream>(bin_ostream));
@@ -190,16 +174,12 @@ istream::istream() :
 }
 
 str istream::read_all() {
-   LOFTY_TRACE_FUNC(this);
-
    str dst;
    read_all(&dst);
    return _std::move(dst);
 }
 
 /*virtual*/ void istream::read_all(str * dst) {
-   LOFTY_TRACE_FUNC(this, dst);
-
    dst->clear();
    // Just ask for 1 character; that’s enough to distinguish between EOF and non-EOF.
    while (str src = peek_chars(1)) {
@@ -210,8 +190,6 @@ str istream::read_all() {
 }
 
 /*virtual*/ bool istream::read_line(str * dst) {
-   LOFTY_TRACE_FUNC(this, dst);
-
    dst->clear();
    std::size_t consumed_total = 0, dst_char_size = 0;
    bool lterm_found = false;
@@ -362,16 +340,12 @@ ostream::ostream() :
 }
 
 void ostream::write(str const & s) {
-   LOFTY_TRACE_FUNC(this, s);
-
    write_binary(s.data(), static_cast<std::size_t>(
       reinterpret_cast<std::uintptr_t>(s.data_end()) - reinterpret_cast<std::uintptr_t>(s.data())
    ), lofty::text::encoding::host);
 }
 
 void ostream::write_line(str const & s) {
-   LOFTY_TRACE_FUNC(this, s);
-
    write(s);
    write(get_line_terminator_str(
       // If no line terminator sequence has been explicitly set, use the platform’s default.
@@ -406,8 +380,6 @@ void ostream_print_helper_impl::throw_collections_out_of_range() {
 }
 
 bool ostream_print_helper_impl::write_format_up_to_next_repl() {
-   LOFTY_TRACE_FUNC(this);
-
    // Search for the next replacement, if any.
    str::const_iterator itr(format_to_write_begin_itr), repl_field_begin, end(format.cend());
    char32_t ch;
@@ -504,8 +476,6 @@ void ostream_print_helper_impl::throw_syntax_error(str const & description, str:
 }
 
 void ostream_print_helper_impl::write_format_up_to(str::const_iterator up_to) {
-   LOFTY_TRACE_FUNC(this, up_to);
-
    if (up_to > format_to_write_begin_itr) {
       ostream->write_binary(
          format_to_write_begin_itr.ptr(),

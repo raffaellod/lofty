@@ -52,9 +52,6 @@ to_text_ostream<net::ip::address>::~to_text_ostream() {
 }
 
 void to_text_ostream<net::ip::address>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -63,8 +60,6 @@ void to_text_ostream<net::ip::address>::set_format(str const & format) {
 }
 
 void to_text_ostream<net::ip::address>::write(net::ip::address const & src, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
    switch (src.version().base()) {
       case net::ip::version::any:
          char_ttos.write('-', dst);

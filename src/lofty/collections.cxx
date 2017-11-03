@@ -104,8 +104,6 @@ out_of_range & out_of_range::operator=(out_of_range const & src) {
 namespace lofty { namespace collections {
 
 void static_list_impl_base::link_back(node * nd) {
-   // TODO: enable use LOFTY_TRACE_FUNC(this, nd) by handling reentrancy.
-
    nd->set_siblings(nullptr, last);
    if (!first) {
       first = nd;
@@ -116,8 +114,6 @@ void static_list_impl_base::link_back(node * nd) {
 }
 
 void static_list_impl_base::link_front(node * nd) {
-   // TODO: enable use LOFTY_TRACE_FUNC(this, nd) by handling reentrancy.
-
    nd->set_siblings(first, nullptr);
    if (!last) {
       last = nd;
@@ -128,8 +124,6 @@ void static_list_impl_base::link_front(node * nd) {
 }
 
 std::size_t static_list_impl_base::size() const {
-   // TODO: enable use LOFTY_TRACE_FUNC(this) by handling reentrancy.
-
    std::size_t ret = 0;
    for (
       node * next, * prev = nullptr, * curr = first;
@@ -142,8 +136,6 @@ std::size_t static_list_impl_base::size() const {
 }
 
 void static_list_impl_base::unlink(node * nd) {
-   // TODO: enable use LOFTY_TRACE_FUNC(this, nd) by handling reentrancy.
-
    /* Find nd in the list, scanning from the back to the front of the list. If nodes are added by link_back()
    in their order of construction and the order of removal is the order of their destruction, last will be nd.
    This won’t be the case if shared libraries are not unloaded in the same order in which they are loaded. */
@@ -157,8 +149,6 @@ void static_list_impl_base::unlink(node * nd) {
 }
 
 void static_list_impl_base::unlink(node * nd, node * prev, node * next) {
-   // TODO: enable use LOFTY_TRACE_FUNC(this, nd, prev, next) by handling reentrancy.
-
    if (prev) {
       prev->set_siblings(prev->get_other_sibling(nd), next);
    } else if (first == nd) {
@@ -173,8 +163,6 @@ void static_list_impl_base::unlink(node * nd, node * prev, node * next) {
 
 
 void static_list_impl_base::iterator::increment() {
-   // TODO: enable use LOFTY_TRACE_FUNC(this) by handling reentrancy.
-
    /* Detect attempts to increment past the end() of the container, or increment a default-constructed
    iterator. */
    validate();
@@ -185,8 +173,6 @@ void static_list_impl_base::iterator::increment() {
 }
 
 void static_list_impl_base::iterator::validate() const {
-   // TODO: enable use LOFTY_TRACE_FUNC(this) by handling reentrancy.
-
    if (!curr) {
       LOFTY_THROW(out_of_range, ());
    }
@@ -211,8 +197,6 @@ doubly_linked_list_impl::node::node(
 ) :
    next_(next__),
    prev_(prev__) {
-   LOFTY_TRACE_FUNC(this/*, type*/, first_node_, last_node_, prev__, next__, value_src, move);
-
    // Copy- or move-onstruct the value of the node.
    void * value_dst = value_ptr(type);
    if (move) {
@@ -253,8 +237,6 @@ void * doubly_linked_list_impl::node::value_ptr(type_void_adapter const & type) 
 
 
 void doubly_linked_list_impl::iterator_base::advance(bool forward) {
-   LOFTY_TRACE_FUNC(this, forward);
-
    validate();
    nd = forward ? nd->next() : nd->prev();
 }
@@ -281,8 +263,6 @@ doubly_linked_list_impl::doubly_linked_list_impl(doubly_linked_list_impl && src)
 }
 
 doubly_linked_list_impl & doubly_linked_list_impl::operator=(doubly_linked_list_impl && src) {
-   LOFTY_TRACE_FUNC(this);
-
    // Assume that the subclass has already moved *this out.
    first_node = src.first_node;
    src.first_node = nullptr;
@@ -301,8 +281,6 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::back() const {
 }
 
 void doubly_linked_list_impl::clear(type_void_adapter const & type) {
-   LOFTY_TRACE_FUNC(this/*, type*/);
-
    destruct_list(type, first_node);
    first_node = nullptr;
    last_node = nullptr;
@@ -310,8 +288,6 @@ void doubly_linked_list_impl::clear(type_void_adapter const & type) {
 }
 
 /*static*/ void doubly_linked_list_impl::destruct_list(type_void_adapter const & type, node * nd) {
-   LOFTY_TRACE_FUNC(/*type, */nd);
-
    while (nd) {
       node * next = nd->next();
       type.destruct(nd->value_ptr(type));
@@ -330,8 +306,6 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::front() const {
 /*static*/ doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
    type_void_adapter const & type, node ** first_node, node ** last_node, void const * value, bool move
 ) {
-   LOFTY_TRACE_FUNC(/*type, */first_node, last_node, value, move);
-
    return new(type) node(type, first_node, last_node, *last_node, nullptr, value, move);
 }
 
@@ -346,8 +320,6 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_back(
 /*static*/ doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
    type_void_adapter const & type, node ** first_node, node ** last_node, void const * value, bool move
 ) {
-   LOFTY_TRACE_FUNC(/*type, */first_node, last_node, value, move);
-
    return new(type) node(type, first_node, last_node, nullptr, *first_node, value, move);
 }
 
@@ -362,8 +334,6 @@ doubly_linked_list_impl::node * doubly_linked_list_impl::push_front(
 /*static*/ void doubly_linked_list_impl::remove(
    type_void_adapter const & type, node ** first_node, node ** last_node, node * nd
 ) {
-   LOFTY_TRACE_FUNC(/*type, */first_node, last_node, nd);
-
    nd->unlink(first_node, last_node);
    type.destruct(nd->value_ptr(type));
    delete nd;
@@ -392,8 +362,6 @@ singly_linked_list_impl::node::node(
    void const * value_src, bool move
 ) :
    next_(next__) {
-   LOFTY_TRACE_FUNC(this/*, type*/, first_node_, last_node_, prev, next__, value_src, move);
-
    // Copy- or move-onstruct the value of the node.
    void * value_dst = value_ptr(type);
    if (move) {
@@ -458,8 +426,6 @@ void singly_linked_list_impl::clear(type_void_adapter const & type) {
 }
 
 /*static*/ void singly_linked_list_impl::destruct_list(type_void_adapter const & type, node * nd) {
-   LOFTY_TRACE_FUNC(/*type, */nd);
-
    while (nd) {
       node * next = nd->next();
       type.destruct(nd->value_ptr(type));
@@ -471,16 +437,12 @@ void singly_linked_list_impl::clear(type_void_adapter const & type) {
 singly_linked_list_impl::node * singly_linked_list_impl::push_back(
    type_void_adapter const & type, void const * value, bool move
 ) {
-   LOFTY_TRACE_FUNC(this/*, type*/, value, move);
-
    node * ret = new(type) node(type, &first_node, &last_node, last_node, nullptr, value, move);
    ++size_;
    return ret;
 }
 
 void singly_linked_list_impl::pop_front(type_void_adapter const & type) {
-   LOFTY_TRACE_FUNC(this/*, type*/);
-
    node * nd = first_node;
    nd->unlink(&first_node, &last_node, nullptr);
    type.destruct(nd->value_ptr(type));
@@ -515,8 +477,6 @@ vector_to_text_ostream::~vector_to_text_ostream() {
 }
 
 str vector_to_text_ostream::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.

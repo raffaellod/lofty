@@ -26,7 +26,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io_text_ostream_print_0_replacements,
    "lofty::io::text::ostream::print() – no replacements"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    sstr<128> buf;
    io::text::str_ostream ostream(external_buffer, buf.str_ptr());
@@ -60,7 +60,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io_text_ostream_print_1_replacement,
    "lofty::io::text::ostream::print() – one replacement"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    sstr<128> buf;
    io::text::str_ostream ostream(external_buffer, buf.str_ptr());
@@ -94,7 +94,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io_text_ostream_print_2_replacements,
    "lofty::io::text::ostream::print() – two replacements"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    sstr<128> buf;
    io::text::str_ostream ostream(external_buffer, buf.str_ptr());

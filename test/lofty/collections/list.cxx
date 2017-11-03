@@ -29,7 +29,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_list_basic,
    "lofty::collections::list – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::list<int> l;
 
@@ -111,7 +111,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_list_nodes_movement,
    "lofty::collections::list – nodes movement"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    typedef testing::utility::instances_counter instances_counter;
    {
@@ -144,7 +144,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_list_iterators,
    "lofty::collections::list – operations with iterators"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::list<int> l;
 

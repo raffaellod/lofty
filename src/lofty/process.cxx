@@ -48,8 +48,6 @@ process::native_handle_type const process::null_handle =
    static_assert(sizeof(id_type) == sizeof(::pid_t), "pid_t must be the same size as native_handle_type");
 #elif LOFTY_HOST_API_WIN32
    handle(null_handle) {
-   LOFTY_TRACE_FUNC(this);
-
    // For now, only get a minimum access level.
    handle = ::OpenProcess(SYNCHRONIZE, false, pid);
    if (!handle) {
@@ -72,8 +70,6 @@ process::~process() {
 }
 
 void process::detach() {
-   LOFTY_TRACE_FUNC(this);
-
 #if LOFTY_HOST_API_WIN32
    if (handle) {
       ::CloseHandle(handle);
@@ -83,8 +79,6 @@ void process::detach() {
 }
 
 process::id_type process::id() const {
-   LOFTY_TRACE_FUNC(this);
-
 #if LOFTY_HOST_API_POSIX
    // ID == native handle.
    return handle;
@@ -100,8 +94,6 @@ process::id_type process::id() const {
 }
 
 int process::join() {
-   LOFTY_TRACE_FUNC(this);
-
    // TODO: wait using coroutine::scheduler.
 #if LOFTY_HOST_API_POSIX
    int status;
@@ -135,8 +127,6 @@ int process::join() {
 }
 
 bool process::joinable() const {
-   LOFTY_TRACE_FUNC(this);
-
    if (handle == null_handle) {
       return false;
    }
@@ -168,8 +158,6 @@ bool process::joinable() const {
 namespace lofty {
 
 void to_text_ostream<process>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -178,8 +166,6 @@ void to_text_ostream<process>::set_format(str const & format) {
 }
 
 void to_text_ostream<process>::write(process const & src, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
    dst->write(LOFTY_SL("TID:"));
    if (auto id = src.id()) {
       to_text_ostream<decltype(id)>::write(id, dst);
@@ -195,8 +181,6 @@ void to_text_ostream<process>::write(process const & src, io::text::ostream * ds
 namespace lofty { namespace this_process {
 
 bool env_var(str const & name, str * out) {
-   LOFTY_TRACE_FUNC(name, out);
-
    bool ret;
    auto name_cstr(name.c_str());
 #if LOFTY_HOST_API_POSIX

@@ -40,7 +40,7 @@ public:
       Return value of this program.
    */
    virtual int main(collections::vector<str> & args) override {
-      LOFTY_TRACE_FUNC(this, args);
+      LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
       str s(LOFTY_SL("Test String"));
@@ -53,7 +53,7 @@ public:
 
       io::text::stdout->write_line(LOFTY_SL("Before calling first_function()"));
       io::text::stdout->write_line();
-      first_function(s, ints);
+      first_function();
 
       // This will never happen.
       io::text::stdout->write_line(LOFTY_SL("After calling first_function()"));
@@ -71,8 +71,8 @@ public:
       (four,  4)
    );
 
-   void first_function(str const & s, collections::vector<int> const & ints) const {
-      LOFTY_TRACE_FUNC(this, s, ints);
+   void first_function() const {
+      LOFTY_TRACE_METHOD();
 
       exception::write_with_scope_trace(io::text::stdout.get());
       io::text::stdout->write_line();
@@ -88,7 +88,7 @@ public:
    }
 
    void is_zero(numbers_enum number, bool * ret) const {
-      LOFTY_TRACE_FUNC(this, number, ret);
+      LOFTY_TRACE_METHOD();
 
       *ret = (number == numbers_enum::zero);
    }

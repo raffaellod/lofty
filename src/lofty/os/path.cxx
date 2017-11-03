@@ -40,8 +40,6 @@ public:
       Path to get statistics for.
    */
    file_stat(path const & path_) {
-      LOFTY_TRACE_FUNC(this, path_);
-
       if (::stat(path_.os_str().c_str(), this)) {
          exception::throw_os_error();
       }
@@ -62,8 +60,6 @@ return
    true if the path has all the file attributes in attrs, or false otherwise.
 */
 static bool file_has_attrs(path const & path_, ::DWORD attrs) {
-   LOFTY_TRACE_FUNC(path_, attrs);
-
    ::DWORD all_attrs = ::GetFileAttributes(path_.os_str().c_str());
    if (all_attrs == INVALID_FILE_ATTRIBUTES) {
       exception::throw_os_error();
@@ -95,16 +91,12 @@ char_t const path::unc_root[] = LOFTY_SL("\\\\?\\UNC\\");
 #endif
 
 path & path::operator/=(str const & s) {
-   LOFTY_TRACE_FUNC(this, s);
-
    // Only the root already ends in a separator; everything else needs one.
    s_ = validate_and_adjust((!s_ || is_root() ? str(s_) : s_ + separator_) + s);
    return *this;
 }
 
 path path::absolute() const {
-   LOFTY_TRACE_FUNC(this);
-
    path absolute_path;
    if (is_absolute()) {
       absolute_path = *this;
@@ -148,14 +140,10 @@ path path::absolute() const {
 }
 
 path path::base_name() const {
-   LOFTY_TRACE_FUNC(this);
-
    return s_.substr(base_name_start());
 }
 
 /*static*/ path path::current_dir() {
-   LOFTY_TRACE_FUNC();
-
    str ret;
 #if LOFTY_HOST_API_POSIX
    ret.set_from([] (char_t * chars, std::size_t chars_max) -> std::size_t {
@@ -198,8 +186,6 @@ path path::base_name() const {
 
 #if LOFTY_HOST_API_WIN32
 /*static*/ path path::current_dir_for_volume(char_t volume) {
-   LOFTY_TRACE_FUNC(volume);
-
    // Create a dummy path for ::GetFullPathName() to expand.
    char_t dummy_path[4] = { volume, ':', 'a', '\0' };
    str ret;
@@ -226,8 +212,6 @@ path path::base_name() const {
 #endif //if LOFTY_HOST_API_WIN32
 
 bool path::is_dir() const {
-   LOFTY_TRACE_FUNC(this);
-
 #if LOFTY_HOST_API_POSIX
    return S_ISDIR(file_stat(*this).st_mode);
 #elif LOFTY_HOST_API_WIN32
@@ -238,8 +222,6 @@ bool path::is_dir() const {
 }
 
 path path::normalize() const {
-   LOFTY_TRACE_FUNC(this);
-
    str s(s_);
    auto begin(s.begin()), end(s.end());
    auto root_end(begin + static_cast<std::ptrdiff_t>(get_root_length(s)));
@@ -315,15 +297,11 @@ path path::normalize() const {
 
 #if LOFTY_HOST_API_WIN32
 str path::os_str() const {
-   LOFTY_TRACE_FUNC(this);
-
    return _std::move(absolute().s_);
 }
 #endif //if LOFTY_HOST_API_WIN32
 
 path path::parent_dir() const {
-   LOFTY_TRACE_FUNC(this);
-
    auto begin(s_.cbegin());
    auto last_sep(base_name_start());
    if (last_sep == begin) {
@@ -339,14 +317,10 @@ path path::parent_dir() const {
 }
 
 /*static*/ path path::root() {
-   LOFTY_TRACE_FUNC();
-
    return str(root_);
 }
 
 str::const_iterator path::base_name_start() const {
-   LOFTY_TRACE_FUNC(this);
-
    auto ret(s_.find_last(separator_[0]));
    if (ret == s_.cend()) {
       ret = s_.cbegin();
@@ -374,12 +348,6 @@ str::const_iterator path::base_name_start() const {
    , bool include_non_absolute /*= true*/
 #endif
 ) {
-#if LOFTY_HOST_API_WIN32
-   LOFTY_TRACE_FUNC(s, include_non_absolute);
-#else
-   LOFTY_TRACE_FUNC(s);
-#endif
-
    static std::size_t const root_size = LOFTY_COUNTOF(root_) - 1 /*NUL*/;
 
 #if LOFTY_HOST_API_POSIX
@@ -429,14 +397,10 @@ str::const_iterator path::base_name_start() const {
 }
 
 /*static*/ bool path::is_absolute(str const & s) {
-   LOFTY_TRACE_FUNC(s);
-
    return s.starts_with(root_);
 }
 
 /*static*/ str path::validate_and_adjust(str s) {
-   LOFTY_TRACE_FUNC(s);
-
 #if LOFTY_HOST_API_WIN32
    // Simplify the logic below by normalizing all slashes to backslashes.
    s.replace('/', '\\');
@@ -512,8 +476,6 @@ str::const_iterator path::base_name_start() const {
 namespace lofty {
 
 void to_text_ostream<os::path>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -522,8 +484,6 @@ void to_text_ostream<os::path>::set_format(str const & format) {
 }
 
 void to_text_ostream<os::path>::write(os::path const & src, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
    dst->write(src);
 }
 

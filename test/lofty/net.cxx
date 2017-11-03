@@ -27,7 +27,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    net_ip_address,
    "lofty::net::ip::address – instantiation and display"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    #define ADDR(i, ...) \
       static std::uint8_t const LOFTY_CPP_CAT(addr, i, _bytes)[] = __VA_ARGS__; \

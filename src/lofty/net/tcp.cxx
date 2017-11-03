@@ -77,8 +77,6 @@ union sockaddr_any {
 server::server(ip::address const & address, ip::port const & port, unsigned backlog_size /*= 5*/) :
    sock_fd(create_socket(address.version())),
    ip_version(address.version()) {
-   LOFTY_TRACE_FUNC(this, address, port, backlog_size);
-
 #if LOFTY_HOST_API_POSIX
    ::socklen_t server_sock_addr_size;
 #elif LOFTY_HOST_API_WIN32
@@ -138,8 +136,6 @@ server::~server() {
 }
 
 _std::shared_ptr<connection> server::accept() {
-   LOFTY_TRACE_FUNC(this);
-
    io::filedesc conn_fd;
    sockaddr_any * local_sa_ptr, * remote_sa_ptr;
 #if LOFTY_HOST_API_POSIX
@@ -283,8 +279,6 @@ _std::shared_ptr<connection> server::accept() {
 }
 
 /*static*/ io::filedesc server::create_socket(ip::version ip_version_) {
-   LOFTY_TRACE_FUNC(ip_version_);
-
    if (ip_version_ == ip::version::any) {
       // TODO: provide more information in the exception.
       LOFTY_THROW(domain_error, ());

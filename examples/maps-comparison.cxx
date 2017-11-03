@@ -60,7 +60,7 @@ public:
       Return value of this program.
    */
    virtual int main(collections::vector<str> & args) override {
-      LOFTY_TRACE_FUNC(this/*, args*/);
+      LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
       using _std::get;
@@ -121,7 +121,7 @@ public:
 private:
    template <typename TMap, typename TRange>
    perf::stopwatch hit_lookup_test(TMap & map, TRange const & range) {
-      LOFTY_TRACE_FUNC(this/*, map, range*/);
+      LOFTY_TRACE_METHOD();
 
       perf::stopwatch sw;
       sw.start();
@@ -137,7 +137,7 @@ private:
 
    template <typename TMap, typename TRange>
    perf::stopwatch miss_lookup_test(TMap & map, TRange const & range) {
-      LOFTY_TRACE_FUNC(this/*, map, range*/);
+      LOFTY_TRACE_METHOD();
 
       perf::stopwatch sw;
       auto end(map.end());
@@ -154,7 +154,7 @@ private:
 
    template <typename TValue>
    run_test_ret run_test(std::map<TValue, TValue> * map, range<TValue> const & range) {
-      LOFTY_TRACE_FUNC(this, map/*, range*/);
+      LOFTY_TRACE_METHOD();
 
       perf::stopwatch add_sw;
       {
@@ -172,7 +172,7 @@ private:
 
    template <typename TValue, typename THash>
    run_test_ret run_test(std::unordered_map<TValue, TValue, THash> * map, range<TValue> const & range) {
-      LOFTY_TRACE_FUNC(this, map/*, range*/);
+      LOFTY_TRACE_METHOD();
 
       perf::stopwatch add_sw;
       {
@@ -190,7 +190,7 @@ private:
 
    template <typename TValue, typename THash>
    run_test_ret run_test(collections::hash_map<TValue, TValue, THash> * map, range<TValue> const & range) {
-      LOFTY_TRACE_FUNC(this, map/*, range*/);
+      LOFTY_TRACE_METHOD();
 
       perf::stopwatch add_sw;
       {

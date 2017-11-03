@@ -28,8 +28,6 @@ namespace lofty { namespace collections { namespace _pvt {
 
 bitwise_trie_ordered_multimap_impl::tree_node_slot
 bitwise_trie_ordered_multimap_impl::tree_node_slot::first_used_child() const {
-   LOFTY_TRACE_FUNC(this);
-
    /* Create a fictional tree_node_slot on the selected child, with index -1, and have it find its next used
    sibling which, due to starting from -1, is really the first used sibling. */
    return tree_node_slot(tn->children[child_index].tn, unsigned(-1)).next_used_sibling();
@@ -37,8 +35,6 @@ bitwise_trie_ordered_multimap_impl::tree_node_slot::first_used_child() const {
 
 bitwise_trie_ordered_multimap_impl::tree_node_slot
 bitwise_trie_ordered_multimap_impl::tree_node_slot::next_used_sibling() const {
-   LOFTY_TRACE_FUNC(this);
-
    for (unsigned i = child_index; ++i < LOFTY_COUNTOF(tn->children); ) {
       if (tn->children[i].tn) {
          return tree_node_slot(tn, i);
@@ -78,8 +74,6 @@ bitwise_trie_ordered_multimap_impl & bitwise_trie_ordered_multimap_impl::operato
 bitwise_trie_ordered_multimap_impl::list_node * bitwise_trie_ordered_multimap_impl::add(
    type_void_adapter const & value_type, std::uintmax_t key, void const * value, bool move
 ) {
-   LOFTY_TRACE_FUNC(this/*, value_type*/, key, value, move);
-
    tree_node * parent;
    unsigned bits_permutation;
    // Descend into the tree, creating nodes as necessary until the path for key is complete.
@@ -108,8 +102,6 @@ bitwise_trie_ordered_multimap_impl::list_node * bitwise_trie_ordered_multimap_im
 }
 
 void bitwise_trie_ordered_multimap_impl::clear(type_void_adapter const & value_type) {
-   LOFTY_TRACE_FUNC(this/*, value_type*/);
-
    if (root.tn) {
       if (tree_anchors_level == 0) {
          // *root is an anchor.
@@ -125,8 +117,6 @@ void bitwise_trie_ordered_multimap_impl::clear(type_void_adapter const & value_t
 void bitwise_trie_ordered_multimap_impl::destruct_anchor_node(
    type_void_adapter const & value_type, anchor_node * anchor
 ) {
-   LOFTY_TRACE_FUNC(this/*, value_type*/, anchor);
-
    unsigned bits_permutation = 0;
    do {
       if (auto ln = anchor->children[bits_permutation].ln) {
@@ -139,8 +129,6 @@ void bitwise_trie_ordered_multimap_impl::destruct_anchor_node(
 void bitwise_trie_ordered_multimap_impl::destruct_tree_node(
    type_void_adapter const & value_type, tree_node * tn, unsigned level
 ) {
-   LOFTY_TRACE_FUNC(this/*, value_type*/, tn, level);
-
    ++level;
    unsigned bits_permutation = 0;
    do {
@@ -156,8 +144,6 @@ void bitwise_trie_ordered_multimap_impl::destruct_tree_node(
 }
 
 auto bitwise_trie_ordered_multimap_impl::find(std::uintmax_t key) const -> list_node * {
-   LOFTY_TRACE_FUNC(this, key);
-
    if (auto anchor_slot = find_anchor_node_slot(key)) {
       return anchor_slot.first_child();
    } else {
@@ -167,8 +153,6 @@ auto bitwise_trie_ordered_multimap_impl::find(std::uintmax_t key) const -> list_
 
 bitwise_trie_ordered_multimap_impl::anchor_node_slot
 bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t key) const {
-   LOFTY_TRACE_FUNC(this, key);
-
    tree_node * parent = root.tn;
    std::uintmax_t key_remaining = key << key_padding_bits;
    unsigned level = 0;
@@ -189,8 +173,6 @@ bitwise_trie_ordered_multimap_impl::find_anchor_node_slot(std::uintmax_t key) co
 bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_impl::find_first_key(
    bool throw_if_empty
 ) const {
-   LOFTY_TRACE_FUNC(this);
-
    tree_or_list_node_ptr child;
    std::uintmax_t key = 0;
 
@@ -225,8 +207,6 @@ bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_
 bitwise_trie_ordered_multimap_impl::key_value_ptr bitwise_trie_ordered_multimap_impl::find_next_key(
    std::uintmax_t prev_key
 ) const {
-   LOFTY_TRACE_FUNC(this, prev_key);
-
    vector<tree_node_slot, sizeof(std::uintmax_t) * CHAR_BIT / bits_per_level> path_nodes;
 
    tree_node * parent = root.tn;
@@ -311,8 +291,6 @@ void bitwise_trie_ordered_multimap_impl::prune_branch(std::uintmax_t key) {
 void bitwise_trie_ordered_multimap_impl::remove_value(
    type_void_adapter const & value_type, std::uintmax_t key, list_node * ln
 ) {
-   LOFTY_TRACE_FUNC(this/*, value_type*/, key, ln);
-
    if (ln->next() && ln->prev()) {
       // *ln is in the middle of its list, so we don’t need to find and update the anchor.
       doubly_linked_list_impl::remove(value_type, nullptr, nullptr, ln);

@@ -23,8 +23,6 @@ more details.
 namespace lofty { namespace text {
 
 std::size_t get_encoding_size(encoding enc) {
-   LOFTY_TRACE_FUNC(enc);
-
    // Little helper to map lofty::text::encoding values with byte sizes (see below).
    struct enc_char_byte_size_t {
       std::uint8_t enc;
@@ -52,8 +50,6 @@ std::size_t get_encoding_size(encoding enc) {
 }
 
 str get_line_terminator_str(line_terminator lterm) {
-   LOFTY_TRACE_FUNC(lterm);
-
    if (lterm == line_terminator::any) {
       lterm = line_terminator::host;
    }
@@ -74,8 +70,6 @@ encoding guess_encoding(
    void const * buf_begin, void const * buf_end, std::size_t src_total_bytes /*= 0*/,
    std::size_t * bom_byte_size /*= nullptr*/
 ) {
-   LOFTY_TRACE_FUNC(buf_begin, buf_end, src_total_bytes, bom_byte_size);
-
    auto buf_bytes_begin = static_cast<std::uint8_t const *>(buf_begin);
    auto buf_bytes_end   = static_cast<std::uint8_t const *>(buf_end);
    // If the total size is not specified, assume that the buffer is the wholesource.
@@ -303,8 +297,6 @@ encoding guess_encoding(
 }
 
 line_terminator guess_line_terminator(char_t const * chars_begin, char_t const * chars_end) {
-   LOFTY_TRACE_FUNC(chars_begin, chars_end);
-
    for (auto chars = chars_begin; chars < chars_end; ++chars) {
       if (*chars == '\r') {
          /* CR can be followed by a LF to form the sequence CRLF, so check the following character (if we have
@@ -327,8 +319,6 @@ std::size_t transcode(
    encoding src_enc, void const ** src, std::size_t * src_byte_size,
    encoding dst_enc, void       ** dst, std::size_t * dst_byte_size_max
 ) {
-   LOFTY_TRACE_FUNC(throw_on_errors, src_enc, src, src_byte_size, dst_enc, dst, dst_byte_size_max);
-
    if (src_enc == encoding::unknown || dst_enc == encoding::unknown) {
       // TODO: provide more information in the exception.
       LOFTY_THROW(domain_error, ());
@@ -644,8 +634,6 @@ namespace lofty { namespace text { namespace _pvt {
 */
 template <typename C>
 std::size_t size_in_chars(C const * s) {
-   LOFTY_TRACE_FUNC(s);
-
    auto ch = s;
    while (*ch) {
       ++ch;
@@ -673,8 +661,6 @@ std::size_t size_in_chars(char const * s) {
 namespace lofty {
 
 void to_text_ostream<text::file_address>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -683,8 +669,6 @@ void to_text_ostream<text::file_address>::set_format(str const & format) {
 }
 
 void to_text_ostream<text::file_address>::write(text::file_address const & src, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
    dst->write(str(external_buffer, src.file_path()));
    dst->write(LOFTY_SL(":"));
    dst->print(LOFTY_SL("{}"), src.line_number());
@@ -755,8 +739,6 @@ decode_error::decode_error(decode_error const & src) :
 }
 
 decode_error & decode_error::operator=(decode_error const & src) {
-   LOFTY_TRACE_FUNC(this/*, src*/);
-
    error::operator=(src);
    description = src.description;
    invalid_bytes = src.invalid_bytes;
@@ -803,8 +785,6 @@ encode_error::encode_error(encode_error const & src) :
 }
 
 encode_error & encode_error::operator=(encode_error const & src) {
-   LOFTY_TRACE_FUNC(this/*, src*/);
-
    error::operator=(src);
    description = src.description;
    invalid_cp = src.invalid_cp;

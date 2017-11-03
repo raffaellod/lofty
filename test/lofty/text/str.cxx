@@ -54,7 +54,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_basic,
    "lofty::text::str – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    str s;
    auto tracker(testing::utility::make_container_data_ptr_tracker(&s));
@@ -195,7 +195,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_iterators,
    "lofty::text::str – operations with iterators"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Default-constructed iterator.
    str::const_iterator itr;
@@ -263,7 +263,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_transcoding,
    "lofty::text::str – conversion to different encodings"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    sstr<32> s;
    s += char32_t(0x000024);
@@ -337,7 +337,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_char_replacement,
    "lofty::text::str – character replacement"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    sstr<8> s;
 
@@ -366,7 +366,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_c_str,
    "lofty::text::str – C string extraction"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    str s;
    // Note: storing its return value in a variable is NOT a way to use c_str().
@@ -444,7 +444,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_find,
    "lofty::text::str – character and substring search"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Special characters.
    char32_t cp0 = plane0_cp;
@@ -479,7 +479,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_starts_with,
    "lofty::text::str – initial matching"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Special characters.
    char32_t cp0 = plane0_cp;
@@ -508,7 +508,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_ends_with,
    "lofty::text::str – final matching"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Special characters.
    char32_t cp0 = plane0_cp;
@@ -537,7 +537,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_from_str,
    "lofty::text::str – from_str()"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_EQUAL(from_str<text::str>(LOFTY_SL("")), LOFTY_SL(""));
    LOFTY_TESTING_ASSERT_EQUAL(from_str<text::str>(LOFTY_SL("abc")), LOFTY_SL("abc"));
@@ -553,7 +553,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_str_to_str,
    "lofty::text::str – to_str()"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_EQUAL(to_str<text::str>(LOFTY_SL("")), LOFTY_SL(""));
    LOFTY_TESTING_ASSERT_EQUAL(to_str<text::str>(LOFTY_SL("abc")), LOFTY_SL("abc"));

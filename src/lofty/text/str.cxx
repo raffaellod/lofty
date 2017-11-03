@@ -50,8 +50,6 @@ str const & str::empty = static_cast<str const &>(empty_str_data);
 
 
 std::ptrdiff_t str::const_iterator::distance(std::size_t other_char_index) const {
-   LOFTY_TRACE_FUNC(this, other_char_index);
-
    if (other_char_index == char_index_) {
       return 0;
    } else {
@@ -110,8 +108,6 @@ std::size_t str::advance_index_by_codepoint_delta(
 }
 
 str::c_str_ptr str::c_str() {
-   LOFTY_TRACE_FUNC(this);
-
    if (has_nul_term) {
       // The string already includes a NUL terminator, so we can simply return the same array.
    } else if (auto char_size = size_in_chars()) {
@@ -128,8 +124,6 @@ str::c_str_ptr str::c_str() {
 }
 
 str::c_str_ptr str::c_str() const {
-   LOFTY_TRACE_FUNC(this);
-
    if (has_nul_term) {
       // The string already includes a NUL terminator, so we can simply return the same array.
       return c_str_ptr(data(), false);
@@ -147,8 +141,6 @@ str::c_str_ptr str::c_str() const {
 }
 
 collections::vector<std::uint8_t> str::encode(encoding enc, bool add_nul_term) const {
-   LOFTY_TRACE_FUNC(this, enc, add_nul_term);
-
    collections::vector<std::uint8_t> bytes;
    std::size_t char_byte_size, used_byte_size, str_byte_size = size_in_bytes();
    if (enc == encoding::host) {
@@ -181,31 +173,23 @@ collections::vector<std::uint8_t> str::encode(encoding enc, bool add_nul_term) c
 }
 
 bool str::ends_with(str const & s) const {
-   LOFTY_TRACE_FUNC(this, s);
-
    char_t const * match_start = data_end() - s.size_in_chars();
    return match_start >= data() && str_traits::compare(match_start, data_end(), s.data(), s.data_end()) == 0;
 }
 
 str::const_iterator str::find(char_t ch, const_iterator whence) const {
-   LOFTY_TRACE_FUNC(this, ch, whence);
-
    char_t const * whence_ptr = data() + whence.char_index_;
    validate_pointer(whence_ptr, true);
    auto ptr = str_traits::find_char(whence_ptr, data_end(), ch);
    return const_iterator(this, static_cast<std::size_t>(ptr - data()));
 }
 str::const_iterator str::find(char32_t cp, const_iterator whence) const {
-   LOFTY_TRACE_FUNC(this, cp, whence);
-
    char_t const * whence_ptr = data() + whence.char_index_;
    validate_pointer(whence_ptr, true);
    auto ptr = str_traits::find_char(whence_ptr, data_end(), cp);
    return const_iterator(this, static_cast<std::size_t>(ptr - data()));
 }
 str::const_iterator str::find(str const & substr_, const_iterator whence) const {
-   LOFTY_TRACE_FUNC(this, substr_, whence);
-
    char_t const * whence_ptr = data() + whence.char_index_;
    validate_pointer(whence_ptr, true);
    auto ptr = str_traits::find_substr(whence_ptr, data_end(), substr_.data(), substr_.data_end());
@@ -213,24 +197,18 @@ str::const_iterator str::find(str const & substr_, const_iterator whence) const 
 }
 
 str::const_iterator str::find_last(char_t ch, const_iterator whence) const {
-   LOFTY_TRACE_FUNC(this, ch, whence);
-
    char_t const * whence_ptr = data() + whence.char_index_;
    validate_pointer(whence_ptr, true);
    auto ptr = str_traits::find_char_last(data(), whence_ptr, ch);
    return const_iterator(this, static_cast<std::size_t>(ptr - data()));
 }
 str::const_iterator str::find_last(char32_t cp, const_iterator whence) const {
-   LOFTY_TRACE_FUNC(this, cp, whence);
-
    char_t const * whence_ptr = data() + whence.char_index_;
    validate_pointer(whence_ptr, true);
    auto ptr = str_traits::find_char_last(data(), whence_ptr, cp);
    return const_iterator(this, static_cast<std::size_t>(ptr - data()));
 }
 str::const_iterator str::find_last(str const & substr_, const_iterator whence) const {
-   LOFTY_TRACE_FUNC(this, substr_, whence);
-
    char_t const * whence_ptr = data() + whence.char_index_;
    validate_pointer(whence_ptr, true);
    auto ptr = str_traits::find_substr_last(data(), whence_ptr, substr_.data(), substr_.data_end());
@@ -246,8 +224,6 @@ void str::prepare_for_writing() {
 }
 
 void str::replace(char_t search, char_t replacement) {
-   LOFTY_TRACE_FUNC(this, search, replacement);
-
    prepare_for_writing();
    for (char_t * ptr = data(), * end_ = data_end(); ptr != end_; ++ptr) {
       if (*ptr == search) {
@@ -257,8 +233,6 @@ void str::replace(char_t search, char_t replacement) {
 }
 
 void str::replace(char32_t search, char32_t replacement) {
-   LOFTY_TRACE_FUNC(this, search, replacement);
-
    prepare_for_writing();
    // TODO: optimize this. Using iterators requires little code but it’s not very efficient.
 #if 0
@@ -278,8 +252,6 @@ void str::replace(char32_t search, char32_t replacement) {
 }
 
 void str::replace_codepoint(std::size_t char_index, char_t new_ch) {
-   LOFTY_TRACE_FUNC(this, char_index, new_ch);
-
    std::size_t remove_byte_size = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(
       data()[char_index]
    );
@@ -290,8 +262,6 @@ void str::replace_codepoint(std::size_t char_index, char_t new_ch) {
 }
 
 void str::replace_codepoint(std::size_t char_index, char32_t new_cp) {
-   LOFTY_TRACE_FUNC(this, char_index, new_cp);
-
    std::size_t insert_byte_size = sizeof(char_t) * host_char_traits::codepoint_size(new_cp);
    std::size_t remove_byte_size = sizeof(char_t) * host_char_traits::lead_char_to_codepoint_size(
       data()[char_index]
@@ -304,8 +274,6 @@ void str::replace_codepoint(std::size_t char_index, char32_t new_cp) {
 }
 
 void str::set_from(_std::function<std::size_t (char_t * chars, std::size_t chars_max)> const & read_fn) {
-   LOFTY_TRACE_FUNC(this/*, read_fn*/);
-
    prepare_for_writing();
    /* The initial size avoids a few reallocations (* growth_rate ** 2). Multiplying by growth_rate should
    guarantee that set_capacity() will allocate exactly the requested number of characters, eliminating the
@@ -321,8 +289,6 @@ void str::set_from(_std::function<std::size_t (char_t * chars, std::size_t chars
 }
 
 bool str::starts_with(str const & s) const {
-   LOFTY_TRACE_FUNC(this, s);
-
    char_t const * end_ = data() + s.size_in_chars();
    return end_ <= data_end() && str_traits::compare(data(), end_, s.data(), s.data_end()) == 0;
 }
@@ -356,8 +322,6 @@ namespace std {
 
 The bases are calculated by src/fnv_hash_basis.py. */
 std::size_t hash<lofty::text::str>::operator()(lofty::text::str const & s) const {
-   LOFTY_TRACE_FUNC(this, s);
-
    static_assert(
       sizeof(std::size_t) * 8 == LOFTY_HOST_WORD_SIZE,
       "unexpected sizeof(std::size_t) will break FNV prime/basis selection"
@@ -389,16 +353,12 @@ namespace lofty {
 void from_text_istream<text::str>::convert_capture(
    text::parsers::dynamic_match_capture const & capture0, text::str * dst
 ) {
-   LOFTY_TRACE_FUNC(this, /*capture0, */ dst);
-
    *dst = capture0.str_copy();
 }
 
 text::parsers::dynamic_state const * from_text_istream<text::str>::format_to_parser_states(
    text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this/*, format*/, parser);
-
    // TODO: more format validation.
 
    if (format.expr) {
@@ -421,8 +381,6 @@ text::parsers::dynamic_state const * from_text_istream<text::str>::format_to_par
 namespace lofty { namespace text { namespace _pvt {
 
 void str_to_text_ostream::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -433,8 +391,6 @@ void str_to_text_ostream::set_format(str const & format) {
 void str_to_text_ostream::write(
    void const * src, std::size_t src_byte_size, encoding enc, io::text::ostream * dst
 ) {
-   LOFTY_TRACE_FUNC(this, src, src_byte_size, enc, dst);
-
    dst->write_binary(src, src_byte_size, enc);
 }
 

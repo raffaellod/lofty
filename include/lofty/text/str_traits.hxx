@@ -83,8 +83,6 @@ public:
       for, or nullptr if no matches are found.
    */
    static char_t const * find_char(char_t const * str_begin, char_t const * str_end, char_t ch) {
-//      LOFTY_TRACE_FUNC(str_begin, str_end, ch);
-
       for (auto s = str_begin; s < str_end; ++s) {
          if (*s == ch) {
             return s;
@@ -138,8 +136,6 @@ public:
       for, or nullptr if no matches are found.
    */
    static char_t const * find_char_last(char_t const * str_begin, char_t const * str_end, char_t cp_chars) {
-//      LOFTY_TRACE_FUNC(str_begin, str_end, cp_chars);
-
       for (auto s = str_end; s > str_begin; ) {
          if (*--s == cp_chars) {
             return s;

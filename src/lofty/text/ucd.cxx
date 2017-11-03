@@ -53,8 +53,6 @@ _LOFTY_TEXT_PROPERTY_END(white_space)
 #undef _LOFTY_TEXT_PROPERTY_END
 
 str property::members() const {
-   LOFTY_TRACE_FUNC(this);
-
    str s;
    for (auto member_range = member_ranges_begin; member_range < member_ranges_end; ++member_range) {
       for (auto cp = member_range->first_cp; cp <= member_range->last_cp; ++cp) {

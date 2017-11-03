@@ -25,7 +25,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    os_path_relative_and_absolute_normalization,
    "lofty::os::path – normalization of relative and absolute paths"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    /* Note that under Win32, paths that start with “/” are still relative to the current volume; nonetheless,
    the assertions should still be valid. */
@@ -144,7 +144,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    os_path_joined_normalization,
    "lofty::os::path – normalization of joined paths"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    os::path path(os::path::current_dir());
 

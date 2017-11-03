@@ -47,11 +47,9 @@ public:
       accessible in a shell/command prompt as $? (Linux/POSIX) or %ERRORLEVEL% (Win32).
    */
    virtual int main(collections::vector<str> & args) override {
-      /* This should be the first line of every function/method; it allows to inspect the values of the
-      method’s arguments when an exception is raised during the execution of the method.
-      Since it requires the type of every argument to be fully defined, in order to trace args we’d need to
-      #include <lofty/collections/vector.hxx>, which we won’t bother to in this example. */
-      LOFTY_TRACE_FUNC(this/*, args*/);
+      /* This should be the first line of every non-minor method; it allows to generate a stack trace when an
+      exception is thrown during the execution of the method. */
+      LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
       /* Write “Hello World” into the stdout text stream. LOFTY_SL() indicates a string literal in the

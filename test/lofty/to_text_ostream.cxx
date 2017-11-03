@@ -77,7 +77,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    to_text_ostream_member_nonmember,
    "lofty::to_text_ostream – member and non-member to_text_ostream"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    type_with_member_ttos    twmt(LOFTY_SL("TWMT"));
    type_with_nonmember_ttos twnt(LOFTY_SL("TWNT"));
@@ -98,7 +98,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    to_text_ostream_bool,
    "lofty::to_text_ostream – bool"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_EQUAL(to_str(false), LOFTY_SL("false"));
    LOFTY_TESTING_ASSERT_EQUAL(to_str(true), LOFTY_SL("true"));
@@ -114,7 +114,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    to_text_ostream_int,
    "lofty::to_text_ostream – int"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Test zero, decimal base.
    LOFTY_TESTING_ASSERT_EQUAL(to_str(0, str::empty), LOFTY_SL("0"));
@@ -150,7 +150,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    to_text_ostream_std_int8_t,
    "lofty::to_text_ostream – std::int8_t"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Test zero, hexadecimal base.
    LOFTY_TESTING_ASSERT_EQUAL(to_str(std::int8_t(0), LOFTY_SL("x")), LOFTY_SL("0"));
@@ -186,7 +186,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    to_text_ostream_raw_ptr,
    "lofty::to_text_ostream – raw pointers"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    std::uintptr_t bad = 0xbad;
 
@@ -219,7 +219,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    to_text_ostream_smart_ptr,
    "lofty::to_text_ostream – smart pointers"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    int * raw_ptr = new int;
    str ptr_str(to_str(raw_ptr));
@@ -263,7 +263,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    to_text_ostream_tuple,
    "lofty::to_text_ostream – STL tuple types"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Test _std::tuple.
    LOFTY_TESTING_ASSERT_EQUAL(to_str(_std::tuple<>()), LOFTY_SL("()"));
@@ -298,7 +298,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    to_text_ostream_std_type_info,
    "lofty::to_text_ostream – std::type_info"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Test std::type_info.
    LOFTY_TESTING_ASSERT_EQUAL(to_str(typeid(1)), LOFTY_SL("int"));

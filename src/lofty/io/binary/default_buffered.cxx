@@ -44,8 +44,6 @@ buffer::~buffer() {
 }
 
 buffer & buffer::operator=(buffer && src) {
-   LOFTY_TRACE_FUNC(this/*, src*/);
-
    ptr = _std::move(src.ptr);
    size_ = src.size_;
    src.size_ = 0;
@@ -57,15 +55,11 @@ buffer & buffer::operator=(buffer && src) {
 }
 
 void buffer::expand_to(std::size_t new_size) {
-   LOFTY_TRACE_FUNC(this, new_size);
-
    memory::realloc_unique(&ptr, new_size);
    size_ = new_size;
 }
 
 void buffer::make_unused_available() {
-   LOFTY_TRACE_FUNC(this);
-
    memory::move(static_cast<std::int8_t *>(ptr.get()), get_used(), used_size());
    available_offset -= used_offset;
    used_offset = 0;
@@ -85,8 +79,6 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
 }
 
 /*virtual*/ void default_buffered_istream::consume_bytes(std::size_t count) /*override*/ {
-   LOFTY_TRACE_FUNC(this, count);
-
    if (count > read_buf.used_size()) {
       // Can’t consume more bytes than are available in the read buffer.
       // TODO: use a better exception class.
@@ -99,8 +91,6 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
 /*virtual*/ _std::tuple<void const *, std::size_t> default_buffered_istream::peek_bytes(
    std::size_t count
 ) /*override*/ {
-   LOFTY_TRACE_FUNC(this, count);
-
    while (count > read_buf.used_size()) {
       // The caller wants more data than what’s currently in the buffer: try to load more.
       std::size_t read_byte_size_min = count - read_buf.used_size();
@@ -129,8 +119,6 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
 }
 
 /*virtual*/ _std::shared_ptr<stream> default_buffered_istream::_unbuffered_stream() const /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    return _std::static_pointer_cast<stream>(bin_istream);
 }
 
@@ -156,8 +144,6 @@ default_buffered_ostream::default_buffered_ostream(_std::shared_ptr<ostream> bin
 }
 
 /*virtual*/ void default_buffered_ostream::commit_bytes(std::size_t count) /*override*/ {
-   LOFTY_TRACE_FUNC(this, count);
-
    if (count > write_buf.available_size()) {
       // Can’t commit more bytes than are available in the write buffer.
       // TODO: use a better exception class.
@@ -171,8 +157,6 @@ default_buffered_ostream::default_buffered_ostream(_std::shared_ptr<ostream> bin
 }
 
 /*virtual*/ void default_buffered_ostream::finalize() /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    // Flush both the write buffer and any lower-level buffers.
    try {
       flush_buffer();
@@ -188,16 +172,12 @@ default_buffered_ostream::default_buffered_ostream(_std::shared_ptr<ostream> bin
 }
 
 /*virtual*/ void default_buffered_ostream::flush() /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    // Flush both the write buffer and any lower-level buffers.
    flush_buffer();
    bin_ostream->flush();
 }
 
 void default_buffered_ostream::flush_buffer() {
-   LOFTY_TRACE_FUNC(this);
-
    if (std::size_t buf_used_size = write_buf.used_size()) {
       /* TODO: if *bin_ostream expects writes of an integer multiple of its block size but the buffer is not
       100% full, do something – maybe truncate bin_ostream afterwards if possible? */
@@ -210,8 +190,6 @@ void default_buffered_ostream::flush_buffer() {
 /*virtual*/ _std::tuple<void *, std::size_t> default_buffered_ostream::get_buffer_bytes(
    std::size_t count
 ) /*override*/ {
-   LOFTY_TRACE_FUNC(this, count);
-
    // If the requested size is more than what can fit in the buffer, compact it, flush it, or enlarge it.
    if (count > write_buf.available_size()) {
       // See if compacting the buffer would create enough room.
@@ -232,8 +210,6 @@ void default_buffered_ostream::flush_buffer() {
 }
 
 /*virtual*/ _std::shared_ptr<stream> default_buffered_ostream::_unbuffered_stream() const /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    return _std::static_pointer_cast<stream>(bin_ostream);
 }
 

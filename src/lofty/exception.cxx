@@ -391,7 +391,7 @@ io::text::char_ptr_ostream exception::what_ostream() {
          str(external_buffer, x->source_file_addr.function()), x->source_file_addr.file_address()
       );
    }
-   // Write the scope/stack trace collected via LOFTY_TRACE_FUNC().
+   // Write the scope/stack trace collected via LOFTY_TRACE_*().
    dst->write(_pvt::scope_trace::get_trace_ostream()->get_str());
    // Append any scope_trace instances that haven’t been destructed yet.
    _pvt::scope_trace::write_list(dst);

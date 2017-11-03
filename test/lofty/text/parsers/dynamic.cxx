@@ -25,7 +25,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_empty,
    "lofty::text::parsers::dynamic – pattern “” (empty)"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    text::parsers::dynamic parser;
 
@@ -48,7 +48,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a,
    "lofty::text::parsers::dynamic – pattern “a”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, nullptr, 'a');
    text::parsers::dynamic parser;
@@ -79,7 +79,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_caret,
    "lofty::text::parsers::dynamic – pattern “^”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_BEGIN_STATE(begin_state, nullptr, nullptr);
    text::parsers::dynamic parser;
@@ -100,7 +100,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_caret_a,
    "lofty::text::parsers::dynamic – pattern “^a”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, nullptr, 'a');
    LOFTY_TEXT_PARSERS_DYNAMIC_BEGIN_STATE(begin_state, &a_state.base, nullptr);
@@ -129,7 +129,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_dollar,
    "lofty::text::parsers::dynamic – pattern “$”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_END_STATE(end_state, nullptr, nullptr);
    text::parsers::dynamic parser;
@@ -150,7 +150,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_dollar,
    "lofty::text::parsers::dynamic – pattern “a$”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_END_STATE(end_state, nullptr, nullptr);
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, &end_state.base, nullptr, 'a');
@@ -179,7 +179,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_ab,
    "lofty::text::parsers::dynamic – pattern “ab”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(b_state, nullptr, nullptr, 'b');
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, &b_state.base, nullptr, 'a');
@@ -217,7 +217,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_abc,
    "lofty::text::parsers::dynamic – pattern “abc”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(abc_state, nullptr, nullptr, LOFTY_SL("abc"));
    text::parsers::dynamic parser;
@@ -262,7 +262,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_qmark,
    "lofty::text::parsers::dynamic – pattern “a?”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    text::parsers::dynamic parser;
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, nullptr, 'a');
@@ -306,7 +306,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_plus,
    "lofty::text::parsers::dynamic – pattern “a+”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, nullptr, 'a');
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(a_rep_group, nullptr, nullptr, &a_state.base, 1);
@@ -342,7 +342,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_backtracking_greedy_a_star_a,
    "lofty::text::parsers::dynamic – pattern “a*a”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state_2, nullptr, nullptr, 'a');
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state_1, nullptr, nullptr, 'a');
@@ -400,7 +400,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_plus_b_plus,
    "lofty::text::parsers::dynamic – pattern “a+b+”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(b_state, nullptr, nullptr, 'b');
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(b_rep_group, nullptr, nullptr, &b_state.base, 1);
@@ -469,7 +469,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_caret_a_plus_b_plus_dollar,
    "lofty::text::parsers::dynamic – pattern “^a+b+$”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_END_STATE(end_state, nullptr, nullptr);
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(b_state, nullptr, nullptr, 'b');
@@ -523,7 +523,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_or_b_plus,
    "lofty::text::parsers::dynamic – pattern “(?:a|b)+”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(b_state, nullptr, nullptr, 'b');
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, &b_state.base, 'a');
@@ -591,7 +591,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_caret_a_or_b_plus_dollar,
    "lofty::text::parsers::dynamic – pattern “^(?:a|b)+$”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_END_STATE(end_state, nullptr, nullptr);
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(b_state, nullptr, nullptr, 'b');
@@ -647,7 +647,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_capture_a_capture_b_plus,
    "lofty::text::parsers::dynamic – pattern “(?:(a)(b))+”"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(b_state, nullptr, nullptr, 'b');
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, nullptr, 'a');

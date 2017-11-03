@@ -22,11 +22,9 @@ Stack tracing infrastructure. */
 /*! @page stack-tracing Stack tracing
 Automatic generation of stack traces whenever an exception occurs.
 
-Any function that is not of negligible size and is not an hotspot should invoke, as its first line,
-LOFTY_TRACE_FUNC(arg1, arg2, …) in order to have its name show up in a post-exception stack trace.
-
-LOFTY_TRACE_FUNC() initializes a local variable of type lofty::_pvt::scope_trace which will store references
-to every provided argument.
+A function can opt into this system by invoking, as its first line, LOFTY_TRACE_FUNC() in order to have its
+name show up in a post-exception stack trace. Methods should invoke LOFTY_TRACE_METHOD(). These macros result
+in the instantiation of a local variable of type lofty::_pvt::scope_trace.
 
 lofty::_pvt::scope_trace::~scope_trace() detects if the object is being destroyed due to an exceptional stack
 unwinding, in which case it will dump its contents into a thread-local stack trace buffer. The outermost catch
@@ -75,26 +73,23 @@ Currently unsupported:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*! Provides stack frame logging for the function in which it’s used.
+//! Provides stack frame logging for the function in which it’s used.
+#define LOFTY_TRACE_FUNC() \
+   _LOFTY_TRACE_SCOPE_IMPL(LOFTY_CPP_APPEND_UID(__scope_trace_), nullptr)
 
-@param ...
-   Arguments or variables to trace.
-*/
-#define LOFTY_TRACE_FUNC(...) \
-   _LOFTY_TRACE_SCOPE_IMPL(LOFTY_CPP_APPEND_UID(__scope_trace_), __VA_ARGS__)
+//! Provides stack frame logging for the method in which it’s used.
+#define LOFTY_TRACE_METHOD() \
+   _LOFTY_TRACE_SCOPE_IMPL(LOFTY_CPP_APPEND_UID(__scope_trace_), this)
 
-/*! Implementation of LOFTY_TRACE_FUNC() and similar macros.
+/*! Implementation of LOFTY_TRACE_FUNC() and LOFTY_TRACE_METHOD().
 
 @param uid
    Unique ID for this scope trace.
-@param ...
-   Arguments or variables to trace.
+@param this
+   this pointer, or nullptr.
 */
-#define _LOFTY_TRACE_SCOPE_IMPL(uid, ...) \
+#define _LOFTY_TRACE_SCOPE_IMPL(uid, this) \
    static ::lofty::_pvt::source_file_address_data const LOFTY_CPP_CAT(uid, _sfad) = { \
       LOFTY_THIS_FUNC, { LOFTY_SL(__FILE__), __LINE__ } \
    }; \
-   auto LOFTY_CPP_CAT(uid, _tuple)(::lofty::_pvt::scope_trace_tuple::make(__VA_ARGS__)); \
-   ::lofty::_pvt::scope_trace uid( \
-      ::lofty::source_file_address::from_data(&LOFTY_CPP_CAT(uid, _sfad)), &LOFTY_CPP_CAT(uid, _tuple) \
-   )
+   ::lofty::_pvt::scope_trace uid(::lofty::source_file_address::from_data(&LOFTY_CPP_CAT(uid, _sfad)), this)

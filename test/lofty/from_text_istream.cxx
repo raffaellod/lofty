@@ -67,7 +67,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    from_text_istream_basic,
    "lofty::from_text_istream – basic"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    /* This assertion is more important at compile time than at run time; if the from_str() call compiles, it
    will return the correct value. */
@@ -84,7 +84,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    from_text_istream_bool,
    "lofty::from_text_istream – bool"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_EQUAL(from_str<bool>(LOFTY_SL("false")), false);
    LOFTY_TESTING_ASSERT_EQUAL(from_str<bool>(LOFTY_SL("true")), true);
@@ -104,7 +104,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    from_text_istream_int,
    "lofty::from_text_istream – int"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("")));
    LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("q")));
@@ -151,7 +151,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    from_text_istream_std_int8_t,
    "lofty::from_text_istream – std::int8_t"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0"), LOFTY_SL("x")), 0);
 

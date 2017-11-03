@@ -118,8 +118,6 @@ public:
       Type of exception to inject.
    */
    void inject_exception(_std::shared_ptr<impl> const & this_pimpl, exception::common_type x_type) {
-      LOFTY_TRACE_FUNC(this, this_pimpl, x_type);
-
       /* Avoid interrupting the coroutine if there’s already a pending interruption (expected_x_type != none).
       This is not meant to prevent multiple concurrent interruptions (@see interruption-points); this is
       analogous to lofty::thread::interrupt() not trying to prevent multiple concurrent interruptions. In this
@@ -227,8 +225,6 @@ coroutine::id_type coroutine::id() const {
 }
 
 void coroutine::interrupt() {
-   LOFTY_TRACE_FUNC(this);
-
    pimpl->inject_exception(pimpl, exception::common_type::execution_interruption);
 }
 
@@ -239,8 +235,6 @@ void coroutine::interrupt() {
 namespace lofty {
 
 void to_text_ostream<coroutine>::set_format(str const & format) {
-   LOFTY_TRACE_FUNC(this, format);
-
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -249,8 +243,6 @@ void to_text_ostream<coroutine>::set_format(str const & format) {
 }
 
 void to_text_ostream<coroutine>::write(coroutine const & src, io::text::ostream * dst) {
-   LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
    dst->write(LOFTY_SL("CRID:"));
    if (auto id = src.id()) {
       to_text_ostream<decltype(id)>::write(id, dst);
@@ -315,8 +307,6 @@ coroutine::scheduler::~scheduler() {
 }
 
 void coroutine::scheduler::add_ready(_std::shared_ptr<impl> coro_pimpl) {
-   LOFTY_TRACE_FUNC(this, coro_pimpl);
-
 //   _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
    ready_coros_queue.push_back(_std::move(coro_pimpl));
 }
@@ -388,8 +378,6 @@ void coroutine::scheduler::arm_timer_for_next_sleep_end() const {
 #endif
 
 void coroutine::scheduler::block_active_for_ms(unsigned millisecs) {
-   LOFTY_TRACE_FUNC(this, millisecs);
-
    // TODO: handle millisecs == 0 as a timer-less yield.
 
 #if LOFTY_HOST_API_BSD
@@ -495,12 +483,6 @@ void coroutine::scheduler::block_active_until_fd_ready(
    , io::overlapped * ovl
 #endif
 ) {
-#if LOFTY_HOST_API_WIN32
-   LOFTY_TRACE_FUNC(this, fd, write, ovl);
-#else
-   LOFTY_TRACE_FUNC(this, fd, write);
-#endif
-
    // Add fd as a new event source.
 #if LOFTY_HOST_API_BSD
    struct ::kevent ke;
@@ -629,8 +611,6 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool interrupting_all /*= f
 #endif
 
 _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
-   LOFTY_TRACE_FUNC(this);
-
    // This loop will only repeat in case of EINTR from the blocking-wait API.
    /* TODO: if the epoll/kqueue/IOCP is shared by several threads and one thread receives and removes the last
    event source from it, what happens to the remaining threads?
@@ -820,8 +800,6 @@ void coroutine::scheduler::return_to_scheduler(exception::common_type x_type) {
 }
 
 void coroutine::scheduler::run() {
-   LOFTY_TRACE_FUNC(this);
-
 #if LOFTY_HOST_API_POSIX
    ::ucontext_t thread_uctx;
    default_return_uctx = &thread_uctx;

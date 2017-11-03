@@ -29,7 +29,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine_concurrency,
    "lofty::coroutine – concurrent operation"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    bool coro1_completed = false, coro2_completed = false;
 
@@ -71,10 +71,10 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine_exception_containment,
    "lofty::coroutine – exception containment"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    coroutine coro1([this] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       // If exceptions are not properly contained by Lofty, this will kill the entire process.
       LOFTY_THROW(generic_error, ());
@@ -108,7 +108,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine_interruption,
    "lofty::coroutine – interruption"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    static std::size_t const workers_size = 5;
    bool workers_completed[workers_size], workers_interrupted[workers_size];
@@ -119,7 +119,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       *worker_completed = false;
       *worker_interrupted = false;
       worker_coros[i] = coroutine([this, worker_completed, worker_interrupted] () {
-         LOFTY_TRACE_FUNC(this);
+         LOFTY_TRACE_FUNC();
 
          try {
             /* Expect to be interrupted by controller_coro. Make this sleep long enough so as not to cause
@@ -134,7 +134,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    bool controller_coro_completed = false;
    coroutine controller_coro([this, &worker_coros, &controller_coro_completed] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       /* Since coroutines on a single thread are started in FIFO order, the workers are already running at
       this point. */
@@ -172,7 +172,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine_sleep,
    "lofty::coroutine – sleep"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    static std::size_t const workers_size = 5;
    coroutine worker_coros[workers_size];
@@ -182,7 +182,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    _std::atomic<std::size_t> next_awaking_worker_slot(0);
    for (std::size_t i = 0; i < workers_size; ++i) {
       worker_coros[i] = coroutine([this, i, &sleeps, &workers_awoke, &next_awaking_worker_slot] () {
-         LOFTY_TRACE_FUNC(this);
+         LOFTY_TRACE_FUNC();
 
          this_coroutine::sleep_for_ms(sleeps[i]);
          workers_awoke[next_awaking_worker_slot.fetch_add(1)] = i + 1;
@@ -211,7 +211,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine_on_secondary_thread,
    "lofty::coroutine – on non-main thread"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    thread thread1([this] () {
       bool coro1_completed = false;

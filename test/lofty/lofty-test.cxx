@@ -56,7 +56,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    enum_auto_values,
    "LOFTY_ENUM_AUTO_VALUES() – generated member values"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value0), 0);
    LOFTY_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value1), 1);
@@ -73,7 +73,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    defer_to_scope_end_basic,
    "LOFTY_DEFER_TO_SCOPE_END() – basic operation"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    unsigned deferred_invocations = 0;
    {
@@ -102,7 +102,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    enum_basic,
    "lofty::enum-derived classes – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    test_enum e(test_enum::value2);
 
@@ -125,16 +125,16 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine_local_basic,
    "lofty::coroutine_local_* – basic functionality"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    coroutine_local_int.get().store(10);
    thread thread1([this] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       coroutine_local_int.get().store(11);
    });
    coroutine coro1([this] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       coroutine_local_int.get().store(21);
       // Yield to another coroutine.
@@ -142,7 +142,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       LOFTY_TESTING_ASSERT_EQUAL(coroutine_local_int.get().load(), 21);
    });
    coroutine coro2([this] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       coroutine_local_int.get().store(22);
       // Yield to another coroutine.
@@ -169,7 +169,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    range_basic,
    "lofty::range – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    range<int> range1;
    LOFTY_TESTING_ASSERT_EQUAL(range1.size(), 0u);
@@ -200,11 +200,11 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    thread_local_basic,
    "lofty::thread_local_* – basic functionality"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    thread_local_int.get().store(10);
    thread thread1([this] () {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_FUNC();
 
       thread_local_int.get().store(11);
    });
@@ -224,7 +224,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    _pvt_signal_dispatcher_os_errors_to_cxx_exceptions,
    "lofty::_pvt::signal_dispatcher – conversion of synchronous OS errors into C++ exceptions"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    // Validate generation of invalid pointer dereference errors.
    {
@@ -273,7 +273,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    os_registry,
    "lofty::os – accessing Windows Registry"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    sstr<8> s;
 
@@ -312,7 +312,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    text_char_ptr_to_str_adapter,
    "lofty::to_str – lofty::text::char_ptr_to_str_adapter"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter(nullptr)), LOFTY_SL("<nullptr>"));
    LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("")), LOFTY_SL(""));

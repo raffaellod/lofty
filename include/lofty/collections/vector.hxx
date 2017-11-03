@@ -1681,8 +1681,6 @@ public:
       Formatting options.
    */
    void set_format(str const & format) {
-//    LOFTY_TRACE_FUNC(this, format);
-
       str elt_format(collections::_pvt::vector_to_text_ostream::set_format(format));
       elt_ttos.set_format(elt_format);
    }
@@ -1695,8 +1693,6 @@ public:
       Pointer to the stream to output to.
    */
    void write(collections::vector<T, embedded_capacity> const & src, io::text::ostream * dst) {
-//    LOFTY_TRACE_FUNC(this/*, src*/, dst);
-
       _write_start(dst);
       auto itr(src.cbegin()), end(src.cend());
       if (itr != end) {

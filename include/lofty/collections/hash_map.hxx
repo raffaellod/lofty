@@ -121,8 +121,6 @@ public:
          Reference to the current key/value pair.
       */
       value_type operator*() const {
-         LOFTY_TRACE_FUNC(this);
-
          validate();
          hash_map const * map = static_cast<hash_map const *>(owner_map);
          return value_type(map->key_ptr(bucket), map->value_ptr(bucket));
@@ -134,8 +132,6 @@ public:
          Pointer to the current key/value pair.
       */
       pair_ptr<value_type> operator->() const {
-         LOFTY_TRACE_FUNC(this);
-
          validate();
          hash_map const * map = static_cast<hash_map const *>(owner_map);
          return pair_ptr<value_type>(map->key_ptr(bucket), map->value_ptr(bucket));
@@ -147,8 +143,6 @@ public:
          *this.
       */
       const_iterator & operator++() {
-         LOFTY_TRACE_FUNC(this);
-
          validate();
          increment();
          return *this;
@@ -160,8 +154,6 @@ public:
          Iterator pointing to the previous key/value pair.
       */
       const_iterator operator++(int) {
-         LOFTY_TRACE_FUNC(this);
-
          validate();
          std::size_t old_bucket = bucket;
          increment();
@@ -211,8 +203,6 @@ public:
 
       //! See const_iterator::operator*().
       value_type operator*() const {
-         LOFTY_TRACE_FUNC(this);
-
          this->validate();
          auto map = static_cast<hash_map const *>(this->owner_map);
          return value_type(map->key_ptr(this->bucket), map->value_ptr(this->bucket));
@@ -224,8 +214,6 @@ public:
          Pointer to the current key/value pair.
       */
       pair_ptr<value_type> operator->() const {
-         LOFTY_TRACE_FUNC(this);
-
          this->validate();
          auto map = static_cast<hash_map const *>(this->owner_map);
          return pair_ptr<value_type>(map->key_ptr(this->bucket), map->value_ptr(this->bucket));
@@ -300,8 +288,6 @@ public:
       Value corresponding to key. If key is not in the map, an exception will be thrown.
    */
    TValue & operator[](TKey const & key) const {
-      LOFTY_TRACE_FUNC(this/*, key*/);
-
       std::size_t bucket = lookup_key(key);
       if (bucket == null_index) {
          // TODO: provide more information in the exception.
@@ -325,8 +311,6 @@ public:
       overwritten.
    */
    _std::tuple<iterator, bool> add_or_assign(TKey key, TValue value) {
-      LOFTY_TRACE_FUNC(this/*, key, value*/);
-
       type_void_adapter key_type, value_type;
 //      key_type.set_copy_construct<TKey>();
       key_type.set_destruct<TKey>();
@@ -384,8 +368,6 @@ public:
 
    //! Removes all elements from the map.
    void clear() {
-      LOFTY_TRACE_FUNC(this);
-
       type_void_adapter key_type, value_type;
       key_type.set_destruct<TKey>();
       key_type.set_size<TKey>();
@@ -421,8 +403,6 @@ public:
       Iterator to the matching key/value, or cend() if the key could not be found.
    */
    iterator find(TKey const & key) {
-      LOFTY_TRACE_FUNC(this/*, key*/);
-
       std::size_t bucket = lookup_key(key);
       return iterator(this, bucket);
    }
@@ -435,8 +415,6 @@ public:
       Value removed from the map.
    */
    TValue pop(const_iterator itr) {
-      LOFTY_TRACE_FUNC(this/*, itr*/);
-
       itr.validate();
       TValue value(_std::move(*value_ptr(itr.bucket)));
       type_void_adapter key_type, value_type;
@@ -456,8 +434,6 @@ public:
       Value removed from the map.
    */
    TValue pop(TKey const & key) {
-      LOFTY_TRACE_FUNC(this/*, key*/);
-
       std::size_t bucket = lookup_key(key);
       if (bucket == null_index) {
          // TODO: provide more information in the exception.
@@ -479,8 +455,6 @@ public:
       Iterator to the key/value to remove.
    */
    void remove(const_iterator it) {
-      LOFTY_TRACE_FUNC(this/*, it*/);
-
       type_void_adapter key_type, value_type;
       key_type.set_destruct<TKey>();
       key_type.set_size<TKey>();
@@ -509,8 +483,6 @@ public:
       true if a value matching the key was found (and removed), or false otherwise.
    */
    bool remove_if_found(TKey const & key) {
-      LOFTY_TRACE_FUNC(this/*, key*/);
-
       std::size_t bucket = lookup_key(key);
       if (bucket != null_index) {
          type_void_adapter key_type, value_type;

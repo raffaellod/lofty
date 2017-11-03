@@ -27,7 +27,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io_binary_pipe_symmetrical,
    "lofty::io::binary::pipe – alternating symmetrical writes and reads"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    static std::size_t const buffer_size = 1024;
    _std::unique_ptr<std::uint8_t[]> src(new std::uint8_t[buffer_size]), dst(new std::uint8_t[buffer_size]);

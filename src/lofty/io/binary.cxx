@@ -50,8 +50,6 @@ pointer to it.
    Shared pointer to the newly created stream.
 */
 static _std::shared_ptr<file_stream> _construct(_pvt::file_init_data * init_data) {
-   LOFTY_TRACE_FUNC(init_data);
-
 #if LOFTY_HOST_API_POSIX
    if (::fstat(init_data->fd.get(), &init_data->stat)) {
       exception::throw_os_error();
@@ -185,8 +183,6 @@ static _std::shared_ptr<file_stream> _construct(_pvt::file_init_data * init_data
    Pointer to a binary stream controlling fd.
 */
 static _std::shared_ptr<file_stream> _attach(filedesc && fd, access_mode mode) {
-   LOFTY_TRACE_FUNC(fd, mode);
-
    _pvt::file_init_data init_data;
    init_data.fd = _std::move(fd);
    init_data.mode = mode;
@@ -216,8 +212,6 @@ LOFTY_SYM _std::shared_ptr<buffered_ostream> buffer_ostream(_std::shared_ptr<ost
 }
 
 _std::shared_ptr<file_istream> make_istream(io::filedesc && fd) {
-   LOFTY_TRACE_FUNC(fd);
-
    _pvt::file_init_data init_data;
    init_data.fd = _std::move(fd);
    init_data.mode = access_mode::read;
@@ -226,8 +220,6 @@ _std::shared_ptr<file_istream> make_istream(io::filedesc && fd) {
 }
 
 _std::shared_ptr<file_ostream> make_ostream(io::filedesc && fd) {
-   LOFTY_TRACE_FUNC(fd);
-
    _pvt::file_init_data init_data;
    init_data.fd = _std::move(fd);
    init_data.mode = access_mode::write;
@@ -236,8 +228,6 @@ _std::shared_ptr<file_ostream> make_ostream(io::filedesc && fd) {
 }
 
 _std::shared_ptr<file_iostream> make_iostream(io::filedesc && fd) {
-   LOFTY_TRACE_FUNC(fd);
-
    _pvt::file_init_data init_data;
    init_data.fd = _std::move(fd);
    init_data.mode = access_mode::read_write;
@@ -246,8 +236,6 @@ _std::shared_ptr<file_iostream> make_iostream(io::filedesc && fd) {
 }
 
 _std::shared_ptr<file_stream> open(os::path const & path, access_mode mode, bool bypass_cache /*= false*/) {
-   LOFTY_TRACE_FUNC(path, mode, bypass_cache);
-
    bool async = (this_thread::coroutine_scheduler() != nullptr);
    _pvt::file_init_data init_data;
 #if LOFTY_HOST_API_POSIX
@@ -372,8 +360,6 @@ _std::shared_ptr<file_stream> open(os::path const & path, access_mode mode, bool
 namespace lofty { namespace io { namespace binary { namespace _pvt {
 
 _std::shared_ptr<ostream> make_stderr() {
-   LOFTY_TRACE_FUNC();
-
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To avoid
    exceptions later when performing I/O on it, we need to ::SetStdHandle() with a file opened on “NUL”. This
    mimics the behavior of Linux GUI programs, where all their standard I/O handles are open on /dev/null. */
@@ -390,8 +376,6 @@ _std::shared_ptr<ostream> make_stderr() {
 }
 
 _std::shared_ptr<istream> make_stdin() {
-   LOFTY_TRACE_FUNC();
-
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To avoid
    exceptions later when performing I/O on it, we need to ::SetStdHandle() with a file opened on “NUL”. This
    mimics the behavior of Linux GUI programs, where all their standard I/O handles are open on /dev/null. */
@@ -408,8 +392,6 @@ _std::shared_ptr<istream> make_stdin() {
 }
 
 _std::shared_ptr<ostream> make_stdout() {
-   LOFTY_TRACE_FUNC();
-
    /* TODO: under Win32, GUI subsystem programs will get nullptr when calling ::GetStdHandle(). To avoid
    exceptions later when performing I/O on it, we need to ::SetStdHandle() with a file opened on “NUL”. This
    mimics the behavior of Linux GUI programs, where all their standard I/O handles are open on /dev/null. */
@@ -486,8 +468,6 @@ buffered_istream::buffered_istream() {
 }
 
 /*virtual*/ std::size_t buffered_istream::read(void * dst, std::size_t dst_max) /*override*/ {
-   LOFTY_TRACE_FUNC(this, dst, dst_max);
-
    if (dst_max == 0) {
       // No need to read anything.
       return 0;
@@ -524,8 +504,6 @@ buffered_ostream::buffered_ostream() {
 }
 
 /*virtual*/ std::size_t buffered_ostream::write(void const * src, std::size_t src_size) /*override*/ {
-   LOFTY_TRACE_FUNC(this, src, src_size);
-
    // Obtain a buffer large enough.
    std::int8_t * buf;
    std::size_t buf_size;
@@ -566,8 +544,6 @@ file_istream::file_istream(_pvt::file_init_data * init_data) :
 }
 
 /*virtual*/ std::size_t file_istream::read(void * dst, std::size_t dst_max) /*override*/ {
-   LOFTY_TRACE_FUNC(this, dst, dst_max);
-
 #if LOFTY_HOST_API_POSIX
    // This may repeat in case of EINTR.
    for (;;) {
@@ -657,14 +633,10 @@ file_ostream::file_ostream(_pvt::file_init_data * init_data) :
 }
 
 /*virtual*/ void file_ostream::finalize() /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    fd.safe_close();
 }
 
 /*virtual*/ void file_ostream::flush() /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
 #if LOFTY_HOST_API_POSIX
    // TODO: investigate fdatasync().
    // This may repeat in case of EINTR.
@@ -700,8 +672,6 @@ file_ostream::file_ostream(_pvt::file_init_data * init_data) :
 }
 
 /*virtual*/ std::size_t file_ostream::write(void const * src, std::size_t src_size) /*override*/ {
-   LOFTY_TRACE_FUNC(this, src, src_size);
-
    std::int8_t const * src_bytes = static_cast<std::int8_t const *>(src);
 #if LOFTY_HOST_API_POSIX
    // This may repeat in case of EINTR or in case ::write() couldn’t write all the bytes.
@@ -793,8 +763,6 @@ file_iostream::file_iostream(_pvt::file_init_data * init_data) :
 namespace lofty { namespace io { namespace binary {
 
 pipe::pipe() {
-   LOFTY_TRACE_FUNC(this);
-
    bool async = (this_thread::coroutine_scheduler() != nullptr);
    _pvt::file_init_data read_end_init_data, write_end_init_data;
 #if LOFTY_HOST_API_DARWIN

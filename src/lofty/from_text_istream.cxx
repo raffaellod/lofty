@@ -54,8 +54,6 @@ void from_text_istream<bool>::convert_capture(
 text::parsers::dynamic_state const * from_text_istream<bool>::format_to_parser_states(
    text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this/*, format*/, parser);
-
    // TODO: more format validation.
    throw_on_unused_streaming_format_chars(format.expr.cbegin(), format.expr);
 
@@ -81,8 +79,6 @@ template <typename I>
 inline void int_from_text_istream_base::convert_capture_impl(
    text::parsers::dynamic_match_capture const & capture0, I * dst
 ) const {
-   LOFTY_TRACE_FUNC(this/*, capture0*/, dst);
-
    unsigned cap_group_index = 0;
    bool negative = false;
    if (is_signed) {
@@ -187,8 +183,6 @@ void int_from_text_istream_base::convert_capture_u16(
 text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parser_states(
    text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this/*, format*/, parser);
-
    // TODO: more format validation.
 
    /* If > 0, support base prefixes 0b, 0B, 0, 0o, 0O, 0x, or 0X. That also implies that we can parse multiple
@@ -268,8 +262,6 @@ text::parsers::dynamic_state const * int_from_text_istream_base::format_to_parse
 text::parsers::dynamic_state * int_from_text_istream_base::create_base2_parser_states(
    text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this, parser);
-
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(digit_state, nullptr, nullptr, '0', '1');
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(digits_rep_group, nullptr, nullptr, &digit_state.base, 1);
    auto digits_cap_group = parser->create_capture_group(&digits_rep_group.base);
@@ -287,8 +279,6 @@ text::parsers::dynamic_state * int_from_text_istream_base::create_base2_parser_s
 text::parsers::dynamic_state * int_from_text_istream_base::create_base8_parser_states(
    text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this, parser);
-
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(digit_state, nullptr, nullptr, '0', '7');
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(digits_rep_group, nullptr, nullptr, &digit_state.base, 1);
    auto digits_cap_group = parser->create_capture_group(&digits_rep_group.base);
@@ -308,8 +298,6 @@ text::parsers::dynamic_state * int_from_text_istream_base::create_base8_parser_s
 text::parsers::dynamic_state * int_from_text_istream_base::create_base10_parser_states(
    text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this, parser);
-
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(digit_state, nullptr, nullptr, '0', '9');
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_MIN_GROUP(digits_rep_group, nullptr, nullptr, &digit_state.base, 1);
    auto digits_cap_group = parser->create_capture_group(&digits_rep_group.base);
@@ -326,8 +314,6 @@ text::parsers::dynamic_state * int_from_text_istream_base::create_base10_parser_
 text::parsers::dynamic_state * int_from_text_istream_base::create_base16_parser_states(
    text::parsers::dynamic * parser
 ) {
-   LOFTY_TRACE_FUNC(this, parser);
-
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(upper_alpha_digit_state, nullptr, nullptr, 'A', 'F');
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(lower_alpha_digit_state, nullptr, &upper_alpha_digit_state.base, 'a', 'f');
    LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_RANGE_STATE(num_digit_state, nullptr, &lower_alpha_digit_state.base, '0', '9');
@@ -369,8 +355,6 @@ sequence_from_text_istream::~sequence_from_text_istream() {
 text::parsers::dynamic_match_capture const & sequence_from_text_istream::capture_at(
    text::parsers::dynamic_match_capture const & capture0, std::size_t i
 ) {
-   LOFTY_TRACE_FUNC(this/*, capture0*/, i);
-
    auto all_elts_group(capture0.repetition_group(1)[0]);
    if (i == 0) {
       pimpl->curr_capture = all_elts_group.capture_group(0);
@@ -383,8 +367,6 @@ text::parsers::dynamic_match_capture const & sequence_from_text_istream::capture
 std::size_t sequence_from_text_istream::captures_count(
    text::parsers::dynamic_match_capture const & capture0
 ) const {
-   LOFTY_TRACE_FUNC(this/*, capture0*/);
-
    std::size_t captures = capture0.repetition_group(1).size();
    if (captures > 0) {
       captures += capture0.repetition_group(1)[0].repetition_group(0).size();
@@ -395,8 +377,6 @@ std::size_t sequence_from_text_istream::captures_count(
 text::parsers::regex_capture_format const & sequence_from_text_istream::extract_elt_format(
    text::parsers::regex_capture_format const & format
 ) {
-   LOFTY_TRACE_FUNC(this/*, format*/);
-
    // TODO: more format validation.
 
    // TODO: parse format.expr with regex::parse_capture_format() (itself a TODO).
@@ -405,8 +385,6 @@ text::parsers::regex_capture_format const & sequence_from_text_istream::extract_
 }
 
 static text::parsers::dynamic_state * expr_to_group(text::parsers::dynamic * parser, str const & expr) {
-   LOFTY_TRACE_FUNC(parser, expr);
-
    text::parsers::dynamic_state * first_state;
    if (expr) {
       text::parsers::regex regex(parser, expr);
@@ -421,8 +399,6 @@ text::parsers::dynamic_state const * sequence_from_text_istream::format_to_parse
    text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser,
    text::parsers::dynamic_state const * elt_first_state
 ) {
-   LOFTY_TRACE_FUNC(this/*, format*/, parser, elt_first_state);
-
    // TODO: more format validation.
    LOFTY_UNUSED_ARG(format);
 

@@ -25,7 +25,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    this_process_env,
    "lofty::this_process – retrieving environment variables"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    LOFTY_TESTING_ASSERT_NOT_EQUAL(_std::get<0>(this_process::env_var(LOFTY_SL("PATH"))), str::empty);
    LOFTY_TESTING_ASSERT_TRUE(_std::get<1>(this_process::env_var(LOFTY_SL("PATH"))));

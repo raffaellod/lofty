@@ -33,7 +33,7 @@ public:
 
    //! See testing::test_case::run().
    virtual void run() override {
-      LOFTY_TRACE_FUNC(this);
+      LOFTY_TRACE_METHOD();
 
       os::path path(LOFTY_SL("test/lofty/io/text/data/") + get_test_data_file_name());
       auto istream(io::text::open_istream(path));
@@ -46,8 +46,6 @@ public:
 
    //! See testing::test_case::title().
    virtual str title() override {
-      LOFTY_TRACE_FUNC(this);
-
       return LOFTY_SL("lofty::io::text::binbuf_istream – reading line-by-line, ") + title_suffix();
    }
 

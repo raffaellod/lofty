@@ -29,8 +29,6 @@ ansi_escape_sequences::~ansi_escape_sequences() {
 }
 
 bool ansi_escape_sequences::got_one_argument(std::int16_t default0) {
-   LOFTY_TRACE_FUNC(this, default0);
-
    if (cmd_args_size == 0) {
       cmd_args[cmd_args_size++] = default0;
    }
@@ -38,8 +36,6 @@ bool ansi_escape_sequences::got_one_argument(std::int16_t default0) {
 }
 
 bool ansi_escape_sequences::got_two_arguments(std::int16_t default0, std::int16_t default1) {
-   LOFTY_TRACE_FUNC(this, default0, default1);
-
    if (cmd_args_size == 0) {
       cmd_args[cmd_args_size++] = default0;
    }
@@ -50,8 +46,6 @@ bool ansi_escape_sequences::got_two_arguments(std::int16_t default0, std::int16_
 }
 
 bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
-   LOFTY_TRACE_FUNC(this, ch);
-
    switch (curr_state.base()) {
       case state::not_in_sequence:
          // Cannot happen, but here to make the compiler happy.
@@ -127,8 +121,6 @@ bool ansi_escape_sequences::consume_sequence_char(char_t ch) {
 }
 
 void ansi_escape_sequences::run_erase_display_sequence(int mode) {
-   LOFTY_TRACE_FUNC(this, mode);
-
    std::int16_t row, col, rows, cols;
    get_cursor_pos_and_display_size(&row, &col, &rows, &cols);
    if (mode == 0) {
@@ -148,8 +140,6 @@ void ansi_escape_sequences::run_erase_display_sequence(int mode) {
 }
 
 void ansi_escape_sequences::run_erase_row_sequence(int mode) {
-   LOFTY_TRACE_FUNC(this, mode);
-
    std::int16_t row, col, rows, cols;
    get_cursor_pos_and_display_size(&row, &col, &rows, &cols);
    if (mode == 0) {
@@ -165,8 +155,6 @@ void ansi_escape_sequences::run_erase_row_sequence(int mode) {
 }
 
 void ansi_escape_sequences::run_sequence(char_t cmd_char) {
-   LOFTY_TRACE_FUNC(this, cmd_char);
-
    if (seq_start_char == '[') {
       switch (cmd_char) {
          case 'A': // Move cursor up N rows.
@@ -262,8 +250,6 @@ void ansi_escape_sequences::run_sequence(char_t cmd_char) {
 }
 
 void ansi_escape_sequences::run_set_char_attributes_sequence() {
-   LOFTY_TRACE_FUNC(this);
-
    for (unsigned i = 0; i < cmd_args_size; ++i) {
       std::int16_t cmd_arg = cmd_args[i];
       switch (cmd_arg) {
@@ -318,8 +304,6 @@ void ansi_escape_sequences::run_set_char_attributes_sequence() {
 void ansi_escape_sequences::safe_set_cursor_pos(
    int row, int col, bool absolute_row /*= false*/, bool absolute_col /*= false*/
 ) {
-   LOFTY_TRACE_FUNC(this, row, col, absolute_row, absolute_col);
-
    std::int16_t curr_row, curr_col, rows, cols;
    get_cursor_pos_and_display_size(&curr_row, &curr_col, &rows, &cols);
 

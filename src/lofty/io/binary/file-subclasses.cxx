@@ -60,8 +60,6 @@ tty_istream::tty_istream(_pvt::file_init_data * init_data) :
 
 #if LOFTY_HOST_API_WIN32
 /*virtual*/ std::size_t tty_istream::read(void * dst, std::size_t dst_max) /*override*/ {
-   LOFTY_TRACE_FUNC(this, dst, dst_max);
-
    // Note: ::ReadConsole() expects and returns character counts in place of byte counts.
 
    ::DWORD chars_read, chars_to_read = static_cast< ::DWORD>(
@@ -115,8 +113,6 @@ tty_ostream::tty_ostream(_pvt::file_init_data * init_data) :
    tty_file_stream(init_data),
    file_ostream(init_data) {
 #if LOFTY_HOST_API_WIN32
-   LOFTY_TRACE_FUNC(this, init_data);
-
    ::CONSOLE_SCREEN_BUFFER_INFO con_screen;
    ::GetConsoleScreenBufferInfo(fd.get(), &con_screen);
    for (unsigned i = 0; i < LOFTY_COUNTOF(ansi_colors_to_foreground_colors); ++i) {
@@ -151,16 +147,12 @@ tty_ostream::tty_ostream(_pvt::file_init_data * init_data) :
 /*virtual*/ void tty_ostream::clear_display_area(
    std::int16_t row, std::int16_t col, std::size_t char_size
 ) /*override*/ {
-   LOFTY_TRACE_FUNC(this, row, col, char_size);
-
    // TODO: implementation.
 }
 
 /*virtual*/ void tty_ostream::get_cursor_pos_and_display_size(
    std::int16_t * row, std::int16_t * col, std::int16_t * rows, std::int16_t * cols
 ) /*override*/ {
-   LOFTY_TRACE_FUNC(this, row, col, rows, cols);
-
    ::CONSOLE_SCREEN_BUFFER_INFO con_screen;
    ::GetConsoleScreenBufferInfo(fd.get(), &con_screen);
    *row = con_screen.dwCursorPosition.Y;
@@ -170,8 +162,6 @@ tty_ostream::tty_ostream(_pvt::file_init_data * init_data) :
 }
 
 bool tty_ostream::processing_enabled() const {
-   LOFTY_TRACE_FUNC(this);
-
    ::DWORD console_mode;
    if (!::GetConsoleMode(fd.get(), &console_mode)) {
       // TODO: is this worth throwing an exception for?
@@ -181,14 +171,10 @@ bool tty_ostream::processing_enabled() const {
 }
 
 /*virtual*/ void tty_ostream::scroll_text(std::int16_t rows, std::int16_t cols) /*override*/ {
-   LOFTY_TRACE_FUNC(this, rows, cols);
-
    // TODO: implementation.
 }
 
 /*virtual*/ void tty_ostream::set_char_attributes() /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
    ::WORD con_text_attr;
    if (curr_char_attr.concealed) {
       if (curr_char_attr.reverse_video) {
@@ -218,8 +204,6 @@ bool tty_ostream::processing_enabled() const {
 }
 
 /*virtual*/ void tty_ostream::set_cursor_pos(std::int16_t row, std::int16_t col) /*override*/ {
-   LOFTY_TRACE_FUNC(this, row, col);
-
    ::COORD con_cur_pos;
    con_cur_pos.X = col;
    con_cur_pos.Y = row;
@@ -227,8 +211,6 @@ bool tty_ostream::processing_enabled() const {
 }
 
 /*virtual*/ void tty_ostream::set_cursor_visibility(bool visible) /*override*/ {
-   LOFTY_TRACE_FUNC(this, visible);
-
    ::CONSOLE_CURSOR_INFO con_cur;
    ::GetConsoleCursorInfo(fd.get(), &con_cur);
    con_cur.bVisible = visible;
@@ -236,14 +218,10 @@ bool tty_ostream::processing_enabled() const {
 }
 
 /*virtual*/ void tty_ostream::set_window_title(str const & title) /*override*/ {
-   LOFTY_TRACE_FUNC(this, title);
-
    ::SetConsoleTitle(title.c_str());
 }
 
 /*virtual*/ std::size_t tty_ostream::write(void const * src, std::size_t src_size) /*override*/ {
-   LOFTY_TRACE_FUNC(this, src, src_size);
-
    auto src_chars_begin = static_cast<char_t const *>(src);
    auto src_chars_end = reinterpret_cast<char_t const *>(static_cast<std::int8_t const *>(src) + src_size);
    auto written_src_chars_end = src_chars_begin;
@@ -284,8 +262,6 @@ bool tty_ostream::processing_enabled() const {
 }
 
 void tty_ostream::write_range(char_t const * src_begin, char_t const * src_end) const {
-   LOFTY_TRACE_FUNC(this, src_begin, src_end);
-
    // This loop may repeat more than once in the unlikely case src_size exceeds what can fit in a DWORD.
    while (auto src_size = static_cast<std::size_t>(src_end - src_begin)) {
       ::DWORD written_size;
@@ -392,8 +368,6 @@ namespace lofty { namespace io { namespace binary {
 regular_file_stream::regular_file_stream(_pvt::file_init_data * init_data) :
    file_stream(init_data) {
 #if 0
-   LOFTY_TRACE_FUNC(this, init_data);
-
 #if LOFTY_HOST_API_POSIX
    if (init_data->bypass_cache) {
       // For unbuffered access, use the filesystem-suggested I/O size increment.
@@ -415,8 +389,6 @@ regular_file_stream::regular_file_stream(_pvt::file_init_data * init_data) :
 }
 
 /*virtual*/ offset_t regular_file_stream::seek(offset_t offset, seek_from whence) /*override*/ {
-   LOFTY_TRACE_FUNC(this, offset, whence);
-
 #if LOFTY_HOST_API_POSIX
 
    int whence_i;
@@ -477,8 +449,6 @@ regular_file_stream::regular_file_stream(_pvt::file_init_data * init_data) :
 }
 
 /*virtual*/ full_size_t regular_file_stream::size() const /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
 #if LOFTY_HOST_API_POSIX
    struct ::stat stat;
    if (::fstat(fd.get(), &stat)) {
@@ -508,8 +478,6 @@ regular_file_stream::regular_file_stream(_pvt::file_init_data * init_data) :
 }
 
 /*virtual*/ offset_t regular_file_stream::tell() const /*override*/ {
-   LOFTY_TRACE_FUNC(this);
-
 #if LOFTY_HOST_API_POSIX || LOFTY_HOST_API_WIN32
    /* Seeking 0 bytes from the current position won’t change the internal status of the file descriptor, so
    casting the const-ness away is not semantically wrong. */
@@ -544,8 +512,6 @@ regular_file_ostream::regular_file_ostream(_pvt::file_init_data * init_data) :
    file_stream(init_data),
    regular_file_stream(init_data),
    file_ostream(init_data) {
-   LOFTY_TRACE_FUNC(this, init_data);
-
 #if LOFTY_HOST_API_WIN32
    append = (init_data->mode == access_mode::write_append);
 #endif
@@ -556,8 +522,6 @@ regular_file_ostream::regular_file_ostream(_pvt::file_init_data * init_data) :
 
 #if LOFTY_HOST_API_WIN32
 /*virtual*/ std::size_t regular_file_ostream::write(void const * src, std::size_t src_size) /*override*/ {
-   LOFTY_TRACE_FUNC(this, src, src_size);
-
    /* Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then write-
    protect the bytes we’re going to add, and then release the write protection. */
 
@@ -592,8 +556,6 @@ regular_file_ostream::regular_file_ostream(_pvt::file_init_data * init_data) :
          true if the specified range could be locked, or false if the range has already been locked.
       */
       bool lock(filedesc_t fd, offset_t offset, full_size_t size) {
-         LOFTY_TRACE_FUNC(this, fd, offset, size);
-
          if (locked_fd != INVALID_HANDLE_VALUE) {
             unlock();
          }
@@ -615,8 +577,6 @@ regular_file_ostream::regular_file_ostream(_pvt::file_init_data * init_data) :
 
       //! Releases the lock acquired by lock().
       void unlock() {
-         LOFTY_TRACE_FUNC(this);
-
          if (!::UnlockFile(
             locked_fd, range_offset.LowPart, static_cast< ::DWORD>(range_offset.HighPart), range_size.LowPart,
             static_cast< ::DWORD>(range_size.HighPart)

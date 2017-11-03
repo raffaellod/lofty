@@ -40,8 +40,6 @@ hash_map_impl::hash_map_impl(hash_map_impl && src) :
    used_buckets(src.used_buckets),
    neighborhood_size_(src.neighborhood_size_),
    rev(0) {
-   LOFTY_TRACE_FUNC(this);
-
    src.total_buckets = 0;
    src.used_buckets = 0;
    src.neighborhood_size_ = 0;
@@ -53,8 +51,6 @@ hash_map_impl::~hash_map_impl() {
 }
 
 hash_map_impl & hash_map_impl::operator=(hash_map_impl && src) {
-   LOFTY_TRACE_FUNC(this);
-
    hashes = _std::move(src.hashes);
    keys = _std::move(src.keys);
    values = _std::move(src.values);
@@ -74,8 +70,6 @@ _std::tuple<std::size_t, bool> hash_map_impl::add_or_assign(
    type_void_adapter const & key_type, type_void_adapter const & value_type, keys_equal_fn_type keys_equal_fn,
    void * key, std::size_t key_hash, void * value, unsigned move
 ) {
-   LOFTY_TRACE_FUNC(this/*, key_type, value_type*/, keys_equal_fn, key, key_hash, value, move);
-
    if (total_buckets == 0) {
       grow_table(key_type, value_type);
    }
@@ -108,8 +102,6 @@ _std::tuple<std::size_t, bool> hash_map_impl::add_or_assign(
 }
 
 void hash_map_impl::clear(type_void_adapter const & key_type, type_void_adapter const & value_type) {
-   LOFTY_TRACE_FUNC(this/*, key_type, value_type*/);
-
    auto hash_ptr  = hashes.get(), hashes_end = hash_ptr + total_buckets;
    auto key_ptr   = static_cast<std::int8_t *>(keys  .get());
    auto value_ptr = static_cast<std::int8_t *>(values.get());
@@ -127,8 +119,6 @@ void hash_map_impl::clear(type_void_adapter const & key_type, type_void_adapter 
 void hash_map_impl::empty_bucket(
    type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t bucket
 ) {
-   LOFTY_TRACE_FUNC(this/*, key_type, value_type*/, bucket);
-
    hashes[bucket] = empty_bucket_hash;
    key_type  .destruct(static_cast<std::int8_t *>(keys  .get()) + key_type  .size() * bucket);
    value_type.destruct(static_cast<std::int8_t *>(values.get()) + value_type.size() * bucket);
@@ -139,8 +129,6 @@ void hash_map_impl::empty_bucket(
 }
 
 std::size_t hash_map_impl::find_bucket_movable_to_empty(std::size_t empty_bucket_) const {
-   LOFTY_TRACE_FUNC(this, empty_bucket_);
-
    std::size_t const * empty_hash_ptr = hashes.get() + empty_bucket_;
    /* Minimum number of buckets on the right of empty_bucket_ that we need in order to have a full
    neighborhood to scan. */
@@ -187,8 +175,6 @@ std::size_t hash_map_impl::find_bucket_movable_to_empty(std::size_t empty_bucket
 }
 
 std::size_t hash_map_impl::find_empty_bucket(std::size_t nh_begin, std::size_t nh_end) const {
-   LOFTY_TRACE_FUNC(this, nh_begin, nh_end);
-
    auto hash_ptr      = hashes.get() + nh_begin;
    auto hashes_nh_end = hashes.get() + nh_end;
    auto hashes_end    = hashes.get() + total_buckets;
@@ -213,8 +199,6 @@ std::size_t hash_map_impl::find_empty_bucket_outside_neighborhood(
    type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t nh_begin,
    std::size_t nh_end
 ) {
-   LOFTY_TRACE_FUNC(this/*, key_type, value_type*/, nh_begin, nh_end);
-
    // Find an empty bucket, scanning every bucket outside the neighborhood.
    std::size_t empty_bucket_ = find_empty_bucket(nh_end, nh_begin);
    if (empty_bucket_ == null_index) {
@@ -253,8 +237,6 @@ std::size_t hash_map_impl::find_empty_bucket_outside_neighborhood(
 std::size_t hash_map_impl::get_empty_bucket_for_key(
    type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t key_hash
 ) {
-   LOFTY_TRACE_FUNC(this/*, key_type, value_type*/, key_hash);
-
    std::size_t nh_begin, nh_end;
    _std::tie(nh_begin, nh_end) = hash_neighborhood_range(key_hash);
    // Search for an empty bucket in the neighborhood.
@@ -269,8 +251,6 @@ std::size_t hash_map_impl::get_existing_or_empty_bucket_for_key(
    type_void_adapter const & key_type, type_void_adapter const & value_type, keys_equal_fn_type keys_equal_fn,
    void const * key, std::size_t key_hash
 ) {
-   LOFTY_TRACE_FUNC(this/*, key_type, value_type*/, keys_equal_fn, key, key_hash);
-
    std::size_t nh_begin, nh_end;
    _std::tie(nh_begin, nh_end) = hash_neighborhood_range(key_hash);
    // Look for the key or an empty bucket in the neighborhood.
@@ -284,8 +264,6 @@ std::size_t hash_map_impl::get_existing_or_empty_bucket_for_key(
 }
 
 void hash_map_impl::grow_table(type_void_adapter const & key_type, type_void_adapter const & value_type) {
-   LOFTY_TRACE_FUNC(this/*, key_type, value_type*/);
-
    // The “old” names of these four variables will make sense in a moment…
    std::size_t old_total_buckets = total_buckets ? total_buckets * growth_factor : min_buckets;
    _std::unique_ptr<std::size_t[]> old_hashes(new std::size_t[old_total_buckets]);
@@ -345,8 +323,6 @@ std::size_t hash_map_impl::lookup_key_or_find_empty_bucket(
    type_void_adapter const & key_type, keys_equal_fn_type keys_equal_fn, void const * key,
    std::size_t key_hash, std::size_t nh_begin, std::size_t nh_end
 ) const {
-   LOFTY_TRACE_FUNC(this/*, key_type*/, keys_equal_fn, key, key_hash, nh_begin, nh_end);
-
    auto hash_ptr      = hashes.get() + nh_begin;
    auto hashes_nh_end = hashes.get() + nh_end;
    auto hashes_end    = hashes.get() + total_buckets;
@@ -382,8 +358,6 @@ void hash_map_impl::set_bucket_key_value(
    type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t bucket, void * key,
    void * value, unsigned move
 ) {
-   LOFTY_TRACE_FUNC(this/*, key_type, value_type*/, bucket, key, value, move);
-
    if (key) {
       void * dst = static_cast<std::int8_t *>(keys.get()) + key_type.size() * bucket;
       if (move & 1) {
@@ -415,8 +389,6 @@ hash_map_impl::iterator_base::iterator_base(hash_map_impl const * owner_map_, st
 }
 
 void hash_map_impl::iterator_base::increment() {
-   LOFTY_TRACE_FUNC(this);
-
    for (;;) {
       ++bucket;
       if (bucket >= owner_map->total_buckets) {
@@ -430,8 +402,6 @@ void hash_map_impl::iterator_base::increment() {
 }
 
 void hash_map_impl::iterator_base::validate() const {
-   LOFTY_TRACE_FUNC(this);
-
    if (bucket == null_index || rev != owner_map->rev) {
       LOFTY_THROW(out_of_range, ());
    }

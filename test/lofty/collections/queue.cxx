@@ -26,7 +26,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections_queue_basic,
    "lofty::collections::queue – basic operations"
 ) {
-   LOFTY_TRACE_FUNC(this);
+   LOFTY_TRACE_FUNC();
 
    collections::queue<int> q;
 
