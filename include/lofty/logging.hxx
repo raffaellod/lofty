@@ -191,4 +191,47 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace lofty { namespace logging {
+
+//! Logging levels. Enumeration members ara available both in full and as short forms.
+LOFTY_ENUM(level,
+   //! Interruption in the code flow, such as an exception.
+   (error,   0),
+   //! Short form of error.
+   (err,     0),
+   //! Unexpected situation that can be recovered from.
+   (warning, 1),
+   //! Short form of warning.
+   (warn,    1),
+   //! Informational message, useful to keep track of the state of the application.
+   (info,    2),
+   //! Detailed information that may be used to track down application errors.
+   (debug,   3),
+   //! Short form of debug.
+   (dbg,     3)
+);
+
+LOFTY_SYM io::text::ostream * get_ostream_if(level level_);
+
+}} //namespace lofty::logging
+
+/*! Outputs a message to the application’s log.
+
+@param level
+   The message will only be output if the current application-wide logging level is at least the specified
+   value.
+@param format
+   Format string to parse for replacements.
+@param ...
+   Replacement values.
+*/
+#define LOFTY_LOG(level_, ...) \
+   do { \
+      if (auto __log = ::lofty::logging::get_ostream_if(::lofty::logging::level::enum_type::level_)) { \
+         __log->print(__VA_ARGS__); \
+      } \
+   } while (false)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #endif //ifndef _LOFTY_LOGGING_HXX

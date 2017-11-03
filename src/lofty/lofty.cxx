@@ -17,6 +17,7 @@ more details.
 #include <lofty/byte_order.hxx>
 #include <lofty/destructing_unfinalized_object.hxx>
 #include <lofty/from_str.hxx>
+#include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/math.hxx>
 #include <lofty/text.hxx>
@@ -384,6 +385,17 @@ std::uint64_t bswap_64(std::uint64_t i) {
 }}} //namespace lofty::byte_order::_pvt
 
 #endif //ifndef LOFTY_HAVE_BSWAP
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace logging {
+
+io::text::ostream * get_ostream_if(level level_) {
+   // TODO: actually check level_ against a global log level setting.
+   return io::text::stderr.get();
+}
+
+}} //namespace lofty::logging
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
