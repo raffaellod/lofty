@@ -1472,7 +1472,7 @@ public:
    shared_ptr<T> shared_from_this() {
       shared_ptr<T> this_ptr(sr, static_cast<T *>(this));
       sr->add_strong_ref();
-      return std::move(this_ptr);
+      return move(this_ptr);
    }
 
    /*! Returns a shared const pointer to this.
@@ -1483,7 +1483,7 @@ public:
    shared_ptr<T const> shared_from_this() const {
       shared_ptr<T const> this_ptr(sr, static_cast<T const *>(this));
       sr->add_strong_ref();
-      return std::move(this_ptr);
+      return move(this_ptr);
    }
 
 protected:
