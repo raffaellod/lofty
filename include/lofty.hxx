@@ -546,9 +546,6 @@ class dynamic_match_capture;
 #include <lofty/io/text/str.hxx>
 #include <lofty/text/str-after-str_ostream.hxx>
 
-#include <lofty/_pvt/trace.hxx>
-#include <lofty/trace.hxx>
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #undef _LOFTY_HXX_INTERNAL

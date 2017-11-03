@@ -14,6 +14,7 @@ more details.
 
 #include <lofty.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/net/ip.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/to_str.hxx>

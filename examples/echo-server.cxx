@@ -17,6 +17,7 @@ more details.
 #include <lofty/coroutine.hxx>
 #include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/thread.hxx>
 #include <lofty/net/tcp.hxx>
 

@@ -15,6 +15,7 @@ more details.
 #include <lofty.hxx>
 #include <lofty/collections.hxx>
 #include <lofty/from_str.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/testing/utility.hxx>
 

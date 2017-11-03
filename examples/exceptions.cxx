@@ -23,6 +23,7 @@ code for more comments. */
 #include <lofty/app.hxx>
 #include <lofty/collections/vector.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 
 using namespace lofty;
 

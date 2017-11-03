@@ -16,6 +16,7 @@ more details.
 #include <lofty/app.hxx>
 #include <lofty/collections/hash_map.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/perf/stopwatch.hxx>
 #include <lofty/range.hxx>
 

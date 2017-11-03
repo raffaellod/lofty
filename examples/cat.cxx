@@ -22,6 +22,7 @@ Ctrl+D in Linux/OS X/FreeBSD or Ctrl+Z followed by Enter in Windows. */
 #include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 
 using namespace lofty;
 

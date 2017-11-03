@@ -13,10 +13,16 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 /*! @file
-Stack tracing infrastructure. */
+Logging and stack tracing infrastructure. */
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_LOGGING_HXX
+#define _LOFTY_LOGGING_HXX
+
+#ifndef _LOFTY_HXX
+   #error "Please #include <lofty.hxx> before this file"
+#endif
+#ifdef LOFTY_CXX_PRAGMA_ONCE
+   #pragma once
 #endif
 
 /*! @page stack-tracing Stack tracing
@@ -73,6 +79,95 @@ Currently unsupported:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace lofty { namespace logging { namespace _pvt {
+
+//! Tracks local variables, to be used during e.g. a stack unwind.
+class LOFTY_SYM scope_trace : public noncopyable {
+public:
+   /*! Constructor.
+
+   @param source_file_addr
+      Source location.
+   @param local_this
+      this in the context of the caller; may be nullptr.
+   */
+   scope_trace(source_file_address const * source_file_addr, void const * local_this);
+
+   //! Destructor. Adds a scope in the current scope trace if an in-flight exception is detected.
+   ~scope_trace();
+
+   /*! Returns a stream to which the stack frame can be output. The stream is thread-local, which is why this
+   can’t be just a static member variable.
+
+   @return
+      Pointer to the text stream containing the current stack trace.
+   */
+   static io::text::str_ostream * get_trace_ostream() {
+      if (!trace_ostream) {
+         trace_ostream.reset_new();
+      }
+      return trace_ostream.get();
+   }
+
+   //! Increments the reference count of the scope trace being generated.
+   static void trace_ostream_addref() {
+      ++trace_ostream_refs;
+   }
+
+   /*! Decrements the reference count of the scope trace being generated. If the reference count reaches zero,
+   trace_ostream_clear() will be invoked. */
+   static void trace_ostream_release() {
+      if (trace_ostream_refs == 1) {
+         trace_ostream_clear();
+      } else if (trace_ostream_refs > 1) {
+         --trace_ostream_refs;
+      }
+   }
+
+   //! Erases any collected stack frames.
+   static void trace_ostream_clear() {
+      trace_ostream.reset();
+      curr_stack_depth = 0;
+      trace_ostream_refs = 0;
+   }
+
+   /*! Walks the single-linked list of scope_trace instances for the current thread, writing each one to the
+   specified stream.
+
+   @param dst
+      Pointer to the stream to output to.
+   */
+   static void write_list(io::text::ostream * dst);
+
+private:
+   /*! Writes the scope trace to the specified stream.
+
+   @param dst
+      Pointer to the stream to output to.
+   @param stack_depth
+      Stack index to print next to the trace.
+   */
+   void write(io::text::ostream * dst, unsigned stack_depth) const;
+
+private:
+   //! Pointer to the previous scope_trace single-linked list item that *this replaced as the head.
+   scope_trace const * prev_scope_trace;
+   //! Pointer to the statically-allocated source location.
+   source_file_address const * source_file_addr;
+   //! this in the context of the caller; may be nullptr.
+   void const * local_this;
+   //! Pointer to the head of the scope_trace single-linked list for each thread.
+   static coroutine_local_value<scope_trace const *> scope_traces_head;
+   //! Stream that collects the rendered scope trace when an exception is thrown.
+   static coroutine_local_ptr<io::text::str_ostream> trace_ostream;
+   //! Number of the next stack frame to be added to the rendered trace.
+   static coroutine_local_value<unsigned> curr_stack_depth;
+   //! Count of references to the current rendered trace. Managed by lofty::exception.
+   static coroutine_local_value<unsigned> trace_ostream_refs;
+};
+
+}}} //namespace lofty::logging::_pvt
+
 //! Provides stack frame logging for the function in which it’s used.
 #define LOFTY_TRACE_FUNC() \
    _LOFTY_TRACE_SCOPE_IMPL(LOFTY_CPP_APPEND_UID(__scope_trace_), nullptr)
@@ -92,4 +187,8 @@ Currently unsupported:
    static ::lofty::_pvt::source_file_address_data const LOFTY_CPP_CAT(uid, _sfad) = { \
       LOFTY_THIS_FUNC, { LOFTY_SL(__FILE__), __LINE__ } \
    }; \
-   ::lofty::_pvt::scope_trace uid(::lofty::source_file_address::from_data(&LOFTY_CPP_CAT(uid, _sfad)), this)
+   ::lofty::logging::_pvt::scope_trace uid(::lofty::source_file_address::from_data(&LOFTY_CPP_CAT(uid, _sfad)), this)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_LOGGING_HXX

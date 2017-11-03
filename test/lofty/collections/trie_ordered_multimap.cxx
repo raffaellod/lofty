@@ -15,6 +15,7 @@ more details.
 #include <lofty.hxx>
 #include <lofty/collections.hxx>
 #include <lofty/collections/trie_ordered_multimap.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
 
 

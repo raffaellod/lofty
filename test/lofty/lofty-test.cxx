@@ -15,6 +15,7 @@ more details.
 #include <lofty.hxx>
 #include <lofty/coroutine.hxx>
 #include <lofty/defer_to_scope_end.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/math.hxx>
 #include <lofty/os.hxx>
 #include <lofty/range.hxx>

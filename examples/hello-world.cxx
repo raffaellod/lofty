@@ -24,6 +24,7 @@ terminates. See the source code for line-by-line comments. */
 #include <lofty/app.hxx>
 
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 
 /* Lofty does not use “using namespace” directives in its sources or header files; if you want such
 convenience, you can write it yourself in your own source files. */

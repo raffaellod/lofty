@@ -15,6 +15,7 @@ more details.
 #include <lofty.hxx>
 #include <lofty/coroutine.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/math.hxx>
 #include <lofty/process.hxx>
 #include <lofty/text.hxx>
@@ -153,7 +154,7 @@ exception::exception(exception const & src) :
    what_buf_available(src.what_buf_available) {
    // See @ref stack-tracing.
    if (in_flight) {
-      _pvt::scope_trace::trace_ostream_addref();
+      logging::_pvt::scope_trace::trace_ostream_addref();
    }
    memory::copy<char>(what_buf, src.what_buf, LOFTY_COUNTOF(what_buf) - what_buf_available);
 }
@@ -161,7 +162,7 @@ exception::exception(exception const & src) :
 /*virtual*/ exception::~exception() LOFTY_STL_NOEXCEPT_TRUE() {
    // See @ref stack-tracing.
    if (in_flight) {
-      _pvt::scope_trace::trace_ostream_release();
+      logging::_pvt::scope_trace::trace_ostream_release();
    }
 }
 
@@ -172,11 +173,11 @@ exception & exception::operator=(exception const & src) {
    last reference to it) release()/addref(). */
    if (in_flight != src.in_flight) {
       if (in_flight) {
-         _pvt::scope_trace::trace_ostream_release();
+         logging::_pvt::scope_trace::trace_ostream_release();
       }
       in_flight = src.in_flight;
       if (in_flight) {
-         _pvt::scope_trace::trace_ostream_addref();
+         logging::_pvt::scope_trace::trace_ostream_addref();
       }
    }
    what_buf_available = src.what_buf_available;
@@ -188,8 +189,8 @@ void exception::_before_throw(source_file_address const & source_file_addr_) {
    source_file_addr = source_file_addr_;
    /* Clear any old trace ostream buffer and create a new one with *this as its only reference. See
    @ref stack-tracing. */
-   _pvt::scope_trace::trace_ostream_clear();
-   _pvt::scope_trace::trace_ostream_addref();
+   logging::_pvt::scope_trace::trace_ostream_clear();
+   logging::_pvt::scope_trace::trace_ostream_addref();
    in_flight = true;
 }
 
@@ -392,9 +393,9 @@ io::text::char_ptr_ostream exception::what_ostream() {
       );
    }
    // Write the scope/stack trace collected via LOFTY_TRACE_*().
-   dst->write(_pvt::scope_trace::get_trace_ostream()->get_str());
+   dst->write(logging::_pvt::scope_trace::get_trace_ostream()->get_str());
    // Append any scope_trace instances that haven’t been destructed yet.
-   _pvt::scope_trace::write_list(dst);
+   logging::_pvt::scope_trace::write_list(dst);
 }
 
 } //namespace lofty

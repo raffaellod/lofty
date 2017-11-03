@@ -23,6 +23,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 #include <lofty/testing/utility.hxx>
 
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/char_ptr_to_str_adapter.hxx>
 

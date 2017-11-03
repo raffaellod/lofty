@@ -13,6 +13,7 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/text.hxx>
 

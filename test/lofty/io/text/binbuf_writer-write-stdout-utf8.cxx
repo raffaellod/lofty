@@ -14,6 +14,7 @@ more details.
 
 #include <lofty.hxx>
 #include <lofty/app.hxx>
+#include <lofty/logging.hxx>
 using namespace lofty;
 
 

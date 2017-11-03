@@ -15,6 +15,7 @@ more details.
 #include <lofty.hxx>
 #include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/thread.hxx>
 #include <lofty/to_str.hxx>

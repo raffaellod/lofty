@@ -17,6 +17,7 @@ more details.
 #include <lofty/byte_order.hxx>
 #include <lofty/destructing_unfinalized_object.hxx>
 #include <lofty/from_str.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/math.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
@@ -260,7 +261,7 @@ text::parsers::regex_capture_format const & from_str_helper::parse_format_expr(s
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace _pvt {
+namespace lofty { namespace logging { namespace _pvt {
 
 coroutine_local_value<scope_trace const *> scope_trace::scope_traces_head /*= nullptr*/;
 coroutine_local_ptr<io::text::str_ostream> scope_trace::trace_ostream;
@@ -302,7 +303,7 @@ void scope_trace::write(io::text::ostream * dst, unsigned stack_depth) const {
    }
 }
 
-}} //namespace lofty::_pvt
+}}} //namespace lofty::logging::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
