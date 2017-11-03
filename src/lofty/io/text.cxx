@@ -100,13 +100,13 @@ _std::shared_ptr<binbuf_ostream> make_ostream(
 _std::shared_ptr<binbuf_istream> open_istream(
    os::path const & path, lofty::text::encoding enc /*= lofty::text::encoding::unknown*/
 ) {
-   return make_istream(binary::open_istream(path));
+   return make_istream(binary::open_istream(path), enc);
 }
 
 _std::shared_ptr<binbuf_ostream> open_ostream(
    os::path const & path, lofty::text::encoding enc /*= lofty::text::encoding::unknown*/
 ) {
-   return make_ostream(binary::open_ostream(path));
+   return make_ostream(binary::open_ostream(path), enc);
 }
 
 }}} //namespace lofty::io::text
