@@ -44,21 +44,21 @@ public:
          LOFTY_TRACE_FUNC();
 
          net::ip::port port(9080);
-         io::text::stdout->print(LOFTY_SL("server: starting, listening on port {}\n"), port);
+         LOFTY_LOG(info, LOFTY_SL("server: starting, listening on port {}\n"), port);
          net::tcp::server server(net::ip::address::any_v4, port);
          try {
             for (;;) {
-               io::text::stdout->write_line(LOFTY_SL("server: accepting"));
+               LOFTY_LOG(info, LOFTY_SL("server: accepting\n"));
                // This will cause a context switch if no connections are ready to be established.
                auto conn(server.accept());
 
-               io::text::stdout->write_line(LOFTY_SL("server: connection established"));
+               LOFTY_LOG(info, LOFTY_SL("server: connection established\n"));
 
                // Add a coroutine that will process the newly-established connection.
                coroutine([conn] () {
                   LOFTY_TRACE_FUNC();
 
-                  io::text::stdout->print(
+                  LOFTY_LOG(info,
                      LOFTY_SL("responder: handling request from {}:{}\n"),
                      conn->remote_address(), conn->remote_port()
                   );
@@ -66,14 +66,14 @@ public:
                   auto socket_istream(io::text::make_istream(conn->socket()));
                   auto socket_ostream(io::text::make_ostream(conn->socket(), text::encoding::utf8));
                   LOFTY_DEFER_TO_SCOPE_END(socket_ostream->finalize());
-                  io::text::stdout->write_line(LOFTY_SL("responder: reading request"));
+                  LOFTY_LOG(info, LOFTY_SL("responder: reading request\n"));
                   LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
                      if (!line) {
                         // The request ends on the first empty line.
                         break;
                      }
                   }
-                  io::text::stdout->write_line(LOFTY_SL("responder: responding"));
+                  LOFTY_LOG(info, LOFTY_SL("responder: responding\n"));
 
                   // Send the response headers.
                   socket_ostream->write_line(LOFTY_SL("HTTP/1.0 200 OK"));
@@ -85,11 +85,11 @@ public:
                   // Send the response content.
                   socket_ostream->write(LOFTY_SL("OK"));
 
-                  io::text::stdout->write_line(LOFTY_SL("responder: terminating"));
+                  LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
                });
             }
          } catch (execution_interruption const &) {
-            io::text::stdout->write_line(LOFTY_SL("server: terminating"));
+            LOFTY_LOG(info, LOFTY_SL("server: terminating\n"));
             // Rethrow the exception to ensure that all remaining coroutines are terminated.
             throw;
          }
@@ -98,7 +98,7 @@ public:
       // Switch this thread to run coroutines, until they all terminate.
       this_thread::run_coroutines();
       // Execution resumes here, after all coroutines have terminated.
-      io::text::stdout->write_line(LOFTY_SL("main: terminating"));
+      LOFTY_LOG(info, LOFTY_SL("main: terminating\n"));
       return 0;
    }
 };

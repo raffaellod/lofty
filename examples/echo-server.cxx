@@ -44,22 +44,23 @@ public:
          LOFTY_TRACE_FUNC();
 
          net::ip::port port(9082);
-         io::text::stdout->print(LOFTY_SL("server: starting, listening on port {}\n"), port);
+         LOFTY_LOG(info, LOFTY_SL("server: starting, listening on port {}\n"), port);
          net::tcp::server server(net::ip::address::any_v4, port);
          try {
             for (;;) {
-               io::text::stdout->write_line(LOFTY_SL("server: accepting"));
+               LOFTY_LOG(info, LOFTY_SL("server: accepting\n"));
                // This will cause a context switch if no connections are ready to be established.
                auto conn(server.accept());
 
-               io::text::stdout->write_line(LOFTY_SL("server: connection established"));
+               LOFTY_LOG(info, LOFTY_SL("server: connection established\n"));
 
                // Add a coroutine that will echo every line sent over the newly-established connection.
                coroutine([conn] () {
                   LOFTY_TRACE_FUNC();
 
-                  io::text::stdout->print(
-                     LOFTY_SL("responder: starting for {}:{}\n"), conn->remote_address(), conn->remote_port()
+                  LOFTY_LOG(
+                     info, LOFTY_SL("responder: starting for {}:{}\n"),
+                     conn->remote_address(), conn->remote_port()
                   );
 
                   // Create text-mode input and output streams for the connection’s socket.
@@ -73,11 +74,11 @@ public:
                      socket_ostream->flush();
                   }
 
-                  io::text::stdout->write_line(LOFTY_SL("responder: terminating"));
+                  LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
                });
             }
          } catch (execution_interruption const &) {
-            io::text::stdout->write_line(LOFTY_SL("server: terminating"));
+            LOFTY_LOG(info, LOFTY_SL("server: terminating\n"));
             // Rethrow the exception to ensure that all remaining coroutines are terminated.
             throw;
          }
@@ -86,7 +87,7 @@ public:
       // Switch this thread to run coroutines, until they all terminate.
       this_thread::run_coroutines();
       // Execution resumes here, after all coroutines have terminated.
-      io::text::stdout->write_line(LOFTY_SL("main: terminating"));
+      LOFTY_LOG(info, LOFTY_SL("main: terminating\n"));
       return 0;
    }
 };
