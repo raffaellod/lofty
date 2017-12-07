@@ -26,7 +26,7 @@ more details.
 
 namespace lofty { namespace io {
 
-filedesc_t const filedesc::null_fd =
+filedesc_t const filedesc_t_null =
 #if LOFTY_HOST_API_POSIX
    -1;
 #elif LOFTY_HOST_API_WIN32
@@ -36,7 +36,7 @@ filedesc_t const filedesc::null_fd =
 #endif
 
 filedesc::~filedesc() {
-   if (fd != null_fd) {
+   if (fd != filedesc_t_null) {
       // Ignore errors.
 #if LOFTY_HOST_API_POSIX
       ::close(fd);
@@ -55,9 +55,9 @@ filedesc & filedesc::operator=(filedesc && src) {
 #if LOFTY_HOST_API_WIN32
       iocp_fd = src.iocp_fd;
 #endif
-      src.fd = null_fd;
+      src.fd = filedesc_t_null;
 #if LOFTY_HOST_API_WIN32
-      src.iocp_fd = null_fd;
+      src.iocp_fd = filedesc_t_null;
 #endif
    }
    return *this;
@@ -90,7 +90,7 @@ void filedesc::bind_to_this_coroutine_scheduler_iocp() {
 #endif
 
 void filedesc::safe_close() {
-   if (fd != null_fd) {
+   if (fd != filedesc_t_null) {
 #if LOFTY_HOST_API_POSIX
       bool err = (::close(fd) < 0);
 #elif LOFTY_HOST_API_WIN32
@@ -99,7 +99,7 @@ void filedesc::safe_close() {
    #error "TODO: HOST_API"
 #endif
       // Yes, this will discard (leak) the file descriptor in case of errors.
-      fd = null_fd;
+      fd = filedesc_t_null;
       if (err) {
          exception::throw_os_error();
       }
@@ -183,6 +183,36 @@ error::error(error const & src) :
 
 error & error::operator=(error const & src) {
    generic_error::operator=(src);
+   return *this;
+}
+
+}} //namespace lofty::io
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace io {
+
+/*explicit*/ timeout::timeout(errint_t err_ /*= 0*/) :
+   error(err_ ? err_ :
+#if LOFTY_HOST_API_POSIX
+      ETIMEDOUT
+#elif LOFTY_HOST_API_WIN32
+      ERROR_TIMEOUT
+#else
+      0
+#endif
+   ) {
+}
+
+timeout::timeout(timeout const & src) :
+   error(src) {
+}
+
+/*virtual*/ timeout::~timeout() LOFTY_STL_NOEXCEPT_TRUE() {
+}
+
+timeout & timeout::operator=(timeout const & src) {
+   error::operator=(src);
    return *this;
 }
 

@@ -153,7 +153,6 @@ void exception::throw_os_error(errint_t err) {
 #ifdef ESTRPIPE
       case ESTRPIPE: // Streams pipe error (Linux)
 #endif
-      case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
       case ETXTBSY: // Text file busy (POSIX.1-2001)
 // These two values may or may not be different.
 #if EWOULDBLOCK != EAGAIN
@@ -161,6 +160,9 @@ void exception::throw_os_error(errint_t err) {
 #endif
       case EXDEV: // Improper link (POSIX.1-2001)
          LOFTY_THROW(io::error, (err));
+
+      case ETIMEDOUT: // Connection timed out (POSIX.1-2001)
+         LOFTY_THROW(io::timeout, (err));
 
       case EOVERFLOW: // Value too large for defined data type (POSIX.1-2001)
          LOFTY_THROW(math::overflow, (err));
@@ -491,7 +493,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_SEM_IS_SET: // The semaphore is set and cannot be closed.
       case ERROR_SEM_NOT_FOUND: // The specified system semaphore name was not found.
       case ERROR_SEM_OWNER_DIED: // The previous ownership of this semaphore has ended.
-      case ERROR_SEM_TIMEOUT: // The semaphore time-out period has expired.
       case ERROR_SEM_USER_LIMIT: // Insert the diskette for drive %1.
       case ERROR_SERVER_DISABLED: // The server is currently disabled.
       case ERROR_SERVER_HAS_OPEN_HANDLES: // The server is in use and cannot be unloaded.
@@ -512,8 +513,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_SERVICE_NO_THREAD: // A thread could not be created for the service.
       case ERROR_SERVICE_NOT_ACTIVE: // The service has not been started.
       case ERROR_SERVICE_NOT_FOUND: // The specified service does not exist.
-      case ERROR_SERVICE_REQUEST_TIMEOUT: /* The service did not respond to the start or control request in a
-         timely fashion. */
       case ERROR_SERVICE_SPECIFIC_ERROR: // The service has returned a service-specific error code.
       case ERROR_SERVICE_START_HANG: /* After starting, the service stopped responding in a start-pending
          state. */
@@ -533,7 +532,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_SYSTEM_TRACE: /* System trace information was not specified in your Config.sys file, or
          tracing is disallowed. */
       case ERROR_SOME_NOT_MAPPED: // Some mapping between account names and security IDs was not done.
-      case ERROR_TIMEOUT: // This operation returned because the time-out period expired.
       case ERROR_THREAD_1_INACTIVE: // The signal handler cannot be set.
       case ERROR_TOO_MANY_CMDS: // The network BIOS command limit has been reached.
       case ERROR_TOO_MANY_CONTEXT_IDS: /* During a logon attempt, the user's security context accumulated too
@@ -569,8 +567,6 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_CONNECTION_ABORTED: // The network connection was aborted by the local system.
       case ERROR_CONNECTION_INVALID: // An operation was attempted on a nonexistent network connection.
       case ERROR_CONNECTION_REFUSED: // The remote system refused the network connection.
-      case ERROR_COUNTER_TIMEOUT: /* A serial I/O operation completed because the time-out period expired. In
-         other words, the IOCTL_SERIAL_XOFF_COUNTER did not reach zero. */
       case ERROR_CRC: // Data error (cyclic redundancy check).
       case ERROR_CURRENT_DIRECTORY: // The directory cannot be removed.
       case ERROR_DEV_NOT_EXIST: // The specified network resource or device is no longer available.
@@ -744,6 +740,14 @@ void exception::throw_os_error(errint_t err) {
       case ERROR_WRONG_DISK: /* The wrong diskette is in the drive. Insert %2 (Volume Serial Number: %3) into
          drive %1. */
          LOFTY_THROW(io::error, (err));
+
+      case ERROR_COUNTER_TIMEOUT: /* A serial I/O operation completed because the time-out period expired. In
+         other words, the IOCTL_SERIAL_XOFF_COUNTER did not reach zero. */
+      case ERROR_SEM_TIMEOUT: // The semaphore time-out period has expired.
+      case ERROR_SERVICE_REQUEST_TIMEOUT: /* The service did not respond to the start or control request in a
+         timely fashion. */
+      case ERROR_TIMEOUT: // This operation returned because the time-out period expired.
+         LOFTY_THROW(io::timeout, (err));
 
       case ERROR_ARITHMETIC_OVERFLOW: // Arithmetic result exceeded 32 bits.
          LOFTY_THROW(math::overflow, (err));

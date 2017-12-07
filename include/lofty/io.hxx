@@ -58,6 +58,9 @@ namespace lofty { namespace io {
    #error "TODO: HOST_API"
 #endif
 
+//! Logically null file descriptor.
+extern LOFTY_SYM filedesc_t const filedesc_t_null;
+
 //! File access modes.
 LOFTY_ENUM_AUTO_VALUES(access_mode,
    read,        //! Read-only access.
@@ -98,9 +101,9 @@ class LOFTY_SYM filedesc : public support_explicit_operator_bool<filedesc>, publ
 public:
    //! Default constructor.
    filedesc() :
-      fd(null_fd)
+      fd(filedesc_t_null)
 #if LOFTY_HOST_API_WIN32
-      , iocp_fd(null_fd)
+      , iocp_fd(filedesc_t_null)
 #endif
    {
    }
@@ -116,9 +119,9 @@ public:
       , iocp_fd(src.iocp_fd)
 #endif
    {
-      src.fd = null_fd;
+      src.fd = filedesc_t_null;
 #if LOFTY_HOST_API_WIN32
-      src.iocp_fd = null_fd;
+      src.iocp_fd = filedesc_t_null;
 #endif
    }
 
@@ -130,7 +133,7 @@ public:
    explicit filedesc(filedesc_t fd_) :
       fd(fd_)
 #if LOFTY_HOST_API_WIN32
-      , iocp_fd(null_fd)
+      , iocp_fd(filedesc_t_null)
 #endif
    {
    }
@@ -153,7 +156,7 @@ public:
       true if the object has a valid file descriptor, or false otherwise.
    */
    LOFTY_EXPLICIT_OPERATOR_BOOL() const {
-      return fd != null_fd;
+      return fd != filedesc_t_null;
    }
 
 #if LOFTY_HOST_API_WIN32
@@ -178,7 +181,7 @@ public:
    */
    filedesc_t release() {
       auto old_fd = fd;
-      fd = null_fd;
+      fd = filedesc_t_null;
       return old_fd;
    }
 
@@ -208,8 +211,6 @@ private:
    //! Handle to the IOCP this file has been associated to, if any.
    filedesc_t iocp_fd;
 #endif
-   //! Logically null file descriptor.
-   static filedesc_t const null_fd;
 };
 
 }} //namespace lofty::io
@@ -304,6 +305,42 @@ public:
       *this.
    */
    error & operator=(error const & src);
+};
+
+}} //namespace lofty::io
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace io {
+
+//! An I/O operation failed due to a timeout.
+class LOFTY_SYM timeout : public error {
+public:
+   /*! Constructor.
+
+   @param err
+      OS-defined error number associated to the exception.
+   */
+   explicit timeout(errint_t err = 0);
+
+   /*! Copy constructor.
+
+   @param src
+      Source object.
+   */
+   timeout(timeout const & src);
+
+   //! Destructor.
+   virtual ~timeout() LOFTY_STL_NOEXCEPT_TRUE();
+
+   /*! Copy-assignment operator.
+
+   @param src
+      Source object.
+   @return
+      *this.
+   */
+   timeout & operator=(timeout const & src);
 };
 
 }} //namespace lofty::io

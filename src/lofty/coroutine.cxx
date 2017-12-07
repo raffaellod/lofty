@@ -64,6 +64,8 @@ public:
          stack.get(), static_cast<std::int8_t *>(stack.get()) + stack.size()
       )),
 #endif
+      blocking_fd(io::filedesc_t_null),
+      blocking_time_millisecs(0),
       pending_x_type(exception::common_type::none),
       inner_main_fn(_std::move(main_fn)) {
 #if LOFTY_HOST_API_POSIX
@@ -195,6 +197,11 @@ private:
    //! Identifier assigned by Valgrind to this coroutine’s stack.
    unsigned valgrind_stack_id;
 #endif
+   //! File descriptor that is actively blocking the coroutine.
+   _std::atomic<io::filedesc_t> blocking_fd;
+   /*! Delay that is currently blocking the coroutine, or timeout for the I/O operation associated to
+   blocking_fd. */
+   _std::atomic<unsigned> blocking_time_millisecs;
    /*! Every time the coroutine is scheduled or returns from an interruption point, this is checked for
    pending exceptions to be injected. */
    _std::atomic<exception::common_type::enum_type> pending_x_type;
@@ -377,168 +384,209 @@ void coroutine::scheduler::arm_timer_for_next_sleep_end() const {
 }
 #endif
 
-void coroutine::scheduler::block_active_for_ms(unsigned millisecs) {
-   // TODO: handle millisecs == 0 as a timer-less yield.
-
-#if LOFTY_HOST_API_BSD
-   impl * coro_pimpl = active_coro_pimpl.get();
-   struct ::kevent ke;
-   ke.ident = reinterpret_cast<std::uintptr_t>(coro_pimpl);
-   // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
-   ke.flags = EV_ADD | EV_ONESHOT;
-   ke.filter = EVFILT_TIMER;
-#if LOFTY_HOST_API_DARWIN
-   ke.fflags = NOTE_USECONDS;
-   ke.data = millisecs * 1000u;
-#else
-   ke.data = millisecs;
-#endif
-   ::timespec ts = { 0, 0 };
-   if (::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, &ts) < 0) {
-      exception::throw_os_error();
-   }
-   // Deactivate the current coroutine and find one to activate instead.
-   {
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-      coros_blocked_by_timer_ke.add_or_assign(ke.ident, _std::move(active_coro_pimpl));
-   }
-   try {
-      // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(coro_pimpl);
-   } catch (...) {
-      // If anything went wrong or the coroutine was terminated, remove the timer.
-      {
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-         coros_blocked_by_timer_ke.remove(ke.ident);
-      }
-      ke.flags = EV_DELETE;
-      ::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, &ts);
-      throw;
-   }
-#elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
-   if (!timer_fd) {
-      // No timer infrastructure yet; set it up now.
-   #if LOFTY_HOST_API_LINUX
-      timer_fd = io::filedesc(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
-      if (!timer_fd) {
-         exception::throw_os_error();
-      }
-      ::epoll_event ee;
-      memory::clear(&ee.data);
-      ee.data.fd = timer_fd.get();
-      /* Use EPOLLET to avoid waking up multiple threads for each firing of the timer. If when the timer fires
-      there will be multiple coroutines to activate (unlikely), we’ll manually rearm the timer to wake up more
-      threads (or wake up the same threads repeatedly) until all coroutines are activated. */
-      ee.events = EPOLLET | EPOLLIN;
-      if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, timer_fd.get(), &ee) < 0) {
-         exception::throw_os_error();
-      }
-   #elif LOFTY_HOST_API_WIN32
-      timer_fd = io::filedesc(::CreateWaitableTimer(nullptr, false, nullptr));
-      if (!timer_fd) {
-         exception::throw_os_error();
-      }
-      /* Create a thread that will wait for the timer to fire and post each firing to the IOCP, effectively
-      emulating a timerfd. */
-      timer_thread_handle = ::CreateThread(nullptr, 0, &timer_thread_static, this, 0, nullptr);
-      if (!timer_thread_handle) {
-         exception::throw_os_error();
-      }
-   #endif
-   }
-   // Calculate the time at which this timer should fire.
-   time_point_t sleep_end_millisecs = current_time() + millisecs;
-
-   // Extract the next timeout from the map.
-   time_point_t next_sleep_end;
-   if (coros_blocked_by_timer_fd) {
-      next_sleep_end = coros_blocked_by_timer_fd.front().key;
-   } else {
-      next_sleep_end = numeric::max<time_point_t>::value;
-   }
-
-   // Move the active coroutine to the map.
-   auto itr(coros_blocked_by_timer_fd.add(sleep_end_millisecs, _std::move(active_coro_pimpl)));
-   try {
-      // If the calculated time is sooner than the next timeout, rearm the timer.
-      if (sleep_end_millisecs < next_sleep_end) {
-         arm_timer(millisecs);
-      }
-      // Switch back to the thread’s own context and have it wait for a ready coroutine.
-      switch_to_scheduler(itr->value.get());
-   } catch (...) {
-      // Remove the coroutine from the map of blocked ones and rearm the timer if there are sleepers left.
-      coros_blocked_by_timer_fd.remove(itr);
-      arm_timer_for_next_sleep_end();
-      throw;
-   }
-#else
-   #error "TODO: HOST_API"
-#endif
-}
-
-void coroutine::scheduler::block_active_until_fd_ready(
-   io::filedesc_t fd, bool write
+void coroutine::scheduler::block_active(
+   io::filedesc_t fd, bool write, unsigned millisecs
 #if LOFTY_HOST_API_WIN32
    , io::overlapped * ovl
 #endif
 ) {
-   // Add fd as a new event source.
+   // TODO: handle millisecs == 0 as a timer-less yield.
+   /* TODO: when adding both a fd and a timer, there’s a race condition when multiple threads share the same
+   scheduler: if the timeout lapses and the coroutine is activated before the fd is removed from the waited-on
+   pool, a different thread might wake to serve the fd becoming ready, resuming the coroutine a second time.
+   This can be avoided with a thread mutex in coroutine::impl. */
+   _std::shared_ptr<impl> coro_pimpl(active_coro_pimpl);
 #if LOFTY_HOST_API_BSD
-   struct ::kevent ke;
-   ke.ident = static_cast<std::uintptr_t>(fd);
-   // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
-   ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
-   ke.filter = write ? EVFILT_WRITE : EVFILT_READ;
-   ::timespec ts = { 0, 0 };
-   if (::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, &ts) < 0) {
-      exception::throw_os_error();
+   ::timespec no_wait = { 0, 0 };
+   struct ::kevent fd_ke;
+   if (fd != io::filedesc_t_null) {
+      fd_ke.ident = static_cast<std::uintptr_t>(fd);
+      fd_ke.filter = write ? EVFILT_WRITE : EVFILT_READ;
+      // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
+      fd_ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
+      if (::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, &no_wait) < 0) {
+         exception::throw_os_error();
+      }
+      {
+//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_fd.add_or_assign(fd, coro_pimpl);
+      }
+      coro_pimpl->blocking_fd = fd;
    }
-#elif LOFTY_HOST_API_LINUX
-   ::epoll_event ee;
-   memory::clear(&ee.data);
-   ee.data.fd = fd;
-   /* Use EPOLLONESHOT to avoid waking up multiple threads for the same fd becoming ready. This means we’d
-   need to then rearm it in find_coroutine_to_activate() when it becomes ready, but we’ll remove it
-   instead. */
-   ee.events = EPOLLONESHOT | EPOLLPRI | (write ? EPOLLOUT : EPOLLIN);
-   if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
-      exception::throw_os_error();
+   LOFTY_DEFER_TO_SCOPE_END(
+      /* If the coroutine still thinks it’s blocked upon resuming, the event is still active and must be
+      removed. */
+      if (fd != io::filedesc_t_null && coro_pimpl->blocking_fd != io::filedesc_t_null) {
+         fd_ke.flags = EV_DELETE;
+         ::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, &no_wait);
+//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_fd.remove(fd);
+      }
+   );
+   struct ::kevent timer_ke;
+   if (millisecs) {
+      timer_ke.ident = reinterpret_cast<std::uintptr_t>(coro_pimpl.get());
+      timer_ke.filter = EVFILT_TIMER;
+      // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
+      timer_ke.flags = EV_ADD | EV_ONESHOT;
+      timer_ke.data = millisecs;
+   #if LOFTY_HOST_API_DARWIN
+      // Use the default time unit, milliseconds, so the behavior is the same as FreeBSD.
+      timer_ke.fflags = 0;
+   #endif
+      if (::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, &no_wait) < 0) {
+         exception::throw_os_error();
+      }
+      {
+//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_timer_ke.add_or_assign(timer_ke.ident, coro_pimpl);
+      }
+      coro_pimpl->blocking_time_millisecs = millisecs;
    }
-   // Afterwards, remove fd from the epoll. Ignore errors since we wouldn’t know what to do about them.
-   LOFTY_DEFER_TO_SCOPE_END(::epoll_ctl(epoll_fd.get(), EPOLL_CTL_DEL, fd, nullptr));
-#elif LOFTY_HOST_API_WIN32
-   // TODO: ensure bind_to_this_coroutine_scheduler_iocp() has been called on fd.
-   // This may repeat in case of spurious notifications by the IOCP for fd (WIN32 BUG?).
-   do {
+   LOFTY_DEFER_TO_SCOPE_END(
+      /* If the coroutine still thinks it’s blocked upon resuming, the event is still active and must be
+      removed. */
+      if (millisecs && coro_pimpl->blocking_time_millisecs) {
+         timer_ke.flags = EV_DELETE;
+         ::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, &no_wait);
+//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_timer_ke.remove(timer_ke.ident);
+      }
+   );
+#elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
+   if (fd != io::filedesc_t_null) {
+   #if LOFTY_HOST_API_LINUX
+      ::epoll_event ee;
+      memory::clear(&ee.data);
+      ee.data.fd = fd;
+      /* Use EPOLLONESHOT to avoid waking up multiple threads for the same fd becoming ready. This means we’d
+      need to then rearm it in find_coroutine_to_activate() when it becomes ready, but we’ll remove it
+      instead. */
+      ee.events = EPOLLONESHOT | EPOLLPRI | (write ? EPOLLOUT : EPOLLIN);
+      if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
+         exception::throw_os_error();
+      }
+   #elif LOFTY_HOST_API_WIN32
+      /* TODO: ensure bind_to_this_coroutine_scheduler_iocp() has been called on fd. There’s nothing we can do
+      about that here, since it’s a non-repeatable operation. */
+   #endif
+      {
+//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_fd.add_or_assign(fd, coro_pimpl);
+      }
+      coro_pimpl->blocking_fd = fd;
+   }
+   #if LOFTY_HOST_API_LINUX
+   LOFTY_DEFER_TO_SCOPE_END(
+      if (fd != io::filedesc_t_null) {
+         // See comment on creation for why we unconditionally remove this.
+         ::epoll_ctl(epoll_fd.get(), EPOLL_CTL_DEL, fd, nullptr);
+         /* If the coroutine still thinks it’s blocked upon resuming, the event is still active and must be
+         removed. */
+         if (coro_pimpl->blocking_fd != io::filedesc_t_null) {
+//            _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+            coros_blocked_by_fd.remove(fd);
+         }
+      }
+   );
+   #elif LOFTY_HOST_API_WIN32
+   LOFTY_DEFER_TO_SCOPE_END(
+      /* If the coroutine still thinks it’s blocked upon resuming, the event is still active and must be
+      removed. */
+      if (fd != io::filedesc_t_null && coro_pimpl->blocking_fd != io::filedesc_t_null) {
+         /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the fd, not just
+         this one; this shouldn’t be a problem because if we’re cancelling this I/O it’s most likely due to
+         timeout, and it makes sense to abort all I/O for the fd once one I/O operation on it times out. */
+         ::CancelIo(fd);
+//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_fd.remove(fd);
+      }
+   );
+   #endif
+   decltype(coros_blocked_by_timer_fd)::iterator timer_block_itr;
+   if (millisecs) {
+      if (!timer_fd) {
+         // No timer infrastructure yet; set it up now.
+         timer_fd = io::filedesc(
+   #if LOFTY_HOST_API_LINUX
+            ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC)
+   #elif LOFTY_HOST_API_WIN32
+            ::CreateWaitableTimer(nullptr, false /*automatic reset*/, nullptr)
+   #endif
+         );
+         if (!timer_fd) {
+            exception::throw_os_error();
+         }
+   #if LOFTY_HOST_API_LINUX
+         ::epoll_event ee;
+         memory::clear(&ee.data);
+         ee.data.fd = timer_fd.get();
+         /* Use EPOLLET to avoid waking up multiple threads for each firing of the timer. If when the timer fires
+         there will be multiple coroutines to activate (unlikely), we’ll manually rearm the timer to wake up more
+         threads (or wake up the same threads repeatedly) until all coroutines are activated. */
+         ee.events = EPOLLET | EPOLLIN;
+         if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, timer_fd.get(), &ee) < 0) {
+            exception::throw_os_error();
+         }
+   #elif LOFTY_HOST_API_WIN32
+         /* Create a thread that will wait for the timer to fire and post each firing to the IOCP, effectively
+         emulating a timerfd. */
+         timer_thread_handle = ::CreateThread(nullptr, 0, &timer_thread_static, this, 0, nullptr);
+         if (!timer_thread_handle) {
+            exception::throw_os_error();
+         }
+   #endif
+      }
+      {
+//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         /* Add the timeout to the timers map, then rearm the timer to ensure the new timeout is accounted
+         for. */
+         timer_block_itr = coros_blocked_by_timer_fd.add(current_time() + millisecs, coro_pimpl);
+         arm_timer_for_next_sleep_end();
+      }
+      coro_pimpl->blocking_time_millisecs = millisecs;
+   }
+   LOFTY_DEFER_TO_SCOPE_END(
+      /* If the coroutine still thinks it’s blocked upon resuming, the timer is still active and must be
+      removed. */
+      if (millisecs && coro_pimpl->blocking_time_millisecs) {
+//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_timer_fd.remove(timer_block_itr);
+         arm_timer_for_next_sleep_end();
+      }
+   );
 #else
    #error "TODO: HOST_API"
 #endif
-      // Deactivate the current coroutine and find one to activate instead.
-      impl * coro_pimpl;
-      {
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-         coro_pimpl = _std::get<0>(coros_blocked_by_fd.add_or_assign(
-            fd, _std::move(active_coro_pimpl)
-         ))->value.get();
-      }
-      try {
-         // Switch back to the thread’s own context and have it wait for a ready coroutine.
-         switch_to_scheduler(coro_pimpl);
-      } catch (...) {
+
+   /* Now that the coroutine is associated to the specified blockers, deactivate it, then switch back to the
+   thread’s own context and have it wait for a ready coroutine. */
+
 #if LOFTY_HOST_API_WIN32
-         /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the file, not just
-         this one. */
-         ::CancelIo(fd);
+   // Might need to re-run the code below in case of spurious notifications by the IOCP for fd (WIN32 BUG?).
+repeat_switch_to_scheduler:
 #endif
-         // Remove the coroutine from the map of blocked ones.
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-         coros_blocked_by_fd.remove(fd);
-         throw;
-      }
+   active_coro_pimpl.reset();
+   switch_to_scheduler(coro_pimpl.get());
+
+   // After returning from that, active_coro_pimpl == coro_pimpl again.
+
 #if LOFTY_HOST_API_WIN32
-   } while (ovl->get_result() == ERROR_IO_INCOMPLETE);
+   // See comment on the goto label above.
+   if (ovl->get_result() == ERROR_IO_INCOMPLETE) {
+//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+      coros_blocked_by_fd.add_or_assign(fd, coro_pimpl);
+      goto repeat_switch_to_scheduler;
+   }
 #endif
+   if (
+      fd != io::filedesc_t_null && millisecs &&
+      coro_pimpl->blocking_fd != io::filedesc_t_null && !coro_pimpl->blocking_time_millisecs
+   ) {
+      /* The coroutine blocked on an I/O operation with a timeout, and the I/O operation is outstanding while
+      the timeout expired: convert the timeout into the appropriate type of exception. */
+      LOFTY_THROW(io::timeout, ());
+   }
 }
 
 void coroutine::scheduler::coroutine_scheduling_loop(bool interrupting_all /*= false*/) {
@@ -611,6 +659,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool interrupting_all /*= f
 #endif
 
 _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
+   _std::shared_ptr<coroutine::impl> coro_pimpl;
    // This loop will only repeat in case of EINTR from the blocking-wait API.
    /* TODO: if the epoll/kqueue/IOCP is shared by several threads and one thread receives and removes the last
    event source from it, what happens to the remaining threads?
@@ -623,7 +672,8 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          if (ready_coros_queue) {
             // There are coroutines that are ready to run; remove and return the first.
-            return ready_coros_queue.pop_front();
+            coro_pimpl = ready_coros_queue.pop_front();
+            break;
          } else if (
             !coros_blocked_by_fd
 #if LOFTY_HOST_API_BSD
@@ -633,7 +683,9 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
 #endif
          ) {
             this_thread::interruption_point();
-            return nullptr;
+            // No coroutines.
+            coro_pimpl = nullptr;
+            break;
          }
       }
       /* TODO: FIXME: coros_add_remove_mutex does not protect against race conditions for the “any coroutines
@@ -658,9 +710,12 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       }*/
 //      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
       if (ke.filter == EVFILT_TIMER) {
-         // Remove and return the coroutine that was waiting for this timer.
-         return coros_blocked_by_timer_ke.pop(ke.ident);
+         coro_pimpl = coros_blocked_by_timer_ke.pop(ke.ident);
+         // Make the coroutine aware that it’s no longer waiting for the timer.
+         coro_pimpl->blocking_time_millisecs = 0;
+         break;
       }
+      // Otherwise it’s a file descriptor event.
       io::filedesc_t fd = static_cast<io::filedesc_t>(ke.ident);
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    #if LOFTY_HOST_API_LINUX
@@ -690,7 +745,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
             exception::throw_os_error();
          }
       }
-      io::filedesc_t fd = reinterpret_cast< ::HANDLE>(completion_key);
+      io::filedesc_t fd = reinterpret_cast<io::filedesc_t>(completion_key);
       /* Note (WIN32 BUG?)
       Empirical evidence shows that at this point, ovl might not be a valid pointer, even if the completion
       key (fd) returned was a valid Lofty-owned handle. I could not find any explanation for this, but at
@@ -713,12 +768,13 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
 //      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
       if (fd == timer_fd.get()) {
          // Pop the coroutine that should run now, and rearm the timer if necessary.
-         auto kv(coros_blocked_by_timer_fd.pop_front());
+         coro_pimpl = coros_blocked_by_timer_fd.pop_front().value;
          if (coros_blocked_by_timer_fd) {
             arm_timer_for_next_sleep_end();
          }
-         // Return the coroutine that was waiting for the timer.
-         return _std::move(kv.value);
+         // Make the coroutine aware that it’s no longer waiting for the timer.
+         coro_pimpl->blocking_time_millisecs = 0;
+         break;
       }
 #else
    #error "TODO: HOST_API"
@@ -726,15 +782,19 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       // Remove and return the coroutine that was waiting for this file descriptor.
       auto blocked_coro_itr(coros_blocked_by_fd.find(fd));
       if (blocked_coro_itr != coros_blocked_by_fd.cend()) {
-         return coros_blocked_by_fd.pop(blocked_coro_itr);
+         coro_pimpl = coros_blocked_by_fd.pop(blocked_coro_itr);
+         // Make the coroutine aware that it’s no longer waiting for I/O.
+         coro_pimpl->blocking_fd = io::filedesc_t_null;
+         break;
       }
       // Else ignore this notification for an event that nobody was waiting for.
       /* TODO: in a Win32 multithreaded scenario, the IOCP notification might arrive to a thread before the
-      coroutine blocked itself (on another thread) for the event due, to associating the fd with the IOCP
+      coroutine blocked itself (on another thread) for the event, due to associating the fd with the IOCP
       before blocking, which is unavoidable and necessary. To address this, requeue the event so it gets
       another chance at being processed. It may be necessary to keep a list of handles that should be held
       until a coroutine blocks for them. */
    }
+   return _std::move(coro_pimpl);
 }
 
 void coroutine::scheduler::interrupt_all() {
@@ -908,28 +968,28 @@ void interruption_point() {
 
 void sleep_for_ms(unsigned millisecs) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active_for_ms(millisecs);
+      pcorosched->block_active(io::filedesc_t_null, false, millisecs);
    } else {
       this_thread::sleep_for_ms(millisecs);
    }
 }
 
 void sleep_until_fd_ready(
-   io::filedesc_t fd, bool write
+   io::filedesc_t fd, bool write, unsigned timeout_millisecs
 #if LOFTY_HOST_API_WIN32
    , io::overlapped * ovl
 #endif
 ) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active_until_fd_ready(
-         fd, write
+      pcorosched->block_active(
+         fd, write, timeout_millisecs
 #if LOFTY_HOST_API_WIN32
          , ovl
 #endif
       );
    } else {
       this_thread::sleep_until_fd_ready(
-         fd, write
+         fd, write, timeout_millisecs
 #if LOFTY_HOST_API_WIN32
          , ovl
 #endif

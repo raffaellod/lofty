@@ -231,8 +231,10 @@ LOFTY_SYM thread::id_type id();
 
 @param h
    Handle to wait for.
+@param timeout_millisecs
+   Time after which the wait will be interrupted and the wait aborted.
 */
-LOFTY_SYM void interruptible_wait_for_single_object(::HANDLE handle);
+LOFTY_SYM void interruptible_wait_for_single_object(::HANDLE handle, unsigned timeout_millisecs);
 #endif
 
 /*! Declares an interruption point, allowing the calling thread to act on any pending interruptions. See
@@ -256,12 +258,14 @@ LOFTY_SYM void sleep_for_ms(unsigned millisecs);
    File descriptor that the calling coroutine is waiting for I/O on.
 @param write
    true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
+@param timeout_millisecs
+   Time after which the wait will be interrupted and the I/O operation deemed failed.
 @param ovl
    (Win32 only) Pointer to the lofty::io::overlapped object that is being used for the asynchronous I/O
    operation.
 */
 LOFTY_SYM void sleep_until_fd_ready(
-   io::filedesc_t fd, bool write
+   io::filedesc_t fd, bool write, unsigned timeout_millisecs
 #if LOFTY_HOST_API_WIN32
    , io::overlapped * ovl
 #endif

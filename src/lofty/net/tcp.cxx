@@ -193,7 +193,7 @@ _std::shared_ptr<connection> server::accept() {
          case EWOULDBLOCK:
    #endif
             // Wait for sock_fd. Accepting a connection is considered a read event.
-            this_coroutine::sleep_until_fd_ready(sock_fd.get(), false);
+            this_coroutine::sleep_until_fd_ready(sock_fd.get(), false /*read*/, 0 /*no timeout*/);
             break;
          default:
             exception::throw_os_error(static_cast<errint_t>(err));
@@ -218,7 +218,7 @@ _std::shared_ptr<connection> server::accept() {
    )) {
       auto err = static_cast< ::DWORD>(::WSAGetLastError());
       if (err == ERROR_IO_PENDING) {
-         this_coroutine::sleep_until_fd_ready(sock_fd.get(), false, &ovl);
+         this_coroutine::sleep_until_fd_ready(sock_fd.get(), false /*read*/, 0 /*no timeout*/, &ovl);
          err = ovl.status();
          bytes_read = ovl.transferred_size();
       }

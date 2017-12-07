@@ -67,27 +67,25 @@ public:
    */
    void add_ready(_std::shared_ptr<impl> coro_pimpl);
 
-   /*! Allows other coroutines to run, preventing the calling coroutine from being rescheduled until at least
-   millisecs milliseconds have passed.
-
-   @param millisecs
-      Minimum duration for which to yield to other coroutines.
-   */
-   void block_active_for_ms(unsigned millisecs);
-
-   /*! Allows other coroutines to run while the asynchronous I/O operation completes, as an alternative to
-   blocking while waiting for its completion.
+   /*! Allows other coroutines to run while a delay and/or an asynchronous I/O operation completes, as an
+   alternative to blocking while waiting for its completion.
 
    @param fd
-      File descriptor that the calling coroutine is waiting for I/O on.
+      File descriptor that the calling coroutine is waiting for I/O on. If lofty::io::filedesc::null_td, then
+      only the millisecs will have effect, resulting in a sleep.
    @param write
       true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
+   @param millisecs
+      If fd is a valid file descriptor, then this is the time after which the wait will be interrupted and the
+      I/O operation deemed failed, resulting in an exception of type lofty::io::timeout. If fd was
+      lofty::io::filedesc::filedesc_t_null, this is the time after which the blocking will end, with no
+      exceptions thrown.
    @param ovl
       (Win32 only) Pointer to the lofty::io::overlapped object that is being used for the asynchronous I/O
       operation.
    */
-   void block_active_until_fd_ready(
-      io::filedesc_t fd, bool write
+   void block_active(
+      io::filedesc_t fd, bool write, unsigned millisecs
 #if LOFTY_HOST_API_WIN32
       , io::overlapped * ovl
 #endif

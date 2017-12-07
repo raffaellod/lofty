@@ -217,12 +217,14 @@ LOFTY_SYM void sleep_for_ms(unsigned millisecs);
    File descriptor that the calling coroutine is waiting for I/O on.
 @param write
    true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
+@param timeout_millisecs
+   Time after which the wait will be interrupted and the I/O operation deemed failed.
 @param ovl
    (Win32 only) Pointer to the lofty::io::overlapped object that is being used for the asynchronous I/O
    operation.
 */
 LOFTY_SYM void sleep_until_fd_ready(
-   io::filedesc_t fd, bool write
+   io::filedesc_t fd, bool write, unsigned timeout_millisecs
 #if LOFTY_HOST_API_WIN32
    , io::overlapped * ovl
 #endif

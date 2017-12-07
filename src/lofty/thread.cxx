@@ -101,7 +101,7 @@ void simple_event::wait() {
       this_coroutine::interruption_point();
    }
 #elif LOFTY_HOST_API_WIN32
-   this_thread::interruptible_wait_for_single_object(event);
+   this_thread::interruptible_wait_for_single_object(event, INFINITE);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -220,7 +220,7 @@ void thread::impl::join() {
       exception::throw_os_error(err);
    }
 #elif LOFTY_HOST_API_WIN32
-   this_thread::interruptible_wait_for_single_object(handle);
+   this_thread::interruptible_wait_for_single_object(handle, INFINITE);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -455,9 +455,9 @@ thread::id_type id() {
 }
 
 #if LOFTY_HOST_API_WIN32
-void interruptible_wait_for_single_object(::HANDLE handle) {
+void interruptible_wait_for_single_object(::HANDLE handle, unsigned timeout_millisecs) {
    ::HANDLE handles[] = { handle, get_impl()->interruption_event_handle() };
-   ::DWORD ret = ::WaitForMultipleObjects(LOFTY_COUNTOF(handles), handles, false, INFINITE);
+   ::DWORD ret = ::WaitForMultipleObjects(LOFTY_COUNTOF(handles), handles, false, timeout_millisecs);
    if (/*ret < WAIT_OBJECT_0 ||*/ ret >= WAIT_OBJECT_0 + LOFTY_COUNTOF(handles)) {
       exception::throw_os_error();
    }
@@ -507,22 +507,47 @@ void sleep_for_ms(unsigned millisecs) {
 }
 
 void sleep_until_fd_ready(
-   io::filedesc_t fd, bool write
+   io::filedesc_t fd, bool write, unsigned timeout_millisecs
 #if LOFTY_HOST_API_WIN32
    , io::overlapped * ovl
 #endif
 ) {
 #if LOFTY_HOST_API_POSIX
+   std::uint64_t timeout_end_nanosecs;
+   if (timeout_millisecs) {
+      // If there’s a timeout, calculate the absolute time in monotonic time units.
+      ::timespec now_ts;
+      ::clock_gettime(CLOCK_MONOTONIC, &now_ts);
+      timeout_end_nanosecs = static_cast<std::uint64_t>(now_ts.tv_sec) * 1000000000 +
+                             static_cast<std::uint64_t>(now_ts.tv_nsec) +
+                             static_cast<std::uint64_t>(timeout_millisecs) * 1000000;
+   }
+
    ::pollfd pfd;
    pfd.fd = fd;
    pfd.events = (write ? POLLIN : POLLOUT) | POLLPRI;
-   while (::poll(&pfd, 1, -1) < 0) {
+   pfd.revents = 0;
+   while (::poll(&pfd, 1, timeout_millisecs ? static_cast<int>(timeout_millisecs) : -1) < 0) {
       int err = errno;
-      if (err == EINTR) {
-         interruption_point();
-         break;
+      if (err != EINTR) {
+         exception::throw_os_error(err);
       }
-      exception::throw_os_error(err);
+      interruption_point();
+      if (timeout_millisecs) {
+         // Recalculate the timeout to account for the time spent waiting.
+         ::timespec now_ts;
+         ::clock_gettime(CLOCK_MONOTONIC, &now_ts);
+         std::uint64_t now_nanosecs = static_cast<std::uint64_t>(now_ts.tv_sec) * 1000000000 +
+                                      static_cast<std::uint64_t>(now_ts.tv_nsec);
+         auto remaining_nanosecs = static_cast<std::int64_t>(timeout_end_nanosecs) -
+                                   static_cast<std::int64_t>(now_nanosecs);
+         if (remaining_nanosecs < 1000000) {
+            /* Less than 1 millisecond remaining; ::poll() would return immediately, so consider this a
+            timeout. */
+            break;
+         }
+         timeout_millisecs = static_cast<unsigned>(static_cast<std::uint64_t>(remaining_nanosecs) / 1000000);
+      }
    }
    if (pfd.revents & (POLLERR | POLLNVAL)) {
       // TODO: how should POLLERR and POLLNVAL be handled?
@@ -535,12 +560,13 @@ void sleep_until_fd_ready(
          // TODO: anything special about “high priority data”?
       }
    } else {
-      // TODO: what to do if ::poll() returned but no meaningful bits are set in pfd.revents?
+      // Timeout.
+      LOFTY_THROW(io::timeout, ());
    }
    interruption_point();
 #elif LOFTY_HOST_API_WIN32
    LOFTY_UNUSED_ARG(write);
-   interruptible_wait_for_single_object(fd);
+   interruptible_wait_for_single_object(fd, timeout_millisecs);
    interruption_point();
    // If we’re still here, the wait must’ve been interrupted by fd, so update *ovl.
    ovl->get_result();
