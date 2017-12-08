@@ -46,6 +46,14 @@ LOFTY_ENUM(version,
    (v6, 6)
 );
 
+//! Type of transport over IP.
+LOFTY_ENUM(transport,
+   //! Transmission Control Protocol (TCP).
+   (tcp, 1),
+   //! User Datagram Protocol (UDP).
+   (udp, 2)
+);
+
 }}} //namespace lofty::net::ip
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -207,6 +215,49 @@ public:
    ip::version version() const {
       return version_;
    }
+};
+
+}}} //namespace lofty::net::ip
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace net { namespace ip {
+
+//! Abstract server for transport layer protocols over IP.
+class LOFTY_SYM server : public noncopyable {
+public:
+   //! Destructor.
+   ~server();
+
+protected:
+   /*! Constructor.
+
+   @param address
+      Address to bind to.
+   @param ip_transport
+      Type of transport over IP.
+   @param port
+      Port to listen for connections on.
+   */
+   server(address const & address, port const & port, transport ip_transport);
+
+private:
+   /*! Creates a socket for the server, allowing the constructor to leverage RAII.
+
+   @param ip_version
+      IP version.
+   @param ip_transport
+      Type of transport over IP.
+   @return
+      New server socket.
+   */
+   io::filedesc create_socket(version ip_version, transport ip_transport);
+
+protected:
+   //! Server socket bound to the port.
+   io::filedesc sock_fd;
+   //! IP version.
+   ip::version ip_version;
 };
 
 }}} //namespace lofty::net::ip

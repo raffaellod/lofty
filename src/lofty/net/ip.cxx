@@ -15,6 +15,31 @@ more details.
 #include <lofty.hxx>
 #include <lofty/byte_order.hxx>
 #include <lofty/net/ip.hxx>
+#include <lofty/thread.hxx>
+
+#if LOFTY_HOST_API_POSIX
+   #include <netinet/in.h> // htons()
+   #include <sys/types.h> // sockaddr sockaddr_in
+   #include <sys/socket.h> // bind() socket()
+#elif LOFTY_HOST_API_WIN32
+   #include <winsock2.h>
+   #if LOFTY_HOST_CXX_MSC
+      // Silence warnings from system header files.
+      #pragma warning(push)
+
+      // “'id' : conversion from 'type1' to 'type2', signed / unsigned mismatch”
+      #pragma warning(disable: 4365)
+   #endif
+   #include <ws2tcpip.h>
+   #include <mstcpip.h>
+   #if LOFTY_HOST_CXX_MSC
+      #pragma warning(pop)
+   #endif
+   #if _WIN32_WINNT == 0x0500
+      // Additional header required for Windows 2000 IPv6 Tech Preview.
+      #include <tpipv6.h>
+   #endif
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +62,157 @@ static _pvt::raw_address const raw_any_v6 = {
 
 address const & address::any_v4 = static_cast<address const &>(raw_any_v4);
 address const & address::any_v6 = static_cast<address const &>(raw_any_v6);
+
+}}} //namespace lofty::net::ip
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace net { namespace ip {
+
+namespace {
+
+union sockaddr_any {
+   ::sockaddr_in sa4;
+   ::sockaddr_in6 sa6;
+};
+
+} //namespace
+
+server::server(address const & address, port const & port, transport ip_transport) :
+   sock_fd(create_socket(address.version(), ip_transport)),
+   ip_version(address.version()) {
+#if LOFTY_HOST_API_POSIX
+   ::socklen_t server_sock_addr_size;
+#elif LOFTY_HOST_API_WIN32
+   int server_sock_addr_size;
+#else
+   #error "TODO: HOST_API"
+#endif
+   sockaddr_any server_sockaddr;
+   switch (ip_version.base()) {
+      case ip::version::v4:
+         server_sock_addr_size = sizeof server_sockaddr.sa4;
+         memory::clear(&server_sockaddr.sa4);
+         server_sockaddr.sa4.sin_family = AF_INET;
+         memory::copy(
+            reinterpret_cast<std::uint8_t *>(&server_sockaddr.sa4.sin_addr.s_addr), address.raw(),
+            sizeof server_sockaddr.sa4.sin_addr.s_addr
+         );
+         server_sockaddr.sa4.sin_port = htons(port.number());
+         break;
+      case ip::version::v6:
+         server_sock_addr_size = sizeof server_sockaddr.sa6;
+         memory::clear(&server_sockaddr.sa6);
+         //server_sockaddr.sa6.sin6_flowinfo = 0;
+         server_sockaddr.sa6.sin6_family = AF_INET6;
+         memory::copy(
+            &server_sockaddr.sa6.sin6_addr.s6_addr[0], address.raw(),
+            sizeof server_sockaddr.sa6.sin6_addr.s6_addr
+         );
+         server_sockaddr.sa6.sin6_port = htons(port.number());
+         break;
+      LOFTY_SWITCH_WITHOUT_DEFAULT
+   }
+#if LOFTY_HOST_API_WIN32
+   if (::bind(
+      reinterpret_cast< ::SOCKET>(sock_fd.get()),
+      reinterpret_cast< ::SOCKADDR *>(&server_sockaddr), server_sock_addr_size
+   ) < 0) {
+      exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
+   }
+#else
+   if (::bind(sock_fd.get(), reinterpret_cast< ::sockaddr *>(&server_sockaddr), server_sock_addr_size) < 0) {
+      exception::throw_os_error();
+   }
+#endif
+}
+
+server::~server() {
+#if LOFTY_HOST_API_POSIX
+   int value = 1;
+   ::setsockopt(sock_fd.get(), SOL_SOCKET, SO_REUSEADDR, &value, sizeof value);
+#endif
+#if LOFTY_HOST_API_WIN32
+   ::WSACleanup();
+#endif
+}
+
+io::filedesc server::create_socket(version ip_version_, transport ip_transport) {
+   if (ip_version_ == version::any) {
+      // TODO: provide more information in the exception.
+      LOFTY_THROW(domain_error, ());
+   }
+   bool async = (this_thread::coroutine_scheduler() != nullptr);
+   int family, type;
+   switch (ip_version_.base()) {
+      case version::v4:
+         family = AF_INET;
+         break;
+      case version::v6:
+         family = AF_INET6;
+         break;
+      LOFTY_SWITCH_WITHOUT_DEFAULT
+   }
+   switch (ip_transport.base()) {
+      case transport::tcp:
+         type = SOCK_STREAM;
+         break;
+      case transport::udp:
+         type = SOCK_DGRAM;
+         break;
+      LOFTY_SWITCH_WITHOUT_DEFAULT
+   }
+#if LOFTY_HOST_API_POSIX
+   #if !LOFTY_HOST_API_DARWIN
+      type |= SOCK_CLOEXEC;
+      if (async) {
+         // Using coroutines, so make this socket non-blocking.
+         type |= SOCK_NONBLOCK;
+      }
+   #endif
+   io::filedesc fd(::socket(family, type, 0));
+   if (!fd) {
+      exception::throw_os_error();
+   }
+   #if LOFTY_HOST_API_DARWIN
+      /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread won’t
+      leak the file descriptor. That’s the whole point of the extra SOCK_* flags. */
+      fd.set_close_on_exec(true);
+      if (async) {
+         fd.set_nonblocking(true);
+      }
+   #endif
+   return _std::move(fd);
+#elif LOFTY_HOST_API_WIN32 //if LOFTY_HOST_API_POSIX
+   static std::uint8_t const wsa_major_version = 2, wsa_minor_version = 2;
+   ::WSADATA wsa_data;
+   // TODO: only call once per process! And pair that with calling WSACleanup().
+   if (int ret = ::WSAStartup(MAKEWORD(wsa_major_version, wsa_minor_version), &wsa_data)) {
+      exception::throw_os_error(static_cast<errint_t>(ret));
+   }
+   if (LOBYTE(wsa_data.wVersion) != wsa_major_version || HIBYTE(wsa_data.wVersion) != wsa_minor_version) {
+      // The loaded WinSock implementation does not support the requested version.
+      ::WSACleanup();
+      // TODO: use a better exception class.
+      LOFTY_THROW(generic_error, ());
+   }
+
+   ::DWORD flags = 0;
+   if (async) {
+      flags |= WSA_FLAG_OVERLAPPED;
+   }
+   #ifdef WSA_FLAG_NO_HANDLE_INHERIT
+      flags |= WSA_FLAG_NO_HANDLE_INHERIT;
+   #endif
+   ::SOCKET sock = ::WSASocket(family, type, 0, nullptr, 0, flags);
+   if (sock == INVALID_SOCKET) {
+      exception::throw_os_error();
+   }
+   return io::filedesc(reinterpret_cast<io::filedesc_t>(sock));
+#else //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32 … else
+}
 
 }}} //namespace lofty::net::ip
 

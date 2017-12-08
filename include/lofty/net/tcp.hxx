@@ -127,9 +127,8 @@ private:
 
 namespace lofty { namespace net { namespace tcp {
 
-/*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization required
-for the current thread to run coroutines. */
-class LOFTY_SYM server : public noncopyable {
+//! Accepts client connection requests for a given TCP port.
+class LOFTY_SYM server : public ip::server {
 public:
    /*! Constructor.
 
@@ -151,22 +150,6 @@ public:
       New client connection.
    */
    _std::shared_ptr<connection> accept();
-
-private:
-   /*! Creates a socket for the server.
-
-   @param ip_version
-      IP version.
-   @return
-      New server socket.
-   */
-   static io::filedesc create_socket(ip::version ip_version);
-
-private:
-   //! Server socket bound to the TCP port.
-   io::filedesc sock_fd;
-   //! IP version.
-   ip::version ip_version;
 };
 
 }}} //namespace lofty::net::tcp
