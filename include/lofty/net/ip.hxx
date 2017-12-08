@@ -157,7 +157,7 @@ public:
 public:
    //! Default constructor.
    address() {
-      memory::clear(bytes);
+      memory::clear(&bytes);
       version_ = ip::version::any;
    }
 

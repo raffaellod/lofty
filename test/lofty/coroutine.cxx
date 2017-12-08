@@ -179,7 +179,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine worker_coros[workers_size];
    unsigned sleeps[workers_size] = { 20, 30, 10, 50, 40 };
    std::size_t workers_awoke[workers_size];
-   memory::clear(workers_awoke);
+   memory::clear(&workers_awoke);
    _std::atomic<std::size_t> next_awaking_worker_slot(0);
    for (std::size_t i = 0; i < workers_size; ++i) {
       worker_coros[i] = coroutine([this, i, &sleeps, &workers_awoke, &next_awaking_worker_slot] () {
