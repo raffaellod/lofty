@@ -54,6 +54,17 @@ LOFTY_ENUM(transport,
    (udp, 2)
 );
 
+/*! Creates an IP socket for the specified transport.
+
+@param version_
+   IP version.
+@param transport_
+   Type of transport over IP.
+@return
+   New socket.
+*/
+io::filedesc create_socket(version version_, transport transport_);
+
 }}} //namespace lofty::net::ip
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -234,24 +245,12 @@ protected:
 
    @param address
       Address to bind to.
-   @param ip_transport
+   @param transport_
       Type of transport over IP.
    @param port
       Port to listen for connections on.
    */
-   server(address const & address, port const & port, transport ip_transport);
-
-private:
-   /*! Creates a socket for the server, allowing the constructor to leverage RAII.
-
-   @param ip_version
-      IP version.
-   @param ip_transport
-      Type of transport over IP.
-   @return
-      New server socket.
-   */
-   io::filedesc create_socket(version ip_version, transport ip_transport);
+   server(address const & address, port const & port, transport transport_);
 
 protected:
    //! Server socket bound to the port.

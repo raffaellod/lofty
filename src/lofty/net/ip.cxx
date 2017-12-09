@@ -63,88 +63,14 @@ static _pvt::raw_address const raw_any_v6 = {
 address const & address::any_v4 = static_cast<address const &>(raw_any_v4);
 address const & address::any_v6 = static_cast<address const &>(raw_any_v6);
 
-}}} //namespace lofty::net::ip
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace net { namespace ip {
-
-namespace {
-
-union sockaddr_any {
-   ::sockaddr_in sa4;
-   ::sockaddr_in6 sa6;
-};
-
-} //namespace
-
-server::server(address const & address, port const & port, transport ip_transport) :
-   sock_fd(create_socket(address.version(), ip_transport)),
-   ip_version(address.version()) {
-#if LOFTY_HOST_API_POSIX
-   ::socklen_t server_sock_addr_size;
-#elif LOFTY_HOST_API_WIN32
-   int server_sock_addr_size;
-#else
-   #error "TODO: HOST_API"
-#endif
-   sockaddr_any server_sockaddr;
-   switch (ip_version.base()) {
-      case ip::version::v4:
-         server_sock_addr_size = sizeof server_sockaddr.sa4;
-         memory::clear(&server_sockaddr.sa4);
-         server_sockaddr.sa4.sin_family = AF_INET;
-         memory::copy(
-            reinterpret_cast<std::uint8_t *>(&server_sockaddr.sa4.sin_addr.s_addr), address.raw(),
-            sizeof server_sockaddr.sa4.sin_addr.s_addr
-         );
-         server_sockaddr.sa4.sin_port = htons(port.number());
-         break;
-      case ip::version::v6:
-         server_sock_addr_size = sizeof server_sockaddr.sa6;
-         memory::clear(&server_sockaddr.sa6);
-         //server_sockaddr.sa6.sin6_flowinfo = 0;
-         server_sockaddr.sa6.sin6_family = AF_INET6;
-         memory::copy(
-            &server_sockaddr.sa6.sin6_addr.s6_addr[0], address.raw(),
-            sizeof server_sockaddr.sa6.sin6_addr.s6_addr
-         );
-         server_sockaddr.sa6.sin6_port = htons(port.number());
-         break;
-      LOFTY_SWITCH_WITHOUT_DEFAULT
-   }
-#if LOFTY_HOST_API_WIN32
-   if (::bind(
-      reinterpret_cast< ::SOCKET>(sock_fd.get()),
-      reinterpret_cast< ::SOCKADDR *>(&server_sockaddr), server_sock_addr_size
-   ) < 0) {
-      exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
-   }
-#else
-   if (::bind(sock_fd.get(), reinterpret_cast< ::sockaddr *>(&server_sockaddr), server_sock_addr_size) < 0) {
-      exception::throw_os_error();
-   }
-#endif
-}
-
-server::~server() {
-#if LOFTY_HOST_API_POSIX
-   int value = 1;
-   ::setsockopt(sock_fd.get(), SOL_SOCKET, SO_REUSEADDR, &value, sizeof value);
-#endif
-#if LOFTY_HOST_API_WIN32
-   ::WSACleanup();
-#endif
-}
-
-io::filedesc server::create_socket(version ip_version_, transport ip_transport) {
-   if (ip_version_ == version::any) {
+io::filedesc create_socket(version version_, transport transport_) {
+   if (version_ == version::any) {
       // TODO: provide more information in the exception.
       LOFTY_THROW(domain_error, ());
    }
    bool async = (this_thread::coroutine_scheduler() != nullptr);
    int family, type;
-   switch (ip_version_.base()) {
+   switch (version_.base()) {
       case version::v4:
          family = AF_INET;
          break;
@@ -153,7 +79,7 @@ io::filedesc server::create_socket(version ip_version_, transport ip_transport) 
          break;
       LOFTY_SWITCH_WITHOUT_DEFAULT
    }
-   switch (ip_transport.base()) {
+   switch (transport_.base()) {
       case transport::tcp:
          type = SOCK_STREAM;
          break;
@@ -212,6 +138,80 @@ io::filedesc server::create_socket(version ip_version_, transport ip_transport) 
 #else //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32 … else
+}
+
+}}} //namespace lofty::net::ip
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace net { namespace ip {
+
+namespace {
+
+union sockaddr_any {
+   ::sockaddr_in sa4;
+   ::sockaddr_in6 sa6;
+};
+
+} //namespace
+
+server::server(address const & address, port const & port, transport transport_) :
+   sock_fd(create_socket(address.version(), transport_)),
+   ip_version(address.version()) {
+#if LOFTY_HOST_API_POSIX
+   ::socklen_t server_sock_addr_size;
+#elif LOFTY_HOST_API_WIN32
+   int server_sock_addr_size;
+#else
+   #error "TODO: HOST_API"
+#endif
+   sockaddr_any server_sockaddr;
+   switch (ip_version.base()) {
+      case ip::version::v4:
+         server_sock_addr_size = sizeof server_sockaddr.sa4;
+         memory::clear(&server_sockaddr.sa4);
+         server_sockaddr.sa4.sin_family = AF_INET;
+         memory::copy(
+            reinterpret_cast<std::uint8_t *>(&server_sockaddr.sa4.sin_addr.s_addr), address.raw(),
+            sizeof server_sockaddr.sa4.sin_addr.s_addr
+         );
+         server_sockaddr.sa4.sin_port = htons(port.number());
+         break;
+      case ip::version::v6:
+         server_sock_addr_size = sizeof server_sockaddr.sa6;
+         memory::clear(&server_sockaddr.sa6);
+         //server_sockaddr.sa6.sin6_flowinfo = 0;
+         server_sockaddr.sa6.sin6_family = AF_INET6;
+         memory::copy(
+            &server_sockaddr.sa6.sin6_addr.s6_addr[0], address.raw(),
+            sizeof server_sockaddr.sa6.sin6_addr.s6_addr
+         );
+         server_sockaddr.sa6.sin6_port = htons(port.number());
+         break;
+      LOFTY_SWITCH_WITHOUT_DEFAULT
+   }
+#if LOFTY_HOST_API_WIN32
+   if (::bind(
+      reinterpret_cast< ::SOCKET>(sock_fd.get()),
+      reinterpret_cast< ::SOCKADDR *>(&server_sockaddr), server_sock_addr_size
+   ) < 0) {
+      exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
+   }
+#else
+   if (::bind(sock_fd.get(), reinterpret_cast< ::sockaddr *>(&server_sockaddr), server_sock_addr_size) < 0) {
+      exception::throw_os_error();
+   }
+#endif
+}
+
+server::~server() {
+#if LOFTY_HOST_API_POSIX
+   int value = 1;
+   ::setsockopt(sock_fd.get(), SOL_SOCKET, SO_REUSEADDR, &value, sizeof value);
+#endif
+#if LOFTY_HOST_API_WIN32
+   ::WSACleanup();
+#endif
 }
 
 }}} //namespace lofty::net::ip
