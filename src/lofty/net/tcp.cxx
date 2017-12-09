@@ -24,6 +24,22 @@ more details.
    #include <sys/socket.h> // accept4() getsockname()
 #elif LOFTY_HOST_API_WIN32
    #include <winsock2.h>
+   #if LOFTY_HOST_CXX_MSC
+      // Silence warnings from system header files.
+      #pragma warning(push)
+
+      // “'id' : conversion from 'type1' to 'type2', signed / unsigned mismatch”
+      #pragma warning(disable: 4365)
+   #endif
+   #include <ws2tcpip.h>
+   #include <mstcpip.h>
+   #if LOFTY_HOST_CXX_MSC
+      #pragma warning(pop)
+   #endif
+   #if _WIN32_WINNT == 0x0500
+      // Additional header required for Windows 2000 IPv6 Tech Preview.
+      #include <tpipv6.h>
+   #endif
    #include <mswsock.h> // AcceptEx() GetAcceptExSockaddrs()
 #endif
 
@@ -147,7 +163,7 @@ _std::shared_ptr<connection> server::accept() {
    static ::DWORD const sock_addr_buf_size = sizeof(sockaddr_any) + 16;
    std::int8_t sock_addr_buf[sock_addr_buf_size * 2];
 
-   conn_fd = create_socket(ip_version);
+   conn_fd = ip::create_socket(ip_version, ip::transport::tcp);
    ::DWORD bytes_read;
    io::overlapped ovl;
    ovl.Offset = 0;
