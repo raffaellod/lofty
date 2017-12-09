@@ -39,7 +39,9 @@ See § _4. Versioning and branching_ for more information on available branches.
 
 ### 2.1. Building
 
-Building Lofty requires [Complemake](https://github.com/raffaellod/complemake), which works as an improved
+#### Complemake
+
+Building Lofty is easiest with [Complemake](https://github.com/raffaellod/complemake), which works as an improved
 make utility and dependency manager.
 
 To build Lofty, run Complemake from Lofty’s repo clone:
@@ -49,6 +51,19 @@ complemake build
 ```
 
 This will create outputs in the `bin` and `lib` folders (you can change that with Complemake’s flags).
+
+#### Conan and CMake
+
+Alternatively, Lofty can also be built as a [Conan](https://www.conan.io/) package
+with [CMake](https://cmake.org/).
+
+With Conan and CMake installed, build Lofty by running the following commands from Lofty’s repo clone:
+```
+conan install .
+conan build .
+```
+
+This will create outputs in the `bin` and `lib` folders.
 
 
 ### 2.2. Installing
