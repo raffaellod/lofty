@@ -969,7 +969,12 @@ void interruption_point() {
 
 void sleep_for_ms(unsigned millisecs) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active(io::filedesc_t_null, false /*read – N/A*/, millisecs, nullptr);
+      pcorosched->block_active(
+         io::filedesc_t_null, false /*read – N/A*/, millisecs
+#if LOFTY_HOST_API_WIN32
+         , nullptr
+#endif
+      );
    } else {
       this_thread::sleep_for_ms(millisecs);
    }
