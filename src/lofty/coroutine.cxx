@@ -573,7 +573,7 @@ repeat_switch_to_scheduler:
 
 #if LOFTY_HOST_API_WIN32
    // See comment on the goto label above.
-   if (ovl->get_result() == ERROR_IO_INCOMPLETE) {
+   if (fd != io::filedesc_t_null && ovl->get_result() == ERROR_IO_INCOMPLETE) {
 //      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
       coros_blocked_by_fd.add_or_assign(fd, coro_pimpl);
       goto repeat_switch_to_scheduler;
@@ -968,7 +968,7 @@ void interruption_point() {
 
 void sleep_for_ms(unsigned millisecs) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active(io::filedesc_t_null, false, millisecs);
+      pcorosched->block_active(io::filedesc_t_null, false, millisecs, nullptr);
    } else {
       this_thread::sleep_for_ms(millisecs);
    }
