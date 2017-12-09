@@ -469,6 +469,7 @@ void coroutine::scheduler::block_active(
    #elif LOFTY_HOST_API_WIN32
       /* TODO: ensure bind_to_this_coroutine_scheduler_iocp() has been called on fd. There’s nothing we can do
       about that here, since it’s a non-repeatable operation. */
+      LOFTY_UNUSED_ARG(write);
    #endif
       {
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
@@ -968,7 +969,7 @@ void interruption_point() {
 
 void sleep_for_ms(unsigned millisecs) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active(io::filedesc_t_null, false, millisecs, nullptr);
+      pcorosched->block_active(io::filedesc_t_null, false /*read – N/A*/, millisecs, nullptr);
    } else {
       this_thread::sleep_for_ms(millisecs);
    }
