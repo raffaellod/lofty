@@ -114,7 +114,7 @@ int process::join() {
       return -1;
    }
 #elif LOFTY_HOST_API_WIN32
-   this_thread::interruptible_wait_for_single_object(handle);
+   this_thread::interruptible_wait_for_single_object(handle, 0);
    this_coroutine::interruption_point();
    ::DWORD exit_code;
    if (!::GetExitCodeProcess(handle, &exit_code)) {

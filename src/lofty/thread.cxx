@@ -101,7 +101,7 @@ void simple_event::wait() {
       this_coroutine::interruption_point();
    }
 #elif LOFTY_HOST_API_WIN32
-   this_thread::interruptible_wait_for_single_object(event, INFINITE);
+   this_thread::interruptible_wait_for_single_object(event, 0);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -220,7 +220,7 @@ void thread::impl::join() {
       exception::throw_os_error(err);
    }
 #elif LOFTY_HOST_API_WIN32
-   this_thread::interruptible_wait_for_single_object(handle, INFINITE);
+   this_thread::interruptible_wait_for_single_object(handle, 0);
 #else
    #error "TODO: HOST_API"
 #endif
@@ -457,7 +457,9 @@ thread::id_type id() {
 #if LOFTY_HOST_API_WIN32
 void interruptible_wait_for_single_object(::HANDLE handle, unsigned timeout_millisecs) {
    ::HANDLE handles[] = { handle, get_impl()->interruption_event_handle() };
-   ::DWORD ret = ::WaitForMultipleObjects(LOFTY_COUNTOF(handles), handles, false, timeout_millisecs);
+   ::DWORD ret = ::WaitForMultipleObjects(
+      LOFTY_COUNTOF(handles), handles, false, timeout_millisecs ? timeout_millisecs : INFINITE
+   );
    if (/*ret < WAIT_OBJECT_0 ||*/ ret >= WAIT_OBJECT_0 + LOFTY_COUNTOF(handles)) {
       exception::throw_os_error();
    }
