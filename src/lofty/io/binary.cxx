@@ -780,8 +780,8 @@ pipe::pipe() {
    write_end_init_data.fd = filedesc(fds[1]);
    /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread won’t leak
    the two file descriptors. That’s the whole point of pipe2(). */
-   read_end_init_data.fd.set_close_on_exec(true);
-   write_end_init_data.fd.set_close_on_exec(true);
+   read_end_init_data.fd.share_with_subprocesses(false);
+   write_end_init_data.fd.share_with_subprocesses(false);
    if (async) {
       read_end_init_data.fd.set_nonblocking(true);
       write_end_init_data.fd.set_nonblocking(true);

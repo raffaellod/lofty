@@ -103,7 +103,7 @@ io::filedesc create_socket(version version_, transport transport_) {
    #if LOFTY_HOST_API_DARWIN
       /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread won’t
       leak the file descriptor. That’s the whole point of the extra SOCK_* flags. */
-      fd.set_close_on_exec(true);
+      fd.share_with_subprocesses(false);
       if (async) {
          fd.set_nonblocking(true);
       }

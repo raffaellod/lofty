@@ -122,7 +122,7 @@ _std::shared_ptr<connection> server::accept() {
       if (conn_fd) {
          /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread won’t
          leak the file descriptor. That’s the whole point of accept4(). */
-         conn_fd.set_close_on_exec(true);
+         conn_fd.share_with_subprocesses(false);
          if (async) {
             conn_fd.set_nonblocking(true);
          }

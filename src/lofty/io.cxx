@@ -108,21 +108,6 @@ void filedesc::safe_close() {
 
 #if LOFTY_HOST_API_POSIX
 
-void filedesc::set_close_on_exec(bool b) {
-   int flags = ::fcntl(fd, F_GETFD, 0);
-   if (flags < 0) {
-      exception::throw_os_error();
-   }
-   if (b) {
-      flags |= FD_CLOEXEC;
-   } else {
-      flags &= ~FD_CLOEXEC;
-   }
-   if (::fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
-      exception::throw_os_error();
-   }
-}
-
 void filedesc::set_nonblocking(bool b) {
    int flags = ::fcntl(fd, F_GETFL, 0);
    if (flags < 0) {
@@ -139,6 +124,29 @@ void filedesc::set_nonblocking(bool b) {
 }
 
 #endif
+
+void filedesc::share_with_subprocesses(bool share) {
+#if LOFTY_HOST_API_POSIX
+   int flags = ::fcntl(fd, F_GETFD, 0);
+   if (flags < 0) {
+      exception::throw_os_error();
+   }
+   if (share) {
+      flags &= ~FD_CLOEXEC;
+   } else {
+      flags |= FD_CLOEXEC;
+   }
+   if (::fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+      exception::throw_os_error();
+   }
+#elif LOFTY_HOST_API_WIN32
+   if (!::SetHandleInformation(fd, HANDLE_FLAG_INHERIT, shared ? HANDLE_FLAG_INHERIT : 0)) {
+      exception::throw_os_error();
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+}
 
 }} //namespace lofty::io
 

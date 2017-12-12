@@ -189,13 +189,6 @@ public:
    void safe_close();
 
 #if LOFTY_HOST_API_POSIX
-   /*! Sets the CLOEXEC flag.
-
-   @param b
-      If true, CLOEXEC will be set; if false, it will be unset.
-   */
-   void set_close_on_exec(bool b);
-
    /*! Sets the NONBLOCK flag.
 
    @param b
@@ -203,6 +196,14 @@ public:
    */
    void set_nonblocking(bool b);
 #endif
+
+   /*! Allows or disallows child processes to use the file descriptor. Under POSIX, this clears or sets the
+   CLOEXEC bit; under Win32, it sets or clears the HANDLE_FLAG_INHERIT bit.
+
+   @param b
+      If true, CLOEXEC will be set; if false, it will be unset.
+   */
+   void share_with_subprocesses(bool share);
 
 private:
    //! The actual descriptor.
