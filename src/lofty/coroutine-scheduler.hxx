@@ -52,6 +52,22 @@ public:
    //! Integer type large enough to represent a point in time with resolution of one millisecond.
    typedef std::uint64_t time_point_t;
 
+private:
+   union fd_io_key {
+#if LOFTY_HOST_API_BSD
+      typedef void * pack_t;
+#elif LOFTY_HOST_API_LINUX
+      typedef std::uint64_t pack_t;
+#elif LOFTY_HOST_API_WIN32
+      typedef ::ULONG_PTR pack_t;
+#endif
+      struct s_t {
+         io::filedesc_t fd;
+         bool write;
+      } s;
+      pack_t pack;
+   };
+
 public:
    //! Constructor.
    scheduler();
@@ -211,7 +227,7 @@ private:
    io::filedesc timer_fd;
 #endif
    //! Coroutines that are blocked on a fd wait.
-   collections::hash_map<io::filedesc_t, _std::shared_ptr<impl>> coros_blocked_by_fd;
+   collections::hash_map<fd_io_key::pack_t, _std::shared_ptr<impl>> coros_blocked_by_fd;
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but have not
    been started yet. */
    collections::queue<_std::shared_ptr<impl>> ready_coros_queue;

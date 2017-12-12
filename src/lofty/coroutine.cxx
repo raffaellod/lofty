@@ -395,6 +395,9 @@ void coroutine::scheduler::block_active(
    scheduler: if the timeout lapses and the coroutine is activated before the fd is removed from the waited-on
    pool, a different thread might wake to serve the fd becoming ready, resuming the coroutine a second time.
    This can be avoided with a thread mutex in coroutine::impl. */
+   fd_io_key fdiok;
+   fdiok.s.fd = fd;
+   fdiok.s.write = write;
    _std::shared_ptr<impl> coro_pimpl(active_coro_pimpl);
 #if LOFTY_HOST_API_BSD
    ::timespec no_wait = { 0, 0 };
@@ -404,12 +407,13 @@ void coroutine::scheduler::block_active(
       fd_ke.filter = write ? EVFILT_WRITE : EVFILT_READ;
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
       fd_ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
+      fd_ke.udata = fdiok.pack;
       if (::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, &no_wait) < 0) {
          exception::throw_os_error();
       }
       {
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-         coros_blocked_by_fd.add_or_assign(fd, coro_pimpl);
+         coros_blocked_by_fd.add_or_assign(fdiok.pack, coro_pimpl);
       }
       coro_pimpl->blocking_fd = fd;
    }
@@ -420,7 +424,7 @@ void coroutine::scheduler::block_active(
          fd_ke.flags = EV_DELETE;
          ::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, &no_wait);
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-         coros_blocked_by_fd.remove(fd);
+         coros_blocked_by_fd.remove(fdiok.pack);
       }
    );
    struct ::kevent timer_ke;
@@ -457,8 +461,7 @@ void coroutine::scheduler::block_active(
    if (fd != io::filedesc_t_null) {
    #if LOFTY_HOST_API_LINUX
       ::epoll_event ee;
-      memory::clear(&ee.data);
-      ee.data.fd = fd;
+      ee.data.u64 = fdiok.pack;
       /* Use EPOLLONESHOT to avoid waking up multiple threads for the same fd becoming ready. This means we’d
       need to then rearm it in find_coroutine_to_activate() when it becomes ready, but we’ll remove it
       instead. */
@@ -469,11 +472,10 @@ void coroutine::scheduler::block_active(
    #elif LOFTY_HOST_API_WIN32
       /* TODO: ensure bind_to_this_coroutine_scheduler_iocp() has been called on fd. There’s nothing we can do
       about that here, since it’s a non-repeatable operation. */
-      LOFTY_UNUSED_ARG(write);
    #endif
       {
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-         coros_blocked_by_fd.add_or_assign(fd, coro_pimpl);
+         coros_blocked_by_fd.add_or_assign(fdiok.pack, coro_pimpl);
       }
       coro_pimpl->blocking_fd = fd;
    }
@@ -486,7 +488,7 @@ void coroutine::scheduler::block_active(
          removed. */
          if (coro_pimpl->blocking_fd != io::filedesc_t_null) {
 //            _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-            coros_blocked_by_fd.remove(fd);
+            coros_blocked_by_fd.remove(fdiok.pack);
          }
       }
    );
@@ -500,7 +502,7 @@ void coroutine::scheduler::block_active(
          timeout, and it makes sense to abort all I/O for the fd once one I/O operation on it times out. */
          ::CancelIo(fd);
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-         coros_blocked_by_fd.remove(fd);
+         coros_blocked_by_fd.remove(fdiok.pack);
       }
    );
    #endif
@@ -576,7 +578,7 @@ repeat_switch_to_scheduler:
    // See comment on the goto label above.
    if (fd != io::filedesc_t_null && ovl->get_result() == ERROR_IO_INCOMPLETE) {
 //      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-      coros_blocked_by_fd.add_or_assign(fd, coro_pimpl);
+      coros_blocked_by_fd.add_or_assign(fdiok.pack, coro_pimpl);
       goto repeat_switch_to_scheduler;
    }
 #endif
@@ -693,6 +695,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       left?” case. */
 
       // There are blocked coroutines; wait for the first one to become ready again.
+      fd_io_key fdiok;
 #if LOFTY_HOST_API_BSD
       struct ::kevent ke;
       if (::kevent(kqueue_fd.get(), nullptr, 0, &ke, 1, nullptr) < 0) {
@@ -717,7 +720,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          break;
       }
       // Otherwise it’s a file descriptor event.
-      io::filedesc_t fd = static_cast<io::filedesc_t>(ke.ident);
+      fdiok.pack = ke.udata;
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    #if LOFTY_HOST_API_LINUX
       ::epoll_event ee;
@@ -732,21 +735,17 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          }
          exception::throw_os_error(err);
       }
-      io::filedesc_t fd = ee.data.fd;
+      fdiok.pack = ee.data.u64;
    #elif LOFTY_HOST_API_WIN32
       ::DWORD transferred_byte_size;
-      ::ULONG_PTR completion_key;
       ::OVERLAPPED * ovl;
-      if (!::GetQueuedCompletionStatus(
-         iocp_fd.get(), &transferred_byte_size, &completion_key, &ovl, INFINITE)
-      ) {
+      if (!::GetQueuedCompletionStatus(iocp_fd.get(), &transferred_byte_size, &fdiok.pack, &ovl, INFINITE)) {
          /* Distinguish between IOCP failures and I/O failures by also checking whether an OVERLAPPED pointer
          was returned. */
          if (!ovl) {
             exception::throw_os_error();
          }
       }
-      io::filedesc_t fd = reinterpret_cast<io::filedesc_t>(completion_key);
       /* Note (WIN32 BUG?)
       Empirical evidence shows that at this point, ovl might not be a valid pointer, even if the completion
       key (fd) returned was a valid Lofty-owned handle. I could not find any explanation for this, but at
@@ -761,13 +760,13 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       /* TODO: this is not a reliable way to interrupt a thread’s ::GetQueuedCompletionStatus() call when
       multiple threads share the same coroutine::scheduler. This is a problem for POSIX as well (see above),
       so it probably needs a shared solution. */
-      if (fd == iocp_fd.get()) {
+      if (fdiok.s.fd == iocp_fd.get()) {
          this_thread::interruption_point();
          continue;
       }
    #endif
 //      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-      if (fd == timer_fd.get()) {
+      if (fdiok.s.fd == timer_fd.get()) {
          // Pop the coroutine that should run now, and rearm the timer if necessary.
          coro_pimpl = coros_blocked_by_timer_fd.pop_front().value;
          if (coros_blocked_by_timer_fd) {
@@ -781,7 +780,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
    #error "TODO: HOST_API"
 #endif
       // Remove and return the coroutine that was waiting for this file descriptor.
-      auto blocked_coro_itr(coros_blocked_by_fd.find(fd));
+      auto blocked_coro_itr(coros_blocked_by_fd.find(fdiok.pack));
       if (blocked_coro_itr != coros_blocked_by_fd.cend()) {
          coro_pimpl = coros_blocked_by_fd.pop(blocked_coro_itr);
          // Make the coroutine aware that it’s no longer waiting for I/O.
