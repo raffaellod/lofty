@@ -59,7 +59,7 @@ tty_istream::tty_istream(_pvt::file_init_data * init_data) :
 }
 
 #if LOFTY_HOST_API_WIN32
-/*virtual*/ std::size_t tty_istream::read(void * dst, std::size_t dst_max) /*override*/ {
+/*virtual*/ std::size_t tty_istream::read_bytes(void * dst, std::size_t dst_max) /*override*/ {
    // Note: ::ReadConsole() expects and returns character counts in place of byte counts.
 
    ::DWORD chars_read, chars_to_read = static_cast< ::DWORD>(
@@ -221,7 +221,7 @@ bool tty_ostream::processing_enabled() const {
    ::SetConsoleTitle(title.c_str());
 }
 
-/*virtual*/ std::size_t tty_ostream::write(void const * src, std::size_t src_size) /*override*/ {
+/*virtual*/ std::size_t tty_ostream::write_bytes(void const * src, std::size_t src_size) /*override*/ {
    auto src_chars_begin = static_cast<char_t const *>(src);
    auto src_chars_end = reinterpret_cast<char_t const *>(static_cast<std::int8_t const *>(src) + src_size);
    auto written_src_chars_end = src_chars_begin;
@@ -521,7 +521,9 @@ regular_file_ostream::regular_file_ostream(_pvt::file_init_data * init_data) :
 }
 
 #if LOFTY_HOST_API_WIN32
-/*virtual*/ std::size_t regular_file_ostream::write(void const * src, std::size_t src_size) /*override*/ {
+/*virtual*/ std::size_t regular_file_ostream::write_bytes(
+   void const * src, std::size_t src_size
+) /*override*/ {
    /* Emulating O_APPEND in Win32 requires a little more code: we have to manually seek to EOF, then write-
    protect the bytes we’re going to add, and then release the write protection. */
 
@@ -610,7 +612,7 @@ regular_file_ostream::regular_file_ostream(_pvt::file_init_data * init_data) :
       // Now the write can occur; the lock will be released automatically at the end.
    }
 
-   return file_ostream::write(src, src_size);
+   return file_ostream::write_bytes(src, src_size);
 }
 #endif //if LOFTY_HOST_API_WIN32
 

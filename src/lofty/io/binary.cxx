@@ -467,7 +467,7 @@ buffered_istream::buffered_istream() {
 /*virtual*/ buffered_istream::~buffered_istream() {
 }
 
-/*virtual*/ std::size_t buffered_istream::read(void * dst, std::size_t dst_max) /*override*/ {
+/*virtual*/ std::size_t buffered_istream::read_bytes(void * dst, std::size_t dst_max) /*override*/ {
    if (dst_max == 0) {
       // No need to read anything.
       return 0;
@@ -503,7 +503,7 @@ buffered_ostream::buffered_ostream() {
 /*virtual*/ buffered_ostream::~buffered_ostream() {
 }
 
-/*virtual*/ std::size_t buffered_ostream::write(void const * src, std::size_t src_size) /*override*/ {
+/*virtual*/ std::size_t buffered_ostream::write_bytes(void const * src, std::size_t src_size) /*override*/ {
    // Obtain a buffer large enough.
    std::int8_t * buf;
    std::size_t buf_size;
@@ -543,7 +543,7 @@ file_istream::file_istream(_pvt::file_init_data * init_data) :
    fd.safe_close();
 }
 
-/*virtual*/ std::size_t file_istream::read(void * dst, std::size_t dst_max) /*override*/ {
+/*virtual*/ std::size_t file_istream::read_bytes(void * dst, std::size_t dst_max) /*override*/ {
 #if LOFTY_HOST_API_POSIX
    // This may repeat in case of EINTR.
    for (;;) {
@@ -671,7 +671,7 @@ file_ostream::file_ostream(_pvt::file_init_data * init_data) :
    this_coroutine::interruption_point();
 }
 
-/*virtual*/ std::size_t file_ostream::write(void const * src, std::size_t src_size) /*override*/ {
+/*virtual*/ std::size_t file_ostream::write_bytes(void const * src, std::size_t src_size) /*override*/ {
    std::int8_t const * src_bytes = static_cast<std::int8_t const *>(src);
 #if LOFTY_HOST_API_POSIX
    // This may repeat in case of EINTR or in case ::write() couldn’t write all the bytes.

@@ -106,7 +106,7 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
          }
       }
       // Try to fill the available part of the buffer.
-      std::size_t read_bytes = bin_istream->read(read_buf.get_available(), read_buf.available_size());
+      std::size_t read_bytes = bin_istream->read_bytes(read_buf.get_available(), read_buf.available_size());
       if (read_bytes == 0) {
          // No more data available (EOF).
          break;
@@ -181,7 +181,7 @@ void default_buffered_ostream::flush_buffer() {
    if (std::size_t buf_used_size = write_buf.used_size()) {
       /* TODO: if *bin_ostream expects writes of an integer multiple of its block size but the buffer is not
       100% full, do something – maybe truncate bin_ostream afterwards if possible? */
-      std::size_t written_size = bin_ostream->write(write_buf.get_used(), buf_used_size);
+      std::size_t written_size = bin_ostream->write_bytes(write_buf.get_used(), buf_used_size);
       LOFTY_ASSERT(written_size == buf_used_size, LOFTY_SL("the entire buffer must have been written"));
       write_buf.mark_as_unused(written_size);
    }

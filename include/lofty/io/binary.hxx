@@ -71,7 +71,7 @@ public:
       Count of bytes read. For non-zero values of dst_max, a return value of 0 indicates that the end of the
       data (EOF) was reached.
    */
-   virtual std::size_t read(void * dst, std::size_t dst_max) = 0;
+   virtual std::size_t read_bytes(void * dst, std::size_t dst_max) = 0;
 
 protected:
    //! Default constructor.
@@ -106,7 +106,7 @@ public:
    @return
       Count of bytes written.
    */
-   virtual std::size_t write(void const * src, std::size_t src_size) = 0;
+   virtual std::size_t write_bytes(void const * src, std::size_t src_size) = 0;
 
 protected:
    //! Default constructor.
@@ -260,7 +260,7 @@ public:
       Count of bytes read. For non-zero values of dst_max, a return value of 0 indicates that the end of the
       data (EOF) was reached.
    */
-   virtual std::size_t read(void * dst, std::size_t dst_max) override;
+   virtual std::size_t read_bytes(void * dst, std::size_t dst_max) override;
 
    //! See buffered_stream::unbuffered().
    _std::shared_ptr<istream> unbuffered() const {
@@ -339,7 +339,7 @@ public:
    @return
       Count of bytes written.
    */
-   virtual std::size_t write(void const * src, std::size_t src_size) override;
+   virtual std::size_t write_bytes(void const * src, std::size_t src_size) override;
 
 protected:
    //! Default constructor.
@@ -394,8 +394,8 @@ public:
    //! Destructor.
    virtual ~file_istream();
 
-   //! See istream::read().
-   virtual std::size_t read(void * dst, std::size_t dst_max) override;
+   //! See istream::read_bytes().
+   virtual std::size_t read_bytes(void * dst, std::size_t dst_max) override;
 
 protected:
 #if LOFTY_HOST_API_WIN32
@@ -435,8 +435,8 @@ public:
    //! See ostream::flush().
    virtual void flush() override;
 
-   //! See ostream::write().
-   virtual std::size_t write(void const * src, std::size_t src_size) override;
+   //! See ostream::write_bytes().
+   virtual std::size_t write_bytes(void const * src, std::size_t src_size) override;
 };
 
 }}} //namespace lofty::io::binary

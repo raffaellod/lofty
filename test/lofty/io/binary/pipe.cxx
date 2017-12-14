@@ -43,9 +43,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       // Repeatedly write the buffer to one end of the pipe, and read it back from the other end.
       LOFTY_FOR_EACH(auto copy_number, make_range(1, 5)) {
          LOFTY_UNUSED_ARG(copy_number);
-         std::size_t written_bytes = pipe.write_end->write(src.get(), sizeof src[0] * buffer_size);
+         std::size_t written_bytes = pipe.write_end->write_bytes(src.get(), sizeof src[0] * buffer_size);
          LOFTY_TESTING_ASSERT_EQUAL(written_bytes, sizeof src[0] * buffer_size);
-         std::size_t read_bytes = pipe.read_end->read(dst.get(), sizeof dst[0] * buffer_size);
+         std::size_t read_bytes = pipe.read_end->read_bytes(dst.get(), sizeof dst[0] * buffer_size);
          LOFTY_TESTING_ASSERT_EQUAL(read_bytes, written_bytes);
 
          // Validate the destination array.

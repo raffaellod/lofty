@@ -55,7 +55,7 @@ public:
             int i;
             io::text::stdout->print(LOFTY_SL("reader: reading\n"));
             // This will cause a context switch if the read would block.
-            std::size_t bytes_read = pipe.read_end->read(&i, sizeof i);
+            std::size_t bytes_read = pipe.read_end->read_bytes(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
             if (bytes_read == 0) {
                // Detect EOF.
@@ -96,7 +96,7 @@ public:
          LOFTY_FOR_EACH(int i, make_range(1, 10)) {
             io::text::stdout->print(LOFTY_SL("writer: writing {}\n"), i);
             // This will cause a context switch if the write would block.
-            pipe.write_end->write(&i, sizeof i);
+            pipe.write_end->write_bytes(&i, sizeof i);
             // Execution resumes here, after other coroutines have received CPU time.
 
             /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be scheduled,
