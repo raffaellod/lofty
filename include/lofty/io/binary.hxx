@@ -61,6 +61,21 @@ public:
    //! Destructor.
    virtual ~istream();
 
+   /*! Reads one or more elements.
+
+   @param dst
+      Address of the destination array.
+   @param dst_max
+      Maximum number of elements that can be stored in the destination array.
+   @return
+      Count of elements read. For non-zero values of dst_max, a return value of 0 indicates that the end of the
+      data (EOF) was reached.
+   */
+   template <typename T>
+   std::size_t read(T * dst, std::size_t dst_max = 1) {
+      return read_bytes(dst, sizeof(T) * dst_max) / sizeof(T);
+   }
+
    /*! Reads at most dst_max bytes.
 
    @param dst
@@ -96,6 +111,30 @@ public:
 
    //! Forces writing any data in the write buffer.
    virtual void flush() = 0;
+
+   /*! Writes an element.
+
+   @param src
+      Address of the source element.
+   */
+   template <typename T>
+   void write(T const & src) {
+      write(&src, 1);
+   }
+
+   /*! Writes an array of elements.
+
+   @param src
+      Address of the source array.
+   @param src_size
+      Count of elements in the source array.
+   @return
+      Count of elements written.
+   */
+   template <typename T>
+   std::size_t write(T const * src, std::size_t src_size) {
+      return write_bytes(src, sizeof(T) * src_size) / sizeof(T);
+   }
 
    /*! Writes an array of bytes.
 
