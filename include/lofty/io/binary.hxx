@@ -270,15 +270,15 @@ public:
       buffer is not large enough to hold the cumulative data, it will be enlarged.
    @return
       Pair containing a pointer to the portion of the internal buffer that holds the read data, and the count
-      of bytes read. The latter may be less than the count argument if EOF is reached, or greater than the
+      of elements read. The latter may be less than the count argument if EOF is reached, or greater than the
       count argument if the buffer was filled more than requested. For non-zero values of the count argument,
-      a count of 0 bytes read indicates that no more data is available (EOF).
+      a returned count of 0 elements indicates that no more data is available (EOF).
    */
    template <typename T>
    _std::tuple<T const *, std::size_t> peek(std::size_t count = 1) {
       auto ret(peek_bytes(sizeof(T) * count));
       // Repack the tuple, changing pointer type.
-      return _std::make_tuple(static_cast<T const *>(_std::get<0>(ret)), _std::get<1>(ret));
+      return _std::make_tuple(static_cast<T const *>(_std::get<0>(ret)), _std::get<1>(ret) / sizeof(T));
    }
 
    /*! Non-template implementation of peek(). See peek().
@@ -340,20 +340,21 @@ public:
    */
    virtual void commit_bytes(std::size_t count) = 0;
 
-   /*! Returns a buffer large enough to store up to c items.
+   /*! Returns a buffer large enough to store at least the specified number of elements.
 
    @param count
-      Count of items to create buffer space for.
+      Count of elements to create buffer space for.
    @return
       Pair containing:
       •  A pointer to the portion of the internal buffer that the caller can write to;
-      •  Size of the portion of internal buffer, in bytes.
+      •  Count of elements contained in the portion of internal buffer; this may be more than the
+         requested number.
    */
    template <typename T>
    _std::tuple<T *, std::size_t> get_buffer(std::size_t count) {
       auto ret(get_buffer_bytes(sizeof(T) * count));
       // Repack the tuple, changing pointer type.
-      return _std::make_tuple(static_cast<T *>(_std::get<0>(ret)), _std::get<1>(ret));
+      return _std::make_tuple(static_cast<T *>(_std::get<0>(ret)), _std::get<1>(ret) / sizeof(T));
    }
 
    /*! Byte-oriented implementation of get_buffer(). See get_buffer().
