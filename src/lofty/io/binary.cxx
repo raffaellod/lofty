@@ -510,6 +510,7 @@ buffered_ostream::buffered_ostream() {
    _std::tie(buf, buf_size) = get_buffer<std::int8_t>(src_size);
    // Copy the source data into the buffer.
    memory::copy(buf, static_cast<std::int8_t const *>(src), src_size);
+   commit<std::int8_t>(src_size);
    return src_size;
 }
 

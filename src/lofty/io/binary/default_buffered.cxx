@@ -33,7 +33,7 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
 
 /*virtual*/ void default_buffered_istream::consume_bytes(std::size_t count) /*override*/ {
    if (count > read_buf.used_size()) {
-      // Can’t consume more bytes than are available in the read buffer.
+      // Can’t consume more bytes than are used in the read buffer.
       // TODO: use a better exception class.
       LOFTY_THROW(argument_error, ());
    }
