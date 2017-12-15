@@ -22,53 +22,6 @@ more details.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary { namespace _pvt {
-
-buffer::buffer(std::size_t size__) :
-   ptr(memory::alloc_bytes_unique(size__)),
-   size_(size__),
-   used_offset(0),
-   available_offset(0) {
-}
-buffer::buffer(buffer && src) :
-   ptr(_std::move(src.ptr)),
-   size_(src.size_),
-   used_offset(src.used_offset),
-   available_offset(src.available_offset) {
-   src.size_ = 0;
-   src.used_offset = 0;
-   src.available_offset = 0;
-}
-
-buffer::~buffer() {
-}
-
-buffer & buffer::operator=(buffer && src) {
-   ptr = _std::move(src.ptr);
-   size_ = src.size_;
-   src.size_ = 0;
-   used_offset = src.used_offset;
-   src.used_offset = 0;
-   available_offset = src.available_offset;
-   src.available_offset = 0;
-   return *this;
-}
-
-void buffer::expand_to(std::size_t new_size) {
-   memory::realloc_unique(&ptr, new_size);
-   size_ = new_size;
-}
-
-void buffer::make_unused_available() {
-   memory::move(static_cast<std::int8_t *>(ptr.get()), get_used(), used_size());
-   available_offset -= used_offset;
-   used_offset = 0;
-}
-
-}}}} //namespace lofty::io::binary::_pvt
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace lofty { namespace io { namespace binary {
 
 default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin_istream_) :
