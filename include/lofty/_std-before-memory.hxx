@@ -134,8 +134,10 @@ namespace lofty { namespace _std {
 
    namespace lofty { namespace _std {
 
+   using ::std::const_pointer_cast;
    using ::std::default_delete;
    using ::std::dynamic_pointer_cast;
+   using ::std::enable_shared_from_this;
    using ::std::make_shared;
    using ::std::shared_ptr;
    using ::std::static_pointer_cast;
