@@ -77,6 +77,7 @@ add_executable(lofty-test
    test/lofty/coroutine.cxx
    test/lofty/exception.cxx
    test/lofty/from_text_istream.cxx
+   test/lofty/io/binary/memory.cxx
    test/lofty/io/binary/pipe.cxx
    test/lofty/io/text/binbuf_istream-read.cxx
    test/lofty/io/text/istream-scan.cxx

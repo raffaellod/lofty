@@ -13,15 +13,17 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
+#include <lofty/bitmanip.hxx>
 #include <lofty/coroutine.hxx>
 #include <lofty/destructing_unfinalized_object.hxx>
 #include <lofty/io/binary.hxx>
+#include <lofty/io/binary/memory.hxx>
 #include <lofty/numeric.hxx>
 #include <lofty/os.hxx>
 #include <lofty/thread.hxx>
 #include "binary/default_buffered.hxx"
-#include "binary/_pvt/file_init_data.hxx"
 #include "binary/file-subclasses.hxx"
+#include "binary/_pvt/file_init_data.hxx"
 
 #include <algorithm> // std::min()
 
@@ -896,6 +898,81 @@ void buffer::make_unused_available() {
    memory::move(static_cast<std::int8_t *>(ptr.get()), get_used(), used_size());
    available_offset -= used_offset;
    used_offset = 0;
+}
+
+}}} //namespace lofty::io::binary
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace io { namespace binary {
+
+memory_stream::memory_stream() {
+}
+
+memory_stream::memory_stream(memory_stream && src) :
+   buf(_std::move(src.buf)) {
+}
+
+/*virtual*/ memory_stream::~memory_stream() {
+}
+
+/*virtual*/ void memory_stream::commit_bytes(std::size_t count) /*override*/ {
+   if (count > buf.available_size()) {
+      // Can’t commit more bytes than are available in the write buffer.
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
+   // Increase the count of used bytes in the buffer.
+   buf.mark_as_used(count);
+}
+
+/*virtual*/ void memory_stream::consume_bytes(std::size_t count) /*override*/ {
+   if (count > buf.used_size()) {
+      // Can’t consume more bytes than are used in the read buffer.
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
+   // Shift the “used window” of the read buffer by count bytes.
+   buf.mark_as_unused(count);
+}
+
+/*virtual*/ void memory_stream::finalize() /*override*/ {
+   // Nothing to do.
+}
+
+/*virtual*/ void memory_stream::flush() /*override*/ {
+   // An in-memory stream doesn’t need flushing.
+}
+
+/*virtual*/ _std::tuple<void *, std::size_t> memory_stream::get_buffer_bytes(std::size_t count) /*override*/ {
+   // If the requested size is more than what can fit in the buffer, compact it, or enlarge it.
+   if (count > buf.available_size()) {
+      // See if compacting the buffer would create enough room.
+      if (buf.unused_size() + buf.available_size() >= count) {
+         buf.make_unused_available();
+      } else {
+         // If the buffer is still too small, enlarge it.
+         buf.make_unused_available();
+         if (count > buf.available_size()) {
+            std::size_t buf_size = bitmanip::ceiling_to_pow2_multiple(count, buf_default_size);
+            buf.expand_to(buf_size);
+         }
+      }
+   }
+   // Return the available portion of the buffer.
+   return _std::make_tuple(buf.get_available(), buf.available_size());
+}
+
+/*virtual*/ _std::tuple<void const *, std::size_t> memory_stream::peek_bytes(std::size_t count) /*override*/ {
+   // Ignore count; we’ll always return the entire used portion of the buffer.
+   LOFTY_UNUSED_ARG(count);
+   // Return the “used window” of the buffer.
+   return _std::make_tuple(buf.get_used(), buf.used_size());
+}
+
+/*virtual*/ _std::shared_ptr<stream> memory_stream::_unbuffered_stream() const /*override*/ {
+   // Removing constness is bad, but no alternatives ara viable (return const, or make method non-const).
+   return _std::dynamic_pointer_cast<stream>(_std::const_pointer_cast<memory_stream>(shared_from_this()));
 }
 
 }}} //namespace lofty::io::binary
