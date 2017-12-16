@@ -165,40 +165,40 @@ server::server(address const & address, port const & port, transport transport_)
 #else
    #error "TODO: HOST_API"
 #endif
-   sockaddr_any server_sockaddr;
+   sockaddr_any server_sock_addr;
    switch (ip_version.base()) {
       case ip::version::v4:
-         server_sock_addr_size = sizeof server_sockaddr.sa4;
-         memory::clear(&server_sockaddr.sa4);
-         server_sockaddr.sa4.sin_family = AF_INET;
+         server_sock_addr_size = sizeof server_sock_addr.sa4;
+         memory::clear(&server_sock_addr.sa4);
+         server_sock_addr.sa4.sin_family = AF_INET;
          memory::copy(
-            reinterpret_cast<std::uint8_t *>(&server_sockaddr.sa4.sin_addr.s_addr), address.raw(),
-            sizeof server_sockaddr.sa4.sin_addr.s_addr
+            reinterpret_cast<std::uint8_t *>(&server_sock_addr.sa4.sin_addr.s_addr), address.raw(),
+            sizeof server_sock_addr.sa4.sin_addr.s_addr
          );
-         server_sockaddr.sa4.sin_port = htons(port.number());
+         server_sock_addr.sa4.sin_port = htons(port.number());
          break;
       case ip::version::v6:
-         server_sock_addr_size = sizeof server_sockaddr.sa6;
-         memory::clear(&server_sockaddr.sa6);
-         //server_sockaddr.sa6.sin6_flowinfo = 0;
-         server_sockaddr.sa6.sin6_family = AF_INET6;
+         server_sock_addr_size = sizeof server_sock_addr.sa6;
+         memory::clear(&server_sock_addr.sa6);
+         //server_sock_addr.sa6.sin6_flowinfo = 0;
+         server_sock_addr.sa6.sin6_family = AF_INET6;
          memory::copy(
-            &server_sockaddr.sa6.sin6_addr.s6_addr[0], address.raw(),
-            sizeof server_sockaddr.sa6.sin6_addr.s6_addr
+            &server_sock_addr.sa6.sin6_addr.s6_addr[0], address.raw(),
+            sizeof server_sock_addr.sa6.sin6_addr.s6_addr
          );
-         server_sockaddr.sa6.sin6_port = htons(port.number());
+         server_sock_addr.sa6.sin6_port = htons(port.number());
          break;
       LOFTY_SWITCH_WITHOUT_DEFAULT
    }
 #if LOFTY_HOST_API_WIN32
    if (::bind(
       reinterpret_cast< ::SOCKET>(sock_fd.get()),
-      reinterpret_cast< ::SOCKADDR *>(&server_sockaddr), server_sock_addr_size
+      reinterpret_cast< ::SOCKADDR *>(&server_sock_addr), server_sock_addr_size
    ) < 0) {
       exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
    }
 #else
-   if (::bind(sock_fd.get(), reinterpret_cast< ::sockaddr *>(&server_sockaddr), server_sock_addr_size) < 0) {
+   if (::bind(sock_fd.get(), reinterpret_cast< ::sockaddr *>(&server_sock_addr), server_sock_addr_size) < 0) {
       exception::throw_os_error();
    }
 #endif
