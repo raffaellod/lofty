@@ -15,6 +15,8 @@ more details.
 #include <lofty.hxx>
 #include <lofty/coroutine.hxx>
 #include <lofty/defer_to_scope_end.hxx>
+#include <lofty/io/binary.hxx>
+#include <lofty/io/binary/memory.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/math.hxx>
 #include <lofty/os.hxx>
@@ -38,80 +40,6 @@ static_assert(!_std::is_copy_constructible<_std::unique_ptr<int>>::value, "uniqu
 static_assert(_std::is_copy_constructible<_std::shared_ptr<int>>::value, "shared");
 
 } //namespace lofty
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace test {
-
-namespace {
-   
-LOFTY_ENUM_AUTO_VALUES(auto_enum_test,
-   value0,
-   value1,
-   value2
-);
-
-} //namespace
-
-LOFTY_TESTING_TEST_CASE_FUNC(
-   enum_auto_values,
-   "LOFTY_ENUM_AUTO_VALUES() – generated member values"
-) {
-   LOFTY_TRACE_FUNC();
-
-   LOFTY_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value0), 0);
-   LOFTY_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value1), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value2), 2);
-}
-
-}} //namespace lofty::test
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace test {
-
-LOFTY_TESTING_TEST_CASE_FUNC(
-   defer_to_scope_end_basic,
-   "LOFTY_DEFER_TO_SCOPE_END() – basic operation"
-) {
-   LOFTY_TRACE_FUNC();
-
-   unsigned deferred_invocations = 0;
-   {
-      LOFTY_DEFER_TO_SCOPE_END(++deferred_invocations);
-   }
-   LOFTY_TESTING_ASSERT_EQUAL(deferred_invocations, 1u);
-}
-
-}} //namespace lofty::test
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace test {
-
-namespace {
-
-LOFTY_ENUM(test_enum,
-   (value1, 15),
-   (value2, 56),
-   (value3, 91)
-);
-
-} //namespace
-
-LOFTY_TESTING_TEST_CASE_FUNC(
-   enum_basic,
-   "lofty::enum-derived classes – basic operations"
-) {
-   LOFTY_TRACE_FUNC();
-
-   test_enum e(test_enum::value2);
-
-   LOFTY_TESTING_ASSERT_TRUE(e == test_enum::value2);
-   LOFTY_TESTING_ASSERT_EQUAL(to_str(e), LOFTY_SL("value2"));
-}
-
-}} //namespace lofty::test
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -167,8 +95,199 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 namespace lofty { namespace test {
 
 LOFTY_TESTING_TEST_CASE_FUNC(
+   defer_to_scope_end_basic,
+   "LOFTY_DEFER_TO_SCOPE_END() – basic operation"
+) {
+   LOFTY_TRACE_FUNC();
+
+   unsigned deferred_invocations = 0;
+   {
+      LOFTY_DEFER_TO_SCOPE_END(++deferred_invocations);
+   }
+   LOFTY_TESTING_ASSERT_EQUAL(deferred_invocations, 1u);
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+namespace {
+
+LOFTY_ENUM(test_enum,
+   (value1, 15),
+   (value2, 56),
+   (value3, 91)
+);
+
+} //namespace
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   enum_basic,
+   "LOFTY_ENUM() and similar – basic operation"
+) {
+   LOFTY_TRACE_FUNC();
+
+   test_enum e(test_enum::value2);
+
+   LOFTY_TESTING_ASSERT_TRUE(e == test_enum::value2);
+   LOFTY_TESTING_ASSERT_EQUAL(to_str(e), LOFTY_SL("value2"));
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+namespace {
+
+LOFTY_ENUM_AUTO_VALUES(auto_enum_test,
+   value0,
+   value1,
+   value2
+);
+
+} //namespace
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   enum_auto_values,
+   "LOFTY_ENUM_AUTO_VALUES() – generated member values"
+) {
+   LOFTY_TRACE_FUNC();
+
+   LOFTY_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value0), 0);
+   LOFTY_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value1), 1);
+   LOFTY_TESTING_ASSERT_EQUAL(static_cast<int>(auto_enum_test::value2), 2);
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   io_binary_memory_stream,
+   "lofty::io::binary::memory_stream – writing and reading"
+) {
+   LOFTY_TRACE_FUNC();
+
+   static int const i1 = 10, i2 = 20;
+   int i;
+   io::binary::memory_stream mems;
+
+   LOFTY_TESTING_ASSERT_EQUAL(mems.read(&i), 0u);
+
+   mems.write(i1);
+   LOFTY_TESTING_ASSERT_EQUAL(mems.read(&i), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(i, i1);
+
+   mems.write(i2);
+   mems.write(i1);
+   LOFTY_TESTING_ASSERT_EQUAL(mems.read(&i), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(i, i2);
+   LOFTY_TESTING_ASSERT_EQUAL(mems.read(&i), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(i, i1);
+
+   LOFTY_TESTING_ASSERT_EQUAL(mems.read(&i), 0u);
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   io_binary_pipe_symmetrical,
+   "lofty::io::binary::pipe – alternating symmetrical writes and reads"
+) {
+   LOFTY_TRACE_FUNC();
+
+   static std::size_t const buffer_size = 1024;
+   _std::unique_ptr<std::uint8_t[]> src(new std::uint8_t[buffer_size]), dst(new std::uint8_t[buffer_size]);
+   // Prepare the source array.
+   for (std::size_t i = 0; i < buffer_size; ++i) {
+      src[i] = static_cast<std::uint8_t>(i);
+   }
+
+   {
+      io::binary::pipe pipe;
+      LOFTY_DEFER_TO_SCOPE_END(pipe.write_end->finalize());
+      // Repeatedly write the buffer to one end of the pipe, and read it back from the other end.
+      LOFTY_FOR_EACH(auto copy_number, make_range(1, 5)) {
+         LOFTY_UNUSED_ARG(copy_number);
+         std::size_t written_size = pipe.write_end->write(src.get(), buffer_size);
+         LOFTY_TESTING_ASSERT_EQUAL(written_size, buffer_size);
+         std::size_t read_size = pipe.read_end->read(dst.get(), buffer_size);
+         LOFTY_TESTING_ASSERT_EQUAL(read_size, written_size);
+
+         // Validate the destination array.
+         std::size_t errors = 0;
+         for (std::size_t i = 0; i < buffer_size; ++i) {
+            if (dst[i] != src[i]) {
+               ++errors;
+            }
+            // Alter the destination so we can repeat this test.
+            ++dst[i];
+         }
+         LOFTY_TESTING_ASSERT_EQUAL(errors, 0u);
+      }
+   }
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if LOFTY_HOST_API_WIN32
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   os_registry,
+   "lofty::os – accessing Windows Registry"
+) {
+   LOFTY_TRACE_FUNC();
+
+   sstr<8> s;
+
+   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
+      HKEY_LOCAL_MACHINE, LOFTY_SL("non-existent key"), str::empty, s.str_ptr()
+   ));
+   LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
+
+   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
+      HKEY_LOCAL_MACHINE, LOFTY_SL("Software\\Classes\\Interface"), str::empty, s.str_ptr()
+   ));
+   LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
+
+   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
+      HKEY_LOCAL_MACHINE, LOFTY_SL("Software"), LOFTY_SL("non-existent value"), s.str_ptr()
+   ));
+   LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
+
+   LOFTY_TESTING_ASSERT_TRUE(os::get_registry_value(
+      HKEY_LOCAL_MACHINE,
+      LOFTY_SL("Software\\Classes\\Interface\\{00000000-0000-0000-c000-000000000046}"),
+      str::empty, s.str_ptr()
+   ));
+   LOFTY_TESTING_ASSERT_EQUAL(s, LOFTY_SL("IUnknown"));
+}
+
+}} //namespace lofty::test
+
+#endif //if LOFTY_HOST_API_WIN32
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
    range_basic,
-   "lofty::range – basic operations"
+   "lofty::range – basic operation"
 ) {
    LOFTY_TRACE_FUNC();
 
@@ -222,6 +341,26 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 namespace lofty { namespace test {
 
 LOFTY_TESTING_TEST_CASE_FUNC(
+   text_char_ptr_to_str_adapter,
+   "lofty::to_str – lofty::text::char_ptr_to_str_adapter"
+) {
+   LOFTY_TRACE_FUNC();
+
+   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter(nullptr)), LOFTY_SL("<nullptr>"));
+   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("")), LOFTY_SL(""));
+   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("a")), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("ab")), LOFTY_SL("ab"));
+   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("abc")), LOFTY_SL("abc"));
+   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("ab\0c")), LOFTY_SL("ab"));
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
    _pvt_signal_dispatcher_os_errors_to_cxx_exceptions,
    "lofty::_pvt::signal_dispatcher – conversion of synchronous OS errors into C++ exceptions"
 ) {
@@ -260,67 +399,6 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       // Use the quotient, so it won’t be optimized away.
       to_str(one);
    }
-}
-
-}} //namespace lofty::test
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if LOFTY_HOST_API_WIN32
-
-namespace lofty { namespace test {
-
-LOFTY_TESTING_TEST_CASE_FUNC(
-   os_registry,
-   "lofty::os – accessing Windows Registry"
-) {
-   LOFTY_TRACE_FUNC();
-
-   sstr<8> s;
-
-   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
-      HKEY_LOCAL_MACHINE, LOFTY_SL("non-existent key"), str::empty, s.str_ptr()
-   ));
-   LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
-
-   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
-      HKEY_LOCAL_MACHINE, LOFTY_SL("Software\\Classes\\Interface"), str::empty, s.str_ptr()
-   ));
-   LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
-
-   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
-      HKEY_LOCAL_MACHINE, LOFTY_SL("Software"), LOFTY_SL("non-existent value"), s.str_ptr()
-   ));
-   LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
-
-   LOFTY_TESTING_ASSERT_TRUE(os::get_registry_value(
-      HKEY_LOCAL_MACHINE,
-      LOFTY_SL("Software\\Classes\\Interface\\{00000000-0000-0000-c000-000000000046}"),
-      str::empty, s.str_ptr()
-   ));
-   LOFTY_TESTING_ASSERT_EQUAL(s, LOFTY_SL("IUnknown"));
-}
-
-}} //namespace lofty::test
-
-#endif //if LOFTY_HOST_API_WIN32
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace test {
-
-LOFTY_TESTING_TEST_CASE_FUNC(
-   text_char_ptr_to_str_adapter,
-   "lofty::to_str – lofty::text::char_ptr_to_str_adapter"
-) {
-   LOFTY_TRACE_FUNC();
-
-   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter(nullptr)), LOFTY_SL("<nullptr>"));
-   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("")), LOFTY_SL(""));
-   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("a")), LOFTY_SL("a"));
-   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("ab")), LOFTY_SL("ab"));
-   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("abc")), LOFTY_SL("abc"));
-   LOFTY_TESTING_ASSERT_EQUAL(to_str(text::char_ptr_to_str_adapter("ab\0c")), LOFTY_SL("ab"));
 }
 
 }} //namespace lofty::test
