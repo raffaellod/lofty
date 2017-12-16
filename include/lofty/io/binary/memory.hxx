@@ -47,6 +47,13 @@ public:
    */
    memory_stream(memory_stream && src);
 
+   /*! Constructs a stream for a given buffer, taking ownership of it.
+
+   @param buf
+      Buffer to take control of.
+   */
+   explicit memory_stream(buffer && buf);
+
    //! Destructor.
    virtual ~memory_stream();
 

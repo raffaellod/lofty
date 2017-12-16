@@ -922,6 +922,10 @@ memory_stream::memory_stream(memory_stream && src) :
    buf(_std::move(src.buf)) {
 }
 
+/*explicit*/ memory_stream::memory_stream(buffer && buf_) :
+   buf(_std::move(buf_)) {
+}
+
 /*virtual*/ memory_stream::~memory_stream() {
 }
 
