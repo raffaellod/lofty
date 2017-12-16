@@ -859,12 +859,6 @@ pipe::pipe() {
 
 namespace lofty { namespace io { namespace binary {
 
-buffer::buffer(std::size_t size__) :
-   ptr(memory::alloc_bytes_unique(size__)),
-   size_(size__),
-   used_offset(0),
-   available_offset(0) {
-}
 buffer::buffer(buffer && src) :
    ptr(_std::move(src.ptr)),
    size_(src.size_),
@@ -873,6 +867,13 @@ buffer::buffer(buffer && src) :
    src.size_ = 0;
    src.used_offset = 0;
    src.available_offset = 0;
+}
+
+/*explicit*/ buffer::buffer(std::size_t size__) :
+   ptr(memory::alloc_bytes_unique(size__)),
+   size_(size__),
+   used_offset(0),
+   available_offset(0) {
 }
 
 buffer::~buffer() {
@@ -898,6 +899,14 @@ void buffer::make_unused_available() {
    memory::move(static_cast<std::int8_t *>(ptr.get()), get_used(), used_size());
    available_offset -= used_offset;
    used_offset = 0;
+}
+
+void buffer::shrink_to_fit() {
+   if (used_offset > 0) {
+      make_unused_available();
+   }
+   memory::realloc_unique(&ptr, available_offset);
+   size_ = available_offset;
 }
 
 }}} //namespace lofty::io::binary

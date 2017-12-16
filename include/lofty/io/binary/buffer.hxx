@@ -110,7 +110,7 @@ public:
    @param size
       Size of the buffer to allocate, in bytes.
    */
-   buffer(std::size_t size);
+   explicit buffer(std::size_t size);
 
    //! Destructor.
    ~buffer();
@@ -179,6 +179,9 @@ public:
    void mark_as_used(std::size_t used_size_) {
       available_offset += used_size_;
    }
+
+   //! Reduces the size of the buffer, making it just large enough to contain all used bytes.
+   void shrink_to_fit();
 
    /*! Returns the size of the buffer.
 
