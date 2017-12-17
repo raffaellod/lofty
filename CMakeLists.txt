@@ -42,6 +42,7 @@ add_library(lofty
    src/lofty/memory.cxx
    src/lofty/net/ip.cxx
    src/lofty/net/tcp.cxx
+   src/lofty/net/udp.cxx
    src/lofty/os.cxx
    src/lofty/os/path.cxx
    src/lofty/perf/stopwatch.cxx

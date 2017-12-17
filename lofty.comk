@@ -40,6 +40,7 @@ targets:
       -  src/lofty/memory.cxx
       -  src/lofty/net/ip.cxx
       -  src/lofty/net/tcp.cxx
+      -  src/lofty/net/udp.cxx
       -  src/lofty/os.cxx
       -  src/lofty/os/path.cxx
       -  src/lofty/perf/stopwatch.cxx
@@ -145,6 +146,14 @@ targets:
       brief: "Example: TCP “echo” server implemented using coroutines."
       sources:
       -  examples/echo-server.cxx
+      libraries:
+      -  lofty
+
+   - !complemake/target/exe
+      name: udp-echo-server
+      brief: "Example: UDP “echo” server implemented using coroutines."
+      sources:
+      -  examples/udp-echo-server.cxx
       libraries:
       -  lofty
 
