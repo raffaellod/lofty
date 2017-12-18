@@ -983,6 +983,10 @@ memory_stream::memory_stream(memory_stream && src) :
    return _std::make_tuple(buf.get_used(), buf.used_size());
 }
 
+void memory_stream::rewind() {
+   buf.mark_unused_as_used();
+}
+
 /*virtual*/ _std::shared_ptr<stream> memory_stream::_unbuffered_stream() const /*override*/ {
    // Removing constness is bad, but no alternatives ara viable (return const, or make method non-const).
    return _std::dynamic_pointer_cast<stream>(_std::const_pointer_cast<memory_stream>(shared_from_this()));

@@ -69,6 +69,9 @@ public:
    //! See buffered_istream::peek_bytes().
    virtual _std::tuple<void const *, std::size_t> peek_bytes(std::size_t count) override;
 
+   //! Makes the next read operation start from the first byte.
+   void rewind();
+
 protected:
    //! Not used in this implementation; see buffered_ostream::finalize().
    virtual void finalize() override;

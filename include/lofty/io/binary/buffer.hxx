@@ -39,14 +39,14 @@ The buffer is initially empty, which means that it’s completely available (for
    └──────────────────────────────────────┘
    @endverbatim
 
-As the buffer is read into, the used portion grows at expense of the available portion:
+As the buffer is written to, the used portion grows at expense of the available portion:
    @verbatim
    ┌──────────────────┬───────────────────┐
    │used              │available          │ 0 = used_offset < available_offset < size
    └──────────────────┴───────────────────┘
    @endverbatim
 
-Consuming (using) bytes from the buffer reduces the used size and increases the unused portion:
+Consuming (reading) bytes from the buffer reduces the used size and increases the unused portion:
    @verbatim
    ┌────────┬─────────┬───────────────────┐
    │unused  │used     │available          │ 0 < used_offset < available_offset < size
@@ -180,6 +180,11 @@ public:
       available_offset += used_size_;
    }
 
+   //! Marks the unused (already read) portion of the buffer back as used (to be read).
+   void mark_unused_as_used() {
+      used_offset = 0;
+   }
+
    //! Reduces the size of the buffer, making it just large enough to contain all used bytes.
    void shrink_to_fit();
 
@@ -215,10 +220,10 @@ private:
    _std::unique_ptr<void, memory::freeing_deleter> ptr;
    //! Size of *ptr.
    std::size_t size_;
-   /*! Offset of the used portion of the buffer. Only bytes following the used portion are reported as
-   available. */
+   /*! Offset of the used portion of the buffer. Only bytes following the used portion are reported as used
+   (readable). */
    std::size_t used_offset;
-   //! Count of used bytes.
+   //! Count of used bytes. Only bytes following the used portion are reported as available (writable).
    std::size_t available_offset;
 };
 
