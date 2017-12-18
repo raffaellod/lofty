@@ -59,9 +59,17 @@ static _pvt::raw_address const raw_any_v4 = {
 static _pvt::raw_address const raw_any_v6 = {
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, version::v6
 };
+static _pvt::raw_address const raw_localhost_v4 = {
+   { 127, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, version::v4
+};
+static _pvt::raw_address const raw_localhost_v6 = {
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, version::v6
+};
 
 address const & address::any_v4 = static_cast<address const &>(raw_any_v4);
 address const & address::any_v6 = static_cast<address const &>(raw_any_v6);
+address const & address::localhost_v4 = static_cast<address const &>(raw_localhost_v4);
+address const & address::localhost_v6 = static_cast<address const &>(raw_localhost_v6);
 
 io::filedesc create_socket(version version_, transport transport_) {
    if (version_ == version::any) {

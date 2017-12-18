@@ -164,6 +164,10 @@ public:
    static address const & any_v4;
    //! Used to indicate “any IPv6 address”, e.g. when binding to a port.
    static address const & any_v6;
+   //! IPv4 address of any machine to refer to itself.
+   static address const & localhost_v4;
+   //! IPv6 address of any machine to refer to itself.
+   static address const & localhost_v6;
    //! Type of an IPv4 address.
    typedef std::uint8_t v4_type[4];
    //! Type of an IPv6 address.
