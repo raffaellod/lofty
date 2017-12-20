@@ -51,7 +51,7 @@ public:
    @param
       Data contained in the datagram.
    */
-   datagram(ip::address && address, ip::port port, _std::shared_ptr<io::binary::memory_stream> data = nullptr);
+   datagram(ip::address const & address, ip::port port, _std::shared_ptr<io::binary::memory_stream> data = nullptr);
 
    //! Destructor.
    ~datagram();
@@ -79,7 +79,7 @@ public:
    @return
       Input/output stream for the datagram’s data.
    */
-   _std::shared_ptr<io::binary::memory_stream> const & data() {
+   _std::shared_ptr<io::binary::memory_stream> const & data() const {
       return data_;
    }
 
@@ -125,7 +125,7 @@ public:
    @param dgram
       Datagram to send.
    */
-   void send(_std::shared_ptr<datagram> dgram);
+   void send(datagram const & dgram);
 };
 
 }}} //namespace lofty::net::udp
@@ -138,16 +138,10 @@ namespace lofty { namespace net { namespace udp {
 class LOFTY_SYM client {
 private:
    // The server class borrows the send() logic from this class.
-   friend void server::send(_std::shared_ptr<datagram> dgram);
+   friend void server::send(datagram const & dgram);
 
 public:
-   /*! Constructor.
-
-   @param address
-      Address to bind to.
-   @param port
-      Port to listen for connections on.
-   */
+   //! Constructor.
    client();
 
    //! Destructor.
@@ -158,7 +152,7 @@ public:
    @param dgram
       Datagram to send.
    */
-   void send(_std::shared_ptr<datagram> dgram);
+   void send(datagram const & dgram);
 
 private:
    /*! Sends a datagram to the server indicated by its address() and port() properties, using the specified
@@ -166,10 +160,10 @@ private:
 
    @param dgram
       Datagram to send.
-   @param fd
+   @param sock_fd
       Socket to use to send the datagram.
    */
-   static void send_by(_std::shared_ptr<datagram> const & dgram, io::filedesc_t fd);
+   static void send_via(datagram const & dgram, io::filedesc const & sock_fd);
 
 protected:
    //! Unbound socket.

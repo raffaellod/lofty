@@ -128,3 +128,13 @@ add_executable(maps-comparison
 )
 target_link_libraries(maps-comparison lofty)
 
+add_executable(udp-echo-server
+   examples/udp-echo-server.cxx
+)
+target_link_libraries(udp-echo-server lofty)
+
+add_executable(udp-client
+   examples/udp-client.cxx
+)
+target_link_libraries(udp-client lofty)
+

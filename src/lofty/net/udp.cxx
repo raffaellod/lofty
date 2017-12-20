@@ -22,7 +22,7 @@ more details.
    #include <errno.h> // EINTR errno
    #include <netinet/in.h> // ntohs()
    #include <sys/types.h> // sockaddr sockaddr_in ssize_t
-   #include <sys/socket.h> // recvfrom()
+   #include <sys/socket.h> // recvfrom() sendto()
 #elif LOFTY_HOST_API_WIN32
    #include <winsock2.h>
    #include <mswsock.h> // WSARecvFrom()
@@ -34,9 +34,10 @@ more details.
 namespace lofty { namespace net { namespace udp {
 
 datagram::datagram(
-   ip::address && address__, ip::port port__, _std::shared_ptr<io::binary::memory_stream> data__ /*=nullptr*/
+   ip::address const & address__, ip::port port__,
+   _std::shared_ptr<io::binary::memory_stream> data__ /*=nullptr*/
 ) :
-   address_(_std::move(address__)),
+   address_(address__),
    port_(port__),
    data_(_std::move(data__)) {
 }
@@ -65,11 +66,106 @@ client::client() {
 client::~client() {
 }
 
-void client::send(_std::shared_ptr<datagram> dgram) {
-   send_by(dgram, sock_fd.get());
+void client::send(datagram const & dgram) {
+   if (!sock_fd) {
+      // No socket yet; create one now.
+      ip_version = dgram.address().version();
+      sock_fd = ip::create_socket(ip_version, ip::transport::udp);
+   }
+   send_via(dgram, sock_fd);
 }
 
-/*static*/ void client::send_by(_std::shared_ptr<datagram> const & dgram, io::filedesc_t fd) {
+/*static*/ void client::send_via(datagram const & dgram, io::filedesc const & sock_fd) {
+#if LOFTY_HOST_API_POSIX
+   ::socklen_t server_sock_addr_size;
+#elif LOFTY_HOST_API_WIN32
+   int server_sock_addr_size;
+#else
+   #error "TODO: HOST_API"
+#endif
+   sockaddr_any server_sock_addr;
+   switch (dgram.address().version().base()) {
+      case ip::version::v4:
+         server_sock_addr_size = sizeof server_sock_addr.sa4;
+         memory::clear(&server_sock_addr.sa4);
+         server_sock_addr.sa4.sin_family = AF_INET;
+         memory::copy(
+            reinterpret_cast<std::uint8_t *>(&server_sock_addr.sa4.sin_addr.s_addr), dgram.address().raw(),
+            sizeof server_sock_addr.sa4.sin_addr.s_addr
+         );
+         server_sock_addr.sa4.sin_port = htons(dgram.port().number());
+         break;
+      case ip::version::v6:
+         server_sock_addr_size = sizeof server_sock_addr.sa6;
+         memory::clear(&server_sock_addr.sa6);
+         //server_sock_addr.sa6.sin6_flowinfo = 0;
+         server_sock_addr.sa6.sin6_family = AF_INET6;
+         memory::copy(
+            &server_sock_addr.sa6.sin6_addr.s6_addr[0], dgram.address().raw(),
+            sizeof server_sock_addr.sa6.sin6_addr.s6_addr
+         );
+         server_sock_addr.sa6.sin6_port = htons(dgram.port().number());
+         break;
+      LOFTY_SWITCH_WITHOUT_DEFAULT
+   }
+   std::int8_t const * buf;
+   std::size_t buf_size;
+   _std::tie(buf, buf_size) = dgram.data()->peek<std::int8_t>();
+#if LOFTY_HOST_API_POSIX
+   ::ssize_t bytes_sent;
+   for (;;) {
+      bytes_sent = ::sendto(
+         sock_fd.get(), buf, buf_size, 0,
+         reinterpret_cast< ::sockaddr const *>(&server_sock_addr), server_sock_addr_size
+      );
+      if (bytes_sent >= 0) {
+         break;
+      }
+      auto err = errno;
+      switch (err) {
+         case EINTR:
+            this_coroutine::interruption_point();
+            break;
+         case EAGAIN:
+   #if EWOULDBLOCK != EAGAIN
+         case EWOULDBLOCK:
+   #endif
+            // Wait for sock_fd.
+            this_coroutine::sleep_until_fd_ready(sock_fd.get(), true /*write*/, 0 /*no timeout*/);
+            break;
+         default:
+            exception::throw_os_error(static_cast<errint_t>(err));
+      }
+   }
+#elif LOFTY_HOST_API_WIN32
+   sock_fd.bind_to_this_coroutine_scheduler_iocp();
+   ::WSABUF wsabuf;
+   wsabuf.buf = buf;
+   wsabuf.len = buf_size;
+   io::overlapped ovl;
+   ovl.Offset = 0;
+   ovl.OffsetHigh = 0;
+   ::DWORD bytes_sent;
+   if (::WSASendTo(
+      sock_fd.get(), &wsabuf, 1, nullptr, 0 /*no flags*/,
+      reinterpret_cast< ::SOCKADDR const *>(&server_sock_addr), server_sock_addr_size, &ovl, nullptr
+   )) {
+      auto err = static_cast< ::DWORD>(::WSAGetLastError());
+      if (err == ERROR_IO_PENDING) {
+         this_coroutine::sleep_until_fd_ready(sock_fd.get(), true /*write*/, 0 /*no timeout*/, &ovl);
+         err = ovl.status();
+         bytes_sent = ovl.transferred_size();
+      }
+      if (err != ERROR_SUCCESS) {
+         exception::throw_os_error(err);
+      }
+   } else {
+      bytes_sent = static_cast< ::DWORD>(wsabuf.len);
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+   this_coroutine::interruption_point();
 }
 
 }}} //namespace lofty::net::udp
@@ -167,12 +263,12 @@ _std::shared_ptr<datagram> server::receive() {
          break;
    }
    return _std::make_shared<datagram>(
-      _std::move(sender_addr), sender_port, _std::make_shared<io::binary::memory_stream>(_std::move(buf))
+      sender_addr, sender_port, _std::make_shared<io::binary::memory_stream>(_std::move(buf))
    );
 }
 
-void server::send(_std::shared_ptr<datagram> dgram) {
-   client::send_by(dgram, sock_fd.get());
+void server::send(datagram const & dgram) {
+   client::send_via(dgram, sock_fd);
 }
 
 }}} //namespace lofty::net::udp

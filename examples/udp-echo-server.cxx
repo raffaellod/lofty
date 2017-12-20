@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2017 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -52,7 +52,12 @@ public:
                // This will cause a context switch if no datagrams have yet been received.
                auto dgram(server.receive());
 
-               LOFTY_LOG(info, LOFTY_SL("server: datagram received\n"));
+               {
+                  auto dgram_istream(io::text::make_istream(dgram->data()));
+                  LOFTY_LOG(info, LOFTY_SL("server: datagram received: {}\n"), dgram_istream->read_all());
+               }
+               // Rewind the datagram’s stream to reuse it.
+               dgram->data()->rewind();
 
                // Start a coroutine that will echo the datagram back to its sender.
                coroutine([&server, dgram] () {
@@ -63,7 +68,7 @@ public:
                   );
 
                   // Send the datagram back as a reply.
-                  server.send(dgram);
+                  server.send(*dgram);
 
                   LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
                });

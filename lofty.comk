@@ -150,6 +150,14 @@ targets:
       -  lofty
 
    - !complemake/target/exe
+      name: udp-client
+      brief: "Example: UDP client."
+      sources:
+      -  examples/udp-client.cxx
+      libraries:
+      -  lofty
+
+   - !complemake/target/exe
       name: udp-echo-server
       brief: "Example: UDP “echo” server implemented using coroutines."
       sources:
