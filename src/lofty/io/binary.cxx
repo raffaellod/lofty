@@ -960,16 +960,11 @@ memory_stream::memory_stream(memory_stream && src) :
 /*virtual*/ _std::tuple<void *, std::size_t> memory_stream::get_buffer_bytes(std::size_t count) /*override*/ {
    // If the requested size is more than what can fit in the buffer, compact it, or enlarge it.
    if (count > buf.available_size()) {
-      // See if compacting the buffer would create enough room.
-      if (buf.unused_size() + buf.available_size() >= count) {
-         buf.make_unused_available();
-      } else {
-         // If the buffer is still too small, enlarge it.
-         buf.make_unused_available();
-         if (count > buf.available_size()) {
-            std::size_t buf_size = bitmanip::ceiling_to_pow2_multiple(count, buf_default_size);
-            buf.expand_to(buf_size);
-         }
+      // See if compacting the buffer creates enough room. If that’s not enough, enlarge the buffer.
+      buf.make_unused_available();
+      if (count > buf.available_size()) {
+         std::size_t buf_size = bitmanip::ceiling_to_pow2_multiple(count, buf_default_size);
+         buf.expand_to(buf_size);
       }
    }
    // Return the available portion of the buffer.
