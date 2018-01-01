@@ -145,6 +145,7 @@ _std::shared_ptr<datagram> server::receive() {
    // Create a new buffer large enough for a UDP datagram.
    io::binary::buffer buf(0xffff);
    ip::sockaddr_any sender_sock_addr;
+   sender_sock_addr.set_size_from_ip_version(ip_version);
 #if LOFTY_HOST_API_POSIX
    ::ssize_t bytes_received;
    for (;;) {
