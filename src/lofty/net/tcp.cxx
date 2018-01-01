@@ -16,11 +16,11 @@ more details.
 #include <lofty/coroutine.hxx>
 #include <lofty/net/tcp.hxx>
 #include <lofty/thread.hxx>
+#include "sockaddr_any.hxx"
 
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // EINTR errno
    #include <netinet/in.h> // ntohs()
-   #include <sys/types.h> // sockaddr sockaddr_in
    #include <sys/socket.h> // accept4() getsockname()
 #elif LOFTY_HOST_API_WIN32
    #include <winsock2.h>
@@ -68,15 +68,6 @@ connection::~connection() {
 
 namespace lofty { namespace net { namespace tcp {
 
-namespace {
-
-union sockaddr_any {
-   ::sockaddr_in sa4;
-   ::sockaddr_in6 sa6;
-};
-
-} //namespace
-
 server::server(ip::address const & address, ip::port const & port, unsigned backlog_size /*= 5*/) :
    ip::server(address, port, ip::transport::tcp) {
 #if LOFTY_HOST_API_WIN32
@@ -95,29 +86,15 @@ server::~server() {
 
 _std::shared_ptr<connection> server::accept() {
    io::filedesc conn_fd;
-   sockaddr_any * local_sock_addr_ptr, * remote_sock_addr_ptr;
 #if LOFTY_HOST_API_POSIX
    bool async = (this_thread::coroutine_scheduler() != nullptr);
-   sockaddr_any local_sock_addr, remote_sock_addr;
-   local_sock_addr_ptr = &local_sock_addr;
-   remote_sock_addr_ptr = &remote_sock_addr;
-   ::socklen_t remote_sock_addr_size;
-   switch (ip_version.base()) {
-      case ip::version::v4:
-         remote_sock_addr_size = sizeof remote_sock_addr.sa4;
-         break;
-      case ip::version::v6:
-         remote_sock_addr_size = sizeof remote_sock_addr.sa6;
-         break;
-      LOFTY_SWITCH_WITHOUT_DEFAULT
-   }
-   ::socklen_t local_sock_addr_size = remote_sock_addr_size;
+   ip::sockaddr_any local_sock_addr, remote_sock_addr;
    for (;;) {
-      ::socklen_t addr_size = remote_sock_addr_size;
+      remote_sock_addr.set_size_from_ip_version(ip_version.base());
    #if LOFTY_HOST_API_DARWIN
       // accept4() is not available, so emulate it with accept() + fcntl().
       conn_fd = io::filedesc(
-         ::accept(sock_fd.get(), reinterpret_cast< ::sockaddr *>(&remote_sock_addr), &addr_size)
+         ::accept(sock_fd.get(), remote_sock_addr.sockaddr_ptr(), remote_sock_addr.size_ptr())
       );
       if (conn_fd) {
          /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread won’t
@@ -134,11 +111,10 @@ _std::shared_ptr<connection> server::accept() {
          flags |= SOCK_NONBLOCK;
       }
       conn_fd = io::filedesc(
-         ::accept4(sock_fd.get(), reinterpret_cast< ::sockaddr *>(&remote_sock_addr), &addr_size, flags)
+         ::accept4(sock_fd.get(), remote_sock_addr.sockaddr_ptr(), remote_sock_addr.size_ptr(), flags)
       );
    #endif
       if (conn_fd) {
-         remote_sock_addr_size = addr_size;
          break;
       }
       auto err = errno;
@@ -157,7 +133,8 @@ _std::shared_ptr<connection> server::accept() {
             exception::throw_os_error(static_cast<errint_t>(err));
       }
    }
-   ::getsockname(conn_fd.get(), reinterpret_cast< ::sockaddr *>(&local_sock_addr), &local_sock_addr_size);
+   local_sock_addr.set_size_from_ip_version(ip_version.base());
+   ::getsockname(conn_fd.get(), local_sock_addr.sockaddr_ptr(), local_sock_addr.size_ptr());
 #elif LOFTY_HOST_API_WIN32
    // ::AcceptEx() expects a weird and under-documented buffer of which we only know the size.
    static ::DWORD const sock_addr_buf_size = sizeof(sockaddr_any) + 16;
@@ -186,50 +163,29 @@ _std::shared_ptr<connection> server::accept() {
    }
 
    // Parse the weird buffer.
-   int remote_sock_addr_size, local_sock_addr_size;
+   ::SOCKADDR * local_sock_addr_ptr, * remote_sock_addr_ptr;
    ::GetAcceptExSockaddrs(
       sock_addr_buf, 0 /*no other data was read*/, sock_addr_buf_size, sock_addr_buf_size,
-      reinterpret_cast< ::SOCKADDR **>(&local_sock_addr_ptr), &local_sock_addr_size,
-      reinterpret_cast< ::SOCKADDR **>(&remote_sock_addr_ptr), &remote_sock_addr_size
+      &local_sock_addr_ptr, local_sock_addr.size_ptr(), &remote_sock_addr_ptr, remote_sock_addr.size_ptr()
+   );
+   memory::copy<std::int8_t>(
+      reinterpret_cast<std::int8_t const *>(*local_sock_addr_ptr),
+      reinterpret_cast<std::int8_t *>(local_sock_addr.sockaddr_ptr()),
+      local_sock_addr.size()
+   );
+   memory::copy<std::int8_t>(
+      reinterpret_cast<std::int8_t const *>(*remote_sock_addr_ptr),
+      reinterpret_cast<std::int8_t *>(remote_sock_addr.sockaddr_ptr()),
+      remote_sock_addr.size()
    );
 #else
    #error "TODO: HOST_API"
 #endif
    this_coroutine::interruption_point();
 
-   ip::address local_addr, remote_addr;
-   ip::port local_port, remote_port;
-   switch (local_sock_addr_size) {
-      case sizeof local_sock_addr_ptr->sa4:
-         local_addr = ip::address(
-            *reinterpret_cast<ip::address::v4_type *>(&local_sock_addr_ptr->sa4.sin_addr.s_addr)
-         );
-         local_port = ip::port(ntohs(local_sock_addr_ptr->sa4.sin_port));
-         break;
-      case sizeof local_sock_addr_ptr->sa6:
-         local_addr = ip::address(
-            *reinterpret_cast<ip::address::v6_type *>(&local_sock_addr_ptr->sa6.sin6_addr.s6_addr)
-         );
-         local_port = ip::port(ntohs(local_sock_addr_ptr->sa6.sin6_port));
-         break;
-   }
-   switch (remote_sock_addr_size) {
-      case sizeof local_sock_addr_ptr->sa4:
-         remote_addr = ip::address(
-            *reinterpret_cast<ip::address::v4_type *>(&remote_sock_addr_ptr->sa4.sin_addr.s_addr)
-         );
-         remote_port = ip::port(ntohs(remote_sock_addr_ptr->sa4.sin_port));
-         break;
-      case sizeof local_sock_addr_ptr->sa6:
-         remote_addr = ip::address(
-            *reinterpret_cast<ip::address::v6_type *>(&remote_sock_addr_ptr->sa6.sin6_addr.s6_addr)
-         );
-         remote_port = ip::port(ntohs(remote_sock_addr_ptr->sa6.sin6_port));
-         break;
-   }
    return _std::make_shared<connection>(
-      _std::move(conn_fd), _std::move(local_addr), _std::move(local_port), _std::move(remote_addr),
-      _std::move(remote_port)
+      _std::move(conn_fd), local_sock_addr.address(), local_sock_addr.port(), remote_sock_addr.address(),
+      remote_sock_addr.port()
    );
 }
 

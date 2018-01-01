@@ -17,11 +17,12 @@ more details.
 #include <lofty/io/binary/buffer.hxx>
 #include <lofty/net/udp.hxx>
 #include <lofty/thread.hxx>
+#include "sockaddr_any.hxx"
 
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // EINTR errno
    #include <netinet/in.h> // ntohs()
-   #include <sys/types.h> // sockaddr sockaddr_in ssize_t
+   #include <sys/types.h> // ssize_t
    #include <sys/socket.h> // recvfrom() sendto()
 #elif LOFTY_HOST_API_WIN32
    #include <winsock2.h>
@@ -51,15 +52,6 @@ datagram::~datagram() {
 
 namespace lofty { namespace net { namespace udp {
 
-namespace {
-
-union sockaddr_any {
-   ::sockaddr_in sa4;
-   ::sockaddr_in6 sa6;
-};
-
-} //namespace
-
 client::client() {
 }
 
@@ -76,38 +68,7 @@ void client::send(datagram const & dgram) {
 }
 
 /*static*/ void client::send_via(datagram const & dgram, io::filedesc const & sock_fd) {
-#if LOFTY_HOST_API_POSIX
-   ::socklen_t server_sock_addr_size;
-#elif LOFTY_HOST_API_WIN32
-   int server_sock_addr_size;
-#else
-   #error "TODO: HOST_API"
-#endif
-   sockaddr_any server_sock_addr;
-   switch (dgram.address().version().base()) {
-      case ip::version::v4:
-         server_sock_addr_size = sizeof server_sock_addr.sa4;
-         memory::clear(&server_sock_addr.sa4);
-         server_sock_addr.sa4.sin_family = AF_INET;
-         memory::copy(
-            reinterpret_cast<std::uint8_t *>(&server_sock_addr.sa4.sin_addr.s_addr), dgram.address().raw(),
-            sizeof server_sock_addr.sa4.sin_addr.s_addr
-         );
-         server_sock_addr.sa4.sin_port = htons(dgram.port().number());
-         break;
-      case ip::version::v6:
-         server_sock_addr_size = sizeof server_sock_addr.sa6;
-         memory::clear(&server_sock_addr.sa6);
-         //server_sock_addr.sa6.sin6_flowinfo = 0;
-         server_sock_addr.sa6.sin6_family = AF_INET6;
-         memory::copy(
-            &server_sock_addr.sa6.sin6_addr.s6_addr[0], dgram.address().raw(),
-            sizeof server_sock_addr.sa6.sin6_addr.s6_addr
-         );
-         server_sock_addr.sa6.sin6_port = htons(dgram.port().number());
-         break;
-      LOFTY_SWITCH_WITHOUT_DEFAULT
-   }
+   ip::sockaddr_any server_sock_addr(dgram.address(), dgram.port());
    std::int8_t const * buf;
    std::size_t buf_size;
    _std::tie(buf, buf_size) = dgram.data()->peek<std::int8_t>();
@@ -115,8 +76,7 @@ void client::send(datagram const & dgram) {
    ::ssize_t bytes_sent;
    for (;;) {
       bytes_sent = ::sendto(
-         sock_fd.get(), buf, buf_size, 0,
-         reinterpret_cast< ::sockaddr const *>(&server_sock_addr), server_sock_addr_size
+         sock_fd.get(), buf, buf_size, 0, server_sock_addr.sockaddr_ptr(), server_sock_addr.size()
       );
       if (bytes_sent >= 0) {
          break;
@@ -148,7 +108,7 @@ void client::send(datagram const & dgram) {
    ::DWORD bytes_sent;
    if (::WSASendTo(
       sock_fd.get(), &wsabuf, 1, nullptr, 0 /*no flags*/,
-      reinterpret_cast< ::SOCKADDR const *>(&server_sock_addr), server_sock_addr_size, &ovl, nullptr
+      server_sock_addr.sockaddr_ptr(), server_sock_addr.size(), &ovl, nullptr
    )) {
       auto err = static_cast< ::DWORD>(::WSAGetLastError());
       if (err == ERROR_IO_PENDING) {
@@ -184,14 +144,13 @@ server::~server() {
 _std::shared_ptr<datagram> server::receive() {
    // Create a new buffer large enough for a UDP datagram.
    io::binary::buffer buf(0xffff);
-   sockaddr_any sender_sock_addr;
+   ip::sockaddr_any sender_sock_addr;
 #if LOFTY_HOST_API_POSIX
-   ::socklen_t sender_sock_addr_size;
    ::ssize_t bytes_received;
    for (;;) {
       bytes_received = ::recvfrom(
          sock_fd.get(), buf.get_available(), buf.available_size(), 0,
-         reinterpret_cast< ::sockaddr *>(&sender_sock_addr), &sender_sock_addr_size
+         sender_sock_addr.sockaddr_ptr(), sender_sock_addr.size_ptr()
       );
       if (bytes_received >= 0) {
          break;
@@ -218,14 +177,13 @@ _std::shared_ptr<datagram> server::receive() {
    wsabuf.buf = buf.get_available();
    wsabuf.len = buf.available_size();
    int flags = 0;
-   ::socklen_t sender_sock_addr_size = sizeof sender_sock_addr;
    io::overlapped ovl;
    ovl.Offset = 0;
    ovl.OffsetHigh = 0;
    ::DWORD bytes_received;
    if (::WSARecvFrom(
       sock_fd.get(), &wsabuf, 1, nullptr, &flags,
-      reinterpret_cast< ::SOCKADDR *>(&sender_sock_addr), &sender_sock_addr_size, &ovl, nullptr
+      sender_sock_addr.sockaddr_ptr(), sender_sock_addr.size_ptr(), &ovl, nullptr
    )) {
       auto err = static_cast< ::DWORD>(::WSAGetLastError());
       if (err == ERROR_IO_PENDING) {
@@ -246,24 +204,9 @@ _std::shared_ptr<datagram> server::receive() {
 
    buf.mark_as_used(static_cast<std::size_t>(bytes_received));
    buf.shrink_to_fit();
-   ip::address sender_addr;
-   ip::port sender_port;
-   switch (sender_sock_addr_size) {
-      case sizeof sender_sock_addr.sa4:
-         sender_addr = ip::address(
-            *reinterpret_cast<ip::address::v4_type *>(&sender_sock_addr.sa4.sin_addr.s_addr)
-         );
-         sender_port = ip::port(ntohs(sender_sock_addr.sa4.sin_port));
-         break;
-      case sizeof sender_sock_addr.sa6:
-         sender_addr = ip::address(
-            *reinterpret_cast<ip::address::v6_type *>(&sender_sock_addr.sa6.sin6_addr.s6_addr)
-         );
-         sender_port = ip::port(ntohs(sender_sock_addr.sa6.sin6_port));
-         break;
-   }
    return _std::make_shared<datagram>(
-      sender_addr, sender_port, _std::make_shared<io::binary::memory_stream>(_std::move(buf))
+      sender_sock_addr.address(), sender_sock_addr.port(),
+      _std::make_shared<io::binary::memory_stream>(_std::move(buf))
    );
 }
 

@@ -16,10 +16,10 @@ more details.
 #include <lofty/byte_order.hxx>
 #include <lofty/net/ip.hxx>
 #include <lofty/thread.hxx>
+#include "sockaddr_any.hxx"
 
 #if LOFTY_HOST_API_POSIX
    #include <netinet/in.h> // htons()
-   #include <sys/types.h> // sockaddr sockaddr_in
    #include <sys/socket.h> // bind() socket()
 #elif LOFTY_HOST_API_WIN32
    #include <winsock2.h>
@@ -154,59 +154,19 @@ io::filedesc create_socket(version version_, transport transport_) {
 
 namespace lofty { namespace net { namespace ip {
 
-namespace {
-
-union sockaddr_any {
-   ::sockaddr_in sa4;
-   ::sockaddr_in6 sa6;
-};
-
-} //namespace
-
 server::server(address const & address, port const & port, transport transport_) :
    sock_fd(create_socket(address.version(), transport_)),
    ip_version(address.version()) {
-#if LOFTY_HOST_API_POSIX
-   ::socklen_t server_sock_addr_size;
-#elif LOFTY_HOST_API_WIN32
-   int server_sock_addr_size;
-#else
-   #error "TODO: HOST_API"
-#endif
-   sockaddr_any server_sock_addr;
-   switch (ip_version.base()) {
-      case ip::version::v4:
-         server_sock_addr_size = sizeof server_sock_addr.sa4;
-         memory::clear(&server_sock_addr.sa4);
-         server_sock_addr.sa4.sin_family = AF_INET;
-         memory::copy(
-            reinterpret_cast<std::uint8_t *>(&server_sock_addr.sa4.sin_addr.s_addr), address.raw(),
-            sizeof server_sock_addr.sa4.sin_addr.s_addr
-         );
-         server_sock_addr.sa4.sin_port = htons(port.number());
-         break;
-      case ip::version::v6:
-         server_sock_addr_size = sizeof server_sock_addr.sa6;
-         memory::clear(&server_sock_addr.sa6);
-         //server_sock_addr.sa6.sin6_flowinfo = 0;
-         server_sock_addr.sa6.sin6_family = AF_INET6;
-         memory::copy(
-            &server_sock_addr.sa6.sin6_addr.s6_addr[0], address.raw(),
-            sizeof server_sock_addr.sa6.sin6_addr.s6_addr
-         );
-         server_sock_addr.sa6.sin6_port = htons(port.number());
-         break;
-      LOFTY_SWITCH_WITHOUT_DEFAULT
-   }
+   sockaddr_any server_sock_addr(address, port);
 #if LOFTY_HOST_API_WIN32
    if (::bind(
       reinterpret_cast< ::SOCKET>(sock_fd.get()),
-      reinterpret_cast< ::SOCKADDR *>(&server_sock_addr), server_sock_addr_size
+      server_sock_addr.sockaddr_ptr(), server_sock_addr.size()
    ) < 0) {
       exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
    }
 #else
-   if (::bind(sock_fd.get(), reinterpret_cast< ::sockaddr *>(&server_sock_addr), server_sock_addr_size) < 0) {
+   if (::bind(sock_fd.get(), server_sock_addr.sockaddr_ptr(), server_sock_addr.size()) < 0) {
       exception::throw_os_error();
    }
 #endif
