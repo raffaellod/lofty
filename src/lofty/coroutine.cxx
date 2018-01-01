@@ -58,6 +58,7 @@ public:
       stack(SIGSTKSZ),
 #elif LOFTY_HOST_API_WIN32
       fiber_(nullptr),
+      blocking_ovl(nullptr),
 #endif
 #ifdef COMPLEMAKE_USING_VALGRIND
       valgrind_stack_id(VALGRIND_STACK_REGISTER(
@@ -190,6 +191,8 @@ private:
 #elif LOFTY_HOST_API_WIN32
    //! Fiber for the coroutine.
    void * fiber_;
+   //! Pointer to the OVERLAPPED struct for the outstanding I/O operation on blocking_fd.
+   _std::atomic<io::overlapped *> blocking_ovl;
 #else
    #error "TODO: HOST_API"
 #endif
@@ -478,6 +481,9 @@ void coroutine::scheduler::block_active(
          coros_blocked_by_fd.add_or_assign(fdiok.pack, coro_pimpl);
       }
       coro_pimpl->blocking_fd = fd;
+   #if LOFTY_HOST_API_WIN32
+      coro_pimpl->blocking_ovl = ovl;
+   #endif
    }
    #if LOFTY_HOST_API_LINUX
    LOFTY_DEFER_TO_SCOPE_END(
@@ -564,24 +570,10 @@ void coroutine::scheduler::block_active(
 
    /* Now that the coroutine is associated to the specified blockers, deactivate it, then switch back to the
    thread’s own context and have it wait for a ready coroutine. */
-
-#if LOFTY_HOST_API_WIN32
-   // Might need to re-run the code below in case of spurious notifications by the IOCP for fd (WIN32 BUG?).
-repeat_switch_to_scheduler:
-#endif
    active_coro_pimpl.reset();
    switch_to_scheduler(coro_pimpl.get());
-
    // After returning from that, active_coro_pimpl == coro_pimpl again.
 
-#if LOFTY_HOST_API_WIN32
-   // See comment on the goto label above.
-   if (fd != io::filedesc_t_null && ovl->get_result() == ERROR_IO_INCOMPLETE) {
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-      coros_blocked_by_fd.add_or_assign(fdiok.pack, coro_pimpl);
-      goto repeat_switch_to_scheduler;
-   }
-#endif
    if (
       fd != io::filedesc_t_null && millisecs &&
       coro_pimpl->blocking_fd != io::filedesc_t_null && !coro_pimpl->blocking_time_millisecs
@@ -746,13 +738,6 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
             exception::throw_os_error();
          }
       }
-      /* Note (WIN32 BUG?)
-      Empirical evidence shows that at this point, ovl might not be a valid pointer, even if the completion
-      key (fd) returned was a valid Lofty-owned handle. I could not find any explanation for this, but at
-      least the caller of sleep_until_fd_ready() will be able to detect the spurious notification due to
-      GetOverlappedResult() setting the last error to ERROR_IO_INCOMPLETE.
-      Spurious notifications seem to occur predictably with sockets when, after a completed overlapped read, a
-      new overlapped read is requested and ReadFile() returns ERROR_IO_PENDING. */
 
       /* A completion reported on the IOCP itself is used by Lofty to emulate EINTR; see
       lofty::thread::impl::inject_exception(). While we could use a dedicated handle for this purpose, the
@@ -782,9 +767,28 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       // Remove and return the coroutine that was waiting for this file descriptor.
       auto blocked_coro_itr(coros_blocked_by_fd.find(fdiok.pack));
       if (blocked_coro_itr != coros_blocked_by_fd.cend()) {
+         /* Note (WIN32 BUG?)
+         Empirical evidence shows that at this point ovl might not be a valid pointer, even if the completion
+         key (fd) returned was a valid Lofty-owned handle. I could not find any explanation for this, but as
+         a workaround, each coroutine carries a pointer to the OVERLAPPED it’s waiting on, and we can check
+         whether GetOverlappedResult() reports ERROR_IO_INCOMPLETE for it to avoid resuming the coroutine in
+         those cases.
+         Spurious notifications seem to occur only with sockets:
+         •  TCP: when after a completed overlapped read operation, a new overlapped read is requested and
+            ReadFile() returns ERROR_IO_PENDING;
+         •  UDP: when WSASendTo() fails due to ICMP reporting that the remote server is gone, WSARecvFrom()
+            will fail for several different reasons. */
+#if LOFTY_HOST_API_WIN32
+         if (blocked_coro_itr->value->blocking_ovl.load()->get_result() == ERROR_IO_INCOMPLETE) {
+            continue;
+         }
+#endif
          coro_pimpl = coros_blocked_by_fd.pop(blocked_coro_itr);
          // Make the coroutine aware that it’s no longer waiting for I/O.
          coro_pimpl->blocking_fd = io::filedesc_t_null;
+#if LOFTY_HOST_API_WIN32
+         coro_pimpl->blocking_ovl = nullptr;
+#endif
          break;
       }
       // Else ignore this notification for an event that nobody was waiting for.
