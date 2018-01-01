@@ -18,6 +18,7 @@ more details.
 
 #if LOFTY_HOST_API_POSIX
    #include <netinet/in.h> // htons()
+   #include <sys/socket.h> // AF_*
    #include <sys/types.h> // sockaddr sockaddr_in
 #elif LOFTY_HOST_API_WIN32
    #include <winsock2.h>
