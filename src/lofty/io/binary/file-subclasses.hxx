@@ -61,8 +61,8 @@ public:
 #if LOFTY_HOST_API_WIN32
    // Under Win32, console files must use a dedicated API in order to support the native character type.
 
-   //! See file_istream::read().
-   virtual std::size_t read(void * dst, std::size_t dst_max) override;
+   //! See file_istream::read_bytes().
+   virtual std::size_t read_bytes(void * dst, std::size_t dst_max) override;
 #endif //if LOFTY_HOST_API_WIN32
 };
 
@@ -91,8 +91,8 @@ public:
 #if LOFTY_HOST_API_WIN32
    // Under Win32, console files must use a dedicated API in order to support the native character type.
 
-   //! See file_ostream::write().
-   virtual std::size_t write(void const * src, std::size_t src_size) override;
+   //! See file_ostream::write_bytes().
+   virtual std::size_t write_bytes(void const * src, std::size_t src_size) override;
 
 private:
    //! See lofty::text::parsers::ansi_escape_sequences::clear_display_area().
@@ -271,11 +271,11 @@ public:
    virtual ~regular_file_ostream();
 
 #if LOFTY_HOST_API_WIN32
-   //! See file_ostream::write(). This override is necessary to emulate O_APPEND under Win32.
-   virtual std::size_t write(void const * src, std::size_t src_size) override;
+   //! See file_ostream::write_bytes(). This override is necessary to emulate O_APPEND under Win32.
+   virtual std::size_t write_bytes(void const * src, std::size_t src_size) override;
 
 protected:
-   //! If true, write() will emulate POSIX’s O_APPEND in platforms that don’t support it.
+   //! If true, write_bytes() will emulate POSIX’s O_APPEND in platforms that don’t support it.
    bool append:1;
 #endif
 };
