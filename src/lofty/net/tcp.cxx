@@ -86,9 +86,9 @@ server::~server() {
 
 _std::shared_ptr<connection> server::accept() {
    io::filedesc conn_fd;
+   ip::sockaddr_any local_sock_addr, remote_sock_addr;
 #if LOFTY_HOST_API_POSIX
    bool async = (this_thread::coroutine_scheduler() != nullptr);
-   ip::sockaddr_any local_sock_addr, remote_sock_addr;
    for (;;) {
       remote_sock_addr.set_size_from_ip_version(ip_version.base());
    #if LOFTY_HOST_API_DARWIN
@@ -137,7 +137,7 @@ _std::shared_ptr<connection> server::accept() {
    ::getsockname(conn_fd.get(), local_sock_addr.sockaddr_ptr(), local_sock_addr.size_ptr());
 #elif LOFTY_HOST_API_WIN32
    // ::AcceptEx() expects a weird and under-documented buffer of which we only know the size.
-   static ::DWORD const sock_addr_buf_size = sizeof(sockaddr_any) + 16;
+   static ::DWORD const sock_addr_buf_size = sizeof(ip::sockaddr_any) + 16;
    std::int8_t sock_addr_buf[sock_addr_buf_size * 2];
 
    conn_fd = ip::create_socket(ip_version, ip::transport::tcp);
@@ -169,14 +169,14 @@ _std::shared_ptr<connection> server::accept() {
       &local_sock_addr_ptr, local_sock_addr.size_ptr(), &remote_sock_addr_ptr, remote_sock_addr.size_ptr()
    );
    memory::copy<std::int8_t>(
-      reinterpret_cast<std::int8_t const *>(*local_sock_addr_ptr),
       reinterpret_cast<std::int8_t *>(local_sock_addr.sockaddr_ptr()),
-      local_sock_addr.size()
+      reinterpret_cast<std::int8_t const *>(local_sock_addr_ptr),
+      static_cast<std::size_t>(local_sock_addr.size())
    );
    memory::copy<std::int8_t>(
-      reinterpret_cast<std::int8_t const *>(*remote_sock_addr_ptr),
       reinterpret_cast<std::int8_t *>(remote_sock_addr.sockaddr_ptr()),
-      remote_sock_addr.size()
+      reinterpret_cast<std::int8_t const *>(remote_sock_addr_ptr),
+      static_cast<std::size_t>(remote_sock_addr.size())
    );
 #else
    #error "TODO: HOST_API"

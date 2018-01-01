@@ -98,16 +98,16 @@ void client::send(datagram const & dgram) {
       }
    }
 #elif LOFTY_HOST_API_WIN32
-   sock_fd.bind_to_this_coroutine_scheduler_iocp();
+   const_cast<io::filedesc &>(sock_fd).bind_to_this_coroutine_scheduler_iocp();
    ::WSABUF wsabuf;
-   wsabuf.buf = buf;
-   wsabuf.len = buf_size;
+   wsabuf.buf = reinterpret_cast<char *>(const_cast<std::int8_t *>(buf));
+   wsabuf.len = static_cast< ::ULONG>(buf_size);
    io::overlapped ovl;
    ovl.Offset = 0;
    ovl.OffsetHigh = 0;
    ::DWORD bytes_sent;
    if (::WSASendTo(
-      sock_fd.get(), &wsabuf, 1, nullptr, 0 /*no flags*/,
+      reinterpret_cast< ::SOCKET>(sock_fd.get()), &wsabuf, 1, nullptr, 0 /*no flags*/,
       server_sock_addr.sockaddr_ptr(), server_sock_addr.size(), &ovl, nullptr
    )) {
       auto err = static_cast< ::DWORD>(::WSAGetLastError());
@@ -174,15 +174,14 @@ _std::shared_ptr<datagram> server::receive() {
 #elif LOFTY_HOST_API_WIN32
    sock_fd.bind_to_this_coroutine_scheduler_iocp();
    ::WSABUF wsabuf;
-   wsabuf.buf = buf.get_available();
-   wsabuf.len = buf.available_size();
-   int flags = 0;
+   wsabuf.buf = reinterpret_cast<char *>(buf.get_available());
+   wsabuf.len = static_cast< ::ULONG>(buf.available_size());
    io::overlapped ovl;
    ovl.Offset = 0;
    ovl.OffsetHigh = 0;
-   ::DWORD bytes_received;
+   ::DWORD flags = 0, bytes_received;
    if (::WSARecvFrom(
-      sock_fd.get(), &wsabuf, 1, nullptr, &flags,
+      reinterpret_cast< ::SOCKET>(sock_fd.get()), &wsabuf, 1, nullptr, &flags,
       sender_sock_addr.sockaddr_ptr(), sender_sock_addr.size_ptr(), &ovl, nullptr
    )) {
       auto err = static_cast< ::DWORD>(::WSAGetLastError());
