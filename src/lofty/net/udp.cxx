@@ -173,30 +173,42 @@ _std::shared_ptr<datagram> server::receive() {
       }
    }
 #elif LOFTY_HOST_API_WIN32
+   ::DWORD bytes_received;
    sock_fd.bind_to_this_coroutine_scheduler_iocp();
-   ::WSABUF wsabuf;
-   wsabuf.buf = reinterpret_cast<char *>(buf.get_available());
-   wsabuf.len = static_cast< ::ULONG>(buf.available_size());
    io::overlapped ovl;
-   ovl.Offset = 0;
-   ovl.OffsetHigh = 0;
-   ::DWORD flags = 0, bytes_received;
-   if (::WSARecvFrom(
-      reinterpret_cast< ::SOCKET>(sock_fd.get()), &wsabuf, 1, nullptr, &flags,
-      sender_sock_addr.sockaddr_ptr(), sender_sock_addr.size_ptr(), &ovl, nullptr
-   )) {
-      auto err = static_cast< ::DWORD>(::WSAGetLastError());
-      if (err == ERROR_IO_PENDING) {
-         this_coroutine::sleep_until_fd_ready(sock_fd.get(), false /*read*/, 0 /*no timeout*/, &ovl);
-         err = ovl.status();
-         bytes_received = ovl.transferred_size();
+   for (;;) {
+      ::WSABUF wsabuf;
+      wsabuf.buf = reinterpret_cast<char *>(buf.get_available());
+      wsabuf.len = static_cast< ::ULONG>(buf.available_size());
+      ::DWORD flags = 0;
+      ovl.Offset = 0;
+      ovl.OffsetHigh = 0;
+      if (::WSARecvFrom(
+         reinterpret_cast< ::SOCKET>(sock_fd.get()), &wsabuf, 1, nullptr, &flags,
+         sender_sock_addr.sockaddr_ptr(), sender_sock_addr.size_ptr(), &ovl, nullptr
+      )) {
+         auto err = static_cast< ::DWORD>(::WSAGetLastError());
+         if (err == ERROR_IO_PENDING) {
+            this_coroutine::sleep_until_fd_ready(sock_fd.get(), false /*read*/, 0 /*no timeout*/, &ovl);
+            err = ovl.status();
+         }
+         /* WinXP+ bug: UDP and IOCPs don’t mix well: WinXP+ will report an ICMP failure via
+         ERROR_PORT_UNREACHABLE from an attempt to deliver a datagram only on the *next* IOCP call. Since
+         it’s UDP, applications should not rely on the OS to report delivery failures. */
+         if (err == ERROR_SUCCESS) {
+            break;
+         } else if (err == ERROR_PORT_UNREACHABLE) {
+            ::OutputDebugString(L"ERROR_PORT_UNREACHABLE on UDP\r\n");
+         } else if (err == WSAECONNRESET) {
+            ::OutputDebugString(L"WSAECONNRESET on non-connected UDP\r\n");
+         } else {
+            exception::throw_os_error(err);
+         }
+      } else {
+         break;
       }
-      if (err != ERROR_SUCCESS) {
-         exception::throw_os_error(err);
-      }
-   } else {
-      bytes_received = static_cast< ::DWORD>(wsabuf.len);
    }
+   bytes_received = ovl.transferred_size();
 #else
    #error "TODO: HOST_API"
 #endif
