@@ -140,7 +140,7 @@ void filedesc::share_with_subprocesses(bool share) {
       exception::throw_os_error();
    }
 #elif LOFTY_HOST_API_WIN32
-   if (!::SetHandleInformation(fd, HANDLE_FLAG_INHERIT, shared ? HANDLE_FLAG_INHERIT : 0)) {
+   if (!::SetHandleInformation(fd, HANDLE_FLAG_INHERIT, share ? HANDLE_FLAG_INHERIT : 0u)) {
       exception::throw_os_error();
    }
 #else
