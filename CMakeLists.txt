@@ -1,6 +1,7 @@
 # -*- coding: utf-8; tab-width: 3; indent-tabs-mode: nil -*-
 #
 # Copyright 2017 Brent Dimmig
+# Copyright 2017-2018 Raffaello D. Di Napoli
 #
 # This file is part of Lofty.
 #
