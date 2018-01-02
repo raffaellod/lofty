@@ -23,6 +23,7 @@ more details.
 #endif
 
 #include <lofty/io/binary/memory.hxx>
+#include <lofty/net.hxx>
 #include <lofty/net/ip.hxx>
 
 
@@ -160,14 +161,14 @@ private:
 
    @param dgram
       Datagram to send.
-   @param sock_fd
+   @param sock
       Socket to use to send the datagram.
    */
-   static void send_via(datagram const & dgram, io::filedesc const & sock_fd);
+   static void send_via(datagram const & dgram, socket const & sock);
 
 protected:
    //! Unbound socket.
-   io::filedesc sock_fd;
+   socket sock;
    //! IP version.
    ip::version ip_version;
 };

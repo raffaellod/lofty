@@ -144,7 +144,7 @@ public:
    /*! Move-assignment operator.
 
    @param src
-      Source file descriptor.
+      Source object.
    @return
       *this.
    */

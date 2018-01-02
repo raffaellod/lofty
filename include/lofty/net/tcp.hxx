@@ -23,6 +23,7 @@ more details.
 #endif
 
 #include <lofty/io/binary.hxx>
+#include <lofty/net.hxx>
 #include <lofty/net/ip.hxx>
 
 
@@ -40,7 +41,11 @@ namespace tcp {}
 namespace lofty { namespace net { namespace tcp {
 
 //! Initialized TCP connection.
-class LOFTY_SYM connection : public noncopyable {
+class LOFTY_SYM connection :
+#if LOFTY_HOST_API_WIN32
+   private wsa,
+#endif //if LOFTY_HOST_API_WIN32
+   public noncopyable {
 public:
    /*! Constructor.
 

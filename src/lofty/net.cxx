@@ -16,7 +16,7 @@ more details.
 #include <lofty/byte_order.hxx>
 #include <lofty/net/ip.hxx>
 #include <lofty/thread.hxx>
-#include "sockaddr_any.hxx"
+#include "net/sockaddr_any.hxx"
 
 #if LOFTY_HOST_API_POSIX
    #include <netinet/in.h> // htons()
@@ -41,6 +41,82 @@ more details.
    #endif
 #endif
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if LOFTY_HOST_API_WIN32
+
+namespace lofty { namespace net {
+
+_std::atomic<unsigned> wsa::refs(0);
+
+wsa::wsa() {
+   if (++refs == 1) {
+      static std::uint8_t const major_version = 2, minor_version = 2;
+      ::WSADATA data;
+      if (int ret = ::WSAStartup(MAKEWORD(major_version, minor_version), &data)) {
+         exception::throw_os_error(static_cast<errint_t>(ret));
+      }
+      // Don’t bother checking for versions; even WinSock 2.2 is ancient.
+   }
+}
+
+wsa::~wsa() {
+   if (--refs == 0) {
+      ::WSACleanup();
+   }
+}
+
+}} //namespace lofty::net
+
+#endif //if LOFTY_HOST_API_WIN32
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace net {
+
+/*static*/ io::filedesc socket::socket_filedesc(protocol protocol_) {
+   bool async = (this_thread::coroutine_scheduler() != nullptr);
+   int family, type;
+   switch (protocol_.base()) {
+      case protocol::tcp_ipv4: family = AF_INET;  type = SOCK_STREAM; break;
+      case protocol::tcp_ipv6: family = AF_INET6; type = SOCK_STREAM; break;
+      case protocol::udp_ipv4: family = AF_INET;  type = SOCK_DGRAM;  break;
+      case protocol::udp_ipv6: family = AF_INET6; type = SOCK_DGRAM;  break;
+      LOFTY_SWITCH_WITHOUT_DEFAULT
+   }
+#if LOFTY_HOST_API_POSIX
+   #if !LOFTY_HOST_API_DARWIN
+      type |= SOCK_CLOEXEC;
+      if (async) {
+         // Using coroutines, so make this socket non-blocking.
+         type |= SOCK_NONBLOCK;
+      }
+   #endif
+   io::filedesc fd(::socket(family, type, 0));
+   if (!fd) {
+      exception::throw_os_error();
+   }
+   return _std::move(fd);
+#elif LOFTY_HOST_API_WIN32 //if LOFTY_HOST_API_POSIX
+   ::DWORD flags = 0;
+   if (async) {
+      flags |= WSA_FLAG_OVERLAPPED;
+   }
+   #ifdef WSA_FLAG_NO_HANDLE_INHERIT
+      flags |= WSA_FLAG_NO_HANDLE_INHERIT;
+   #endif
+   ::SOCKET sock = ::WSASocket(family, type, 0, nullptr, 0, flags);
+   if (sock == INVALID_SOCKET) {
+      exception::throw_os_error();
+   }
+   return io::filedesc(reinterpret_cast<io::filedesc_t>(sock));
+#else //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32
+   #error "TODO: HOST_API"
+#endif //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32 … else
+}
+
+}} //namespace lofty::net
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,102 +147,25 @@ address const & address::any_v6 = static_cast<address const &>(raw_any_v6);
 address const & address::localhost_v4 = static_cast<address const &>(raw_localhost_v4);
 address const & address::localhost_v6 = static_cast<address const &>(raw_localhost_v6);
 
-io::filedesc create_socket(version version_, transport transport_) {
-   if (version_ == version::any) {
-      // TODO: provide more information in the exception.
-      LOFTY_THROW(domain_error, ());
-   }
-   bool async = (this_thread::coroutine_scheduler() != nullptr);
-   int family, type;
-   switch (version_.base()) {
-      case version::v4:
-         family = AF_INET;
-         break;
-      case version::v6:
-         family = AF_INET6;
-         break;
-      LOFTY_SWITCH_WITHOUT_DEFAULT
-   }
-   switch (transport_.base()) {
-      case transport::tcp:
-         type = SOCK_STREAM;
-         break;
-      case transport::udp:
-         type = SOCK_DGRAM;
-         break;
-      LOFTY_SWITCH_WITHOUT_DEFAULT
-   }
-#if LOFTY_HOST_API_POSIX
-   #if !LOFTY_HOST_API_DARWIN
-      type |= SOCK_CLOEXEC;
-      if (async) {
-         // Using coroutines, so make this socket non-blocking.
-         type |= SOCK_NONBLOCK;
-      }
-   #endif
-   io::filedesc fd(::socket(family, type, 0));
-   if (!fd) {
-      exception::throw_os_error();
-   }
-   #if LOFTY_HOST_API_DARWIN
-      /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread won’t
-      leak the file descriptor. That’s the whole point of the extra SOCK_* flags. */
-      fd.share_with_subprocesses(false);
-      if (async) {
-         fd.set_nonblocking(true);
-      }
-   #endif
-   return _std::move(fd);
-#elif LOFTY_HOST_API_WIN32 //if LOFTY_HOST_API_POSIX
-   static std::uint8_t const wsa_major_version = 2, wsa_minor_version = 2;
-   ::WSADATA wsa_data;
-   // TODO: only call once per process! And pair that with calling WSACleanup().
-   if (int ret = ::WSAStartup(MAKEWORD(wsa_major_version, wsa_minor_version), &wsa_data)) {
-      exception::throw_os_error(static_cast<errint_t>(ret));
-   }
-   if (LOBYTE(wsa_data.wVersion) != wsa_major_version || HIBYTE(wsa_data.wVersion) != wsa_minor_version) {
-      // The loaded WinSock implementation does not support the requested version.
-      ::WSACleanup();
-      // TODO: use a better exception class.
-      LOFTY_THROW(generic_error, ());
-   }
-
-   ::DWORD flags = 0;
-   if (async) {
-      flags |= WSA_FLAG_OVERLAPPED;
-   }
-   #ifdef WSA_FLAG_NO_HANDLE_INHERIT
-      flags |= WSA_FLAG_NO_HANDLE_INHERIT;
-   #endif
-   ::SOCKET sock = ::WSASocket(family, type, 0, nullptr, 0, flags);
-   if (sock == INVALID_SOCKET) {
-      exception::throw_os_error();
-   }
-   return io::filedesc(reinterpret_cast<io::filedesc_t>(sock));
-#else //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32
-   #error "TODO: HOST_API"
-#endif //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32 … else
-}
-
 }}} //namespace lofty::net::ip
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace ip {
 
-server::server(address const & address, port const & port, transport transport_) :
-   sock_fd(create_socket(address.version(), transport_)),
+server::server(address const & address, port const & port, protocol protocol_) :
+   sock(protocol_),
    ip_version(address.version()) {
    sockaddr_any server_sock_addr(address, port);
 #if LOFTY_HOST_API_WIN32
    if (::bind(
-      reinterpret_cast< ::SOCKET>(sock_fd.get()),
+      reinterpret_cast< ::SOCKET>(sock.get()),
       server_sock_addr.sockaddr_ptr(), server_sock_addr.size()
    ) < 0) {
       exception::throw_os_error(static_cast<errint_t>(::WSAGetLastError()));
    }
 #else
-   if (::bind(sock_fd.get(), server_sock_addr.sockaddr_ptr(), server_sock_addr.size()) < 0) {
+   if (::bind(sock.get(), server_sock_addr.sockaddr_ptr(), server_sock_addr.size()) < 0) {
       exception::throw_os_error();
    }
 #endif
@@ -175,10 +174,7 @@ server::server(address const & address, port const & port, transport transport_)
 server::~server() {
 #if LOFTY_HOST_API_POSIX
    int value = 1;
-   ::setsockopt(sock_fd.get(), SOL_SOCKET, SO_REUSEADDR, &value, sizeof value);
-#endif
-#if LOFTY_HOST_API_WIN32
-   ::WSACleanup();
+   ::setsockopt(sock.get(), SOL_SOCKET, SO_REUSEADDR, &value, sizeof value);
 #endif
 }
 

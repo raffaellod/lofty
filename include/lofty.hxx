@@ -26,9 +26,6 @@ Top-level Lofty header file; must always be included before any other Lofty head
 
 //! Lofty’s top-level namespace.
 namespace lofty {
-   //! Networking facilities.
-   namespace net {}
-
    //! Support for performance tracking.
    namespace perf {}
 

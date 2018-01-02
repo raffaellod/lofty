@@ -40,7 +40,7 @@ add_library(lofty
    src/lofty/io/text/str.cxx
    src/lofty/lofty.cxx
    src/lofty/memory.cxx
-   src/lofty/net/ip.cxx
+   src/lofty/net.cxx
    src/lofty/net/tcp.cxx
    src/lofty/net/udp.cxx
    src/lofty/os.cxx

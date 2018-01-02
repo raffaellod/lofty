@@ -22,7 +22,7 @@ more details.
    #pragma once
 #endif
 
-#include <lofty/io/binary.hxx>
+#include <lofty/net.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,25 +45,6 @@ LOFTY_ENUM(version,
    //! Identifies IPv6.
    (v6, 6)
 );
-
-//! Type of transport over IP.
-LOFTY_ENUM(transport,
-   //! Transmission Control Protocol (TCP).
-   (tcp, 1),
-   //! User Datagram Protocol (UDP).
-   (udp, 2)
-);
-
-/*! Creates an IP socket for the specified transport.
-
-@param version_
-   IP version.
-@param transport_
-   Type of transport over IP.
-@return
-   New socket.
-*/
-io::filedesc create_socket(version version_, transport transport_);
 
 }}} //namespace lofty::net::ip
 
@@ -248,17 +229,17 @@ protected:
    /*! Constructor.
 
    @param address
-      Address to bind to.
-   @param transport_
-      Type of transport over IP.
+      Address to bind to. The IP version of this is ignored, in favor of the protocol_ argument.
    @param port
       Port to listen for connections on.
+   @param protocol_
+      Networking protocol.
    */
-   server(address const & address, port const & port, transport transport_);
+   server(address const & address, port const & port, protocol protocol_);
 
 protected:
    //! Server socket bound to the port.
-   io::filedesc sock_fd;
+   socket sock;
    //! IP version.
    ip::version ip_version;
 };
