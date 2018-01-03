@@ -147,6 +147,24 @@ address const & address::any_v6 = static_cast<address const &>(raw_any_v6);
 address const & address::localhost_v4 = static_cast<address const &>(raw_localhost_v4);
 address const & address::localhost_v6 = static_cast<address const &>(raw_localhost_v6);
 
+bool address::operator==(address const & right) const {
+   if (version_ != right.version_) {
+      return false;
+   }
+   unsigned bytes_size;
+   switch (version_) {
+      case ip::version::v4: bytes_size = sizeof(address::v4_type); break;
+      case ip::version::v6: bytes_size = sizeof(address::v6_type); break;
+      LOFTY_SWITCH_WITHOUT_DEFAULT
+   }
+   for (unsigned i = 0; i < bytes_size; ++i) {
+      if (bytes[i] != right.bytes[i]) {
+         return false;
+      }
+   }
+   return true;
+}
+
 }}} //namespace lofty::net::ip
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

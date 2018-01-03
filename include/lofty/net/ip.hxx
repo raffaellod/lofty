@@ -196,6 +196,26 @@ public:
       version_ = ip::version::v6;
    }
 
+   /*! Equality relational operator.
+
+   @param right
+      Right comparand.
+   @return
+      true if *this and right represent the same IP address, or false otherwise.
+   */
+   bool operator==(address const & right) const;
+
+   /*! Inequality relational operator.
+
+   @param right
+      Right comparand.
+   @return
+      true if *this and right represent different IP addresses, or false otherwise.
+   */
+   bool operator!=(address const & right) const {
+      return !operator==(right);
+   }
+
    /*! Returns a pointer to the raw address storage.
 
    @return
