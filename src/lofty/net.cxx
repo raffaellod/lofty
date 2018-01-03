@@ -50,9 +50,9 @@ more details.
 
 namespace lofty { namespace net {
 
-_std::atomic<unsigned> wsa::refs(0);
+_std::atomic<unsigned> wsa_client::refs(0);
 
-wsa::wsa() {
+wsa_client::wsa_client() {
    if (++refs == 1) {
       static std::uint8_t const major_version = 2, minor_version = 2;
       ::WSADATA data;
@@ -63,7 +63,7 @@ wsa::wsa() {
    }
 }
 
-wsa::~wsa() {
+wsa_client::~wsa_client() {
    if (--refs == 0) {
       ::WSACleanup();
    }

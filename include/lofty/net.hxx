@@ -64,14 +64,14 @@ LOFTY_ENUM(protocol,
 
 namespace lofty { namespace net {
 
-//! Adds scoped WinSock initialization and termination to subclasses.
-class LOFTY_SYM wsa {
+//! Adds scoped WinSock reference counting with implicit initialization and termination.
+class LOFTY_SYM wsa_client {
 protected:
    //! Constructor. Adds one reference to the WinSock DLL.
-   wsa();
+   wsa_client();
 
-   //! Destructor: discards one reference to the WinSock DLL.
-   ~wsa();
+   //! Destructor. Discards one reference to the WinSock DLL.
+   ~wsa_client();
 
 private:
    //! Reference count for the WinSock DLL.
@@ -89,7 +89,7 @@ namespace lofty { namespace net {
 //! Socket for networking I/O.
 class LOFTY_SYM socket :
 #if LOFTY_HOST_API_WIN32
-   private wsa,
+   private wsa_client,
 #endif //if LOFTY_HOST_API_WIN32
    public io::filedesc {
 public:

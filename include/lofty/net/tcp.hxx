@@ -43,7 +43,7 @@ namespace lofty { namespace net { namespace tcp {
 //! Initialized TCP connection.
 class LOFTY_SYM connection :
 #if LOFTY_HOST_API_WIN32
-   private wsa,
+   private wsa_client,
 #endif //if LOFTY_HOST_API_WIN32
    public noncopyable {
 public:
