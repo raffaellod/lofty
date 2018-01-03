@@ -38,8 +38,6 @@ namespace lofty { namespace net { namespace ip {
 
 //! IP protocol version.
 LOFTY_ENUM(version,
-   //! No specific version.
-   (any, 0),
    //! Identifies IPv4.
    (v4, 4),
    //! Identifies IPv6.
@@ -159,10 +157,14 @@ public:
    static std::size_t const v6_str_size = 45 /*“0000:0000:0000:0000:0000:0000:255.255.255.255”*/;
 
 public:
-   //! Default constructor.
-   address() {
+   /*! Constructs a null address for the specified IP version.
+
+   @param version__
+      IP version to use.
+   */
+   explicit address(ip::version version__ = ip::version::v6) {
       memory::clear(&bytes);
-      version_ = ip::version::any;
+      version_ = version__.base();
    }
 
    /*! Move constructor.

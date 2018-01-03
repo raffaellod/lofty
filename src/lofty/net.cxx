@@ -201,9 +201,6 @@ void to_text_ostream<net::ip::address>::set_format(str const & format) {
 
 void to_text_ostream<net::ip::address>::write(net::ip::address const & src, io::text::ostream * dst) {
    switch (src.version().base()) {
-      case net::ip::version::any:
-         char_ttos.write('-', dst);
-         break;
       case net::ip::version::v4: {
          auto group = src.raw(), groups_end = group + sizeof(net::ip::address::v4_type);
          v4_group_ttos.write(*group, dst);
