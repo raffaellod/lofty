@@ -13,10 +13,12 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
+#include <lofty/from_str.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/net/ip.hxx>
 #include <lofty/testing/test_case.hxx>
+#include <lofty/text.hxx>
 #include <lofty/to_str.hxx>
 
 
@@ -44,6 +46,28 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(to_str(addr400), addr400_str);
    LOFTY_TESTING_ASSERT_EQUAL(to_str(addr440), addr440_str);
    LOFTY_TESTING_ASSERT_EQUAL(to_str(addr444), addr444_str);
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL(".")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("0")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("1")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("2.")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL(".3")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("4.5")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("6.7.")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL(".8.9")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("10.11.12")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("13.14.15.")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL(".16.17.18")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("19.20.21.22.")));
+   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL(".23.24.25.26")));
+   ///LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("100.200.300.400")));
+   ///LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("256.0.0.0")));
+   ///LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("0.256.0.0")));
+   ///LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("0.0.256.0")));
+   ///LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<net::ip::address>(LOFTY_SL("0.0.0.256")));
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<net::ip::address>(addr400_str), addr400);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<net::ip::address>(addr440_str), addr440);
+   LOFTY_TESTING_ASSERT_EQUAL(from_str<net::ip::address>(addr444_str), addr444);
 
    #define ADDR(i, str, ...) \
       static std::uint8_t const LOFTY_CPP_CAT(addr, i, _bytes)[] = __VA_ARGS__; \

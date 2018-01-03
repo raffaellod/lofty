@@ -274,6 +274,47 @@ protected:
 namespace lofty {
 
 template <>
+class LOFTY_SYM from_text_istream<net::ip::address> {
+public:
+   //! Default constructor.
+   from_text_istream();
+
+   /*! Converts a capture into a value of the appropriate type.
+
+   @param capture0
+      Pointer to the top-level capture.
+   @param dst
+      Pointer to the destination object.
+   */
+   void convert_capture(text::parsers::dynamic_match_capture const & capture0, net::ip::address * dst);
+
+   /*! Creates parser states for the specified input format.
+
+   @param format
+      Formatting options.
+   @param parser
+      Pointer to the parser instance to use to create non-static states.
+   @return
+      First parser state.
+   */
+   text::parsers::dynamic_state const * format_to_parser_states(
+      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
+   );
+
+protected:
+   //! Parses digit groups. 16-bit so it can work for both IPv4 and IPv6.
+   from_text_istream<std::uint16_t> digits_group_ftis;
+};
+
+} //namespace lofty
+//! @endcond
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//! @cond
+namespace lofty {
+
+template <>
 class LOFTY_SYM to_text_ostream<net::ip::address> {
 public:
    //! Default constructor.

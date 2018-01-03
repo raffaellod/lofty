@@ -15,6 +15,8 @@ more details.
 #include <lofty.hxx>
 #include <lofty/byte_order.hxx>
 #include <lofty/net/ip.hxx>
+#include <lofty/text/parsers/dynamic.hxx>
+#include <lofty/text/parsers/regex.hxx>
 #include <lofty/thread.hxx>
 #include "net/sockaddr_any.hxx"
 
@@ -197,6 +199,53 @@ server::~server() {
 }
 
 }}} //namespace lofty::net::ip
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty {
+
+from_text_istream<net::ip::address>::from_text_istream() {
+}
+
+void from_text_istream<net::ip::address>::convert_capture(
+   text::parsers::dynamic_match_capture const & capture0, net::ip::address * dst
+) {
+   // TODO: check for ‘.’ or ‘:’ to decide whether it’s IPv4 or IPv6.
+
+   dst->version_ = net::ip::version::v4;
+   auto bytes = const_cast<std::uint8_t *>(dst->raw());
+   std::uint16_t digits_group;
+   for (unsigned i = 0; i < 3; ++i) {
+      digits_group_ftis.convert_capture(capture0.repetition_group(0)[i].capture_group(0), &digits_group);
+      bytes[i] = digits_group;
+   }
+   digits_group_ftis.convert_capture(capture0.capture_group(0), &digits_group);
+   bytes[3] = digits_group;
+}
+
+text::parsers::dynamic_state const * from_text_istream<net::ip::address>::format_to_parser_states(
+   text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
+) {
+   // TODO: more format validation.
+   throw_on_unused_streaming_format_chars(format.expr.cbegin(), format.expr);
+
+   text::parsers::regex_capture_format digits_group_format;
+   // TODO: for IPv6, change this to only accept hex.
+   //digits_group_format.expr = LOFTY_SL("x");
+   auto v4_digits_group = digits_group_ftis.format_to_parser_states(digits_group_format, parser);
+
+   auto digits4_cap_group = parser->create_capture_group(v4_digits_group);
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(dot_state, nullptr, nullptr, '.');
+   auto digits13_cap_group = parser->create_capture_group(v4_digits_group);
+   digits13_cap_group->set_next(&dot_state.base);
+   auto digits13_rep_group = parser->create_repetition_group(digits13_cap_group, 3, 3);
+   digits13_rep_group->set_next(digits4_cap_group);
+
+   return digits13_rep_group;
+   // TODO: IPv6 support as alternative to digits1_cap_group.
+}
+
+} //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
