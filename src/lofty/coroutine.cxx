@@ -399,6 +399,7 @@ void coroutine::scheduler::block_active(
    pool, a different thread might wake to serve the fd becoming ready, resuming the coroutine a second time.
    This can be avoided with a thread mutex in coroutine::impl. */
    fd_io_key fdiok;
+   fdiok.pack = 0;
    fdiok.s.fd = fd;
    fdiok.s.write = write;
    _std::shared_ptr<impl> coro_pimpl(active_coro_pimpl);
