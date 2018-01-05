@@ -253,6 +253,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TRACE_FUNC();
 
    sstr<8> s;
+   collections::vector<str> v;
 
    LOFTY_TESTING_ASSERT_FALSE(os::registry::get_value(
       HKEY_LOCAL_MACHINE, LOFTY_SL("non-existent key"), str::empty, s.str_ptr()
@@ -275,6 +276,18 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       str::empty, s.str_ptr()
    ));
    LOFTY_TESTING_ASSERT_EQUAL(s, LOFTY_SL("IUnknown"));
+
+   /* Unfortunately, REG_MULTI_SZ values are rare, and this is the only one I can imagine would work on most
+   computers. However, most is not all, so it stays disabled. */
+#if 0
+   LOFTY_TESTING_ASSERT_TRUE(os::registry::get_value(
+      HKEY_LOCAL_MACHINE,
+      LOFTY_SL("System\\CurrentControlSet\\Services\\TcpIp\\Linkage"),
+      LOFTY_SL("Bind"), &v
+   ));
+   LOFTY_TESTING_ASSERT_TRUE(v);
+   // Also, can’t assert on the actual values since they’re UUIDs.
+#endif
 }
 
 }} //namespace lofty::test

@@ -187,7 +187,7 @@ public:
    @return bool
       true if the value was found, or false otherwise.
    */
-   bool get_value(str const & name, str * value);
+   bool get_value(str const & name, str * value) const;
 
    /*! Retrieves a multi-string value from the key.
 
@@ -198,7 +198,7 @@ public:
    @return bool
       true if the value was found, or false otherwise.
    */
-   bool get_value(str const & name, collections::vector<str> * value);
+   bool get_value(str const & name, collections::vector<str> * value) const;
 
 protected:
    /*! Retrieves a pointer to a value from the key.
