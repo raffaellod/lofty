@@ -254,22 +254,22 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    sstr<8> s;
 
-   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
+   LOFTY_TESTING_ASSERT_FALSE(os::registry::get_value(
       HKEY_LOCAL_MACHINE, LOFTY_SL("non-existent key"), str::empty, s.str_ptr()
    ));
    LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
 
-   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
+   LOFTY_TESTING_ASSERT_FALSE(os::registry::get_value(
       HKEY_LOCAL_MACHINE, LOFTY_SL("Software\\Classes\\Interface"), str::empty, s.str_ptr()
    ));
    LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
 
-   LOFTY_TESTING_ASSERT_FALSE(os::get_registry_value(
+   LOFTY_TESTING_ASSERT_FALSE(os::registry::get_value(
       HKEY_LOCAL_MACHINE, LOFTY_SL("Software"), LOFTY_SL("non-existent value"), s.str_ptr()
    ));
    LOFTY_TESTING_ASSERT_EQUAL(s, str::empty);
 
-   LOFTY_TESTING_ASSERT_TRUE(os::get_registry_value(
+   LOFTY_TESTING_ASSERT_TRUE(os::registry::get_value(
       HKEY_LOCAL_MACHINE,
       LOFTY_SL("Software\\Classes\\Interface\\{00000000-0000-0000-c000-000000000046}"),
       str::empty, s.str_ptr()

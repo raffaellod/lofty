@@ -85,48 +85,31 @@ path_not_found & path_not_found::operator=(path_not_found const & src) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace os {
-
 #if LOFTY_HOST_API_WIN32
 
-static ::HKEY open_registry_key(::HKEY parent_hkey, str const & name) {
-   ::HKEY ret_hkey;
-   if (auto ret = ::RegOpenKeyEx(parent_hkey, name.c_str(), 0, KEY_QUERY_VALUE, &ret_hkey)) {
-      if (ret == ERROR_FILE_NOT_FOUND) {
-         return nullptr;
-      }
-      exception::throw_os_error(static_cast<errint_t>(ret));
-   }
-   return ret_hkey;
-}
+namespace lofty { namespace os { namespace registry {
 
-static bool get_registry_value_raw(
-   ::HKEY hkey, char_t const * name, ::DWORD * type, void * value, ::DWORD * value_byte_size
-) {
-   if (auto ret = ::RegQueryValueEx(
-      hkey, name, nullptr, type, static_cast< ::BYTE *>(value), value_byte_size
-   )) {
-      if (ret == ERROR_FILE_NOT_FOUND) {
-         return false;
-      } else {
+key::key(::HKEY parent, str const & name) {
+   // TODO: use Nt* functions to avoid the limitation of NUL termination.
+   if (auto ret = ::RegOpenKeyEx(parent, name.c_str(), 0, KEY_QUERY_VALUE, &hkey)) {
+      if (ret != ERROR_FILE_NOT_FOUND) {
          exception::throw_os_error(static_cast<errint_t>(ret));
       }
+      hkey = nullptr;
    }
-   return true;
 }
 
-bool get_registry_value(::HKEY parent_hkey, str const & key_path, str const & name, str * out) {
-   ::HKEY hkey = open_registry_key(parent_hkey, key_path);
-   if (!hkey) {
-      out->clear();
-      return false;
+key::~key() {
+   if (hkey) {
+      ::RegCloseKey(hkey);
    }
-   LOFTY_DEFER_TO_SCOPE_END(::RegCloseKey(hkey));
-   // TODO: use Nt* functions to avoid the limitation of NUL termination.
+}
+
+bool key::get_value(str const & name, str * value) {
    auto name_cstr(name.c_str());
    ::DWORD probed_type, probed_value_byte_size;
-   if (!get_registry_value_raw(hkey, name_cstr, &probed_type, nullptr, &probed_value_byte_size)) {
-      out->clear();
+   if (!get_value_raw(name_cstr, &probed_type, nullptr, &probed_value_byte_size)) {
+      value->clear();
       return false;
    }
    for (;;) {
@@ -134,31 +117,29 @@ bool get_registry_value(::HKEY parent_hkey, str const & key_path, str const & na
       std::size_t value_char_size = probed_value_byte_size / sizeof(char_t);
       switch (probed_type) {
          case REG_SZ:
-            out->set_size_in_chars(value_char_size, false);
-            if (!get_registry_value_raw(hkey, name_cstr, &final_type, out->data(), &final_value_byte_size)) {
+            value->set_size_in_chars(value_char_size, false);
+            if (!get_value_raw(name_cstr, &final_type, value->data(), &final_value_byte_size)) {
                // Race condition detected: somebody else deleted the value between our queries.
-               out->clear();
+               value->clear();
                return false;
             }
             if (final_type != probed_type || final_value_byte_size != probed_value_byte_size) {
                // Race condition detected: somebody else changed the value between our queries.
                break;
             }
-            /* If *out ended up including a NUL terminator because the value did, strip it; str doesn’t need
-            it. */
+            /* If *value ended up including a NUL terminator because the value did, strip it; str doesn’t
+            need it. */
             // TODO: use ends_with(char_t) when it becomes avaiable.
-            if (out->ends_with(LOFTY_SL("\0"))) {
-               out->set_size_in_chars(value_char_size - 1, false);
+            if (value->ends_with(LOFTY_SL("\0"))) {
+               value->set_size_in_chars(value_char_size - 1, false);
             }
             return true;
          case REG_EXPAND_SZ: {
             text::sstr<256> unexpanded;
             unexpanded.set_size_in_chars(value_char_size, false);
-            if (!get_registry_value_raw(
-               hkey, name_cstr, &final_type, unexpanded.data(), &final_value_byte_size
-            )) {
+            if (!get_value_raw(name_cstr, &final_type, unexpanded.data(), &final_value_byte_size)) {
                // Race condition detected: somebody else deleted the value between our queries.
-               out->clear();
+               value->clear();
                return false;
             }
             if (final_type != probed_type || final_value_byte_size != probed_value_byte_size) {
@@ -173,7 +154,7 @@ bool get_registry_value(::HKEY parent_hkey, str const & key_path, str const & na
             }
             // Expand any environment variables.
             auto unexpanded_cstr(unexpanded.c_str());
-            out->set_from([&unexpanded_cstr] (char_t * chars, std::size_t chars_max) -> std::size_t {
+            value->set_from([&unexpanded_cstr] (char_t * chars, std::size_t chars_max) -> std::size_t {
                ::DWORD expanded_chars = ::ExpandEnvironmentStrings(
                   unexpanded_cstr, chars, static_cast< ::DWORD>(chars_max)
                );
@@ -194,6 +175,20 @@ bool get_registry_value(::HKEY parent_hkey, str const & key_path, str const & na
    }
 }
 
-#endif
+bool key::get_value_raw(char_t const * name, ::DWORD * type, void * value, ::DWORD * value_byte_size) const {
+   // TODO: use Nt* functions to avoid the limitation of NUL termination.
+   if (auto ret = ::RegQueryValueEx(
+      hkey, name, nullptr, type, static_cast< ::BYTE *>(value), value_byte_size
+   )) {
+      if (ret == ERROR_FILE_NOT_FOUND) {
+         return false;
+      } else {
+         exception::throw_os_error(static_cast<errint_t>(ret));
+      }
+   }
+   return true;
+}
 
-}} //namespace lofty::os
+}}} //namespace lofty::os::registry
+
+#endif

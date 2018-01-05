@@ -30,7 +30,14 @@ more details.
 namespace lofty {
 
 //! Provides facilities to interact with the underlying OS.
-namespace os {}
+namespace os {
+
+#if LOFTY_HOST_API_WIN32
+   //! Provides access to the Windows Registry.
+   namespace registry {}
+#endif
+
+} //namespace os
 
 } //namespace lofty
 
@@ -138,9 +145,82 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace os {
-
 #if LOFTY_HOST_API_WIN32
+
+namespace lofty { namespace os { namespace registry {
+
+//! Open Registry key.
+class LOFTY_SYM key : public support_explicit_operator_bool<key> {
+public:
+   //! Default constructor.
+   key() :
+      hkey(nullptr) {
+   }
+
+   /*! Constructor that opens the specified Registry key.
+
+   @param parent
+      Parent key handle. Can be one of the root key constants (HKEY_*).
+   @param name
+      Name of the key in parent.
+   */
+   key(::HKEY parent, str const & name);
+
+   //! Destructor.
+   ~key();
+
+   /*! Boolean evaluation operator.
+
+   @return
+      Result of the evaluation of the object’s value in a boolean context.
+   */
+   LOFTY_EXPLICIT_OPERATOR_BOOL() const {
+      return hkey != nullptr;
+   }
+
+   /*! Retrieves a string value from the key.
+
+   @param name
+      Name of the value to retrieve.
+   @param value
+      Destination where to store the retrieved value.
+   @return bool
+      true if the value was found, or false otherwise.
+   */
+   bool get_value(str const & name, str * value);
+
+   /*! Retrieves a multi-string value from the key.
+
+   @param name
+      Name of the value to retrieve.
+   @param value
+      Destination where to store the retrieved values.
+   @return bool
+      true if the value was found, or false otherwise.
+   */
+   bool get_value(str const & name, collections::vector<str> * value);
+
+protected:
+   /*! Retrieves a pointer to a value from the key.
+
+   @param name
+      Name of the value to retrieve.
+   @param type
+      Pointer to a variable where the Registry key type (REG_*) will be stored.
+   @param value
+      Destination where to store the retrieved values. Passing nullptr will cause only *type and
+      *value_byte_size to be returned.
+   @param value_byte_size
+      Pointer to a variable that will receive the size of the value pointed to by *value.
+   @return bool
+      true if the value was found, or false otherwise.
+   */
+   bool get_value_raw(char_t const * name, ::DWORD * type, void * value, ::DWORD * value_byte_size) const;
+
+protected:
+   //! Handle to the open key.
+   ::HKEY hkey;
+};
 
 /*! Returns a Windows Registry value.
 
@@ -155,11 +235,15 @@ namespace lofty { namespace os {
 @return bool
    true if the value was found, or false otherwise.
 */
-LOFTY_SYM bool get_registry_value(::HKEY parent_hkey, str const & key_path, str const & name, str * out);
+template <typename T>
+bool get_value(::HKEY parent_hkey, str const & key_path, str const & name, T * out) {
+   key open_key(parent_hkey, key_path);
+   return open_key && open_key.get_value(name, out);
+}
 
-#endif
+}}} //namespace lofty::os::registry
 
-}} //namespace lofty::os
+#endif //if LOFTY_HOST_API_WIN32
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
