@@ -74,13 +74,9 @@ The following functions and methods implicitly define an interruption point:
 •  All I/O operations performed on lofty::io file-based stream classes;
 •  All I/O operations in lofty::net classes.
 
-Interruption points should be avoided in destructors or catch blocks, since interruption points may recurse: a
-first interruption will cause an exception to be thrown in a coroutine/thread once detected by
-lofty::this_coroutine::interruption_point(); if a second interruption occurs in that same coroutine/thread,
-and the code executed during the flight of the first exception (either due to stack unwinding or by explicit
-catch blocks) causes another call to interruption_point(), a second exception will be thrown in that
-coroutine/thread, resulting in a nested exception if in the context of a catch block or a call to std::abort()
-if in the context of a destructor. */
+Interruption points should be avoided in destructors: if an exception is causing stack unwind in a coroutine
+or thread, and lofty::this_coroutine::interruption_point() detects a pending interruption, a second exception
+will be thrown, resulting in a call to std::abort(). */
 
 /*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most lofty::io classes.
 See @ref coroutines for more information. */
