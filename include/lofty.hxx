@@ -47,6 +47,10 @@ namespace lofty {
 
 // Host-dependent fixes.
 
+#if LOFTY_HOST_API_DARWIN
+   #define _XOPEN_SOURCE
+#endif
+
 // Make sure DEBUG and _DEBUG are coherent; DEBUG wins.
 #if defined(DEBUG) && !defined(_DEBUG)
    #define _DEBUG

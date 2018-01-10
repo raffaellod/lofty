@@ -29,9 +29,6 @@ more details.
 #include <lofty/thread.hxx>
 
 #if LOFTY_HOST_API_POSIX
-   #if LOFTY_HOST_API_DARWIN
-      #define _XOPEN_SOURCE
-   #endif
    #include <ucontext.h>
 #endif
 

@@ -19,9 +19,6 @@ more details.
 #include "coroutine-scheduler.hxx"
 
 #if LOFTY_HOST_API_POSIX
-   #if LOFTY_HOST_API_DARWIN
-      #define _XOPEN_SOURCE
-   #endif
    #include <errno.h> // EINTR errno
    #include <signal.h> // SIGSTKSZ
    #include <ucontext.h>
