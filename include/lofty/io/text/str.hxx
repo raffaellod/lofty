@@ -211,10 +211,10 @@ public:
 
    /*! Move constructor.
 
-   @param cpos
+   @param src
       Source object.
    */
-   char_ptr_ostream(char_ptr_ostream && cpos);
+   char_ptr_ostream(char_ptr_ostream && src);
 
    //! Destructor.
    virtual ~char_ptr_ostream();

@@ -127,10 +127,10 @@ void event::trigger() {
    }
 }
 
-void event::wait(unsigned timeout_ms /*= 0*/) {
+void event::wait(unsigned timeout_millisecs /*= 0*/) {
    if (auto coro_sched = coro_sched_w.lock()) {
       coro_sched->block_active(
-         timeout_ms, id, io::filedesc_t_null, false /*read – N/A*/
+         timeout_millisecs, id, io::filedesc_t_null, false /*read – N/A*/
 #if LOFTY_HOST_API_WIN32
          , nullptr
 #endif

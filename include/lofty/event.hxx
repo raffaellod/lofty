@@ -63,10 +63,10 @@ public:
 
    /*! Waits for the event to be triggered.
 
-   @param timeout_ms
+   @param timeout_millisecs
       Time after which the wait will be interrupted by an exception of type lofty::io::timeout.
    */
-   void wait(unsigned timeout_ms = 0);
+   void wait(unsigned timeout_millisecs = 0);
 
 private:
    /*! Scheduler that owns the event id. Stored for performance (avoid thread-local storage) and to allow one

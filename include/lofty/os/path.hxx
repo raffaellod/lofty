@@ -499,6 +499,12 @@ public:
          curr_path = next_path();
       }
    }
+
+   /*! Move constructor.
+
+   @param src
+      Source object.
+   */
    _path_iterator(_path_iterator && src) :
       base_path(_std::move(src.base_path)),
       search_handle(src.search_handle),
@@ -514,8 +520,14 @@ public:
       }
    }
 
-   //! Assignment operator.
-   _path_iterator & operator=(_path_iterator && iter);
+   /*! Move-assignment operator.
+
+   @param src
+      Source object.
+   @return
+      *this.
+   */
+   _path_iterator & operator=(_path_iterator && src);
 
    //! Dereferencing operator.
    path & operator*() {

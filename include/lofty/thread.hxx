@@ -92,11 +92,11 @@ public:
 
    /*! Move constructor.
 
-   @param thr
+   @param src
       Source object.
    */
-   thread(thread && thr) :
-      pimpl(_std::move(thr.pimpl)) {
+   thread(thread && src) :
+      pimpl(_std::move(src.pimpl)) {
    }
 
    //! Destructor.
@@ -104,13 +104,13 @@ public:
 
    /*! Move-assignment operator.
 
-   @param thr
+   @param src
       Source object.
    @return
       *this.
    */
-   thread & operator=(thread && thr) {
-      pimpl = _std::move(thr.pimpl);
+   thread & operator=(thread && src) {
+      pimpl = _std::move(src.pimpl);
       return *this;
    }
 

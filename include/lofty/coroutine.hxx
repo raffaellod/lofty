@@ -102,11 +102,11 @@ public:
 
    /*! Move constructor.
 
-   @param coro
+   @param src
       Source object.
    */
-   coroutine(coroutine && coro) :
-      pimpl(_std::move(coro.pimpl)) {
+   coroutine(coroutine && src) :
+      pimpl(_std::move(src.pimpl)) {
    }
 
    //! Destructor.
@@ -114,13 +114,13 @@ public:
 
    /*! Move-assignment operator.
 
-   @param coro
+   @param src
       Source object.
    @return
       *this.
    */
-   coroutine & operator=(coroutine && coro) {
-      pimpl = _std::move(coro.pimpl);
+   coroutine & operator=(coroutine && src) {
+      pimpl = _std::move(src.pimpl);
       return *this;
    }
 

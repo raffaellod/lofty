@@ -1175,8 +1175,8 @@ void interruption_point() {
 }
 
 void sleep_for_ms(unsigned millisecs) {
-   if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active(
+   if (auto & coro_sched = this_thread::coroutine_scheduler()) {
+      coro_sched->block_active(
          millisecs, 0 /*no event*/, io::filedesc_t_null, false /*read – N/A*/
 #if LOFTY_HOST_API_WIN32
          , nullptr
@@ -1193,8 +1193,8 @@ void sleep_until_fd_ready(
    , io::overlapped * ovl
 #endif
 ) {
-   if (auto & pcorosched = this_thread::coroutine_scheduler()) {
-      pcorosched->block_active(
+   if (auto & coro_sched = this_thread::coroutine_scheduler()) {
+      coro_sched->block_active(
          timeout_millisecs, 0 /*no event*/, fd, write
 #if LOFTY_HOST_API_WIN32
          , ovl
