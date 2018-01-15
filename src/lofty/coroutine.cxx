@@ -454,6 +454,7 @@ void coroutine::scheduler::block_active(
       if (fd != io::filedesc_t_null && coro_pimpl->blocking_fd != io::filedesc_t_null) {
          fd_ke.flags = EV_DELETE;
          ::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, nullptr);
+         coro_pimpl->blocking_fd = io::filedesc_t_null;
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_fd.remove(fdiok.pack);
       }
@@ -521,6 +522,7 @@ void coroutine::scheduler::block_active(
          /* If the coroutine still thinks it’s blocked upon resuming, the event is still active and must be
          removed. */
          if (coro_pimpl->blocking_fd != io::filedesc_t_null) {
+            coro_pimpl->blocking_fd = io::filedesc_t_null;
 //            _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
             coros_blocked_by_fd.remove(fdiok.pack);
          }
@@ -531,6 +533,7 @@ void coroutine::scheduler::block_active(
       /* If the coroutine still thinks it’s blocked upon resuming, the event is still active and must be
       removed. */
       if (fd != io::filedesc_t_null && coro_pimpl->blocking_fd != io::filedesc_t_null) {
+         coro_pimpl->blocking_fd = io::filedesc_t_null;
          /* Cancel the pending I/O operation. Note that this will cancel ALL pending I/O on the fd, not just
          this one; this shouldn’t be a problem because if we’re cancelling this I/O it’s most likely due to
          timeout, and it makes sense to abort all I/O for the fd once one I/O operation on it times out. */
