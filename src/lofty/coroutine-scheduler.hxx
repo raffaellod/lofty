@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015, 2017 Raffaello D. Di Napoli
+Copyright 2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -26,6 +26,7 @@ more details.
 #include <lofty/collections/hash_map.hxx>
 #include <lofty/collections/queue.hxx>
 #include <lofty/collections/trie_ordered_multimap.hxx>
+#include <lofty/event.hxx>
 #include <lofty/thread.hxx>
 
 #if LOFTY_HOST_API_POSIX
@@ -43,6 +44,8 @@ private:
    friend void this_coroutine::interruption_point();
 
 public:
+   //! Type of the id of a waitable event.
+   typedef event::id_type event_id_t;
    /*! Integer type large enough to represent a time duration in milliseconds with a magnitude sufficient for
    scheduling coroutines. */
    typedef std::uint32_t time_duration_t;
@@ -83,26 +86,41 @@ public:
    /*! Allows other coroutines to run while a delay and/or an asynchronous I/O operation completes, as an
    alternative to blocking while waiting for its completion.
 
+   @param millisecs
+      If event_id or fd is provided, then this is the time after which the wait will be interrupted and the
+      wait deemed failed, resulting in an exception of type lofty::io::timeout. Otherwise, this is the time
+      after which the blocking will end, with no exceptions thrown.
+   @param event_id
+      Id of an event to wait for, or 0 to not wait for an event.
    @param fd
-      File descriptor that the calling coroutine is waiting for I/O on. If lofty::io::filedesc::null_td, then
-      only the millisecs will have effect, resulting in a sleep.
+      File descriptor that the calling coroutine is waiting for I/O on, or lofty::io::filedesc_t_null to not
+      wait on I/O.
    @param write
       true if the coroutine is waiting to write to fd, or false if it’s waiting to read from it.
-   @param millisecs
-      If fd is a valid file descriptor, then this is the time after which the wait will be interrupted and the
-      I/O operation deemed failed, resulting in an exception of type lofty::io::timeout. If fd was
-      lofty::io::filedesc::filedesc_t_null, this is the time after which the blocking will end, with no
-      exceptions thrown.
    @param ovl
       (Win32 only) Pointer to the lofty::io::overlapped object that is being used for the asynchronous I/O
       operation.
    */
    void block_active(
-      io::filedesc_t fd, bool write, unsigned millisecs
+      unsigned millisecs, event_id_t event_id, io::filedesc_t fd, bool write
 #if LOFTY_HOST_API_WIN32
       , io::overlapped * ovl
 #endif
    );
+
+   /*! Coroutine-based implementation of lofty::event::event().
+
+   @return
+      Id of the newly-created event.
+   */
+   event_id_t create_event();
+
+   /*! Coroutine-based implementation of lofty::event::~event().
+
+   @param event_id
+      Id of the event to discard.
+   */
+   void discard_event(event_id_t event_id);
 
 #if LOFTY_HOST_API_WIN32
    /*! Returns the internal IOCP.
@@ -126,6 +144,13 @@ public:
    /*! Begins scheduling and running coroutines on the current thread. Only returns after every coroutine
    added with add_coroutine() returns. */
    void run();
+
+   /*! Coroutine-based implementation of lofty::event::trigger().
+
+   @param event_id
+      Id of the event to trigger.
+   */
+   void trigger_event(event_id_t event_id);
 
 private:
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
@@ -197,6 +222,13 @@ private:
    static ::DWORD WINAPI timer_thread_static(void * coro_sched);
 #endif
 
+   /*! Unblocks the first coroutine blocked by an event.
+
+   @return
+      Pointer to the coroutine’s impl, or nullptr if no coroutines could be unblocked.
+   */
+   _std::shared_ptr<impl> unblock_by_first_event();
+
 private:
 #if LOFTY_HOST_API_BSD
    //! File descriptor of the internal kqueue.
@@ -211,18 +243,31 @@ private:
 #elif LOFTY_HOST_API_WIN32
    //! File descriptor of the internal IOCP.
    io::filedesc iocp_fd;
+   //! Thread that translates events from event_semaphore_fd into IOCP completions.
+   ::HANDLE event_semaphore_thread_handle;
+   //! Flag used to tell the event thread to stop looping.
+   _std::atomic<bool> stop_event_semaphore_thread;
    //! Thread that translates events from timer_fd into IOCP completions.
    ::HANDLE timer_thread_handle;
-   _std::atomic<bool> stop_thread_timer;
+   //! Flag used to tell the timer thread to stop looping.
+   _std::atomic<bool> stop_timer_thread;
 #else
    #error "TODO: HOST_API"
 #endif
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
+   //! List of events that need to be processed on the next time the event semaphore unblocks a thread.
+   collections::queue<event_id_t> ready_events_queue;
    //! Map of timeouts, in milliseconds, and their associated coroutines.
    collections::trie_ordered_multimap<time_point_t, _std::shared_ptr<impl>> coros_blocked_by_timer_fd;
+   //! Semaphore responsible for every event wait.
+   io::filedesc event_semaphore_fd;
    //! Timer responsible for every timed wait.
    io::filedesc timer_fd;
 #endif
+   /*! Coroutines that are blocked on an event wait. Unlike other coros_blocked_by_* members, this one always
+   contains all known events; if a value/pointer is nullptr, we’re just keeping track of the event id, but no
+   coroutine is currently waiting for that event. */
+   collections::hash_map<event_id_t, _std::shared_ptr<impl>> coros_blocked_by_event;
    //! Coroutines that are blocked on a fd wait.
    collections::hash_map<fd_io_key::pack_t, _std::shared_ptr<impl>> coros_blocked_by_fd;
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but have not
@@ -230,6 +275,8 @@ private:
    collections::queue<_std::shared_ptr<impl>> ready_coros_queue;
    //! Governs access to ready_coros_queue, coros_blocked_by_fd and other “blocked by” maps/sets.
    _std::mutex coros_add_remove_mutex;
+   //! Id of the last event created.
+   event_id_t last_created_event_id;
    /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught exception, or
    if the scheduler throws an exception while not running coroutines. Once one of these events happens, every
    thread running the scheduler will start interrupting coroutines with this type of exception. */

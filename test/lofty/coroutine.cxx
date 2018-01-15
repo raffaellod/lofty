@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -15,6 +15,7 @@ more details.
 #include <lofty.hxx>
 #include <lofty/coroutine.hxx>
 #include <lofty/defer_to_scope_end.hxx>
+#include <lofty/event.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
@@ -197,6 +198,59 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(workers_awoke[2], 2u);
    LOFTY_TESTING_ASSERT_EQUAL(workers_awoke[3], 5u);
    LOFTY_TESTING_ASSERT_EQUAL(workers_awoke[4], 4u);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   coroutine_event,
+   "lofty::event (using coroutines)"
+) {
+   LOFTY_TRACE_FUNC();
+
+   this_thread::attach_coroutine_scheduler();
+
+   static unsigned const workers_size = 4;
+   coroutine worker_coros[workers_size];
+   event worker_resume_events[workers_size];
+   unsigned workers_resumed[workers_size];
+   memory::clear(&workers_resumed);
+   _std::atomic<unsigned> next_resuming_worker_slot(0);
+   for (unsigned i = 0; i < workers_size; ++i) {
+      worker_coros[i] = coroutine([i, &worker_resume_events, &workers_resumed, &next_resuming_worker_slot] () {
+         LOFTY_TRACE_FUNC();
+
+         worker_resume_events[i].wait();
+         workers_resumed[next_resuming_worker_slot.fetch_add(1)] = i + 1;
+      });
+   }
+
+   coroutine([&worker_resume_events] () {
+      LOFTY_TRACE_FUNC();
+
+      this_coroutine::sleep_for_ms(1);
+      worker_resume_events[3].trigger();
+      this_coroutine::sleep_for_ms(1);
+      worker_resume_events[2].trigger();
+      this_coroutine::sleep_for_ms(1);
+      worker_resume_events[0].trigger();
+      this_coroutine::sleep_for_ms(1);
+      worker_resume_events[1].trigger();
+   });
+
+   this_thread::run_coroutines();
+
+   LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[0], 4u);
+   LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[1], 3u);
+   LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[2], 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[3], 2u);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();

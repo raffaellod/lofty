@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -16,6 +16,7 @@ more details.
 #include <lofty/bitmanip.hxx>
 #include <lofty/byte_order.hxx>
 #include <lofty/destructing_unfinalized_object.hxx>
+#include <lofty/event.hxx>
 #include <lofty/from_str.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
@@ -23,7 +24,9 @@ more details.
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
+#include <lofty/thread.hxx>
 #include <lofty/type_void_adapter.hxx>
+#include "coroutine-scheduler.hxx"
 
 #include <cstdlib> // std::abort() std::free() std::malloc() std::realloc()
 #if LOFTY_HOST_API_POSIX
@@ -77,6 +80,64 @@ void destructing_unfinalized_object::write_what(void const * o, _std::type_info 
    what_ostream().print(
       LOFTY_SL("instance of {} @ {} being destructed before finalize() was invoked on it"), type, o
    );
+}
+
+} //namespace lofty
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty {
+
+event::event() :
+   coro_sched_w(this_thread::coroutine_scheduler()),
+   id(0) {
+   if (auto coro_sched = coro_sched_w.lock()) {
+      id = coro_sched->create_event();
+   } else {
+      // TODO: create a non-coroutine event (reuse simple_event?).
+   }
+}
+
+event::event(event && src) :
+   coro_sched_w(_std::move(src.coro_sched_w)),
+   id(src.id) {
+   src.id = 0;
+}
+
+event::~event() {
+   if (auto coro_sched = coro_sched_w.lock()) {
+      coro_sched->discard_event(id);
+   } else {
+      // TODO: see constructor.
+   }
+}
+
+event & event::operator=(event && src) {
+   coro_sched_w = _std::move(src.coro_sched_w);
+   id = src.id;
+   src.id = 0;
+   return *this;
+}
+
+void event::trigger() {
+   if (auto coro_sched = coro_sched_w.lock()) {
+      coro_sched->trigger_event(id);
+   } else {
+      // TODO: see constructor.
+   }
+}
+
+void event::wait(unsigned timeout_ms /*= 0*/) {
+   if (auto coro_sched = coro_sched_w.lock()) {
+      coro_sched->block_active(
+         timeout_ms, id, io::filedesc_t_null, false /*read – N/A*/
+#if LOFTY_HOST_API_WIN32
+         , nullptr
+#endif
+      );
+   } else {
+      // TODO: see constructor.
+   }
 }
 
 } //namespace lofty

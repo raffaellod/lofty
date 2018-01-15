@@ -28,7 +28,9 @@ more details.
       #include <sys/time.h>
    #elif LOFTY_HOST_API_LINUX
       #include <sys/epoll.h>
+      #include <sys/eventfd.h>
       #include <sys/timerfd.h>
+      #include <unistd.h> // read() write()
    #endif
 #endif
 #ifdef COMPLEMAKE_USING_VALGRIND
@@ -62,6 +64,7 @@ public:
          stack.get(), static_cast<std::int8_t *>(stack.get()) + stack.size()
       )),
 #endif
+      blocking_event_id(0),
       blocking_fd(io::filedesc_t_null),
       blocking_time_millisecs(0),
       pending_x_type(exception::common_type::none),
@@ -197,10 +200,11 @@ private:
    //! Identifier assigned by Valgrind to this coroutine’s stack.
    unsigned valgrind_stack_id;
 #endif
+   //! Id of the event that is actively blocking the coroutine.
+   _std::atomic<scheduler::event_id_t> blocking_event_id;
    //! File descriptor that is actively blocking the coroutine.
    _std::atomic<io::filedesc_t> blocking_fd;
-   /*! Delay that is currently blocking the coroutine, or timeout for the I/O operation associated to
-   blocking_fd. */
+   //! Delay that is currently blocking the coroutine, or timeout for blocking_event_id or blocking_fd.
    _std::atomic<unsigned> blocking_time_millisecs;
    /*! Every time the coroutine is scheduled or returns from an interruption point, this is checked for
    pending exceptions to be injected. */
@@ -278,9 +282,12 @@ coroutine::scheduler::scheduler() :
    epoll_fd(::epoll_create1(EPOLL_CLOEXEC)),
 #elif LOFTY_HOST_API_WIN32
    iocp_fd(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)),
+   event_semaphore_thread_handle(nullptr),
+   stop_event_semaphore_thread(false),
    timer_thread_handle(nullptr),
-   stop_thread_timer(false),
+   stop_timer_thread(false),
 #endif
+   last_created_event_id(0),
    interruption_reason_x_type(exception::common_type::none) {
 #if LOFTY_HOST_API_BSD
    if (!kqueue_fd) {
@@ -303,8 +310,15 @@ coroutine::scheduler::scheduler() :
 coroutine::scheduler::~scheduler() {
    // TODO: verify that ready_coros_queue and coros_blocked_by_fd (and coros_blocked_by_timer_ke…) are empty.
 #if LOFTY_HOST_API_WIN32
+   if (event_semaphore_thread_handle) {
+      stop_event_semaphore_thread.store(true);
+      // Wake the thread up one last time to let it know that it’s over.
+      ::ReleaseSemaphore(event_semaphore_thread_handle.get(), 1, nullptr);
+      ::WaitForSingleObject(event_semaphore_thread_handle, INFINITE);
+      ::CloseHandle(event_semaphore_thread_handle);
+   }
    if (timer_thread_handle) {
-      stop_thread_timer.store(true);
+      stop_timer_thread.store(true);
       // Wake the thread up one last time to let it know that it’s over.
       arm_timer(0);
       ::WaitForSingleObject(timer_thread_handle, INFINITE);
@@ -385,23 +399,39 @@ void coroutine::scheduler::arm_timer_for_next_sleep_end() const {
 #endif
 
 void coroutine::scheduler::block_active(
-   io::filedesc_t fd, bool write, unsigned millisecs
+   unsigned millisecs, event_id_t event_id, io::filedesc_t fd, bool write
 #if LOFTY_HOST_API_WIN32
    , io::overlapped * ovl
 #endif
 ) {
    // TODO: handle millisecs == 0 as a timer-less yield.
-   /* TODO: when adding both a fd and a timer, there’s a race condition when multiple threads share the same
-   scheduler: if the timeout lapses and the coroutine is activated before the fd is removed from the waited-on
-   pool, a different thread might wake to serve the fd becoming ready, resuming the coroutine a second time.
-   This can be avoided with a thread mutex in coroutine::impl. */
+   /* TODO: when adding both an event/fd and a timer, there’s a race condition when multiple threads share the
+   same scheduler: if the timeout lapses and the coroutine is activated before the fd is removed from the
+   waited-on pool, a different thread might wake to serve the fd becoming ready, resuming the coroutine a
+   second time. This can be avoided with an atomic “being activated” flag in coroutine::impl. */
    fd_io_key fdiok;
    fdiok.pack = 0;
    fdiok.s.fd = fd;
    fdiok.s.write = write;
    _std::shared_ptr<impl> coro_pimpl(active_coro_pimpl);
+
+   if (event_id) {
+      {
+//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_event.add_or_assign(event_id, coro_pimpl);
+      }
+      coro_pimpl->blocking_event_id = event_id;
+   }
+   LOFTY_DEFER_TO_SCOPE_END(
+      /* If the coroutine still thinks it’s blocked upon resuming, the event is still active and must be
+      disconnected from it. */
+      if (event_id && coro_pimpl->blocking_event_id) {
+         coro_pimpl->blocking_event_id = 0;
+//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         coros_blocked_by_event.remove(event_id);
+      }
+   );
 #if LOFTY_HOST_API_BSD
-   ::timespec no_wait = { 0, 0 };
    struct ::kevent fd_ke;
    if (fd != io::filedesc_t_null) {
       fd_ke.ident = static_cast<std::uintptr_t>(fd);
@@ -409,7 +439,7 @@ void coroutine::scheduler::block_active(
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
       fd_ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
       fd_ke.udata = fdiok.pack;
-      if (::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, &no_wait) < 0) {
+      if (::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, nullptr) < 0) {
          exception::throw_os_error();
       }
       {
@@ -423,7 +453,7 @@ void coroutine::scheduler::block_active(
       removed. */
       if (fd != io::filedesc_t_null && coro_pimpl->blocking_fd != io::filedesc_t_null) {
          fd_ke.flags = EV_DELETE;
-         ::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, &no_wait);
+         ::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, nullptr);
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_fd.remove(fdiok.pack);
       }
@@ -439,7 +469,7 @@ void coroutine::scheduler::block_active(
       // Use the default time unit, milliseconds, so the behavior is the same as FreeBSD.
       timer_ke.fflags = 0;
    #endif
-      if (::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, &no_wait) < 0) {
+      if (::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, nullptr) < 0) {
          exception::throw_os_error();
       }
       {
@@ -453,7 +483,7 @@ void coroutine::scheduler::block_active(
       removed. */
       if (millisecs && coro_pimpl->blocking_time_millisecs) {
          timer_ke.flags = EV_DELETE;
-         ::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, &no_wait);
+         ::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, nullptr);
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_timer_ke.remove(timer_ke.ident);
       }
@@ -528,9 +558,9 @@ void coroutine::scheduler::block_active(
          ::epoll_event ee;
          memory::clear(&ee.data);
          ee.data.fd = timer_fd.get();
-         /* Use EPOLLET to avoid waking up multiple threads for each firing of the timer. If when the timer fires
-         there will be multiple coroutines to activate (unlikely), we’ll manually rearm the timer to wake up more
-         threads (or wake up the same threads repeatedly) until all coroutines are activated. */
+         /* Use EPOLLET to avoid waking up multiple threads for each firing of the timer. If when the timer
+         fires there will be multiple coroutines to activate (unlikely), we’ll manually rearm the timer to
+         wake up more threads (or wake up the same threads repeatedly) until all coroutines are activated. */
          ee.events = EPOLLET | EPOLLIN;
          if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, timer_fd.get(), &ee) < 0) {
             exception::throw_os_error();
@@ -572,12 +602,12 @@ void coroutine::scheduler::block_active(
    switch_to_scheduler(coro_pimpl.get());
    // After returning from that, active_coro_pimpl == coro_pimpl again.
 
-   if (
-      fd != io::filedesc_t_null && millisecs &&
-      coro_pimpl->blocking_fd != io::filedesc_t_null && !coro_pimpl->blocking_time_millisecs
-   ) {
-      /* The coroutine blocked on an I/O operation with a timeout, and the I/O operation is outstanding while
-      the timeout expired: convert the timeout into the appropriate type of exception. */
+   if (millisecs && !coro_pimpl->blocking_time_millisecs && (
+      (event_id && coro_pimpl->blocking_event_id) ||
+      (fd != io::filedesc_t_null && coro_pimpl->blocking_fd != io::filedesc_t_null)
+   )) {
+      /* The coroutine blocked on a wait with a timeout, and the wait is still in progress while the timeout
+      expired: convert the timeout into the appropriate type of exception. */
       LOFTY_THROW(io::timeout, ());
    }
 }
@@ -629,6 +659,63 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool interrupting_all /*= f
    }
 }
 
+coroutine::scheduler::event_id_t coroutine::scheduler::create_event() {
+   event_id_t event_id;
+   {
+//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+      // TODO: handle overflow of last_created_event_id.
+      event_id = ++last_created_event_id;
+   }
+#if LOFTY_HOST_API_BSD
+   struct ::kevent ke;
+   ke.ident = event_id;
+   ke.filter = EVFILT_USER;
+   ke.flags = EV_ADD;
+   ke.fflags = 0;
+   if (::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+      exception::throw_os_error();
+   }
+#elif LOFTY_HOST_API_LINUX
+   if (!event_semaphore_fd) {
+      // No event infrastructure yet; set it up now.
+      /* We don’t use EFD_SEMAPHORE because with EPOLLET, it will only wake up a single thread once even if
+      the semaphore count is >1. In non-semaphore mode, the one thread being awoken can activate all unblocked
+      coroutines, and schedule the first one. */
+      event_semaphore_fd = io::filedesc(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC));
+      if (!event_semaphore_fd) {
+         exception::throw_os_error();
+      }
+      ::epoll_event ee;
+      memory::clear(&ee.data);
+      ee.data.fd = event_semaphore_fd.get();
+      // Use EPOLLET to avoid waking up multiple threads for each firing of the semaphore.
+      ee.events = EPOLLET | EPOLLIN;
+      if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, event_semaphore_fd.get(), &ee) < 0) {
+         exception::throw_os_error();
+      }
+   }
+#elif LOFTY_HOST_API_WIN32
+   if (!event_semaphore_fd) {
+      // No event infrastructure yet; set it up now.
+      event_semaphore_fd = io::filedesc(::CreateSemaphore(nullptr, 0, numeric::max< ::LONG>::value, nullptr));
+      if (!event_semaphore_fd) {
+         exception::throw_os_error();
+      }
+      /* Create a thread that will wait for the semaphore to be released and post each release to the IOCP,
+      effectively emulating a semaphore eventfd. */
+      event_semaphore_thread_handle = ::CreateThread(
+         nullptr, 0, &event_semaphore_thread_static, this, 0, nullptr
+      );
+      if (!event_semaphore_thread_handle) {
+         exception::throw_os_error();
+      }
+   }
+#else
+   #error "TODO: HOST_API"
+#endif
+   return event_id;
+}
+
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
 /*static*/ coroutine::scheduler::time_point_t coroutine::scheduler::current_time() {
    time_point_t now;
@@ -651,6 +738,43 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool interrupting_all /*= f
 }
 #endif
 
+void coroutine::scheduler::discard_event(event_id_t event_id) {
+   /* TODO: ensure that a possible blocked coroutine gets released with a timeout or other exception.
+   auto blocked_coro(coros_blocked_by_event.find(event_id));
+   if (blocked_coro != coros_blocked_by_event.cend()) { … */
+#if LOFTY_HOST_API_BSD
+   struct ::kevent ke;
+   ke.ident = event_id;
+   ke.filter = EVFILT_USER;
+   ke.flags = EV_DELETE;
+   ke.fflags = 0;
+   if (::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+      exception::throw_os_error();
+   }
+#endif
+}
+
+#if LOFTY_HOST_API_WIN32
+void coroutine::scheduler::event_semaphore_thread() {
+   do {
+      if (::WaitForSingleObject(event_semaphore_fd.get(), INFINITE) == WAIT_OBJECT_0) {
+         ::PostQueuedCompletionStatus(
+            iocp_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(event_semaphore_fd.get()), nullptr
+         );
+      }
+   } while (!stop_event_semaphore_thread.load());
+}
+
+/*static*/ ::DWORD WINAPI coroutine::scheduler::event_semaphore_thread_static(void * coro_sched) {
+   try {
+      static_cast<scheduler *>(coro_sched)->event_semaphore_thread();
+   } catch (...) {
+      return 1;
+   }
+   return 0;
+}
+#endif
+
 _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
    _std::shared_ptr<coroutine::impl> coro_pimpl;
    // This loop will only repeat in case of EINTR from the blocking-wait API.
@@ -668,7 +792,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
             coro_pimpl = ready_coros_queue.pop_front();
             break;
          } else if (
-            !coros_blocked_by_fd
+            !coros_blocked_by_fd && !coros_blocked_by_event
 #if LOFTY_HOST_API_BSD
             && !coros_blocked_by_timer_ke
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
@@ -707,6 +831,17 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          coro_pimpl = coros_blocked_by_timer_ke.pop(ke.ident);
          // Make the coroutine aware that it’s no longer waiting for the timer.
          coro_pimpl->blocking_time_millisecs = 0;
+         break;
+      } else if (ke.filter == EVFILT_USER) {
+         auto blocked_coro(coros_blocked_by_event.find(ke.ident));
+         if (blocked_coro == coros_blocked_by_event.cend()) {
+            // The event must’ve been triggered with no coroutines waiting for it.
+            continue;
+         }
+         coro_pimpl = _std::move(blocked_coro->value);
+         coros_blocked_by_event.remove(blocked_coro);
+         // Make the coroutine aware that it’s no longer waiting for the event.
+         coro_pimpl->blocking_event_id = 0;
          break;
       }
       // Otherwise it’s a file descriptor event.
@@ -758,13 +893,40 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          // Make the coroutine aware that it’s no longer waiting for the timer.
          coro_pimpl->blocking_time_millisecs = 0;
          break;
+      } else if (fdiok.s.fd == event_semaphore_fd.get()) {
+   #if LOFTY_HOST_API_LINUX
+         /* Reset the semaphore, tracking how many coroutines we need to unblock. This could’ve been made
+         easier by EFD_SEMAPHORE, but unfortunately that is broken with EPOLLET (see other comment in this
+         file). */
+         std::uint64_t unblock_count;
+         if (::read(event_semaphore_fd.get(), &unblock_count, sizeof unblock_count) < 0) {
+            // This is probably bad, but there’s nothing we can do about it here. Maybe log it?
+            // TODO: should still handle EINTR.
+            continue;
+         }
+   #endif
+         coro_pimpl = unblock_by_first_event();
+         if (!coro_pimpl) {
+            continue;
+         }
+   #if LOFTY_HOST_API_LINUX
+         // Move to ready all other coroutines that this thread was woken up for.
+         while (--unblock_count > 0) {
+            auto other_coro_pimpl(unblock_by_first_event());
+            if (!other_coro_pimpl) {
+               break;
+            }
+            ready_coros_queue.push_back(_std::move(other_coro_pimpl));
+         }
+   #endif
+         break;
       }
 #else
    #error "TODO: HOST_API"
 #endif
       // Remove and return the coroutine that was waiting for this file descriptor.
-      auto blocked_coro_itr(coros_blocked_by_fd.find(fdiok.pack));
-      if (blocked_coro_itr != coros_blocked_by_fd.cend()) {
+      auto blocked_coro(coros_blocked_by_fd.find(fdiok.pack));
+      if (blocked_coro != coros_blocked_by_fd.cend()) {
          /* Note (WIN32 BUG?)
          Empirical evidence shows that at this point ovl might not be a valid pointer, even if the completion
          key (fd) returned was a valid Lofty-owned handle. I could not find any explanation for this, but as
@@ -777,11 +939,11 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          •  UDP: when WSASendTo() fails due to ICMP reporting that the remote server is gone, WSARecvFrom()
             will fail for several different reasons. */
 #if LOFTY_HOST_API_WIN32
-         if (blocked_coro_itr->value->blocking_ovl.load()->get_result() == ERROR_IO_INCOMPLETE) {
+         if (blocked_coro->value->blocking_ovl.load()->get_result() == ERROR_IO_INCOMPLETE) {
             continue;
          }
 #endif
-         coro_pimpl = coros_blocked_by_fd.pop(blocked_coro_itr);
+         coro_pimpl = coros_blocked_by_fd.pop(blocked_coro);
          // Make the coroutine aware that it’s no longer waiting for I/O.
          coro_pimpl->blocking_fd = io::filedesc_t_null;
 #if LOFTY_HOST_API_WIN32
@@ -917,7 +1079,7 @@ void coroutine::scheduler::timer_thread() {
             iocp_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(timer_fd.get()), nullptr
          );
       }
-   } while (!stop_thread_timer.load());
+   } while (!stop_timer_thread.load());
 }
 
 /*static*/ ::DWORD WINAPI coroutine::scheduler::timer_thread_static(void * coro_sched) {
@@ -930,6 +1092,50 @@ void coroutine::scheduler::timer_thread() {
 }
 #endif
 
+void coroutine::scheduler::trigger_event(event_id_t event_id) {
+#if LOFTY_HOST_API_BSD
+   struct ::kevent ke;
+   ke.ident = event_id;
+   ke.filter = EVFILT_USER;
+   // Re-enable the event, and use EV_DISPATCH to only wake up a single thread and the disable the event.
+   ke.flags = EV_ENABLE | EV_DISPATCH;
+   ke.fflags = NOTE_TRIGGER;
+   if (::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+      exception::throw_os_error();
+   }
+#elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
+   {
+//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+      ready_events_queue.push_back(event_id);
+   }
+   #if LOFTY_HOST_API_LINUX
+      std::uint64_t one = 1;
+      ::write(event_semaphore_fd.get(), &one, sizeof one);
+   #elif LOFTY_HOST_API_WIN32
+      ::ReleaseSemaphore(event_semaphore_thread_handle.get(), 1, nullptr);
+   #endif
+#else
+   #error "TODO: HOST_API"
+#endif
+}
+
+_std::shared_ptr<coroutine::impl> coroutine::scheduler::unblock_by_first_event() {
+   if (!ready_events_queue) {
+      // This is probably bad, but there’s nothing we can do about it here. Maybe log it?
+      return nullptr;
+   }
+   auto event_id = ready_events_queue.pop_front();
+   auto blocked_coro(coros_blocked_by_event.find(event_id));
+   if (blocked_coro == coros_blocked_by_event.cend()) {
+      // The event must’ve been triggered with no coroutines waiting for it.
+      return nullptr;
+   }
+   auto coro_pimpl(_std::move(blocked_coro->value));
+   coros_blocked_by_event.remove(blocked_coro);
+   // Make the coroutine aware that it’s no longer waiting for the event.
+   coro_pimpl->blocking_event_id = 0;
+   return _std::move(coro_pimpl);
+}
 
 // Now this can be defined.
 
@@ -971,7 +1177,7 @@ void interruption_point() {
 void sleep_for_ms(unsigned millisecs) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
       pcorosched->block_active(
-         io::filedesc_t_null, false /*read – N/A*/, millisecs
+         millisecs, 0 /*no event*/, io::filedesc_t_null, false /*read – N/A*/
 #if LOFTY_HOST_API_WIN32
          , nullptr
 #endif
@@ -989,7 +1195,7 @@ void sleep_until_fd_ready(
 ) {
    if (auto & pcorosched = this_thread::coroutine_scheduler()) {
       pcorosched->block_active(
-         fd, write, timeout_millisecs
+         timeout_millisecs, 0 /*no event*/, fd, write
 #if LOFTY_HOST_API_WIN32
          , ovl
 #endif
