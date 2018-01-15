@@ -171,7 +171,7 @@ protected:
 #if LOFTY_HOST_API_WIN32
    /*! See file_istream::check_if_eof_or_throw_os_error(). Pipes report EOF in a completely different way than
    regular files. */
-   virtual bool check_if_eof_or_throw_os_error(::DWORD read_bytes, ::DWORD err) const override;
+   virtual bool check_if_eof_or_throw_os_error(::DWORD bytes_read, ::DWORD err) const override;
 #endif
 };
 

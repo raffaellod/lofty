@@ -604,10 +604,10 @@ file_istream::file_istream(_pvt::file_init_data * init_data) :
 }
 
 #if LOFTY_HOST_API_WIN32
-/*virtual*/ bool file_istream::check_if_eof_or_throw_os_error(::DWORD read_bytes, ::DWORD err) const {
+/*virtual*/ bool file_istream::check_if_eof_or_throw_os_error(::DWORD bytes_read, ::DWORD err) const {
    switch (err) {
       case ERROR_SUCCESS:
-         return read_bytes == 0;
+         return bytes_read == 0;
       case ERROR_HANDLE_EOF:
          return true;
       default:

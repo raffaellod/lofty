@@ -442,7 +442,7 @@ protected:
    /*! Detects EOF conditions and real errors. Necessary because under Win32 there are major differences in
    detection of EOF depending on the file type.
 
-   @param read_bytes
+   @param bytes_read
       Count of bytes read by ::ReadFile().
    @param err
       Value returned by ::GetLastError() if ::ReadFile() returned false, or ERROR_SUCCESS otherwise.
@@ -450,7 +450,7 @@ protected:
       true if ::ReadFile() indicated that EOF was reached, or false otherwise. Exceptions are thrown for all
       non-EOF error conditions.
    */
-   virtual bool check_if_eof_or_throw_os_error(::DWORD read_bytes, ::DWORD err) const;
+   virtual bool check_if_eof_or_throw_os_error(::DWORD bytes_read, ::DWORD err) const;
 #endif
 };
 

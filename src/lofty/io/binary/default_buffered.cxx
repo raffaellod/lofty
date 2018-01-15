@@ -59,13 +59,13 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
          }
       }
       // Try to fill the available part of the buffer.
-      std::size_t read_bytes = bin_istream->read_bytes(read_buf.get_available(), read_buf.available_size());
-      if (read_bytes == 0) {
+      std::size_t bytes_read = bin_istream->read_bytes(read_buf.get_available(), read_buf.available_size());
+      if (bytes_read == 0) {
          // No more data available (EOF).
          break;
       }
       // Account for the additional data read.
-      read_buf.mark_as_used(read_bytes);
+      read_buf.mark_as_used(bytes_read);
    }
    // Return the “used window” of the buffer.
    return _std::make_tuple(read_buf.get_used(), read_buf.used_size());

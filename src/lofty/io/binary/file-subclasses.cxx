@@ -313,9 +313,9 @@ pipe_istream::pipe_istream(_pvt::file_init_data * init_data) :
 
 #if LOFTY_HOST_API_WIN32
 /*virtual*/ bool pipe_istream::check_if_eof_or_throw_os_error(
-   ::DWORD read_bytes, ::DWORD err
+   ::DWORD bytes_read, ::DWORD err
 ) const /*override*/ {
-   LOFTY_UNUSED_ARG(read_bytes);
+   LOFTY_UNUSED_ARG(bytes_read);
    switch (err) {
       case ERROR_SUCCESS:
          return false;
