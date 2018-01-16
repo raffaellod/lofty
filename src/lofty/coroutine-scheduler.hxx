@@ -126,10 +126,10 @@ public:
    /*! Returns the internal IOCP.
 
    @return
-   File descriptor of the internal IOCP.
+      File descriptor of the internal IOCP.
    */
    io::filedesc_t iocp() const {
-      return iocp_fd.get();
+      return engine_fd.get();
    }
 #endif
 
@@ -230,19 +230,14 @@ private:
    _std::shared_ptr<impl> unblock_by_first_event();
 
 private:
+   //! File descriptor of the internal kqueue (BSD) / epoll (Linux) / IOCP (Win32).
+   io::filedesc engine_fd;
 #if LOFTY_HOST_API_BSD
-   //! File descriptor of the internal kqueue.
-   io::filedesc kqueue_fd;
    /*! Coroutines that are blocked on a timer wait. The keys are the same as the values, but this can’t be
    changed into a set<shared_ptr<impl>> because we need it to hold a strong reference to the coroutine
    implementation while allowing lookups without having a shared_ptr. */
    collections::hash_map<std::uintptr_t, _std::shared_ptr<impl>> coros_blocked_by_timer_ke;
-#elif LOFTY_HOST_API_LINUX
-   //! File descriptor of the internal epoll.
-   io::filedesc epoll_fd;
 #elif LOFTY_HOST_API_WIN32
-   //! File descriptor of the internal IOCP.
-   io::filedesc iocp_fd;
    //! Thread that translates events from event_semaphore_fd into IOCP completions.
    ::HANDLE event_semaphore_thread_handle;
    //! Flag used to tell the event thread to stop looping.
@@ -251,8 +246,6 @@ private:
    ::HANDLE timer_thread_handle;
    //! Flag used to tell the timer thread to stop looping.
    _std::atomic<bool> stop_timer_thread;
-#else
-   #error "TODO: HOST_API"
 #endif
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    //! List of events that need to be processed on the next time the event semaphore unblocks a thread.

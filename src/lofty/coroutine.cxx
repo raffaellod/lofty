@@ -278,11 +278,11 @@ thread_local_value<void *> coroutine::scheduler::return_fiber /*= nullptr*/;
 coroutine::scheduler::scheduler() :
 #if LOFTY_HOST_API_BSD
    // CLOEXEC behavior is implicit.
-   kqueue_fd(::kqueue()),
+   engine_fd(::kqueue()),
 #elif LOFTY_HOST_API_LINUX
-   epoll_fd(::epoll_create1(EPOLL_CLOEXEC)),
+   engine_fd(::epoll_create1(EPOLL_CLOEXEC)),
 #elif LOFTY_HOST_API_WIN32
-   iocp_fd(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)),
+   engine_fd(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)),
    event_semaphore_thread_handle(nullptr),
    stop_event_semaphore_thread(false),
    timer_thread_handle(nullptr),
@@ -290,19 +290,9 @@ coroutine::scheduler::scheduler() :
 #endif
    last_created_event_id(0),
    interruption_reason_x_type(exception::common_type::none) {
-#if LOFTY_HOST_API_BSD
-   if (!kqueue_fd) {
+   if (!engine_fd) {
       exception::throw_os_error();
    }
-#elif LOFTY_HOST_API_LINUX
-   if (!epoll_fd) {
-      exception::throw_os_error();
-   }
-#elif LOFTY_HOST_API_WIN32
-   if (!iocp_fd) {
-      exception::throw_os_error();
-   }
-#endif
 }
 
 coroutine::scheduler::~scheduler() {
@@ -437,7 +427,7 @@ void coroutine::scheduler::block_active(
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
       fd_ke.flags = EV_ADD | EV_ONESHOT | EV_EOF;
       fd_ke.udata = fdiok.pack;
-      if (::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, nullptr) < 0) {
+      if (::kevent(engine_fd.get(), &fd_ke, 1, nullptr, 0, nullptr) < 0) {
          exception::throw_os_error();
       }
       {
@@ -451,7 +441,7 @@ void coroutine::scheduler::block_active(
       removed. */
       if (fd != io::filedesc_t_null && coro_pimpl->blocking_fd != io::filedesc_t_null) {
          fd_ke.flags = EV_DELETE;
-         ::kevent(kqueue_fd.get(), &fd_ke, 1, nullptr, 0, nullptr);
+         ::kevent(engine_fd.get(), &fd_ke, 1, nullptr, 0, nullptr);
          coro_pimpl->blocking_fd = io::filedesc_t_null;
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_fd.remove(fdiok.pack);
@@ -466,7 +456,7 @@ void coroutine::scheduler::block_active(
       timer_ke.data = millisecs;
       // Use the default time unit, milliseconds.
       timer_ke.fflags = 0;
-      if (::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, nullptr) < 0) {
+      if (::kevent(engine_fd.get(), &timer_ke, 1, nullptr, 0, nullptr) < 0) {
          exception::throw_os_error();
       }
       {
@@ -480,7 +470,7 @@ void coroutine::scheduler::block_active(
       removed. */
       if (millisecs && coro_pimpl->blocking_time_millisecs) {
          timer_ke.flags = EV_DELETE;
-         ::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, nullptr);
+         ::kevent(engine_fd.get(), &timer_ke, 1, nullptr, 0, nullptr);
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_timer_ke.remove(timer_ke.ident);
       }
@@ -494,7 +484,7 @@ void coroutine::scheduler::block_active(
       need to then rearm it in find_coroutine_to_activate() when it becomes ready, but we’ll remove it
       instead. */
       ee.events = EPOLLONESHOT | EPOLLPRI | (write ? EPOLLOUT : EPOLLIN);
-      if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
+      if (::epoll_ctl(engine_fd.get(), EPOLL_CTL_ADD, fd, &ee) < 0) {
          exception::throw_os_error();
       }
    #elif LOFTY_HOST_API_WIN32
@@ -514,7 +504,7 @@ void coroutine::scheduler::block_active(
    LOFTY_DEFER_TO_SCOPE_END(
       if (fd != io::filedesc_t_null) {
          // See comment on creation for why we unconditionally remove this.
-         ::epoll_ctl(epoll_fd.get(), EPOLL_CTL_DEL, fd, nullptr);
+         ::epoll_ctl(engine_fd.get(), EPOLL_CTL_DEL, fd, nullptr);
          /* If the coroutine still thinks it’s blocked upon resuming, the event is still active and must be
          removed. */
          if (coro_pimpl->blocking_fd != io::filedesc_t_null) {
@@ -561,7 +551,7 @@ void coroutine::scheduler::block_active(
          fires there will be multiple coroutines to activate (unlikely), we’ll manually rearm the timer to
          wake up more threads (or wake up the same threads repeatedly) until all coroutines are activated. */
          ee.events = EPOLLET | EPOLLIN;
-         if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, timer_fd.get(), &ee) < 0) {
+         if (::epoll_ctl(engine_fd.get(), EPOLL_CTL_ADD, timer_fd.get(), &ee) < 0) {
             exception::throw_os_error();
          }
    #elif LOFTY_HOST_API_WIN32
@@ -671,7 +661,7 @@ coroutine::scheduler::event_id_t coroutine::scheduler::create_event() {
    ke.filter = EVFILT_USER;
    ke.flags = EV_ADD;
    ke.fflags = 0;
-   if (::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+   if (::kevent(engine_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
       exception::throw_os_error();
    }
 #elif LOFTY_HOST_API_LINUX
@@ -689,7 +679,7 @@ coroutine::scheduler::event_id_t coroutine::scheduler::create_event() {
       ee.data.fd = event_semaphore_fd.get();
       // Use EPOLLET to avoid waking up multiple threads for each firing of the semaphore.
       ee.events = EPOLLET | EPOLLIN;
-      if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, event_semaphore_fd.get(), &ee) < 0) {
+      if (::epoll_ctl(engine_fd.get(), EPOLL_CTL_ADD, event_semaphore_fd.get(), &ee) < 0) {
          exception::throw_os_error();
       }
    }
@@ -747,7 +737,7 @@ void coroutine::scheduler::discard_event(event_id_t event_id) {
    ke.filter = EVFILT_USER;
    ke.flags = EV_DELETE;
    ke.fflags = 0;
-   if (::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+   if (::kevent(engine_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
       exception::throw_os_error();
    }
 #endif
@@ -758,7 +748,7 @@ void coroutine::scheduler::event_semaphore_thread() {
    do {
       if (::WaitForSingleObject(event_semaphore_fd.get(), INFINITE) == WAIT_OBJECT_0) {
          ::PostQueuedCompletionStatus(
-            iocp_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(event_semaphore_fd.get()), nullptr
+            engine_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(event_semaphore_fd.get()), nullptr
          );
       }
    } while (!stop_event_semaphore_thread.load());
@@ -811,7 +801,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       fd_io_key fdiok;
 #if LOFTY_HOST_API_BSD
       struct ::kevent ke;
-      if (::kevent(kqueue_fd.get(), nullptr, 0, &ke, 1, nullptr) < 0) {
+      if (::kevent(engine_fd.get(), nullptr, 0, &ke, 1, nullptr) < 0) {
          int err = errno;
          /* TODO: EINTR is not a reliable way to interrupt a thread’s ::kevent() call when multiple threads
          share the same coroutine::scheduler. */
@@ -848,7 +838,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    #if LOFTY_HOST_API_LINUX
       ::epoll_event ee;
-      if (::epoll_wait(epoll_fd.get(), &ee, 1, -1) < 0) {
+      if (::epoll_wait(engine_fd.get(), &ee, 1, -1) < 0) {
          int err = errno;
          /* TODO: EINTR is not a reliable way to interrupt a thread’s ::epoll_wait() call when multiple
          threads share the same coroutine::scheduler. This is a problem for Win32 as well (see below), so it
@@ -863,7 +853,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
    #elif LOFTY_HOST_API_WIN32
       ::DWORD transferred_byte_size;
       ::OVERLAPPED * ovl;
-      if (!::GetQueuedCompletionStatus(iocp_fd.get(), &transferred_byte_size, &fdiok.pack, &ovl, INFINITE)) {
+      if (!::GetQueuedCompletionStatus(engine_fd.get(), &transferred_byte_size, &fdiok.pack, &ovl, INFINITE)) {
          /* Distinguish between IOCP failures and I/O failures by also checking whether an OVERLAPPED pointer
          was returned. */
          if (!ovl) {
@@ -877,7 +867,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       /* TODO: this is not a reliable way to interrupt a thread’s ::GetQueuedCompletionStatus() call when
       multiple threads share the same coroutine::scheduler. This is a problem for POSIX as well (see above),
       so it probably needs a shared solution. */
-      if (fdiok.s.fd == iocp_fd.get()) {
+      if (fdiok.s.fd == engine_fd.get()) {
          this_thread::interruption_point();
          continue;
       }
@@ -1075,7 +1065,7 @@ void coroutine::scheduler::timer_thread() {
    do {
       if (::WaitForSingleObject(timer_fd.get(), INFINITE) == WAIT_OBJECT_0) {
          ::PostQueuedCompletionStatus(
-            iocp_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(timer_fd.get()), nullptr
+            engine_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(timer_fd.get()), nullptr
          );
       }
    } while (!stop_timer_thread.load());
@@ -1099,7 +1089,7 @@ void coroutine::scheduler::trigger_event(event_id_t event_id) {
    // Re-enable the event, and use EV_DISPATCH to only wake up a single thread and the disable the event.
    ke.flags = EV_ENABLE | EV_DISPATCH;
    ke.fflags = NOTE_TRIGGER;
-   if (::kevent(kqueue_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
+   if (::kevent(engine_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
       exception::throw_os_error();
    }
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
