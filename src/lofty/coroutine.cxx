@@ -1108,6 +1108,7 @@ void coroutine::scheduler::trigger_event(event_id_t event_id) {
 #endif
 }
 
+#if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
 _std::shared_ptr<coroutine::impl> coroutine::scheduler::unblock_by_first_event() {
    if (!ready_events_queue) {
       // This is probably bad, but there’s nothing we can do about it here. Maybe log it?
@@ -1125,6 +1126,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::unblock_by_first_event()
    coro_pimpl->blocking_event_id = 0;
    return _std::move(coro_pimpl);
 }
+#endif
 
 // Now this can be defined.
 

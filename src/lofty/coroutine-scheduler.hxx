@@ -222,12 +222,14 @@ private:
    static ::DWORD WINAPI timer_thread_static(void * coro_sched);
 #endif
 
+#if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    /*! Unblocks the first coroutine blocked by an event.
 
    @return
       Pointer to the coroutine’s impl, or nullptr if no coroutines could be unblocked.
    */
    _std::shared_ptr<impl> unblock_by_first_event();
+#endif
 
 private:
    //! File descriptor of the internal kqueue (BSD) / epoll (Linux) / IOCP (Win32).
