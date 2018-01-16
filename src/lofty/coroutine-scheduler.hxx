@@ -173,6 +173,20 @@ private:
    static time_point_t current_time();
 #endif
 
+#if LOFTY_HOST_API_WIN32
+   //! Waits for event_semaphore_fd to fire, posting each firing to the IOCP.
+   void event_semaphore_thread();
+
+   /*! Invokes coro_sched->event_semaphore_thread().
+
+   @param coro_sched
+      this.
+   @return
+      0 if no errors occurred, or 1 if an exception was caught.
+   */
+   static ::DWORD WINAPI event_semaphore_thread_static(void * coro_sched);
+#endif
+
    /*! Finds a coroutine ready to execute; if none are, but there are blocked coroutines, it blocks the
    current thread until one of them becomes ready.
 

@@ -301,7 +301,7 @@ coroutine::scheduler::~scheduler() {
    if (event_semaphore_thread_handle) {
       stop_event_semaphore_thread.store(true);
       // Wake the thread up one last time to let it know that it’s over.
-      ::ReleaseSemaphore(event_semaphore_thread_handle.get(), 1, nullptr);
+      ::ReleaseSemaphore(event_semaphore_fd.get(), 1, nullptr);
       ::WaitForSingleObject(event_semaphore_thread_handle, INFINITE);
       ::CloseHandle(event_semaphore_thread_handle);
    }
@@ -1101,7 +1101,7 @@ void coroutine::scheduler::trigger_event(event_id_t event_id) {
       std::uint64_t one = 1;
       ::write(event_semaphore_fd.get(), &one, sizeof one);
    #elif LOFTY_HOST_API_WIN32
-      ::ReleaseSemaphore(event_semaphore_thread_handle.get(), 1, nullptr);
+      ::ReleaseSemaphore(event_semaphore_fd.get(), 1, nullptr);
    #endif
 #else
    #error "TODO: HOST_API"
