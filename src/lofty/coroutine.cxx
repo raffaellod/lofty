@@ -464,10 +464,8 @@ void coroutine::scheduler::block_active(
       // Use EV_ONESHOT to avoid waking up multiple threads for the same fd becoming ready.
       timer_ke.flags = EV_ADD | EV_ONESHOT;
       timer_ke.data = millisecs;
-   #if LOFTY_HOST_API_DARWIN
-      // Use the default time unit, milliseconds, so the behavior is the same as FreeBSD.
+      // Use the default time unit, milliseconds.
       timer_ke.fflags = 0;
-   #endif
       if (::kevent(kqueue_fd.get(), &timer_ke, 1, nullptr, 0, nullptr) < 0) {
          exception::throw_os_error();
       }
