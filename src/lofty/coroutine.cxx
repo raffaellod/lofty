@@ -277,6 +277,7 @@ thread_local_value<void *> coroutine::scheduler::return_fiber /*= nullptr*/;
 
 coroutine::scheduler::scheduler() :
 #if LOFTY_HOST_API_BSD
+   // CLOEXEC behavior is implicit.
    kqueue_fd(::kqueue()),
 #elif LOFTY_HOST_API_LINUX
    epoll_fd(::epoll_create1(EPOLL_CLOEXEC)),
@@ -293,9 +294,6 @@ coroutine::scheduler::scheduler() :
    if (!kqueue_fd) {
       exception::throw_os_error();
    }
-   /* Note that at this point there’s no hack that will ensure a fork()/exec() from another thread won’t leak
-   the file descriptor. That’s the whole point of NetBSD’s kqueue1(). */
-   kqueue_fd.share_with_subprocesses(false);
 #elif LOFTY_HOST_API_LINUX
    if (!epoll_fd) {
       exception::throw_os_error();
