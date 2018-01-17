@@ -4,7 +4,7 @@
 
 Lofty is a C++11 framework featuring:
 
-*  Multiple platform compatibility: Linux and Windows, partial with OS X and FreeBSD (see §
+*  Multiple platform compatibility: Linux and Windows, partial with macOS and FreeBSD (see §
    _5. Compatibility_);
 
 *  Built on top of the C++11 STL;
@@ -113,7 +113,7 @@ are one for each platform:
 
 *  Linux:   `linux`
 *  Windows: `win`
-*  OS X:    `osx` (currently stale due to lack of active development)
+*  macOS:   `macos`
 *  FreeBSD: `freebsd`
 
 When Lofty will have version branches, each version branch should proably get a development branch of its own
@@ -140,7 +140,7 @@ integrated in LLVM, Lofty will support these additional build systems:
    *  Clang 3.5
    *  binutils 2.20 or later
 
-*  Apple SDK for OS X 10.10 Yosemite and 10.9 Mavericks (included in Xcode 6)
+*  Apple SDK for macOS (included in Xcode)
 
 Supported operating systems:
 
@@ -151,7 +151,7 @@ Supported operating systems:
 These operating systems are supported at the source code level, but binaries built for them are fundmentally
 flawed due to the above-mentioned LLVM limitations:
 
-*  OS X 10.9 Mavericks or later;
+*  macOS 10.9 Mavericks or later;
 *  FreeBSD – officially only the latest -RELEASE is supported.
 
 Additionally, Lofty requires Python 2.7 or 3.2 or later to be installed on the build host system.
@@ -198,7 +198,7 @@ All future development will be geared towards getting closer to accomplishing th
 
 
 --------------------------------------------------------------------------------------------------------------
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 

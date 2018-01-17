@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -84,7 +84,7 @@ more details.
 
 //! 1 if building for a BSD-like OS, or 0 otherwise. Implies LOFTY_HOST_API_POSIX.
 #define LOFTY_HOST_API_BSD 0
-/*! 1 if building for a Darwin-based OS such as OS X or iOS, or 0 otherwise. Implies LOFTY_HOST_API_BSD,
+/*! 1 if building for a Darwin-based OS such as macOS or iOS, or 0 otherwise. Implies LOFTY_HOST_API_BSD,
 LOFTY_HOST_API_MACH, LOFTY_HOST_API_POSIX. */
 #define LOFTY_HOST_API_DARWIN 0
 //! 1 if building for FreeBSD, or 0 otherwise. Implies LOFTY_HOST_API_BSD, LOFTY_HOST_API_POSIX.
@@ -116,8 +116,8 @@ LOFTY_HOST_API_MACH, LOFTY_HOST_API_POSIX. */
    #undef LOFTY_HOST_API_POSIX
    #define LOFTY_HOST_API_POSIX 1
 #elif defined(__MACH__) && defined(__APPLE__)
-   /* Compiling for Darwin/XNU (commercially known as OS X and iOS), mostly compatible with BSD libc but using
-   a Mach kernel. */
+   /* Compiling for Darwin/XNU (commercially known as macOS and iOS), mostly compatible with BSD libc but
+   using a Mach kernel. */
    #undef LOFTY_HOST_API_BSD
    #define LOFTY_HOST_API_BSD 1
    #undef LOFTY_HOST_API_DARWIN

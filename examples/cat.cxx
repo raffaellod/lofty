@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015, 2017 Raffaello D. Di Napoli
+Copyright 2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -17,7 +17,7 @@ more details.
 
 This is a basic usage example of Lofty; it shows how to read from standard input one line at a time, echoing
 each to standard output. The program terminates when it reaches the end of input, which can be signaled with
-Ctrl+D in Linux/OS X/FreeBSD or Ctrl+Z followed by Enter in Windows. */
+Ctrl+D in Linux/macOS/FreeBSD or Ctrl+Z followed by Enter in Windows. */
 
 #include <lofty.hxx>
 #include <lofty/app.hxx>
