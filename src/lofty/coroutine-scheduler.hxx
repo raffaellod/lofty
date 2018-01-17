@@ -174,17 +174,17 @@ private:
 #endif
 
 #if LOFTY_HOST_API_WIN32
-   //! Waits for event_semaphore_fd to fire, posting each firing to the IOCP.
-   void event_semaphore_thread();
+   //! Waits for event_semaphore_fd or timer_fd to fire, posting each firing to the IOCP.
+   void non_iocp_events_thread();
 
-   /*! Invokes coro_sched->event_semaphore_thread().
+   /*! Invokes coro_sched->non_iocp_events_thread().
 
    @param coro_sched
       this.
    @return
       0 if no errors occurred, or 1 if an exception was caught.
    */
-   static ::DWORD WINAPI event_semaphore_thread_static(void * coro_sched);
+   static ::DWORD WINAPI non_iocp_events_thread_static(void * coro_sched);
 #endif
 
    /*! Finds a coroutine ready to execute; if none are, but there are blocked coroutines, it blocks the
@@ -214,6 +214,11 @@ private:
    */
    void interrupt_all(exception::common_type reason_x_type);
 
+#if LOFTY_HOST_API_WIN32
+   //! Initializes the infrastructure for generating non-IOCP events.
+   void setup_non_iocp_events();
+#endif
+
    /*! Switches context from the coroutine context pointed to by last_active_coro_pimpl to the current
    thread’s own context.
 
@@ -221,20 +226,6 @@ private:
       Pointer to the coroutine (implementation) that is being inactivated.
    */
    void switch_to_scheduler(impl * last_active_coro_pimpl);
-
-#if LOFTY_HOST_API_WIN32
-   //! Waits for timer_fd to fire, posting each firing to the IOCP.
-   void timer_thread();
-
-   /*! Invokes coro_sched->timer_thread().
-
-   @param coro_sched
-      this.
-   @return
-      0 if no errors occurred, or 1 if an exception was caught.
-   */
-   static ::DWORD WINAPI timer_thread_static(void * coro_sched);
-#endif
 
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    /*! Unblocks the first coroutine blocked by an event.
@@ -254,14 +245,10 @@ private:
    implementation while allowing lookups without having a shared_ptr. */
    collections::hash_map<std::uintptr_t, _std::shared_ptr<impl>> coros_blocked_by_timer_ke;
 #elif LOFTY_HOST_API_WIN32
-   //! Thread that translates events from event_semaphore_fd into IOCP completions.
-   ::HANDLE event_semaphore_thread_handle;
-   //! Flag used to tell the event thread to stop looping.
-   _std::atomic<bool> stop_event_semaphore_thread;
-   //! Thread that translates events from timer_fd into IOCP completions.
-   ::HANDLE timer_thread_handle;
-   //! Flag used to tell the timer thread to stop looping.
-   _std::atomic<bool> stop_timer_thread;
+   //! Thread that translates events from event_semaphore_fd and timer_fd into IOCP completions.
+   ::HANDLE non_iocp_events_thread_handle;
+   //! Flag used to tell the non-IOCP events thread to stop looping.
+   _std::atomic<bool> stop_non_iocp_events_thread;
 #endif
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    //! List of events that need to be processed on the next time the event semaphore unblocks a thread.

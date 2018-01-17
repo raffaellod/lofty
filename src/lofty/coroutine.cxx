@@ -283,10 +283,8 @@ coroutine::scheduler::scheduler() :
    engine_fd(::epoll_create1(EPOLL_CLOEXEC)),
 #elif LOFTY_HOST_API_WIN32
    engine_fd(::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0)),
-   event_semaphore_thread_handle(nullptr),
-   stop_event_semaphore_thread(false),
-   timer_thread_handle(nullptr),
-   stop_timer_thread(false),
+   non_iocp_events_thread_handle(nullptr),
+   stop_non_iocp_events_thread(false),
 #endif
    last_created_event_id(0),
    interruption_reason_x_type(exception::common_type::none) {
@@ -298,19 +296,13 @@ coroutine::scheduler::scheduler() :
 coroutine::scheduler::~scheduler() {
    // TODO: verify that ready_coros_queue and coros_blocked_by_fd (and coros_blocked_by_timer_ke…) are empty.
 #if LOFTY_HOST_API_WIN32
-   if (event_semaphore_thread_handle) {
-      stop_event_semaphore_thread.store(true);
-      // Wake the thread up one last time to let it know that it’s over.
-      ::ReleaseSemaphore(event_semaphore_fd.get(), 1, nullptr);
-      ::WaitForSingleObject(event_semaphore_thread_handle, INFINITE);
-      ::CloseHandle(event_semaphore_thread_handle);
-   }
-   if (timer_thread_handle) {
-      stop_timer_thread.store(true);
+   if (non_iocp_events_thread_handle) {
+      stop_non_iocp_events_thread.store(true);
       // Wake the thread up one last time to let it know that it’s over.
       arm_timer(0);
-      ::WaitForSingleObject(timer_thread_handle, INFINITE);
-      ::CloseHandle(timer_thread_handle);
+      ::ReleaseSemaphore(event_semaphore_fd.get(), 1, nullptr);
+      ::WaitForSingleObject(non_iocp_events_thread_handle, INFINITE);
+      ::CloseHandle(non_iocp_events_thread_handle);
    }
 #endif
 }
@@ -533,17 +525,11 @@ void coroutine::scheduler::block_active(
    if (millisecs) {
       if (!timer_fd) {
          // No timer infrastructure yet; set it up now.
-         timer_fd = io::filedesc(
    #if LOFTY_HOST_API_LINUX
-            ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC)
-   #elif LOFTY_HOST_API_WIN32
-            ::CreateWaitableTimer(nullptr, false /*automatic reset*/, nullptr)
-   #endif
-         );
+         timer_fd = io::filedesc(::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC));
          if (!timer_fd) {
             exception::throw_os_error();
          }
-   #if LOFTY_HOST_API_LINUX
          ::epoll_event ee;
          memory::clear(&ee.data);
          ee.data.fd = timer_fd.get();
@@ -555,12 +541,7 @@ void coroutine::scheduler::block_active(
             exception::throw_os_error();
          }
    #elif LOFTY_HOST_API_WIN32
-         /* Create a thread that will wait for the timer to fire and post each firing to the IOCP, effectively
-         emulating a timerfd. */
-         timer_thread_handle = ::CreateThread(nullptr, 0, &timer_thread_static, this, 0, nullptr);
-         if (!timer_thread_handle) {
-            exception::throw_os_error();
-         }
+         setup_non_iocp_events();
    #endif
       }
       {
@@ -664,9 +645,10 @@ coroutine::scheduler::event_id_t coroutine::scheduler::create_event() {
    if (::kevent(engine_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
       exception::throw_os_error();
    }
-#elif LOFTY_HOST_API_LINUX
+#elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    if (!event_semaphore_fd) {
       // No event infrastructure yet; set it up now.
+   #if LOFTY_HOST_API_LINUX
       /* We don’t use EFD_SEMAPHORE because with EPOLLET, it will only wake up a single thread once even if
       the semaphore count is >1. In non-semaphore mode, the one thread being awoken can activate all unblocked
       coroutines, and schedule the first one. */
@@ -682,22 +664,9 @@ coroutine::scheduler::event_id_t coroutine::scheduler::create_event() {
       if (::epoll_ctl(engine_fd.get(), EPOLL_CTL_ADD, event_semaphore_fd.get(), &ee) < 0) {
          exception::throw_os_error();
       }
-   }
-#elif LOFTY_HOST_API_WIN32
-   if (!event_semaphore_fd) {
-      // No event infrastructure yet; set it up now.
-      event_semaphore_fd = io::filedesc(::CreateSemaphore(nullptr, 0, numeric::max< ::LONG>::value, nullptr));
-      if (!event_semaphore_fd) {
-         exception::throw_os_error();
-      }
-      /* Create a thread that will wait for the semaphore to be released and post each release to the IOCP,
-      effectively emulating a semaphore eventfd. */
-      event_semaphore_thread_handle = ::CreateThread(
-         nullptr, 0, &event_semaphore_thread_static, this, 0, nullptr
-      );
-      if (!event_semaphore_thread_handle) {
-         exception::throw_os_error();
-      }
+   #elif LOFTY_HOST_API_WIN32
+      setup_non_iocp_events();
+   #endif
    }
 #else
    #error "TODO: HOST_API"
@@ -742,27 +711,6 @@ void coroutine::scheduler::discard_event(event_id_t event_id) {
    }
 #endif
 }
-
-#if LOFTY_HOST_API_WIN32
-void coroutine::scheduler::event_semaphore_thread() {
-   do {
-      if (::WaitForSingleObject(event_semaphore_fd.get(), INFINITE) == WAIT_OBJECT_0) {
-         ::PostQueuedCompletionStatus(
-            engine_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(event_semaphore_fd.get()), nullptr
-         );
-      }
-   } while (!stop_event_semaphore_thread.load());
-}
-
-/*static*/ ::DWORD WINAPI coroutine::scheduler::event_semaphore_thread_static(void * coro_sched) {
-   try {
-      static_cast<scheduler *>(coro_sched)->event_semaphore_thread();
-   } catch (...) {
-      return 1;
-   }
-   return 0;
-}
-#endif
 
 _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activate() {
    _std::shared_ptr<coroutine::impl> coro_pimpl;
@@ -988,6 +936,29 @@ void coroutine::scheduler::interrupt_all(exception::common_type reason_x_type) {
    interrupt_all();
 }
 
+#if LOFTY_HOST_API_WIN32
+void coroutine::scheduler::non_iocp_events_thread() {
+   ::HANDLE const handles[2] = { event_semaphore_fd.get(), timer_fd.get() };
+   do {
+      ::DWORD ret = ::WaitForMultipleObjects(LOFTY_COUNTOF(handles), handles, false /*wait for one*/, INFINITE);
+      if (/*ret >= WAIT_OBJECT_0 &&*/ ret < WAIT_OBJECT_0 + LOFTY_COUNTOF(handles)) {
+         ::PostQueuedCompletionStatus(
+            engine_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(handles[ret - WAIT_OBJECT_0]), nullptr
+         );
+      }
+   } while (!stop_non_iocp_events_thread.load());
+}
+
+/*static*/ ::DWORD WINAPI coroutine::scheduler::non_iocp_events_thread_static(void * coro_sched) {
+   try {
+      static_cast<scheduler *>(coro_sched)->non_iocp_events_thread();
+   } catch (...) {
+      return 1;
+   }
+   return 0;
+}
+#endif
+
 void coroutine::scheduler::return_to_scheduler(exception::common_type x_type) {
    /* Only the first uncaught exception in a coroutine can succeed at triggering termination of all
    coroutines. */
@@ -1038,6 +1009,27 @@ void coroutine::scheduler::run() {
    }
 }
 
+#if LOFTY_HOST_API_WIN32
+void coroutine::scheduler::setup_non_iocp_events() {
+   event_semaphore_fd = io::filedesc(::CreateSemaphore(nullptr, 0, numeric::max< ::LONG>::value, nullptr));
+   if (!event_semaphore_fd) {
+      exception::throw_os_error();
+   }
+   timer_fd = io::filedesc(::CreateWaitableTimer(nullptr, false /*automatic reset*/, nullptr));
+   if (!timer_fd) {
+      exception::throw_os_error();
+   }
+   /* Create a thread that will wait for the handles above to fire and post each firing to the IOCP,
+   effectively emulating an eventfd and a timerfd. */
+   non_iocp_events_thread_handle = ::CreateThread(
+      nullptr, 0, &non_iocp_events_thread_static, this, 0, nullptr
+   );
+   if (!non_iocp_events_thread_handle) {
+      exception::throw_os_error();
+   }
+}
+#endif
+
 void coroutine::scheduler::switch_to_scheduler(impl * last_active_coro_pimpl) {
 #if LOFTY_HOST_API_POSIX
    #if LOFTY_HOST_API_DARWIN && LOFTY_HOST_CXX_CLANG
@@ -1059,27 +1051,6 @@ void coroutine::scheduler::switch_to_scheduler(impl * last_active_coro_pimpl) {
    // Now that we’re back to the coroutine, check for any pending interruptions.
    last_active_coro_pimpl->interruption_point();
 }
-
-#if LOFTY_HOST_API_WIN32
-void coroutine::scheduler::timer_thread() {
-   do {
-      if (::WaitForSingleObject(timer_fd.get(), INFINITE) == WAIT_OBJECT_0) {
-         ::PostQueuedCompletionStatus(
-            engine_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(timer_fd.get()), nullptr
-         );
-      }
-   } while (!stop_timer_thread.load());
-}
-
-/*static*/ ::DWORD WINAPI coroutine::scheduler::timer_thread_static(void * coro_sched) {
-   try {
-      static_cast<scheduler *>(coro_sched)->timer_thread();
-   } catch (...) {
-      return 1;
-   }
-   return 0;
-}
-#endif
 
 void coroutine::scheduler::trigger_event(event_id_t event_id) {
 #if LOFTY_HOST_API_BSD
