@@ -361,7 +361,7 @@ LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(unsigned long long)
 
 namespace lofty { namespace _pvt {
 
-//! Base class for the specializations of to_text_ostream for integer types.
+//! Base class for the specializations of to_text_ostream for pointer types.
 class LOFTY_SYM ptr_to_text_ostream : public to_text_ostream<std::uintptr_t> {
 public:
    //! Default constructor.
@@ -378,7 +378,7 @@ protected:
    /*! Converts a pointer to a string representation.
 
    @param src
-      Object to write.
+      Object to write. Integer because void * would still require casts from function pointer types.
    @param dst
       Pointer to the stream to output to.
    */
@@ -405,6 +405,16 @@ public:
    */
    void write(T * src, io::text::ostream * dst) {
       _write_impl(reinterpret_cast<std::uintptr_t>(src), dst);
+   }
+};
+
+// Specialization for std::nullptr_t.
+template <>
+class to_text_ostream<std::nullptr_t> : public _pvt::ptr_to_text_ostream {
+public:
+   //! See _pvt::ptr_to_text_ostream::write().
+   void write(std::nullptr_t const &, io::text::ostream * dst) {
+      _write_impl(0, dst);
    }
 };
 
