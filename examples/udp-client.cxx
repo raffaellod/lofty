@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2017 Raffaello D. Di Napoli
+Copyright 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -40,7 +40,7 @@ public:
       LOFTY_UNUSED_ARG(args);
 
       net::udp::client client;
-      LOFTY_FOR_EACH(auto arg, args) {
+      LOFTY_FOR_EACH(auto const & arg, args) {
          auto dgram_data(_std::make_shared<io::binary::memory_stream>());
          {
             auto dgram_ostream(io::text::make_ostream(dgram_data));
