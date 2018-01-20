@@ -67,13 +67,13 @@ public:
       coroutine([this, source_fn] () {
          TKey key;
          while (auto value = source_fn(&key)) {
-            auto outstanding_get(outstanding_gets.find(key));
-            if (outstanding_get == outstanding_gets.cend()) {
+            auto itr(outstanding_gets.find(key));
+            if (itr == outstanding_gets.cend()) {
                // TODO: this is a client bug; log it or maybe invoke some client-provided callback.
                continue;
             }
-            outstanding_get->value.value = _std::move(value);
-            outstanding_get->value.event.trigger();
+            itr->value.value = _std::move(value);
+            itr->value.event.trigger();
             // TODO: allow this class to schedule directly the get() call that is waiting on the event.
             this_coroutine::sleep_for_ms(1);
          }
@@ -81,8 +81,8 @@ public:
          the end of this coroutine due to scheduling) . */
          /* TODO: this should be protected by a thread-level mutex, since the .remove() in get() will break
          looping if the unblocked coroutines resume executing in another thread. */
-         LOFTY_FOR_EACH(auto outstanding_get, outstanding_gets) {
-            outstanding_get.value.event.trigger();
+         LOFTY_FOR_EACH(auto kv, outstanding_gets) {
+            kv.value.event.trigger();
          }
       });
    }
@@ -99,14 +99,14 @@ public:
       function returned a value evaluating to false.
    */
    TValue get(TKey const & key, unsigned timeout_millisecs = 0) {
-      auto outstanding_get(_std::get<0>(outstanding_gets.add_or_assign(key, outstanding_get_t())));
+      auto itr(_std::get<0>(outstanding_gets.add_or_assign(key, outstanding_get_t())));
 
-      outstanding_get->value.event.wait(timeout_millisecs);
+      itr->value.event.wait(timeout_millisecs);
 
       // Re-retrieve the key/value, since outstanding_gets might have changed in the meantime.
-      outstanding_get = outstanding_gets.find(key);
-      TValue ret(_std::move(outstanding_get->value.value));
-      outstanding_gets.remove(outstanding_get);
+      itr = outstanding_gets.find(key);
+      TValue ret(_std::move(itr->value.value));
+      outstanding_gets.remove(itr);
       return _std::move(ret);
    }
 
