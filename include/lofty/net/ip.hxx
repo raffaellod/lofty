@@ -248,7 +248,10 @@ public:
    ~server();
 
 protected:
-   /*! Constructor.
+   //! Default constructor. Does create a socket, and does not initialize the IP version.
+   server();
+
+   /*! Constructor. Creates and binds the socket to the specified address and port.
 
    @param address
       Address to bind to. The IP version of this is ignored, in favor of the protocol_ argument.

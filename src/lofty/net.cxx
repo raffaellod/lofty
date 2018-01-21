@@ -173,6 +173,9 @@ bool address::operator==(address const & right) const {
 
 namespace lofty { namespace net { namespace ip {
 
+server::server() {
+}
+
 server::server(address const & address, port const & port, protocol protocol_) :
    sock(protocol_),
    ip_version(address.version()) {

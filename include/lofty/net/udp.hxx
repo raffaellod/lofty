@@ -99,22 +99,17 @@ private:
 
 namespace lofty { namespace net { namespace udp {
 
-//! Receives datagrams sent to a given UDP port.
-class LOFTY_SYM server : public ip::server {
+//! Sends datagrams to UDP servers.
+class LOFTY_SYM client : public ip::server {
 public:
-   /*! Constructor.
-
-   @param address
-      Address to bind to.
-   @param port
-      Port to listen for connections on.
-   */
-   server(ip::address const & address, ip::port const & port);
+   //! Constructor.
+   client();
 
    //! Destructor.
-   ~server();
+   ~client();
 
-   /*! Accepts and returns a datagram from a client.
+   /*! Accepts and returns a datagram from another UDP client. A UDP client must not call this method without
+   having first called send().
 
    @return
       Newly-received datagram.
@@ -127,6 +122,16 @@ public:
       Datagram to send.
    */
    void send(datagram const & dgram);
+
+protected:
+   /*! Constructor for use by udp::server; creates and binds the socket to the specified address and port.
+
+   @param address
+      Address to bind to.
+   @param port
+      Port to listen for connections on.
+   */
+   client(ip::address const & address, ip::port const & port);
 };
 
 }}} //namespace lofty::net::udp
@@ -135,42 +140,20 @@ public:
 
 namespace lofty { namespace net { namespace udp {
 
-//! Sends datagrams to a given UDP server address & port.
-class LOFTY_SYM client {
-private:
-   // The server class borrows the send() logic from this class.
-   friend void server::send(datagram const & dgram);
-
+//! Receives datagrams sent to a given UDP port.
+class LOFTY_SYM server : public client {
 public:
-   //! Constructor.
-   client();
+   /*! Constructor.
+
+   @param address
+      Address to bind to.
+   @param port
+      Port to listen for connections on.
+   */
+   server(ip::address const & address, ip::port const & port);
 
    //! Destructor.
-   ~client();
-
-   /*! Sends a datagram to the server indicated by its address() and port() properties.
-
-   @param dgram
-      Datagram to send.
-   */
-   void send(datagram const & dgram);
-
-private:
-   /*! Sends a datagram to the server indicated by its address() and port() properties, using the specified
-   socket.
-
-   @param dgram
-      Datagram to send.
-   @param sock
-      Socket to use to send the datagram.
-   */
-   static void send_via(datagram const & dgram, socket const & sock);
-
-protected:
-   //! Unbound socket.
-   socket sock;
-   //! IP version.
-   ip::version ip_version;
+   ~server();
 };
 
 }}} //namespace lofty::net::udp

@@ -55,6 +55,10 @@ namespace lofty { namespace net { namespace udp {
 client::client() {
 }
 
+client::client(ip::address const & address, ip::port const & port) :
+   ip::server(address, port, address.version() == ip::version::v4 ? protocol::udp_ipv4 : protocol::udp_ipv6) {
+}
+
 client::~client() {
 }
 
@@ -64,10 +68,7 @@ void client::send(datagram const & dgram) {
       ip_version = dgram.address().version();
       sock = socket(ip_version == ip::version::v4 ? protocol::udp_ipv4 : protocol::udp_ipv6);
    }
-   send_via(dgram, sock);
-}
 
-/*static*/ void client::send_via(datagram const & dgram, socket const & sock) {
    ip::sockaddr_any server_sock_addr(dgram.address(), dgram.port());
    std::int8_t const * buf;
    std::size_t buf_size;
@@ -128,20 +129,13 @@ void client::send(datagram const & dgram) {
    this_coroutine::interruption_point();
 }
 
-}}} //namespace lofty::net::udp
+_std::shared_ptr<datagram> client::receive() {
+   // Ensure send() has been called before, or we won’t know which IP version to setup the socket for.
+   if (!sock) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(generic_error, ());
+   }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace net { namespace udp {
-
-server::server(ip::address const & address, ip::port const & port) :
-   ip::server(address, port, address.version() == ip::version::v4 ? protocol::udp_ipv4 : protocol::udp_ipv6) {
-}
-
-server::~server() {
-}
-
-_std::shared_ptr<datagram> server::receive() {
    // Create a new buffer large enough for a UDP datagram.
    io::binary::buffer buf(0xffff);
    ip::sockaddr_any sender_sock_addr;
@@ -222,8 +216,17 @@ _std::shared_ptr<datagram> server::receive() {
    );
 }
 
-void server::send(datagram const & dgram) {
-   client::send_via(dgram, sock);
+}}} //namespace lofty::net::udp
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace net { namespace udp {
+
+server::server(ip::address const & address, ip::port const & port) :
+   client(address, port) {
+}
+
+server::~server() {
 }
 
 }}} //namespace lofty::net::udp
