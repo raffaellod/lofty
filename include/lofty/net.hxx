@@ -51,9 +51,7 @@ LOFTY_ENUM(protocol,
    //! User Datagram Protocol over Internet Protocol version 4 (UDP/IP).
    (udp_ipv4, 3),
    //! User Datagram Protocol over Internet Protocol version 6 (UDP/IPv6).
-   (udp_ipv6, 4),
-   //!  (UDP).
-   (udp, 2)
+   (udp_ipv6, 4)
 );
 
 }} //namespace lofty::net
