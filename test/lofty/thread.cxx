@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -14,6 +14,7 @@ more details.
 
 #include <lofty.hxx>
 #include <lofty/defer_to_scope_end.hxx>
+#include <lofty/event.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
@@ -31,7 +32,8 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   _std::atomic<bool> thread1_completed(false), thread2_completed(false);
+   _std::atomic<bool> thread1_completed(false), thread2_completed(false), thread3_completed(false);
+   event thread3_terminated;
 
    thread thread1([this, &thread1_completed] () {
       LOFTY_TRACE_FUNC();
@@ -43,31 +45,46 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
       thread2_completed.store(true);
    });
-   thread thread3;
+   thread thread3([this, &thread3_completed, &thread3_terminated] () {
+      LOFTY_TRACE_FUNC();
+
+      thread3_completed.store(true);
+      thread3_terminated.trigger();
+   });
+   thread3.detach();
+   thread thread4;
 
    LOFTY_TESTING_ASSERT_TRUE(thread1.joinable());
    LOFTY_TESTING_ASSERT_TRUE(thread2.joinable());
    LOFTY_TESTING_ASSERT_FALSE(thread3.joinable());
+   LOFTY_TESTING_ASSERT_FALSE(thread4.joinable());
 
    LOFTY_TESTING_ASSERT_NOT_EQUAL(thread1.id(), thread::id_type(0));
    LOFTY_TESTING_ASSERT_NOT_EQUAL(thread2.id(), thread::id_type(0));
    LOFTY_TESTING_ASSERT_EQUAL    (thread3.id(), thread::id_type(0));
+   LOFTY_TESTING_ASSERT_EQUAL    (thread4.id(), thread::id_type(0));
 
-   // Verify that the string representations are different.
-   str thread1_str(to_str(thread1)), thread2_str(to_str(thread2)), thread3_str(to_str(thread3));
+   /* Verify that the string representations are different for joinable thread, and identical for non-joinable
+   ones. */
+   str thread1_str(to_str(thread1)), thread2_str(to_str(thread2));
+   str thread3_str(to_str(thread3)), thread4_str(to_str(thread4));
    LOFTY_TESTING_ASSERT_NOT_EQUAL(thread1_str, thread2_str);
    LOFTY_TESTING_ASSERT_NOT_EQUAL(thread1_str, thread3_str);
    LOFTY_TESTING_ASSERT_NOT_EQUAL(thread2_str, thread3_str);
-   LOFTY_TESTING_ASSERT_EQUAL(thread3_str, LOFTY_SL("TID:-"));
+   LOFTY_TESTING_ASSERT_EQUAL(thread3_str, thread4_str);
+   LOFTY_TESTING_ASSERT_EQUAL(thread4_str, LOFTY_SL("TID:-"));
 
    // Wait for thread1 and thread2 to complete.
    thread1.join();
    thread2.join();
    LOFTY_TESTING_ASSERT_FALSE(thread1.joinable());
    LOFTY_TESTING_ASSERT_FALSE(thread2.joinable());
+   // Wait for thread3 to complete.
+   thread3_terminated.wait();
 
    LOFTY_TESTING_ASSERT_TRUE(thread1_completed.load());
    LOFTY_TESTING_ASSERT_TRUE(thread2_completed.load());
+   LOFTY_TESTING_ASSERT_TRUE(thread3_completed.load());
 }
 
 }} //namespace lofty::test
