@@ -23,7 +23,9 @@ more details.
 #endif
 
 #include <lofty/collections/hash_map.hxx>
+#include <lofty/coroutine.hxx>
 #include <lofty/event.hxx>
+#include <lofty/thread.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,9 +56,12 @@ public:
    keyed_demux() {
    }
 
-   /*! Schedules the source coroutine, which will call the provided function to obtain values and their keys.
-   When a key matches one provided by a caller to get(), that caller will be unblocked, and the value returned
-   to it.
+   /*! Schedules the source loop, which will call the provided function to obtain values and their keys. When
+   a key matches one provided by a caller to get(), that caller will be unblocked, and the value returned to
+   it.
+
+   The source loop runs on a separate thread or coroutine, depending on whether the calling thread has an
+   associated coroutine scheduler.
 
    @param source_fn
       Source function. This is supposed to obtain one value, extract a key from it, and return the value. If
@@ -64,7 +69,7 @@ public:
       return a default-constructed value.
    */
    void set_source(_std::function<TValue (TKey *)> source_fn) {
-      coroutine([this, source_fn] () {
+      _std::function<void ()> source_loop([this, source_fn] () {
          TKey key;
          while (auto value = source_fn(&key)) {
             auto itr(outstanding_gets.find(key));
@@ -85,6 +90,12 @@ public:
             kv.value.event.trigger();
          }
       });
+      // TODO: verify whether it makes sense for ~keyed_demux() to explicitly wait for these to terminate.
+      if (this_thread::coroutine_scheduler()) {
+         coroutine(_std::move(source_loop));
+      } else {
+         thread(_std::move(source_loop)).detach();
+      }
    }
 
    /*! Waits for a value with the given key to be returned by the source function.
