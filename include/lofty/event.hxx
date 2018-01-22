@@ -29,7 +29,11 @@ more details.
 
 namespace lofty {
 
-//! Event that can be waited for by a thread or coroutine.
+/*! Event that can be waited for by a thread or coroutine (exclusive “or”).
+
+If a coroutine scheduler is attached to the thread that is constructing the event, the latter will become a
+coroutine event, meaning it can only be waited on by a coroutine. If no coroutine scheduler is present, the
+event will become a thread event, meaning it can only be waited on by a thread (not running coroutines). */
 class LOFTY_SYM event : public noncopyable {
 public:
    //! Opaque id type.
@@ -67,6 +71,18 @@ public:
       Time after which the wait will be interrupted by an exception of type lofty::io::timeout.
    */
    void wait(unsigned timeout_millisecs = 0);
+
+private:
+   /*! Returns true if the event is using a coroutine scheduler, i.e. it can only be waited on by a coroutine,
+   or false if it’s not, i.e. it can only be waited on by a thread not running coroutines.
+
+   @return
+      false if coro_sched_w is nullptr, or true otherwise.
+   */
+   bool using_coro_sched() const {
+      _std::weak_ptr<coroutine::scheduler> null_coro_sched;
+      return coro_sched_w.owner_before(null_coro_sched) || null_coro_sched.owner_before(coro_sched_w);
+   }
 
 private:
    /*! Scheduler that owns the event id. Stored for performance (avoid thread-local storage) and to allow one

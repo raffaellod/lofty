@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -23,6 +23,7 @@ more details.
 #endif
 
 #include <lofty/coroutine.hxx>
+#include <lofty/event.hxx>
 #include <lofty/thread.hxx>
 #include "_pvt/signal_dispatcher.hxx"
 
@@ -30,50 +31,7 @@ more details.
    #include <errno.h> // EINTR errno
    #include <signal.h>
    #include <sys/poll.h>
-   #if LOFTY_HOST_API_DARWIN
-      #include <dispatch/dispatch.h>
-   #else
-      #include <semaphore.h>
-   #endif
 #endif
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*! Event that can be waited for. Not compatible with coroutines, since it doesn’t yield to a
-coroutine::scheduler. */
-// TODO: make this a non-coroutine-friendly general-purpose event.
-namespace lofty { namespace _pvt {
-
-class simple_event : public noncopyable {
-public:
-   //! Constructor.
-   simple_event();
-
-   //! Destructor.
-   ~simple_event();
-
-   //! Raises the event.
-   void raise();
-
-   //! Waits for the event to be raised by another thread.
-   void wait();
-
-private:
-#if LOFTY_HOST_API_DARWIN
-   //! Underlying dispatch semaphore.
-   ::dispatch_semaphore_t disp_sem;
-#elif LOFTY_HOST_API_POSIX
-   //! Underlying POSIX semaphore.
-   ::sem_t sem;
-#elif LOFTY_HOST_API_WIN32
-   //! Underlying event.
-   ::HANDLE event;
-#else
-   #error "TODO: HOST_API"
-#endif
-};
-
-}} //namespace lofty::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -198,7 +156,7 @@ private:
 #endif
    /*! Pointer to an event used by the new thread to report to its parent that it has started. Only
    non-nullptr during the execution of start(). */
-   _pvt::simple_event * started_event_ptr;
+   event * started_event_ptr;
    /*! Every time the thread returns from an interruption point, this is checked for pending exceptions to be
    injected. */
    _std::atomic<exception::common_type::enum_type> pending_x_type;

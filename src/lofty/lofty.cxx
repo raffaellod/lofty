@@ -30,6 +30,12 @@ more details.
 
 #include <cstdlib> // std::abort() std::free() std::malloc() std::realloc()
 #if LOFTY_HOST_API_POSIX
+   #if LOFTY_HOST_API_DARWIN
+      #include <dispatch/dispatch.h>
+   #else
+      #include <semaphore.h>
+      #include <time.h> // timespec clock_gettime()
+   #endif
    #include <unistd.h> // _SC_* sysconf()
 #endif
 
@@ -89,12 +95,31 @@ void destructing_unfinalized_object::write_what(void const * o, _std::type_info 
 namespace lofty {
 
 event::event() :
-   coro_sched_w(this_thread::coroutine_scheduler()),
-   id(0) {
+   coro_sched_w(this_thread::coroutine_scheduler()) {
    if (auto coro_sched = coro_sched_w.lock()) {
       id = coro_sched->create_event();
    } else {
-      // TODO: create a non-coroutine event (reuse simple_event?).
+#if LOFTY_HOST_API_DARWIN
+      ::dispatch_semaphore_t sem = ::dispatch_semaphore_create(0);
+      if (!sem) {
+         exception::throw_os_error();
+      }
+      id = reinterpret_cast<id_type>(sem);
+#elif LOFTY_HOST_API_POSIX
+      auto sem = memory::alloc_unique< ::sem_t>();
+      if (::sem_init(sem.get(), 0, 0)) {
+         exception::throw_os_error();
+      }
+      id = reinterpret_cast<id_type>(sem.release());
+#elif LOFTY_HOST_API_WIN32
+      ::HANDLE event = ::CreateEvent(nullptr, false /*auto reset*/, false /*not signaled*/, nullptr);
+      if (!event) {
+         exception::throw_os_error();
+      }
+      id = reinterpret_cast<id_type>(event);
+#else
+   #error "TODO: HOST_API"
+#endif
    }
 }
 
@@ -105,10 +130,26 @@ event::event(event && src) :
 }
 
 event::~event() {
-   if (auto coro_sched = coro_sched_w.lock()) {
-      coro_sched->discard_event(id);
+   if (!id) {
+      // Must have been moved.
+      return;
+   }
+   if (using_coro_sched()) {
+      if (auto coro_sched = coro_sched_w.lock()) {
+         coro_sched->discard_event(id);
+      }
    } else {
-      // TODO: see constructor.
+#if LOFTY_HOST_API_DARWIN
+      ::dispatch_release(reinterpret_cast< ::dispatch_semaphore_t>(id));
+#elif LOFTY_HOST_API_POSIX
+      auto sem = reinterpret_cast< ::sem_t *>(id);
+      ::sem_destroy(sem);
+      memory::free(sem);
+#elif LOFTY_HOST_API_WIN32
+      ::CloseHandle(reinterpret_cast< ::HANDLE>(id));
+#else
+   #error "TODO: HOST_API"
+#endif
    }
 }
 
@@ -120,15 +161,27 @@ event & event::operator=(event && src) {
 }
 
 void event::trigger() {
-   if (auto coro_sched = coro_sched_w.lock()) {
+   if (using_coro_sched()) {
+      // Will throw if coro_sched_w is expired.
+      _std::shared_ptr<coroutine::scheduler> coro_sched(coro_sched_w);
       coro_sched->trigger_event(id);
    } else {
-      // TODO: see constructor.
+#if LOFTY_HOST_API_DARWIN
+      ::dispatch_semaphore_signal(reinterpret_cast< ::dispatch_semaphore_t>(id));
+#elif LOFTY_HOST_API_POSIX
+      ::sem_post(reinterpret_cast< ::sem_t *>(id));
+#elif LOFTY_HOST_API_WIN32
+      ::SetEvent(reinterpret_cast< ::HANDLE>(id));
+#else
+   #error "TODO: HOST_API"
+#endif
    }
 }
 
 void event::wait(unsigned timeout_millisecs /*= 0*/) {
-   if (auto coro_sched = coro_sched_w.lock()) {
+   if (using_coro_sched()) {
+      // Will throw if coro_sched_w is expired.
+      _std::shared_ptr<coroutine::scheduler> coro_sched(coro_sched_w);
       coro_sched->block_active(
          timeout_millisecs, id, io::filedesc_t_null, false /*read – N/A*/
 #if LOFTY_HOST_API_WIN32
@@ -136,7 +189,37 @@ void event::wait(unsigned timeout_millisecs /*= 0*/) {
 #endif
       );
    } else {
-      // TODO: see constructor.
+#if LOFTY_HOST_API_DARWIN
+      ::dispatch_time_t timeout_dt = timeout_millisecs > 0
+         ? DISPATCH_TIME_FOREVER
+         : ::dispatch_time(DISPATCH_TIME_NOW, static_cast<std::int64_t>(timeout_millisecs) * 1000000);
+      ::dispatch_semaphore_wait(reinterpret_cast< ::dispatch_semaphore_t>(id), timeout_dt);
+#elif LOFTY_HOST_API_POSIX
+      auto sem = reinterpret_cast< ::sem_t *>(id);
+      ::timespec timeout_ts;
+      if (timeout_millisecs > 0) {
+         ::clock_gettime(CLOCK_REALTIME, &timeout_ts);
+         timeout_ts.tv_sec += static_cast< ::time_t>(timeout_millisecs / 1000u);
+         timeout_ts.tv_nsec += static_cast<long>(
+            static_cast<unsigned long>(timeout_millisecs % 1000u) * 1000000u
+         );
+         if (timeout_ts.tv_nsec > 1000000000) {
+            timeout_ts.tv_nsec -= 1000000000;
+            ++timeout_ts.tv_sec;
+         }
+      }
+      while ((timeout_millisecs > 0 ? ::sem_timedwait(sem, &timeout_ts) : ::sem_wait(sem)) < 0) {
+         int err = errno;
+         if (err != EINTR) {
+            exception::throw_os_error(err);
+         }
+         this_coroutine::interruption_point();
+      }
+#elif LOFTY_HOST_API_WIN32
+      this_thread::interruptible_wait_for_single_object(reinterpret_cast< ::HANDLE>(id), timeout_millisecs);
+#else
+   #error "TODO: HOST_API"
+#endif
    }
 }
 

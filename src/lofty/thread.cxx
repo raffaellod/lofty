@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -35,79 +35,6 @@ more details.
    #endif
 #endif
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*! Event that can be waited for. Not compatible with coroutines, since it doesn’t yield to a
-coroutine::scheduler. */
-// TODO: make this a non-coroutine-friendly general-purpose event.
-namespace lofty { namespace _pvt {
-
-#if LOFTY_HOST_API_DARWIN
-simple_event::simple_event() :
-   disp_sem(::dispatch_semaphore_create(0)) {
-   if (!disp_sem) {
-      exception::throw_os_error();
-   }
-}
-#elif LOFTY_HOST_API_POSIX
-simple_event::simple_event() {
-   if (::sem_init(&sem, 0, 0)) {
-      exception::throw_os_error();
-   }
-}
-#elif LOFTY_HOST_API_WIN32
-simple_event::simple_event() :
-   event(::CreateEvent(nullptr, true /*manual reset*/, false /*not signaled*/, nullptr)) {
-   if (!event) {
-      exception::throw_os_error();
-   }
-}
-#else
-   #error "TODO: HOST_API"
-#endif
-
-simple_event::~simple_event() {
-#if LOFTY_HOST_API_DARWIN
-   ::dispatch_release(disp_sem);
-#elif LOFTY_HOST_API_POSIX
-   ::sem_destroy(&sem);
-#elif LOFTY_HOST_API_WIN32
-   ::CloseHandle(event);
-#else
-   #error "TODO: HOST_API"
-#endif
-}
-
-void simple_event::raise() {
-#if LOFTY_HOST_API_DARWIN
-   ::dispatch_semaphore_signal(disp_sem);
-#elif LOFTY_HOST_API_POSIX
-   ::sem_post(&sem);
-#elif LOFTY_HOST_API_WIN32
-   ::SetEvent(event);
-#else
-   #error "TODO: HOST_API"
-#endif
-}
-
-void simple_event::wait() {
-#if LOFTY_HOST_API_DARWIN
-   ::dispatch_semaphore_wait(disp_sem, DISPATCH_TIME_FOREVER);
-#elif LOFTY_HOST_API_POSIX
-   /* Block until the new thread is finished updating *this. The only possible failure is EINTR, so we just
-   keep on retrying. */
-   while (::sem_wait(&sem)) {
-      this_coroutine::interruption_point();
-   }
-#elif LOFTY_HOST_API_WIN32
-   this_thread::interruptible_wait_for_single_object(event, 0);
-#else
-   #error "TODO: HOST_API"
-#endif
-}
-
-}} //namespace lofty::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -255,7 +182,7 @@ void thread::impl::join() {
    try {
       _pvt::signal_dispatcher::instance().nonmain_thread_started(this_pimpl);
       // Report that this thread is done with writing to *this_pimpl.
-      this_pimpl->started_event_ptr->raise();
+      this_pimpl->started_event_ptr->trigger();
       /* Afer the user’s main() returns we’ll set terminating_ to true, so no exceptions can be injected
       beyond this scope. A simple bool flag will work because it’s only accessed by this thread (POSIX) or
       when this thread is suspended (Win32). */
@@ -280,7 +207,7 @@ void thread::impl::join() {
 }
 
 void thread::impl::start(_std::shared_ptr<impl> * this_pimpl_ptr) {
-   _pvt::simple_event started_event;
+   event started_event;
    started_event_ptr = &started_event;
    LOFTY_DEFER_TO_SCOPE_END(started_event_ptr = nullptr);
 #if LOFTY_HOST_API_POSIX
