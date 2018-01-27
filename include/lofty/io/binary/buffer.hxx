@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -94,8 +94,8 @@ public:
    //! Default constructor.
    buffer() :
       size_(0),
-      used_offset(0),
-      available_offset(0) {
+      used_offset_(0),
+      available_offset_(0) {
    }
 
    /*! Move constructor.
@@ -124,13 +124,23 @@ public:
    */
    buffer & operator=(buffer && src);
 
+   /*! Returns the number of used bytes. Only bytes following the used portion are reported as available
+   (writable).
+
+   @return
+      Number of used bytes.
+   */
+   std::size_t available_offset() const {
+      return available_offset_;
+   }
+
    /*! Returns the amount of available buffer space.
 
    @return
       Size of available buffer space, in bytes.
    */
    std::size_t available_size() const {
-      return size_ - available_offset;
+      return size_ - available_offset_;
    }
 
    /*! Increases the size of the buffer.
@@ -146,7 +156,7 @@ public:
       Pointer to the available portion of the buffer.
    */
    std::int8_t * get_available() const {
-      return static_cast<std::int8_t *>(ptr.get()) + available_offset;
+      return static_cast<std::int8_t *>(ptr.get()) + available_offset_;
    }
 
    /*! Returns a pointer to the used portion of the buffer.
@@ -155,7 +165,7 @@ public:
       Pointer to the used portion of the buffer.
    */
    std::int8_t * get_used() const {
-      return static_cast<std::int8_t *>(ptr.get()) + used_offset;
+      return static_cast<std::int8_t *>(ptr.get()) + used_offset_;
    }
 
    /*! Shifts the used portion of the buffer to completely obliterate the unused portion, resulting in an
@@ -168,7 +178,7 @@ public:
       Bytes to count as unused.
    */
    void mark_as_unused(std::size_t unused_size_) {
-      used_offset += unused_size_;
+      used_offset_ += unused_size_;
    }
 
    /*! Increases the used bytes count, reducing the available bytes count.
@@ -177,12 +187,12 @@ public:
       Bytes to count as used.
    */
    void mark_as_used(std::size_t used_size_) {
-      available_offset += used_size_;
+      available_offset_ += used_size_;
    }
 
    //! Marks the unused (already read) portion of the buffer back as used (to be read).
    void mark_unused_as_used() {
-      used_offset = 0;
+      used_offset_ = 0;
    }
 
    //! Reduces the size of the buffer, making it just large enough to contain all used bytes.
@@ -197,22 +207,32 @@ public:
       return size_;
    }
 
-   /*! Returns the amount of used buffer space.
-
-   @return
-      Size of the used buffer space, in bytes.
-   */
-   std::size_t used_size() const {
-      return available_offset - used_offset;
-   }
-
    /*! Returns the amount of unused buffer space.
 
    @return
       Size of the unused buffer space, in bytes.
    */
    std::size_t unused_size() const {
-      return used_offset;
+      return used_offset_;
+   }
+
+   /*! Returns the offset of the used portion of the buffer. Only bytes following the used portion are
+   reported as used (readable).
+
+   @return
+      Offset of the used portion of the buffer, in bytes.
+   */
+   std::size_t used_offset() const {
+      return used_offset_;
+   }
+
+   /*! Returns the amount of used buffer space.
+
+   @return
+      Size of the used buffer space, in bytes.
+   */
+   std::size_t used_size() const {
+      return available_offset_ - used_offset_;
    }
 
 private:
@@ -222,9 +242,9 @@ private:
    std::size_t size_;
    /*! Offset of the used portion of the buffer. Only bytes following the used portion are reported as used
    (readable). */
-   std::size_t used_offset;
+   std::size_t used_offset_;
    //! Count of used bytes. Only bytes following the used portion are reported as available (writable).
-   std::size_t available_offset;
+   std::size_t available_offset_;
 };
 
 }}} //namespace lofty::io::binary
