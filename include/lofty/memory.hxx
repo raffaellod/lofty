@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -325,11 +325,9 @@ namespace lofty { namespace memory {
    Pointer to the target memory block.
 @param count
    Count of items to clear.
-@return
-   Same as dst.
 */
 template <typename T>
-inline T * clear(T * dst, std::size_t count = 1) {
+inline void clear(T * dst, std::size_t count = 1) {
 #if LOFTY_HOST_API_POSIX
    ::memset(dst, 0, sizeof(T) * count);
 #elif LOFTY_HOST_API_WIN32
@@ -337,40 +335,6 @@ inline T * clear(T * dst, std::size_t count = 1) {
 #else
    #error "TODO: HOST_API"
 #endif
-   return dst;
-}
-
-/*! Copies memory from one pointer to another.
-
-@param dst
-   Pointer to the destination memory.
-@param src
-   Pointer to the source data.
-@return
-   Same as dst.
-*/
-template <typename T>
-inline T * copy(T * dst, T const * src) {
-   /* Optimization: if the copy can be made by mem-reg-mem transfers, avoid calling a function, so that the
-   compiler can inline the copy. */
-   switch (sizeof(T)) {
-      case sizeof(std::int8_t):
-         *reinterpret_cast<std::int8_t *>(dst) = *reinterpret_cast<std::int8_t const *>(src);
-         break;
-      case sizeof(std::int16_t):
-         *reinterpret_cast<std::int16_t *>(dst) = *reinterpret_cast<std::int16_t const *>(src);
-         break;
-      case sizeof(std::int32_t):
-         *reinterpret_cast<std::int32_t *>(dst) = *reinterpret_cast<std::int32_t const *>(src);
-         break;
-      case sizeof(std::int64_t):
-         *reinterpret_cast<std::int64_t *>(dst) = *reinterpret_cast<std::int64_t const *>(src);
-         break;
-      default:
-         copy<T>(dst, src, 1);
-         break;
-   }
-   return dst;
 }
 
 /*! Copies memory from an array to another.
@@ -381,11 +345,9 @@ inline T * copy(T * dst, T const * src) {
    Pointer to the source data.
 @param count
    Count of items to copy.
-@return
-   Same as dst.
 */
 template <typename T>
-inline T * copy(T * dst, T const * src, std::size_t count) {
+inline void copy(T * dst, T const * src, std::size_t count = 1) {
 #if LOFTY_HOST_API_POSIX
    ::memcpy(dst, src, sizeof(T) * count);
 #elif LOFTY_HOST_API_WIN32
@@ -393,7 +355,6 @@ inline T * copy(T * dst, T const * src, std::size_t count) {
 #else
    #error "TODO: HOST_API"
 #endif
-   return dst;
 }
 
 /*! Copies memory from an array to another, where the two arrays may be overlapping.
@@ -404,11 +365,9 @@ inline T * copy(T * dst, T const * src, std::size_t count) {
    Pointer to the source data.
 @param count
    Count of items to move.
-@return
-   Same as dst.
 */
 template <typename T>
-inline T * move(T * dst, T const * src, std::size_t count) {
+inline void move(T * dst, T const * src, std::size_t count = 1) {
 #if LOFTY_HOST_API_POSIX
    ::memmove(dst, src, sizeof(T) * count);
 #elif LOFTY_HOST_API_WIN32
@@ -416,7 +375,6 @@ inline T * move(T * dst, T const * src, std::size_t count) {
 #else
    #error "TODO: HOST_API"
 #endif
-   return dst;
 }
 
 /*! Copies a value over each item of an array.
@@ -427,28 +385,23 @@ inline T * move(T * dst, T const * src, std::size_t count) {
    Source value to replicate over *dst.
 @param count
    Count of copies of value to make.
-@return
-   Same as dst.
 */
 template <typename T>
-inline T * set(T * dst, T const & value, std::size_t count) {
-   switch (sizeof(T)) {
+inline void set(T * dst, T const & value, std::size_t count = 1) {
 #if LOFTY_HOST_API_POSIX
-      case sizeof(std::int8_t):
-         ::memset(dst, value, count);
-         break;
-#elif LOFTY_HOST_API_WIN32
-      case sizeof(::UCHAR):
-         ::RtlFillMemory(dst, count, value);
-         break;
-#endif
-      default:
-         for (auto dst_end = dst + count; dst < dst_end; ++dst) {
-            copy(dst, &value);
-         }
-         break;
+   if (sizeof(T) == sizeof(std::int8_t)) {
+      ::memset(dst, value, count);
+      return;
    }
-   return dst;
+#elif LOFTY_HOST_API_WIN32
+   if (sizeof(T) == sizeof(::UCHAR)) {
+      ::RtlFillMemory(dst, count, value);
+      return;
+   }
+#endif
+   for (auto dst_end = dst + count; dst < dst_end; ++dst) {
+      copy(dst, &value);
+   }
 }
 
 }} //namespace lofty::memory
