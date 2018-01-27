@@ -84,6 +84,20 @@ exception). This allows optimizations based on the fact that code following its 
    #define override
 #endif
 
+/*! Declares a struct as having no padding added by the compiler. This macro expands into the name as-is, to
+be optionally followed by the struct definition.
+
+@param name
+   Name of the struct to declare.
+*/
+#if LOFTY_HOST_CXX_MSC
+   #define LOFTY_PACKED_STRUCT(name) \
+      __pragma(pack(push, 1)) struct name __pragma(pack(pop))
+#elif LOFTY_HOST_CXX_CLANG || LOFTY_HOST_CXX_GCC
+   #define LOFTY_PACKED_STRUCT(name) \
+      struct __attribute__((packed)) name
+#endif
+
 //! Declares a function as using the same calling convention as the host C library/STL implementation.
 #if LOFTY_HOST_API_WIN32 && !LOFTY_HOST_API_WIN64
    #define LOFTY_STL_CALLCONV __cdecl
