@@ -952,7 +952,7 @@ public:
    @return
       Resulting byte vector.
    */
-   collections::vector<std::uint8_t> encode(encoding enc, bool add_nul_term) const;
+   collections::vector<std::uint8_t> encode(encoding enc, bool add_nul_term = false) const;
 
    /*! Returns an iterator set beyond the last character.
 
