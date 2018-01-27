@@ -982,6 +982,35 @@ void memory_stream::rewind() {
    buf.mark_unused_as_used();
 }
 
+/*virtual*/ offset_t memory_stream::seek(offset_t offset, seek_from whence) /*override*/ {
+   // This implementation moves buf.used_offset() within 0 to buf.available_offset().
+   switch (whence.base()) {
+      case seek_from::start:
+         break;
+      case seek_from::current:
+         offset += static_cast<offset_t>(buf.used_offset());
+         break;
+      case seek_from::end:
+         offset += static_cast<offset_t>(buf.available_offset());
+         break;
+   }
+   if (offset < 0 || offset > static_cast<offset_t>(buf.available_offset())) {
+      LOFTY_THROW(io::error, ());
+   }
+   buf.mark_as_unused(static_cast<std::size_t>(
+      -static_cast<std::ptrdiff_t>(buf.unused_size()) + static_cast<std::ptrdiff_t>(offset)
+   ));
+   return static_cast<offset_t>(buf.used_offset());
+}
+
+/*virtual*/ full_size_t memory_stream::size() const /*override*/ {
+   return buf.available_offset();
+}
+
+/*virtual*/ offset_t memory_stream::tell() const /*override*/ {
+   return static_cast<offset_t>(buf.used_offset());
+}
+
 /*virtual*/ _std::shared_ptr<stream> memory_stream::_unbuffered_stream() const /*override*/ {
    // Removing constness is bad, but no alternatives ara viable (return const, or make method non-const).
    return _std::dynamic_pointer_cast<stream>(_std::const_pointer_cast<memory_stream>(shared_from_this()));

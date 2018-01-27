@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2017 Raffaello D. Di Napoli
+Copyright 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -34,6 +34,8 @@ namespace lofty { namespace io { namespace binary {
 class LOFTY_SYM memory_stream :
    public virtual buffered_istream,
    public virtual buffered_ostream,
+   public seekable,
+   public sized,
    public _std::enable_shared_from_this<memory_stream>,
    public noncopyable {
 public:
@@ -71,6 +73,15 @@ public:
 
    //! Makes the next read operation start from the first byte.
    void rewind();
+
+   //! See seekable::seek().
+   virtual offset_t seek(offset_t offset, seek_from whence) override;
+
+   //! See sized::size().
+   virtual full_size_t size() const override;
+
+   //! See seekable::tell().
+   virtual offset_t tell() const override;
 
 protected:
    //! Not used in this implementation; see buffered_ostream::finalize().
