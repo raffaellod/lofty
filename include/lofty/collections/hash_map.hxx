@@ -362,7 +362,7 @@ public:
    @return
       Const iterator set to beyond the last key/value pair.
    */
-   const_iterator cend() {
+   const_iterator cend() const {
       return const_cast<hash_map *>(this)->end();
    }
 
@@ -405,6 +405,19 @@ public:
    iterator find(TKey const & key) {
       std::size_t bucket = lookup_key(key);
       return iterator(this, bucket);
+   }
+
+   /*! Searches the map for a specific key, returning an iterator to the corresponding key/value pair if
+   found.
+
+   @param key
+      Key to search for.
+   @return
+      Iterator to the matching key/value, or cend() if the key could not be found.
+   */
+   const_iterator find(TKey const & key) const {
+      std::size_t bucket = lookup_key(key);
+      return const_iterator(this, bucket);
    }
 
    /*! Removes and returns a value given an iterator to it.
