@@ -289,8 +289,6 @@ void thread::join() {
    // Empty pimpl immediately; this will also make joinable() return false.
    auto pimpl_(_std::move(pimpl));
    pimpl_->join();
-
-   this_coroutine::interruption_point();
 }
 
 thread::native_handle_type thread::native_handle() const {
