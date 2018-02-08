@@ -40,15 +40,21 @@ class keyed_demux : public noncopyable {
 private:
    //! Tracks a single outstanding get() call.
    struct outstanding_get_t {
-      //! Event used to block the coroutine performing the get() call.
-      lofty::event event;
+      /*! Pointer to the event used to block the coroutine performing the get() call. Needs to be a pointer so
+      that the caller of wait() won’t be affected by outstanding_gets being resized (and event being moved
+      from allocation to allocation) while it’s waiting. */
+      lofty::event * event;
       //! Storage to transfer data from the source coroutine to a get() call.
       TValue value;
 
-      //! Default constructor.
-      outstanding_get_t() :
+      /*! Constructor.
+
+      @param event_
+         Pointer to the event.
+      */
+      explicit outstanding_get_t(lofty::event * event_) :
+         event(event_),
          value() {
-         event.create();
       }
    };
 
@@ -73,25 +79,28 @@ public:
       _std::function<void ()> source_loop([this, source_fn] () {
          TKey key;
          while (auto value = source_fn(&key)) {
-            auto itr(outstanding_gets.find(key));
-            if (itr == outstanding_gets.cend()) {
-               // TODO: this is a client bug; log it or maybe invoke some client-provided callback.
-               continue;
+            {
+               _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
+               auto itr(outstanding_gets.find(key));
+               if (itr == outstanding_gets.cend()) {
+                  // TODO: this is a client bug; log it or maybe invoke some client-provided callback.
+                  continue;
+               }
+               itr->value.value = _std::move(value);
+               itr->value.event->trigger();
             }
-            itr->value.value = _std::move(value);
-            itr->value.event.trigger();
             // TODO: allow this class to schedule directly the get() call that is waiting on the event.
             this_coroutine::sleep_for_ms(1);
          }
          /* On end of source, all get() callers are unblocked and get a default-constructed value (delayed to
          the end of this coroutine due to scheduling) . */
-         /* TODO: this should be protected by a thread-level mutex, since the .remove() in get() will break
-         looping if the unblocked coroutines resume executing in another thread. */
+         /* Need to acquire the mutex because the .remove() in get() will break looping if running in another
+         thread, or if an unblocked coroutine resumes executing in another thread. */
+         _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
          LOFTY_FOR_EACH(auto kv, outstanding_gets) {
-            kv.value.event.trigger();
+            kv.value.event->trigger();
          }
       });
-      // TODO: verify whether it makes sense for ~keyed_demux() to explicitly wait for these to terminate.
       if (this_thread::coroutine_scheduler()) {
          coroutine(_std::move(source_loop));
       } else {
@@ -111,12 +120,17 @@ public:
       function returned a value evaluating to false.
    */
    TValue get(TKey const & key, unsigned timeout_millisecs = 0) {
-      auto itr(_std::get<0>(outstanding_gets.add_or_assign(key, outstanding_get_t())));
-
-      itr->value.event.wait(timeout_millisecs);
+      event get_event;
+      get_event.create();
+      {
+         _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
+         outstanding_gets.add_or_assign(key, outstanding_get_t(&get_event));
+      }
+      get_event.wait(timeout_millisecs);
 
       // Re-retrieve the key/value, since outstanding_gets might have changed in the meantime.
-      itr = outstanding_gets.find(key);
+      _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
+      auto itr(outstanding_gets.find(key));
       TValue ret(_std::move(itr->value.value));
       outstanding_gets.remove(itr);
       return _std::move(ret);
@@ -125,6 +139,8 @@ public:
 private:
    //! Tracks all outstanding waits, so that the source coroutine can trigger the associated events as needed.
    collections::hash_map<TKey, outstanding_get_t> outstanding_gets;
+   //! Guards concurrent access to outstanding_gets.
+   _std::mutex outstanding_gets_mutex;
 };
 
 } //namespace lofty
