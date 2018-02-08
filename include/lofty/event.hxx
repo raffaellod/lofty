@@ -31,10 +31,13 @@ namespace lofty {
 
 /*! Event that can be waited for by a thread or coroutine (exclusive “or”).
 
-If a coroutine scheduler is attached to the thread that is constructing the event, the latter will become a
-coroutine event, meaning it can only be waited on by a coroutine. If no coroutine scheduler is present, the
-event will become a thread event, meaning it can only be waited on by a thread (not running coroutines). */
-class LOFTY_SYM event : public noncopyable {
+An event can be waited for or triggered only after calling create() on it; failure to do so will result in an
+exception being thrown by trigger() and wait().
+
+If a coroutine scheduler is attached to the thread that calls create(), the event will become a coroutine
+event, meaning it can only be waited on by a coroutine. If no coroutine scheduler is present, the event will
+become a thread event, meaning it can only be waited on by a thread (not running coroutines). */
+class LOFTY_SYM event : public support_explicit_operator_bool<event>, public noncopyable {
 public:
    //! Opaque id type.
    typedef std::uintptr_t id_type;
@@ -61,6 +64,18 @@ public:
       *this.
    */
    event & operator=(event && src);
+
+   /*! Boolean evaluation operator.
+
+   @return
+      true if create() has been invoked, or false otherwise.
+   */
+   LOFTY_EXPLICIT_OPERATOR_BOOL() const {
+      return id != 0;
+   }
+
+   //! Creates the event, allowing for trigger() and wait() to be invoked on it.
+   event & create();
 
    //! Triggers the event, unblocking any threads/coroutines waiting for it.
    void trigger();

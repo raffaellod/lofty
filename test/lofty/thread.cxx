@@ -34,6 +34,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    _std::atomic<bool> thread1_completed(false), thread2_completed(false), thread3_completed(false);
    event thread3_terminated;
+   thread3_terminated.create();
 
    thread thread1([this, &thread1_completed] () {
       LOFTY_TRACE_FUNC();

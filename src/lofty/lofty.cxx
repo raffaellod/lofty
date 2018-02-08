@@ -95,7 +95,50 @@ void destructing_unfinalized_object::write_what(void const * o, _std::type_info 
 namespace lofty {
 
 event::event() :
-   coro_sched_w(this_thread::coroutine_scheduler()) {
+   id(0) {
+}
+
+event::event(event && src) :
+   coro_sched_w(_std::move(src.coro_sched_w)),
+   id(src.id) {
+   src.id = 0;
+}
+
+event::~event() {
+   if (id) {
+      if (using_coro_sched()) {
+         if (auto coro_sched = coro_sched_w.lock()) {
+            coro_sched->discard_event(id);
+         }
+      } else {
+#if LOFTY_HOST_API_DARWIN
+         ::dispatch_release(reinterpret_cast< ::dispatch_semaphore_t>(id));
+#elif LOFTY_HOST_API_POSIX
+         auto sem = reinterpret_cast< ::sem_t *>(id);
+         ::sem_destroy(sem);
+         memory::free(sem);
+#elif LOFTY_HOST_API_WIN32
+         ::CloseHandle(reinterpret_cast< ::HANDLE>(id));
+#else
+   #error "TODO: HOST_API"
+#endif
+      }
+   }
+}
+
+event & event::operator=(event && src) {
+   coro_sched_w = _std::move(src.coro_sched_w);
+   id = src.id;
+   src.id = 0;
+   return *this;
+}
+
+event & event::create() {
+   if (id) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
+   coro_sched_w = this_thread::coroutine_scheduler();
    if (auto coro_sched = coro_sched_w.lock()) {
       id = coro_sched->create_event();
    } else {
@@ -121,46 +164,14 @@ event::event() :
    #error "TODO: HOST_API"
 #endif
    }
-}
-
-event::event(event && src) :
-   coro_sched_w(_std::move(src.coro_sched_w)),
-   id(src.id) {
-   src.id = 0;
-}
-
-event::~event() {
-   if (!id) {
-      // Must have been moved.
-      return;
-   }
-   if (using_coro_sched()) {
-      if (auto coro_sched = coro_sched_w.lock()) {
-         coro_sched->discard_event(id);
-      }
-   } else {
-#if LOFTY_HOST_API_DARWIN
-      ::dispatch_release(reinterpret_cast< ::dispatch_semaphore_t>(id));
-#elif LOFTY_HOST_API_POSIX
-      auto sem = reinterpret_cast< ::sem_t *>(id);
-      ::sem_destroy(sem);
-      memory::free(sem);
-#elif LOFTY_HOST_API_WIN32
-      ::CloseHandle(reinterpret_cast< ::HANDLE>(id));
-#else
-   #error "TODO: HOST_API"
-#endif
-   }
-}
-
-event & event::operator=(event && src) {
-   coro_sched_w = _std::move(src.coro_sched_w);
-   id = src.id;
-   src.id = 0;
    return *this;
 }
 
 void event::trigger() {
+   if (!id) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
    if (using_coro_sched()) {
       // Will throw if coro_sched_w is expired.
       _std::shared_ptr<coroutine::scheduler> coro_sched(coro_sched_w);
@@ -179,6 +190,10 @@ void event::trigger() {
 }
 
 void event::wait(unsigned timeout_millisecs /*= 0*/) {
+   if (!id) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
    if (using_coro_sched()) {
       // Will throw if coro_sched_w is expired.
       _std::shared_ptr<coroutine::scheduler> coro_sched(coro_sched_w);

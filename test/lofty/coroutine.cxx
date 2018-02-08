@@ -224,6 +224,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    memory::clear(&workers_resumed);
    _std::atomic<unsigned> next_resuming_worker_slot(0);
    for (unsigned i = 0; i < workers_size; ++i) {
+      worker_resume_events[i].create();
       worker_coros[i] = coroutine([i, &worker_resume_events, &workers_resumed, &next_resuming_worker_slot] () {
          LOFTY_TRACE_FUNC();
 

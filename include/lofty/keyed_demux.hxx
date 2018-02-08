@@ -48,6 +48,7 @@ private:
       //! Default constructor.
       outstanding_get_t() :
          value() {
+         event.create();
       }
    };
 
