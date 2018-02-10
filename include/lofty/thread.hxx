@@ -48,7 +48,11 @@ them with an appropriate exception type on their earliest interruption point (se
 
 If a non-main thread throws an exception and does not catch it, an exception will be thrown in the main thread
 as soon as the main thread reaches an interruption point, leading to a behavior similar to what happens upon
-receiving a SIGTERM in the main thread. */
+receiving a SIGTERM in the main thread.
+
+A thread, after its instantiation, must be either joined using its join() method, or be allowed to run freely,
+using its detach() method. However, when the main thread terminates, all detached threads will receive an
+exception at their earliest interruption point. */
 
 //! Thread of program execution. Replacement for std::thread supporting cooperation with lofty::coroutine.
 class LOFTY_SYM thread : public noncopyable {

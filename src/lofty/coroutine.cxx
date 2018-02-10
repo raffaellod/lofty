@@ -68,6 +68,7 @@ public:
       blocking_fd(io::filedesc_t_null),
       blocking_time_millisecs(0),
       pending_x_type(exception::common_type::none),
+      join_event_ptr(nullptr),
       inner_main_fn(_std::move(main_fn)) {
 #if LOFTY_HOST_API_POSIX
       // TODO: use ::mprotect() to setup a guard page for the stack.
@@ -150,6 +151,17 @@ public:
       }
    }
 
+   //! Implementation of the waiting aspect of lofty::coroutine::join().
+   void join() {
+      event join_event, * curr_join_event_ptr = nullptr;
+      join_event.create();
+      if (join_event_ptr.compare_exchange_strong(curr_join_event_ptr, &join_event)) {
+         join_event.wait();
+      }
+      /* If the exchange failed, join_event_ptr has already been assigned a non-nullptr value. Whatever the
+      reason, this means the coroutine has already been joined, so it’s okay to just not block. */
+   }
+
    /*! Returns a pointer to the coroutine’s coroutine_local_storage object.
 
    @return
@@ -209,6 +221,10 @@ private:
    /*! Every time the coroutine is scheduled or returns from an interruption point, this is checked for
    pending exceptions to be injected. */
    _std::atomic<exception::common_type::enum_type> pending_x_type;
+   /*! Event triggered after inner_main_fn returns; only non-nullptr while join() is called, or == ~0 after
+   the thread passes the point at which it could’ve triggered it (to avoid pointlessly waiting for it). Note
+   that this uses the scheduler of the thread calling join(), not the scheduler running inner_main_fn. */
+   _std::atomic<event *> join_event_ptr;
    //! Function to be executed in the coroutine.
    _std::function<void ()> inner_main_fn;
    //! Local storage for the coroutine.
@@ -237,6 +253,16 @@ coroutine::id_type coroutine::id() const {
 
 void coroutine::interrupt() {
    pimpl->inject_exception(pimpl, exception::common_type::execution_interruption);
+}
+
+void coroutine::join() {
+   if (!pimpl) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
+   // Empty pimpl immediately; this will also make joinable() return false.
+   auto pimpl_(_std::move(pimpl));
+   pimpl_->join();
 }
 
 } //namespace lofty
@@ -1103,10 +1129,10 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::unblock_by_first_event()
 
 /*static*/ void coroutine::impl::outer_main(void * p) {
    auto this_pimpl = static_cast<impl *>(p);
-   // Assume for now that inner_main_fn will return without exceptions.
-   exception::common_type x_type = exception::common_type::none;
+   exception::common_type x_type;
    try {
       this_pimpl->inner_main_fn();
+      x_type = exception::common_type::none;
    } catch (_std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
       x_type = exception::execution_interruption_to_common_type(&x);
@@ -1114,6 +1140,16 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::unblock_by_first_event()
       exception::write_with_scope_trace();
       x_type = exception::execution_interruption_to_common_type();
    }
+
+   /* Try to replace a nullptr with ~nullptr. If the exchange fails, curr_join_event_ptr will receive a
+   pointer to an event to trigger. */
+   event * curr_join_event_ptr = nullptr;
+   if (!this_pimpl->join_event_ptr.compare_exchange_strong(
+      curr_join_event_ptr, reinterpret_cast<event *>(~std::uintptr_t(0))
+   )) {
+      curr_join_event_ptr->trigger();
+   }
+
    this_thread::coroutine_scheduler()->return_to_scheduler(x_type);
 }
 

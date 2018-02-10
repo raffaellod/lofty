@@ -53,8 +53,12 @@ possibly leading to the termination of the entire process (see @ref threads).
 
 If a thread is interrupted by an exception while executing lofty::coroutine::scheduler code, the scheduler
 will terminate every coroutine associated to it, and then throw a similar exception to the caller of
-lofty::this_thread::run_coroutines(), eventually leading to the effect described above. */
+lofty::this_thread::run_coroutines(), eventually leading to the effect described above.
 
+A coroutine, after its instantiation, may be joined using its join() method, which provides a built-in
+mechanism to wait for termination of a specific coroutine, analogous to std::thread::join() and
+lofty::thread::join(). All coroutines are implicitly waited for by the thread’s call to
+lofty::this_thread::run_coroutines(). */
 /*! @page interruption-points Interruption points
 
 @ref coroutines and @ref threads in Lofty are safely interruptible using a built-in mechanism.
@@ -142,6 +146,18 @@ public:
    then follow with a coroutine sleep function call to allow the target coroutine to be scheduled and
    interrupted as requested. */
    void interrupt();
+
+   //! Waits for the coroutine to terminate.
+   void join();
+
+   /*! Returns true if calling join() on the object is allowed.
+
+   @return
+      true if the object is in a joinable state, or false otherwise.
+   */
+   bool joinable() const {
+      return pimpl != nullptr;
+   }
 
 private:
    //! Pointer to the implementation instance.

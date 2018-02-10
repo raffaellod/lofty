@@ -236,13 +236,11 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine([&worker_resume_events] () {
       LOFTY_TRACE_FUNC();
 
-      this_coroutine::sleep_for_ms(1);
       worker_resume_events[3].trigger();
-      this_coroutine::sleep_for_ms(1);
       worker_resume_events[2].trigger();
+      // Process the first two events.
       this_coroutine::sleep_for_ms(1);
       worker_resume_events[0].trigger();
-      this_coroutine::sleep_for_ms(1);
       worker_resume_events[1].trigger();
    });
 
@@ -252,6 +250,52 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[1], 3u);
    LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[2], 1u);
    LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[3], 2u);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   coroutine_join,
+   "lofty::coroutine – joining"
+) {
+   LOFTY_TRACE_FUNC();
+
+   unsigned coros_completed[] = { 0, 0, 0, 0 };
+   _std::atomic<unsigned> next_completed_coro_slot(0);
+
+   coroutine coro1, coro2, coro3, coro4;
+   coro1 = coroutine([&coros_completed, &next_completed_coro_slot, &coro2] () {
+      // Wait for a coroutine scheduled after this one.
+      coro2.join();
+      coros_completed[next_completed_coro_slot++] = 1;
+   });
+   coro2 = coroutine([&coros_completed, &next_completed_coro_slot] () {
+      coros_completed[next_completed_coro_slot++] = 2;
+   });
+   coro3 = coroutine([&coros_completed, &next_completed_coro_slot] () {
+      coros_completed[next_completed_coro_slot++] = 3;
+   });
+   coro4 = coroutine([&coros_completed, &next_completed_coro_slot, &coro3] () {
+      /* Wait for a coroutine scheduled before this one. This will actually not wait because coro3 will have
+      terminated by the time coro4 gets scheduled. */
+      coro3.join();
+      coros_completed[next_completed_coro_slot++] = 4;
+   });
+
+   this_thread::run_coroutines();
+
+   // These assertions include assumptions about scheduling order. Relaxing them would be wise.
+   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[0], 2);
+   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[1], 3);
+   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[2], 4);
+   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[3], 1);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
