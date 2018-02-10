@@ -63,6 +63,16 @@ public:
    keyed_demux() {
    }
 
+   ~keyed_demux() {
+      if (source_thread.joinable()) {
+         source_thread.interrupt();
+         source_thread.join();
+      } else if (source_coroutine.joinable()) {
+         source_coroutine.interrupt();
+         source_coroutine.join();
+      }
+   }
+
    /*! Schedules the source loop, which will call the provided function to obtain values and their keys. When
    a key matches one provided by a caller to get(), that caller will be unblocked, and the value returned to
    it.
@@ -102,9 +112,9 @@ public:
          }
       });
       if (this_thread::coroutine_scheduler()) {
-         coroutine(_std::move(source_loop));
+         source_coroutine = coroutine(_std::move(source_loop));
       } else {
-         thread(_std::move(source_loop)).detach();
+         source_thread = thread(_std::move(source_loop));
       }
    }
 
@@ -141,6 +151,10 @@ private:
    collections::hash_map<TKey, outstanding_get_t> outstanding_gets;
    //! Guards concurrent access to outstanding_gets.
    _std::mutex outstanding_gets_mutex;
+   //! Source thread (thread mode-only) to join on termination.
+   thread source_thread;
+   //! Source coroutine (coroutine mode-only) to join on termination.
+   coroutine source_coroutine;
 };
 
 } //namespace lofty
