@@ -278,7 +278,12 @@ void thread::interrupt() {
       // TODO: use a better exception class.
       LOFTY_THROW(argument_error, ());
    }
-   pimpl->inject_exception(exception::common_type::execution_interruption);
+   /* A thread that is already executing clean-up code doesn’t need to be interrupted. If the caller is doing
+   a pre-emptive interrupt() before a join(), the join() will complete as expected even if we don’t interrupt
+   now. */
+   if (!pimpl->terminating()) {
+      pimpl->inject_exception(exception::common_type::execution_interruption);
+   }
 }
 
 void thread::join() {
