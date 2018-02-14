@@ -88,19 +88,23 @@ public:
    void set_source(_std::function<TValue (TKey *)> source_fn) {
       _std::function<void ()> source_loop([this, source_fn] () {
          TKey key;
-         while (auto value = source_fn(&key)) {
-            {
-               _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
-               auto itr(outstanding_gets.find(key));
-               if (itr == outstanding_gets.cend()) {
-                  // TODO: this is a client bug; log it or maybe invoke some client-provided callback.
-                  continue;
+         try {
+            while (auto value = source_fn(&key)) {
+               {
+                  _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
+                  auto itr(outstanding_gets.find(key));
+                  if (itr == outstanding_gets.cend()) {
+                     // TODO: this is a client bug; log it or maybe invoke some client-provided callback.
+                     continue;
+                  }
+                  itr->value.value = _std::move(value);
+                  itr->value.event->trigger();
                }
-               itr->value.value = _std::move(value);
-               itr->value.event->trigger();
+               // TODO: allow this class to schedule directly the get() call that is waiting on the event.
+               this_coroutine::sleep_for_ms(1);
             }
-            // TODO: allow this class to schedule directly the get() call that is waiting on the event.
-            this_coroutine::sleep_for_ms(1);
+         } catch (execution_interruption const &) {
+            // source_fn() was interrupted; proceed with releasing all get() callers.
          }
          /* On end of source, all get() callers are unblocked and get a default-constructed value (delayed to
          the end of this coroutine due to scheduling) . */
