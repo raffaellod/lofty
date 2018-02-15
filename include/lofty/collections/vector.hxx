@@ -1734,6 +1734,27 @@ class to_text_ostream<collections::_pvt::vector_iterator<T>> :
 } //namespace lofty
 //! @endcond
 
+//! @cond
+namespace std {
+
+template <typename T, std::size_t embedded_capacity>
+struct LOFTY_SYM hash<lofty::collections::vector<T, embedded_capacity>> {
+public:
+   std::size_t operator()(lofty::collections::vector<T, embedded_capacity> const & v) const {
+      std::size_t ret = v.size();
+      LOFTY_FOR_EACH(auto const & elt, v) {
+         ret ^= elt_hash(elt);
+      }
+      return ret;
+   }
+
+private:
+   hash<T> elt_hash;
+};
+
+} //namespace std
+//! @endcond
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif //ifndef _LOFTY_COLLECTIONS_VECTOR_HXX
