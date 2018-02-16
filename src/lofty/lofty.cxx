@@ -205,14 +205,14 @@ void event::wait(unsigned timeout_millisecs /*= 0*/) {
       );
    } else {
 #if LOFTY_HOST_API_DARWIN
-      ::dispatch_time_t timeout_dt = timeout_millisecs > 0
-         ? DISPATCH_TIME_FOREVER
-         : ::dispatch_time(DISPATCH_TIME_NOW, static_cast<std::int64_t>(timeout_millisecs) * 1000000);
+      ::dispatch_time_t timeout_dt = timeout_millisecs
+         ? ::dispatch_time(DISPATCH_TIME_NOW, static_cast<std::int64_t>(timeout_millisecs) * 1000000)
+         : DISPATCH_TIME_FOREVER;
       ::dispatch_semaphore_wait(reinterpret_cast< ::dispatch_semaphore_t>(id), timeout_dt);
 #elif LOFTY_HOST_API_POSIX
       auto sem = reinterpret_cast< ::sem_t *>(id);
       ::timespec timeout_ts;
-      if (timeout_millisecs > 0) {
+      if (timeout_millisecs) {
          ::clock_gettime(CLOCK_REALTIME, &timeout_ts);
          timeout_ts.tv_sec += static_cast< ::time_t>(timeout_millisecs / 1000u);
          timeout_ts.tv_nsec += static_cast<long>(
@@ -223,7 +223,7 @@ void event::wait(unsigned timeout_millisecs /*= 0*/) {
             ++timeout_ts.tv_sec;
          }
       }
-      while ((timeout_millisecs > 0 ? ::sem_timedwait(sem, &timeout_ts) : ::sem_wait(sem)) < 0) {
+      while ((timeout_millisecs ? ::sem_timedwait(sem, &timeout_ts) : ::sem_wait(sem)) < 0) {
          int err = errno;
          if (err != EINTR) {
             exception::throw_os_error(err);
