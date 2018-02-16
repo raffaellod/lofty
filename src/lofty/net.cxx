@@ -149,6 +149,22 @@ address const & address::any_v6 = static_cast<address const &>(raw_any_v6);
 address const & address::localhost_v4 = static_cast<address const &>(raw_localhost_v4);
 address const & address::localhost_v6 = static_cast<address const &>(raw_localhost_v6);
 
+/*explicit*/ address::address(collections::vector<std::uint8_t> const & src_raw) {
+   switch (src_raw.size()) {
+      case 0:
+         // 0 bytes result in the same version as the default constructor, IPv6.
+      case sizeof(v6_type):
+         version_ = ip::version::v6;
+         break;
+      case sizeof(v4_type):
+         version_ = ip::version::v4;
+         break;
+      default:
+         LOFTY_THROW(argument_error, ());
+   }
+   memory::copy(bytes, src_raw.data(), src_raw.size());
+}
+
 bool address::operator==(address const & right) const {
    if (version_ != right.version_) {
       return false;

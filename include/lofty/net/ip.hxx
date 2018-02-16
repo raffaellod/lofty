@@ -176,7 +176,7 @@ public:
       _pvt::raw_address(src) {
    }
 
-   /*! Constructor. Initializes the object as an IPv4 address.
+   /*! Constructs the object as an IPv4 address.
 
    @param src_raw
       Array of bytes to be used as an IPv4 address, in network order (big endian).
@@ -186,7 +186,7 @@ public:
       version_ = ip::version::v4;
    }
 
-   /*! Constructor. Initializes the object as an IPv6 address.
+   /*! Constructs the object as an IPv6 address.
 
    @param src_raw
       Array of bytes to be used as an IPv6 address, in network order (big endian).
@@ -195,6 +195,13 @@ public:
       memory::copy(&bytes[0], &src_raw[0], sizeof(v6_type));
       version_ = ip::version::v6;
    }
+
+   /*! Constructs the object as an IPv6 or IPv4 address, depending on the size of the argument.
+
+   @param src_raw
+      Array of bytes to be used as an IPv6 address, in network order (big endian).
+   */
+   explicit address(collections::vector<std::uint8_t> const & src_raw);
 
    /*! Equality relational operator.
 
