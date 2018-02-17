@@ -17,7 +17,9 @@ more details.
 #include <lofty/defer_to_scope_end.hxx>
 #include <lofty/event.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/keyed_demux.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/range.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/thread.hxx>
 #include <lofty/to_str.hxx>
@@ -210,58 +212,6 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 namespace lofty { namespace test {
 
 LOFTY_TESTING_TEST_CASE_FUNC(
-   coroutine_event,
-   "lofty::event (using coroutines)"
-) {
-   LOFTY_TRACE_FUNC();
-
-   this_thread::attach_coroutine_scheduler();
-
-   static unsigned const workers_size = 4;
-   coroutine worker_coros[workers_size];
-   event worker_resume_events[workers_size];
-   unsigned workers_resumed[workers_size];
-   memory::clear(&workers_resumed);
-   _std::atomic<unsigned> next_resuming_worker_slot(0);
-   for (unsigned i = 0; i < workers_size; ++i) {
-      worker_resume_events[i].create();
-      worker_coros[i] = coroutine([i, &worker_resume_events, &workers_resumed, &next_resuming_worker_slot] () {
-         LOFTY_TRACE_FUNC();
-
-         worker_resume_events[i].wait();
-         workers_resumed[next_resuming_worker_slot.fetch_add(1)] = i + 1;
-      });
-   }
-
-   coroutine([&worker_resume_events] () {
-      LOFTY_TRACE_FUNC();
-
-      worker_resume_events[3].trigger();
-      worker_resume_events[2].trigger();
-      // Process the first two events.
-      this_coroutine::sleep_for_ms(1);
-      worker_resume_events[0].trigger();
-      worker_resume_events[1].trigger();
-   });
-
-   this_thread::run_coroutines();
-
-   LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[0], 4u);
-   LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[1], 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[2], 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(workers_resumed[3], 2u);
-
-   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
-   this_thread::detach_coroutine_scheduler();
-}
-
-}} //namespace lofty::test
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace test {
-
-LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine_join,
    "lofty::coroutine – joining"
 ) {
@@ -292,10 +242,10 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    this_thread::run_coroutines();
 
    // These assertions include assumptions about scheduling order. Relaxing them would be wise.
-   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[0], 2);
-   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[1], 3);
-   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[2], 4);
-   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[3], 1);
+   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[0], 2u);
+   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[1], 3u);
+   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[2], 4u);
+   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[3], 1u);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -325,6 +275,128 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       LOFTY_TESTING_ASSERT_TRUE(coro1_completed);
    });
    thread1.join();
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   coroutine_event,
+   "lofty::event (using coroutines)"
+) {
+   LOFTY_TRACE_FUNC();
+
+   this_thread::attach_coroutine_scheduler();
+
+   static unsigned const coros_size = 5;
+   coroutine coros[coros_size];
+   event events[coros_size];
+   unsigned resumed[coros_size], timedout[coros_size];
+   memory::clear(&resumed);
+   _std::atomic<unsigned> next_resumed_index(0);
+   for (unsigned i = 0; i < coros_size; ++i) {
+      events[i].create();
+      coros[i] = coroutine([i, &events, &timedout, &resumed, &next_resumed_index] () {
+         LOFTY_TRACE_FUNC();
+
+         try {
+            // For i == 0 there will be no timeout.
+            events[i].wait(i * 10);
+            timedout[i] = false;
+         } catch (io::timeout const &) {
+            timedout[i] = true;
+         }
+         resumed[next_resumed_index.fetch_add(1)] = i + 1;
+      });
+   }
+
+   coroutine([&events] () {
+      LOFTY_TRACE_FUNC();
+
+      events[2].trigger();
+      events[4].trigger();
+      // Process the first two events.
+      this_coroutine::sleep_for_ms(1);
+      events[0].trigger();
+      events[1].trigger();
+      // Avoid triggering events[3], which will timeout.
+   });
+
+   this_thread::run_coroutines();
+
+   LOFTY_TESTING_ASSERT_EQUAL(resumed[0], 3u);
+   LOFTY_TESTING_ASSERT_EQUAL(resumed[1], 5u);
+   LOFTY_TESTING_ASSERT_EQUAL(resumed[2], 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(resumed[3], 2u);
+   LOFTY_TESTING_ASSERT_EQUAL(resumed[4], 4u);
+   LOFTY_TESTING_ASSERT_FALSE(timedout[0]);
+   LOFTY_TESTING_ASSERT_FALSE(timedout[1]);
+   LOFTY_TESTING_ASSERT_FALSE(timedout[2]);
+   LOFTY_TESTING_ASSERT_TRUE(timedout[3]);
+   LOFTY_TESTING_ASSERT_FALSE(timedout[4]);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   coroutine_keyed_demux,
+   "lofty::keyed_demux (using coroutines)"
+) {
+   LOFTY_TRACE_FUNC();
+
+   this_thread::attach_coroutine_scheduler();
+   {
+      keyed_demux<short, long> number_demux;
+      unsigned step = 0;
+      number_demux.set_source([&step] (short * key) -> long {
+         LOFTY_TRACE_FUNC();
+
+         // In this test, the keys are the same as the values.
+
+         this_coroutine::sleep_for_ms(1);
+         switch (++step) {
+            case 1:
+               *key = 4;
+               return 4;
+            case 2:
+               *key = 2;
+               return 2;
+            default:
+               // Report EOF.
+               return 0;
+         }
+      });
+
+      static std::size_t const coros_size = 4;
+      long get_returns[coros_size];
+      LOFTY_FOR_EACH(short key, make_range<short>(1, static_cast<short>(coros_size + 1))) {
+         coroutine([this, &number_demux, &get_returns, key] () {
+            LOFTY_TRACE_FUNC();
+
+            get_returns[key - 1] = number_demux.get(key, 10 * 1000);
+         });
+      }
+
+      this_thread::run_coroutines();
+
+      LOFTY_TESTING_ASSERT_EQUAL(step, 3u);
+      LOFTY_TESTING_ASSERT_EQUAL(get_returns[0], 0);
+      LOFTY_TESTING_ASSERT_EQUAL(get_returns[1], 2u);
+      LOFTY_TESTING_ASSERT_EQUAL(get_returns[2], 0);
+      LOFTY_TESTING_ASSERT_EQUAL(get_returns[3], 4u);
+   }
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
 }
 
 }} //namespace lofty::test

@@ -17,7 +17,6 @@ more details.
 #include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/io/binary/memory.hxx>
-#include <lofty/keyed_demux.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/math.hxx>
 #include <lofty/os.hxx>
@@ -237,64 +236,6 @@ LOFTY_TESTING_TEST_CASE_FUNC(
          LOFTY_TESTING_ASSERT_EQUAL(errors, 0u);
       }
    }
-}
-
-}} //namespace lofty::test
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace test {
-
-LOFTY_TESTING_TEST_CASE_FUNC(
-   keyed_demux_basic,
-   "lofty::keyed_demux"
-) {
-   LOFTY_TRACE_FUNC();
-
-   this_thread::attach_coroutine_scheduler();
-   {
-      keyed_demux<short, long> number_demux;
-      unsigned step = 0;
-      number_demux.set_source([&step] (short * key) -> long {
-         LOFTY_TRACE_FUNC();
-
-         // In this test, the keys are the same as the values.
-
-         this_coroutine::sleep_for_ms(1);
-         switch (++step) {
-            case 1:
-               *key = 4;
-               return 4;
-            case 2:
-               *key = 2;
-               return 2;
-            default:
-               // Report EOF.
-               return 0;
-         }
-      });
-
-      static std::size_t const workers_size = 4;
-      long workers_got[workers_size];
-      LOFTY_FOR_EACH(short key, make_range<short>(1, static_cast<short>(workers_size + 1))) {
-         coroutine([this, &number_demux, &workers_got, key] () {
-            LOFTY_TRACE_FUNC();
-
-            workers_got[key - 1] = number_demux.get(key, 10 * 1000);
-         });
-      }
-
-      this_thread::run_coroutines();
-
-      LOFTY_TESTING_ASSERT_EQUAL(step, 3u);
-      LOFTY_TESTING_ASSERT_EQUAL(workers_got[0], 0);
-      LOFTY_TESTING_ASSERT_EQUAL(workers_got[1], 2u);
-      LOFTY_TESTING_ASSERT_EQUAL(workers_got[2], 0);
-      LOFTY_TESTING_ASSERT_EQUAL(workers_got[3], 4u);
-   }
-   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
-   this_thread::detach_coroutine_scheduler();
 }
 
 }} //namespace lofty::test

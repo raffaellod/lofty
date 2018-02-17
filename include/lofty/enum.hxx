@@ -143,7 +143,7 @@ TODO: support for bit-field enumerations? Allow logical operation, smart convers
 #define LOFTY_ENUM(name, ...) \
    _LOFTY_ENUM_IMPL( \
       public: \
-      ,\
+      , \
       name, \
       LOFTY_CPP_LIST_COUNT(__VA_ARGS__), \
       LOFTY_CPP_TUPLELIST_WALK(_LOFTY_ENUM_MEMBER_PAIR, __VA_ARGS__), \

@@ -16,7 +16,9 @@ more details.
 #include <lofty/defer_to_scope_end.hxx>
 #include <lofty/event.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/keyed_demux.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/range.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/thread.hxx>
 #include <lofty/to_str.hxx>
@@ -238,6 +240,113 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_FALSE(thread1_completed.load());
    // While we’re at it, verify that something was written to stderr while *capturing_stderr was stderr.
    LOFTY_TESTING_ASSERT_NOT_EQUAL(capturing_stderr->get_str(), str::empty);
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   thread_event,
+   "lofty::event (using threads)"
+) {
+   LOFTY_TRACE_FUNC();
+
+   static unsigned const threads_size = 4;
+   thread threads[threads_size];
+   event events[threads_size];
+   unsigned resumed[threads_size], timedout[threads_size];
+   memory::clear(&resumed);
+   _std::atomic<unsigned> next_resumed_index(0);
+   for (unsigned i = 0; i < threads_size; ++i) {
+      events[i].create();
+      threads[i] = thread([i, &events, &timedout, &resumed, &next_resumed_index] () {
+         LOFTY_TRACE_FUNC();
+
+         try {
+            // For i == 0 there will be no timeout.
+            events[i].wait(i * 10);
+            timedout[i] = false;
+         } catch (io::timeout const &) {
+            timedout[i] = true;
+         }
+         resumed[next_resumed_index.fetch_add(1)] = i + 1;
+      });
+   }
+
+   events[2].trigger();
+   // Process the first event.
+   this_thread::sleep_for_ms(1);
+   events[0].trigger();
+   // Avoid triggering events[1], which will timeout.
+
+   for (unsigned i = 0; i < threads_size; ++i) {
+      threads[i].join();
+   }
+
+   LOFTY_TESTING_ASSERT_EQUAL(resumed[0], 3u);
+   LOFTY_TESTING_ASSERT_EQUAL(resumed[1], 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(resumed[2], 2u);
+   LOFTY_TESTING_ASSERT_FALSE(timedout[0]);
+   LOFTY_TESTING_ASSERT_TRUE(timedout[1]);
+   LOFTY_TESTING_ASSERT_FALSE(timedout[2]);
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   thread_keyed_demux,
+   "lofty::keyed_demux (using threads)"
+) {
+   LOFTY_TRACE_FUNC();
+
+   keyed_demux<short, long> number_demux;
+   unsigned step = 0;
+   number_demux.set_source([&step] (short * key) -> long {
+      LOFTY_TRACE_FUNC();
+
+      // In this test, the keys are the same as the values.
+
+      this_thread::sleep_for_ms(1);
+      switch (++step) {
+         case 1:
+            *key = 4;
+            return 4;
+         case 2:
+            *key = 2;
+            return 2;
+         default:
+            // Report EOF.
+            return 0;
+      }
+   });
+
+   static std::size_t const threads_size = 4;
+   thread threads[threads_size];
+   long get_returns[threads_size];
+   LOFTY_FOR_EACH(short key, make_range<short>(1, static_cast<short>(threads_size + 1))) {
+      threads[key - 1] = thread([this, &number_demux, &get_returns, key] () {
+         LOFTY_TRACE_FUNC();
+
+         get_returns[key - 1] = number_demux.get(key, 10 * 1000);
+      });
+   }
+
+   for (unsigned i = 0; i < threads_size; ++i) {
+      threads[i].join();
+   }
+
+   LOFTY_TESTING_ASSERT_EQUAL(step, 3u);
+   LOFTY_TESTING_ASSERT_EQUAL(get_returns[0], 0);
+   LOFTY_TESTING_ASSERT_EQUAL(get_returns[1], 2u);
+   LOFTY_TESTING_ASSERT_EQUAL(get_returns[2], 0);
+   LOFTY_TESTING_ASSERT_EQUAL(get_returns[3], 4u);
 }
 
 }} //namespace lofty::test
