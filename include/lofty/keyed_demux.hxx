@@ -140,7 +140,14 @@ public:
          _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
          outstanding_gets.add_or_assign(key, outstanding_get_t(&get_event));
       }
-      get_event.wait(timeout_millisecs);
+      try {
+         get_event.wait(timeout_millisecs);
+      } catch (io::timeout const &) {
+         // The event is dead to us.
+         _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
+         outstanding_gets.remove(key);
+         throw;
+      }
 
       // Re-retrieve the key/value, since outstanding_gets might have changed in the meantime.
       _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
