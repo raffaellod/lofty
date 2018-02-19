@@ -36,7 +36,6 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    _std::atomic<bool> thread1_completed(false), thread2_completed(false), thread3_completed(false);
    event thread3_terminated;
-   thread3_terminated.create();
 
    thread thread1([this, &thread1_completed] () {
       LOFTY_TRACE_FUNC();
@@ -261,7 +260,6 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    memory::clear(&resumed);
    _std::atomic<unsigned> next_resumed_index(0);
    for (unsigned i = 0; i < threads_size; ++i) {
-      events[i].create();
       threads[i] = thread([i, &events, &timedout, &resumed, &next_resumed_index] () {
          LOFTY_TRACE_FUNC();
 

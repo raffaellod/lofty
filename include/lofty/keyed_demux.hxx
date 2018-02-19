@@ -135,7 +135,6 @@ public:
    */
    TValue get(TKey const & key, unsigned timeout_millisecs = 0) {
       event get_event;
-      get_event.create();
       {
          _std::unique_lock<_std::mutex> lock(outstanding_gets_mutex);
          outstanding_gets.add_or_assign(key, outstanding_get_t(&get_event));

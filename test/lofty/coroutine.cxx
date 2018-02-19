@@ -298,7 +298,6 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    memory::clear(&resumed);
    _std::atomic<unsigned> next_resumed_index(0);
    for (unsigned i = 0; i < coros_size; ++i) {
-      events[i].create();
       coros[i] = coroutine([i, &events, &timedout, &resumed, &next_resumed_index] () {
          LOFTY_TRACE_FUNC();
 

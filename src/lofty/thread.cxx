@@ -208,7 +208,6 @@ void thread::impl::join() {
 
 void thread::impl::start(_std::shared_ptr<impl> * this_pimpl_ptr) {
    event started_event;
-   started_event.create();
    started_event_ptr = &started_event;
    LOFTY_DEFER_TO_SCOPE_END(started_event_ptr = nullptr);
 #if LOFTY_HOST_API_POSIX

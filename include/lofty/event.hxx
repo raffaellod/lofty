@@ -42,9 +42,20 @@ public:
    //! Opaque id type.
    typedef std::uintptr_t id_type;
 
+   //! Special type for the manual_create constant.
+   struct manual_create_t {};
+
 public:
-   //! Default constructor.
-   event();
+   //! Default constructor; automatically creates the event.
+   event() :
+      id(0) {
+      create();
+   }
+
+   //! Constructor that does not automatically create the event. Call the create() method to do so.
+   explicit event(manual_create_t const &) :
+      id(0) {
+   }
 
    /*! Move constructor.
 
@@ -98,6 +109,11 @@ private:
       _std::weak_ptr<coroutine::scheduler> null_coro_sched;
       return coro_sched_w.owner_before(null_coro_sched) || null_coro_sched.owner_before(coro_sched_w);
    }
+
+public:
+   /*! If provided as a constructor argument, it causes the event to not be automatically created. In order to
+   use the event, its create() method will need to be called manually. */
+   static manual_create_t const manual_create;
 
 private:
    /*! Scheduler that owns the event id. Stored for performance (avoid thread-local storage) and to allow one

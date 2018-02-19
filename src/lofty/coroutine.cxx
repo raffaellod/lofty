@@ -154,7 +154,6 @@ public:
    //! Implementation of the waiting aspect of lofty::coroutine::join().
    void join() {
       event join_event, * curr_join_event_ptr = nullptr;
-      join_event.create();
       if (join_event_ptr.compare_exchange_strong(curr_join_event_ptr, &join_event)) {
          join_event.wait();
       }

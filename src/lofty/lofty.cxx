@@ -94,9 +94,7 @@ void destructing_unfinalized_object::write_what(void const * o, _std::type_info 
 
 namespace lofty {
 
-event::event() :
-   id(0) {
-}
+event::manual_create_t const event::manual_create;
 
 event::event(event && src) :
    coro_sched_w(_std::move(src.coro_sched_w)),
