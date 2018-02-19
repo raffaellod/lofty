@@ -52,6 +52,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_THROWS(collections::bad_access, v.front());
    LOFTY_TESTING_ASSERT_THROWS(collections::bad_access, v.back());
    LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v[0]);
+   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cend());
 
    v.push_back(1);
    LOFTY_TESTING_ASSERT_EQUAL(v.size(), 1u);
@@ -59,28 +60,33 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(v.front(), 1);
    LOFTY_TESTING_ASSERT_EQUAL(v.back(), 1);
    LOFTY_TESTING_ASSERT_EQUAL(v[0], 1);
+   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin());
 
    v = v + v;
    LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
    LOFTY_TESTING_ASSERT_EQUAL(v[0], 1);
    LOFTY_TESTING_ASSERT_EQUAL(v[1], 1);
+   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin());
 
    v.insert(v.cbegin() + 1, 2);
    LOFTY_TESTING_ASSERT_EQUAL(v.size(), 3u);
    LOFTY_TESTING_ASSERT_EQUAL(v[0], 1);
    LOFTY_TESTING_ASSERT_EQUAL(v[1], 2);
    LOFTY_TESTING_ASSERT_EQUAL(v[2], 1);
+   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin());
 
    v = v.slice(v.cbegin() + 1, v.cbegin() + 3);
    LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
    LOFTY_TESTING_ASSERT_EQUAL(v[0], 2);
    LOFTY_TESTING_ASSERT_EQUAL(v[1], 1);
+   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin() + 1);
 
    v.push_back(3);
    LOFTY_TESTING_ASSERT_EQUAL(v.size(), 3u);
    LOFTY_TESTING_ASSERT_EQUAL(v[0], 2);
    LOFTY_TESTING_ASSERT_EQUAL(v[1], 1);
    LOFTY_TESTING_ASSERT_EQUAL(v[2], 3);
+   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin() + 1);
 
    v.remove_at(v.cbegin() + 1);
    LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
@@ -89,6 +95,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(v.back(), 3);
    LOFTY_TESTING_ASSERT_EQUAL(v[0], 2);
    LOFTY_TESTING_ASSERT_EQUAL(v[1], 3);
+   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cend());
 
    int i3 = v.pop_back();
    LOFTY_TESTING_ASSERT_EQUAL(v.size(), 1u);
@@ -96,6 +103,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(v.back(), 2);
    LOFTY_TESTING_ASSERT_EQUAL(v[0], 2);
    LOFTY_TESTING_ASSERT_EQUAL(i3, 3);
+   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cend());
 
    v.clear();
    LOFTY_TESTING_ASSERT_EQUAL(v.size(), 0u);

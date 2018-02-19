@@ -978,6 +978,34 @@ public:
       return const_cast<vector *>(this)->end();
    }
 
+   /*! Performs a linear scan of the vector to find an element with a specific value.
+
+   @param t
+      Value to look for.
+   @return
+      Iterator to the element, or end() if no element equals t.
+   */
+   iterator find(T const & t) {
+      auto p = data(), p_end = data_end();
+      for (; p < p_end; ++p) {
+         if (*p == t) {
+            break;
+         }
+      }
+      return iterator(this, const_cast<T *>(p));
+   }
+
+   /*! Performs a linear scan of the vector to find an element with a specific value.
+
+   @param t
+      Value to look for.
+   @return
+      Iterator to the element, or cend() if no element equals t.
+   */
+   const_iterator find(T const & t) const {
+      return const_cast<vector *>(this)->find(t);
+   }
+
    /*! Returns a reference to the first element.
 
    @return
@@ -1490,6 +1518,7 @@ public:
    using vector_0::data;
    using vector_0::data_end;
    using vector_0::end;
+   using vector_0::find;
    using vector_0::front;
    using vector_0::insert;
    using vector_0::pop_back;
