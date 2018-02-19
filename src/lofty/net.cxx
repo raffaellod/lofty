@@ -99,6 +99,13 @@ namespace lofty { namespace net {
    if (!fd) {
       exception::throw_os_error();
    }
+   #if LOFTY_HOST_API_DARWIN
+      fd.share_with_subprocesses(false);
+      if (async) {
+         // Using coroutines, so make this socket non-blocking.
+         fd.set_nonblocking(true);
+      }
+   #endif
    return _std::move(fd);
 #elif LOFTY_HOST_API_WIN32 //if LOFTY_HOST_API_POSIX
    ::DWORD flags = 0;
