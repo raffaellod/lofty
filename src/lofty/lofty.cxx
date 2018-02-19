@@ -206,7 +206,9 @@ void event::wait(unsigned timeout_millisecs /*= 0*/) {
       ::dispatch_time_t timeout_dt = timeout_millisecs
          ? ::dispatch_time(DISPATCH_TIME_NOW, static_cast<std::int64_t>(timeout_millisecs) * 1000000)
          : DISPATCH_TIME_FOREVER;
-      ::dispatch_semaphore_wait(reinterpret_cast< ::dispatch_semaphore_t>(id), timeout_dt);
+      if (::dispatch_semaphore_wait(reinterpret_cast< ::dispatch_semaphore_t>(id), timeout_dt)) {
+         LOFTY_THROW(io::timeout, ());
+      }
 #elif LOFTY_HOST_API_POSIX
       auto sem = reinterpret_cast< ::sem_t *>(id);
       ::timespec timeout_ts;
