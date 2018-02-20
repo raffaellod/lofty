@@ -228,7 +228,8 @@ private:
    void switch_to_scheduler(impl * last_active_coro_pimpl);
 
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
-   /*! Unblocks the first coroutine blocked by an event.
+   /*! Unblocks the first coroutine blocked by an event. Assumes that coros_add_remove_mutex is locked by the
+   caller.
 
    @return
       Pointer to the coroutine’s impl, or nullptr if no coroutines could be unblocked.
@@ -253,6 +254,10 @@ private:
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    //! List of events that need to be processed on the next time the event semaphore unblocks a thread.
    collections::queue<event_id_t> ready_events_queue;
+   /*! Events that have been triggered with nobody waiting for them. We collect them here, so that if a waiter
+   comes up, it can skip waiting at all. */
+   // TODO: should be a collections::set<event_id_t> .
+   collections::hash_map<event_id_t, bool> unwaited_events;
    //! Map of timeouts, in milliseconds, and their associated coroutines.
    collections::trie_ordered_multimap<time_point_t, _std::shared_ptr<impl>> coros_blocked_by_timer_fd;
    //! Semaphore responsible for every event wait.
@@ -260,9 +265,7 @@ private:
    //! Timer responsible for every timed wait.
    io::filedesc timer_fd;
 #endif
-   /*! Coroutines that are blocked on an event wait. Unlike other coros_blocked_by_* members, this one always
-   contains all known events; if a value/pointer is nullptr, we’re just keeping track of the event id, but no
-   coroutine is currently waiting for that event. */
+   //! Coroutines that are blocked on an event wait.
    collections::hash_map<event_id_t, _std::shared_ptr<impl>> coros_blocked_by_event;
    //! Coroutines that are blocked on a fd wait.
    collections::hash_map<fd_io_key::pack_t, _std::shared_ptr<impl>> coros_blocked_by_fd;

@@ -423,6 +423,14 @@ void coroutine::scheduler::block_active(
    if (event_id) {
       {
 //         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+#if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
+         // If the event has already been triggered, don’t wait at all.
+         auto unwaited_event_itr(unwaited_events.find(event_id));
+         if (unwaited_event_itr != unwaited_events.cend()) {
+            unwaited_events.remove(unwaited_event_itr);
+            return;
+         }
+#endif
          coros_blocked_by_event.add_or_assign(event_id, coro_pimpl);
       }
       coro_pimpl->blocking_event_id = event_id;
@@ -723,8 +731,8 @@ coroutine::scheduler::event_id_t coroutine::scheduler::create_event() {
 
 void coroutine::scheduler::discard_event(event_id_t event_id) {
    /* TODO: ensure that a possible blocked coroutine gets released with a timeout or other exception.
-   auto blocked_coro(coros_blocked_by_event.find(event_id));
-   if (blocked_coro != coros_blocked_by_event.cend()) { … */
+   auto blocked_coro_itr(coros_blocked_by_event.find(event_id));
+   if (blocked_coro_itr != coros_blocked_by_event.cend()) { … */
 #if LOFTY_HOST_API_BSD
    struct ::kevent ke;
    ke.ident = event_id;
@@ -734,6 +742,9 @@ void coroutine::scheduler::discard_event(event_id_t event_id) {
    if (::kevent(engine_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
       exception::throw_os_error();
    }
+#elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
+//   _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+   unwaited_events.remove_if_found(event_id);
 #endif
 }
 
@@ -795,13 +806,13 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          coro_pimpl->blocking_time_millisecs = 0;
          break;
       } else if (ke.filter == EVFILT_USER) {
-         auto blocked_coro(coros_blocked_by_event.find(ke.ident));
-         if (blocked_coro == coros_blocked_by_event.cend()) {
+         auto blocked_coro_itr(coros_blocked_by_event.find(ke.ident));
+         if (blocked_coro_itr == coros_blocked_by_event.cend()) {
             // The event must’ve been triggered with no coroutines waiting for it.
             continue;
          }
-         coro_pimpl = _std::move(blocked_coro->value);
-         coros_blocked_by_event.remove(blocked_coro);
+         coro_pimpl = _std::move(blocked_coro_itr->value);
+         coros_blocked_by_event.remove(blocked_coro_itr);
          // Make the coroutine aware that it’s no longer waiting for the event.
          coro_pimpl->blocking_event_id = 0;
          break;
@@ -894,8 +905,8 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
    #error "TODO: HOST_API"
 #endif
       // Remove and return the coroutine that was waiting for this file descriptor.
-      auto blocked_coro(coros_blocked_by_fd.find(fdiok.pack));
-      if (blocked_coro != coros_blocked_by_fd.cend()) {
+      auto blocked_coro_itr(coros_blocked_by_fd.find(fdiok.pack));
+      if (blocked_coro_itr != coros_blocked_by_fd.cend()) {
          /* Note (WIN32 BUG?)
          Empirical evidence shows that at this point ovl might not be a valid pointer, even if the completion
          key (fd) returned was a valid Lofty-owned handle. I could not find any explanation for this, but as a
@@ -908,11 +919,11 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          •  UDP: when WSASendTo() fails due to ICMP reporting that the remote server is gone, WSARecvFrom()
             will fail for several different reasons. */
 #if LOFTY_HOST_API_WIN32
-         if (blocked_coro->value->blocking_ovl.load()->get_result() == ERROR_IO_INCOMPLETE) {
+         if (blocked_coro_itr->value->blocking_ovl.load()->get_result() == ERROR_IO_INCOMPLETE) {
             continue;
          }
 #endif
-         coro_pimpl = coros_blocked_by_fd.pop(blocked_coro);
+         coro_pimpl = coros_blocked_by_fd.pop(blocked_coro_itr);
          // Make the coroutine aware that it’s no longer waiting for I/O.
          coro_pimpl->blocking_fd = io::filedesc_t_null;
 #if LOFTY_HOST_API_WIN32
@@ -1120,13 +1131,14 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::unblock_by_first_event()
       return nullptr;
    }
    auto event_id = ready_events_queue.pop_front();
-   auto blocked_coro(coros_blocked_by_event.find(event_id));
-   if (blocked_coro == coros_blocked_by_event.cend()) {
+   auto blocked_coro_itr(coros_blocked_by_event.find(event_id));
+   if (blocked_coro_itr == coros_blocked_by_event.cend()) {
       // The event must’ve been triggered with no coroutines waiting for it.
+      unwaited_events.add_or_assign(event_id, true);
       return nullptr;
    }
-   auto coro_pimpl(_std::move(blocked_coro->value));
-   coros_blocked_by_event.remove(blocked_coro);
+   auto coro_pimpl(_std::move(blocked_coro_itr->value));
+   coros_blocked_by_event.remove(blocked_coro_itr);
    // Make the coroutine aware that it’s no longer waiting for the event.
    coro_pimpl->blocking_event_id = 0;
    return _std::move(coro_pimpl);

@@ -292,13 +292,13 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    this_thread::attach_coroutine_scheduler();
 
    static unsigned const coros_size = 5;
-   coroutine coros[coros_size];
    event events[coros_size];
-   unsigned resumed[coros_size], timedout[coros_size];
+   bool timedout[coros_size];
+   unsigned resumed[coros_size];
    memory::clear(&resumed);
    _std::atomic<unsigned> next_resumed_index(0);
    for (unsigned i = 0; i < coros_size; ++i) {
-      coros[i] = coroutine([i, &events, &timedout, &resumed, &next_resumed_index] () {
+      coroutine([i, &events, &timedout, &resumed, &next_resumed_index] () {
          LOFTY_TRACE_FUNC();
 
          try {
@@ -336,6 +336,68 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_FALSE(timedout[2]);
    LOFTY_TESTING_ASSERT_TRUE(timedout[3]);
    LOFTY_TESTING_ASSERT_FALSE(timedout[4]);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   coroutine_event_trigger_before_wait,
+   "lofty::event (using coroutines) – triggering before wait begins"
+) {
+   LOFTY_TRACE_FUNC();
+
+   coroutine([this] () {
+      LOFTY_TRACE_FUNC();
+
+      bool timedout;
+      event event1, event2;
+      event1.trigger();
+      event2.trigger();
+      /* With a stateless representation of events, this will discard event2’s triggering because there’s
+      nobody waiting for that, yet. With a stateful representation instead, event2 will remain in a triggered
+      state until a wait() call on it. */
+      try {
+         event1.wait(5);
+         timedout = false;
+      } catch (io::timeout const &) {
+         timedout = true;
+      }
+      LOFTY_TESTING_ASSERT_FALSE(timedout);
+
+      // With stateless events, now event2.wait() would time out.
+      try {
+         event2.wait(5);
+         timedout = false;
+      } catch (io::timeout const &) {
+         timedout = true;
+      }
+      LOFTY_TESTING_ASSERT_FALSE(timedout);
+
+      // These, on the other hand, must time out.
+      try {
+         event1.wait(5);
+         timedout = false;
+      } catch (io::timeout const &) {
+         timedout = true;
+      }
+      LOFTY_TESTING_ASSERT_TRUE(timedout);
+      try {
+         event2.wait(5);
+         timedout = false;
+      } catch (io::timeout const &) {
+         timedout = true;
+      }
+      LOFTY_TESTING_ASSERT_TRUE(timedout);
+   });
+
+   this_thread::run_coroutines();
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
