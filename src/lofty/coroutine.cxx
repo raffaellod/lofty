@@ -826,7 +826,9 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
    #elif LOFTY_HOST_API_WIN32
       ::DWORD transferred_byte_size;
       ::OVERLAPPED * ovl;
-      if (!::GetQueuedCompletionStatus(engine_fd.get(), &transferred_byte_size, &fdiok.pack, &ovl, INFINITE)) {
+      if (!::GetQueuedCompletionStatus(
+         engine_fd.get(), &transferred_byte_size, &fdiok.pack, &ovl, INFINITE
+      )) {
          /* Distinguish between IOCP failures and I/O failures by also checking whether an OVERLAPPED pointer
          was returned. */
          if (!ovl) {
@@ -861,10 +863,15 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          easier by EFD_SEMAPHORE, but unfortunately that is broken with EPOLLET (see other comment in this
          file). */
          std::uint64_t unblock_count;
-         if (::read(event_semaphore_fd.get(), &unblock_count, sizeof unblock_count) < 0) {
-            // This is probably bad, but there’s nothing we can do about it here. Maybe log it?
-            // TODO: should still handle EINTR.
-            continue;
+         while (::read(event_semaphore_fd.get(), &unblock_count, sizeof unblock_count) < 0) {
+            int err = errno;
+            if (err != EINTR) {
+               /* This is probably bad, but there’s nothing we can do about it here. Maybe log it? At least we
+               make sure that unblock_count gets a known value. */
+               unblock_count = 0;
+               break;
+            }
+            this_thread::interruption_point();
          }
    #endif
          coro_pimpl = unblock_by_first_event();
@@ -891,8 +898,8 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       if (blocked_coro != coros_blocked_by_fd.cend()) {
          /* Note (WIN32 BUG?)
          Empirical evidence shows that at this point ovl might not be a valid pointer, even if the completion
-         key (fd) returned was a valid Lofty-owned handle. I could not find any explanation for this, but as
-         a workaround, each coroutine carries a pointer to the OVERLAPPED it’s waiting on, and we can check
+         key (fd) returned was a valid Lofty-owned handle. I could not find any explanation for this, but as a
+         workaround, each coroutine carries a pointer to the OVERLAPPED it’s waiting on, and we can check
          whether GetOverlappedResult() reports ERROR_IO_INCOMPLETE for it to avoid resuming the coroutine in
          those cases.
          Spurious notifications seem to occur only with sockets:
@@ -965,7 +972,9 @@ void coroutine::scheduler::interrupt_all(exception::common_type reason_x_type) {
 void coroutine::scheduler::non_iocp_events_thread() {
    ::HANDLE const handles[2] = { event_semaphore_fd.get(), timer_fd.get() };
    do {
-      ::DWORD ret = ::WaitForMultipleObjects(LOFTY_COUNTOF(handles), handles, false /*wait for one*/, INFINITE);
+      ::DWORD ret = ::WaitForMultipleObjects(
+         LOFTY_COUNTOF(handles), handles, false /*wait for one*/, INFINITE
+      );
       if (/*ret >= WAIT_OBJECT_0 &&*/ ret < WAIT_OBJECT_0 + LOFTY_COUNTOF(handles)) {
          ::PostQueuedCompletionStatus(
             engine_fd.get(), 0, reinterpret_cast< ::ULONG_PTR>(handles[ret - WAIT_OBJECT_0]), nullptr
