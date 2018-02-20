@@ -42,8 +42,12 @@ public:
    //! Opaque id type.
    typedef std::uintptr_t id_type;
 
-   //! Special type for the manual_create constant.
-   struct manual_create_t {};
+   //! Type of manual_create.
+   struct manual_create_t {
+      //! Default constructor. Required to instantiate a const instance.
+      manual_create_t() {
+      }
+   };
 
 public:
    //! Default constructor; automatically creates the event.
