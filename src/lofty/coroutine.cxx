@@ -673,7 +673,7 @@ coroutine::scheduler::event_id_t coroutine::scheduler::create_event() {
    struct ::kevent ke;
    ke.ident = event_id;
    ke.filter = EVFILT_USER;
-   ke.flags = EV_ADD;
+   ke.flags = EV_ADD | EV_DISABLE;
    ke.fflags = 0;
    if (::kevent(engine_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
       exception::throw_os_error();
@@ -806,6 +806,15 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          coro_pimpl->blocking_time_millisecs = 0;
          break;
       } else if (ke.filter == EVFILT_USER) {
+         /* Un-trigger the event. EV_DISPATCH should’ve taken care of this, but that doesn’t seem to work with
+         EVFILT_USER. Note that this would be a race condition because a coroutine on a different thread (but
+         same scheduler) could begin waiting on this event between the kevent() calls in this thread, and be
+         released by the still-triggered event; however, that can’t happen because the coroutine will not be
+         able to wait on the event because we haven’t yet removed the event id from coros_blocked_by_event. */
+         ke.flags = EV_DISABLE;
+         ke.fflags = 0;
+         ::kevent(engine_fd.get(), &ke, 1, nullptr, 0, nullptr);
+
          auto blocked_coro_itr(coros_blocked_by_event.find(ke.ident));
          if (blocked_coro_itr == coros_blocked_by_event.cend()) {
             // The event must’ve been triggered with no coroutines waiting for it.
@@ -1103,7 +1112,11 @@ void coroutine::scheduler::trigger_event(event_id_t event_id) {
    ke.ident = event_id;
    ke.filter = EVFILT_USER;
    // Re-enable the event, and use EV_DISPATCH to only wake up a single thread and the disable the event.
-   ke.flags = EV_ENABLE | EV_DISPATCH;
+   /* BSD BUG?: EV_DISPATCH doesn’t seem to automatically disable the event after it’s received. This requires
+   a workaround in find_coroutine_to_activate(); see comment there. EV_CLEAR doesn’t work either, although the
+   kevent() documentation doesn’t say whether it should. */
+   ke.flags = EV_ENABLE /*| EV_DISPATCH | EV_CLEAR*/;
+   // This gets reset by kevent() every time it receives this event.
    ke.fflags = NOTE_TRIGGER;
    if (::kevent(engine_fd.get(), &ke, 1, nullptr, 0, nullptr) < 0) {
       exception::throw_os_error();
