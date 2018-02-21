@@ -333,7 +333,7 @@ coroutine::scheduler::~scheduler() {
 }
 
 void coroutine::scheduler::add_ready(_std::shared_ptr<impl> coro_pimpl) {
-//   _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+   _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
    ready_coros_queue.push_back(_std::move(coro_pimpl));
 }
 
@@ -422,7 +422,7 @@ void coroutine::scheduler::block_active(
 
    if (event_id) {
       {
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
          // If the event has already been triggered, don’t wait at all.
          auto unwaited_event_itr(unwaited_events.find(event_id));
@@ -440,7 +440,7 @@ void coroutine::scheduler::block_active(
       disconnected from it. */
       if (event_id && coro_pimpl->blocking_event_id) {
          coro_pimpl->blocking_event_id = 0;
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_event.remove(event_id);
       }
    );
@@ -456,7 +456,7 @@ void coroutine::scheduler::block_active(
          exception::throw_os_error();
       }
       {
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_fd.add_or_assign(fdiok.pack, coro_pimpl);
       }
       coro_pimpl->blocking_fd = fd;
@@ -468,7 +468,7 @@ void coroutine::scheduler::block_active(
          fd_ke.flags = EV_DELETE;
          ::kevent(engine_fd.get(), &fd_ke, 1, nullptr, 0, nullptr);
          coro_pimpl->blocking_fd = io::filedesc_t_null;
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_fd.remove(fdiok.pack);
       }
    );
@@ -485,7 +485,7 @@ void coroutine::scheduler::block_active(
          exception::throw_os_error();
       }
       {
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_timer_ke.add_or_assign(timer_ke.ident, coro_pimpl);
       }
       coro_pimpl->blocking_time_millisecs = millisecs;
@@ -496,7 +496,7 @@ void coroutine::scheduler::block_active(
       if (millisecs && coro_pimpl->blocking_time_millisecs) {
          timer_ke.flags = EV_DELETE;
          ::kevent(engine_fd.get(), &timer_ke, 1, nullptr, 0, nullptr);
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_timer_ke.remove(timer_ke.ident);
       }
    );
@@ -517,7 +517,7 @@ void coroutine::scheduler::block_active(
       about that here, since it’s a non-repeatable operation. */
    #endif
       {
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_fd.add_or_assign(fdiok.pack, coro_pimpl);
       }
       coro_pimpl->blocking_fd = fd;
@@ -534,7 +534,7 @@ void coroutine::scheduler::block_active(
          removed. */
          if (coro_pimpl->blocking_fd != io::filedesc_t_null) {
             coro_pimpl->blocking_fd = io::filedesc_t_null;
-//            _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+            _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
             coros_blocked_by_fd.remove(fdiok.pack);
          }
       }
@@ -549,7 +549,7 @@ void coroutine::scheduler::block_active(
          this one; this shouldn’t be a problem because if we’re cancelling this I/O it’s most likely due to
          timeout, and it makes sense to abort all I/O for the fd once one I/O operation on it times out. */
          ::CancelIo(fd);
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_fd.remove(fdiok.pack);
       }
    );
@@ -578,7 +578,7 @@ void coroutine::scheduler::block_active(
    #endif
       }
       {
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          /* Add the timeout to the timers map, then rearm the timer to ensure the new timeout is accounted
          for. */
          timer_block_itr = coros_blocked_by_timer_fd.add(current_time() + millisecs, coro_pimpl);
@@ -590,7 +590,7 @@ void coroutine::scheduler::block_active(
       /* If the coroutine still thinks it’s blocked upon resuming, the timer is still active and must be
       removed. */
       if (millisecs && coro_pimpl->blocking_time_millisecs) {
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          coros_blocked_by_timer_fd.remove(timer_block_itr);
          arm_timer_for_next_sleep_end();
       }
@@ -665,7 +665,7 @@ void coroutine::scheduler::coroutine_scheduling_loop(bool interrupting_all /*= f
 coroutine::scheduler::event_id_t coroutine::scheduler::create_event() {
    event_id_t event_id;
    {
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
       // TODO: handle overflow of last_created_event_id.
       event_id = ++last_created_event_id;
    }
@@ -743,7 +743,7 @@ void coroutine::scheduler::discard_event(event_id_t event_id) {
       exception::throw_os_error();
    }
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
-//   _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+   _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
    unwaited_events.remove_if_found(event_id);
 #endif
 }
@@ -759,7 +759,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       edge-triggered mode so it wakes all waiting threads once, at once. */
    for (;;) {
       {
-//         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+         _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
          if (ready_coros_queue) {
             // There are coroutines that are ready to run; remove and return the first.
             coro_pimpl = ready_coros_queue.pop_front();
@@ -799,7 +799,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
       /*if (ke.flags & EV_ERROR) {
          exception::throw_os_error(ke.data);
       }*/
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
       if (ke.filter == EVFILT_TIMER) {
          coro_pimpl = coros_blocked_by_timer_ke.pop(ke.ident);
          // Make the coroutine aware that it’s no longer waiting for the timer.
@@ -867,7 +867,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
          continue;
       }
    #endif
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
       if (fdiok.s.fd == timer_fd.get()) {
          // Pop the coroutine that should run now, and rearm the timer if necessary.
          coro_pimpl = coros_blocked_by_timer_fd.pop_front().value;
@@ -956,7 +956,7 @@ void coroutine::scheduler::interrupt_all() {
    {
       /* TODO: using a different locking pattern, this work could be split across multiple threads, in case
       multiple are associated to this scheduler. */
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
       LOFTY_FOR_EACH(auto kv, coros_blocked_by_fd) {
          kv.value->inject_exception(kv.value, x_type);
       }
@@ -1123,7 +1123,7 @@ void coroutine::scheduler::trigger_event(event_id_t event_id) {
    }
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    {
-//      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
+      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
       ready_events_queue.push_back(event_id);
    }
    #if LOFTY_HOST_API_LINUX
