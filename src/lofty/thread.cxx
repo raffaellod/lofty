@@ -390,7 +390,13 @@ void interruptible_wait_for_single_object(::HANDLE handle, unsigned timeout_mill
    ::DWORD ret = ::WaitForMultipleObjects(
       LOFTY_COUNTOF(handles), handles, false, timeout_millisecs ? timeout_millisecs : INFINITE
    );
-   if (/*ret < WAIT_OBJECT_0 ||*/ ret >= WAIT_OBJECT_0 + LOFTY_COUNTOF(handles)) {
+   if (/*ret < WAIT_OBJECT_0 &&*/ ret < WAIT_OBJECT_0 + LOFTY_COUNTOF(handles)) {
+      // All good.
+   } else if (ret >= WAIT_ABANDONED_0 && ret < WAIT_ABANDONED_0 + LOFTY_COUNTOF(handles)) {
+      // TODO: something. Waiting for abandoned objects should not happen.
+   } else if (ret == WAIT_TIMEOUT) {
+      LOFTY_THROW(io::timeout, ());
+   } else {
       exception::throw_os_error();
    }
 }
