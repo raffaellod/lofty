@@ -283,6 +283,70 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
 namespace lofty { namespace test {
 
+#if 0
+LOFTY_TESTING_TEST_CASE_FUNC(
+   coroutine_on_multithreaded_scheduler,
+   "lofty::coroutine – multiple threads sharing one scheduler"
+) {
+   LOFTY_TRACE_FUNC();
+
+   auto coro_sched(this_thread::attach_coroutine_scheduler());
+
+   static unsigned const threads_size = 16;
+   static unsigned const coros_size = 64;
+   thread threads[threads_size];
+   collections::vector<bool> coros_completed;
+   coros_completed.set_size(coros_size);
+
+   // Schedule all the coroutines.
+   for (unsigned i = 0; i < coros_size; ++i) {
+      coroutine([&coros_completed, i] () {
+         if (i > 10) {
+            this_coroutine::sleep_for_ms(i);
+         }
+         coros_completed[i] = true;
+      });
+   }
+
+   /* Detach the thread scheduler, so that thread startup synchronization will not try to act as if we’re in a
+   coroutine. */
+   // TODO: FIXME: this is weak.
+   this_thread::detach_coroutine_scheduler();
+
+   // Now bring up the extra threads, which will automatically begin executing coroutines.
+   LOFTY_FOR_EACH(auto & thread, threads) {
+      thread = lofty::thread([&coro_sched] () {
+         this_thread::attach_coroutine_scheduler(coro_sched);
+         this_thread::run_coroutines();
+      });
+   }
+   // Go with the other threads.
+   this_thread::attach_coroutine_scheduler(coro_sched);
+   this_thread::run_coroutines();
+
+   // At this point, all threads should be finished; join them all.
+   LOFTY_FOR_EACH(auto & thread, threads) {
+      thread.join();
+   }
+
+   // Test that no false values can be found in coros_completed.
+   auto noncompleted_coro_itr(coros_completed.find(false));
+   int noncompleted_coro_index = noncompleted_coro_itr != coros_completed.cend()
+      ? static_cast<int>(noncompleted_coro_itr - coros_completed.cbegin())
+      : -1;
+   LOFTY_TESTING_ASSERT_EQUAL(noncompleted_coro_index, -1);
+
+   // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
+   this_thread::detach_coroutine_scheduler();
+}
+#endif
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
 LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine_event,
    "lofty::event (using coroutines)"
