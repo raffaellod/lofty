@@ -265,7 +265,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
          try {
             // For i == 0 there will be no timeout.
-            events[i].wait(i * 10);
+            events[i].wait(i * 50);
             timedout[i] = false;
          } catch (io::timeout const &) {
             timedout[i] = true;
