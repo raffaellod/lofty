@@ -18,6 +18,7 @@ more details.
 #include <lofty/io/text.hxx>
 #include <lofty/keyed_demux.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/mutex.hxx>
 #include <lofty/range.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/thread.hxx>
@@ -290,6 +291,47 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_FALSE(timedout[0]);
    LOFTY_TESTING_ASSERT_TRUE(timedout[1]);
    LOFTY_TESTING_ASSERT_FALSE(timedout[2]);
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   thread_mutex,
+   "lofty::mutex (using threads)"
+) {
+   LOFTY_TRACE_FUNC();
+
+   _std::atomic<int> i1(1), i2(2), i3(3);
+   mutex i_mutex;
+
+   thread thread1([&i_mutex, &i1, &i2, &i3] () {
+      _std::unique_lock<mutex> lock(i_mutex);
+      ++i1; // 2
+      // This will yield to the only other coroutine, which will change i2 to 3 if not blocked by the mutex.
+      this_coroutine::sleep_for_ms(1);
+      i3 += i1 * i2; // 7
+   });
+
+   thread thread2([&i_mutex, &i1, &i2, &i3] () {
+      _std::unique_lock<mutex> lock(i_mutex);
+      ++i2; // 3
+      // This will yield to the only other coroutine, which will change i3 to 6 if not blocked by the mutex.
+      this_coroutine::sleep_for_ms(1);
+      i3 += i1 * i2; // 13
+   });
+
+   thread1.join();
+   thread2.join();
+   LOFTY_TESTING_ASSERT_TRUE(i_mutex.try_lock());
+   i_mutex.unlock();
+
+   LOFTY_TESTING_ASSERT_EQUAL(i1.load(), 2);
+   LOFTY_TESTING_ASSERT_EQUAL(i2.load(), 3);
+   LOFTY_TESTING_ASSERT_EQUAL(i3.load(), 13);
 }
 
 }} //namespace lofty::test

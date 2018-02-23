@@ -15,12 +15,14 @@ more details.
 #include <lofty.hxx>
 #include <lofty/bitmanip.hxx>
 #include <lofty/byte_order.hxx>
+#include <lofty/collections/queue.hxx>
 #include <lofty/destructing_unfinalized_object.hxx>
 #include <lofty/event.hxx>
 #include <lofty/from_str.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/math.hxx>
+#include <lofty/mutex.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
@@ -235,6 +237,141 @@ void event::wait(unsigned timeout_millisecs /*= 0*/) {
 #else
    #error "TODO: HOST_API"
 #endif
+   }
+}
+
+} //namespace lofty
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty {
+
+struct mutex::coro_mode_t {
+   //! Scheduler that owns the mutex, if any. Always nullptr for a thread mutex.
+   _std::weak_ptr<coroutine::scheduler> coro_sched_w;
+   collections::queue<event::id_type> locks_queue;
+   bool locked;
+};
+
+mutex::manual_create_t const mutex::manual_create;
+
+mutex::mutex() {
+   create();
+}
+
+/*explicit*/ mutex::mutex(manual_create_t const &) {
+}
+
+mutex::mutex(mutex && src) :
+   thread_mutex(_std::move(src.thread_mutex)),
+   coro_mode(_std::move(src.coro_mode)) {
+}
+
+mutex::~mutex() {
+   if (coro_mode) {
+      if (coro_mode->locked) {
+         // TODO: uh-oh. Maybe we should try to trigger and delete the events?
+      }
+   }
+}
+
+mutex & mutex::operator=(mutex && src) {
+   thread_mutex = _std::move(src.thread_mutex);
+   coro_mode = _std::move(src.coro_mode);
+   return *this;
+}
+
+mutex & mutex::create() {
+   if (thread_mutex) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
+   thread_mutex.reset(new _std::mutex());
+   if (auto coro_sched = this_thread::coroutine_scheduler()) {
+      coro_mode.reset(new coro_mode_t());
+      coro_mode->coro_sched_w = coro_sched;
+      coro_mode->locked = false;
+   }
+   return *this;
+}
+
+void mutex::lock() {
+   if (!thread_mutex) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
+   if (coro_mode) {
+      _std::unique_lock<_std::mutex> thread_lock(*thread_mutex);
+      if (coro_mode->locked) {
+         /* Create and wait for an event that will be triggered when the mutex is unlocked and we’re at the
+         front() of the queue. */
+         // Will throw if coro_sched_w is expired.
+         _std::shared_ptr<coroutine::scheduler> coro_sched(coro_mode->coro_sched_w);
+         auto event_id = coro_sched->create_event();
+         coro_mode->locks_queue.push_back(event_id);
+         thread_lock.unlock();
+
+         coro_sched->block_active(
+            0 /*no timeout*/, event_id, io::filedesc_t_null, false /*read – N/A*/
+#if LOFTY_HOST_API_WIN32
+            , nullptr
+#endif
+         );
+
+         /* Now that the wait is over, event_id has already been popped out of locks_queue, and this
+         coroutine owns the lock. */
+         coro_sched->discard_event(event_id);
+      } else {
+         coro_mode->locked = true;
+      }
+   } else {
+      thread_mutex->lock();
+   }
+}
+
+bool mutex::try_lock() {
+   if (!thread_mutex) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
+   if (coro_mode) {
+      /* In coroutine mode, *thread_mutex is only locked for a short durations, so we’ll take a chance at
+      blocking even if this method is supposed not to. */
+      _std::unique_lock<_std::mutex> thread_lock(*thread_mutex);
+      if (coro_mode->locked) {
+         return false;
+      } else {
+         coro_mode->locked = true;
+         return true;
+      }
+   } else {
+      return thread_mutex->try_lock();
+   }
+}
+
+void mutex::unlock() {
+   if (!thread_mutex) {
+      // TODO: use a better exception class.
+      LOFTY_THROW(argument_error, ());
+   }
+   if (coro_mode) {
+      _std::unique_lock<_std::mutex> thread_lock(*thread_mutex);
+      if (!coro_mode->locked) {
+         // TODO: use a better exception class.
+         LOFTY_THROW(argument_error, ());
+      }
+      if (coro_mode->locks_queue) {
+         // Trigger the event at the front() of the queue, but keep the mutex locked.
+         // Will throw if coro_sched_w is expired.
+         _std::shared_ptr<coroutine::scheduler> coro_sched(coro_mode->coro_sched_w);
+         auto event_id = coro_mode->locks_queue.pop_front();
+         thread_lock.unlock();
+         coro_sched->trigger_event(event_id);
+      } else {
+         coro_mode->locked = false;
+      }
+   } else {
+      thread_mutex->unlock();
    }
 }
 
