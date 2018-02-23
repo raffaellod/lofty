@@ -276,19 +276,30 @@ signal_dispatcher::signal_dispatcher() :
 
 signal_dispatcher::~signal_dispatcher() {
 #if LOFTY_HOST_API_POSIX
-   // Restore the default signal handlers.
+   // Restore the default signal handler for the interruption signals.
    ::signal(thread_interruption_signal_, SIG_DFL);
    LOFTY_FOR_EACH(int signal, interruption_signals) {
       ::signal(signal, SIG_DFL);
    }
-#endif
-#if LOFTY_HOST_API_MACH
-   // TODO: stop exception_handler_thread.
-#elif LOFTY_HOST_API_POSIX
-   // Restore more signal handlers.
-   LOFTY_FOR_EACH(int signal, fault_signals) {
-      ::signal(signal, SIG_DFL);
-   }
+   #if LOFTY_HOST_API_MACH
+      // Tell exception_handler_thread to stop, then wait for it to do so.
+      ::mach_msg_header_t header;
+      header.msgh_bits = MACH_MSGH_BITS_SET_PORTS(MACH_MSG_TYPE_MAKE_SEND, 0, 0);
+      header.msgh_remote_port = exceptions_port;
+      header.msgh_local_port = MACH_PORT_NULL;
+      header.msgh_size = sizeof header;
+      if (::mach_msg(
+         &header, MACH_SEND_MSG, sizeof header, 0 /*not receiving*/,
+         MACH_PORT_NULL /*no reply*/, 10 /*ms timeout*/, MACH_PORT_NULL
+      ) == MACH_MSG_SUCCESS) {
+         ::pthread_join(exception_handler_thread, nullptr);
+      }
+   #else
+      // Restore the default signal handler for the fault signals.
+      LOFTY_FOR_EACH(int signal, fault_signals) {
+         ::signal(signal, SIG_DFL);
+      }
+   #endif
 #elif LOFTY_HOST_API_WIN32
    ::_set_se_translator(default_se_translator_fn);
 #endif
@@ -325,31 +336,30 @@ signal_dispatcher::~signal_dispatcher() {
 #if LOFTY_HOST_API_MACH
    /*static*/ void * signal_dispatcher::exception_handler(void * p) {
       signal_dispatcher * this_ptr = static_cast<signal_dispatcher *>(p);
+      struct {
+         ::mach_msg_header_t header;
+         // Testing on x86-64 shows that an exception message has size=76, so this will be more than sufficient.
+         std::uint8_t data[256];
+      } msg, reply;
       for (;;) {
-         /* The exact definition of these structs is in the kernel’s sources; thankfully all we need to do
-         with them is pass them around, so just define them as BLOBs and hope that they’re large enough. */
-         struct {
-            ::mach_msg_header_t header;
-            std::uint8_t data[1024];
-         } msg, reply;
-
          // Block to read from the exception port.
          if (::mach_msg(
-            &msg.header, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof msg, this_ptr->exceptions_port,
-            MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
+            &msg.header, MACH_RCV_MSG, 0 /*not sending*/, sizeof msg,
+            this_ptr->exceptions_port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
          ) != MACH_MSG_SUCCESS) {
-            std::abort();
+            // Ignore a receive failure.
+            continue;
          }
-
-         // Handle the received message by having exc_server() call our catch_exception_raise().
+         if (msg.header.msgh_remote_port == MACH_PORT_NULL) {
+            // Termination message sent by the main thread.
+            return nullptr;
+         }
+         // This will call our catch_exception_raise() and produce a reply for us to send.
          if (::exc_server(&msg.header, &reply.header)) {
-            // exc_server() created a reply for the message, send it.
-            if (::mach_msg(
-               &reply.header, MACH_SEND_MSG, reply.header.msgh_size, 0, MACH_PORT_NULL,
-               MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
-            ) != MACH_MSG_SUCCESS) {
-               std::abort();
-            }
+            ::mach_msg(
+               &reply.header, MACH_SEND_MSG, reply.header.msgh_size, 0 /*not receiving*/,
+               MACH_PORT_NULL /*no reply*/, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
+            );
          }
       }
    }
