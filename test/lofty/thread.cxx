@@ -353,7 +353,13 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
       // In this test, the keys are the same as the values.
 
-      this_thread::sleep_for_ms(1);
+      this_thread::sleep_for_ms(
+#ifdef COMPLEMAKE_USING_VALGRIND
+         100
+#else
+         3
+#endif
+      );
       switch (++step) {
          case 1:
             *key = 4;
