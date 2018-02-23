@@ -179,12 +179,12 @@ private:
 #if LOFTY_HOST_API_POSIX
    //! Signal number to be used to interrupt threads.
    int const thread_interruption_signal_;
-#endif
-#if LOFTY_HOST_API_MACH
+   #if LOFTY_HOST_API_MACH
    //! Port through which we ask the kernel to communicate exceptions to this process.
    ::mach_port_t exceptions_port;
    //! Thread in charge of handling exceptions for all the other threads.
    ::pthread_t exception_handler_thread;
+   #endif
 #elif LOFTY_HOST_API_WIN32
    //! Structured Exception translator on program startup.
    ::_se_translator_function default_se_translator_fn;
@@ -201,14 +201,6 @@ private:
 
    //! Pointer to the singleton instance.
    static signal_dispatcher * this_instance;
-#if LOFTY_HOST_API_POSIX
-   //! Fault signals that we can translate into C++ exceptions.
-   static int const fault_signals[];
-   //! Signals that are redundant with errno values; we prefer errno to signals.
-   static int const ignored_signals[];
-   //! Interruption signals that we can translate into C++ exceptions.
-   static int const interruption_signals[];
-#endif
 };
 
 }} //namespace lofty::_pvt

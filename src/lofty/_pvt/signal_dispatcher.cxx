@@ -194,23 +194,29 @@ more details.
 
 namespace lofty { namespace _pvt {
 
-signal_dispatcher * signal_dispatcher::this_instance = nullptr;
 #if LOFTY_HOST_API_POSIX
-int const signal_dispatcher::fault_signals[] = {
-   SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
+   #if !LOFTY_HOST_API_MACH
+//! Fault signals that we can translate into C++ exceptions.
+static int const fault_signals[] = {
+  SIGBUS,  // Bus error (bad memory access) (POSIX.1-2001).
    SIGFPE,  // Floating point exception (POSIX.1-1990).
 // SIGILL,  // Illegal Instruction (POSIX.1-1990).
    SIGSEGV  // Invalid memory reference (POSIX.1-1990).
 };
-int const signal_dispatcher::ignored_signals[] = {
+   #endif
+//! Signals that are redundant with errno values; we prefer errno to signals.
+static int const ignored_signals[] = {
    SIGPIPE  // Broken pipe: write to pipe with no readers (POSIX.1-1990).
 };
-int const signal_dispatcher::interruption_signals[] = {
+//! Interruption signals that we can translate into C++ exceptions.
+static int const interruption_signals[] = {
    SIGINT,  // Interrupt from keyboard (POSIX.1-1990).
 // SIGQUIT, // Quit from keyboard (POSIX.1-1990).
    SIGTERM  // Termination signal (POSIX.1-1990).
 };
 #endif
+
+signal_dispatcher * signal_dispatcher::this_instance = nullptr;
 
 signal_dispatcher::signal_dispatcher() :
 #if LOFTY_HOST_API_POSIX
