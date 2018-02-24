@@ -99,14 +99,20 @@ private:
 
 namespace lofty { namespace net { namespace udp {
 
-//! Sends datagrams to UDP servers.
-class LOFTY_SYM client : public ip::server {
+//! Receives datagrams sent to a given UDP port.
+class LOFTY_SYM server : public ip::server {
 public:
-   //! Constructor.
-   client();
+   /*! Constructor.
+
+   @param address
+      Address to bind to.
+   @param port
+      Port to listen for connections on.
+   */
+   server(ip::address const & address, ip::port const & port);
 
    //! Destructor.
-   ~client();
+   ~server();
 
    /*! Accepts and returns a datagram from another UDP client. A UDP client must not call this method without
    having first called send().
@@ -124,14 +130,8 @@ public:
    void send(datagram const & dgram);
 
 protected:
-   /*! Constructor for use by udp::server; creates and binds the socket to the specified address and port.
-
-   @param address
-      Address to bind to.
-   @param port
-      Port to listen for connections on.
-   */
-   client(ip::address const & address, ip::port const & port);
+   //! Default constructor for subclasses.
+   server();
 };
 
 }}} //namespace lofty::net::udp
@@ -140,20 +140,18 @@ protected:
 
 namespace lofty { namespace net { namespace udp {
 
-//! Receives datagrams sent to a given UDP port.
-class LOFTY_SYM server : public client {
+//! Sends datagrams to UDP servers.
+class LOFTY_SYM client : public server {
 public:
-   /*! Constructor.
+   //! Constructor.
+   client();
 
-   @param address
-      Address to bind to.
-   @param port
-      Port to listen for connections on.
+   /*! Assigns an IP version and creates a suitable UDP socket.
+
+   @param version
+      IP version to set.
    */
-   server(ip::address const & address, ip::port const & port);
-
-   //! Destructor.
-   ~server();
+   void set_ip_version(ip::version const & version);
 };
 
 }}} //namespace lofty::net::udp

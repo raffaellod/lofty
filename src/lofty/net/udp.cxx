@@ -52,19 +52,19 @@ datagram::~datagram() {
 
 namespace lofty { namespace net { namespace udp {
 
-client::client() {
+server::server() {
 }
 
-client::client(ip::address const & address, ip::port const & port) :
+server::server(ip::address const & address, ip::port const & port) :
    ip::server(address, port, address.version() == ip::version::v4 ? protocol::udp_ipv4 : protocol::udp_ipv6) {
 }
 
-client::~client() {
+server::~server() {
 }
 
-void client::send(datagram const & dgram) {
+void server::send(datagram const & dgram) {
    if (!sock) {
-      // No socket yet; create one now.
+      // No socket yet; create one now. This is only possible for the client class, not server.
       ip_version = dgram.address().version();
       sock = socket(ip_version == ip::version::v4 ? protocol::udp_ipv4 : protocol::udp_ipv6);
    }
@@ -129,7 +129,7 @@ void client::send(datagram const & dgram) {
    this_coroutine::interruption_point();
 }
 
-_std::shared_ptr<datagram> client::receive() {
+_std::shared_ptr<datagram> server::receive() {
    // Ensure send() has been called before, or we won’t know which IP version to setup the socket for.
    if (!sock) {
       // TODO: use a better exception class.
@@ -222,11 +222,12 @@ _std::shared_ptr<datagram> client::receive() {
 
 namespace lofty { namespace net { namespace udp {
 
-server::server(ip::address const & address, ip::port const & port) :
-   client(address, port) {
+client::client() {
 }
 
-server::~server() {
+void client::set_ip_version(ip::version const & version) {
+   ip_version = version;
+   sock = socket(version == ip::version::v4 ? protocol::udp_ipv4 : protocol::udp_ipv6);
 }
 
 }}} //namespace lofty::net::udp
