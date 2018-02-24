@@ -219,8 +219,10 @@ server::server(address const & address, port const & port, protocol protocol_) :
 
 server::~server() {
 #if LOFTY_HOST_API_POSIX
-   int value = 1;
-   ::setsockopt(sock.get(), SOL_SOCKET, SO_REUSEADDR, &value, sizeof value);
+   if (sock) {
+      int value = 1;
+      ::setsockopt(sock.get(), SOL_SOCKET, SO_REUSEADDR, &value, sizeof value);
+   }
 #endif
 }
 
