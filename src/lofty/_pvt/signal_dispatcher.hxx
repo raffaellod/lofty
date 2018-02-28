@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -137,8 +137,14 @@ private:
 #endif
 
 #if LOFTY_HOST_API_MACH
-   //! Handles exceptions for every thread. Runs in its own thread.
-   static void * exception_handler(void *);
+   /*! Handles exceptions for every thread. Runs in its own thread.
+
+   @param this_
+      this.
+   @return
+      Unused.
+   */
+   static void * exception_handler(void * this_);
 #elif LOFTY_HOST_API_POSIX
    /*! Translates POSIX signals into C++ exceptions, whenever possible. This works by injecting the stack
    frame of a call to throw_common_type(), and then returning, ending processing of the signal. Execution will
@@ -181,7 +187,7 @@ private:
    int const thread_interruption_signal_;
    #if LOFTY_HOST_API_MACH
    //! Port through which we ask the kernel to communicate exceptions to this process.
-   ::mach_port_t exceptions_port;
+   ::mach_port_t exception_port;
    //! Thread in charge of handling exceptions for all the other threads.
    ::pthread_t exception_handler_thread;
    #endif

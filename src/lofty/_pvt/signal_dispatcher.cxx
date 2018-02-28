@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -21,8 +21,6 @@ more details.
 
 #if LOFTY_HOST_API_MACH
    #include <cstdlib> // std::abort()
-   // TODO: use Mach threads instead of pthreads for the exception-catching thread.
-   #include <pthread.h>
 
    // Mach reference: <http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/>.
    #include <mach/mach.h>
@@ -48,12 +46,12 @@ more details.
    something about it. What we do is change the next instruction in the faulting thread to
    exception::throw_common_type().
 
-   @param exceptions_port
-      ?
+   @param exception_port
+      Exception port.
    @param thread_port
-      Faulting thread.
+      Faulting thread’s port.
    @param task_port
-      ?
+      Task port.
    @param exc_type
       Type of exception.
    @param exc_codes
@@ -64,10 +62,10 @@ more details.
       One of the KERN_* constants.
    */
    extern "C" ::kern_return_t LOFTY_SYM catch_exception_raise(
-      ::mach_port_t exceptions_port, ::mach_port_t thread_port, ::mach_port_t task_port,
+      ::mach_port_t exception_port, ::mach_port_t thread_port, ::mach_port_t task_port,
       ::exception_type_t exc_type, ::exception_data_t exc_codes, ::mach_msg_type_number_t exc_codes_size
    ) {
-      LOFTY_UNUSED_ARG(exceptions_port);
+      LOFTY_UNUSED_ARG(exception_port);
       LOFTY_UNUSED_ARG(task_port);
 
    #if LOFTY_HOST_ARCH_X86_64
@@ -250,25 +248,8 @@ signal_dispatcher::signal_dispatcher() :
    ::sigaction(thread_interruption_signal_, &sa, nullptr);
 #endif
 #if LOFTY_HOST_API_MACH
-   ::mach_port_t proc_port = ::mach_task_self();
-   // Allocate a right-less port to listen for exceptions.
-   if (::mach_port_allocate(proc_port, MACH_PORT_RIGHT_RECEIVE, &exceptions_port) == KERN_SUCCESS) {
-      // Assign rights to the port.
-      if (::mach_port_insert_right(
-         proc_port, exceptions_port, exceptions_port, MACH_MSG_TYPE_MAKE_SEND
-      ) == KERN_SUCCESS) {
-         // Start the thread that will catch exceptions from all the others.
-         if (::pthread_create(&exception_handler_thread, nullptr, &exception_handler, this) == 0) {
-            // Now that the handler thread is running, set the process-wide exception port.
-            if (::task_set_exception_ports(
-               proc_port, EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
-               exceptions_port, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
-            ) == KERN_SUCCESS) {
-               // All good.
-            }
-         }
-      }
-   }
+   // Start the thread that will catch exceptions from all the others.
+   ::pthread_create(&exception_handler_thread, nullptr, &signal_dispatcher::exception_handler, this);
 #elif LOFTY_HOST_API_POSIX
    // Setup fault signal handlers.
    sa.sa_sigaction = &fault_signal_handler;
@@ -291,7 +272,7 @@ signal_dispatcher::~signal_dispatcher() {
       // Tell exception_handler_thread to stop, then wait for it to do so.
       ::mach_msg_header_t header;
       header.msgh_bits = MACH_MSGH_BITS_SET_PORTS(MACH_MSG_TYPE_MAKE_SEND, 0, 0);
-      header.msgh_remote_port = exceptions_port;
+      header.msgh_remote_port = exception_port;
       header.msgh_local_port = MACH_PORT_NULL;
       header.msgh_size = sizeof header;
       if (::mach_msg(
@@ -340,26 +321,40 @@ signal_dispatcher::~signal_dispatcher() {
 #endif
 
 #if LOFTY_HOST_API_MACH
-   /*static*/ void * signal_dispatcher::exception_handler(void * p) {
-      signal_dispatcher * this_ptr = static_cast<signal_dispatcher *>(p);
+   /*static*/ void * signal_dispatcher::exception_handler(void * this__) {
+      auto this_ = static_cast<signal_dispatcher *>(this__);
+
+      // Setup the exception port.
+      #define MACH_CHECK(call) \
+         if ((call) != KERN_SUCCESS) { \
+            /* TODO: maybe std::abort() ? */ \
+            return nullptr; \
+         }
+      auto task_port = ::mach_task_self();
+      // Allocate a port to receive exceptions, then add a send right to it, using the same name.
+      MACH_CHECK(::mach_port_allocate(task_port, MACH_PORT_RIGHT_RECEIVE, &this_->exception_port));
+      MACH_CHECK(::mach_port_insert_right(
+         task_port, this_->exception_port, this_->exception_port, MACH_MSG_TYPE_MAKE_SEND
+      ));
+      // Set the process-wide exception port.
+      MACH_CHECK(::task_set_exception_ports(
+         task_port, EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
+         this_->exception_port, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
+      ));
+      #undef MACH_CHECK
+
       struct {
          ::mach_msg_header_t header;
-         // Testing on x86-64 shows that an exception message has size=76, so this will be more than sufficient.
+         // Testing on x86-64 shows that an exception message has size=76.
          std::uint8_t data[256];
       } msg, reply;
-      for (;;) {
-         // Block to read from the exception port.
-         if (::mach_msg(
-            &msg.header, MACH_RCV_MSG, 0 /*not sending*/, sizeof msg,
-            this_ptr->exceptions_port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
-         ) != MACH_MSG_SUCCESS) {
-            // Ignore a receive failure.
-            continue;
-         }
-         if (msg.header.msgh_remote_port == MACH_PORT_NULL) {
-            // Termination message sent by the main thread.
-            return nullptr;
-         }
+      /* Block to read from the exception port. We’ll stop looping if mach_msg() fails (assume it’s not
+      recoverable) or upon receiving the termination message sent by the main thread (which has no reply
+      port). */
+      while (::mach_msg(
+         &msg.header, MACH_RCV_MSG, 0 /*not sending*/, sizeof msg,
+         this_->exception_port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL
+      ) == MACH_MSG_SUCCESS && msg.header.msgh_remote_port != MACH_PORT_NULL) {
          // This will call our catch_exception_raise() and produce a reply for us to send.
          if (::exc_server(&msg.header, &reply.header)) {
             ::mach_msg(
@@ -368,6 +363,15 @@ signal_dispatcher::~signal_dispatcher() {
             );
          }
       }
+
+      // Disconnect the exception port, then unreference it.
+      ::task_set_exception_ports(
+         task_port, EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC,
+         MACH_PORT_NULL, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE
+      );
+      ::mach_port_mod_refs(task_port, this_->exception_port, MACH_PORT_RIGHT_SEND, -1);
+      ::mach_port_mod_refs(task_port, this_->exception_port, MACH_PORT_RIGHT_RECEIVE, -1);
+      return nullptr;
    }
 #elif LOFTY_HOST_API_POSIX
    /*static*/ void signal_dispatcher::fault_signal_handler(int signal, ::siginfo_t * si, void * ctx) {
