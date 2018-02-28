@@ -249,7 +249,10 @@ signal_dispatcher::signal_dispatcher() :
 #endif
 #if LOFTY_HOST_API_MACH
    // Start the thread that will catch exceptions from all the others.
-   ::pthread_create(&exception_handler_thread, nullptr, &signal_dispatcher::exception_handler, this);
+   ::pthread_attr_t thread_attrs;
+   ::pthread_attr_init(&thread_attrs);
+   ::pthread_attr_setstacksize(&thread_attrs, PTHREAD_STACK_MIN);
+   ::pthread_create(&exception_handler_thread, &thread_attrs, &signal_dispatcher::exception_handler, this);
 #elif LOFTY_HOST_API_POSIX
    // Setup fault signal handlers.
    sa.sa_sigaction = &fault_signal_handler;
