@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2016-2017 Raffaello D. Di Napoli
+Copyright 2016-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,6 +13,7 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
+#include <lofty/collections.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/testing/test_case.hxx>
@@ -741,6 +742,119 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[1].capture_group(1).begin_char_index(), 3u);
    LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[1].capture_group(1).end_char_index(),   4u);
    LOFTY_TESTING_ASSERT_EQUAL(match.repetition_group(0)[1].capture_group(1).str(), LOFTY_SL("b"));
+}
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_capture_a_or_capture_b,
+   "lofty::text::parsers::dynamic – pattern “(a)|(b)”"
+) {
+   LOFTY_TRACE_FUNC();
+
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(b_state, nullptr, nullptr, 'b');
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, nullptr, 'a');
+   LOFTY_TEXT_PARSERS_DYNAMIC_CAPTURE_GROUP(b_cap_group, nullptr, nullptr, &b_state.base);
+   LOFTY_TEXT_PARSERS_DYNAMIC_CAPTURE_GROUP(a_cap_group, nullptr, &b_cap_group.base, &a_state.base);
+   text::parsers::dynamic parser;
+   parser.set_initial_state(&a_cap_group.base);
+
+   text::parsers::dynamic::match match;
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("a"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("b"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("b"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("b"));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ba"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("b"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("b"));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("c")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ca"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("a"));
+}
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_a_or_capture_b_capture_c,
+   "lofty::text::parsers::dynamic – pattern “a|(b)(c)”"
+) {
+   LOFTY_TRACE_FUNC();
+
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(c_state, nullptr, nullptr, 'c');
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(b_state, nullptr, nullptr, 'b');
+   LOFTY_TEXT_PARSERS_DYNAMIC_CAPTURE_GROUP(c_cap_group, nullptr, nullptr, &c_state.base);
+   LOFTY_TEXT_PARSERS_DYNAMIC_CAPTURE_GROUP(b_cap_group, &c_cap_group.base, nullptr, &b_state.base);
+   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(a_state, nullptr, &b_cap_group.base, 'a');
+   text::parsers::dynamic parser;
+   parser.set_initial_state(&a_state.base);
+
+   text::parsers::dynamic::match match;
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("a"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, match.capture_group(0));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, match.capture_group(0));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("abc"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, match.capture_group(0));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ba"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("a"));
+   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, match.capture_group(0));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("b")));
+   LOFTY_TESTING_ASSERT_FALSE(parser.run(LOFTY_SL("c")));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("bc"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("bc"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("b"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(1).begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(1).end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(1).str(), LOFTY_SL("c"));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("bc"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("bc"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).begin_char_index(), 0u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).end_char_index(),   1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("b"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(1).begin_char_index(), 1u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(1).end_char_index(),   2u);
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(1).str(), LOFTY_SL("c"));
 }
 
 }} //namespace lofty::test
