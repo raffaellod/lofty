@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2016-2017 Raffaello D. Di Napoli
+Copyright 2016-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -645,6 +645,9 @@ public:
    */
    dynamic_match_capture capture_group(unsigned index) const;
 
+   //! Dumps the matched capture (sub)tree.
+   void dump() const;
+
    /*! Returns the index of the character past the end of the capture.
 
    @return
@@ -690,7 +693,8 @@ protected:
    }
 
 protected:
-   //! Pointer to the match, which contains the input offset and capture 0.
+   /*! Pointer to the match, which contains capture 0. If nullptr, *this is a dynamic::match instance, so this
+   can be cast to access the necessary members directly. */
    dynamic::match const * match;
    //! Pointer to the node containing data for the group.
    dynamic::_group_node const * group_node;
@@ -741,9 +745,6 @@ public:
    LOFTY_EXPLICIT_OPERATOR_BOOL() const {
       return group_node != nullptr;
    }
-
-   //! Dumps the matched group tree.
-   void dump() const;
 
 protected:
    /*! Constructor for use by the parser.

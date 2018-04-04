@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2016-2017 Raffaello D. Di Napoli
+Copyright 2016-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -14,6 +14,7 @@ more details.
 
 #include <lofty.hxx>
 #include <lofty/collections.hxx>
+#include <lofty/collections/hash_map.hxx>
 #include <lofty/collections/vector.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
@@ -25,10 +26,11 @@ namespace lofty { namespace text { namespace parsers {
 
 void dynamic_state::dump() const {
    collections::vector<dynamic_state const *> context_stack;
-   auto curr_state = this;
+   collections::hash_map<dynamic_state const *, unsigned> alternatives_ids;
+   unsigned next_alternative_id = 1;
    auto out(io::text::stderr);
+   auto curr_state = this;
    while (curr_state) {
-      // TODO: find a reasonable way to display alternatives.
       auto next_state = curr_state->next;
       for (unsigned i = 0; i < static_cast<unsigned>(context_stack.size()); ++i) {
          out->print(LOFTY_SL("   "));
@@ -58,7 +60,9 @@ void dynamic_state::dump() const {
 
          case _type::string: {
             auto state_with_data = curr_state->with_data<dynamic::_state_string_data>();
-            out->print(LOFTY_SL(" “{}”"), str(external_buffer, state_with_data->begin, state_with_data->size()));
+            out->print(
+               LOFTY_SL(" “{}”"), str(external_buffer, state_with_data->begin, state_with_data->size())
+            );
             break;
          }
 
@@ -66,11 +70,23 @@ void dynamic_state::dump() const {
             break;
       }
       if (curr_state->alternative) {
-         out->print(LOFTY_SL(" (has alternatives)"));
+         auto alternative_itr(alternatives_ids.find(curr_state->alternative));
+         if (alternative_itr == alternatives_ids.cend()) {
+            alternative_itr = _std::get<0>(alternatives_ids.add_or_assign(
+               curr_state->alternative, next_alternative_id++
+            ));
+         }
+         out->print(LOFTY_SL(" (has alternative: {})"), alternative_itr->value);
       }
       out->print(LOFTY_SL(" @ {}\n"), curr_state);
       while (!next_state && context_stack) {
          next_state = context_stack.pop_back();
+      }
+      if (!next_state && alternatives_ids) {
+         auto alternative_itr(alternatives_ids.cbegin());
+         next_state = alternative_itr->key;
+         out->print(LOFTY_SL("alternative {}:\n"), alternative_itr->value);
+         alternatives_ids.remove(alternative_itr);
       }
       curr_state = next_state;
    }
@@ -153,12 +169,26 @@ public:
    */
    _capture_group_node * as_capture();
 
+   /*! Casts the group as a capture group, if applicable.
+
+   @return
+      Pointer to *this as a capture group, or nullptr if *this is not a _capture_group_node.
+   */
+   _capture_group_node const * as_capture() const;
+
    /*! Casts the group as a repetition group, if applicable.
 
    @return
       Pointer to *this as a repetition group, or nullptr if *this is not a _repetition_group_node.
    */
    _repetition_group_node * as_repetition();
+
+   /*! Casts the group as a repetition group, if applicable.
+
+   @return
+      Pointer to *this as a repetition group, or nullptr if *this is not a _repetition_group_node.
+   */
+   _repetition_group_node const * as_repetition() const;
 
    /*! Deletes *this by resetting its owner’s pointer, and returns parent.
 
@@ -281,8 +311,14 @@ public:
    std::size_t end;
 };
 
-dynamic::_capture_group_node * dynamic::_group_node::as_capture() {
+// Now these can be defined.
+
+inline dynamic::_capture_group_node * dynamic::_group_node::as_capture() {
    return is_capture() ? static_cast<_capture_group_node *>(this) : nullptr;
+}
+
+inline dynamic::_capture_group_node const * dynamic::_group_node::as_capture() const {
+   return is_capture() ? static_cast<_capture_group_node const *>(this) : nullptr;
 }
 
 
@@ -304,8 +340,14 @@ public:
    unsigned count;
 };
 
-dynamic::_repetition_group_node * dynamic::_group_node::as_repetition() {
+// Now these can be defined.
+
+inline dynamic::_repetition_group_node * dynamic::_group_node::as_repetition() {
    return is_repetition() ? static_cast<_repetition_group_node *>(this) : nullptr;
+}
+
+inline dynamic::_repetition_group_node const * dynamic::_group_node::as_repetition() const {
+   return is_repetition() ? static_cast<_repetition_group_node const *>(this) : nullptr;
 }
 
 
@@ -581,7 +623,7 @@ next_state_after_accepted:
                   }
                   break;
 
-               case state_type::string:  {
+               case state_type::string: {
                   auto state_with_data = backtrack_state->with_data<_state_string_data>();
                   // Move the iterator back, pretending the string was never consumed.
                   buf_itr = buf.iterator_from_char_index(buf_itr.char_index() - state_with_data->size());
@@ -715,6 +757,45 @@ dynamic_match_capture dynamic_match_capture::capture_group(unsigned index) const
    LOFTY_THROW(collections::out_of_range, (requested_index, 0, requested_index - 1));
 }
 
+void dynamic_match_capture::dump() const {
+   collections::vector<dynamic::_group_node const *> context_stack;
+   dynamic::_group_node const * curr_group = group_node;
+   auto out(io::text::stderr);
+   while (curr_group) {
+      // TODO: find a reasonable way to display alternatives.
+      dynamic::_group_node const * next_group = curr_group->next_sibling.get();
+      for (unsigned i = 0; i < static_cast<unsigned>(context_stack.size()); ++i) {
+         out->print(LOFTY_SL("   "));
+      }
+      if (auto capture_group = curr_group->as_capture()) {
+         dynamic_match_capture group_capture(match ? match : static_cast<dynamic::match const *>(this), curr_group);
+         out->print(LOFTY_SL("capture [{},{}) “{}”"), capture_group->begin, capture_group->end, group_capture.str());
+      } else if (curr_group->is_repetition()) {
+         auto state_with_data = curr_group->state->with_data<dynamic::_state_repetition_group_data>();
+         if (state_with_data->min == state_with_data->max) {
+            out->print(LOFTY_SL("repetition {{{}}}"), state_with_data->min);
+         } else if (state_with_data->min == 0 && state_with_data->max == 1) {
+            out->print(LOFTY_SL("repetition ?"));
+         } else if (state_with_data->min == 0 && state_with_data->max == 0) {
+            out->print(LOFTY_SL("repetition *"));
+         } else if (state_with_data->min == 1 && state_with_data->max == 0) {
+            out->print(LOFTY_SL("repetition +"));
+         } else {
+            out->print(LOFTY_SL("repetition {{{},{}}}"), state_with_data->min, state_with_data->max);
+         }
+      }
+      out->print(LOFTY_SL(" for state @ {}\n"), curr_group->state);
+      if (curr_group->first_nested) {
+         context_stack.push_back(next_group);
+         next_group = curr_group->first_nested.get();
+      }
+      while (!next_group && context_stack) {
+         next_group = context_stack.pop_back();
+      }
+      curr_group = next_group;
+   }
+}
+
 std::size_t dynamic_match_capture::end_char_index() const {
    auto capture_group_ = static_cast<dynamic::_capture_group_node const *>(group_node);
    return (match ? match->begin_char_index() : 0) + capture_group_->end;
@@ -785,28 +866,6 @@ dynamic::match & dynamic::match::operator=(match && src) {
 dynamic::match::~match() {
    // This will cascade to delete the entire tree.
    delete group_node;
-}
-
-void dynamic::match::dump() const {
-   collections::vector<dynamic::_group_node const *> context_stack;
-   dynamic::_group_node const * curr_group = group_node;
-   auto out(io::text::stderr);
-   while (curr_group) {
-      // TODO: find a reasonable way to display alternatives.
-      dynamic::_group_node const * next_group = curr_group->next_sibling.get();
-      for (unsigned i = 0; i < static_cast<unsigned>(context_stack.size()); ++i) {
-         out->print(LOFTY_SL("   "));
-      }
-      out->print(LOFTY_SL("{} @ {}\n"), state_type(curr_group->state->type), curr_group->state);
-      if (curr_group->first_nested) {
-         context_stack.push_back(next_group);
-         next_group = curr_group->first_nested.get();
-      }
-      while (!next_group && context_stack) {
-         next_group = context_stack.pop_back();
-      }
-      curr_group = next_group;
-   }
 }
 
 }}} //namespace lofty::text::parsers
