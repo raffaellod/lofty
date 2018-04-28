@@ -466,7 +466,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
             curr_group = capture_group;
             next_state = state_with_data->first_state;
             backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
-            goto next_state_after_accepted;
+            goto next_state_after_accepted_group;
          }
 
          case state_type::cp_range: {
@@ -515,7 +515,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
                more repetitions. */
             }
             backtracking_stack.push_back(backtrack(curr_group, true /*entering group*/, accepted));
-            goto next_state_after_accepted;
+            goto next_state_after_accepted_group;
          }
 
          case state_type::string: {
@@ -543,7 +543,7 @@ dynamic::match dynamic::run(io::text::istream * istream) const {
 
       if (accepted) {
          backtracking_stack.push_back(backtrack(curr_state, accepted));
-next_state_after_accepted:
+next_state_after_accepted_group:
          // The lack of a next state in a non-topmost group means the end of the current group.
          while (!next_state && curr_group->parent) {
             auto prev_group = curr_group;
@@ -611,7 +611,7 @@ next_state_after_accepted:
                         backtrack.hit_once = true;
                         /* Decide what to do depending on whether the number of repetitions is in the
                         acceptable range. */
-                        goto next_state_after_accepted;
+                        goto next_state_after_accepted_group;
                      }
                   }
                   --repetition_group->count;
