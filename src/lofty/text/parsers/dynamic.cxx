@@ -584,6 +584,8 @@ next_state_after_accepted:
          while (!curr_state && backtracking_stack) {
             auto & backtrack = backtracking_stack.back();
             auto backtrack_state = backtrack.u_is_group ? backtrack.u.group->state : backtrack.u.state;
+            // Consider the alternative to the backtracked state. This may be changed in the switch below.
+            curr_state = backtrack_state->alternative;
             switch (backtrack_state->type) {
                case state_type::cp_range:
                   /* If the state we’re rolling back accepted (and consumed) a code point, rewind the iterator
@@ -596,7 +598,11 @@ next_state_after_accepted:
                case state_type::repetition_group: {
                   auto repetition_group = backtrack.u.group->as_repetition();
                   if (backtrack.accepted) {
-                     if (!backtrack.hit_once) {
+                     if (backtrack.hit_once) {
+                        /* If this backtrack has already been hit once, we’ve already attempted its state’s
+                        alternative, so there’s no other option left than to continue backtracking. */
+                        curr_state = nullptr;
+                     } else {
                         /* Backtracking to an accepted repetition after a rejected one: leave the group and
                         continue, ending the repetitions for the group. */
                         curr_group = backtrack.u.group->parent;
@@ -634,8 +640,7 @@ next_state_after_accepted:
                   // No special action needed.
                   break;
             }
-            // Consider the alternative to the backtracked state and discard the backtrack.
-            curr_state = backtrack_state->alternative;
+            // Finally, discard the backtrack.
             backtracking_stack.pop_back();
          }
          /* If we run out of alternatives and can’t backtrack any further, and the pattern is not anchored, we
