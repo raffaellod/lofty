@@ -747,7 +747,8 @@ public:
    }
 
 protected:
-   /*! Constructor for use by the parser.
+   /*! Constructor for use by the parser. Takes a unique_ptr to ensure a proper sequence for the transfer of
+   ownership of capture0_group_node.
 
    @param captures_buffer
       Contains all captures, which are expressed as offset in this string.

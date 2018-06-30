@@ -713,7 +713,7 @@ dynamic_match_repetition dynamic_match_repetition::occurrence::repetition_group(
 }
 
 
-/*explicit*/ dynamic_match_repetition::dynamic_match_repetition(
+dynamic_match_repetition::dynamic_match_repetition(
    dynamic::match const * match_, dynamic::_group_node const * group_node_
 ) :
    match(match_),
