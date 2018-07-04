@@ -15,6 +15,7 @@ more details.
 #include <lofty.hxx>
 #include <lofty/byte_order.hxx>
 #include <lofty/net/ip.hxx>
+#include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
 #include <lofty/thread.hxx>
@@ -238,17 +239,85 @@ from_text_istream<net::ip::address>::from_text_istream() {
 void from_text_istream<net::ip::address>::convert_capture(
    text::parsers::dynamic_match_capture const & capture0, net::ip::address * dst
 ) {
-   // TODO: check for ‘.’ or ‘:’ to decide whether it’s IPv4 or IPv6.
-
-   dst->version_ = net::ip::version::v4;
-   auto bytes = const_cast<std::uint8_t *>(dst->raw());
-   std::uint16_t digits_group;
-   for (unsigned i = 0; i < 3; ++i) {
-      digits_group_ftis.convert_capture(capture0.repetition_group(0)[i].capture_group(0), &digits_group);
-      bytes[i] = digits_group;
+   auto capture0_str(capture0.str());
+   if (capture0_str.find(':') != capture0_str.cend()) {
+      dst->version_ = net::ip::version::v6;
+      auto groups_begin = reinterpret_cast<std::uint16_t const *>(dst->raw());
+      auto groups = const_cast<std::uint16_t *>(groups_begin);
+      std::uint16_t * groups_gap;
+      auto first_group_capture_group(capture0.capture_group(0));
+      if (first_group_capture_group.str() == LOFTY_SL(":")) {
+         groups_gap = groups;
+      } else {
+         groups_gap = nullptr;
+         v6_digits_group_ftis.convert_capture(first_group_capture_group, groups);
+#if LOFTY_HOST_LITTLE_ENDIAN
+         *groups = byte_order::swap(*groups);
+#endif
+         ++groups;
+      }
+      auto groups_repetition_group(capture0.repetition_group(0));
+      for (unsigned i = 0; i < groups_repetition_group.size(); ++i) {
+         if (auto group_repetition_group = groups_repetition_group[i].repetition_group(0)) {
+            v6_digits_group_ftis.convert_capture(group_repetition_group[0].capture_group(0), groups);
+#if LOFTY_HOST_LITTLE_ENDIAN
+            *groups = byte_order::swap(*groups);
+#endif
+            ++groups;
+         } else {
+            if (groups_gap) {
+               LOFTY_THROW(text::syntax_error, (
+                  LOFTY_SL("invalid multiple :: in IPv6 address"), capture0_str,
+                  static_cast<unsigned>(capture0.begin_char_index())
+               ));
+            }
+            groups_gap = groups;
+         }
+      }
+      if (auto last_group_repetition_group = capture0.repetition_group(1)) {
+         auto last_group_capture_group(last_group_repetition_group[0].capture_group(0));
+         auto last_group_str(last_group_capture_group.str());
+         if (last_group_str == LOFTY_SL(":")) {
+            if (groups_gap) {
+               LOFTY_THROW(text::syntax_error, (
+                  LOFTY_SL("invalid multiple :: in IPv6 address"), capture0_str,
+                  static_cast<unsigned>(last_group_capture_group.begin_char_index())
+               ));
+            }
+         } else if (last_group_str.size() <= 4) {
+            // 4 characters or less (minimum IPv4 size is 7), must be an IPv6 group.
+            v6_digits_group_ftis.convert_capture(last_group_capture_group, groups);
+#if LOFTY_HOST_LITTLE_ENDIAN
+            *groups = byte_order::swap(*groups);
+#endif
+            ++groups;
+         } else {
+            // TODO: parse IPv4 address in IPv6 address.
+         }
+      } else if (!capture0_str.ends_with(LOFTY_SL("::"))) {
+         // The address lacks the last digits group, but it ends with a single ‘:’ instead of two.
+         LOFTY_THROW(text::syntax_error, (
+            LOFTY_SL("IPv6 address cannot end in single “:”"), capture0_str,
+            static_cast<unsigned>(capture0.begin_char_index())
+         ));
+      }
+      if (groups_gap) {
+         unsigned gap_size = static_cast<unsigned>(8 - (groups - groups_begin));
+         memory::move(groups_gap + gap_size, groups_gap, static_cast<unsigned>(groups - groups_gap));
+         memory::clear(groups_gap, gap_size);
+         groups += gap_size;
+      }
+      // If fewer than 8 groups were parsed (e.g. “1::”), clear the remaining ones.
+      memory::clear(groups, static_cast<std::size_t>(groups_begin + 8 - groups));
+   } else {
+      dst->version_ = net::ip::version::v4;
+      auto bytes = const_cast<std::uint8_t *>(dst->raw());
+      v4_digits_group_ftis.convert_capture(capture0.capture_group(0), bytes++);
+      auto groups_repetition_group(capture0.repetition_group(0));
+      for (unsigned i = 0; i < 3; ++i) {
+         v4_digits_group_ftis.convert_capture(groups_repetition_group[i].capture_group(0), bytes++);
+      }
    }
-   digits_group_ftis.convert_capture(capture0.capture_group(0), &digits_group);
-   bytes[3] = digits_group;
 }
 
 text::parsers::dynamic_state const * from_text_istream<net::ip::address>::format_to_parser_states(
@@ -257,20 +326,57 @@ text::parsers::dynamic_state const * from_text_istream<net::ip::address>::format
    // TODO: more format validation.
    throw_on_unused_streaming_format_chars(format.expr.cbegin(), format.expr);
 
+   /* For IPv4, we’ll use the expression “\d(\.\d){3}” (with \d being a whole decimal number, not just [0-9]),
+   postponing to convert_capture() the range checks for each digit group.
+
+   An IPv6 address is very complex to parse, so instead of creating a huge expression with all possible
+   combinations, we’ll just simplify it to the expression: “(:|\x):(?:(\x)?:){0,6}(:|\x|IPv4)?” (with \x being
+   a whole hexadecimal number, not just [A-Fa-f0-9], and IPv4 being the expression for IPv4 specified above).
+   This forces matching at least one “:”, allowing to distinguish between IPv4 and IPv6 in convert_capture().
+   Checking for abnormalities, such as invalid number of digit groups, will happen in convert_capture(), where
+   we can iterate and perform mathematical operations with ease.
+   Since the IPv6 expression ends in the IPv4 expression, we’ll make the IPv4 an alternative to the IPv6,
+   instead of the other way around, which would create a loop. */
+
    text::parsers::regex_capture_format digits_group_format;
-   // TODO: for IPv6, change this to only accept hex.
-   //digits_group_format.expr = LOFTY_SL("x");
-   auto v4_digits_group = digits_group_ftis.format_to_parser_states(digits_group_format, parser);
+   // IPv4.
+   auto v4_digits_group = v4_digits_group_ftis.format_to_parser_states(digits_group_format, parser);
+   auto v4_digits234_cap_group = parser->create_capture_group(v4_digits_group);
+   auto v4_dot_state = parser->create_code_point_state('.');
+   v4_dot_state->set_next(v4_digits234_cap_group);
+   auto v4_digits234_rep_group = parser->create_repetition_group(v4_dot_state, 3, 3);
+   auto v4_digits1_cap_group = parser->create_capture_group(v4_digits_group);
+   v4_digits1_cap_group->set_next(v4_digits234_rep_group);
 
-   auto digits4_cap_group = parser->create_capture_group(v4_digits_group);
-   LOFTY_TEXT_PARSERS_DYNAMIC_CODEPOINT_STATE(dot_state, nullptr, nullptr, '.');
-   auto digits13_cap_group = parser->create_capture_group(v4_digits_group);
-   digits13_cap_group->set_next(&dot_state.base);
-   auto digits13_rep_group = parser->create_repetition_group(digits13_cap_group, 3, 3);
-   digits13_rep_group->set_next(digits4_cap_group);
+   // IPv6.
+   digits_group_format.expr = LOFTY_SL("x");
+   auto v6_digits_group = v6_digits_group_ftis.format_to_parser_states(digits_group_format, parser);
+   /* Last group, or IPv4, after last “:”. Alternated to “:” to allow a trailing “::” preceded by 7
+   groups (not recommented by IETF, but allowed nonetheless). */
+   auto v6_last_digits_cap_group = parser->create_capture_group(v6_digits_group);
+   v6_last_digits_cap_group->set_alternative(v4_digits1_cap_group);
+   auto v6_last_colon_state = parser->create_code_point_state(':');
+   v6_last_colon_state->set_alternative(v6_last_digits_cap_group);
+   auto v6_last_digits_rep_group = parser->create_repetition_group(v6_last_colon_state, 0, 1);
+   // Repeated groups separated by “:”; group digits are optional to allow accepting “::”.
+   auto v6_digits_cap_group = parser->create_capture_group(v6_digits_group);
+   auto v6_colon_state = parser->create_code_point_state(':');
+   auto v6_digits_rep_group = parser->create_repetition_group(v6_digits_cap_group, 0, 1);
+   v6_digits_rep_group->set_next(v6_colon_state);
+   auto v6_digits_colon_rep_group = parser->create_repetition_group(v6_digits_rep_group, 0, 6);
+   v6_digits_colon_rep_group->set_next(v6_last_digits_rep_group);
+   /* First group. Alternated to “:” to allow a leading “::” followed by 7 groups (also not recommented
+   by IETF). */
+   auto v6_second_colon_state = parser->create_code_point_state(':');
+   v6_second_colon_state->set_next(v6_digits_colon_rep_group);
+   auto v6_first_colon_state = parser->create_code_point_state(':');
+   v6_first_colon_state->set_alternative(v6_digits_group);
+   auto v6_first_digits_cap_group = parser->create_capture_group(v6_first_colon_state);
+   v6_first_digits_cap_group->set_next(v6_second_colon_state);
+   // Fork between IPv6 and IPv4, as described above.
+   v6_first_digits_cap_group->set_alternative(v4_digits1_cap_group);
 
-   return digits13_rep_group;
-   // TODO: IPv6 support as alternative to digits1_cap_group.
+   return v6_first_digits_cap_group;
 }
 
 } //namespace lofty

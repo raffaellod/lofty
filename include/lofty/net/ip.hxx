@@ -312,8 +312,10 @@ public:
    );
 
 protected:
-   //! Parses digit groups. 16-bit so it can work for both IPv4 and IPv6.
-   from_text_istream<std::uint16_t> digits_group_ftis;
+   //! Parses IPv4 digit groups.
+   from_text_istream<std::uint8_t> v4_digits_group_ftis;
+   //! Parses IPv6 digit groups.
+   from_text_istream<std::uint16_t> v6_digits_group_ftis;
 };
 
 } //namespace lofty
