@@ -149,7 +149,8 @@ public:
    static address const & localhost_v6;
    //! Type of an IPv4 address.
    typedef std::uint8_t v4_type[4];
-   //! Type of an IPv6 address.
+   /*! Type of an IPv6 address. Not using uint16_t because we always store it in network byte order (little
+   endian) instead of host order. */
    typedef std::uint8_t v6_type[16];
    //! Maximum length of the string representation of an IPv4 address.
    static std::size_t const v4_str_size = 15 /*“255.255.255.255”*/;
