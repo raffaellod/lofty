@@ -22,7 +22,6 @@ more details.
 #include "net/sockaddr_any.hxx"
 
 #if LOFTY_HOST_API_POSIX
-   #include <netinet/in.h> // htons()
    #include <sys/socket.h> // bind() socket()
 #elif LOFTY_HOST_API_WIN32
    #include <winsock2.h>
