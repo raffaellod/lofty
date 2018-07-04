@@ -798,6 +798,42 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 }
 
 LOFTY_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_capture_ab_or_capture_ac,
+   "lofty::text::parsers::dynamic – pattern “(a+b)|(a+c)”"
+) {
+   LOFTY_TRACE_FUNC();
+
+   text::parsers::dynamic parser;
+   auto a_state = parser.create_code_point_state('a');
+   auto a_alt_rep_group = parser.create_repetition_group(a_state, 1, 4);
+   auto b_state = parser.create_code_point_state('b');
+   auto a_rep_cap_group = parser.create_capture_group(a_alt_rep_group);
+   a_rep_cap_group->set_next(b_state);
+
+   auto a_rep_group = parser.create_repetition_group(a_state, 1, 5);
+   auto c_state = parser.create_code_point_state('c');
+   auto c_rep_group = parser.create_repetition_group(c_state, 0, 1);
+   a_rep_group->set_next(c_rep_group);
+   a_rep_group->set_alternative(a_rep_cap_group);
+
+   auto all_cap_group = parser.create_capture_group(a_rep_group);
+   all_cap_group->set_next(parser.create_end_state());
+   auto begin_state = parser.create_begin_state()->set_next(all_cap_group);
+   parser.set_initial_state(begin_state);
+
+   text::parsers::dynamic::match match;
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("ab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("ab"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("ab"));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("aab"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("aab"));
+   LOFTY_TESTING_ASSERT_TRUE((match = parser.run(LOFTY_SL("aaab"))));
+   LOFTY_TESTING_ASSERT_EQUAL(match.str(), LOFTY_SL("aaab"));
+   LOFTY_TESTING_ASSERT_EQUAL(match.capture_group(0).str(), LOFTY_SL("aaab"));
+}
+
+LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_or_capture_b_capture_c,
    "lofty::text::parsers::dynamic – pattern “a|(b)(c)”"
 ) {
