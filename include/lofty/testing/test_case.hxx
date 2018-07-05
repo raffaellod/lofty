@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013-2015, 2017 Raffaello D. Di Napoli
+Copyright 2013-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -35,6 +35,102 @@ namespace lofty { namespace testing {
 
 //! Base class for test cases.
 class LOFTY_TESTING_SYM test_case {
+protected:
+   /*! Provides a store() method for LOFTY_TESTING_ASSERT(expr) to invoke when expr is a binary operator.
+   Since binary expressions are evaluated by expr_left_operand::operator??(), this class does absolutely
+   nothing. */
+   struct pre_stored_expr_result {
+      //! Does nothing.
+      void store() const {
+      }
+   };
+
+   //! Holds the left operand of a binary expression, or a whole unary expression.
+   template <typename Left>
+   struct expr_left_operand {
+      //! Pointer to the metadata to save results to.
+      runner::assertion_expr * assertion_expr;
+      //! Left operand of the binary expression, or unary expression operand.
+      Left left;
+
+      /*! Constructor.
+
+      @param assertion_expr_
+         Pointer to the metadata to save results to.
+      @param left_
+         Left operand of the binary expression, or unary expression operand.
+      */
+      expr_left_operand(runner::assertion_expr * assertion_expr_, Left left_) :
+         assertion_expr(assertion_expr_),
+         left(left_) {
+      }
+
+      //! Updates *assertion_expr for LOFTY_TESTING_ASSERT(expr) when expr is not a binary operator.
+      void store() const {
+         bool pass = left ? true : false;
+         if (!pass) {
+            assertion_expr->left = to_str(left);
+         }
+         assertion_expr->set(pass, false, nullptr);
+      }
+
+#define LOFTY_RELOP_IMPL(op) \
+      /*! Applies the binary operator op, and updates *assertion_expr.
+
+      @param right
+         Right operand.
+      @return
+         *this.
+      */ \
+      template <typename Right> \
+      pre_stored_expr_result operator op(Right const & right) const { \
+         bool pass = left op right ? true : false; \
+         assertion_expr->set(pass, true, LOFTY_SL(#op)); \
+         if (!pass) { \
+            assertion_expr->left = to_str(left); \
+            assertion_expr->right = to_str(right); \
+         } \
+         return pre_stored_expr_result(); \
+      }
+
+      LOFTY_RELOP_IMPL(==)
+      LOFTY_RELOP_IMPL(!=)
+      LOFTY_RELOP_IMPL(<=)
+      LOFTY_RELOP_IMPL(>=)
+      LOFTY_RELOP_IMPL(<)
+      LOFTY_RELOP_IMPL(>)
+#undef LOFTY_RELOP_IMPL
+   };
+
+   /*! Breaks off the left operand from an expression by associating to it, and wraps it into an
+   expr_left_operand instance. */
+   struct LOFTY_TESTING_SYM expr_left_breaker {
+      //! Pointer to the metadata to save results to.
+      runner::assertion_expr * assertion_expr;
+
+      /*! Constructor.
+
+      @param assertion_expr_
+         Pointer to the metadata to save results to.
+      */
+      explicit expr_left_breaker(runner::assertion_expr * assertion_expr_) :
+         assertion_expr(assertion_expr_) {
+      }
+
+      /*! Steals the expression on the right (i.e. left operand of the expression that follows) by
+      associativity.
+
+      @param left
+         Stolen operand.
+      @return
+         Wrapper for left.
+      */
+      template <typename Left>
+      expr_left_operand<Left const &> operator<(Left const & left) {
+         return expr_left_operand<Left const &>(assertion_expr, left);
+      }
+   };
+
 public:
    //! Default constructor.
    test_case();
@@ -61,6 +157,15 @@ public:
    virtual str title() = 0;
 
 protected:
+   /*! Implementation of LOFTY_TESTING_ASSERT().
+
+   @param file_addr
+      Location of the expression.
+   @param expr
+      Source representation of the expression being evaluated.
+   */
+   void assert(text::file_address const & file_addr, str const & expr);
+
    /*! Implementation of LOFTY_TESTING_ASSERT_DOES_NOT_THROW().
 
    @param file_addr
@@ -268,9 +373,37 @@ protected:
 protected:
    //! Runner executing this test.
    class runner * runner;
+   //! Holds assertion metadata during LOFTY_TESTING_ASSERT*().
+   runner::assertion_expr assertion_expr;
 };
 
 }} //namespace lofty::testing
+
+//! @cond
+#if LOFTY_HOST_CXX_GCC
+   #define _LOFTY_TESTING_ASSERT_IGNORE_WARNINGS_BEGIN() \
+      _Pragma("GCC diagnostic push") \
+      _Pragma("GCC diagnostic ignored \"-Wparentheses\"")
+   #define _LOFTY_TESTING_ASSERT_IGNORE_WARNINGS_END() \
+      _Pragma("GCC diagnostic pop")
+#else
+   #define _LOFTY_TESTING_ASSERT_IGNORE_WARNINGS_BEGIN()
+   #define _LOFTY_TESTING_ASSERT_IGNORE_WARNINGS_END()
+#endif
+//! @endcond
+
+/*! Asserts that an expression is true.
+
+@param expr
+   Expression to evaluate.
+*/
+#define LOFTY_TESTING_ASSERT(expr) \
+   do { \
+      _LOFTY_TESTING_ASSERT_IGNORE_WARNINGS_BEGIN() \
+      (test_case::expr_left_breaker(&this->assertion_expr) < expr).store(); \
+      _LOFTY_TESTING_ASSERT_IGNORE_WARNINGS_END() \
+      this->assert(LOFTY_THIS_FILE_ADDRESS(), LOFTY_SL(#expr)); \
+   } while (false)
 
 /*! Asserts that an expression does not throw.
 

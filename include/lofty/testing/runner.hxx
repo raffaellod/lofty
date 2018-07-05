@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013-2017 Raffaello D. Di Napoli
+Copyright 2013-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -48,6 +48,34 @@ class test_case;
 //! Executes test cases.
 class LOFTY_TESTING_SYM runner : public noncopyable {
 public:
+   /*! Groups assertion metadata, to reduce the number of arguments to log_assertion() and avoid repeated
+   construction and destruction of string instances. */
+   struct LOFTY_TESTING_SYM assertion_expr {
+      /*! String representation of the evaluated expression (if binary == true) or its left operand (if
+      binary == false). */
+      str left;
+      //! Expression operator.
+      str oper;
+      //! String representation of the expression’s right operand.
+      str right;
+      //! true if the assertion was valid, or false otherwise.
+      bool pass;
+      //! true if the expression is a binary expression, or false if it’s unary.
+      bool binary;
+
+      /*! Assigns a new value to pass, binary, and oper.
+
+      @param pass
+         true if the assertion was valid, or false otherwise.
+      @param binary
+         true if the expression is a binary expression, or false if it’s unary.
+      @param oper
+         Expression operator.
+      */
+      void set(bool pass, bool binary, char const * oper);
+   };
+
+public:
    /*! Constructor.
 
    @param ostream
@@ -60,6 +88,19 @@ public:
 
    //! Loads all the test cases registered with LOFTY_TESTING_REGISTER_TEST_CASE() and prepares to run them.
    void load_registered_test_cases();
+
+   /*! Logs an assertion.
+
+   @param file_addr
+      Location of the expression.
+   @param expr
+      Source representation of the expression being evaluated.
+   @param assertion_expr
+      Assertion metadata.
+   */
+   void log_assertion(
+      text::file_address const & file_addr, str const & expr, assertion_expr * assertion_expr
+   );
 
    /*! Logs an assertion.
 

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013-2017 Raffaello D. Di Napoli
+Copyright 2013-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -76,6 +76,27 @@ void runner::load_registered_test_cases() {
 }
 
 void runner::log_assertion(
+   text::file_address const & file_addr, str const & expr, assertion_expr * assertion_expr_
+) {
+   ostream->print(
+      LOFTY_SL("COMK-TEST-ASSERT-{} {}: {}: {}\n"),
+      assertion_expr_->pass ? LOFTY_SL("PASS") : LOFTY_SL("FAIL"), file_addr,
+      assertion_expr_->pass ? LOFTY_SL("pass") : LOFTY_SL("fail"), expr
+   );
+   if (!assertion_expr_->pass) {
+      ++failed_assertions;
+      if (assertion_expr_->binary) {
+         ostream->print(
+            LOFTY_SL("  evaluates to: {} {} {}\n"),
+            assertion_expr_->left, assertion_expr_->oper, assertion_expr_->right
+         );
+      } else {
+         ostream->print(LOFTY_SL("  evaluates to: {}\n"), assertion_expr_->left);
+      }
+   }
+}
+
+void runner::log_assertion(
    text::file_address const & file_addr, bool pass, str const & expr, str const & operand,
    str const & expected, str const & actual /*= str::empty*/
 ) {
@@ -127,6 +148,16 @@ void runner::run_test_case(class test_case & test_case) {
    ostream->write(LOFTY_SL("COMK-TEST-CASE-END\n"));
 }
 
+void runner::assertion_expr::set(bool pass_, bool binary_, char const * oper_) {
+   pass = pass_;
+   binary = binary_;
+   if (oper_) {
+      oper = str(external_buffer, oper_);
+   } else {
+      oper.clear();
+   }
+}
+
 }} //namespace lofty::testing
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +172,10 @@ test_case::test_case() {
 
 void test_case::init(class runner * runner_) {
    runner = runner_;
+}
+
+void test_case::assert(text::file_address const & file_addr, str const & expr) {
+   runner->log_assertion(file_addr, expr, &assertion_expr);
 }
 
 void test_case::assert_does_not_throw(
