@@ -517,6 +517,21 @@ protected:
 #define LOFTY_TESTING_ASSERT_TRUE(expr) \
    this->assert_true(LOFTY_THIS_FILE_ADDRESS(), (expr) ? true : false, LOFTY_SL(#expr))
 
+
+#ifndef LOFTY_TESTING_NO_SHORT_ASSERTS
+   #define ASSERT                LOFTY_TESTING_ASSERT
+   #define ASSERT_DOES_NOT_THROW LOFTY_TESTING_ASSERT_DOES_NOT_THROW
+   #define ASSERT_EQUAL          LOFTY_TESTING_ASSERT_EQUAL
+   #define ASSERT_FALSE          LOFTY_TESTING_ASSERT_FALSE
+   #define ASSERT_GREATER        LOFTY_TESTING_ASSERT_GREATER
+   #define ASSERT_GREATER_EQUAL  LOFTY_TESTING_ASSERT_GREATER_EQUAL
+   #define ASSERT_LESS           LOFTY_TESTING_ASSERT_LESS
+   #define ASSERT_LESS_EQUAL     LOFTY_TESTING_ASSERT_LESS_EQUAL
+   #define ASSERT_NOT_EQUAL      LOFTY_TESTING_ASSERT_NOT_EQUAL
+   #define ASSERT_THROWS         LOFTY_TESTING_ASSERT_THROWS
+   #define ASSERT_TRUE           LOFTY_TESTING_ASSERT_TRUE
+#endif
+
 /*! Declares and opens the definition of a simple test case, consisting in a single function with a unique
 name.
 
