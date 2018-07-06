@@ -179,167 +179,6 @@ protected:
       text::file_address const & file_addr, _std::function<void ()> expr_fn, str const & expr
    );
 
-   /*! Implementation of LOFTY_TESTING_ASSERT_EQUAL().
-
-   @param file_addr
-      Location of the expression.
-   @param actual
-      Actual value of the evaluated expression.
-   @param equal
-      Value that the expression should evaluate to.
-   @param expr
-      C++ code evaluating to actual.
-   @param equal_expr
-      C++ code evaluating to equal.
-   */
-   template <typename TExpr, typename TEqual>
-   void assert_equal(
-      text::file_address const & file_addr,
-      TExpr const & actual, TEqual const & equal, str const & expr, str const & equal_expr
-   ) {
-      bool pass = (actual == equal);
-      runner->log_assertion(
-         file_addr, pass, expr, LOFTY_SL("== "),
-         pass ? equal_expr : str(to_str(equal)), pass ? str::empty : str(to_str(actual))
-      );
-   }
-
-   /*! Implementation of LOFTY_TESTING_ASSERT_FALSE().
-
-   @param file_addr
-      Location of the expression.
-   @param actual
-      Actual value of the evaluated expression.
-   @param expr
-      C++ code evaluating to actual.
-   */
-   void assert_false(text::file_address const & file_addr, bool actual, str const & expr);
-
-   /*! Implementation of LOFTY_TESTING_ASSERT_GREATER().
-
-   @param file_addr
-      Location of the expression.
-   @param actual
-      Actual value of the evaluated expression.
-   @param lower_bound
-      Exclusive lower bound.
-   @param expr
-      C++ code evaluating to actual.
-   @param lower_bound_expr
-      C++ code evaluating to lower_bound.
-   */
-   template <typename TExpr, typename TLBound>
-   void assert_greater(
-      text::file_address const & file_addr,
-      TExpr const & actual, TLBound const & lower_bound, str const & expr, str const & lower_bound_expr
-   ) {
-      bool pass = (actual > lower_bound);
-      runner->log_assertion(
-         file_addr, pass, expr, LOFTY_SL("> "),
-         pass ? lower_bound_expr : str(to_str(lower_bound)), pass ? str::empty : str(to_str(actual))
-      );
-   }
-
-   /*! Implementation of LOFTY_TESTING_ASSERT_GREATER_EQUAL().
-
-   @param file_addr
-      Location of the expression.
-   @param actual
-      Actual value of the evaluated expression.
-   @param lower_bound
-      Inclusive lower bound.
-   @param expr
-      C++ code evaluating to actual.
-   @param lower_bound_expr
-      C++ code evaluating to lower_bound.
-   */
-   template <typename TExpr, typename TLBound>
-   void assert_greater_equal(
-      text::file_address const & file_addr,
-      TExpr const & actual, TLBound const & lower_bound, str const & expr, str const & lower_bound_expr
-   ) {
-      bool pass = (actual >= lower_bound);
-      runner->log_assertion(
-         file_addr, pass, expr, LOFTY_SL(">= "),
-         pass ? lower_bound_expr : str(to_str(lower_bound)), pass ? str::empty : str(to_str(actual))
-      );
-   }
-
-   /*! Implementation of LOFTY_TESTING_ASSERT_LESS().
-
-   @param file_addr
-      Location of the expression.
-   @param actual
-      Actual value of the evaluated expression.
-   @param upper_bound
-      Exclusive upper bound.
-   @param expr
-      C++ code evaluating to actual.
-   @param upper_bound_expr
-      C++ code evaluating to upper_bound.
-   */
-   template <typename TExpr, typename TUBound>
-   void assert_less(
-      text::file_address const & file_addr,
-      TExpr const & actual, TUBound const & upper_bound, str const & expr, str const & upper_bound_expr
-   ) {
-      bool pass = (actual < upper_bound);
-      runner->log_assertion(
-         file_addr, pass, expr, LOFTY_SL("<= "),
-         pass ? upper_bound_expr : str(to_str(upper_bound)), pass ? str::empty : str(to_str(actual))
-      );
-   }
-
-   /*! Implementation of LOFTY_TESTING_ASSERT_LESS_EQUAL().
-
-   @param file_addr
-      Location of the expression.
-   @param actual
-      Actual value of the evaluated expression.
-   @param upper_bound
-      Inclusive upper bound.
-   @param expr
-      C++ code evaluating to actual.
-   @param upper_bound_expr
-      C++ code evaluating to upper_bound.
-   */
-   template <typename TExpr, typename TUBound>
-   void assert_less_equal(
-      text::file_address const & file_addr,
-      TExpr const & actual, TUBound const & upper_bound, str const & expr, str const & upper_bound_expr
-   ) {
-      bool pass = (actual <= upper_bound);
-      runner->log_assertion(
-         file_addr, pass, expr, LOFTY_SL("<= "),
-         pass ? upper_bound_expr : str(to_str(upper_bound)), pass ? str::empty : str(to_str(actual))
-      );
-   }
-
-   /*! Implementation of LOFTY_TESTING_ASSERT_NOT_EQUAL().
-
-   @param file_addr
-      Location of the expression.
-   @param actual
-      Actual value of the evaluated expression.
-   @param not_equal
-      Value that the expression should not evaluate to.
-   @param expr
-      C++ code evaluating to actual.
-   @param not_equal_expr
-      C++ code evaluating to not_equal.
-   */
-   template <typename TExpr, typename TNotEqual>
-   void assert_not_equal(
-      text::file_address const & file_addr,
-      TExpr const & actual, TNotEqual const & not_equal, str const & expr, str const & not_equal_expr
-   ) {
-      bool pass = (actual != not_equal);
-      runner->log_assertion(
-         file_addr, pass, expr, LOFTY_SL("!= "),
-         pass ? not_equal_expr : str(to_str(not_equal)), pass ? str::empty : str(to_str(actual))
-      );
-   }
-
    /*! Implementation of LOFTY_TESTING_ASSERT_THROWS().
 
    @param file_addr
@@ -358,17 +197,6 @@ protected:
       _std::function<bool (_std::exception const &)> instanceof_fn,
       _std::type_info const & expected_type
    );
-
-   /*! Implementation of LOFTY_TESTING_ASSERT_TRUE().
-
-   @param file_addr
-      Location of the expression.
-   @param actual
-      Actual value of the evaluated expression.
-   @param expr
-      C++ code evaluating to actual.
-   */
-   void assert_true(text::file_address const & file_addr, bool actual, str const & expr);
 
 protected:
    //! Runner executing this test.
@@ -416,82 +244,6 @@ protected:
       static_cast<void>(expr); \
    }, LOFTY_SL(#expr))
 
-/*! Asserts that the value of an expression equals a specific value.
-
-@param expr
-   Expression to evaluate.
-@param value
-   Value that expr should evaluate to.
-*/
-#define LOFTY_TESTING_ASSERT_EQUAL(expr, value) \
-   this->assert_equal(LOFTY_THIS_FILE_ADDRESS(), (expr), value, LOFTY_SL(#expr), LOFTY_SL(#value))
-
-/*! Asserts that an expression evaluates to false.
-
-@param expr
-   Expression to evaulate.
-*/
-#define LOFTY_TESTING_ASSERT_FALSE(expr) \
-   this->assert_false(LOFTY_THIS_FILE_ADDRESS(), (expr) ? true : false, LOFTY_SL(#expr))
-
-/*! Asserts that the value of an expression is strictly greater than a specific lower bound.
-
-@param expr
-   Expression to evaluate.
-@param lower_bound
-   Exclusive lower bound.
-*/
-#define LOFTY_TESTING_ASSERT_GREATER(expr, lower_bound) \
-   this->assert_greater( \
-      LOFTY_THIS_FILE_ADDRESS(), (expr), lower_bound, LOFTY_SL(#expr), LOFTY_SL(#lower_bound) \
-   )
-
-/*! Asserts that the value of an expression is greater-than or equal-to a specific lower bound.
-
-@param expr
-   Expression to evaluate.
-@param lower_bound
-   Inclusive lower bound.
-*/
-#define LOFTY_TESTING_ASSERT_GREATER_EQUAL(expr, lower_bound) \
-   this->assert_greater_equal( \
-      LOFTY_THIS_FILE_ADDRESS(), (expr), lower_bound, LOFTY_SL(#expr), LOFTY_SL(#lower_bound) \
-   )
-
-/*! Asserts that the value of an expression is strictly less than a specific upper bound.
-
-@param expr
-   Expression to evaluate.
-@param upper_bound
-   Exclusive upper bound.
-*/
-#define LOFTY_TESTING_ASSERT_LESS(expr, upper_bound) \
-   this->assert_less_equal( \
-      LOFTY_THIS_FILE_ADDRESS(), (expr), expected, LOFTY_SL(#expr), LOFTY_SL(#upper_bound) \
-   )
-
-/*! Asserts that the value of an expression is less-than or equal-to a specific upper bound.
-
-@param expr
-   Expression to evaluate.
-@param upper_bound
-   Inclusive upper bound.
-*/
-#define LOFTY_TESTING_ASSERT_LESS_EQUAL(expr, upper_bound) \
-   this->assert_less_equal( \
-      LOFTY_THIS_FILE_ADDRESS(), (expr), upper_bound, LOFTY_SL(#expr), LOFTY_SL(#upper_bound) \
-   )
-
-/*! Asserts that the value of an expression differs from a specific value.
-
-@param expr
-   Expression to evaluate.
-@param value
-   Value that expr should not evaluate to.
-*/
-#define LOFTY_TESTING_ASSERT_NOT_EQUAL(expr, value) \
-   this->assert_not_equal(LOFTY_THIS_FILE_ADDRESS(), (expr), value, LOFTY_SL(#expr), LOFTY_SL(#value))
-
 /*! Asserts that an expression throws a specific type of exception.
 
 @param type
@@ -509,27 +261,10 @@ protected:
       return dynamic_cast<type const *>(&x) != nullptr; \
    }, typeid(type))
 
-/*! Asserts that an expression evaluates to true.
-
-@param expr
-   Expression to evaulate.
-*/
-#define LOFTY_TESTING_ASSERT_TRUE(expr) \
-   this->assert_true(LOFTY_THIS_FILE_ADDRESS(), (expr) ? true : false, LOFTY_SL(#expr))
-
-
 #ifndef LOFTY_TESTING_NO_SHORT_ASSERTS
    #define ASSERT                LOFTY_TESTING_ASSERT
    #define ASSERT_DOES_NOT_THROW LOFTY_TESTING_ASSERT_DOES_NOT_THROW
-   #define ASSERT_EQUAL          LOFTY_TESTING_ASSERT_EQUAL
-   #define ASSERT_FALSE          LOFTY_TESTING_ASSERT_FALSE
-   #define ASSERT_GREATER        LOFTY_TESTING_ASSERT_GREATER
-   #define ASSERT_GREATER_EQUAL  LOFTY_TESTING_ASSERT_GREATER_EQUAL
-   #define ASSERT_LESS           LOFTY_TESTING_ASSERT_LESS
-   #define ASSERT_LESS_EQUAL     LOFTY_TESTING_ASSERT_LESS_EQUAL
-   #define ASSERT_NOT_EQUAL      LOFTY_TESTING_ASSERT_NOT_EQUAL
    #define ASSERT_THROWS         LOFTY_TESTING_ASSERT_THROWS
-   #define ASSERT_TRUE           LOFTY_TESTING_ASSERT_TRUE
 #endif
 
 /*! Declares and opens the definition of a simple test case, consisting in a single function with a unique

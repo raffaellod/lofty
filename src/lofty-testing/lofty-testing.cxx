@@ -192,18 +192,6 @@ void test_case::assert_does_not_throw(
    runner->log_assertion(file_addr, !caught, expr, str::empty, LOFTY_SL("does not throw"), caught.str());
 }
 
-void test_case::assert_false(text::file_address const & file_addr, bool actual, str const & expr) {
-   runner->log_assertion(
-      file_addr, !actual, expr, str::empty, !actual ? str::empty : LOFTY_SL("false"), LOFTY_SL("true")
-   );
-}
-
-void test_case::assert_true(text::file_address const & file_addr, bool actual, str const & expr) {
-   runner->log_assertion(
-      file_addr, actual, expr, str::empty, actual ? str::empty : LOFTY_SL("true"), LOFTY_SL("false")
-   );
-}
-
 void test_case::assert_throws(
    text::file_address const & file_addr, _std::function<void ()> expr_fn, str const & expr,
    _std::function<bool (_std::exception const &)> instanceof_fn, _std::type_info const & expected_type
