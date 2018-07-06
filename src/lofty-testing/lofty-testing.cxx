@@ -78,11 +78,13 @@ void runner::load_registered_test_cases() {
 void runner::log_assertion(
    text::file_address const & file_addr, str const & expr, assertion_expr * assertion_expr_
 ) {
-   ostream->print(
-      LOFTY_SL("COMK-TEST-ASSERT-{} {}: {}: {}\n"),
-      assertion_expr_->pass ? LOFTY_SL("PASS") : LOFTY_SL("FAIL"), file_addr,
-      assertion_expr_->pass ? LOFTY_SL("pass") : LOFTY_SL("fail"), expr
-   );
+   str format;
+   if (assertion_expr_->pass) {
+      format = LOFTY_SL("COMK-TEST-ASSERT-PASS {}: pass: {}\n");
+   } else {
+      format = LOFTY_SL("COMK-TEST-ASSERT-FAIL {}: fail: {}\n");
+   }
+   ostream->print(format, file_addr, expr);
    if (!assertion_expr_->pass) {
       ++failed_assertions;
       if (assertion_expr_->binary) {
