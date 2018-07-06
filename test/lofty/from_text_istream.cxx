@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2016-2017 Raffaello D. Di Napoli
+Copyright 2016-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -72,7 +72,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    /* This assertion is more important at compile time than at run time; if the from_str() call compiles, it
    will return the correct value. */
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<type_with_ftis>(type_with_ftis::twf).get(), type_with_ftis::twf);
+   ASSERT(from_str<type_with_ftis>(type_with_ftis::twf).get() == type_with_ftis::twf);
 }
 
 }} //namespace lofty::test
@@ -87,12 +87,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<bool>(LOFTY_SL("false")), false);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<bool>(LOFTY_SL("true")), true);
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("a")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("atrue")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("falseb")));
+   ASSERT(from_str<bool>(LOFTY_SL("false")) == false);
+   ASSERT(from_str<bool>(LOFTY_SL("true")) == true);
+   ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("")));
+   ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("a")));
+   ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("atrue")));
+   ASSERT_THROWS(text::syntax_error, from_str<bool>(LOFTY_SL("falseb")));
 }
 
 }} //namespace lofty::test
@@ -107,39 +107,39 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("q")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-w")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-1-")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0x1")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("q")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-w")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-1-")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0x1")));
 
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL(""), LOFTY_SL("#")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("q"), LOFTY_SL("#")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-"), LOFTY_SL("#")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-w"), LOFTY_SL("#")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-1-"), LOFTY_SL("#")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0b"), LOFTY_SL("#")));
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0p1"), LOFTY_SL("#")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL(""), LOFTY_SL("#")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("q"), LOFTY_SL("#")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-"), LOFTY_SL("#")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-w"), LOFTY_SL("#")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("-1-"), LOFTY_SL("#")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0b"), LOFTY_SL("#")));
+   ASSERT_THROWS(text::syntax_error, from_str<int>(LOFTY_SL("0p1"), LOFTY_SL("#")));
 
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0")), 0);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("d")), 0);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("#")), 0);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0b0"), LOFTY_SL("#")), 0);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("0"), LOFTY_SL("#d")), 0);
+   ASSERT(from_str<int>(LOFTY_SL("0")) == 0);
+   ASSERT(from_str<int>(LOFTY_SL("0"), LOFTY_SL("d")) == 0);
+   ASSERT(from_str<int>(LOFTY_SL("0"), LOFTY_SL("#")) == 0);
+   ASSERT(from_str<int>(LOFTY_SL("0b0"), LOFTY_SL("#")) == 0);
+   ASSERT(from_str<int>(LOFTY_SL("0"), LOFTY_SL("#d")) == 0);
 
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("1")), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("8"), LOFTY_SL("d")), 8);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("012"), LOFTY_SL("d")), 12);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("15"), LOFTY_SL("#")), 15);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("013"), LOFTY_SL("#")), 11);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("16"), LOFTY_SL("#d")), 16);
+   ASSERT(from_str<int>(LOFTY_SL("1")) == 1);
+   ASSERT(from_str<int>(LOFTY_SL("8"), LOFTY_SL("d")) == 8);
+   ASSERT(from_str<int>(LOFTY_SL("012"), LOFTY_SL("d")) == 12);
+   ASSERT(from_str<int>(LOFTY_SL("15"), LOFTY_SL("#")) == 15);
+   ASSERT(from_str<int>(LOFTY_SL("013"), LOFTY_SL("#")) == 11);
+   ASSERT(from_str<int>(LOFTY_SL("16"), LOFTY_SL("#d")) == 16);
 
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-1")), -1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-5"), LOFTY_SL("d")), -5);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-021"), LOFTY_SL("#")), -17);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-0xa"), LOFTY_SL("#")), -10);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<int>(LOFTY_SL("-32"), LOFTY_SL("#d")), -32);
+   ASSERT(from_str<int>(LOFTY_SL("-1")) == -1);
+   ASSERT(from_str<int>(LOFTY_SL("-5"), LOFTY_SL("d")) == -5);
+   ASSERT(from_str<int>(LOFTY_SL("-021"), LOFTY_SL("#")) == -17);
+   ASSERT(from_str<int>(LOFTY_SL("-0xa"), LOFTY_SL("#")) == -10);
+   ASSERT(from_str<int>(LOFTY_SL("-32"), LOFTY_SL("#d")) == -32);
 }
 
 }} //namespace lofty::test
@@ -154,18 +154,18 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0"), LOFTY_SL("x")), 0);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("0"), LOFTY_SL("x")) == 0);
 
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("1"), LOFTY_SL("x")), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("f"), LOFTY_SL("x")), 15);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0Xf"), LOFTY_SL("#x")), 15);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("7f"), LOFTY_SL("x")), 127);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0x7f"), LOFTY_SL("#x")), 127);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("1"), LOFTY_SL("x")) == 1);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("f"), LOFTY_SL("x")) == 15);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("0Xf"), LOFTY_SL("#x")) == 15);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("7f"), LOFTY_SL("x")) == 127);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("0x7f"), LOFTY_SL("#x")) == 127);
 
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("ff"), LOFTY_SL("x")), -1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0Xff"), LOFTY_SL("#x")), -1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("ff"), LOFTY_SL("x")), -1);
-   LOFTY_TESTING_ASSERT_EQUAL(from_str<std::int8_t>(LOFTY_SL("0xff"), LOFTY_SL("#x")), -1);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("ff"), LOFTY_SL("x")) == -1);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("0Xff"), LOFTY_SL("#x")) == -1);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("ff"), LOFTY_SL("x")) == -1);
+   ASSERT(from_str<std::int8_t>(LOFTY_SL("0xff"), LOFTY_SL("#x")) == -1);
 }
 
 }} //namespace lofty::test

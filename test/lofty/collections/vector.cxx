@@ -41,76 +41,76 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       v1.push_back(2);
       v2.push_back(1);
       v2.push_back(1);
-      LOFTY_TESTING_ASSERT_EQUAL(v1, v2);
+      ASSERT(v1 == v2);
 
    The assertion above will succeed if any of these error conditions is true:
    •  vector<int>::operator==() always returns true;
    •  vector<int>::push_back() never appends any elements;
    •  vector<int>::push_back() always appends more elements than it should. */
 
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 0u);
-   LOFTY_TESTING_ASSERT_THROWS(collections::bad_access, v.front());
-   LOFTY_TESTING_ASSERT_THROWS(collections::bad_access, v.back());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v[0]);
-   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cend());
+   ASSERT(v.size() == 0u);
+   ASSERT_THROWS(collections::bad_access, v.front());
+   ASSERT_THROWS(collections::bad_access, v.back());
+   ASSERT_THROWS(collections::out_of_range, v[0]);
+   ASSERT(v.find(1) == v.cend());
 
    v.push_back(1);
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(&v.front(), v.data());
-   LOFTY_TESTING_ASSERT_EQUAL(v.front(), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v.back(), 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin());
+   ASSERT(v.size() == 1u);
+   ASSERT(&v.front() == v.data());
+   ASSERT(v.front() == 1);
+   ASSERT(v.back() == 1);
+   ASSERT(v[0] == 1);
+   ASSERT(v.find(1) == v.cbegin());
 
    v = v + v;
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v[1], 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin());
+   ASSERT(v.size() == 2u);
+   ASSERT(v[0] == 1);
+   ASSERT(v[1] == 1);
+   ASSERT(v.find(1) == v.cbegin());
 
    v.insert(v.cbegin() + 1, 2);
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v[1], 2);
-   LOFTY_TESTING_ASSERT_EQUAL(v[2], 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin());
+   ASSERT(v.size() == 3u);
+   ASSERT(v[0] == 1);
+   ASSERT(v[1] == 2);
+   ASSERT(v[2] == 1);
+   ASSERT(v.find(1) == v.cbegin());
 
    v = v.slice(v.cbegin() + 1, v.cbegin() + 3);
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 2);
-   LOFTY_TESTING_ASSERT_EQUAL(v[1], 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin() + 1);
+   ASSERT(v.size() == 2u);
+   ASSERT(v[0] == 2);
+   ASSERT(v[1] == 1);
+   ASSERT(v.find(1) == v.cbegin() + 1);
 
    v.push_back(3);
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 2);
-   LOFTY_TESTING_ASSERT_EQUAL(v[1], 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v[2], 3);
-   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cbegin() + 1);
+   ASSERT(v.size() == 3u);
+   ASSERT(v[0] == 2);
+   ASSERT(v[1] == 1);
+   ASSERT(v[2] == 3);
+   ASSERT(v.find(1) == v.cbegin() + 1);
 
    v.remove_at(v.cbegin() + 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(&v.front(), v.data());
-   LOFTY_TESTING_ASSERT_EQUAL(v.front(), 2);
-   LOFTY_TESTING_ASSERT_EQUAL(v.back(), 3);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 2);
-   LOFTY_TESTING_ASSERT_EQUAL(v[1], 3);
-   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cend());
+   ASSERT(v.size() == 2u);
+   ASSERT(&v.front() == v.data());
+   ASSERT(v.front() == 2);
+   ASSERT(v.back() == 3);
+   ASSERT(v[0] == 2);
+   ASSERT(v[1] == 3);
+   ASSERT(v.find(1) == v.cend());
 
    int i3 = v.pop_back();
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(v.front(), 2);
-   LOFTY_TESTING_ASSERT_EQUAL(v.back(), 2);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 2);
-   LOFTY_TESTING_ASSERT_EQUAL(i3, 3);
-   LOFTY_TESTING_ASSERT_EQUAL(v.find(1), v.cend());
+   ASSERT(v.size() == 1u);
+   ASSERT(v.front() == 2);
+   ASSERT(v.back() == 2);
+   ASSERT(v[0] == 2);
+   ASSERT(i3 == 3);
+   ASSERT(v.find(1) == v.cend());
 
    v.clear();
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 0u);
-   LOFTY_TESTING_ASSERT_THROWS(collections::bad_access, v.front());
-   LOFTY_TESTING_ASSERT_THROWS(collections::bad_access, v.back());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v[0]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::bad_access, v.pop_back());
+   ASSERT(v.size() == 0u);
+   ASSERT_THROWS(collections::bad_access, v.front());
+   ASSERT_THROWS(collections::bad_access, v.back());
+   ASSERT_THROWS(collections::out_of_range, v[0]);
+   ASSERT_THROWS(collections::bad_access, v.pop_back());
 }
 
 }} //namespace lofty::test
@@ -134,22 +134,22 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    v2.push_back(3);
    v3.push_back(1);
 
-   LOFTY_TESTING_ASSERT_EQUAL(v1a, v1a);
-   LOFTY_TESTING_ASSERT_EQUAL(v1a, v1b);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v1a, v2);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v1a, v3);
-   LOFTY_TESTING_ASSERT_EQUAL(v1b, v1a);
-   LOFTY_TESTING_ASSERT_EQUAL(v1b, v1b);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v1b, v2);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v1b, v3);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v2, v1a);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v2, v1b);
-   LOFTY_TESTING_ASSERT_EQUAL(v2, v2);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v2, v3);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v3, v1a);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v3, v1b);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v3, v2);
-   LOFTY_TESTING_ASSERT_EQUAL(v3, v3);
+   ASSERT(v1a == v1a);
+   ASSERT(v1a == v1b);
+   ASSERT(v1a != v2);
+   ASSERT(v1a != v3);
+   ASSERT(v1b == v1a);
+   ASSERT(v1b == v1b);
+   ASSERT(v1b != v2);
+   ASSERT(v1b != v3);
+   ASSERT(v2 != v1a);
+   ASSERT(v2 != v1b);
+   ASSERT(v2 == v2);
+   ASSERT(v2 != v3);
+   ASSERT(v3 != v1a);
+   ASSERT(v3 != v1b);
+   ASSERT(v3 != v2);
+   ASSERT(v3 == v3);
 }
 
 }} //namespace lofty::test
@@ -166,71 +166,71 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    // Default-constructed iterator.
    collections::vector<int>::const_iterator itr;
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, *itr);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, --itr);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, ++itr);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, --itr);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, ++itr);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, itr[-1]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, itr[0]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, itr[1]);
+   ASSERT_THROWS(collections::out_of_range, *itr);
+   ASSERT_THROWS(collections::out_of_range, --itr);
+   ASSERT_THROWS(collections::out_of_range, ++itr);
+   ASSERT_THROWS(collections::out_of_range, --itr);
+   ASSERT_THROWS(collections::out_of_range, ++itr);
+   ASSERT_THROWS(collections::out_of_range, itr[-1]);
+   ASSERT_THROWS(collections::out_of_range, itr[0]);
+   ASSERT_THROWS(collections::out_of_range, itr[1]);
 
    collections::vector<int> v;
-   LOFTY_TESTING_ASSERT_EQUAL(v.cbegin(), v.end());
+   ASSERT(v.cbegin() == v.end());
 
    // No accessible elements.
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v[-1]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v[0]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v[1]);
+   ASSERT_THROWS(collections::out_of_range, v[-1]);
+   ASSERT_THROWS(collections::out_of_range, v[0]);
+   ASSERT_THROWS(collections::out_of_range, v[1]);
 
    // Should not allow to move an iterator to outside [begin, end].
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(v.cbegin());
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(v.cend());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, --v.cbegin());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, ++v.cbegin());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, --v.cend());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, ++v.cend());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[-1]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[0]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[1]);
+   ASSERT_DOES_NOT_THROW(v.cbegin());
+   ASSERT_DOES_NOT_THROW(v.cend());
+   ASSERT_THROWS(collections::out_of_range, --v.cbegin());
+   ASSERT_THROWS(collections::out_of_range, ++v.cbegin());
+   ASSERT_THROWS(collections::out_of_range, --v.cend());
+   ASSERT_THROWS(collections::out_of_range, ++v.cend());
+   ASSERT_THROWS(collections::out_of_range, v.cbegin()[-1]);
+   ASSERT_THROWS(collections::out_of_range, v.cbegin()[0]);
+   ASSERT_THROWS(collections::out_of_range, v.cbegin()[1]);
 
    // Should not allow to dereference begin() or end() of an empty vector.
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, *v.cbegin());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, *v.cend());
+   ASSERT_THROWS(collections::out_of_range, *v.cbegin());
+   ASSERT_THROWS(collections::out_of_range, *v.cend());
 
    v.push_back(1);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(v.begin(), v.cend());
+   ASSERT(v.begin() != v.cend());
 
    // One accessible element.
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v[-1]);
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(v[0]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v[1]);
+   ASSERT_THROWS(collections::out_of_range, v[-1]);
+   ASSERT_DOES_NOT_THROW(v[0]);
+   ASSERT_THROWS(collections::out_of_range, v[1]);
 
    // Should not allow to move an iterator to outside [begin, end].
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, --v.cbegin());
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(++v.cbegin());
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(--v.cend());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, ++v.cend());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[-1]);
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(v.cbegin()[0]);
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.cbegin()[1]);
+   ASSERT_THROWS(collections::out_of_range, --v.cbegin());
+   ASSERT_DOES_NOT_THROW(++v.cbegin());
+   ASSERT_DOES_NOT_THROW(--v.cend());
+   ASSERT_THROWS(collections::out_of_range, ++v.cend());
+   ASSERT_THROWS(collections::out_of_range, v.cbegin()[-1]);
+   ASSERT_DOES_NOT_THROW(v.cbegin()[0]);
+   ASSERT_THROWS(collections::out_of_range, v.cbegin()[1]);
 
    // Should allow to dereference begin(), but not end() of a non-empty vector.
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(*v.cbegin());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, *v.cend());
+   ASSERT_DOES_NOT_THROW(*v.cbegin());
+   ASSERT_THROWS(collections::out_of_range, *v.cend());
 
    v.push_back(2);
    v.push_back(3);
 
    // Remove an element by iterator.
    v.remove_at(std::find(v.cbegin(), v.cend(), 2));
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 1);
-   LOFTY_TESTING_ASSERT_EQUAL(v[1], 3);
+   ASSERT(v.size() == 2u);
+   ASSERT(v[0] == 1);
+   ASSERT(v[1] == 3);
 
    // Remove an element with an invalid iterator.
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.begin() - 1));
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.end()));
+   ASSERT_THROWS(collections::out_of_range, v.remove_at(v.begin() - 1));
+   ASSERT_THROWS(collections::out_of_range, v.remove_at(v.end()));
 }
 
 }} //namespace lofty::test
@@ -254,23 +254,23 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    v = zero;
 
    // Remove from empty vector by index.
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cend() - 1));
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin()));
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin() + 1));
+   ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cend() - 1));
+   ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin()));
+   ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin() + 1));
 
    v = one_two;
 
    // Remove from 2-element vector by index.
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cend() - 3));
-   LOFTY_TESTING_ASSERT_EQUAL((v.remove_at(v.cend() - 2), v), two);
+   ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cend() - 3));
+   ASSERT((v.remove_at(v.cend() - 2), v) == two);
    v = one_two;
-   LOFTY_TESTING_ASSERT_EQUAL((v.remove_at(v.cend() - 1), v), one);
+   ASSERT((v.remove_at(v.cend() - 1), v) == one);
    v = one_two;
-   LOFTY_TESTING_ASSERT_EQUAL((v.remove_at(v.cbegin()), v), two);
+   ASSERT((v.remove_at(v.cbegin()), v) == two);
    v = one_two;
-   LOFTY_TESTING_ASSERT_EQUAL((v.remove_at(v.cbegin() + 1), v), one);
+   ASSERT((v.remove_at(v.cbegin() + 1), v) == one);
    v = one_two;
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin() + 2));
+   ASSERT_THROWS(collections::out_of_range, v.remove_at(v.cbegin() + 2));
 }
 
 }} //namespace lofty::test
@@ -301,22 +301,22 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    // Should allocate a new item array.
    v1.push_back(10);
-   LOFTY_TESTING_ASSERT_TRUE(tracker1.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v1.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[0], 10);
+   ASSERT(tracker1.changed());
+   ASSERT(v1.size() == 1u);
+   ASSERT(v1[0] == 10);
 
    // Should begin using the embedded item array.
    v2.push_back(20);
-   LOFTY_TESTING_ASSERT_TRUE(tracker2.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v2.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[0], 20);
+   ASSERT(tracker2.changed());
+   ASSERT(v2.size() == 1u);
+   ASSERT(v2[0] == 20);
    int const * const p2Static(v2.data());
 
    // Should begin using the embedded item array.
    v3.push_back(30);
-   LOFTY_TESTING_ASSERT_TRUE(tracker3.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v3.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[0], 30);
+   ASSERT(tracker3.changed());
+   ASSERT(v3.size() == 1u);
+   ASSERT(v3[0] == 30);
    int const * const p3Static(v3.data());
 
    // Add more elements to each vector.
@@ -333,17 +333,17 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    v1.push_back(19);
    // Cannot ASSERT_TRUE on this change, because the item array may be resized in place.
    tracker1.changed();
-   LOFTY_TESTING_ASSERT_EQUAL(v1.size(), 10u);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[0], 10);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[1], 11);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[2], 12);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[3], 13);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[4], 14);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[5], 15);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[6], 16);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[7], 17);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[8], 18);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[9], 19);
+   ASSERT(v1.size() == 10u);
+   ASSERT(v1[0] == 10);
+   ASSERT(v1[1] == 11);
+   ASSERT(v1[2] == 12);
+   ASSERT(v1[3] == 13);
+   ASSERT(v1[4] == 14);
+   ASSERT(v1[5] == 15);
+   ASSERT(v1[6] == 16);
+   ASSERT(v1[7] == 17);
+   ASSERT(v1[8] == 18);
+   ASSERT(v1[9] == 19);
 
    // These are too many for the embedded item array, so a new item array should be allocated.
    v2.push_back(21);
@@ -355,51 +355,51 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    v2.push_back(27);
    v2.push_back(28);
    v2.push_back(29);
-   LOFTY_TESTING_ASSERT_TRUE(tracker2.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v2.size(), 10u);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[0], 20);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[1], 21);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[2], 22);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[3], 23);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[4], 24);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[5], 25);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[6], 26);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[7], 27);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[8], 28);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[9], 29);
+   ASSERT(tracker2.changed());
+   ASSERT(v2.size() == 10u);
+   ASSERT(v2[0] == 20);
+   ASSERT(v2[1] == 21);
+   ASSERT(v2[2] == 22);
+   ASSERT(v2[3] == 23);
+   ASSERT(v2[4] == 24);
+   ASSERT(v2[5] == 25);
+   ASSERT(v2[6] == 26);
+   ASSERT(v2[7] == 27);
+   ASSERT(v2[8] == 28);
+   ASSERT(v2[9] == 29);
 
    // The embedded item array has room for this, so no reallocation is needed.
    v3.push_back(31);
-   LOFTY_TESTING_ASSERT_EQUAL(v3.data(), p3Static);
-   LOFTY_TESTING_ASSERT_FALSE(tracker3.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v3.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[0], 30);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[1], 31);
+   ASSERT(v3.data() == p3Static);
+   ASSERT(!tracker3.changed());
+   ASSERT(v3.size() == 2u);
+   ASSERT(v3[0] == 30);
+   ASSERT(v3[1] == 31);
 
    // Check assignment from larger to smaller embedded vectors.
 
    // Should keep the current item array, copying v2’s items over.
    v1 = v2.vector0();
-   LOFTY_TESTING_ASSERT_FALSE(tracker1.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v1.size(), 10u);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[0], 20);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[1], 21);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[2], 22);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[3], 23);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[4], 24);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[5], 25);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[6], 26);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[7], 27);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[8], 28);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[9], 29);
+   ASSERT(!tracker1.changed());
+   ASSERT(v1.size() == 10u);
+   ASSERT(v1[0] == 20);
+   ASSERT(v1[1] == 21);
+   ASSERT(v1[2] == 22);
+   ASSERT(v1[3] == 23);
+   ASSERT(v1[4] == 24);
+   ASSERT(v1[5] == 25);
+   ASSERT(v1[6] == 26);
+   ASSERT(v1[7] == 27);
+   ASSERT(v1[8] == 28);
+   ASSERT(v1[9] == 29);
 
    // Should return to using the embedded item array, copying v3’s items over.
    v2 = v3.vector0();
-   LOFTY_TESTING_ASSERT_EQUAL(v2.data(), p2Static);
-   LOFTY_TESTING_ASSERT_TRUE(tracker2.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v2.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[0], 30);
-   LOFTY_TESTING_ASSERT_EQUAL(v2[1], 31);
+   ASSERT(v2.data() == p2Static);
+   ASSERT(tracker2.changed());
+   ASSERT(v2.size() == 2u);
+   ASSERT(v2[0] == 30);
+   ASSERT(v2[1] == 31);
    // “Rebrand” the items as 2x.
    v2[0] = 20;
    v2[1] = 21;
@@ -407,12 +407,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    /* The current item array should still be large enough, but this should drop it to use the temporary one
    created by operator+(). */
    v1 = v2 + v3;
-   LOFTY_TESTING_ASSERT_TRUE(tracker1.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v1.size(), 4u);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[0], 20);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[1], 21);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[2], 30);
-   LOFTY_TESTING_ASSERT_EQUAL(v1[3], 31);
+   ASSERT(tracker1.changed());
+   ASSERT(v1.size() == 4u);
+   ASSERT(v1[0] == 20);
+   ASSERT(v1[1] == 21);
+   ASSERT(v1[2] == 30);
+   ASSERT(v1[3] == 31);
    // “Rebrand” the items as 1x.
    v1[0] = 10;
    v1[1] = 11;
@@ -421,32 +421,32 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    // This should be too much for the embedded item array, so a new one should be allocated.
    v3 += v1 + v2 + v1 + v3 + v1;
-   LOFTY_TESTING_ASSERT_TRUE(tracker3.changed());
-   LOFTY_TESTING_ASSERT_EQUAL(v3.size(), 18u);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[0], 30);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[1], 31);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[2], 10);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[3], 11);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[4], 12);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[5], 13);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[6], 20);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[7], 21);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[8], 10);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[9], 11);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[10], 12);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[11], 13);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[12], 30);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[13], 31);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[14], 10);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[15], 11);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[16], 12);
-   LOFTY_TESTING_ASSERT_EQUAL(v3[17], 13);
+   ASSERT(tracker3.changed());
+   ASSERT(v3.size() == 18u);
+   ASSERT(v3[0] == 30);
+   ASSERT(v3[1] == 31);
+   ASSERT(v3[2] == 10);
+   ASSERT(v3[3] == 11);
+   ASSERT(v3[4] == 12);
+   ASSERT(v3[5] == 13);
+   ASSERT(v3[6] == 20);
+   ASSERT(v3[7] == 21);
+   ASSERT(v3[8] == 10);
+   ASSERT(v3[9] == 11);
+   ASSERT(v3[10] == 12);
+   ASSERT(v3[11] == 13);
+   ASSERT(v3[12] == 30);
+   ASSERT(v3[13] == 31);
+   ASSERT(v3[14] == 10);
+   ASSERT(v3[15] == 11);
+   ASSERT(v3[16] == 12);
+   ASSERT(v3[17] == 13);
 
    // Ensure that the vector doesn’t automatically shrink to fit when downsized.
    std::size_t highest_capacity = v3.capacity();
    v3.set_size(0);
-   LOFTY_TESTING_ASSERT_EQUAL(v3.size(), 0u);
-   LOFTY_TESTING_ASSERT_EQUAL(v3.capacity(), highest_capacity);
+   ASSERT(v3.size() == 0u);
+   ASSERT(v3.capacity() == highest_capacity);
 }
 
 }} //namespace lofty::test
@@ -484,17 +484,17 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       /* This will move the item array from the returned vector to v, so no item copies or moves will occur
       other than the ones in return_vector(). */
       collections::vector<instances_counter> v(return_vector());
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::moves(), 1u);
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
+      ASSERT(instances_counter::new_insts() == 1u);
+      ASSERT(instances_counter::moves() == 1u);
+      ASSERT(instances_counter::copies() == 0u);
       instances_counter::reset_counts();
 
       /* This should create a new copy, with no intermediate moves because all passages are by reference or
       pointer. */
       v.push_back(v[0]);
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 0u);
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::moves(), 0u);
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::copies(), 1u);
+      ASSERT(instances_counter::new_insts() == 0u);
+      ASSERT(instances_counter::moves() == 0u);
+      ASSERT(instances_counter::copies() == 1u);
       instances_counter::reset_counts();
    }
 
@@ -504,9 +504,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       construct v with return_vector() because v would merely use that item array instead of its own embedded
       one, resulting in no additional moves other than the one in return_vector(). */
       v += return_vector();
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::new_insts(), 1u);
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::moves(), 2u);
-      LOFTY_TESTING_ASSERT_EQUAL(instances_counter::copies(), 0u);
+      ASSERT(instances_counter::new_insts() == 1u);
+      ASSERT(instances_counter::moves() == 2u);
+      ASSERT(instances_counter::copies() == 0u);
       instances_counter::reset_counts();
    }
 }
@@ -525,23 +525,23 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    collections::vector<int> v;
 
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{}"))));
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 0u);
+   ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{}"))));
+   ASSERT(v.size() == 0u);
 
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{5}"))));
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 5);
+   ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{5}"))));
+   ASSERT(v.size() == 1u);
+   ASSERT(v[0] == 5);
 
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{3, 50}"))));
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 3);
-   LOFTY_TESTING_ASSERT_EQUAL(v[1], 50);
+   ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{3, 50}"))));
+   ASSERT(v.size() == 2u);
+   ASSERT(v[0] == 3);
+   ASSERT(v[1] == 50);
 
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{16, 8, 4}"))));
-   LOFTY_TESTING_ASSERT_EQUAL(v.size(), 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(v[0], 16);
-   LOFTY_TESTING_ASSERT_EQUAL(v[1], 8);
-   LOFTY_TESTING_ASSERT_EQUAL(v[2], 4);
+   ASSERT_DOES_NOT_THROW((v = from_str<collections::vector<int>>(LOFTY_SL("{16, 8, 4}"))));
+   ASSERT(v.size() == 3u);
+   ASSERT(v[0] == 16);
+   ASSERT(v[1] == 8);
+   ASSERT(v[2] == 4);
 }
 
 }} //namespace lofty::test

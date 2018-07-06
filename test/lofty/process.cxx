@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2016-2017 Raffaello D. Di Napoli
+Copyright 2016-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -28,10 +28,10 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(_std::get<0>(this_process::env_var(LOFTY_SL("PATH"))), str::empty);
-   LOFTY_TESTING_ASSERT_TRUE(_std::get<1>(this_process::env_var(LOFTY_SL("PATH"))));
-   LOFTY_TESTING_ASSERT_EQUAL(_std::get<0>(this_process::env_var(LOFTY_SL("?UNSET?"))), str::empty);
-   LOFTY_TESTING_ASSERT_FALSE(_std::get<1>(this_process::env_var(LOFTY_SL("?UNSET?"))));
+   ASSERT(_std::get<0>(this_process::env_var(LOFTY_SL("PATH"))) != str::empty);
+   ASSERT(_std::get<1>(this_process::env_var(LOFTY_SL("PATH"))));
+   ASSERT(_std::get<0>(this_process::env_var(LOFTY_SL("?UNSET?"))) == str::empty);
+   ASSERT(!_std::get<1>(this_process::env_var(LOFTY_SL("?UNSET?"))));
 }
 
 }} //namespace lofty::test

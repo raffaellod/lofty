@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2017 Raffaello D. Di Napoli
+Copyright 2011-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -37,99 +37,99 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 #define format_seps(s) (formatted.format(LOFTY_SL(s), sep), formatted)
 
    // Empty path.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(""),          format_seps("")            );
+   ASSERT(norm_path("")          == format_seps("")            );
    // Separator only.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/"),         format_seps("{0}")         );
+   ASSERT(norm_path("/")         == format_seps("{0}")         );
 
    // One component, no separators.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("."),         format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".."),        format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("..."),       format_seps("...")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a"),         format_seps("a")           );
+   ASSERT(norm_path(".")         == format_seps("")            );
+   ASSERT(norm_path("..")        == format_seps("")            );
+   ASSERT(norm_path("...")       == format_seps("...")         );
+   ASSERT(norm_path("a")         == format_seps("a")           );
    // One component, leading separator.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/."),        format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.."),       format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/..."),      format_seps("{0}...")      );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a"),        format_seps("{0}a")        );
+   ASSERT(norm_path("/.")        == format_seps("{0}")         );
+   ASSERT(norm_path("/..")       == format_seps("{0}")         );
+   ASSERT(norm_path("/...")      == format_seps("{0}...")      );
+   ASSERT(norm_path("/a")        == format_seps("{0}a")        );
    // One component, trailing separator.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("./"),        format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("../"),       format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".../"),      format_seps("...")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/"),        format_seps("a")           );
+   ASSERT(norm_path("./")        == format_seps("")            );
+   ASSERT(norm_path("../")       == format_seps("")            );
+   ASSERT(norm_path(".../")      == format_seps("...")         );
+   ASSERT(norm_path("a/")        == format_seps("a")           );
    // One component, leading and trailing separators.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/./"),       format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/../"),      format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.../"),     format_seps("{0}...")      );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/"),       format_seps("{0}a")        );
+   ASSERT(norm_path("/./")       == format_seps("{0}")         );
+   ASSERT(norm_path("/../")      == format_seps("{0}")         );
+   ASSERT(norm_path("/.../")     == format_seps("{0}...")      );
+   ASSERT(norm_path("/a/")       == format_seps("{0}a")        );
 
    // Two components, no separators.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("./."),       format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("./.."),      format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("./..."),     format_seps("...")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("./a"),       format_seps("a")           );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("../."),      format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("../.."),     format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("../..."),    format_seps("...")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("../a"),      format_seps("a")           );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".../."),     format_seps("...")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".../.."),    format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".../..."),   format_seps("...{0}...")   );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".../a"),     format_seps("...{0}a")     );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/."),       format_seps("a")           );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/.."),      format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/..."),     format_seps("a{0}...")     );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/a"),       format_seps("a{0}a")       );
+   ASSERT(norm_path("./.")       == format_seps("")            );
+   ASSERT(norm_path("./..")      == format_seps("")            );
+   ASSERT(norm_path("./...")     == format_seps("...")         );
+   ASSERT(norm_path("./a")       == format_seps("a")           );
+   ASSERT(norm_path("../.")      == format_seps("")            );
+   ASSERT(norm_path("../..")     == format_seps("")            );
+   ASSERT(norm_path("../...")    == format_seps("...")         );
+   ASSERT(norm_path("../a")      == format_seps("a")           );
+   ASSERT(norm_path(".../.")     == format_seps("...")         );
+   ASSERT(norm_path(".../..")    == format_seps("")            );
+   ASSERT(norm_path(".../...")   == format_seps("...{0}...")   );
+   ASSERT(norm_path(".../a")     == format_seps("...{0}a")     );
+   ASSERT(norm_path("a/.")       == format_seps("a")           );
+   ASSERT(norm_path("a/..")      == format_seps("")            );
+   ASSERT(norm_path("a/...")     == format_seps("a{0}...")     );
+   ASSERT(norm_path("a/a")       == format_seps("a{0}a")       );
    // Two components, leading separator.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/./."),      format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/./.."),     format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/./..."),    format_seps("{0}...")      );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/./a"),      format_seps("{0}a")        );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/../."),     format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/../.."),    format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/../..."),   format_seps("{0}...")      );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/../a"),     format_seps("{0}a")        );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.../."),    format_seps("{0}...")      );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.../.."),   format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.../..."),  format_seps("{0}...{0}..."));
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.../a"),    format_seps("{0}...{0}a")  );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/."),      format_seps("{0}a")        );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/.."),     format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/..."),    format_seps("{0}a{0}...")  );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/a"),      format_seps("{0}a{0}a")    );
+   ASSERT(norm_path("/./.")      == format_seps("{0}")         );
+   ASSERT(norm_path("/./..")     == format_seps("{0}")         );
+   ASSERT(norm_path("/./...")    == format_seps("{0}...")      );
+   ASSERT(norm_path("/./a")      == format_seps("{0}a")        );
+   ASSERT(norm_path("/../.")     == format_seps("{0}")         );
+   ASSERT(norm_path("/../..")    == format_seps("{0}")         );
+   ASSERT(norm_path("/../...")   == format_seps("{0}...")      );
+   ASSERT(norm_path("/../a")     == format_seps("{0}a")        );
+   ASSERT(norm_path("/.../.")    == format_seps("{0}...")      );
+   ASSERT(norm_path("/.../..")   == format_seps("{0}")         );
+   ASSERT(norm_path("/.../...")  == format_seps("{0}...{0}..."));
+   ASSERT(norm_path("/.../a")    == format_seps("{0}...{0}a")  );
+   ASSERT(norm_path("/a/.")      == format_seps("{0}a")        );
+   ASSERT(norm_path("/a/..")     == format_seps("{0}")         );
+   ASSERT(norm_path("/a/...")    == format_seps("{0}a{0}...")  );
+   ASSERT(norm_path("/a/a")      == format_seps("{0}a{0}a")    );
    // Two components, trailing separator.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("././"),      format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("./../"),     format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("./.../"),    format_seps("...")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("./a/"),      format_seps("a")           );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".././"),     format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("../../"),    format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("../.../"),   format_seps("...")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("../a/"),     format_seps("a")           );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("..././"),    format_seps("...")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".../../"),   format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".../.../"),  format_seps("...{0}...")   );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path(".../a/"),    format_seps("...{0}a")     );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/./"),      format_seps("a")           );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/../"),     format_seps("")            );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/.../"),    format_seps("a{0}...")     );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("a/a/"),      format_seps("a{0}a")       );
+   ASSERT(norm_path("././")      == format_seps("")            );
+   ASSERT(norm_path("./../")     == format_seps("")            );
+   ASSERT(norm_path("./.../")    == format_seps("...")         );
+   ASSERT(norm_path("./a/")      == format_seps("a")           );
+   ASSERT(norm_path(".././")     == format_seps("")            );
+   ASSERT(norm_path("../../")    == format_seps("")            );
+   ASSERT(norm_path("../.../")   == format_seps("...")         );
+   ASSERT(norm_path("../a/")     == format_seps("a")           );
+   ASSERT(norm_path("..././")    == format_seps("...")         );
+   ASSERT(norm_path(".../../")   == format_seps("")            );
+   ASSERT(norm_path(".../.../")  == format_seps("...{0}...")   );
+   ASSERT(norm_path(".../a/")    == format_seps("...{0}a")     );
+   ASSERT(norm_path("a/./")      == format_seps("a")           );
+   ASSERT(norm_path("a/../")     == format_seps("")            );
+   ASSERT(norm_path("a/.../")    == format_seps("a{0}...")     );
+   ASSERT(norm_path("a/a/")      == format_seps("a{0}a")       );
    // Two components, leading and trailing separators.
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/././"),     format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/./../"),    format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/./.../"),   format_seps("{0}...")      );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/./a/"),     format_seps("{0}a")        );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.././"),    format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/../../"),   format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/../.../"),  format_seps("{0}...")      );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/../a/"),    format_seps("{0}a")        );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/..././"),   format_seps("{0}...")      );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.../../"),  format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.../.../"), format_seps("{0}...{0}..."));
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/.../a/"),   format_seps("{0}...{0}a")  );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/./"),     format_seps("{0}a")        );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/../"),    format_seps("{0}")         );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/.../"),   format_seps("{0}a{0}...")  );
-   LOFTY_TESTING_ASSERT_EQUAL(norm_path("/a/a/"),     format_seps("{0}a{0}a")    );
+   ASSERT(norm_path("/././")     == format_seps("{0}")         );
+   ASSERT(norm_path("/./../")    == format_seps("{0}")         );
+   ASSERT(norm_path("/./.../")   == format_seps("{0}...")      );
+   ASSERT(norm_path("/./a/")     == format_seps("{0}a")        );
+   ASSERT(norm_path("/.././")    == format_seps("{0}")         );
+   ASSERT(norm_path("/../../")   == format_seps("{0}")         );
+   ASSERT(norm_path("/../.../")  == format_seps("{0}...")      );
+   ASSERT(norm_path("/../a/")    == format_seps("{0}a")        );
+   ASSERT(norm_path("/..././")   == format_seps("{0}...")      );
+   ASSERT(norm_path("/.../../")  == format_seps("{0}")         );
+   ASSERT(norm_path("/.../.../") == format_seps("{0}...{0}..."));
+   ASSERT(norm_path("/.../a/")   == format_seps("{0}...{0}a")  );
+   ASSERT(norm_path("/a/./")     == format_seps("{0}a")        );
+   ASSERT(norm_path("/a/../")    == format_seps("{0}")         );
+   ASSERT(norm_path("/a/.../")   == format_seps("{0}a{0}...")  );
+   ASSERT(norm_path("/a/a/")     == format_seps("{0}a{0}a")    );
 
 #undef format_seps
 #undef norm_path
@@ -150,36 +150,36 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    os::path path(os::path::current_dir());
 
    // These should be normalized out.
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL(""   )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("/"  )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("//" )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("."  )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("/." )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("./" )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("/./")).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("./.")).normalize(), path);
+   ASSERT((path / LOFTY_SL(""   )).normalize() == path);
+   ASSERT((path / LOFTY_SL("/"  )).normalize() == path);
+   ASSERT((path / LOFTY_SL("//" )).normalize() == path);
+   ASSERT((path / LOFTY_SL("."  )).normalize() == path);
+   ASSERT((path / LOFTY_SL("/." )).normalize() == path);
+   ASSERT((path / LOFTY_SL("./" )).normalize() == path);
+   ASSERT((path / LOFTY_SL("/./")).normalize() == path);
+   ASSERT((path / LOFTY_SL("./.")).normalize() == path);
 
    // These should NOT be normalized: three dots are just another regular path component.
-   LOFTY_TESTING_ASSERT_NOT_EQUAL((path / LOFTY_SL("..."  )).normalize(), path);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL((path / LOFTY_SL("/..." )).normalize(), path);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL((path / LOFTY_SL(".../" )).normalize(), path);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL((path / LOFTY_SL("/.../")).normalize(), path);
+   ASSERT((path / LOFTY_SL("..."  )).normalize() != path);
+   ASSERT((path / LOFTY_SL("/..." )).normalize() != path);
+   ASSERT((path / LOFTY_SL(".../" )).normalize() != path);
+   ASSERT((path / LOFTY_SL("/.../")).normalize() != path);
 
    // Now with one additional trailing component.
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("/test"   )).normalize(), path / LOFTY_SL("test"));
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("//test"  )).normalize(), path / LOFTY_SL("test"));
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("./test"  )).normalize(), path / LOFTY_SL("test"));
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("/./test" )).normalize(), path / LOFTY_SL("test"));
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("././test")).normalize(), path / LOFTY_SL("test"));
+   ASSERT((path / LOFTY_SL("/test"   )).normalize() == path / LOFTY_SL("test"));
+   ASSERT((path / LOFTY_SL("//test"  )).normalize() == path / LOFTY_SL("test"));
+   ASSERT((path / LOFTY_SL("./test"  )).normalize() == path / LOFTY_SL("test"));
+   ASSERT((path / LOFTY_SL("/./test" )).normalize() == path / LOFTY_SL("test"));
+   ASSERT((path / LOFTY_SL("././test")).normalize() == path / LOFTY_SL("test"));
 
    // Verify that ".." works.
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("a/.."       )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("a/../b"     )).normalize(), path / LOFTY_SL("b"));
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("a/../b/.."  )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("a/b/../.."  )).normalize(), path);
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("a/b/../c"   )).normalize(), path / LOFTY_SL("a/c"));
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("a/../b/../c")).normalize(), path / LOFTY_SL("c"));
-   LOFTY_TESTING_ASSERT_EQUAL((path / LOFTY_SL("a/b/../../c")).normalize(), path / LOFTY_SL("c"));
+   ASSERT((path / LOFTY_SL("a/.."       )).normalize() == path);
+   ASSERT((path / LOFTY_SL("a/../b"     )).normalize() == path / LOFTY_SL("b"));
+   ASSERT((path / LOFTY_SL("a/../b/.."  )).normalize() == path);
+   ASSERT((path / LOFTY_SL("a/b/../.."  )).normalize() == path);
+   ASSERT((path / LOFTY_SL("a/b/../c"   )).normalize() == path / LOFTY_SL("a/c"));
+   ASSERT((path / LOFTY_SL("a/../b/../c")).normalize() == path / LOFTY_SL("c"));
+   ASSERT((path / LOFTY_SL("a/b/../../c")).normalize() == path / LOFTY_SL("c"));
 }
 
 }} //namespace lofty::test

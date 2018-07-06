@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2017 Raffaello D. Di Napoli
+Copyright 2011-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -34,21 +34,21 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    // Syntax errors.
    ostream.clear();
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("{")));
+   ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("{")));
    ostream.clear();
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("{{{")));
+   ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("{{{")));
    ostream.clear();
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("}")));
+   ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("}")));
    ostream.clear();
-   LOFTY_TESTING_ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("}}}")));
+   ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("}}}")));
 
    // No replacements.
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(str::empty), str::empty);
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("x")), LOFTY_SL("x"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("x"), LOFTY_SL("a")), LOFTY_SL("x"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{{")), LOFTY_SL("{"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("}}")), LOFTY_SL("}"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{{}}")), LOFTY_SL("{}"));
+   ASSERT(PRINT_GET(str::empty) == str::empty);
+   ASSERT(PRINT_GET(LOFTY_SL("x")) == LOFTY_SL("x"));
+   ASSERT(PRINT_GET(LOFTY_SL("x"), LOFTY_SL("a")) == LOFTY_SL("x"));
+   ASSERT(PRINT_GET(LOFTY_SL("{{")) == LOFTY_SL("{"));
+   ASSERT(PRINT_GET(LOFTY_SL("}}")) == LOFTY_SL("}"));
+   ASSERT(PRINT_GET(LOFTY_SL("{{}}")) == LOFTY_SL("{}"));
 }
 
 }} //namespace lofty::test
@@ -67,22 +67,22 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io::text::str_ostream ostream(external_buffer, buf.str_ptr());
 
    // Single string replacement, deduced argument index.
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{}"), LOFTY_SL("a")), LOFTY_SL("a"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("x{}"), LOFTY_SL("a")), LOFTY_SL("xa"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{}x"), LOFTY_SL("a")), LOFTY_SL("ax"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("x{}x"), LOFTY_SL("a")), LOFTY_SL("xax"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{{{}}}"), LOFTY_SL("a")), LOFTY_SL("{a}"));
+   ASSERT(PRINT_GET(LOFTY_SL("{}"), LOFTY_SL("a")) == LOFTY_SL("a"));
+   ASSERT(PRINT_GET(LOFTY_SL("x{}"), LOFTY_SL("a")) == LOFTY_SL("xa"));
+   ASSERT(PRINT_GET(LOFTY_SL("{}x"), LOFTY_SL("a")) == LOFTY_SL("ax"));
+   ASSERT(PRINT_GET(LOFTY_SL("x{}x"), LOFTY_SL("a")) == LOFTY_SL("xax"));
+   ASSERT(PRINT_GET(LOFTY_SL("{{{}}}"), LOFTY_SL("a")) == LOFTY_SL("{a}"));
 
    // Single string replacement, explicit index.
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{0}"), LOFTY_SL("a")), LOFTY_SL("a"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("x{0}"), LOFTY_SL("a")), LOFTY_SL("xa"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{0}x"), LOFTY_SL("a")), LOFTY_SL("ax"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("x{0}x"), LOFTY_SL("a")), LOFTY_SL("xax"));
+   ASSERT(PRINT_GET(LOFTY_SL("{0}"), LOFTY_SL("a")) == LOFTY_SL("a"));
+   ASSERT(PRINT_GET(LOFTY_SL("x{0}"), LOFTY_SL("a")) == LOFTY_SL("xa"));
+   ASSERT(PRINT_GET(LOFTY_SL("{0}x"), LOFTY_SL("a")) == LOFTY_SL("ax"));
+   ASSERT(PRINT_GET(LOFTY_SL("x{0}x"), LOFTY_SL("a")) == LOFTY_SL("xax"));
 
    // Single integer replacement, various ways of reference, various format options.
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{}"), 34), LOFTY_SL("34"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{:x}"), 34), LOFTY_SL("22"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{:#x}"), 34), LOFTY_SL("0x22"));
+   ASSERT(PRINT_GET(LOFTY_SL("{}"), 34) == LOFTY_SL("34"));
+   ASSERT(PRINT_GET(LOFTY_SL("{:x}"), 34) == LOFTY_SL("22"));
+   ASSERT(PRINT_GET(LOFTY_SL("{:#x}"), 34) == LOFTY_SL("0x22"));
 }
 
 }} //namespace lofty::test
@@ -101,17 +101,17 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    io::text::str_ostream ostream(external_buffer, buf.str_ptr());
 
    // Single string replacement, referenced twice.
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{0}{0}"), LOFTY_SL("a")), LOFTY_SL("aa"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{0}x{0}"), LOFTY_SL("a")), LOFTY_SL("axa"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("x{0}x{0}"), LOFTY_SL("a")), LOFTY_SL("xaxa"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{0}x{0}x"), LOFTY_SL("a")), LOFTY_SL("axax"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("x{0}x{0}x"), LOFTY_SL("a")), LOFTY_SL("xaxax"));
+   ASSERT(PRINT_GET(LOFTY_SL("{0}{0}"), LOFTY_SL("a")) == LOFTY_SL("aa"));
+   ASSERT(PRINT_GET(LOFTY_SL("{0}x{0}"), LOFTY_SL("a")) == LOFTY_SL("axa"));
+   ASSERT(PRINT_GET(LOFTY_SL("x{0}x{0}"), LOFTY_SL("a")) == LOFTY_SL("xaxa"));
+   ASSERT(PRINT_GET(LOFTY_SL("{0}x{0}x"), LOFTY_SL("a")) == LOFTY_SL("axax"));
+   ASSERT(PRINT_GET(LOFTY_SL("x{0}x{0}x"), LOFTY_SL("a")) == LOFTY_SL("xaxax"));
 
    // Two string replacements, various ways of reference.
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{}{}"), LOFTY_SL("a"), LOFTY_SL("b")), LOFTY_SL("ab"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{0}{1}"), LOFTY_SL("a"), LOFTY_SL("b")), LOFTY_SL("ab"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{1}{0}"), LOFTY_SL("a"), LOFTY_SL("b")), LOFTY_SL("ba"));
-   LOFTY_TESTING_ASSERT_EQUAL(PRINT_GET(LOFTY_SL("{1}{1}"), LOFTY_SL("a"), LOFTY_SL("b")), LOFTY_SL("bb"));
+   ASSERT(PRINT_GET(LOFTY_SL("{}{}"), LOFTY_SL("a"), LOFTY_SL("b")) == LOFTY_SL("ab"));
+   ASSERT(PRINT_GET(LOFTY_SL("{0}{1}"), LOFTY_SL("a"), LOFTY_SL("b")) == LOFTY_SL("ab"));
+   ASSERT(PRINT_GET(LOFTY_SL("{1}{0}"), LOFTY_SL("a"), LOFTY_SL("b")) == LOFTY_SL("ba"));
+   ASSERT(PRINT_GET(LOFTY_SL("{1}{1}"), LOFTY_SL("a"), LOFTY_SL("b")) == LOFTY_SL("bb"));
 }
 
 }} //namespace lofty::test

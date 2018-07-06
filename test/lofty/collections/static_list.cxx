@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015, 2017 Raffaello D. Di Napoli
+Copyright 2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -86,58 +86,58 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    /* Since by design static_list elements are added automatically on instantiation and removed on
    destruction, additions and removals are governed by nested scopes. */
 
-   LOFTY_TESTING_ASSERT_TRUE(sl.empty());
-   LOFTY_TESTING_ASSERT_EQUAL(sl.size(), 0u);
-   LOFTY_TESTING_ASSERT_TRUE(sl.begin() == sl.end());
-   LOFTY_TESTING_ASSERT_TRUE(sl.rbegin() == sl.rend());
+   ASSERT(sl.empty());
+   ASSERT(sl.size() == 0u);
+   ASSERT((sl.begin() == sl.end()));
+   ASSERT((sl.rbegin() == sl.rend()));
 
    {
       static_list_node_test n10(10);
-      LOFTY_TESTING_ASSERT_FALSE(sl.empty());
-      LOFTY_TESTING_ASSERT_EQUAL(sl.size(), 1u);
+      ASSERT(!sl.empty());
+      ASSERT(sl.size() == 1u);
       {
          // Simple forward iteration.
          auto itr(sl.begin());
-         LOFTY_TESTING_ASSERT_EQUAL(itr->get(), 10);
+         ASSERT(itr->get() == 10);
          ++itr;
-         LOFTY_TESTING_ASSERT_TRUE(itr == sl.end());
+         ASSERT((itr == sl.end()));
       }
 
       {
          static_list_node_test n20(20);
-         LOFTY_TESTING_ASSERT_FALSE(sl.empty());
-         LOFTY_TESTING_ASSERT_EQUAL(sl.size(), 2u);
+         ASSERT(!sl.empty());
+         ASSERT(sl.size() == 2u);
          {
             // Backwards iteration.
             auto itr(sl.rbegin());
-            LOFTY_TESTING_ASSERT_EQUAL(itr->get(), 20);
+            ASSERT(itr->get() == 20);
             ++itr;
-            LOFTY_TESTING_ASSERT_EQUAL(itr->get(), 10);
+            ASSERT(itr->get() == 10);
             ++itr;
-            LOFTY_TESTING_ASSERT_TRUE(itr == sl.rend());
+            ASSERT((itr == sl.rend()));
          }
       }
 
-      LOFTY_TESTING_ASSERT_FALSE(sl.empty());
-      LOFTY_TESTING_ASSERT_EQUAL(sl.size(), 1u);
+      ASSERT(!sl.empty());
+      ASSERT(sl.size() == 1u);
    }
 
-   LOFTY_TESTING_ASSERT_TRUE(sl.empty());
-   LOFTY_TESTING_ASSERT_EQUAL(sl.size(), 0u);
-   LOFTY_TESTING_ASSERT_TRUE(sl.begin() == sl.end());
-   LOFTY_TESTING_ASSERT_TRUE(sl.rbegin() == sl.rend());
+   ASSERT(sl.empty());
+   ASSERT(sl.size() == 0u);
+   ASSERT((sl.begin() == sl.end()));
+   ASSERT((sl.rbegin() == sl.rend()));
 
    {
       static_list_node_test n30(30);
-      LOFTY_TESTING_ASSERT_FALSE(sl.empty());
-      LOFTY_TESTING_ASSERT_EQUAL(sl.size(), 1u);
-      LOFTY_TESTING_ASSERT_TRUE(sl.begin() != sl.end());
-      LOFTY_TESTING_ASSERT_TRUE(sl.rbegin() != sl.rend());
+      ASSERT(!sl.empty());
+      ASSERT(sl.size() == 1u);
+      ASSERT((sl.begin() != sl.end()));
+      ASSERT((sl.rbegin() != sl.rend()));
    }
 
-   LOFTY_TESTING_ASSERT_TRUE(sl.empty());
-   LOFTY_TESTING_ASSERT_EQUAL(sl.size(), 0u);
-   LOFTY_TESTING_ASSERT_TRUE(sl.begin() == sl.end());
+   ASSERT(sl.empty());
+   ASSERT(sl.size() == 0u);
+   ASSERT((sl.begin() == sl.end()));
 }
 
 }} //namespace lofty::test

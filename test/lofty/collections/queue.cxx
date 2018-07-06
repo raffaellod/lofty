@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015, 2017 Raffaello D. Di Napoli
+Copyright 2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -31,40 +31,40 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    collections::queue<int> q;
 
-   LOFTY_TESTING_ASSERT_FALSE(q);
-   LOFTY_TESTING_ASSERT_EQUAL(q.size(), 0u);
+   ASSERT(!q);
+   ASSERT(q.size() == 0u);
 
    q.push_back(10);
-   LOFTY_TESTING_ASSERT_TRUE(q);
-   LOFTY_TESTING_ASSERT_EQUAL(q.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(q.front(), 10);
-   LOFTY_TESTING_ASSERT_EQUAL(q.back(), 10);
+   ASSERT(!!q);
+   ASSERT(q.size() == 1u);
+   ASSERT(q.front() == 10);
+   ASSERT(q.back() == 10);
 
    q.push_back(20);
-   LOFTY_TESTING_ASSERT_TRUE(q);
-   LOFTY_TESTING_ASSERT_EQUAL(q.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(q.front(), 10);
-   LOFTY_TESTING_ASSERT_EQUAL(q.back(), 20);
+   ASSERT(!!q);
+   ASSERT(q.size() == 2u);
+   ASSERT(q.front() == 10);
+   ASSERT(q.back() == 20);
 
-   LOFTY_TESTING_ASSERT_EQUAL(q.pop_front(), 10);
-   LOFTY_TESTING_ASSERT_TRUE(q);
-   LOFTY_TESTING_ASSERT_EQUAL(q.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(q.front(), 20);
-   LOFTY_TESTING_ASSERT_EQUAL(q.back(), 20);
+   ASSERT(q.pop_front() == 10);
+   ASSERT(!!q);
+   ASSERT(q.size() == 1u);
+   ASSERT(q.front() == 20);
+   ASSERT(q.back() == 20);
 
-   LOFTY_TESTING_ASSERT_EQUAL(q.pop_front(), 20);
-   LOFTY_TESTING_ASSERT_FALSE(q);
-   LOFTY_TESTING_ASSERT_EQUAL(q.size(), 0u);
+   ASSERT(q.pop_front() == 20);
+   ASSERT(!q);
+   ASSERT(q.size() == 0u);
 
    q.push_back(30);
-   LOFTY_TESTING_ASSERT_TRUE(q);
-   LOFTY_TESTING_ASSERT_EQUAL(q.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(q.front(), 30);
-   LOFTY_TESTING_ASSERT_EQUAL(q.back(), 30);
+   ASSERT(!!q);
+   ASSERT(q.size() == 1u);
+   ASSERT(q.front() == 30);
+   ASSERT(q.back() == 30);
 
    q.clear();
-   LOFTY_TESTING_ASSERT_FALSE(q);
-   LOFTY_TESTING_ASSERT_EQUAL(q.size(), 0u);
+   ASSERT(!q);
+   ASSERT(q.size() == 0u);
 }
 
 }} //namespace lofty::test

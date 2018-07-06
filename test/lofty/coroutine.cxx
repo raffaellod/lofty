@@ -46,21 +46,21 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    });
    coroutine coro3;
 
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(coro1.id(), coroutine::id_type(0));
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(coro2.id(), coroutine::id_type(0));
-   LOFTY_TESTING_ASSERT_EQUAL    (coro3.id(), coroutine::id_type(0));
+   ASSERT(coro1.id() != coroutine::id_type(0));
+   ASSERT(coro2.id() != coroutine::id_type(0));
+   ASSERT(coro3.id() == coroutine::id_type(0));
 
    // Verify that the string representations are different.
    str coroutine1_str(to_str(coro1)), coroutine2_str(to_str(coro2)), coroutine3_str(to_str(coro3));
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(coroutine1_str, coroutine2_str);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(coroutine1_str, coroutine3_str);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(coroutine2_str, coroutine3_str);
-   LOFTY_TESTING_ASSERT_EQUAL(coroutine3_str, LOFTY_SL("CRID:-"));
+   ASSERT(coroutine1_str != coroutine2_str);
+   ASSERT(coroutine1_str != coroutine3_str);
+   ASSERT(coroutine2_str != coroutine3_str);
+   ASSERT(coroutine3_str == LOFTY_SL("CRID:-"));
 
    this_thread::run_coroutines();
 
-   LOFTY_TESTING_ASSERT_TRUE(coro1_completed);
-   LOFTY_TESTING_ASSERT_TRUE(coro2_completed);
+   ASSERT(coro1_completed);
+   ASSERT(coro2_completed);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -97,7 +97,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    }
 
    // While we’re at it, verify that something was written to stderr while *capturing_stderr was stderr.
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(capturing_stderr->get_str(), str::empty);
+   ASSERT(capturing_stderr->get_str() != str::empty);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -151,17 +151,17 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    this_thread::run_coroutines();
 
-   LOFTY_TESTING_ASSERT_TRUE(workers_completed[0]);
-   LOFTY_TESTING_ASSERT_FALSE(workers_interrupted[0]);
-   LOFTY_TESTING_ASSERT_FALSE(workers_completed[1]);
-   LOFTY_TESTING_ASSERT_TRUE(workers_interrupted[1]);
-   LOFTY_TESTING_ASSERT_FALSE(workers_completed[2]);
-   LOFTY_TESTING_ASSERT_TRUE(workers_interrupted[2]);
-   LOFTY_TESTING_ASSERT_TRUE(workers_completed[3]);
-   LOFTY_TESTING_ASSERT_FALSE(workers_interrupted[3]);
-   LOFTY_TESTING_ASSERT_TRUE(workers_completed[4]);
-   LOFTY_TESTING_ASSERT_FALSE(workers_interrupted[4]);
-   LOFTY_TESTING_ASSERT_TRUE(controller_coro_completed);
+   ASSERT( workers_completed[0]);
+   ASSERT(!workers_interrupted[0]);
+   ASSERT(!workers_completed[1]);
+   ASSERT( workers_interrupted[1]);
+   ASSERT(!workers_completed[2]);
+   ASSERT( workers_interrupted[2]);
+   ASSERT( workers_completed[3]);
+   ASSERT(!workers_interrupted[3]);
+   ASSERT( workers_completed[4]);
+   ASSERT(!workers_interrupted[4]);
+   ASSERT(controller_coro_completed);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -196,11 +196,11 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    this_thread::run_coroutines();
 
-   LOFTY_TESTING_ASSERT_EQUAL(workers_awoke[0], 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(workers_awoke[1], 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(workers_awoke[2], 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(workers_awoke[3], 5u);
-   LOFTY_TESTING_ASSERT_EQUAL(workers_awoke[4], 4u);
+   ASSERT(workers_awoke[0] == 3u);
+   ASSERT(workers_awoke[1] == 1u);
+   ASSERT(workers_awoke[2] == 2u);
+   ASSERT(workers_awoke[3] == 5u);
+   ASSERT(workers_awoke[4] == 4u);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -243,10 +243,10 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    this_thread::run_coroutines();
 
    // These assertions include assumptions about scheduling order. Relaxing them would be wise.
-   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[0], 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[1], 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[2], 4u);
-   LOFTY_TESTING_ASSERT_EQUAL(coros_completed[3], 1u);
+   ASSERT(coros_completed[0] == 2u);
+   ASSERT(coros_completed[1] == 3u);
+   ASSERT(coros_completed[2] == 4u);
+   ASSERT(coros_completed[3] == 1u);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -273,7 +273,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
       this_thread::run_coroutines();
 
-      LOFTY_TESTING_ASSERT_TRUE(coro1_completed);
+      ASSERT(coro1_completed);
    });
    thread1.join();
 }
@@ -335,7 +335,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    int noncompleted_coro_index = noncompleted_coro_itr != coros_completed.cend()
       ? static_cast<int>(noncompleted_coro_itr - coros_completed.cbegin())
       : -1;
-   LOFTY_TESTING_ASSERT_EQUAL(noncompleted_coro_index, -1);
+   ASSERT(noncompleted_coro_index == -1);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -391,16 +391,16 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    this_thread::run_coroutines();
 
-   LOFTY_TESTING_ASSERT_EQUAL(resumed[0], 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(resumed[1], 5u);
-   LOFTY_TESTING_ASSERT_EQUAL(resumed[2], 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(resumed[3], 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(resumed[4], 4u);
-   LOFTY_TESTING_ASSERT_FALSE(timedout[0]);
-   LOFTY_TESTING_ASSERT_FALSE(timedout[1]);
-   LOFTY_TESTING_ASSERT_FALSE(timedout[2]);
-   LOFTY_TESTING_ASSERT_TRUE(timedout[3]);
-   LOFTY_TESTING_ASSERT_FALSE(timedout[4]);
+   ASSERT(resumed[0] == 3u);
+   ASSERT(resumed[1] == 5u);
+   ASSERT(resumed[2] == 1u);
+   ASSERT(resumed[3] == 2u);
+   ASSERT(resumed[4] == 4u);
+   ASSERT(!timedout[0]);
+   ASSERT(!timedout[1]);
+   ASSERT(!timedout[2]);
+   ASSERT( timedout[3]);
+   ASSERT(!timedout[4]);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -434,7 +434,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       } catch (io::timeout const &) {
          timedout = true;
       }
-      LOFTY_TESTING_ASSERT_FALSE(timedout);
+      ASSERT(!timedout);
 
       // With stateless events, now event2.wait() would time out.
       try {
@@ -443,7 +443,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       } catch (io::timeout const &) {
          timedout = true;
       }
-      LOFTY_TESTING_ASSERT_FALSE(timedout);
+      ASSERT(!timedout);
 
       // These, on the other hand, must time out.
       try {
@@ -452,14 +452,14 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       } catch (io::timeout const &) {
          timedout = true;
       }
-      LOFTY_TESTING_ASSERT_TRUE(timedout);
+      ASSERT(timedout);
       try {
          event2.wait(5);
          timedout = false;
       } catch (io::timeout const &) {
          timedout = true;
       }
-      LOFTY_TESTING_ASSERT_TRUE(timedout);
+      ASSERT(timedout);
    });
 
    this_thread::run_coroutines();
@@ -505,15 +505,15 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    coroutine coro3([this, &i_mutex, &coro1, &coro2] () {
       coro1.join();
       coro2.join();
-      LOFTY_TESTING_ASSERT_TRUE(i_mutex.try_lock());
+      ASSERT(i_mutex.try_lock());
       i_mutex.unlock();
    });
 
    this_thread::run_coroutines();
 
-   LOFTY_TESTING_ASSERT_EQUAL(i1.load(), 2);
-   LOFTY_TESTING_ASSERT_EQUAL(i2.load(), 3);
-   LOFTY_TESTING_ASSERT_EQUAL(i3.load(), 13);
+   ASSERT(i1.load() == 2);
+   ASSERT(i2.load() == 3);
+   ASSERT(i3.load() == 13);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
@@ -566,11 +566,11 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
       this_thread::run_coroutines();
 
-      LOFTY_TESTING_ASSERT_EQUAL(step, 3u);
-      LOFTY_TESTING_ASSERT_EQUAL(get_returns[0], 0);
-      LOFTY_TESTING_ASSERT_EQUAL(get_returns[1], 2u);
-      LOFTY_TESTING_ASSERT_EQUAL(get_returns[2], 0);
-      LOFTY_TESTING_ASSERT_EQUAL(get_returns[3], 4u);
+      ASSERT(step == 3u);
+      ASSERT(get_returns[0] == 0);
+      ASSERT(get_returns[1] == 2u);
+      ASSERT(get_returns[2] == 0);
+      ASSERT(get_returns[3] == 4u);
    }
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();

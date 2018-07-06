@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2017 Raffaello D. Di Napoli
+Copyright 2011-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -49,11 +49,11 @@ public:
    virtual void run() override {
       LOFTY_TRACE_METHOD();
 
-      LOFTY_TESTING_ASSERT_THROWS(exception, throw_exception());
-      LOFTY_TESTING_ASSERT_THROWS(generic_error, throw_generic_error());
-      LOFTY_TESTING_ASSERT_THROWS(derived1_error, throw_derived1_error());
-      LOFTY_TESTING_ASSERT_THROWS(derived1_error, throw_derived2_error());
-      LOFTY_TESTING_ASSERT_THROWS(derived2_error, throw_derived2_error());
+      ASSERT_THROWS(exception, throw_exception());
+      ASSERT_THROWS(generic_error, throw_generic_error());
+      ASSERT_THROWS(derived1_error, throw_derived1_error());
+      ASSERT_THROWS(derived1_error, throw_derived2_error());
+      ASSERT_THROWS(derived2_error, throw_derived2_error());
    }
 
    void throw_exception() {
@@ -108,7 +108,7 @@ public:
       // Verify that the current scope trace contains this function.
 
       scope_trace = get_scope_trace();
-      LOFTY_TESTING_ASSERT_NOT_EQUAL(scope_trace.find(this_str), scope_trace.cend());
+      ASSERT(scope_trace.find(this_str) != scope_trace.cend());
 
       // Verify that an exception in run_sub_*() generates a scope trace with run_sub_*().
 
@@ -117,20 +117,20 @@ public:
       } catch (_std::exception const & x) {
          scope_trace = get_scope_trace(&x);
       }
-      LOFTY_TESTING_ASSERT_NOT_EQUAL(scope_trace.find(LOFTY_SL("exception_scope_trace::run_sub_2")), scope_trace.cend());
-      LOFTY_TESTING_ASSERT_NOT_EQUAL(scope_trace.find(LOFTY_SL("exception_scope_trace::run_sub_1")), scope_trace.cend());
+      ASSERT(scope_trace.find(LOFTY_SL("exception_scope_trace::run_sub_2")) != scope_trace.cend());
+      ASSERT(scope_trace.find(LOFTY_SL("exception_scope_trace::run_sub_1")) != scope_trace.cend());
       // This method is invoked via the polymorphic lofty::testing::runner class.
-      LOFTY_TESTING_ASSERT_NOT_EQUAL(scope_trace.find(LOFTY_SL("runner::run")), scope_trace.cend());
-      LOFTY_TESTING_ASSERT_NOT_EQUAL(scope_trace.find(this_str), scope_trace.cend());
+      ASSERT(scope_trace.find(LOFTY_SL("runner::run")) != scope_trace.cend());
+      ASSERT(scope_trace.find(this_str) != scope_trace.cend());
 
       // Verify that now the scope trace does not contain run_sub_*().
 
       scope_trace = get_scope_trace();
-      LOFTY_TESTING_ASSERT_EQUAL(scope_trace.find(LOFTY_SL("exception_scope_trace::run_sub_2")), scope_trace.cend());
-      LOFTY_TESTING_ASSERT_EQUAL(scope_trace.find(LOFTY_SL("exception_scope_trace::run_sub_1")), scope_trace.cend());
+      ASSERT(scope_trace.find(LOFTY_SL("exception_scope_trace::run_sub_2")) == scope_trace.cend());
+      ASSERT(scope_trace.find(LOFTY_SL("exception_scope_trace::run_sub_1")) == scope_trace.cend());
       // This method is invoked via the polymorphic lofty::testing::runner class.
-      LOFTY_TESTING_ASSERT_NOT_EQUAL(scope_trace.find(LOFTY_SL("runner::run")), scope_trace.cend());
-      LOFTY_TESTING_ASSERT_NOT_EQUAL(scope_trace.find(this_str), scope_trace.cend());
+      ASSERT(scope_trace.find(LOFTY_SL("runner::run")) != scope_trace.cend());
+      ASSERT(scope_trace.find(this_str) != scope_trace.cend());
    }
 
    static str get_scope_trace(_std::exception const * x = nullptr) {

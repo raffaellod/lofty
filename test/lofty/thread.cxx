@@ -57,37 +57,37 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    thread3.detach();
    thread thread4;
 
-   LOFTY_TESTING_ASSERT_TRUE(thread1.joinable());
-   LOFTY_TESTING_ASSERT_TRUE(thread2.joinable());
-   LOFTY_TESTING_ASSERT_FALSE(thread3.joinable());
-   LOFTY_TESTING_ASSERT_FALSE(thread4.joinable());
+   ASSERT(thread1.joinable());
+   ASSERT(thread2.joinable());
+   ASSERT(!thread3.joinable());
+   ASSERT(!thread4.joinable());
 
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(thread1.id(), thread::id_type(0));
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(thread2.id(), thread::id_type(0));
-   LOFTY_TESTING_ASSERT_EQUAL    (thread3.id(), thread::id_type(0));
-   LOFTY_TESTING_ASSERT_EQUAL    (thread4.id(), thread::id_type(0));
+   ASSERT(thread1.id() != thread::id_type(0));
+   ASSERT(thread2.id() != thread::id_type(0));
+   ASSERT(thread3.id() == thread::id_type(0));
+   ASSERT(thread4.id() == thread::id_type(0));
 
    /* Verify that the string representations are different for joinable thread, and identical for non-joinable
    ones. */
    str thread1_str(to_str(thread1)), thread2_str(to_str(thread2));
    str thread3_str(to_str(thread3)), thread4_str(to_str(thread4));
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(thread1_str, thread2_str);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(thread1_str, thread3_str);
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(thread2_str, thread3_str);
-   LOFTY_TESTING_ASSERT_EQUAL(thread3_str, thread4_str);
-   LOFTY_TESTING_ASSERT_EQUAL(thread4_str, LOFTY_SL("TID:-"));
+   ASSERT(thread1_str != thread2_str);
+   ASSERT(thread1_str != thread3_str);
+   ASSERT(thread2_str != thread3_str);
+   ASSERT(thread3_str == thread4_str);
+   ASSERT(thread4_str == LOFTY_SL("TID:-"));
 
    // Wait for thread1 and thread2 to complete.
    thread1.join();
    thread2.join();
-   LOFTY_TESTING_ASSERT_FALSE(thread1.joinable());
-   LOFTY_TESTING_ASSERT_FALSE(thread2.joinable());
+   ASSERT(!thread1.joinable());
+   ASSERT(!thread2.joinable());
    // Wait for thread3 to complete.
    thread3_terminated.wait();
 
-   LOFTY_TESTING_ASSERT_TRUE(thread1_completed.load());
-   LOFTY_TESTING_ASSERT_TRUE(thread2_completed.load());
-   LOFTY_TESTING_ASSERT_TRUE(thread3_completed.load());
+   ASSERT(thread1_completed.load());
+   ASSERT(thread2_completed.load());
+   ASSERT(thread3_completed.load());
 }
 
 }} //namespace lofty::test
@@ -132,16 +132,16 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       thread.join();
    }
 
-   LOFTY_TESTING_ASSERT_TRUE (workers_completed  [0].load());
-   LOFTY_TESTING_ASSERT_FALSE(workers_interrupted[0].load());
-   LOFTY_TESTING_ASSERT_FALSE(workers_completed  [1].load());
-   LOFTY_TESTING_ASSERT_TRUE (workers_interrupted[1].load());
-   LOFTY_TESTING_ASSERT_FALSE(workers_completed  [2].load());
-   LOFTY_TESTING_ASSERT_TRUE (workers_interrupted[2].load());
-   LOFTY_TESTING_ASSERT_TRUE (workers_completed  [3].load());
-   LOFTY_TESTING_ASSERT_FALSE(workers_interrupted[3].load());
-   LOFTY_TESTING_ASSERT_TRUE (workers_completed  [4].load());
-   LOFTY_TESTING_ASSERT_FALSE(workers_interrupted[4].load());
+   ASSERT( workers_completed  [0].load());
+   ASSERT(!workers_interrupted[0].load());
+   ASSERT(!workers_completed  [1].load());
+   ASSERT( workers_interrupted[1].load());
+   ASSERT(!workers_completed  [2].load());
+   ASSERT( workers_interrupted[2].load());
+   ASSERT( workers_completed  [3].load());
+   ASSERT(!workers_interrupted[3].load());
+   ASSERT( workers_completed  [4].load());
+   ASSERT(!workers_interrupted[4].load());
 }
 
 }} //namespace lofty::test
@@ -184,9 +184,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
          exception_caught = true;
       }
    }
-   LOFTY_TESTING_ASSERT_TRUE(exception_caught);
+   ASSERT(exception_caught);
    // While we’re at it, verify that something was written to stderr while *capturing_stderr was stderr.
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(capturing_stderr->get_str(), str::empty);
+   ASSERT(capturing_stderr->get_str() != str::empty);
 }
 
 }} //namespace lofty::test
@@ -236,10 +236,10 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       }
    }
 
-   LOFTY_TESTING_ASSERT_TRUE(exception_caught);
-   LOFTY_TESTING_ASSERT_FALSE(thread1_completed.load());
+   ASSERT(exception_caught);
+   ASSERT(!thread1_completed.load());
    // While we’re at it, verify that something was written to stderr while *capturing_stderr was stderr.
-   LOFTY_TESTING_ASSERT_NOT_EQUAL(capturing_stderr->get_str(), str::empty);
+   ASSERT(capturing_stderr->get_str() != str::empty);
 }
 
 }} //namespace lofty::test
@@ -285,12 +285,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       threads[i].join();
    }
 
-   LOFTY_TESTING_ASSERT_EQUAL(resumed[0], 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(resumed[1], 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(resumed[2], 2u);
-   LOFTY_TESTING_ASSERT_FALSE(timedout[0]);
-   LOFTY_TESTING_ASSERT_TRUE(timedout[1]);
-   LOFTY_TESTING_ASSERT_FALSE(timedout[2]);
+   ASSERT(resumed[0] == 3u);
+   ASSERT(resumed[1] == 1u);
+   ASSERT(resumed[2] == 2u);
+   ASSERT(!timedout[0]);
+   ASSERT( timedout[1]);
+   ASSERT(!timedout[2]);
 }
 
 }} //namespace lofty::test
@@ -326,12 +326,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    thread1.join();
    thread2.join();
-   LOFTY_TESTING_ASSERT_TRUE(i_mutex.try_lock());
+   ASSERT(i_mutex.try_lock());
    i_mutex.unlock();
 
-   LOFTY_TESTING_ASSERT_EQUAL(i1.load(), 2);
-   LOFTY_TESTING_ASSERT_EQUAL(i2.load(), 3);
-   LOFTY_TESTING_ASSERT_EQUAL(i3.load(), 13);
+   ASSERT(i1.load() == 2);
+   ASSERT(i2.load() == 3);
+   ASSERT(i3.load() == 13);
 }
 
 }} //namespace lofty::test
@@ -388,11 +388,11 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       threads[i].join();
    }
 
-   LOFTY_TESTING_ASSERT_EQUAL(step, 3u);
-   LOFTY_TESTING_ASSERT_EQUAL(get_returns[0], 0);
-   LOFTY_TESTING_ASSERT_EQUAL(get_returns[1], 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(get_returns[2], 0);
-   LOFTY_TESTING_ASSERT_EQUAL(get_returns[3], 4u);
+   ASSERT(step == 3u);
+   ASSERT(get_returns[0] == 0);
+   ASSERT(get_returns[1] == 2);
+   ASSERT(get_returns[2] == 0);
+   ASSERT(get_returns[3] == 4);
 }
 
 }} //namespace lofty::test

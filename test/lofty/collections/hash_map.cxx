@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015, 2017 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -31,66 +31,66 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    collections::hash_map<int, int> map;
 
-   LOFTY_TESTING_ASSERT_EQUAL(map.size(), 0u);
+   ASSERT(map.size() == 0u);
    // These assertions target const begin/end.
-   LOFTY_TESTING_ASSERT_TRUE(map.cbegin() == map.cend());
+   ASSERT((map.cbegin() == map.cend()));
 
    map.add_or_assign(10, 100);
-   LOFTY_TESTING_ASSERT_EQUAL(map.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(map[10], 100);
+   ASSERT(map.size() == 1u);
+   ASSERT(map[10] == 100);
    {
       /* This uses begin(), not cbegin(), so we can test equality comparison between const/non-const
       iterators. */
       auto itr(map.begin());
-      LOFTY_TESTING_ASSERT_EQUAL(itr->key, 10);
-      LOFTY_TESTING_ASSERT_EQUAL(itr->value, 100);
+      ASSERT(itr->key == 10);
+      ASSERT(itr->value == 100);
       ++itr;
-      LOFTY_TESTING_ASSERT_TRUE(itr == map.cend());
+      ASSERT((itr == map.cend()));
    }
 
    map.add_or_assign(20, 200);
-   LOFTY_TESTING_ASSERT_EQUAL(map.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(map[10], 100);
-   LOFTY_TESTING_ASSERT_EQUAL(map[20], 200);
+   ASSERT(map.size() == 2u);
+   ASSERT(map[10] == 100);
+   ASSERT(map[20] == 200);
 
-   LOFTY_TESTING_ASSERT_TRUE(map.remove_if_found(10));
-   LOFTY_TESTING_ASSERT_FALSE(map.remove_if_found(10));
-   LOFTY_TESTING_ASSERT_THROWS(collections::bad_key, map.remove(10));
-   LOFTY_TESTING_ASSERT_EQUAL(map.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(map[20], 200);
-   LOFTY_TESTING_ASSERT_FALSE(map.remove_if_found(10));
+   ASSERT(map.remove_if_found(10));
+   ASSERT(!map.remove_if_found(10));
+   ASSERT_THROWS(collections::bad_key, map.remove(10));
+   ASSERT(map.size() == 1u);
+   ASSERT(map[20] == 200);
+   ASSERT(!map.remove_if_found(10));
 
    map.add_or_assign(22, 220);
-   LOFTY_TESTING_ASSERT_EQUAL(map.size(), 2u);
-   LOFTY_TESTING_ASSERT_EQUAL(map[20], 200);
-   LOFTY_TESTING_ASSERT_EQUAL(map[22], 220);
+   ASSERT(map.size() == 2u);
+   ASSERT(map[20] == 200);
+   ASSERT(map[22] == 220);
    {
       // A little clunky, but neecessary since the order is not guaranteed.
       bool found20 = false, found22 = false;
       for (auto itr(map.begin()); itr != map.cend(); ++itr) {
-         LOFTY_TESTING_ASSERT_TRUE(itr->key == 20 || itr->key == 22);
+         ASSERT((itr->key == 20 || itr->key == 22));
          if (itr->key == 20) {
-            LOFTY_TESTING_ASSERT_FALSE(found20);
-            LOFTY_TESTING_ASSERT_EQUAL(itr->value, 200);
+            ASSERT(!found20);
+            ASSERT(itr->value == 200);
             found20 = true;
          } else if (itr->key == 22) {
-            LOFTY_TESTING_ASSERT_FALSE(found22);
-            LOFTY_TESTING_ASSERT_EQUAL(itr->value, 220);
+            ASSERT(!found22);
+            ASSERT(itr->value == 220);
             found22 = true;
          }
       }
-      LOFTY_TESTING_ASSERT_TRUE(found20);
-      LOFTY_TESTING_ASSERT_TRUE(found22);
+      ASSERT(found20);
+      ASSERT(found22);
    }
 
    map.clear();
-   LOFTY_TESTING_ASSERT_EQUAL(map.size(), 0u);
+   ASSERT(map.size() == 0u);
    // These assertions target non-const begin/end.
-   LOFTY_TESTING_ASSERT_TRUE(map.begin() == map.end());
+   ASSERT((map.begin() == map.end()));
 
    map.add_or_assign(11, 110);
-   LOFTY_TESTING_ASSERT_EQUAL(map.size(), 1u);
-   LOFTY_TESTING_ASSERT_EQUAL(map[11], 110);
+   ASSERT(map.size() == 1u);
+   ASSERT(map[11] == 110);
 
    // Add enough key/value pairs until a resize occurs.
    int key = 11, value = 110;
@@ -102,10 +102,10 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    } while (map.capacity() == initial_capacity);
    /* Verify that some values are still there. Can’t check them all because we don’t know exactly how many we
    ended up adding. */
-   LOFTY_TESTING_ASSERT_EQUAL(map[11], 110);
-   LOFTY_TESTING_ASSERT_EQUAL(map[22], 220);
-   LOFTY_TESTING_ASSERT_EQUAL(map[key - 11], value - 110);
-   LOFTY_TESTING_ASSERT_EQUAL(map[key], value);
+   ASSERT(map[11] == 110);
+   ASSERT(map[22] == 220);
+   ASSERT(map[key - 11] == value - 110);
+   ASSERT(map[key] == value);
 
    // Validate that non-copyable types can be stored in a map.
    {
@@ -157,7 +157,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
          ++errors;
       }
    }
-   LOFTY_TESTING_ASSERT_EQUAL(errors, 0u);
+   ASSERT(errors == 0u);
 
    // Verify that the insertion of later values did not break previously-inserted values.
    errors = 0;
@@ -166,7 +166,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
          ++errors;
       }
    }
-   LOFTY_TESTING_ASSERT_EQUAL(errors, 0u);
+   ASSERT(errors == 0u);
 }
 
 }} //namespace lofty::test
@@ -184,31 +184,31 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    collections::hash_map<int, int> map;
 
    // Should not allow to move an iterator to outside [begin, end].
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(map.cbegin());
-   LOFTY_TESTING_ASSERT_DOES_NOT_THROW(map.cend());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, ++map.cbegin());
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, ++map.cend());
+   ASSERT_DOES_NOT_THROW(map.cbegin());
+   ASSERT_DOES_NOT_THROW(map.cend());
+   ASSERT_THROWS(collections::out_of_range, ++map.cbegin());
+   ASSERT_THROWS(collections::out_of_range, ++map.cend());
 
    // Should not allow to dereference end().
-   LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, *map.cend());
+   ASSERT_THROWS(collections::out_of_range, *map.cend());
 
    {
       auto itr(map.cbegin());
       map.add_or_assign(10, 100);
       // itr has been invalidated by add_or_assign().
-      LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, *itr);
+      ASSERT_THROWS(collections::out_of_range, *itr);
    }
 
    LOFTY_FOR_EACH(auto kv, map) {
-      LOFTY_TESTING_ASSERT_EQUAL(kv.key, 10);
-      LOFTY_TESTING_ASSERT_EQUAL(kv.value, 100);
+      ASSERT(kv.key == 10);
+      ASSERT(kv.value == 100);
    }
 
    {
       auto itr(map.cbegin());
       map.remove(10);
       // itr has been invalidated by remove().
-      LOFTY_TESTING_ASSERT_THROWS(collections::out_of_range, *itr);
+      ASSERT_THROWS(collections::out_of_range, *itr);
    }
 }
 
