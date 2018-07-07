@@ -51,28 +51,24 @@ public:
    /*! Groups assertion metadata, to reduce the number of arguments to log_assertion() and avoid repeated
    construction and destruction of string instances. */
    struct LOFTY_TESTING_SYM assertion_expr {
-      /*! String representation of the evaluated expression (if binary == true) or its left operand (if
-      binary == false). */
+      /*! String representation of the evaluated expression (if binary_op is empty) or its left operand (if
+      binary_op is not empty). */
       str left;
-      //! Expression operator.
-      str oper;
-      //! String representation of the expression’s right operand.
+      //! Binary expression operator.
+      str binary_op;
+      //! String representation of the binary expression’s right operand.
       str right;
       //! true if the assertion was valid, or false otherwise.
       bool pass;
-      //! true if the expression is a binary expression, or false if it’s unary.
-      bool binary;
 
-      /*! Assigns a new value to pass, binary, and oper.
+      /*! Assigns a new value to pass and oper.
 
       @param pass
          true if the assertion was valid, or false otherwise.
-      @param binary
-         true if the expression is a binary expression, or false if it’s unary.
-      @param oper
-         Expression operator.
+      @param binary_op
+         Binary expression operator, or nullptr if the expression is not a binary operator.
       */
-      void set(bool pass, bool binary, char const * oper);
+      void set(bool pass, char const * binary_op);
    };
 
 public:
@@ -100,28 +96,6 @@ public:
    */
    void log_assertion(
       text::file_address const & file_addr, str const & expr, assertion_expr * assertion_expr
-   );
-
-   /*! Logs an assertion.
-
-   @param file_addr
-      Location of the expression.
-   @param pass
-      true if the assertion was valid, or false otherwise.
-   @param expr
-      Source representation of the expression being evaluated.
-   @param operand
-      Applied relational operator.
-   @param expected
-      If pass == true, expression generating the expected value (i.e. the C++ expression, as a string); if
-      pass == false, computed expected value (i.e. the actual value returned by the C++ expression, as a
-      string).
-   @param actual
-      Only used if !pass, this is the computed actual value (i.e. return value of expr), as a string.
-   */
-   void log_assertion(
-      text::file_address const & file_addr, bool pass, str const & expr, str const & operand,
-      str const & expected, str const & actual = str::empty
    );
 
    /*! Prints test results based on the information collected by log_assertion() and run_test_case().

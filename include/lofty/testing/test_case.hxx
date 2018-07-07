@@ -71,7 +71,7 @@ protected:
          if (!pass) {
             assertion_expr->left = to_str(left);
          }
-         assertion_expr->set(pass, false, nullptr);
+         assertion_expr->set(pass, nullptr);
       }
 
 #define LOFTY_RELOP_IMPL(op) \
@@ -85,7 +85,7 @@ protected:
       template <typename Right> \
       pre_stored_expr_result operator op(Right const & right) const { \
          bool pass = left op right ? true : false; \
-         assertion_expr->set(pass, true, LOFTY_SL(#op)); \
+         assertion_expr->set(pass, LOFTY_SL(#op)); \
          if (!pass) { \
             assertion_expr->left = to_str(left); \
             assertion_expr->right = to_str(right); \
@@ -170,32 +170,28 @@ protected:
 
    @param file_addr
       Location of the expression.
-   @param expr_fn
-      Functor wrapping the expression to evaluate.
    @param expr
       Source representation of the expression being evaluated.
+   @param expr_fn
+      Functor wrapping the expression to evaluate.
    */
    void assert_does_not_throw(
-      text::file_address const & file_addr, _std::function<void ()> expr_fn, str const & expr
+      text::file_address const & file_addr, str const & expr, _std::function<void ()> expr_fn
    );
 
    /*! Implementation of LOFTY_TESTING_ASSERT_THROWS().
 
    @param file_addr
       Location of the expression.
-   @param expr_fn
-      Functor wrapping the expression to evaluate.
    @param expr
       Source representation of the expression being evaluated.
-   @param instanceof_fn
-      Functor that checks whether an std::exception instance is of the desired derived type.
-   @param expected_type
-      Expected exception type.
+   @param expr_instanceof_fn
+      Functor wrapping the expression to evaluate. Called with a non-nullptr, if returns whether an
+      std::exception instance is of the desired derived type.
    */
    void assert_throws(
-      text::file_address const & file_addr, _std::function<void ()> expr_fn, str const & expr,
-      _std::function<bool (_std::exception const &)> instanceof_fn,
-      _std::type_info const & expected_type
+      text::file_address const & file_addr, str const & expr,
+      _std::function<bool (_std::exception const *)> expr_instanceof_fn
    );
 
 protected:
@@ -239,10 +235,13 @@ protected:
    Expression to evaluate.
 */
 #define LOFTY_TESTING_ASSERT_DOES_NOT_THROW(expr) \
-   /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. */ \
-   this->assert_does_not_throw(LOFTY_THIS_FILE_ADDRESS(), [&] () { \
-      static_cast<void>(expr); \
-   }, LOFTY_SL(#expr))
+   this->assert_does_not_throw( \
+      LOFTY_THIS_FILE_ADDRESS(), LOFTY_SL(#expr) LOFTY_SL(" does not throw"), \
+      /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. */ \
+      [&] () { \
+         static_cast<void>(expr); \
+      } \
+   )
 
 /*! Asserts that an expression throws a specific type of exception.
 
@@ -252,14 +251,19 @@ protected:
    Expression to evaluate.
 */
 #define LOFTY_TESTING_ASSERT_THROWS(type, expr) \
-   /* Wrap the expression to evaluate in a lambda with access to any variable in the scope; also wrap the
-   dynamic_cast in a lambda, so assert_throws() doesn’t need to be a template to catch the desired type of
-   exception. */ \
-   this->assert_throws(LOFTY_THIS_FILE_ADDRESS(), [&] () { \
-      static_cast<void>(expr); \
-   }, LOFTY_SL(#expr), [] (::lofty::_std::exception const & x) -> bool { \
-      return dynamic_cast<type const *>(&x) != nullptr; \
-   }, typeid(type))
+   this->assert_throws( \
+      LOFTY_THIS_FILE_ADDRESS(), LOFTY_SL(#expr) LOFTY_SL(" throws ") LOFTY_SL(#type), \
+      /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. Also put in the
+      lambda a dynamic_cast to check the type of an exception, so assert_throws() doesn’t need to be a
+      template to do that. */ \
+      [&] (::lofty::_std::exception const * x) -> bool { \
+         if (x) { \
+            return dynamic_cast<type const *>(x) != nullptr; \
+         } \
+         static_cast<void>(expr); \
+         return false; \
+      } \
+   )
 
 #ifndef LOFTY_TESTING_NO_SHORT_ASSERTS
    #define ASSERT                LOFTY_TESTING_ASSERT

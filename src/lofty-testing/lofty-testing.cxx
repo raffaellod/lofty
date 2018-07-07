@@ -87,33 +87,14 @@ void runner::log_assertion(
    ostream->print(format, file_addr, expr);
    if (!assertion_expr_->pass) {
       ++failed_assertions;
-      if (assertion_expr_->binary) {
+      if (assertion_expr_->binary_op) {
          ostream->print(
-            LOFTY_SL("  evaluates to: {} {} {}\n"),
-            assertion_expr_->left, assertion_expr_->oper, assertion_expr_->right
+            LOFTY_SL("  actual: {} {} {}\n"),
+            assertion_expr_->left, assertion_expr_->binary_op, assertion_expr_->right
          );
       } else {
-         ostream->print(LOFTY_SL("  evaluates to: {}\n"), assertion_expr_->left);
+         ostream->print(LOFTY_SL("  actual: {}\n"), assertion_expr_->left);
       }
-   }
-}
-
-void runner::log_assertion(
-   text::file_address const & file_addr, bool pass, str const & expr, str const & operand,
-   str const & expected, str const & actual /*= str::empty*/
-) {
-   if (pass) {
-      ostream->print(
-         LOFTY_SL("COMK-TEST-ASSERT-PASS {}: pass: {} {}{}\n"), file_addr, expr, operand, expected
-      );
-   } else {
-      ++failed_assertions;
-      ostream->print(
-         LOFTY_SL("COMK-TEST-ASSERT-FAIL {}: fail: {}\n")
-            LOFTY_SL("  expected: {}{}\n")
-            LOFTY_SL("  actual:   {}\n"),
-         file_addr, expr, operand, expected, actual
-      );
    }
 }
 
@@ -150,13 +131,12 @@ void runner::run_test_case(class test_case & test_case) {
    ostream->write(LOFTY_SL("COMK-TEST-CASE-END\n"));
 }
 
-void runner::assertion_expr::set(bool pass_, bool binary_, char const * oper_) {
+void runner::assertion_expr::set(bool pass_, char const * binary_op_) {
    pass = pass_;
-   binary = binary_;
-   if (oper_) {
-      oper = str(external_buffer, oper_);
+   if (binary_op_) {
+      binary_op = str(external_buffer, binary_op_);
    } else {
-      oper.clear();
+      binary_op.clear();
    }
 }
 
@@ -181,38 +161,44 @@ void test_case::assert(text::file_address const & file_addr, str const & expr) {
 }
 
 void test_case::assert_does_not_throw(
-   text::file_address const & file_addr, _std::function<void ()> expr_fn, str const & expr
+   text::file_address const & file_addr, str const & expr, _std::function<void ()> expr_fn
 ) {
-   text::sstr<64> caught;
+   assertion_expr.pass = false;
+   assertion_expr.binary_op.clear();
    try {
       expr_fn();
+      assertion_expr.pass = true;
    } catch (_std::exception const & x) {
-      caught.format(LOFTY_SL("throws {}: {}"), typeid(x), text::char_ptr_to_str_adapter(x.what()));
+      assertion_expr.left.format(
+         LOFTY_SL("throws {}: {}"), typeid(x), text::char_ptr_to_str_adapter(x.what())
+      );
    } catch (...) {
-      caught = LOFTY_SL("unknown type");
+      assertion_expr.left = LOFTY_SL("throws an exception of unknown type");
    }
-   runner->log_assertion(file_addr, !caught, expr, str::empty, LOFTY_SL("does not throw"), caught.str());
+   assert(file_addr, expr);
 }
 
 void test_case::assert_throws(
-   text::file_address const & file_addr, _std::function<void ()> expr_fn, str const & expr,
-   _std::function<bool (_std::exception const &)> instanceof_fn, _std::type_info const & expected_type
+   text::file_address const & file_addr, str const & expr,
+   _std::function<bool (_std::exception const *)> expr_instanceof_fn
 ) {
-   bool pass = false;
-   text::sstr<64> caught, expected;
-   expected.format(LOFTY_SL("throws {}"), expected_type);
+   assertion_expr.pass = false;
+   assertion_expr.binary_op.clear();
    try {
-      expr_fn();
-      caught = LOFTY_SL("does not throw");
+      expr_instanceof_fn(nullptr);
+      assertion_expr.left = LOFTY_SL("does not throw");
    } catch (_std::exception const & x) {
-      if (instanceof_fn(x)) {
-         pass = true;
+      if (expr_instanceof_fn(&x)) {
+         assertion_expr.pass = true;
+      } else {
+         assertion_expr.left.format(
+            LOFTY_SL("throws {}: {}"), typeid(x), text::char_ptr_to_str_adapter(x.what())
+         );
       }
-      caught.format(LOFTY_SL("throws {}: {}"), typeid(x), text::char_ptr_to_str_adapter(x.what()));
    } catch (...) {
-      caught = LOFTY_SL("unknown type");
+      assertion_expr.left = LOFTY_SL("throws an exception of unknown type");
    }
-   runner->log_assertion(file_addr, pass, expr, str::empty, expected.str(), caught.str());
+   assert(file_addr, expr);
 }
 
 
