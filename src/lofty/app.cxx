@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -59,68 +59,70 @@ app::app() {
    bool errors = false;
    io::text::stdin.reset();
    io::binary::stdin.reset();
-   try {
-      io::text::stdout->finalize();
-   } catch (_std::exception const & x) {
-      if (io::text::stderr) {
-         try {
-            exception::write_with_scope_trace(nullptr, &x);
-         } catch (...) {
-            // FIXME: EXC-SWALLOW
+   if (auto stdout = _std::dynamic_pointer_cast<io::closeable>(io::text::stdout)) {
+      try {
+         stdout->close();
+      } catch (_std::exception const & x) {
+         if (io::text::stderr) {
+            try {
+               exception::write_with_scope_trace(nullptr, &x);
+            } catch (...) {
+               // FIXME: EXC-SWALLOW
+            }
          }
-      }
-      errors = true;
-   } catch (...) {
-      if (io::text::stderr) {
-         try {
-            exception::write_with_scope_trace();
-         } catch (...) {
-            // FIXME: EXC-SWALLOW
+         errors = true;
+      } catch (...) {
+         if (io::text::stderr) {
+            try {
+               exception::write_with_scope_trace();
+            } catch (...) {
+               // FIXME: EXC-SWALLOW
+            }
          }
+         errors = true;
       }
-      errors = true;
    }
    io::text::stdout.reset();
-   try {
-      io::binary::stdout->finalize();
-   } catch (_std::exception const & x) {
-      if (io::text::stderr) {
-         try {
-            exception::write_with_scope_trace(nullptr, &x);
-         } catch (...) {
-            // FIXME: EXC-SWALLOW
+   if (auto stdout = _std::dynamic_pointer_cast<io::closeable>(io::binary::stdout)) {
+      try {
+         stdout->close();
+      } catch (_std::exception const & x) {
+         if (io::text::stderr) {
+            try {
+               exception::write_with_scope_trace(nullptr, &x);
+            } catch (...) {
+               // FIXME: EXC-SWALLOW
+            }
          }
-      }
-      errors = true;
-   } catch (...) {
-      if (io::text::stderr) {
-         try {
-            exception::write_with_scope_trace();
-         } catch (...) {
-            // FIXME: EXC-SWALLOW
+         errors = true;
+      } catch (...) {
+         if (io::text::stderr) {
+            try {
+               exception::write_with_scope_trace();
+            } catch (...) {
+               // FIXME: EXC-SWALLOW
+            }
          }
+         errors = true;
       }
-      errors = true;
    }
    io::binary::stdout.reset();
-   try {
-      io::text::stderr->finalize();
-   } catch (_std::exception const &) {
-      // FIXME: EXC-SWALLOW
-      errors = true;
-   } catch (...) {
-      // FIXME: EXC-SWALLOW
-      errors = true;
+   if (auto stderr = _std::dynamic_pointer_cast<io::closeable>(io::text::stderr)) {
+      try {
+         stderr->close();
+      } catch (...) {
+         // FIXME: EXC-SWALLOW
+         errors = true;
+      }
    }
    io::text::stderr.reset();
-   try {
-      io::binary::stderr->finalize();
-   } catch (_std::exception const &) {
-      // FIXME: EXC-SWALLOW
-      errors = true;
-   } catch (...) {
-      // FIXME: EXC-SWALLOW
-      errors = true;
+   if (auto stderr = _std::dynamic_pointer_cast<io::closeable>(io::binary::stderr)) {
+      try {
+         stderr->close();
+      } catch (...) {
+         // FIXME: EXC-SWALLOW
+         errors = true;
+      }
    }
    io::binary::stderr.reset();
    return !errors;

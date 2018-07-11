@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -82,11 +82,11 @@ public:
    //! Destructor.
    virtual ~default_buffered_ostream();
 
+   //! See buffered_ostream::close().
+   virtual void close() override;
+
    //! See buffered_ostream::commit_bytes().
    virtual void commit_bytes(std::size_t count) override;
-
-   //! See buffered_ostream::finalize().
-   virtual void finalize() override;
 
    //! See buffered_ostream::flush().
    virtual void flush() override;

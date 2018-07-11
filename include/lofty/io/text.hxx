@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -171,7 +171,7 @@ private:
 namespace lofty { namespace io { namespace text {
 
 //! Implementation of a text (character-based) output stream on top of a binary::buffered_ostream instance.
-class LOFTY_SYM binbuf_ostream : public virtual binbuf_stream, public virtual ostream {
+class LOFTY_SYM binbuf_ostream : public virtual binbuf_stream, public virtual ostream, public closeable {
 public:
    /*! Constructor.
 
@@ -194,8 +194,8 @@ public:
       return buf_bin_ostream;
    }
 
-   //! See ostream::finalize().
-   virtual void finalize() override;
+   //! See closeable::close().
+   virtual void close() override;
 
    //! See ostream::flush().
    virtual void flush() override;

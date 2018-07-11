@@ -15,10 +15,10 @@ more details.
 #include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/collections/vector.hxx>
-#include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/net/udp.hxx>
+#include <lofty/try_finally.hxx>
 
 using namespace lofty;
 
@@ -44,8 +44,11 @@ public:
          auto dgram_data(_std::make_shared<io::binary::memory_stream>());
          {
             auto dgram_ostream(io::text::make_ostream(dgram_data));
-            LOFTY_DEFER_TO_SCOPE_END(dgram_ostream->finalize());
-            dgram_ostream->print(LOFTY_SL("{}\n"), arg);
+            LOFTY_TRY {
+               dgram_ostream->print(LOFTY_SL("{}\n"), arg);
+            } LOFTY_FINALLY {
+               dgram_ostream->close();
+            };
          }
          net::udp::datagram dgram(net::ip::address::localhost_v4, net::ip::port(9081), _std::move(dgram_data));
          LOFTY_LOG(info, LOFTY_SL("client: sending datagram\n"));

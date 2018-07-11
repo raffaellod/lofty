@@ -171,9 +171,6 @@ public:
    //! Truncates the internal buffer so that the next write will occur at offset 0.
    void clear();
 
-   //! See ostream::finalize().
-   virtual void finalize() override;
-
    //! See ostream::flush().
    virtual void flush() override;
 
@@ -218,9 +215,6 @@ public:
 
    //! Destructor.
    virtual ~char_ptr_ostream();
-
-   //! See ostream::finalize().
-   virtual void finalize() override;
 
    //! See ostream::flush().
    virtual void flush() override;

@@ -96,7 +96,27 @@ LOFTY_ENUM_AUTO_VALUES(stdfile,
 
 namespace lofty { namespace io {
 
-//! Wrapper for filedesc_t, to implement RAII; similar to std::unique_ptr.
+/*! Wrapper for filedesc_t, to implement RAII; similar to std::unique_ptr.
+
+While this class guarantees that a file descriptor is closed by the time its destructor is executed, at that
+point any write errors will result in throwing in a destructor, which is an automatic call to
+std::terminate().
+
+In order to properly close a file descriptor opened for writing while checking for errors, close() must be
+called explicitly. This may be done using LOFTY_TRY_FINALLY():
+
+   @verbatim
+   filedesc fd1(…);
+   LOFTY_TRY_FINALLY({
+      // Use fd1.
+   }, {
+      fd1.close();
+   })
+   @endverbatim
+
+Note that Lofty’s classes that operate on file descriptors take care of this internally, implementing
+lofty::io::closeable and requesting that the owner of each instance calls close() on it.
+*/
 class LOFTY_SYM filedesc : public support_explicit_operator_bool<filedesc>, public noncopyable {
 public:
    //! Default constructor.
@@ -138,7 +158,8 @@ public:
    {
    }
 
-   //! Destructor.
+   /*! Destructor. Automatically closes the file descriptor if still open, but errors in doing so will
+   automatically terminate the process. */
    ~filedesc();
 
    /*! Move-assignment operator.
@@ -165,6 +186,11 @@ public:
    void bind_to_this_coroutine_scheduler_iocp();
 #endif
 
+   /*! Closes the file descriptor. This is also called by the destructor; however, should any errors cause an
+   exception to be thrown at that point, the process will be terminated per C++ standard, so it’s best to
+   explicitly call this before the file descriptor is destructed. */
+   void close();
+
    /*! Returns the wrapped raw file descriptor.
 
    @return
@@ -184,9 +210,6 @@ public:
       fd = filedesc_t_null;
       return old_fd;
    }
-
-   //! Closes the file descriptor, ensuring that no error conditions remain possible in the destructor.
-   void safe_close();
 
 #if LOFTY_HOST_API_POSIX
    /*! Sets the NONBLOCK flag.
@@ -273,6 +296,20 @@ struct overlapped : public ::OVERLAPPED {
 
 }} //namespace lofty::io
 #endif //if LOFTY_HOST_API_WIN32
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace io {
+
+//! Interface for (writable) streams that need to be manually closed before being destructed.
+class LOFTY_SYM closeable {
+public:
+   /*! Flushes any write buffers and closes the stream, ensuring that no error conditions remain possible in
+   the destructor. Calling any methods on a closed object results in undefined behavior. */
+   virtual void close() = 0;
+};
+
+}} //namespace lofty::io
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

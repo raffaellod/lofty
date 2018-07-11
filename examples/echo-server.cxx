@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -15,11 +15,11 @@ more details.
 #include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/coroutine.hxx>
-#include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
-#include <lofty/thread.hxx>
 #include <lofty/net/tcp.hxx>
+#include <lofty/thread.hxx>
+#include <lofty/try_finally.hxx>
 
 using namespace lofty;
 
@@ -66,13 +66,15 @@ public:
                   // Create text-mode input and output streams for the connection’s socket.
                   auto socket_istream(io::text::make_istream(conn->socket()));
                   auto socket_ostream(io::text::make_ostream(conn->socket()));
-                  LOFTY_DEFER_TO_SCOPE_END(socket_ostream->finalize());
-
-                  // Read lines from the socket, writing them back to it (echo).
-                  LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
-                     socket_ostream->write_line(line);
-                     socket_ostream->flush();
-                  }
+                  LOFTY_TRY {
+                     // Read lines from the socket, writing them back to it (echo).
+                     LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
+                        socket_ostream->write_line(line);
+                        socket_ostream->flush();
+                     }
+                  } LOFTY_FINALLY {
+                     socket_ostream->close();
+                  };
 
                   LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
                });

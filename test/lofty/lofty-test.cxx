@@ -25,6 +25,7 @@ more details.
 #include <lofty/testing/test_case.hxx>
 #include <lofty/text/char_ptr_to_str_adapter.hxx>
 #include <lofty/thread.hxx>
+#include <lofty/try_finally.hxx>
 #include <lofty/to_str.hxx>
 
 
@@ -213,9 +214,8 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       src[i] = static_cast<std::uint8_t>(i);
    }
 
-   {
-      io::binary::pipe pipe;
-      LOFTY_DEFER_TO_SCOPE_END(pipe.write_end->finalize());
+   io::binary::pipe pipe;
+   LOFTY_TRY {
       // Repeatedly write the buffer to one end of the pipe, and read it back from the other end.
       LOFTY_FOR_EACH(auto copy_number, make_range(1, 5)) {
          LOFTY_UNUSED_ARG(copy_number);
@@ -235,7 +235,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
          }
          ASSERT(errors == 0u);
       }
-   }
+   } LOFTY_FINALLY {
+      pipe.write_end->close();
+   };
 }
 
 }} //namespace lofty::test

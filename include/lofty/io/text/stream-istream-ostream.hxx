@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -379,9 +379,6 @@ namespace lofty { namespace io { namespace text {
 //! Interface for binary (non-text) output.
 class LOFTY_SYM ostream : public virtual stream {
 public:
-   //! Finalizes the underlying backend, ensuring that no error conditions remain possible in the destructor.
-   virtual void finalize() = 0;
-
    //! Flushes the underlying backend.
    virtual void flush() = 0;
 
@@ -396,9 +393,6 @@ public:
    (which it shares with lofty::to_str()), this enables a type-safe variadic alternative to C’s printf, and
    voids the requirement for explicit specification of the argument types (such as %d, %s), much like Python’s
    str.format().
-
-   Because of its type-safety, this method is also the core of @ref stack-tracing, as it allows to print a
-   variable by automatically deducing its type.
 
    The format string passed as first argument can contain “replacement fields” delimited by curly braces (‘{’
    and ‘}’). Anything not contained in curly braces is considered literal text and emitted as-is; the only

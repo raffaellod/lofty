@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -15,11 +15,11 @@ more details.
 #include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/coroutine.hxx>
-#include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/net/tcp.hxx>
 #include <lofty/thread.hxx>
+#include <lofty/try_finally.hxx>
 
 using namespace lofty;
 
@@ -58,32 +58,35 @@ public:
                coroutine([conn] () {
                   LOFTY_TRACE_FUNC();
 
-                  LOFTY_LOG(info,
-                     LOFTY_SL("responder: handling request from {}:{}\n"),
+                  LOFTY_LOG(
+                     info, LOFTY_SL("responder: handling request from {}:{}\n"),
                      conn->remote_address(), conn->remote_port()
                   );
                   // Create text-mode input and output streams for the connection’s socket.
                   auto socket_istream(io::text::make_istream(conn->socket()));
                   auto socket_ostream(io::text::make_ostream(conn->socket(), text::encoding::utf8));
-                  LOFTY_DEFER_TO_SCOPE_END(socket_ostream->finalize());
-                  LOFTY_LOG(info, LOFTY_SL("responder: reading request\n"));
-                  LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
-                     if (!line) {
-                        // The request ends on the first empty line.
-                        break;
+                  LOFTY_TRY {
+                     LOFTY_LOG(info, LOFTY_SL("responder: reading request\n"));
+                     LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
+                        if (!line) {
+                           // The request ends on the first empty line.
+                           break;
+                        }
                      }
-                  }
-                  LOFTY_LOG(info, LOFTY_SL("responder: responding\n"));
+                     LOFTY_LOG(info, LOFTY_SL("responder: responding\n"));
 
-                  // Send the response headers.
-                  socket_ostream->write_line(LOFTY_SL("HTTP/1.0 200 OK"));
-                  socket_ostream->write_line(LOFTY_SL("Content-Type: text/plain; charset=utf-8"));
-                  socket_ostream->write_line(LOFTY_SL("Content-Length: 2"));
-                  socket_ostream->write_line();
-                  socket_ostream->flush();
+                     // Send the response headers.
+                     socket_ostream->write_line(LOFTY_SL("HTTP/1.0 200 OK"));
+                     socket_ostream->write_line(LOFTY_SL("Content-Type: text/plain; charset=utf-8"));
+                     socket_ostream->write_line(LOFTY_SL("Content-Length: 2"));
+                     socket_ostream->write_line();
+                     socket_ostream->flush();
 
-                  // Send the response content.
-                  socket_ostream->write(LOFTY_SL("OK"));
+                     // Send the response content.
+                     socket_ostream->write(LOFTY_SL("OK"));
+                  } LOFTY_FINALLY {
+                     socket_ostream->close();
+                  };
 
                   LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
                });

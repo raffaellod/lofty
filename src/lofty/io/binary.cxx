@@ -15,9 +15,9 @@ more details.
 #include <lofty.hxx>
 #include <lofty/bitmanip.hxx>
 #include <lofty/coroutine.hxx>
-#include <lofty/destructing_unfinalized_object.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/io/binary/memory.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/numeric.hxx>
 #include <lofty/os.hxx>
 #include <lofty/thread.hxx>
@@ -543,7 +543,7 @@ file_istream::file_istream(_pvt::file_init_data * init_data) :
    /* If *this was a file_iostream, the file_ostream destructor has already been called, and this will be a
    no-op; otherwise it’s safe to do it here, since there’s nothing that could fail when closing a file only
    open for reading. */
-   fd.safe_close();
+   fd.close();
 }
 
 /*virtual*/ std::size_t file_istream::read_bytes(void * dst, std::size_t dst_max) /*override*/ {
@@ -630,13 +630,16 @@ file_ostream::file_ostream(_pvt::file_init_data * init_data) :
    /* Verify that fd is no longer open. If that’s not the case, the caller neglected to verify that the OS
    write buffer was flushed successfully. */
    if (fd) {
-      // This will cause a call to std::terminate().
-      LOFTY_THROW(destructing_unfinalized_object, (this));
+      LOFTY_LOG(
+         err, LOFTY_SL("instance of {} @ {} being destructed before close() was invoked on it\n"),
+         typeid(*this), this
+      );
    }
 }
 
-/*virtual*/ void file_ostream::finalize() /*override*/ {
-   fd.safe_close();
+/*virtual*/ void file_ostream::close() /*override*/ {
+   flush();
+   fd.close();
 }
 
 /*virtual*/ void file_ostream::flush() /*override*/ {
@@ -949,7 +952,7 @@ memory_stream::memory_stream(memory_stream && src) :
    buf.mark_as_unused(count);
 }
 
-/*virtual*/ void memory_stream::finalize() /*override*/ {
+/*virtual*/ void memory_stream::close() /*override*/ {
    // Nothing to do.
 }
 

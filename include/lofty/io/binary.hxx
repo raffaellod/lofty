@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -104,10 +104,6 @@ class LOFTY_SYM ostream : public virtual stream {
 public:
    //! Destructor.
    virtual ~ostream();
-
-   /*! Flushes the write buffer and closes the underlying backend, ensuring that no error conditions remain
-   possible in the destructor. */
-   virtual void finalize() = 0;
 
    //! Forces writing any data in the write buffer.
    virtual void flush() = 0;
@@ -318,7 +314,7 @@ protected:
 namespace lofty { namespace io { namespace binary {
 
 //! Interface for buffered output streams that wrap binary output streams.
-class LOFTY_SYM buffered_ostream : public virtual buffered_stream, public ostream {
+class LOFTY_SYM buffered_ostream : public virtual buffered_stream, public ostream, public closeable {
 public:
    //! Destructor.
    virtual ~buffered_ostream();
@@ -392,8 +388,8 @@ protected:
 
 namespace lofty { namespace io { namespace binary { namespace _pvt {
 
-/*! Data collected by open() used to construct a file instance. This is only defined in file.cxx, after the
-necessary header files have been included. */
+/*! Data collected by open() used to construct a file instance. Only defined in the private header of the same
+name. */
 struct file_init_data;
 
 }}}} //namespace lofty::io::binary::_pvt
@@ -461,7 +457,7 @@ protected:
 namespace lofty { namespace io { namespace binary {
 
 //! Binary file output stream.
-class LOFTY_SYM file_ostream : public virtual file_stream, public ostream {
+class LOFTY_SYM file_ostream : public virtual file_stream, public ostream, public closeable {
 public:
    //! See ostream::ostream().
    file_ostream(_pvt::file_init_data * init_data);
@@ -469,8 +465,8 @@ public:
    //! Destructor.
    virtual ~file_ostream();
 
-   //! See ostream::finalize().
-   virtual void finalize() override;
+   //! See closeable::close().
+   virtual void close() override;
 
    //! See ostream::flush().
    virtual void flush() override;

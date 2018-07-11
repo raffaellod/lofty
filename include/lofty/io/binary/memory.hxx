@@ -84,8 +84,8 @@ public:
    virtual offset_t tell() const override;
 
 protected:
-   //! Not used in this implementation; see buffered_ostream::finalize().
-   virtual void finalize() override;
+   //! Not used in this implementation; see buffered_ostream::close().
+   virtual void close() override;
 
    //! Not used in this implementation; see buffered_ostream::flush().
    virtual void flush() override;

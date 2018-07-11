@@ -14,8 +14,9 @@ more details.
 
 #include <lofty.hxx>
 #include <lofty/bitmanip.hxx>
-#include <lofty/destructing_unfinalized_object.hxx>
 #include <lofty/io/binary.hxx>
+#include <lofty/logging.hxx>
+#include <lofty/try_finally.hxx>
 #include "default_buffered.hxx"
 #include "file-subclasses.hxx"
 
@@ -91,8 +92,10 @@ default_buffered_ostream::default_buffered_ostream(_std::shared_ptr<ostream> bin
    /* Verify that the write buffer is empty. If that’s not the case, the caller neglected to verify that
    write_buf and the OS write buffer were flushed successfully. */
    if (write_buf.used_size()) {
-      // This will cause a call to std::terminate().
-      LOFTY_THROW(destructing_unfinalized_object, (this));
+      LOFTY_LOG(
+         err, LOFTY_SL("instance of {} @ {} being destructed before close() was invoked on it\n"),
+         typeid(*this), this
+      );
    }
 }
 
@@ -109,19 +112,24 @@ default_buffered_ostream::default_buffered_ostream(_std::shared_ptr<ostream> bin
    }
 }
 
-/*virtual*/ void default_buffered_ostream::finalize() /*override*/ {
-   // Flush both the write buffer and any lower-level buffers.
-   try {
-      flush_buffer();
-   } catch (...) {
-      // Consider the buffer contents as lost.
-      write_buf.mark_as_unused(write_buf.used_size());
-      /* If this throws a nested exception, std::terminate() will be called; otherwise, we’ll have
-      successfully prevented bin_ostream’s destructor from throwing due to a missed finalize(). */
-      bin_ostream->finalize();
-      throw;
-   }
-   bin_ostream->finalize();
+/*virtual*/ void default_buffered_ostream::close() /*override*/ {
+   LOFTY_TRY {
+      try {
+         flush_buffer();
+      } catch (...) {
+         // Consider the buffer contents as lost.
+         write_buf.mark_as_unused(write_buf.used_size());
+         throw;
+      }
+   } LOFTY_FINALLY {
+      if (bin_ostream.use_count() == 1) {
+         // This is the last owner of bin_ostream, unless another thread is running weak_ptr::lock() on it.
+         if (auto closeable_bin_ostream = _std::dynamic_pointer_cast<closeable>(bin_ostream)) {
+            // Flush lower-level buffers, so bin_ostream won’t complain that its close() method wasn’t called.
+            closeable_bin_ostream->close();
+         }
+      }
+   };
 }
 
 /*virtual*/ void default_buffered_ostream::flush() /*override*/ {

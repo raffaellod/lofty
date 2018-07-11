@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -15,12 +15,12 @@ more details.
 #include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/coroutine.hxx>
-#include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/range.hxx>
 #include <lofty/thread.hxx>
+#include <lofty/try_finally.hxx>
 
 using namespace lofty;
 
@@ -81,30 +81,33 @@ public:
       coroutine([this, &pipe] () {
          LOFTY_TRACE_FUNC();
 
-         /* Ensure that the pipe’s write end is finalized (closed) even in case of exceptions. In a real
-         application, we would check for exceptions when doing so. This will be reported as EOF on the read
-         end. */
+         /* Ensure that the pipe’s write end is closed even in case of exceptions. In a real application, we
+         would check for exceptions when doing so. This will be reported as EOF on the read end. */
 #if LOFTY_HOST_CXX_MSC == 1600
          // MSC16 BUG: does not like capturing a captured variable.
          auto pipe_write_end(pipe.write_end);
-         LOFTY_DEFER_TO_SCOPE_END(pipe_write_end->finalize());
-#else
-         LOFTY_DEFER_TO_SCOPE_END(pipe.write_end->finalize());
 #endif
+         LOFTY_TRY {
+            io::text::stdout->write_line(LOFTY_SL("writer: starting"));
+            LOFTY_FOR_EACH(int i, make_range(1, 10)) {
+               io::text::stdout->print(LOFTY_SL("writer: writing {}\n"), i);
+               // This will cause a context switch if the write would block.
+               pipe.write_end->write(i);
+               // Execution resumes here, after other coroutines have received CPU time.
 
-         io::text::stdout->write_line(LOFTY_SL("writer: starting"));
-         LOFTY_FOR_EACH(int i, make_range(1, 10)) {
-            io::text::stdout->print(LOFTY_SL("writer: writing {}\n"), i);
-            // This will cause a context switch if the write would block.
-            pipe.write_end->write(i);
-            // Execution resumes here, after other coroutines have received CPU time.
-
-            /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be scheduled,
-            as well as create a more realistic non-continuous data flow into the pipe. */
-            io::text::stdout->write_line(LOFTY_SL("writer: yielding"));
-            this_coroutine::sleep_for_ms(50);
-            // Execution resumes here, after other coroutines have received CPU time.
-         }
+               /* Halt this coroutine for a few milliseconds. This will give the reader a chance to be scheduled,
+               as well as create a more realistic non-continuous data flow into the pipe. */
+               io::text::stdout->write_line(LOFTY_SL("writer: yielding"));
+               this_coroutine::sleep_for_ms(50);
+               // Execution resumes here, after other coroutines have received CPU time.
+            }
+         } LOFTY_FINALLY {
+#if LOFTY_HOST_CXX_MSC == 1600
+            pipe_write_end->close();
+#else
+            pipe.write_end->close();
+#endif
+         };
          io::text::stdout->write_line(LOFTY_SL("writer: terminating"));
       });
 

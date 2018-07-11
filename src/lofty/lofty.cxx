@@ -16,7 +16,6 @@ more details.
 #include <lofty/bitmanip.hxx>
 #include <lofty/byte_order.hxx>
 #include <lofty/collections/queue.hxx>
-#include <lofty/destructing_unfinalized_object.hxx>
 #include <lofty/event.hxx>
 #include <lofty/from_str.hxx>
 #include <lofty/io/text.hxx>
@@ -65,32 +64,6 @@ extern "C" ::BOOL WINAPI DllMain(::HINSTANCE hinst, ::DWORD reason, void * reser
    return true;
 }
 #endif //if LOFTY_HOST_API_WIN32
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty {
-
-destructing_unfinalized_object::destructing_unfinalized_object(destructing_unfinalized_object const & src) :
-   exception(src) {
-}
-
-/*virtual*/ destructing_unfinalized_object::~destructing_unfinalized_object() LOFTY_STL_NOEXCEPT_TRUE() {
-}
-
-destructing_unfinalized_object & destructing_unfinalized_object::operator=(
-   destructing_unfinalized_object const & src
-) {
-   exception::operator=(src);
-   return *this;
-}
-
-void destructing_unfinalized_object::write_what(void const * o, _std::type_info const & type) {
-   what_ostream().print(
-      LOFTY_SL("instance of {} @ {} being destructed before finalize() was invoked on it"), type, o
-   );
-}
-
-} //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

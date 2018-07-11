@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -202,7 +202,7 @@ binbuf_ostream::binbuf_ostream(
 }
 
 /*virtual*/ binbuf_ostream::~binbuf_ostream() {
-   // Let buf_bin_ostream detect whether finalize() was not called.
+   // Let buf_bin_ostream detect whether close() was not called.
 }
 
 /*virtual*/ _std::shared_ptr<binary::buffered_stream> binbuf_ostream::_binary_buffered_stream(
@@ -210,8 +210,8 @@ binbuf_ostream::binbuf_ostream(
    return buf_bin_ostream;
 }
 
-/*virtual*/ void binbuf_ostream::finalize() /*override*/ {
-   buf_bin_ostream->finalize();
+/*virtual*/ void binbuf_ostream::close() /*override*/ {
+   buf_bin_ostream->close();
 }
 
 /*virtual*/ void binbuf_ostream::flush() /*override*/ {

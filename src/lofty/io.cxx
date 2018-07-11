@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,6 +13,7 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
+#include <lofty/logging.hxx>
 #include <lofty/thread.hxx>
 #include "coroutine-scheduler.hxx"
 
@@ -37,20 +38,18 @@ filedesc_t const filedesc_t_null =
 
 filedesc::~filedesc() {
    if (fd != filedesc_t_null) {
-      // Ignore errors.
-#if LOFTY_HOST_API_POSIX
-      ::close(fd);
-#elif LOFTY_HOST_API_WIN32
-      ::CloseHandle(fd);
-#else
-   #error "TODO: HOST_API"
-#endif
+      /* Unlike classes that implement io::closeable, we don’t warn about it not having being called, because
+      there are many things (especially in Linux/BSD) using file descriptors that won’t generate errors when
+      being closed, and it would be annoying to bug about those. */
+      close();
    }
 }
 
 filedesc & filedesc::operator=(filedesc && src) {
    if (src.fd != fd) {
-      safe_close();
+      if (fd != filedesc_t_null) {
+         close();
+      }
       fd = src.fd;
 #if LOFTY_HOST_API_WIN32
       iocp_fd = src.iocp_fd;
@@ -89,20 +88,18 @@ void filedesc::bind_to_this_coroutine_scheduler_iocp() {
 }
 #endif
 
-void filedesc::safe_close() {
-   if (fd != filedesc_t_null) {
+void filedesc::close() {
 #if LOFTY_HOST_API_POSIX
-      bool err = (::close(fd) < 0);
+   bool err = (::close(fd) < 0);
 #elif LOFTY_HOST_API_WIN32
-      bool err = !::CloseHandle(fd);
+   bool err = !::CloseHandle(fd);
 #else
    #error "TODO: HOST_API"
 #endif
-      // Yes, this will discard (leak) the file descriptor in case of errors.
-      fd = filedesc_t_null;
-      if (err) {
-         exception::throw_os_error();
-      }
+   // Yes, this will discard (leak) the file descriptor in case of errors.
+   fd = filedesc_t_null;
+   if (err) {
+      exception::throw_os_error();
    }
 }
 

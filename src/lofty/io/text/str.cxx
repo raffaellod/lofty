@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -153,10 +153,6 @@ void str_ostream::clear() {
    char_offset = 0;
 }
 
-/*virtual*/ void str_ostream::finalize() /*override*/ {
-   // Nothing to do.
-}
-
 /*virtual*/ void str_ostream::flush() /*override*/ {
    // Nothing to do.
 }
@@ -221,10 +217,6 @@ char_ptr_ostream::char_ptr_ostream(char_ptr_ostream && src) :
       NUL terminator. */
       *write_buf = '\0';
    }
-}
-
-/*virtual*/ void char_ptr_ostream::finalize() /*override*/ {
-   // Nothing to do.
 }
 
 /*virtual*/ void char_ptr_ostream::flush() /*override*/ {

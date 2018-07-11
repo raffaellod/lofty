@@ -37,7 +37,7 @@ _std::shared_ptr<ostream> stdout;
 TODO: document this behavior and the related environment variables.
 
 TODO: make the below code only pick up variables meant for this PID. This should eventually be made more
-general, as a way for a Lofty-based parent process to communicate with a Lofty-based child process. Thought
+general, as a way for a Lofty-based parent process to communicate with a Lofty-based child process. Though
 maybe a better way is to pass a command-line argument that triggers Lofty-specific behavior, so that it’s
 inherently PID-specific.
 
