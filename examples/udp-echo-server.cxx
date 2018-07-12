@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2017 Raffaello D. Di Napoli
+Copyright 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -15,7 +15,6 @@ more details.
 #include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/coroutine.hxx>
-#include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/thread.hxx>

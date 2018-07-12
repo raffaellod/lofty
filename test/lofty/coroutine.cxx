@@ -14,7 +14,6 @@ more details.
 
 #include <lofty.hxx>
 #include <lofty/coroutine.hxx>
-#include <lofty/defer_to_scope_end.hxx>
 #include <lofty/event.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/keyed_demux.hxx>
@@ -24,6 +23,7 @@ more details.
 #include <lofty/testing/test_case.hxx>
 #include <lofty/thread.hxx>
 #include <lofty/to_str.hxx>
+#include <lofty/try_finally.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,13 +88,13 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    /* Temporarily redirect stderr to a local string stream, so the exception trace from the coroutine won’t
    show in the test output. */
    auto capturing_stderr(_std::make_shared<io::text::str_ostream>());
-   {
-      auto old_stderr(io::text::stderr);
-      io::text::stderr = capturing_stderr;
-      LOFTY_DEFER_TO_SCOPE_END(io::text::stderr = _std::move(old_stderr));
-
+   auto old_stderr(io::text::stderr);
+   io::text::stderr = capturing_stderr;
+   LOFTY_TRY {
       this_thread::run_coroutines();
-   }
+   } LOFTY_FINALLY {
+      io::text::stderr = _std::move(old_stderr);
+   };
 
    // While we’re at it, verify that something was written to stderr while *capturing_stderr was stderr.
    ASSERT(capturing_stderr->get_str() != str::empty);

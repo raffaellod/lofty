@@ -13,8 +13,8 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #include <lofty.hxx>
-#include <lofty/defer_to_scope_end.hxx>
 #include <lofty/thread.hxx>
+#include <lofty/try_finally.hxx>
 #include "coroutine-scheduler.hxx"
 #include "_pvt/signal_dispatcher.hxx"
 #include "thread-impl.hxx"
@@ -183,11 +183,14 @@ void thread::impl::join() {
       _pvt::signal_dispatcher::instance().nonmain_thread_started(this_pimpl);
       // Report that this thread is done with writing to *this_pimpl.
       this_pimpl->started_event_ptr->trigger();
-      /* Afer the user’s main() returns we’ll set terminating_ to true, so no exceptions can be injected
+      /* After the user’s main() returns we’ll set terminating_ to true, so no exceptions can be injected
       beyond this scope. A simple bool flag will work because it’s only accessed by this thread (POSIX) or
       when this thread is suspended (Win32). */
-      LOFTY_DEFER_TO_SCOPE_END(this_pimpl->terminating_.store(true));
-      this_pimpl->inner_main_fn();
+      LOFTY_TRY {
+         this_pimpl->inner_main_fn();
+      } LOFTY_FINALLY {
+         this_pimpl->terminating_.store(true);
+      };
    } catch (_std::exception const & x) {
       exception::write_with_scope_trace(nullptr, &x);
       uncaught_exception = true;
@@ -209,32 +212,36 @@ void thread::impl::join() {
 void thread::impl::start(_std::shared_ptr<impl> * this_pimpl_ptr) {
    event started_event;
    started_event_ptr = &started_event;
-   LOFTY_DEFER_TO_SCOPE_END(started_event_ptr = nullptr);
+   LOFTY_TRY {
 #if LOFTY_HOST_API_POSIX
-   /* In order to have the new thread block signals reserved for the main thread, block them on the current
-   thread, then create the new thread, and restore them back. */
-   ::sigset_t blocked_sigset, orig_sigset;
-   sigemptyset(&blocked_sigset);
-   sigaddset(&blocked_sigset, SIGINT);
-   sigaddset(&blocked_sigset, SIGTERM);
-   ::pthread_sigmask(SIG_BLOCK, &blocked_sigset, &orig_sigset);
-   {
-      // Reset this thread’s signal mask to orig_sigset right after (failing to?) create the thread.
-      LOFTY_DEFER_TO_SCOPE_END(::pthread_sigmask(SIG_BLOCK, &orig_sigset, nullptr));
-      if (int err = ::pthread_create(&handle, nullptr, &outer_main, this_pimpl_ptr)) {
-         exception::throw_os_error(err);
-      }
-   }
+      /* In order to have the new thread block signals reserved for the main thread, block them on the current
+      thread, then create the new thread, and restore them back. */
+      ::sigset_t blocked_sigset, orig_sigset;
+      sigemptyset(&blocked_sigset);
+      sigaddset(&blocked_sigset, SIGINT);
+      sigaddset(&blocked_sigset, SIGTERM);
+      ::pthread_sigmask(SIG_BLOCK, &blocked_sigset, &orig_sigset);
+      LOFTY_TRY {
+         if (int err = ::pthread_create(&handle, nullptr, &outer_main, this_pimpl_ptr)) {
+            exception::throw_os_error(err);
+         }
+      } LOFTY_FINALLY {
+         // Reset this thread’s signal mask to orig_sigset right after (failing to?) create the thread.
+         ::pthread_sigmask(SIG_BLOCK, &orig_sigset, nullptr);
+      };
 #elif LOFTY_HOST_API_WIN32
-   handle = ::CreateThread(nullptr, 0, &outer_main, this_pimpl_ptr, 0, nullptr);
-   if (!handle) {
-      exception::throw_os_error();
-   }
+      handle = ::CreateThread(nullptr, 0, &outer_main, this_pimpl_ptr, 0, nullptr);
+      if (!handle) {
+         exception::throw_os_error();
+      }
 #else
    #error "TODO: HOST_API"
 #endif
-   // Block until the new thread is finished updating *this.
-   started_event.wait();
+      // Block until the new thread is finished updating *this.
+      started_event.wait();
+   } LOFTY_FINALLY {
+      started_event_ptr = nullptr;
+   };
 }
 
 } //namespace lofty

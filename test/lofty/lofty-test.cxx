@@ -14,7 +14,6 @@ more details.
 
 #include <lofty.hxx>
 #include <lofty/coroutine.hxx>
-#include <lofty/defer_to_scope_end.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/io/binary/memory.hxx>
 #include <lofty/logging.hxx>
@@ -87,25 +86,6 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
-}
-
-}} //namespace lofty::test
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty { namespace test {
-
-LOFTY_TESTING_TEST_CASE_FUNC(
-   defer_to_scope_end_basic,
-   "LOFTY_DEFER_TO_SCOPE_END() – basic operation"
-) {
-   LOFTY_TRACE_FUNC();
-
-   unsigned deferred_invocations = 0;
-   {
-      LOFTY_DEFER_TO_SCOPE_END(++deferred_invocations);
-   }
-   ASSERT(deferred_invocations == 1u);
 }
 
 }} //namespace lofty::test
@@ -367,6 +347,27 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    ASSERT(to_str(text::char_ptr_to_str_adapter("ab")) == LOFTY_SL("ab"));
    ASSERT(to_str(text::char_ptr_to_str_adapter("abc")) == LOFTY_SL("abc"));
    ASSERT(to_str(text::char_ptr_to_str_adapter("ab\0c")) == LOFTY_SL("ab"));
+}
+
+}} //namespace lofty::test
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace test {
+
+LOFTY_TESTING_TEST_CASE_FUNC(
+   try_finally_basic,
+   "LOFTY_TRY/FINALLY – basic operation"
+) {
+   LOFTY_TRACE_FUNC();
+
+   int result = 3;
+   LOFTY_TRY {
+      result += 5;
+   } LOFTY_FINALLY {
+      result -= 2;
+   };
+   ASSERT(result == 6);
 }
 
 }} //namespace lofty::test
