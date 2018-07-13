@@ -422,8 +422,8 @@ void coroutine::scheduler::block_active(
    struct ::kevent fd_ke, timer_ke;
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    decltype(coros_blocked_by_timer_fd)::iterator timer_block_itr;
-   bool event_set = false, fd_set = false, timeout_set = false;
 #endif
+   bool event_set = false, fd_set = false, timeout_set = false;
    _std::shared_ptr<impl> coro_pimpl(active_coro_pimpl);
    LOFTY_TRY {
       if (event_id) {
