@@ -68,7 +68,7 @@ public:
       @param binary_op
          Binary expression operator, or nullptr if the expression is not a binary operator.
       */
-      void set(bool pass, char const * binary_op);
+      void set(bool pass, char_t const * binary_op);
    };
 
 public:

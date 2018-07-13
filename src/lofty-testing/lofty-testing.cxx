@@ -131,7 +131,7 @@ void runner::run_test_case(class test_case & test_case) {
    ostream->write(LOFTY_SL("COMK-TEST-CASE-END\n"));
 }
 
-void runner::assertion_expr::set(bool pass_, char const * binary_op_) {
+void runner::assertion_expr::set(bool pass_, char_t const * binary_op_) {
    pass = pass_;
    if (binary_op_) {
       binary_op = str(external_buffer, binary_op_);
