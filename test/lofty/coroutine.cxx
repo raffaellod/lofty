@@ -568,9 +568,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
       ASSERT(step == 3u);
       ASSERT(get_returns[0] == 0);
-      ASSERT(get_returns[1] == 2u);
+      ASSERT(get_returns[1] == 2);
       ASSERT(get_returns[2] == 0);
-      ASSERT(get_returns[3] == 4u);
+      ASSERT(get_returns[3] == 4);
    }
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();
