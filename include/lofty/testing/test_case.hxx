@@ -28,6 +28,10 @@ Classes and macros to help write test cases and assertions. */
 #include <lofty/testing/runner.hxx>
 #include <lofty/to_str.hxx>
 
+#if LOFTY_HOST_CXX_MSC
+   // At some point, assert() gets defined; make sure it’s not.
+   #undef assert
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
