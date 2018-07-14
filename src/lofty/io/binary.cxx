@@ -540,10 +540,12 @@ file_istream::file_istream(_pvt::file_init_data * init_data) :
 }
 
 /*virtual*/ file_istream::~file_istream() {
-   /* If *this was a file_iostream, the file_ostream destructor has already been called, and this will be a
-   no-op; otherwise it’s safe to do it here, since there’s nothing that could fail when closing a file only
-   open for reading. */
-   fd.close();
+   if (fd) {
+      /* If *this was a file_iostream, the file_ostream destructor has already been called, and this will be a
+      no-op; otherwise it’s safe to do it here, since there’s nothing that could fail when closing a file only
+      open for reading. */
+      fd.close();
+   }
 }
 
 /*virtual*/ std::size_t file_istream::read_bytes(void * dst, std::size_t dst_max) /*override*/ {
@@ -634,6 +636,7 @@ file_ostream::file_ostream(_pvt::file_init_data * init_data) :
          err, LOFTY_SL("instance of {} @ {} being destructed before close() was invoked on it\n"),
          typeid(*this), this
       );
+      fd.close();
    }
 }
 
