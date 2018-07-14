@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -89,7 +89,9 @@ protected:
 
    protected:
       //! Moves the iterator to next used bucket.
-      void increment();
+      void increment() {
+         bucket = owner_map->find_first_used_bucket(bucket + 1);
+      }
 
       /*! Throws a collections::out_of_range exception if the iterator is at the end of the container or has
       been invalidated by a change in the container. */
@@ -200,6 +202,15 @@ protected:
       Adapter for the value type.
    */
    void clear(type_void_adapter const & key_type, type_void_adapter const & value_type);
+
+   /*! Finds the first used bucket, if any.
+
+   @param skip
+      Optional number of buckets to skip from the start.
+   @return
+      Index of the first used bucket, or null_index if there are no used buckets.
+   */
+   std::size_t find_first_used_bucket(std::size_t skip = 0) const;
 
    /*! Returns the neighborhood index (index of the first bucket in a neighborhood) for the given hash.
 

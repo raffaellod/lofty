@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -234,6 +234,16 @@ std::size_t hash_map_impl::find_empty_bucket_outside_neighborhood(
    return empty_bucket_;
 }
 
+std::size_t hash_map_impl::find_first_used_bucket(std::size_t skip /*= 0*/) const {
+   auto hashes_begin = hashes.get(), hashes_end = hashes_begin + total_buckets;
+   for (auto hash_ptr = hashes_begin + skip; hash_ptr < hashes_end; ++hash_ptr) {
+      if (*hash_ptr != empty_bucket_hash) {
+         return static_cast<std::size_t>(hash_ptr - hashes_begin);
+      }
+   }
+   return null_index;
+}
+
 std::size_t hash_map_impl::get_empty_bucket_for_key(
    type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t key_hash
 ) {
@@ -386,19 +396,6 @@ hash_map_impl::iterator_base::iterator_base(hash_map_impl const * owner_map_, st
    owner_map(owner_map_),
    bucket(bucket_),
    rev(owner_map->rev) {
-}
-
-void hash_map_impl::iterator_base::increment() {
-   for (;;) {
-      ++bucket;
-      if (bucket >= owner_map->total_buckets) {
-         bucket = null_index;
-         return;
-      }
-      if (owner_map->hashes[bucket] != empty_bucket_hash) {
-         return;
-      }
-   }
 }
 
 void hash_map_impl::iterator_base::validate() const {

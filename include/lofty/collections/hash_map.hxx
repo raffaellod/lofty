@@ -362,9 +362,7 @@ public:
       Iterator to the first key/value pair.
    */
    iterator begin() {
-      iterator itr(this, null_index);
-      itr.increment();
-      return _std::move(itr);
+      return iterator(this, find_first_used_bucket());
    }
 
    /*! Returns a const iterator set to the first key/value pair in the map.
