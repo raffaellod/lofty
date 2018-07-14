@@ -58,25 +58,29 @@ public:
                coroutine([conn] () {
                   LOFTY_TRACE_FUNC();
 
-                  LOFTY_LOG(
-                     info, LOFTY_SL("responder: starting for {}:{}\n"),
-                     conn->remote_address(), conn->remote_port()
-                  );
-
-                  // Create text-mode input and output streams for the connection’s socket.
-                  auto socket_istream(io::text::make_istream(conn->socket()));
-                  auto socket_ostream(io::text::make_ostream(conn->socket()));
                   LOFTY_TRY {
-                     // Read lines from the socket, writing them back to it (echo).
-                     LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
-                        socket_ostream->write_line(line);
-                        socket_ostream->flush();
-                     }
-                  } LOFTY_FINALLY {
-                     socket_ostream->close();
-                  };
+                     LOFTY_LOG(
+                        info, LOFTY_SL("responder: starting for {}:{}\n"),
+                        conn->remote_address(), conn->remote_port()
+                     );
 
-                  LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
+                     // Create text-mode input and output streams for the connection’s socket.
+                     auto socket_istream(io::text::make_istream(conn->socket()));
+                     auto socket_ostream(io::text::make_ostream(conn->socket()));
+                     LOFTY_TRY {
+                        // Read lines from the socket, writing them back to it (echo).
+                        LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
+                           socket_ostream->write_line(line);
+                           socket_ostream->flush();
+                        }
+                     } LOFTY_FINALLY {
+                        socket_ostream->close();
+                     };
+
+                     LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
+                  } LOFTY_FINALLY {
+                     conn->socket()->close();
+                  };
                });
             }
          } catch (execution_interruption const &) {

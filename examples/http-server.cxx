@@ -58,37 +58,41 @@ public:
                coroutine([conn] () {
                   LOFTY_TRACE_FUNC();
 
-                  LOFTY_LOG(
-                     info, LOFTY_SL("responder: handling request from {}:{}\n"),
-                     conn->remote_address(), conn->remote_port()
-                  );
-                  // Create text-mode input and output streams for the connection’s socket.
-                  auto socket_istream(io::text::make_istream(conn->socket()));
-                  auto socket_ostream(io::text::make_ostream(conn->socket(), text::encoding::utf8));
                   LOFTY_TRY {
-                     LOFTY_LOG(info, LOFTY_SL("responder: reading request\n"));
-                     LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
-                        if (!line) {
-                           // The request ends on the first empty line.
-                           break;
+                     LOFTY_LOG(
+                        info, LOFTY_SL("responder: handling request from {}:{}\n"),
+                        conn->remote_address(), conn->remote_port()
+                     );
+                     // Create text-mode input and output streams for the connection’s socket.
+                     auto socket_istream(io::text::make_istream(conn->socket()));
+                     auto socket_ostream(io::text::make_ostream(conn->socket(), text::encoding::utf8));
+                     LOFTY_TRY {
+                        LOFTY_LOG(info, LOFTY_SL("responder: reading request\n"));
+                        LOFTY_FOR_EACH(auto & line, socket_istream->lines()) {
+                           if (!line) {
+                              // The request ends on the first empty line.
+                              break;
+                           }
                         }
-                     }
-                     LOFTY_LOG(info, LOFTY_SL("responder: responding\n"));
+                        LOFTY_LOG(info, LOFTY_SL("responder: responding\n"));
 
-                     // Send the response headers.
-                     socket_ostream->write_line(LOFTY_SL("HTTP/1.0 200 OK"));
-                     socket_ostream->write_line(LOFTY_SL("Content-Type: text/plain; charset=utf-8"));
-                     socket_ostream->write_line(LOFTY_SL("Content-Length: 2"));
-                     socket_ostream->write_line();
-                     socket_ostream->flush();
+                        // Send the response headers.
+                        socket_ostream->write_line(LOFTY_SL("HTTP/1.0 200 OK"));
+                        socket_ostream->write_line(LOFTY_SL("Content-Type: text/plain; charset=utf-8"));
+                        socket_ostream->write_line(LOFTY_SL("Content-Length: 2"));
+                        socket_ostream->write_line();
+                        socket_ostream->flush();
 
-                     // Send the response content.
-                     socket_ostream->write(LOFTY_SL("OK"));
+                        // Send the response content.
+                        socket_ostream->write(LOFTY_SL("OK"));
+                     } LOFTY_FINALLY {
+                        socket_ostream->close();
+                     };
+
+                     LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
                   } LOFTY_FINALLY {
-                     socket_ostream->close();
+                     conn->socket()->close();
                   };
-
-                  LOFTY_LOG(info, LOFTY_SL("responder: terminating\n"));
                });
             }
          } catch (execution_interruption const &) {
