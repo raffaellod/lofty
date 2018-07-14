@@ -319,7 +319,7 @@ coroutine::scheduler::scheduler() :
 }
 
 coroutine::scheduler::~scheduler() {
-   // TODO: verify that ready_coros_queue and coros_blocked_by_fd (and coros_blocked_by_timer_ke…) are empty.
+   // TODO: verify that ready_coros_queue and coros_blocked_by_* are empty.
 #if LOFTY_HOST_API_WIN32
    if (non_iocp_events_thread_handle) {
       stop_non_iocp_events_thread.store(true);
@@ -955,7 +955,9 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::find_coroutine_to_activa
 }
 
 void coroutine::scheduler::interrupt_all() {
-   // Interrupt all coroutines using pending_x_type.
+   /* Interrupt all coroutines using pending_x_type.
+   Note that a coroutine could be in more than one of the coros_blocked_by_* collections, but multiple calls
+   to coroutine::impl::inject_exception() will only call add_ready() once. */
    auto x_type = interruption_reason_x_type.load();
    {
       /* TODO: using a different locking pattern, this work could be split across multiple threads, in case
@@ -963,12 +965,16 @@ void coroutine::scheduler::interrupt_all() {
       _std::unique_lock<_std::mutex> lock(coros_add_remove_mutex);
       while (coros_blocked_by_fd) {
          auto coro_pimpl(coros_blocked_by_fd.pop().value);
+         // Make the coroutine aware that it’s no longer waiting for I/O.
+         coro_pimpl->blocking_fd = io::filedesc_t_null;
          lock.unlock();
          coro_pimpl->inject_exception(coro_pimpl, x_type);
          lock.lock();
       }
       while (coros_blocked_by_event) {
          auto coro_pimpl(coros_blocked_by_fd.pop().value);
+         // Make the coroutine aware that it’s no longer waiting for the event.
+         coro_pimpl->blocking_event_id = 0;
          lock.unlock();
          coro_pimpl->inject_exception(coro_pimpl, x_type);
          lock.lock();
@@ -976,6 +982,8 @@ void coroutine::scheduler::interrupt_all() {
 #if LOFTY_HOST_API_BSD
       while (coros_blocked_by_timer_ke) {
          auto coro_pimpl(coros_blocked_by_timer_ke.pop().value);
+         // Make the coroutine aware that it’s no longer waiting on a timeout.
+         coro_pimpl->blocking_time_millisecs = 0;
          lock.unlock();
          coro_pimpl->inject_exception(coro_pimpl, x_type);
          lock.lock();
@@ -983,6 +991,8 @@ void coroutine::scheduler::interrupt_all() {
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
       while (coros_blocked_by_timer_fd) {
          auto coro_pimpl(coros_blocked_by_timer_fd.pop_front());
+         // Make the coroutine aware that it’s no longer waiting on a timeout.
+         coro_pimpl.value->blocking_time_millisecs = 0;
          lock.unlock();
          coro_pimpl.value->inject_exception(coro_pimpl.value, x_type);
          lock.lock();
