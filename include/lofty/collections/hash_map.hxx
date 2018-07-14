@@ -53,40 +53,60 @@ public:
    //! Functor that can compare two TKey instances for equality.
    typedef TKeyEqual key_equal;
 
+   //! Type used to contain both a key and a value. Note that this is not used in the internal data model.
+   struct pair_type {
+      //! Key.
+      TKey key;
+      //! Value.
+      TValue value;
+
+      //! Constructor.
+      pair_type(TKey && key_, TValue && value_) :
+         key(_std::move(key_)),
+         value(_std::move(value_)) {
+      }
+   };
+
    /*! Pointer type returned by iterator::operator->() that behaves like a pointer, but in fact includes the
    object it points to.
 
-   Needed because iterator::operator->() must return a pointer-like type to a key/value pair (value_type), but
-   key/value pairs are never stored anywhere in the map. */
-   template <typename TPair>
+   Needed because iterator::operator->() must return a pointer-like type to a key/value pair, but keys and
+   values are not stored in the map as a pair. */
+   template <typename TRefPair>
    class pair_ptr {
    public:
-      //! Constructor. See value_type::value_type().
+      /*! Constructor.
+
+      @param key
+         Pointer to the key in the map.
+      @param value
+         Pointer to the value in the map.
+      */
       pair_ptr(TKey * key, TValue * value) :
-         pair_(key, value) {
+         ref_pair(key, value) {
       }
 
       /*! Dereferencing operator.
 
       @return
-         Reference to the current key/value pair.
+         Reference to the key/value reference pair.
       */
-      TPair const & operator*() const {
-         return pair_;
+      TRefPair const & operator*() const {
+         return ref_pair;
       }
 
       /*! Dereferencing member access operator.
 
       @return
-         Pointer to the current key/value pair.
+         Pointer to the key/value reference pair.
       */
-      TPair const * operator->() const {
-         return &pair_;
+      TRefPair const * operator->() const {
+         return &ref_pair;
       }
 
    private:
-      //! Internal pair returned by operator->().
-      TPair const pair_;
+      //! Pair of references returned by operator->().
+      TRefPair const ref_pair;
    };
 
    //! Const iterator type.
@@ -95,12 +115,20 @@ public:
       friend class hash_map;
 
    public:
-      //! Const key/value type.
+      //! Const key/value type. It should be called ref_pair, but iterators need to have value_type.
       struct value_type {
+         //! Reference to the key.
          TKey const & key;
+         //! Reference to the value.
          TValue const & value;
 
-         //! Constructor. See value_type::value_type().
+         /*! Constructor.
+
+         @param key_
+            Pointer to the key to refer to.
+         @param value_
+            Pointer to the value to refer to.
+         */
          value_type(TKey const * key_, TValue const * value_) :
             key(*key_),
             value(*value_) {
@@ -173,7 +201,7 @@ public:
       friend class hash_map;
 
    public:
-      //! Key/value type.
+      //! Key/value type. It should be called ref_pair, but iterators need to have value_type.
       struct value_type {
          //! Reference to the key.
          TKey const & key;
