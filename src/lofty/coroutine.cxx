@@ -960,17 +960,32 @@ void coroutine::scheduler::interrupt_all() {
    {
       /* TODO: using a different locking pattern, this work could be split across multiple threads, in case
       multiple are associated to this scheduler. */
-      _std::lock_guard<_std::mutex> lock(coros_add_remove_mutex);
-      LOFTY_FOR_EACH(auto kv, coros_blocked_by_fd) {
-         kv.value->inject_exception(kv.value, x_type);
+      _std::unique_lock<_std::mutex> lock(coros_add_remove_mutex);
+      while (coros_blocked_by_fd) {
+         auto coro_pimpl(coros_blocked_by_fd.pop().value);
+         lock.unlock();
+         coro_pimpl->inject_exception(coro_pimpl, x_type);
+         lock.lock();
+      }
+      while (coros_blocked_by_event) {
+         auto coro_pimpl(coros_blocked_by_fd.pop().value);
+         lock.unlock();
+         coro_pimpl->inject_exception(coro_pimpl, x_type);
+         lock.lock();
       }
 #if LOFTY_HOST_API_BSD
-      LOFTY_FOR_EACH(auto kv, coros_blocked_by_timer_ke) {
-         kv.value->inject_exception(kv.value, x_type);
+      while (coros_blocked_by_timer_ke) {
+         auto coro_pimpl(coros_blocked_by_timer_ke.pop().value);
+         lock.unlock();
+         coro_pimpl->inject_exception(coro_pimpl, x_type);
+         lock.lock();
       }
 #elif LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
-      LOFTY_FOR_EACH(auto kv, coros_blocked_by_timer_fd) {
-         kv.value->inject_exception(kv.value, x_type);
+      while (coros_blocked_by_timer_fd) {
+         auto coro_pimpl(coros_blocked_by_timer_fd.pop_front());
+         lock.unlock();
+         coro_pimpl.value->inject_exception(coro_pimpl.value, x_type);
+         lock.lock();
       }
 #endif
       /* TODO: coroutines currently running on other threads associated to this scheduler won’t have been
