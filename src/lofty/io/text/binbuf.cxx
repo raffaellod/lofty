@@ -211,7 +211,10 @@ binbuf_ostream::binbuf_ostream(
 }
 
 /*virtual*/ void binbuf_ostream::close() /*override*/ {
-   buf_bin_ostream->close();
+   if (buf_bin_ostream.use_count() == 1) {
+      // This is the last owner of buf_bin_ostream, unless another thread is running weak_ptr::lock() on it.
+      buf_bin_ostream->close();
+   }
 }
 
 /*virtual*/ void binbuf_ostream::flush() /*override*/ {
