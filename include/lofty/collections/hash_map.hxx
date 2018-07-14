@@ -488,6 +488,26 @@ public:
       return _std::move(value);
    }
 
+   /*! Removes and returns a non-random key/value pair from the map.
+
+   @return
+      Pair containing the removed key/value.
+   */
+   pair_type pop() {
+      std::size_t bucket = find_first_used_bucket();
+      if (bucket == null_index) {
+         LOFTY_THROW(collections::bad_access, ());
+      }
+      pair_type ret(_std::move(*key_ptr(bucket)), _std::move(*value_ptr(bucket)));
+      type_void_adapter key_type, value_type;
+      key_type.set_destruct<TKey>();
+      key_type.set_size<TKey>();
+      value_type.set_destruct<TValue>();
+      value_type.set_size<TValue>();
+      empty_bucket(key_type, value_type, bucket);
+      return _std::move(ret);
+   }
+
    /*! Removes a value given an iterator to it.
 
    @param it
