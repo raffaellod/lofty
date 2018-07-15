@@ -59,7 +59,7 @@ app::app() {
    bool errors = false;
    io::text::stdin.reset();
    io::binary::stdin.reset();
-   if (auto stdout = _std::dynamic_pointer_cast<io::closeable>(io::text::stdout)) {
+   if (auto stdout = dynamic_cast<io::closeable *>(io::text::stdout.get())) {
       try {
          stdout->close();
       } catch (_std::exception const & x) {
@@ -83,7 +83,7 @@ app::app() {
       }
    }
    io::text::stdout.reset();
-   if (auto stdout = _std::dynamic_pointer_cast<io::closeable>(io::binary::stdout)) {
+   if (auto stdout = dynamic_cast<io::closeable *>(io::binary::stdout.get())) {
       try {
          stdout->close();
       } catch (_std::exception const & x) {
@@ -107,7 +107,7 @@ app::app() {
       }
    }
    io::binary::stdout.reset();
-   if (auto stderr = _std::dynamic_pointer_cast<io::closeable>(io::text::stderr)) {
+   if (auto stderr = dynamic_cast<io::closeable *>(io::text::stderr.get())) {
       try {
          stderr->close();
       } catch (...) {
@@ -116,7 +116,7 @@ app::app() {
       }
    }
    io::text::stderr.reset();
-   if (auto stderr = _std::dynamic_pointer_cast<io::closeable>(io::binary::stderr)) {
+   if (auto stderr = dynamic_cast<io::closeable *>(io::binary::stderr.get())) {
       try {
          stderr->close();
       } catch (...) {

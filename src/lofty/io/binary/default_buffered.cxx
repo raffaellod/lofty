@@ -124,7 +124,7 @@ default_buffered_ostream::default_buffered_ostream(_std::shared_ptr<ostream> bin
    } LOFTY_FINALLY {
       if (bin_ostream.use_count() == 1) {
          // This is the last owner of bin_ostream, unless another thread is running weak_ptr::lock() on it.
-         if (auto closeable_bin_ostream = _std::dynamic_pointer_cast<closeable>(bin_ostream)) {
+         if (auto closeable_bin_ostream = dynamic_cast<closeable *>(bin_ostream.get())) {
             // Flush lower-level buffers, so bin_ostream won’t complain that its close() method wasn’t called.
             closeable_bin_ostream->close();
          }
