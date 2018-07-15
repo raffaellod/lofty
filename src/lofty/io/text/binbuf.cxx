@@ -122,28 +122,26 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
 
       std::size_t min_peek_bytes = 1;
       do {
-         std::uint8_t const * src;
-         std::size_t src_byte_size;
-         _std::tie(src, src_byte_size) = buf_bin_istream->peek<std::uint8_t>(min_peek_bytes);
-         if (src_byte_size == 0) {
+         auto src(buf_bin_istream->peek<std::uint8_t>(min_peek_bytes));
+         if (src.size == 0) {
             eof = true;
             break;
          }
 
          // If the encoding is still undefined, try to guess it now.
          if (default_enc == lofty::text::encoding::unknown) {
-            if (std::size_t bom_byte_size = detect_encoding(src, src_byte_size)) {
+            if (std::size_t bom_byte_size = detect_encoding(src.ptr, src.size)) {
                // Consume the BOM that was read.
                buf_bin_istream->consume<std::uint8_t>(bom_byte_size);
-               src += bom_byte_size;
-               src_byte_size -= bom_byte_size;
+               src.ptr += bom_byte_size;
+               src.size -= bom_byte_size;
             }
          }
 
          // Transcode the binary peek buffer into peek_buf at peek_buf_char_offset + peek_buf_char_size.
-         std::size_t src_remaining_bytes = src_byte_size;
+         std::size_t src_remaining_bytes = src.size;
          std::size_t peek_buf_transcoded_byte_size = lofty::text::transcode(
-            true, default_enc, reinterpret_cast<void const **>(&src), &src_remaining_bytes,
+            true, default_enc, reinterpret_cast<void const **>(&src.ptr), &src_remaining_bytes,
             lofty::text::encoding::host, &peek_buf_end, &peek_buf_bytes_capacity
          );
          if (peek_buf_transcoded_byte_size == 0) {
@@ -155,7 +153,7 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
          min_peek_bytes = 1;
 
          // Permanently remove the transcoded bytes from the binary buffer.
-         buf_bin_istream->consume<std::uint8_t>(src_byte_size - src_remaining_bytes);
+         buf_bin_istream->consume<std::uint8_t>(src.size - src_remaining_bytes);
          // Account for the characters just transcoded.
          peek_buf_char_size += peek_buf_transcoded_byte_size / sizeof(char_t);
          peek_buf.set_size_in_chars(peek_buf_char_offset + peek_buf_char_size, false /*don’t clear*/);
@@ -235,20 +233,18 @@ binbuf_ostream::binbuf_ostream(
    if (src_byte_size == 0) {
       return;
    }
-   std::int8_t * dst;
-   std::size_t dst_byte_size;
-   _std::tie(dst, dst_byte_size) = buf_bin_ostream->get_buffer<std::int8_t>(src_byte_size);
+   auto dst(buf_bin_ostream->get_buffer<std::int8_t>(src_byte_size));
    if (enc == default_enc) {
       // Optimal case: no transcoding necessary.
-      memory::copy(dst, static_cast<std::int8_t const *>(src), src_byte_size);
-      dst_byte_size = src_byte_size;
+      memory::copy(dst.ptr, static_cast<std::int8_t const *>(src), src_byte_size);
+      dst.size = src_byte_size;
    } else {
       // Sub-optimal case: transcoding is needed.
-      dst_byte_size = lofty::text::transcode(
-         true, enc, &src, &src_byte_size, default_enc, reinterpret_cast<void **>(&dst), &dst_byte_size
+      dst.size = lofty::text::transcode(
+         true, enc, &src, &src_byte_size, default_enc, reinterpret_cast<void **>(&dst.ptr), &dst.size
       );
    }
-   buf_bin_ostream->commit_bytes(dst_byte_size);
+   buf_bin_ostream->commit_bytes(dst.size);
 }
 
 }}} //namespace lofty::io::text

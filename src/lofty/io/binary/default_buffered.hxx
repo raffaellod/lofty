@@ -47,7 +47,7 @@ public:
    virtual void consume_bytes(std::size_t count) override;
 
    //! See buffered_istream::peek_bytes().
-   virtual _std::tuple<void const *, std::size_t> peek_bytes(std::size_t count) override;
+   virtual buffer_range<void const> peek_bytes(std::size_t count) override;
 
 protected:
    //! See buffered_istream::_unbuffered_stream().
@@ -92,7 +92,7 @@ public:
    virtual void flush() override;
 
    //! See buffered_ostream::get_buffer_bytes().
-   virtual _std::tuple<void *, std::size_t> get_buffer_bytes(std::size_t count) override;
+   virtual buffer_range<void> get_buffer_bytes(std::size_t count) override;
 
 protected:
    //! Flushes the internal write buffer.

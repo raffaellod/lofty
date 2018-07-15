@@ -42,9 +42,7 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
    read_buf.mark_as_unused(count);
 }
 
-/*virtual*/ _std::tuple<void const *, std::size_t> default_buffered_istream::peek_bytes(
-   std::size_t count
-) /*override*/ {
+/*virtual*/ buffer_range<void const> default_buffered_istream::peek_bytes(std::size_t count) /*override*/ {
    while (count > read_buf.used_size()) {
       // The caller wants more data than what’s currently in the buffer: try to load more.
       std::size_t read_byte_size_min = count - read_buf.used_size();
@@ -69,7 +67,7 @@ default_buffered_istream::default_buffered_istream(_std::shared_ptr<istream> bin
       read_buf.mark_as_used(bytes_read);
    }
    // Return the “used window” of the buffer.
-   return _std::make_tuple(read_buf.get_used(), read_buf.used_size());
+   return buffer_range<void const>(read_buf.get_used(), read_buf.used_size());
 }
 
 /*virtual*/ _std::shared_ptr<stream> default_buffered_istream::_unbuffered_stream() const /*override*/ {
@@ -148,9 +146,7 @@ void default_buffered_ostream::flush_buffer() {
    }
 }
 
-/*virtual*/ _std::tuple<void *, std::size_t> default_buffered_ostream::get_buffer_bytes(
-   std::size_t count
-) /*override*/ {
+/*virtual*/ buffer_range<void> default_buffered_ostream::get_buffer_bytes(std::size_t count) /*override*/ {
    // If the requested size is more than what can fit in the buffer, compact it, flush it, or enlarge it.
    if (count > write_buf.available_size()) {
       // See if compacting the buffer would create enough room.
@@ -167,7 +163,7 @@ void default_buffered_ostream::flush_buffer() {
       }
    }
    // Return the available portion of the buffer.
-   return _std::make_tuple(write_buf.get_available(), write_buf.available_size());
+   return buffer_range<void>(write_buf.get_available(), write_buf.available_size());
 }
 
 /*virtual*/ _std::shared_ptr<stream> default_buffered_ostream::_unbuffered_stream() const /*override*/ {

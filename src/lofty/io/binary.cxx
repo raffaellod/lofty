@@ -475,22 +475,20 @@ buffered_istream::buffered_istream() {
       return 0;
    }
    // Attempt to read at least the count of bytes requested by the caller.
-   std::int8_t const * buf;
-   std::size_t ret_byte_size;
-   _std::tie(buf, ret_byte_size) = peek<std::int8_t>(dst_max);
-   if (ret_byte_size == 0) {
+   auto buf(peek<std::int8_t>(dst_max));
+   if (buf.size == 0) {
       // No more data available (EOF).
       return 0;
    }
-   if (ret_byte_size > dst_max) {
+   if (buf.size > dst_max) {
       // The caller can’t/won’t get more than dst_max bytes.
-      ret_byte_size = dst_max;
+      buf.size = dst_max;
    }
    /* Copy whatever was read into the caller-supplied buffer. This extra buffer-to-buffer copy is why using
    peek() directly is preferred. */
-   memory::copy(static_cast<std::int8_t *>(dst), buf, ret_byte_size);
-   consume<std::int8_t>(ret_byte_size);
-   return ret_byte_size;
+   memory::copy(static_cast<std::int8_t *>(dst), buf.ptr, buf.size);
+   consume<std::int8_t>(buf.size);
+   return buf.size;
 }
 
 }}} //namespace lofty::io::binary
@@ -507,11 +505,9 @@ buffered_ostream::buffered_ostream() {
 
 /*virtual*/ std::size_t buffered_ostream::write_bytes(void const * src, std::size_t src_size) /*override*/ {
    // Obtain a buffer large enough.
-   std::int8_t * buf;
-   std::size_t buf_size;
-   _std::tie(buf, buf_size) = get_buffer<std::int8_t>(src_size);
+   auto buf(get_buffer<std::int8_t>(src_size));
    // Copy the source data into the buffer.
-   memory::copy(buf, static_cast<std::int8_t const *>(src), src_size);
+   memory::copy(buf.ptr, static_cast<std::int8_t const *>(src), src_size);
    commit<std::int8_t>(src_size);
    return src_size;
 }
@@ -963,7 +959,7 @@ memory_stream::memory_stream(memory_stream && src) :
    // An in-memory stream doesn’t need flushing.
 }
 
-/*virtual*/ _std::tuple<void *, std::size_t> memory_stream::get_buffer_bytes(std::size_t count) /*override*/ {
+/*virtual*/ buffer_range<void> memory_stream::get_buffer_bytes(std::size_t count) /*override*/ {
    // If the requested size is more than what can fit in the buffer, compact it, or enlarge it.
    if (count > buf.available_size()) {
       // See if compacting the buffer creates enough room. If that’s not enough, enlarge the buffer.
@@ -974,14 +970,14 @@ memory_stream::memory_stream(memory_stream && src) :
       }
    }
    // Return the available portion of the buffer.
-   return _std::make_tuple(buf.get_available(), buf.available_size());
+   return buffer_range<void>(buf.get_available(), buf.available_size());
 }
 
-/*virtual*/ _std::tuple<void const *, std::size_t> memory_stream::peek_bytes(std::size_t count) /*override*/ {
+/*virtual*/ buffer_range<void const> memory_stream::peek_bytes(std::size_t count) /*override*/ {
    // Ignore count; we’ll always return the entire used portion of the buffer.
    LOFTY_UNUSED_ARG(count);
    // Return the “used window” of the buffer.
-   return _std::make_tuple(buf.get_used(), buf.used_size());
+   return buffer_range<void const>(buf.get_used(), buf.used_size());
 }
 
 void memory_stream::rewind() {

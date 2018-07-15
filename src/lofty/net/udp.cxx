@@ -70,14 +70,12 @@ void server::send(datagram const & dgram) {
    }
 
    ip::sockaddr_any server_sock_addr(dgram.address(), dgram.port());
-   std::int8_t const * buf;
-   std::size_t buf_size;
-   _std::tie(buf, buf_size) = dgram.data()->peek<std::int8_t>();
+   auto buf(dgram.data()->peek<std::int8_t>());
 #if LOFTY_HOST_API_POSIX
    ::ssize_t bytes_sent;
    for (;;) {
       bytes_sent = ::sendto(
-         sock.get(), buf, buf_size, 0, server_sock_addr.sockaddr_ptr(), server_sock_addr.size()
+         sock.get(), buf.ptr, buf.size, 0, server_sock_addr.sockaddr_ptr(), server_sock_addr.size()
       );
       if (bytes_sent >= 0) {
          break;
@@ -101,8 +99,8 @@ void server::send(datagram const & dgram) {
 #elif LOFTY_HOST_API_WIN32
    const_cast<socket &>(sock).bind_to_this_coroutine_scheduler_iocp();
    ::WSABUF wsabuf;
-   wsabuf.buf = reinterpret_cast<char *>(const_cast<std::int8_t *>(buf));
-   wsabuf.len = static_cast< ::ULONG>(buf_size);
+   wsabuf.buf = reinterpret_cast<char *>(const_cast<std::int8_t *>(buf.ptr));
+   wsabuf.len = static_cast< ::ULONG>(buf.size);
    io::overlapped ovl;
    ovl.Offset = 0;
    ovl.OffsetHigh = 0;

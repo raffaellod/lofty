@@ -38,6 +38,43 @@ namespace binary {}
 
 namespace lofty { namespace io { namespace binary {
 
+//! Holds a reference to a range in a buffer.
+template <typename T>
+struct buffer_range {
+   //! Pointer to the first element in the range.
+   T * ptr;
+   //! Size of the array pointed to by ptr.
+   std::size_t size;
+
+   /*! Constructor.
+
+   @param ptr_
+      Pointer to the first element in the range.
+   @param size_
+      Size of the array pointed to by ptr_.
+   */
+   buffer_range(T * ptr_, std::size_t size_) :
+      ptr(ptr_),
+      size(size_) {
+   }
+
+   /*! Constructor converting from a raw bytes range.
+
+   @param bytes
+      Range, in bytes.
+   */
+   buffer_range(buffer_range<typename _std::conditional<_std::is_const<T>::value, void const, void>::type> const & bytes) :
+      ptr(static_cast<T *>(bytes.ptr)),
+      size(bytes.size / sizeof(typename _std::conditional<_std::is_void<T>::value, std::int8_t, T>::type)) {
+   }
+};
+
+}}} //namespace lofty::io::binary
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty { namespace io { namespace binary {
+
 //! Base interface for binary (non-text) streams.
 class LOFTY_SYM stream {
 public:
@@ -265,24 +302,24 @@ public:
       the underlying binary stream will be made, adding to the contents of the read buffer; if the internal
       buffer is not large enough to hold the cumulative data, it will be enlarged.
    @return
-      Pair containing a pointer to the portion of the internal buffer that holds the read data, and the count
-      of elements read. The latter may be less than the count argument if EOF is reached, or greater than the
-      count argument if the buffer was filled more than requested. For non-zero values of the count argument,
-      a returned count of 0 elements indicates that no more data is available (EOF).
+      Object that points to the portion of internal buffer that holds the read data, and the count of elements
+      read. The latter may be less than the count argument if EOF is reached, or greater than the count
+      argument if the buffer was filled more than requested. For non-zero values of the count argument,
+      return.size == 0 elements indicates that no more data is available (EOF).
    */
    template <typename T>
-   _std::tuple<T const *, std::size_t> peek(std::size_t count = 1) {
-      auto ret(peek_bytes(sizeof(T) * count));
-      // Repack the tuple, changing pointer type.
-      return _std::make_tuple(static_cast<T const *>(_std::get<0>(ret)), _std::get<1>(ret) / sizeof(T));
+   buffer_range<T const> peek(std::size_t count = 1) {
+      return buffer_range<T const>(peek_bytes(sizeof(T) * count));
    }
 
    /*! Non-template implementation of peek(). See peek().
 
    @param count
       Count of bytes to peek.
+   @return
+      Peeked data.
    */
-   virtual _std::tuple<void const *, std::size_t> peek_bytes(std::size_t count) = 0;
+   virtual buffer_range<void const> peek_bytes(std::size_t count) = 0;
 
    /*! Reads at most dst_max bytes. Using peek()/consume() or peek_bytes()/consume_bytes() is preferred to
    calling this method, because it will spare the caller from having to allocate an intermediate buffer.
@@ -341,24 +378,23 @@ public:
    @param count
       Count of elements to create buffer space for.
    @return
-      Pair containing:
-      •  A pointer to the portion of the internal buffer that the caller can write to;
-      •  Count of elements contained in the portion of internal buffer; this may be more than the
-         requested number.
+      An object containing a pointer to the portion of internal buffer that the caller can write to, and the
+      count of elements contained in the portion of internal buffer; the latter may be more than the requested
+      number.
    */
    template <typename T>
-   _std::tuple<T *, std::size_t> get_buffer(std::size_t count) {
-      auto ret(get_buffer_bytes(sizeof(T) * count));
-      // Repack the tuple, changing pointer type.
-      return _std::make_tuple(static_cast<T *>(_std::get<0>(ret)), _std::get<1>(ret) / sizeof(T));
+   buffer_range<T> get_buffer(std::size_t count) {
+      return buffer_range<T>(get_buffer_bytes(sizeof(T) * count));
    }
 
    /*! Byte-oriented implementation of get_buffer(). See get_buffer().
 
    @param count
       Count of bytes to create buffer space for.
+   @return
+      Available buffer range.
    */
-   virtual _std::tuple<void *, std::size_t> get_buffer_bytes(std::size_t count) = 0;
+   virtual buffer_range<void> get_buffer_bytes(std::size_t count) = 0;
 
    //! See buffered_stream::unbuffered().
    _std::shared_ptr<ostream> unbuffered() const {
