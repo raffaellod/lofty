@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2017 Raffaello D. Di Napoli
+Copyright 2011-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -150,6 +150,13 @@ struct is_trivial : public integral_constant<bool, false
          )*/
 
 #ifndef _LOFTY_STD_TYPE_TRAITS_SELECTIVE
+
+/*! Defined as _std::true_type if T is a const-qualified type, or _std::false_type otherwise (C++11 § 20.9.4.3
+“Type properties”). */
+template <typename T>
+struct is_const : public false_type {};
+template <typename T>
+struct is_const<T const> : public true_type {};
 
 /*! Defined as _std::true_type if T has no members or base classes of size > 0, or _std::false_type otherwise
 (C++11 20.9.4.3 “Type properties”). */

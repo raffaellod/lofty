@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -74,6 +74,7 @@ using namespace ::lofty::_std;
    using ::std::decay;
    using ::std::is_arithmetic;
    using ::std::is_array;
+   using ::std::is_const;
    #ifndef _LOFTY_STD_TYPE_TRAITS_IS_COPY_CONSTRUCTIBLE
    using ::std::is_copy_constructible;
    #endif
