@@ -20,6 +20,8 @@ more details.
 #if LOFTY_HOST_API_POSIX
    #include <fcntl.h> // F_* FD_* O_* fcntl()
    #include <unistd.h> // close()
+#elif LOFTY_HOST_API_WIN32
+   #include <winsock2.h> // closesocket()
 #endif
 
 
@@ -89,17 +91,31 @@ void filedesc::bind_to_this_coroutine_scheduler_iocp() {
 #endif
 
 void filedesc::close() {
+   errint_t err = 0;
 #if LOFTY_HOST_API_POSIX
-   bool err = (::close(fd) < 0);
+   if (::close(fd)) {
+      err = errno;
+   }
 #elif LOFTY_HOST_API_WIN32
-   bool err = !::CloseHandle(fd);
+   ::DWORD flags;
+   /* FILE_TYPE_PIPE indicates that fd can be a pipe (named or not) or a socket. If GetNamedPipeInfo() fails,
+   fd is not a pipe, so it’s a socket. */
+   if (::GetFileType(fd) == FILE_TYPE_PIPE && !::GetNamedPipeInfo(fd, &flags, nullptr, nullptr, nullptr)) {
+      if (::closesocket(reinterpret_cast< ::SOCKET>(fd))) {
+         err = static_cast<errint_t>(::WSAGetLastError());
+      }
+   } else {
+      if (!::CloseHandle(fd)) {
+         err = ::GetLastError();
+      }
+   }
 #else
    #error "TODO: HOST_API"
 #endif
    // Yes, this will discard (leak) the file descriptor in case of errors.
    fd = filedesc_t_null;
    if (err) {
-      exception::throw_os_error();
+      exception::throw_os_error(err);
    }
 }
 
