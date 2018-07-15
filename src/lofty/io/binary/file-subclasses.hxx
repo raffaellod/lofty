@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -89,9 +89,12 @@ public:
    virtual ~tty_ostream();
 
 #if LOFTY_HOST_API_WIN32
-   // Under Win32, console files must use a dedicated API in order to support the native character type.
+   /*! See file_ostream::flush(). Overridden because FlushFileBuffers() fails with console files, which are
+   unbuffered. */
+   virtual void flush() override;
 
-   //! See file_ostream::write_bytes().
+   /*! See file_ostream::write_bytes(). Overridden because under Win32, console files must use a dedicated API
+   in order to support the native character type. */
    virtual std::size_t write_bytes(void const * src, std::size_t src_size) override;
 
 private:

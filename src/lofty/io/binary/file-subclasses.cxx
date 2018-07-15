@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -148,6 +148,10 @@ tty_ostream::tty_ostream(_pvt::file_init_data * init_data) :
    std::int16_t row, std::int16_t col, std::size_t char_size
 ) /*override*/ {
    // TODO: implementation.
+}
+
+/*virtual*/ void tty_ostream::flush() /*override*/ {
+   // Nothing to do.
 }
 
 /*virtual*/ void tty_ostream::get_cursor_pos_and_display_size(
