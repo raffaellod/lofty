@@ -247,30 +247,26 @@ std::size_t hash_map_impl::find_first_used_bucket(std::size_t skip /*= 0*/) cons
 std::size_t hash_map_impl::get_empty_bucket_for_key(
    type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t key_hash
 ) {
-   std::size_t nh_begin, nh_end;
-   _std::tie(nh_begin, nh_end) = hash_neighborhood_range(key_hash);
+   auto nh_range(hash_neighborhood_range(key_hash));
    // Search for an empty bucket in the neighborhood.
-   std::size_t bucket = find_empty_bucket(nh_begin, nh_end);
+   std::size_t bucket = find_empty_bucket(*nh_range.begin(), *nh_range.end());
    if (bucket != null_index) {
       return bucket;
    }
-   return find_empty_bucket_outside_neighborhood(key_type, value_type, nh_begin, nh_end);
+   return find_empty_bucket_outside_neighborhood(key_type, value_type, *nh_range.begin(), *nh_range.end());
 }
 
 std::size_t hash_map_impl::get_existing_or_empty_bucket_for_key(
    type_void_adapter const & key_type, type_void_adapter const & value_type, keys_equal_fn_type keys_equal_fn,
    void const * key, std::size_t key_hash
 ) {
-   std::size_t nh_begin, nh_end;
-   _std::tie(nh_begin, nh_end) = hash_neighborhood_range(key_hash);
+   auto nh_range(hash_neighborhood_range(key_hash));
    // Look for the key or an empty bucket in the neighborhood.
-   std::size_t bucket = lookup_key_or_find_empty_bucket(
-      key_type, keys_equal_fn, key, key_hash, nh_begin, nh_end
-   );
+   std::size_t bucket = lookup_key_or_find_empty_bucket(key_type, keys_equal_fn, key, key_hash, nh_range);
    if (bucket != null_index) {
       return bucket;
    }
-   return find_empty_bucket_outside_neighborhood(key_type, value_type, nh_begin, nh_end);
+   return find_empty_bucket_outside_neighborhood(key_type, value_type, *nh_range.begin(), *nh_range.end());
 }
 
 void hash_map_impl::grow_table(type_void_adapter const & key_type, type_void_adapter const & value_type) {
@@ -331,14 +327,14 @@ void hash_map_impl::grow_table(type_void_adapter const & key_type, type_void_ada
 
 std::size_t hash_map_impl::lookup_key_or_find_empty_bucket(
    type_void_adapter const & key_type, keys_equal_fn_type keys_equal_fn, void const * key,
-   std::size_t key_hash, std::size_t nh_begin, std::size_t nh_end
+   std::size_t key_hash, range<std::size_t> nh_range
 ) const {
-   auto hash_ptr      = hashes.get() + nh_begin;
-   auto hashes_nh_end = hashes.get() + nh_end;
+   auto hash_ptr      = hashes.get() + *nh_range.begin();
+   auto hashes_nh_end = hashes.get() + *nh_range.end();
    auto hashes_end    = hashes.get() + total_buckets;
-   /* nh_begin - nh_end may be a wrapping range, so we can only test for inequality and rely on the wrap-
-   around logic at the end of the loop body. Also, we need to iterate at least once, otherwise we won’t enter
-   the loop at all if the start condition is the same as the end condition, which is the case for
+   /* nh_range may be a wrapping range, so we can only test for inequality and rely on the wrap-around logic
+   at the end of the loop body. Also, we need to iterate at least once, otherwise we won’t enter the loop at
+   all if the start condition is the same as the end condition, which is the case for
    neighborhood_size_ == total_buckets. */
    do {
       if (

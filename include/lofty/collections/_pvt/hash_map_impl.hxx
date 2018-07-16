@@ -23,6 +23,7 @@ more details.
 #endif
 
 #include <lofty/numeric.hxx>
+#include <lofty/range.hxx>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,14 +229,15 @@ protected:
    @param key_hash
       Hash to return the neighborhood of.
    @return
-      Calculated range for the neighborhood bucket index.
+      Calculated range for the neighborhood bucket index. Note that the range might have begin() > end(), but
+      still be valid; however the range object itself will think it’s empty because of that.
    */
-   _std::tuple<std::size_t, std::size_t> hash_neighborhood_range(std::size_t key_hash) const {
+   range<std::size_t> hash_neighborhood_range(std::size_t key_hash) const {
       std::size_t nh_begin = hash_neighborhood_index(key_hash);
       std::size_t nh_end = nh_begin + neighborhood_size_;
       // Wrap the end index back in the table.
       nh_end &= total_buckets - 1;
-      return _std::make_tuple(nh_begin, nh_end);
+      return range<std::size_t>(nh_begin, nh_end);
    }
 
    /*! Marks a bucket as empty and destructs the corresponding key and value.
@@ -379,17 +381,15 @@ private:
       Pointer to the key to lookup.
    @param key_hash
       Hash of *key.
-   @param nh_begin
-      Beginning of the neighborhood bucket index range.
-   @param nh_end
-      End of the neighborhood bucket index range.
+   @param nh_range
+      Neighborhood bucket index range.
    @return
       Index of the bucket at which the key could be found, or index of the first empty bucket found, or
       null_index if neither could be found.
    */
    std::size_t lookup_key_or_find_empty_bucket(
       type_void_adapter const & key_type, keys_equal_fn_type keys_equal_fn, void const * key,
-      std::size_t key_hash, std::size_t nh_begin, std::size_t nh_end
+      std::size_t key_hash, range<std::size_t> nh_range
    ) const;
 
    /*! Copies or moves a value, and optionally a key, to the specified bucket.

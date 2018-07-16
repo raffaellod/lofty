@@ -78,7 +78,7 @@ public:
    /*! Move-assignment operator.
 
    @param src
-      Source process.
+      Source object.
    @return
       *this.
    */

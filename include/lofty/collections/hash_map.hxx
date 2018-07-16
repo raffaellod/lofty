@@ -609,13 +609,12 @@ private:
          // The key cannot possibly be in the map.
          return null_index;
       }
-      std::size_t nh_begin, nh_end;
-      _std::tie(nh_begin, nh_end) = hash_neighborhood_range(key_hash);
+      auto nh_range(hash_neighborhood_range(key_hash));
 
-      auto hash_ptr      = hashes.get() + nh_begin;
-      auto hashes_nh_end = hashes.get() + nh_end;
+      auto hash_ptr      = hashes.get() + *nh_range.begin();
+      auto hashes_nh_end = hashes.get() + *nh_range.end();
       auto hashes_end    = hashes.get() + total_buckets;
-      /* nh_begin - nh_end may be a wrapping range, so we can only test for inequality and rely on the wrap-
+      /* nh_range may be a wrapping range, so we can only test for inequality and rely on the wrap-
       around logic at the end of the loop body. Also, we need to iterate at least once, otherwise we won’t
       enter the loop at all if the start condition is the same as the end condition, which is the case for
       neighborhood_size_ == total_buckets. */
