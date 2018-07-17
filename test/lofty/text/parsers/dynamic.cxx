@@ -522,6 +522,69 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 }
 
 LOFTY_TESTING_TEST_CASE_FUNC(
+   text_parsers_dynamic_pattern_abc_or_def,
+   "lofty::text::parsers::dynamic – pattern “abc|def”"
+) {
+   LOFTY_TRACE_FUNC();
+
+   LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(def_state, nullptr, nullptr, LOFTY_SL("def"));
+   LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE(abc_state, nullptr, &def_state.base, LOFTY_SL("abc"));
+   text::parsers::dynamic parser;
+   parser.set_initial_state(&abc_state.base);
+
+   text::parsers::dynamic::match match;
+   ASSERT(!parser.run(LOFTY_SL("")));
+   ASSERT(!parser.run(LOFTY_SL("a")));
+   ASSERT(!parser.run(LOFTY_SL("b")));
+   ASSERT(!parser.run(LOFTY_SL("c")));
+   ASSERT(!parser.run(LOFTY_SL("d")));
+   ASSERT(!parser.run(LOFTY_SL("e")));
+   ASSERT(!parser.run(LOFTY_SL("f")));
+   ASSERT(!parser.run(LOFTY_SL("ab")));
+   ASSERT(!parser.run(LOFTY_SL("bc")));
+   ASSERT(!parser.run(LOFTY_SL("cd")));
+   ASSERT(!parser.run(LOFTY_SL("de")));
+   ASSERT(!parser.run(LOFTY_SL("ef")));
+   ASSERT(!parser.run(LOFTY_SL("abd")));
+   ASSERT(!parser.run(LOFTY_SL("bcd")));
+   ASSERT(!parser.run(LOFTY_SL("cde")));
+   ASSERT(!parser.run(LOFTY_SL("dea")));
+   ASSERT(!parser.run(LOFTY_SL("eab")));
+   ASSERT(!!(match = parser.run(LOFTY_SL("abc"))));
+   ASSERT(match.begin_char_index() == 0u);
+   ASSERT(match.end_char_index()   == 3u);
+   ASSERT(match.str() == LOFTY_SL("abc"));
+   ASSERT(!!(match = parser.run(LOFTY_SL("abcd"))));
+   ASSERT(match.begin_char_index() == 0u);
+   ASSERT(match.end_char_index()   == 3u);
+   ASSERT(match.str() == LOFTY_SL("abc"));
+   ASSERT(!!(match = parser.run(LOFTY_SL("fabc"))));
+   ASSERT(match.begin_char_index() == 1u);
+   ASSERT(match.end_char_index()   == 4u);
+   ASSERT(match.str() == LOFTY_SL("abc"));
+   ASSERT(!!(match = parser.run(LOFTY_SL("fabcd"))));
+   ASSERT(match.begin_char_index() == 1u);
+   ASSERT(match.end_char_index()   == 4u);
+   ASSERT(match.str() == LOFTY_SL("abc"));
+   ASSERT(!!(match = parser.run(LOFTY_SL("def"))));
+   ASSERT(match.begin_char_index() == 0u);
+   ASSERT(match.end_char_index()   == 3u);
+   ASSERT(match.str() == LOFTY_SL("def"));
+   ASSERT(!!(match = parser.run(LOFTY_SL("defa"))));
+   ASSERT(match.begin_char_index() == 0u);
+   ASSERT(match.end_char_index()   == 3u);
+   ASSERT(match.str() == LOFTY_SL("def"));
+   ASSERT(!!(match = parser.run(LOFTY_SL("cdef"))));
+   ASSERT(match.begin_char_index() == 1u);
+   ASSERT(match.end_char_index()   == 4u);
+   ASSERT(match.str() == LOFTY_SL("def"));
+   ASSERT(!!(match = parser.run(LOFTY_SL("cdefa"))));
+   ASSERT(match.begin_char_index() == 1u);
+   ASSERT(match.end_char_index()   == 4u);
+   ASSERT(match.str() == LOFTY_SL("def"));
+}
+
+LOFTY_TESTING_TEST_CASE_FUNC(
    text_parsers_dynamic_pattern_a_or_b_plus,
    "lofty::text::parsers::dynamic – pattern “(?:a|b)+”"
 ) {
