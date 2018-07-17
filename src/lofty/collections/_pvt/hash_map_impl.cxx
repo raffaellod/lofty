@@ -66,7 +66,7 @@ hash_map_impl & hash_map_impl::operator=(hash_map_impl && src) {
    return *this;
 }
 
-_std::tuple<std::size_t, bool> hash_map_impl::add_or_assign(
+hash_map_impl::add_or_assign_impl_ret hash_map_impl::add_or_assign(
    type_void_adapter const & key_type, type_void_adapter const & value_type, keys_equal_fn_type keys_equal_fn,
    void * key, std::size_t key_hash, void * value, unsigned move
 ) {
@@ -98,7 +98,7 @@ _std::tuple<std::size_t, bool> hash_map_impl::add_or_assign(
    }
    ++used_buckets;
    ++rev;
-   return _std::make_tuple(bucket, add);
+   return add_or_assign_impl_ret(bucket, add);
 }
 
 void hash_map_impl::clear(type_void_adapter const & key_type, type_void_adapter const & value_type) {

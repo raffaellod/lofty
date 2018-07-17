@@ -42,6 +42,28 @@ class LOFTY_SYM hash_map_impl : public support_explicit_operator_bool<hash_map_i
 protected:
    typedef bool (* keys_equal_fn_type)(hash_map_impl const * this_ptr, void const * key1, void const * key2);
 
+   //! Type returned by add_or_assign().
+   struct add_or_assign_impl_ret {
+      //! Bucket containing the (possibly newly-added) key/value.
+      std::size_t bucket;
+      /*! true if the key/value pair was just added, or false if the key already existed in the map and the
+      corresponding value was overwritten. */
+      bool added;
+
+      /*! Constructor.
+
+      @param bucket_
+         Bucket containing the (possibly newly-added) key/value.
+      @param added_
+         true if the key/value pair was just added, or false if the key already existed in the map and the
+         corresponding value was overwritten.
+      */
+      add_or_assign_impl_ret(std::size_t bucket_, bool added_) :
+         bucket(bucket_),
+         added(added_) {
+      }
+   };
+
    //! Integer type used to track changes in the map.
    typedef std::uint16_t rev_int_t;
 
@@ -186,11 +208,11 @@ protected:
       Bitmask; 1 (bit 0) indicates that *key should be moved, while 2 (bit 1) indicates that *value should be
       moved.
    @return
-      Pair containing the index of the newly-occupied bucket and a bool value that is true if the key/value
-      pair was just added, or false if the key already existed in the map and the corresponding value was
-      overwritten.
+      Object containing the index of the (possibly newly-occupied) bucket and a bool value that is true if the
+      key/value pair was just added, or false if the key already existed in the map and the corresponding
+      value was overwritten.
    */
-   _std::tuple<std::size_t, bool> add_or_assign(
+   add_or_assign_impl_ret add_or_assign(
       type_void_adapter const & key_type, type_void_adapter const & value_type,
       keys_equal_fn_type keys_equal_fn, void * key, std::size_t key_hash, void * value, unsigned move
    );

@@ -72,9 +72,9 @@ void dynamic_state::dump() const {
       if (curr_state->alternative) {
          auto alternative_itr(alternatives_ids.find(curr_state->alternative));
          if (alternative_itr == alternatives_ids.cend()) {
-            alternative_itr = _std::get<0>(alternatives_ids.add_or_assign(
+            alternative_itr = alternatives_ids.add_or_assign(
                curr_state->alternative, next_alternative_id++
-            ));
+            ).itr;
          }
          out->print(LOFTY_SL(" (has alternative: {})"), alternative_itr->value);
       }

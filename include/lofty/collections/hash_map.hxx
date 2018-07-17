@@ -53,7 +53,8 @@ public:
    //! Functor that can compare two TKey instances for equality.
    typedef TKeyEqual key_equal;
 
-   //! Type used to contain both a key and a value. Note that this is not used in the internal data model.
+   /*! Type used to contain both a key and a value. Note that this is not used in the internal data model, so
+   it’s not the same as value_type. */
    struct pair_type {
       //! Key.
       TKey key;
@@ -277,6 +278,27 @@ public:
    typedef typename iterator::value_type value_type;
    typedef typename const_iterator::value_type const_value_type;
 
+   //! Type returned by add_or_assign().
+   struct add_or_assign_ret {
+      //! Iterator to the (possibly newly-added) key/value.
+      iterator itr;
+      /*! true if the key/value pair was just added, or false if the key already existed in the map and the
+      corresponding value was overwritten. */
+      bool added;
+
+      /*! Constructor.
+
+      @param owner_map
+         Pointer to the map owning the iterator.
+      @param impl
+         add_or_assign_impl_ret instance to convert into an add_or_assign_ret instance.
+      */
+      add_or_assign_ret(hash_map const * owner_map, add_or_assign_impl_ret impl) :
+         itr(iterator(owner_map, impl.bucket)),
+         added(impl.added) {
+      }
+   };
+
 public:
    //! Default constructor.
    hash_map() {
@@ -334,11 +356,11 @@ public:
    @param value
       Value to add.
    @return
-      Pair containing an iterator to the newly added key/value, and a bool value that is true if the key/value
-      pair was just added, or false if the key already existed in the map and the corresponding value was
-      overwritten.
+      Object containing an iterator to the (possibly newly-added) key/value, and a bool value that is true if
+      the key/value pair was just added, or false if the key already existed in the map and the corresponding
+      value was overwritten.
    */
-   _std::tuple<iterator, bool> add_or_assign(TKey key, TValue value) {
+   add_or_assign_ret add_or_assign(TKey key, TValue value) {
       type_void_adapter key_type, value_type;
 //      key_type.set_copy_construct<TKey>();
       key_type.set_destruct<TKey>();
@@ -348,12 +370,10 @@ public:
       value_type.set_destruct<TValue>();
       value_type.set_move_construct<TValue>();
       value_type.set_size<TValue>();
-      std::size_t key_hash = calculate_and_adjust_hash(key), bucket;
-      bool added;
-      _std::tie(bucket, added) = hash_map_impl::add_or_assign(
+      std::size_t key_hash = calculate_and_adjust_hash(key);
+      return add_or_assign_ret(this, hash_map_impl::add_or_assign(
          key_type, value_type, &keys_equal, &key, key_hash, &value, 1 | 2
-      );
-      return _std::make_tuple(iterator(this, bucket), added);
+      ));
    }
 
    /*! Returns an iterator set to the first key/value pair in the map.
