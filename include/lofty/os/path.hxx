@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,23 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_OS_PATH_HXX
-#define _LOFTY_OS_PATH_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_OS_PATH_HXX
 #endif
 
+#ifndef _LOFTY_OS_PATH_HXX_NOPUB
+#define _LOFTY_OS_PATH_HXX_NOPUB
+
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text-0.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace os {
+_LOFTY_PUBNS_BEGIN
 
 // Enumerates directory entries.
 #if 0
@@ -51,7 +55,7 @@ Reference for Python’s approach: “os.path — Common pathname manipulations�
 os.path.html>
 Reference for Win32: “Naming Files, Paths, and Namespaces” <http://msdn.microsoft.com/en-us/library/windows/
 desktop/aa365247.aspx> */
-class LOFTY_SYM path : public support_explicit_operator_bool<path> {
+class LOFTY_SYM path : public lofty::_LOFTY_PUBNS support_explicit_operator_bool<path> {
 
 #if 0
    friend class _path_iterator;
@@ -68,7 +72,7 @@ public:
       Source object.
    */
    path(path && src) :
-      s_(_std::move(src.s_)) {
+      s_(_std::_pub::move(src.s_)) {
    }
 
    /*! Copy constructor.
@@ -85,8 +89,8 @@ public:
    @param s
       Source path string.
    */
-   path(str && s) :
-      s_(validate_and_adjust(_std::move(s))) {
+   path(text::_LOFTY_PUBNS str && s) :
+      s_(validate_and_adjust(_std::_pub::move(s))) {
    }
 
    /*! Constructor from plain string.
@@ -94,7 +98,7 @@ public:
    @param s
       Source path string.
    */
-   path(str const & s) :
+   path(text::_LOFTY_PUBNS str const & s) :
       s_(validate_and_adjust(s)) {
    }
 
@@ -106,7 +110,7 @@ public:
       *this.
    */
    path & operator=(path && src) {
-      s_ = _std::move(src.s_);
+      s_ = _std::_pub::move(src.s_);
       return *this;
    }
 
@@ -129,8 +133,8 @@ public:
    @return
       *this.
    */
-   path & operator=(str && s) {
-      s_ = validate_and_adjust(_std::move(s));
+   path & operator=(text::_LOFTY_PUBNS str && s) {
+      s_ = validate_and_adjust(_std::_pub::move(s));
       return *this;
    }
 
@@ -141,7 +145,7 @@ public:
    @return
       *this.
    */
-   path & operator=(str const & s) {
+   path & operator=(text::_LOFTY_PUBNS str const & s) {
       s_ = validate_and_adjust(s);
       return *this;
    }
@@ -160,7 +164,7 @@ public:
    @return
       Constant reference to the internal path string.
    */
-   operator str const &() const {
+   operator text::_LOFTY_PUBNS str const &() const {
       return s_;
    }
 
@@ -171,7 +175,7 @@ public:
    @return
       *this.
    */
-   path & operator+=(str const & s) {
+   path & operator+=(text::_LOFTY_PUBNS str const & s) {
       s_ = validate_and_adjust(s_ + s);
       return *this;
    }
@@ -183,7 +187,7 @@ public:
    @return
       Resulting path.
    */
-   path operator+(str const & s) const {
+   path operator+(text::_LOFTY_PUBNS str const & s) const {
       return path(*this) += s;
    }
 
@@ -195,7 +199,7 @@ public:
    @return
       *this.
    */
-   path & operator/=(str const & s);
+   path & operator/=(text::_LOFTY_PUBNS str const & s);
 
    /*! Path-correct concatenation operator. See operator/=() for details.
 
@@ -204,7 +208,7 @@ public:
    @return
       Resulting path.
    */
-   path operator/(str const & s) const {
+   path operator/(text::_LOFTY_PUBNS str const & s) const {
       return path(*this) /= s;
    }
 
@@ -240,7 +244,7 @@ public:
    @return
       Current directory in volume.
    */
-   static path current_dir_for_volume(char_t volume);
+   static path current_dir_for_volume(text::_LOFTY_PUBNS char_t volume);
 #endif //if LOFTY_HOST_API_WIN32
 
 #if 0
@@ -248,7 +252,7 @@ public:
 
    TODO: comment signature.
    */
-   _path_iterator find(str const & pattern) const;
+   _path_iterator find(text::_LOFTY_PUBNS str const & pattern) const;
 #endif
 
    /*! Returns true if the path is in absolute form. Under Win32, this means that the path is prefixed with
@@ -307,11 +311,11 @@ public:
    */
 #if LOFTY_HOST_API_POSIX
    // Under POSIX we don’t need an intermediate string, so the return type can be str const &.
-   str const & os_str() const {
+   text::_LOFTY_PUBNS str const & os_str() const {
       return s_;
    }
 #elif LOFTY_HOST_API_WIN32 //if LOFTY_HOST_API_POSIX
-   str os_str() const;
+   text::_LOFTY_PUBNS str os_str() const;
 #else //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32
    #error "TODO: HOST_API"
 #endif //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32 … else
@@ -335,8 +339,8 @@ public:
    @return
       Path component separator.
    */
-   static str separator() {
-      return str(separator_);
+   static text::_LOFTY_PUBNS str separator() {
+      return text::_pub::str(separator_);
    }
 
    /*! Returns the count of characters in the path.
@@ -356,7 +360,7 @@ private:
       Iterator pointing to the first character of the final component in s_, or the beginning of s_ if the
       path does not contain a root component/prefix.
    */
-   str::const_iterator base_name_start() const;
+   text::_LOFTY_PUBNS str::const_iterator base_name_start() const;
 
    /*! Returns the length of the root part of the specified path or, in other words, the index of the first
    character in the path that is not part of the root, e.g. “a” in “/a” (POSIX), “\\?\UNC\a”, “\\?\X:\a”,
@@ -373,7 +377,7 @@ private:
       Length of the root part in s, or 0 if s does not start with a root part.
    */
    static std::size_t get_root_length(
-      str const & s
+      text::_LOFTY_PUBNS str const & s
 #if LOFTY_HOST_API_WIN32
       , bool include_non_absolute = true
 #endif
@@ -389,7 +393,7 @@ private:
    @return
       true if s represents an absolute path, or false otherwise.
    */
-   static bool is_absolute(str const & s);
+   static bool is_absolute(text::_LOFTY_PUBNS str const & s);
 
    /*! Validates and adjusts a path to make it suitable as lofty::os::path’s internal representation:
    •  Collapses sequences of consecutive path separators into a single separator;
@@ -403,15 +407,15 @@ private:
    @return
       Path suitable for lofty::os::path’s internal representation.
    */
-   static str validate_and_adjust(str s);
+   static text::_LOFTY_PUBNS str validate_and_adjust(text::_LOFTY_PUBNS str s);
 
 private:
    //! Full path, always in normalized form.
-   str s_;
+   text::_LOFTY_PUBNS str s_;
    //! Platform-specific path component separator.
-   static char_t const separator_[1 /*"/" or "\"*/ + 1 /*NUL*/];
+   static text::_LOFTY_PUBNS char_t const separator_[1 /*"/" or "\"*/ + 1 /*NUL*/];
    //! Platform-specific root path.
-   static char_t const root_[
+   static text::_LOFTY_PUBNS char_t const root_[
 #if LOFTY_HOST_API_POSIX
       1 /*"/"*/ + 1 /*NUL*/
 #elif LOFTY_HOST_API_WIN32
@@ -422,14 +426,14 @@ private:
    ];
 #if LOFTY_HOST_API_WIN32
    //! Root for UNC paths in the Win32 File Namespace.
-   static char_t const unc_root[8 /*"\\?\UNC\"*/ + 1 /*NUL*/];
+   static text::_LOFTY_PUBNS char_t const unc_root[8 /*"\\?\UNC\"*/ + 1 /*NUL*/];
 #endif
 };
 
 // Relational operators.
 #define LOFTY_RELOP_IMPL(op) \
    inline bool operator op(path const & left, path const & right) { \
-      return static_cast<str const &>(left) op static_cast<str const &>(right); \
+      return static_cast<text::_pub::str const &>(left) op static_cast<text::_pub::str const &>(right); \
    }
 LOFTY_RELOP_IMPL(==)
 LOFTY_RELOP_IMPL(!=)
@@ -439,16 +443,17 @@ LOFTY_RELOP_IMPL(<)
 LOFTY_RELOP_IMPL(<=)
 #undef LOFTY_RELOP_IMPL
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::os
 
 //! @cond
 namespace std {
 
 template <>
-struct hash<lofty::os::path> : public hash<lofty::text::str> {
+struct hash<lofty::os::_LOFTY_PUBNS path> : public hash<lofty::text::_LOFTY_PUBNS str> {
    //! See std::hash::operator()().
-   std::size_t operator()(lofty::os::path const & path) const {
-      return hash<lofty::text::str>::operator()(path);
+   std::size_t operator()(lofty::os::_LOFTY_PUBNS path const & path) const {
+      return hash<lofty::text::_pub::str>::operator()(path);
    }
 };
 
@@ -461,14 +466,14 @@ struct hash<lofty::os::path> : public hash<lofty::text::str> {
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<os::path> {
+class LOFTY_SYM to_text_ostream<os::_LOFTY_PUBNS path> {
 public:
    /*! Changes the output format.
 
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Writes a path, applying the formatting options.
 
@@ -477,7 +482,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(os::path const & src, io::text::ostream * dst);
+   void write(os::_LOFTY_PUBNS path const & src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
 } //namespace lofty
@@ -486,12 +491,13 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace os {
+_LOFTY_PUBNS_BEGIN
 
 #if 0
 class _path_iterator {
 public:
    //! Constructor.
-   _path_iterator(path const & dir_path, str const & pattern) :
+   _path_iterator(path const & dir_path, text::_LOFTY_PUBNS str const & pattern) :
       base_path(dir_path),
       search_handle(find_first_file((base_path / pattern).os_str().c_str(), &curr)),
       eof(search_handle == INVALID_HANDLE_VALUE) {
@@ -506,10 +512,10 @@ public:
       Source object.
    */
    _path_iterator(_path_iterator && src) :
-      base_path(_std::move(src.base_path)),
+      base_path(_std::_pub::move(src.base_path)),
       search_handle(src.search_handle),
       eof(src.eof) {
-      memory::copy(&curr, &src.curr);
+      memory::_pub::copy(&curr, &src.curr);
       src.search_handle = INVALID_HANDLE_VALUE;
    }
 
@@ -567,7 +573,7 @@ public:
 
 private:
    //! Wrapper for ::FindFirstFile(), to support RIIA.
-   static ::HANDLE find_first_file(char_t const * pattern, ::WIN32_FIND_DATA * out) {
+   static ::HANDLE find_first_file(text::_LOFTY_PUBNS char_t const * pattern, ::WIN32_FIND_DATA * out) {
       ::HANDLE ret = ::FindFirstFileW(pattern, out);
       if (ret == INVALID_HANDLE_VALUE) {
          auto err = ::GetLastError();
@@ -580,7 +586,9 @@ private:
 
    //! Returns the path from the curr member.
    path next_path() const {
-      return path(base_path / str(curr.cFileName, ::wcslen(curr.cFileName)), curr.dwFileAttributes);
+      return path(
+         base_path / text::_pub::str(curr.cFileName, ::wcslen(curr.cFileName)), curr.dwFileAttributes
+      );
    }
 
 private:
@@ -599,13 +607,30 @@ private:
 
 // Now this can be defined.
 
-inline _path_iterator path::find(str const & pattern) const {
+inline _path_iterator path::find(text::_LOFTY_PUBNS str const & pattern) const {
    return _path_iterator(*this, pattern);
 }
 #endif
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::os
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_OS_PATH_HXX_NOPUB
+
+#ifdef _LOFTY_OS_PATH_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace os {
+
+   using _pub::path;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_OS_PATH_HXX

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,15 +13,16 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS_HXX
-#define _LOFTY_COLLECTIONS_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS_HXX
 #endif
 
+#ifndef _LOFTY_COLLECTIONS_HXX_NOPUB
+#define _LOFTY_COLLECTIONS_HXX_NOPUB
+
+#include <lofty/exception.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,16 +45,17 @@ namespace collections {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 //! Base for errors due to an invalid key or index being used on a mapping or sequence.
-class LOFTY_SYM bad_access : public generic_error {
+class LOFTY_SYM bad_access : public lofty::_LOFTY_PUBNS generic_error {
 public:
    /*! Constructor.
 
    @param err
       OS-defined error number associated to the exception.
    */
-   explicit bad_access(errint_t err = 0);
+   explicit bad_access(lofty::_LOFTY_PUBNS errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -75,11 +77,13 @@ public:
    bad_access & operator=(bad_access const & src);
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 //! Mapping (dictionary) key not found in the set of existing keys.
 class LOFTY_SYM bad_key : public bad_access {
@@ -89,7 +93,7 @@ public:
    @param err
       OS-defined error number associated to the exception.
    */
-   explicit bad_key(errint_t err = 0);
+   explicit bad_key(lofty::_LOFTY_PUBNS errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -111,11 +115,13 @@ public:
    bad_key & operator=(bad_key const & src);
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 //! Thrown when an attempt is made to access elements in a container outside its [begin(), end()) range.
 class LOFTY_SYM out_of_range : public bad_access {
@@ -125,7 +131,7 @@ public:
    @param err
       OS-defined error number associated to the exception.
    */
-   explicit out_of_range(errint_t err = 0);
+   explicit out_of_range(lofty::_LOFTY_PUBNS errint_t err = 0);
 
    /*! Constructor.
 
@@ -138,7 +144,9 @@ public:
    @param err
       OS-defined error number associated to the exception.
    */
-   out_of_range(std::ptrdiff_t invalid, std::ptrdiff_t min, std::ptrdiff_t max, errint_t err = 0);
+   out_of_range(
+      std::ptrdiff_t invalid, std::ptrdiff_t min, std::ptrdiff_t max, lofty::_LOFTY_PUBNS errint_t err = 0
+   );
 
    /*! Constructor.
 
@@ -151,7 +159,9 @@ public:
    @param err
       OS-defined error number associated to the exception.
    */
-   out_of_range(void const * invalid, void const * min, void const * max, errint_t err = 0);
+   out_of_range(
+      void const * invalid, void const * min, void const * max, lofty::_LOFTY_PUBNS errint_t err = 0
+   );
 
    /*! Copy constructor.
 
@@ -173,8 +183,27 @@ public:
    out_of_range & operator=(out_of_range const & src);
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace collections {
+
+   using _pub::bad_access;
+   using _pub::bad_key;
+   using _pub::out_of_range;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS_HXX

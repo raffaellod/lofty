@@ -12,17 +12,23 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/coroutine.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
+#include <lofty/io/binary.hxx>
+#include <lofty/net.hxx>
+#include <lofty/net/ip.hxx>
 #include <lofty/net/tcp.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/thread.hxx>
 #include "sockaddr_any.hxx"
-
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // EINTR errno
    #include <netinet/in.h> // ntohs()
    #include <sys/socket.h> // accept4() getsockname()
 #elif LOFTY_HOST_API_WIN32
+   #include <lofty/memory.hxx>
    #include <winsock2.h>
    #if LOFTY_HOST_CXX_MSC
       // Silence warnings from system header files.
@@ -42,7 +48,6 @@ more details.
    #endif
    #include <mswsock.h> // AcceptEx() GetAcceptExSockaddrs()
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

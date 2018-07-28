@@ -12,18 +12,26 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/coroutine.hxx>
 #include <lofty/event.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/io/text/str.hxx>
 #include <lofty/keyed_demux.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/mutex.hxx>
 #include <lofty/range.hxx>
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/mutex.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/testing/test_case.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/thread.hxx>
 #include <lofty/to_str.hxx>
 #include <lofty/try_finally.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,8 +77,8 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 
    /* Verify that the string representations are different for joinable thread, and identical for non-joinable
    ones. */
-   str thread1_str(to_str(thread1)), thread2_str(to_str(thread2));
-   str thread3_str(to_str(thread3)), thread4_str(to_str(thread4));
+   text::str thread1_str(to_str(thread1)), thread2_str(to_str(thread2));
+   text::str thread3_str(to_str(thread3)), thread4_str(to_str(thread4));
    ASSERT(thread1_str != thread2_str);
    ASSERT(thread1_str != thread3_str);
    ASSERT(thread2_str != thread3_str);
@@ -186,7 +194,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    };
    ASSERT(exception_caught);
    // While we’re at it, verify that something was written to stderr while *capturing_stderr was stderr.
-   ASSERT(capturing_stderr->get_str() != str::empty);
+   ASSERT(capturing_stderr->get_str() != text::str::empty);
 }
 
 }} //namespace lofty::test
@@ -239,7 +247,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    ASSERT(exception_caught);
    ASSERT(!thread1_completed.load());
    // While we’re at it, verify that something was written to stderr while *capturing_stderr was stderr.
-   ASSERT(capturing_stderr->get_str() != str::empty);
+   ASSERT(capturing_stderr->get_str() != text::str::empty);
 }
 
 }} //namespace lofty::test

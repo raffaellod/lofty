@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,15 +13,16 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_BYTE_ORDER_HXX
-#define _LOFTY_BYTE_ORDER_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_BYTE_ORDER_HXX
 #endif
 
+#ifndef _LOFTY_BYTE_ORDER_HXX_NOPUB
+#define _LOFTY_BYTE_ORDER_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,6 +100,7 @@ struct swap_impl<8> {
 //! @endcond
 
 namespace lofty { namespace byte_order {
+_LOFTY_PUBNS_BEGIN
 
 /*! Unconditionally flips the byte order in a number. It’s only defined for types ranging in size from 2 to 8
 bytes.
@@ -178,8 +180,29 @@ inline I le_to_host(I i) {
 #endif
 }
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::byte_order
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_BYTE_ORDER_HXX_NOPUB
+
+#ifdef _LOFTY_BYTE_ORDER_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace byte_order {
+
+   using _pub::swap;
+   using _pub::be_to_host;
+   using _pub::host_to_be;
+   using _pub::host_to_le;
+   using _pub::le_to_host;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_BYTE_ORDER_HXX

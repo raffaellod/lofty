@@ -13,19 +13,23 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_IO_BINARY_BUFFER_HXX
-#define _LOFTY_IO_BINARY_BUFFER_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_IO_BINARY_BUFFER_HXX
 #endif
 
+#ifndef _LOFTY_IO_BINARY_BUFFER_HXX_NOPUB
+#define _LOFTY_IO_BINARY_BUFFER_HXX_NOPUB
+
+#include <lofty/memory.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/memory.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 /*! Self-managed, partitioned buffer.
 
@@ -89,7 +93,7 @@ And more bytes are read into the buffer, repeating the cycle.
    └──────────────────────┴───────────────┘
    @endverbatim
 */
-class LOFTY_SYM buffer : public noncopyable {
+class LOFTY_SYM buffer : public lofty::_LOFTY_PUBNS noncopyable {
 public:
    //! Default constructor.
    buffer() :
@@ -237,7 +241,7 @@ public:
 
 private:
    //! Pointer to the allocated memory block.
-   _std::unique_ptr<void, memory::freeing_deleter> ptr;
+   _std::_LOFTY_PUBNS unique_ptr<void, memory::_LOFTY_PUBNS freeing_deleter> ptr;
    //! Size of *ptr.
    std::size_t size_;
    /*! Offset of the used portion of the buffer. Only bytes following the used portion are reported as used
@@ -247,8 +251,25 @@ private:
    std::size_t available_offset_;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_IO_BINARY_BUFFER_HXX_NOPUB
+
+#ifdef _LOFTY_IO_BINARY_BUFFER_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace io { namespace binary {
+
+   using _pub::buffer;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_IO_BINARY_BUFFER_HXX

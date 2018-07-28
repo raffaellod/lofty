@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,16 +12,21 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text.hxx>
 #include <lofty/os/path.hxx>
-
+#include <lofty/_std/utility.hxx>
+#include <lofty/text.hxx>
+#include <lofty/text/str.hxx>
+#include <lofty/to_text_ostream.hxx>
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // errno E*
    #include <sys/stat.h> // S_*, stat()
    #include <unistd.h> // getcwd()
+#elif LOFTY_HOST_API_WIN32
+   #include <lofty/memory.hxx>
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +75,7 @@ static bool file_has_attrs(path const & path_, ::DWORD attrs) {
 #endif //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32
 
 
-char_t const path::separator_[] =
+text::char_t const path::separator_[] =
 #if LOFTY_HOST_API_POSIX
    LOFTY_SL("/");
 #elif LOFTY_HOST_API_WIN32
@@ -78,7 +83,7 @@ char_t const path::separator_[] =
 #else
    #error "TODO: HOST_API"
 #endif
-char_t const path::root_[] =
+text::char_t const path::root_[] =
 #if LOFTY_HOST_API_POSIX
    LOFTY_SL("/");
 #elif LOFTY_HOST_API_WIN32
@@ -87,12 +92,12 @@ char_t const path::root_[] =
    #error "TODO: HOST_API"
 #endif
 #if LOFTY_HOST_API_WIN32
-char_t const path::unc_root[] = LOFTY_SL("\\\\?\\UNC\\");
+text::char_t const path::unc_root[] = LOFTY_SL("\\\\?\\UNC\\");
 #endif
 
-path & path::operator/=(str const & s) {
+path & path::operator/=(text::str const & s) {
    // Only the root already ends in a separator; everything else needs one.
-   s_ = validate_and_adjust((!s_ || is_root() ? str(s_) : s_ + separator_) + s);
+   s_ = validate_and_adjust((!s_ || is_root() ? text::str(s_) : s_ + separator_) + s);
    return *this;
 }
 
@@ -113,7 +118,7 @@ path path::absolute() const {
       relative to the current directory in that volume. Either way, these two formats don’t qualify as
       absolute (which is why we’re here), and can be recognized as follows. */
       std::size_t s_size = s_.size_in_chars();
-      char_t const * s_chars = s_.data();
+      text::char_t const * s_chars = s_.data();
       if (s_size > volume_colon_index && *(s_chars + volume_colon_index) == ':') {
          /* The path is in the form “X:a”: get the current directory for that volume and prepend it to the
          path to make it absolute. */
@@ -144,9 +149,9 @@ path path::base_name() const {
 }
 
 /*static*/ path path::current_dir() {
-   str ret;
+   text::str ret;
 #if LOFTY_HOST_API_POSIX
-   ret.set_from([] (char_t * chars, std::size_t chars_max) -> std::size_t {
+   ret.set_from([] (text::char_t * chars, std::size_t chars_max) -> std::size_t {
       if (::getcwd(chars, chars_max)) {
          // The length will be necessarily less than chars_max, so set_from() will stop.
          return text::size_in_chars(chars);
@@ -162,7 +167,7 @@ path path::base_name() const {
    /* Since we want to prefix the result of ::GetCurrentDirectory() with root_, we’ll make str::set_from()
    allocate space for that too, by adding the size of the root to the buffer size while advancing the buffer
    pointer we pass to ::GetCurrentDirectory() in order to reserve space for the root prefix. */
-   ret.set_from([] (char_t * chars, std::size_t chars_max) -> std::size_t {
+   ret.set_from([] (text::char_t * chars, std::size_t chars_max) -> std::size_t {
       static std::size_t const root_size = LOFTY_COUNTOF(root_) - 1 /*NUL*/;
       if (root_size >= chars_max) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
@@ -185,11 +190,11 @@ path path::base_name() const {
 }
 
 #if LOFTY_HOST_API_WIN32
-/*static*/ path path::current_dir_for_volume(char_t volume) {
+/*static*/ path path::current_dir_for_volume(text::char_t volume) {
    // Create a dummy path for ::GetFullPathName() to expand.
-   char_t dummy_path[4] = { volume, ':', 'a', '\0' };
-   str ret;
-   ret.set_from([&dummy_path] (char_t * chars, std::size_t chars_max) -> std::size_t {
+   text::char_t dummy_path[4] = { volume, ':', 'a', '\0' };
+   text::str ret;
+   ret.set_from([&dummy_path] (text::char_t * chars, std::size_t chars_max) -> std::size_t {
       static std::size_t const root_size = LOFTY_COUNTOF(root_) - 1 /*NUL*/;
       if (root_size >= chars_max) {
          // If the buffer is not large enough to hold the root prefix, request a larger one.
@@ -222,7 +227,7 @@ bool path::is_dir() const {
 }
 
 path path::normalize() const {
-   str s(s_);
+   text::str s(s_);
    auto begin(s.begin()), end(s.end());
    auto root_end(begin + static_cast<std::ptrdiff_t>(get_root_length(s)));
 
@@ -234,7 +239,7 @@ path path::normalize() const {
    •  Upon encountering the second “/” in “a/../”, roll back to index 0 (root_end);
    •  Upon encountering the second “/” in “/../a”, roll back to index 1 (root_end).
    */
-   collections::vector<str::iterator, 5> separator_itrs;
+   collections::vector<text::str::iterator, 5> separator_itrs;
    std::size_t dots = 0;
    auto dst(root_end);
    for (auto src(root_end); src < end; ++src) {
@@ -296,7 +301,7 @@ path path::normalize() const {
 }
 
 #if LOFTY_HOST_API_WIN32
-str path::os_str() const {
+text::str path::os_str() const {
    return _std::move(absolute().s_);
 }
 #endif //if LOFTY_HOST_API_WIN32
@@ -317,10 +322,10 @@ path path::parent_dir() const {
 }
 
 /*static*/ path path::root() {
-   return str(root_);
+   return text::str(root_);
 }
 
-str::const_iterator path::base_name_start() const {
+text::str::const_iterator path::base_name_start() const {
    auto ret(s_.find_last(separator_[0]));
    if (ret == s_.cend()) {
       ret = s_.cbegin();
@@ -343,7 +348,7 @@ str::const_iterator path::base_name_start() const {
 }
 
 /*static*/ std::size_t path::get_root_length(
-   str const & s
+   text::str const & s
 #if LOFTY_HOST_API_WIN32
    , bool include_non_absolute /*= true*/
 #endif
@@ -362,13 +367,13 @@ str::const_iterator path::base_name_start() const {
    static std::size_t const leading_sep_index = 0; // “\” in “\”
 
    std::size_t s_size = s.size_in_chars();
-   char_t const * s_chars = s.data();
+   text::char_t const * s_chars = s.data();
    if (s.starts_with(root_)) {
       if (s.starts_with(unc_root)) {
          // Return the index of “a” in “\\?\UNC\a”.
          return unc_root_size;
       }
-      char_t ch;
+      text::char_t ch;
       LOFTY_UNUSED_ARG(ch);
       LOFTY_ASSERT(
          s_size >= volume_root_size &&
@@ -396,11 +401,11 @@ str::const_iterator path::base_name_start() const {
    return 0;
 }
 
-/*static*/ bool path::is_absolute(str const & s) {
+/*static*/ bool path::is_absolute(text::str const & s) {
    return s.starts_with(root_);
 }
 
-/*static*/ str path::validate_and_adjust(str s) {
+/*static*/ text::str path::validate_and_adjust(text::str s) {
 #if LOFTY_HOST_API_WIN32
    // Simplify the logic below by normalizing all slashes to backslashes.
    s.replace('/', '\\');
@@ -415,9 +420,9 @@ str::const_iterator path::base_name_start() const {
          s = unc_root + s.substr(s.cbegin() + 2 /*“\\”*/);
       } else {
          std::size_t s_size = s.size_in_chars();
-         char_t * s_chars = s.data();
+         text::char_t * s_chars = s.data();
          if (s_size >= 2 && *(s_chars + 1) == ':') {
-            char_t volume = *s_chars;
+            text::char_t volume = *s_chars;
             // If the path is in the form “x:”, normalize the volume designator to uppercase.
             if (volume >= 'a' && volume <= 'z') {
                volume -= 'a' - 'A';
@@ -475,7 +480,7 @@ str::const_iterator path::base_name_start() const {
 
 namespace lofty {
 
-void to_text_ostream<os::path>::set_format(str const & format) {
+void to_text_ostream<os::path>::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.

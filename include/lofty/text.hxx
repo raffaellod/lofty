@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,17 +13,20 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TEXT_HXX
-#define _LOFTY_TEXT_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#include <lofty/text-1.hxx>
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
 
-#include <lofty/collections/vector.hxx>
+#ifndef _LOFTY_TEXT_HXX_NOPUB
+#define _LOFTY_TEXT_HXX_NOPUB
 
+#include <lofty/collections/vector-0.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/to_text_ostream.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,9 +35,10 @@ namespace lofty {
 //! Contains classes and functions to work with Unicode text strings and characters.
 namespace text {}
 
-} //namespace lofty
+}
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! This should be used to replace any invalid char32_t value.
 static char32_t const replacement_char = 0x00fffd;
@@ -109,18 +113,6 @@ inline /*constexpr*/ bool is_codepoint_valid(char32_t cp) {
    return cp <= 0x10ffff;
 }
 
-/*! Calculates the length of a NUL-terminated string, in characters.
-
-@param s
-   Pointer to the NUL-terminated string of which to calculate the length.
-@return
-   Length of the string pointed to by s, in characters.
-*/
-LOFTY_SYM std::size_t size_in_chars(char_t const * s);
-#if LOFTY_HOST_UTF > 8
-LOFTY_SYM std::size_t size_in_chars(char const * s);
-#endif
-
 /*! Converts from one character encoding to another, validating the source as it’s processed.
 
 Call this function omitting the last two arguments (dst and dst_byte_size_max) to have returned the calculated
@@ -165,6 +157,7 @@ LOFTY_SYM std::size_t transcode(
    encoding dst_enc, void       ** dst = nullptr, std::size_t * dst_byte_size_max = nullptr
 );
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,14 +166,14 @@ LOFTY_SYM std::size_t transcode(
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<text::file_address> {
+class LOFTY_SYM to_text_ostream<text::_LOFTY_PUBNS file_address> {
 public:
    /*! Changes the output format.
 
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Writes a source location, applying the formatting options.
 
@@ -189,21 +182,22 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(text::file_address const & src, io::text::ostream * dst);
+   void write(text::_LOFTY_PUBNS file_address const & src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
-} //namespace lofty
+}
 //! @endcond
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! A text encoding or decoding error occurred.
-class LOFTY_SYM error : public generic_error {
+class LOFTY_SYM error : public lofty::_LOFTY_PUBNS generic_error {
 public:
    //! Default constructor.
-   explicit error(errint_t err = 0);
+   explicit error(lofty::_LOFTY_PUBNS errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -225,11 +219,13 @@ public:
    error & operator=(error const & src);
 };
 
-}} //namespace lofty::text
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! A text decoding error occurred.
 class LOFTY_SYM decode_error : public error {
@@ -247,7 +243,7 @@ public:
    */
    explicit decode_error(
       str const & description = str::empty, std::uint8_t const * invalid_bytes_begin = nullptr,
-      std::uint8_t const * invalid_bytes_end = nullptr, errint_t err = 0
+      std::uint8_t const * invalid_bytes_end = nullptr, lofty::_LOFTY_PUBNS errint_t err = 0
    );
 
    /*! Copy constructor.
@@ -273,14 +269,16 @@ private:
    //! Description of the encountered problem.
    str description;
    //! Bytes that caused the error.
-   collections::vector<std::uint8_t, 16> invalid_bytes;
+   collections::_LOFTY_PUBNS vector<std::uint8_t, 16> invalid_bytes;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! A text encoding error occurred.
 class LOFTY_SYM encode_error : public error {
@@ -295,7 +293,8 @@ public:
       OS-defined error number associated to the exception.
    */
    explicit encode_error(
-      str const & description = str::empty, char32_t invalid_cp = 0xffffff, errint_t err = 0
+      str const & description = str::empty, char32_t invalid_cp = 0xffffff,
+      lofty::_LOFTY_PUBNS errint_t err = 0
    );
 
    /*! Copy constructor.
@@ -325,14 +324,16 @@ private:
    std::uint32_t invalid_cp;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! The syntax for the specified expression is invalid.
-class LOFTY_SYM syntax_error : public generic_error {
+class LOFTY_SYM syntax_error : public lofty::_LOFTY_PUBNS generic_error {
 public:
    /*! Constructor.
 
@@ -364,7 +365,7 @@ public:
    */
    explicit syntax_error(
       str const & description, str const & source = str::empty, unsigned char_index = 0,
-      unsigned line_number = 0, errint_t err = 0
+      unsigned line_number = 0, lofty::_LOFTY_PUBNS errint_t err = 0
    );
 
    /*! Copy constructor.
@@ -397,8 +398,36 @@ private:
    unsigned line_number;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace text {
+
+   using _pub::char_t;
+   using _pub::decode_error;
+   using _pub::encode_error;
+   using _pub::error;
+   using _pub::get_encoding_size;
+   using _pub::get_line_terminator_str;
+   using _pub::guess_encoding;
+   using _pub::guess_line_terminator;
+   using _pub::is_codepoint_valid;
+   using _pub::replacement_char;
+   using _pub::syntax_error;
+   using _pub::transcode;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TEXT_HXX

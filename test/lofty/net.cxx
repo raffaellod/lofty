@@ -12,7 +12,6 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/from_str.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
@@ -20,7 +19,6 @@ more details.
 #include <lofty/testing/test_case.hxx>
 #include <lofty/text.hxx>
 #include <lofty/to_str.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +33,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    #define ADDR(i, str, ...) \
       static std::uint8_t const LOFTY_CPP_CAT(addr, i, _bytes)[] = __VA_ARGS__; \
       net::ip::address LOFTY_CPP_CAT(addr, i)(LOFTY_CPP_CAT(addr, i, _bytes)); \
-      static char_t const LOFTY_CPP_CAT(addr, i, _str)[] = str;
+      static text::char_t const LOFTY_CPP_CAT(addr, i, _str)[] = str;
    ADDR(00, LOFTY_SL("0.0.0.0"),         { 0, 0, 0, 0 })
    ADDR(40, LOFTY_SL("1.2.3.4"),         { 1, 2, 3, 4 })
    ADDR(44, LOFTY_SL("255.255.255.255"), { 255, 255, 255, 255 })
@@ -85,7 +83,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    #define ADDR(i, str, ...) \
       static std::uint8_t const LOFTY_CPP_CAT(addr, i, _bytes)[] = __VA_ARGS__; \
       net::ip::address LOFTY_CPP_CAT(addr, i)(LOFTY_CPP_CAT(addr, i, _bytes)); \
-      static char_t const LOFTY_CPP_CAT(addr, i, _str)[] = str;
+      static text::char_t const LOFTY_CPP_CAT(addr, i, _str)[] = str;
    ADDR(00, LOFTY_SL("::"),            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 })
    ADDR(01, LOFTY_SL("1::"),           { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 })
    ADDR(02, LOFTY_SL("0:1::"),         { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 })

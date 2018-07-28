@@ -13,25 +13,22 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_THREAD_HXX
-#define _LOFTY_THREAD_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_THREAD_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_THREAD_HXX_NOPUB
+#define _LOFTY_THREAD_HXX_NOPUB
 
 #include <lofty/coroutine.hxx>
-
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #if LOFTY_HOST_API_POSIX
    #include <pthread.h>
 #endif
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty {
 
 /*! @page threads Threads
 Asynchronous code execution via OS-provided preemptive multithreading.
@@ -53,6 +50,11 @@ receiving a SIGTERM in the main thread.
 A thread, after its instantiation, must be either joined using its join() method, or be allowed to run freely,
 using its detach() method. However, when the main thread terminates, all detached threads will receive an
 exception at their earliest interruption point. */
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Thread of program execution. Replacement for std::thread supporting cooperation with lofty::coroutine.
 class LOFTY_SYM thread : public noncopyable {
@@ -92,7 +94,7 @@ public:
    @param main_fn
       Function that will act as the entry point for a new thread to be started immediately.
    */
-   explicit thread(_std::function<void ()> main_fn);
+   explicit thread(_std::_LOFTY_PUBNS function<void ()> main_fn);
 
    /*! Move constructor.
 
@@ -100,7 +102,7 @@ public:
       Source object.
    */
    thread(thread && src) :
-      pimpl(_std::move(src.pimpl)) {
+      pimpl(_std::_pub::move(src.pimpl)) {
    }
 
    //! Destructor.
@@ -114,7 +116,7 @@ public:
       *this.
    */
    thread & operator=(thread && src) {
-      pimpl = _std::move(src.pimpl);
+      pimpl = _std::_pub::move(src.pimpl);
       return *this;
    }
 
@@ -155,9 +157,10 @@ public:
 
 private:
    //! Pointer to the implementation instance.
-   _std::shared_ptr<impl> pimpl;
+   _std::_LOFTY_PUBNS shared_ptr<impl> pimpl;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,14 +169,14 @@ private:
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<thread> : public to_text_ostream<thread::id_type> {
+class LOFTY_SYM to_text_ostream<_LOFTY_PUBNS thread> : public to_text_ostream<_LOFTY_PUBNS thread::id_type> {
 public:
    /*! Changes the output format.
 
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Writes a thread’s identifier, applying the formatting options.
 
@@ -182,7 +185,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(thread const & src, io::text::ostream * dst);
+   void write(_LOFTY_PUBNS thread const & src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
 } //namespace lofty
@@ -198,6 +201,7 @@ namespace this_thread {}
 } //namespace lofty
 
 namespace lofty { namespace this_thread {
+_LOFTY_PUBNS_BEGIN
 
 /*! Attaches a coroutine scheduler to the current thread, and performs and necessary initialization required
 for the current thread to run coroutines.
@@ -208,8 +212,10 @@ for the current thread to run coroutines.
    Coroutine scheduler associated to this thread. If coro_sched was non-nullptr, this is the same as
    coro_sched.
 */
-LOFTY_SYM _std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
-   _std::shared_ptr<coroutine::scheduler> coro_sched = nullptr
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<
+   lofty::_LOFTY_PUBNS coroutine::scheduler
+> const & attach_coroutine_scheduler(
+   _std::_LOFTY_PUBNS shared_ptr<lofty::_LOFTY_PUBNS coroutine::scheduler> coro_sched = nullptr
 );
 
 /*! Returns the coroutine scheduler associated to the current thread, if any.
@@ -218,7 +224,9 @@ LOFTY_SYM _std::shared_ptr<coroutine::scheduler> const & attach_coroutine_schedu
    Coroutine scheduler associated to this thread. May be nullptr if attach_coroutine_scheduler() was never
    called for the current thread.
 */
-LOFTY_SYM _std::shared_ptr<coroutine::scheduler> const & coroutine_scheduler();
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<
+   lofty::_LOFTY_PUBNS coroutine::scheduler
+> const & coroutine_scheduler();
 
 //! Removes the current thread’s coroutine scheduler, if any.
 LOFTY_SYM void detach_coroutine_scheduler();
@@ -228,7 +236,7 @@ LOFTY_SYM void detach_coroutine_scheduler();
 @return
    Unique ID representing the current thread.
 */
-LOFTY_SYM thread::id_type id();
+LOFTY_SYM lofty::_LOFTY_PUBNS thread::id_type id();
 
 #if LOFTY_HOST_API_WIN32
 /*! Performs a ::WaitForSingleObject() while being interruptible by lofty::thread::interrupt().
@@ -269,14 +277,47 @@ LOFTY_SYM void sleep_for_ms(unsigned millisecs);
    operation.
 */
 LOFTY_SYM void sleep_until_fd_ready(
-   io::filedesc_t fd, bool write, unsigned timeout_millisecs
+   io::_LOFTY_PUBNS filedesc_t fd, bool write, unsigned timeout_millisecs
 #if LOFTY_HOST_API_WIN32
-   , io::overlapped * ovl
+   , io::_LOFTY_PUBNS overlapped * ovl
 #endif
 );
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::this_thread
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_THREAD_HXX_NOPUB
+
+#ifdef _LOFTY_THREAD_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::thread;
+
+   }
+
+   namespace lofty { namespace this_thread {
+
+   using _pub::attach_coroutine_scheduler;
+   using _pub::coroutine_scheduler;
+   using _pub::detach_coroutine_scheduler;
+   using _pub::id;
+   #if LOFTY_HOST_API_WIN32
+   using _pub::interruptible_wait_for_single_object;
+   #endif
+   using _pub::interruption_point;
+   using _pub::run_coroutines;
+   using _pub::sleep_for_ms;
+   using _pub::sleep_until_fd_ready;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_THREAD_HXX

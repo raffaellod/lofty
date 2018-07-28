@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015, 2017 Raffaello D. Di Napoli
+Copyright 2011-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,27 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_STD_NEW_HXX
-#define _LOFTY_STD_NEW_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_STD_NEW_HXX
 #endif
 
+#ifndef _LOFTY_STD_NEW_HXX_NOPUB
+#define _LOFTY_STD_NEW_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if LOFTY_HOST_STL_LOFTY
+
+#include <lofty/_std/exception.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Type of nothrow constant (C++11 § 18.6 “Dynamic memory management”).
 struct nothrow_t {};
@@ -33,11 +41,13 @@ struct nothrow_t {};
 //! Constant to request no exceptions to be thrown (C++11 § 18.6 “Dynamic memory management”).
 extern LOFTY_SYM nothrow_t const nothrow;
 
-}} //namespace lofty::_std
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Thrown when a memory allocation error occurs (C++11 § 18.6.2.1 “Class bad_alloc”).
 class LOFTY_SYM bad_alloc : public exception {
@@ -52,7 +62,8 @@ public:
    virtual char const * what() const override;
 };
 
-}} //namespace lofty::_std
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -81,5 +92,37 @@ inline void operator delete[](void *, void *) LOFTY_STL_NOEXCEPT_TRUE() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#else //if LOFTY_HOST_STL_LOFTY
+   #include <new>
+
+   namespace lofty { namespace _std { namespace _pub {
+
+   using ::std::bad_alloc;
+   using ::std::nothrow;
+   using ::std::nothrow_t;
+
+   }}}
+#endif //if LOFTY_HOST_STL_LOFTY … else
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_STD_NEW_HXX_NOPUB
+
+#ifdef _LOFTY_STD_NEW_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace _std {
+
+   using _pub::bad_alloc;
+   using _pub::nothrow;
+   using _pub::nothrow_t;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_STD_NEW_HXX

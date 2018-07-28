@@ -12,14 +12,30 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_IO_TEXT_0_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_IO_TEXT_0_HXX
 #endif
 
+#ifndef _LOFTY_IO_TEXT_0_HXX_NOPUB
+#define _LOFTY_IO_TEXT_0_HXX_NOPUB
+
+#include <lofty/from_text_istream.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/iterator.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/type_traits.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text-1.hxx>
+#include <lofty/text/str-0.hxx>
+#include <lofty/to_text_ostream.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! Base interface for text (character-based) streams.
 class LOFTY_SYM stream {
@@ -32,14 +48,14 @@ public:
    @return
       Text encoding.
    */
-   virtual lofty::text::encoding get_encoding() const = 0;
+   virtual lofty::text::_LOFTY_PUBNS encoding get_encoding() const = 0;
 
    /*! Returns the line terminator used in the data store.
 
    @return
       Line terminator.
    */
-   lofty::text::line_terminator get_line_terminator() const {
+   lofty::text::_LOFTY_PUBNS line_terminator get_line_terminator() const {
       return lterm;
    }
 
@@ -48,7 +64,7 @@ public:
    @param lterm_
       New line terminator.
    */
-   void set_line_terminator(lofty::text::line_terminator lterm_) {
+   void set_line_terminator(lofty::text::_LOFTY_PUBNS line_terminator lterm_) {
       lterm = lterm_;
    }
 
@@ -65,14 +81,16 @@ protected:
 
    When writing, “\n” characters will be converted to the line terminator indicated by this variable, with
    line_terminator::any having the same meaning as line_terminator::host. */
-   lofty::text::line_terminator lterm;
+   lofty::text::_LOFTY_PUBNS line_terminator lterm;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for text (character-based) input.
 class LOFTY_SYM istream : public virtual stream {
@@ -84,7 +102,10 @@ public:
 
    public:
       //! Lines iterator.
-      class LOFTY_SYM iterator : public _std::iterator<_std::forward_iterator_tag, str> {
+      class LOFTY_SYM iterator :
+         public _std::_LOFTY_PUBNS iterator<
+            _std::_LOFTY_PUBNS forward_iterator_tag, lofty::text::_LOFTY_PUBNS str
+         > {
       private:
          friend class _lines_proxy;
 
@@ -100,7 +121,7 @@ public:
          @return
             Reference to the current line.
          */
-         str & operator*() const {
+         lofty::text::_LOFTY_PUBNS str & operator*() const {
             return last_read_line;
          }
 
@@ -109,7 +130,7 @@ public:
          @return
             Pointer to the current line.
          */
-         str * operator->() const {
+         lofty::text::_LOFTY_PUBNS str * operator->() const {
             return &last_read_line;
          }
 
@@ -131,7 +152,7 @@ public:
          iterator operator++(int) {
             iterator prev_itr(*this);
             operator++();
-            return _std::move(prev_itr);
+            return _std::_pub::move(prev_itr);
          }
 
          /*! Equality relational operator.
@@ -175,7 +196,7 @@ public:
          //! Pointer to the container from which lines are read.
          class istream * const istream;
          //! Current line, or last line read before EOF.
-         str mutable last_read_line;
+         lofty::text::_LOFTY_PUBNS str mutable last_read_line;
          //! If true, the iterator is at the end() of its container.
          bool eof:1;
       };
@@ -244,14 +265,14 @@ public:
       longer if there are more characters available than requested, for implementation-defined reasons. For
       non-zero values of cch, a returned empty string indicates that no more data is available (EOF).
    */
-   virtual str peek_chars(std::size_t count_min) = 0;
+   virtual lofty::text::_LOFTY_PUBNS str peek_chars(std::size_t count_min) = 0;
 
    /*! Returns the entire stream, emptying it.
 
    @return
       Content of the stream.
    */
-   str read_all();
+   lofty::text::_LOFTY_PUBNS str read_all();
 
    /*! Reads the entire stream into a string. Efficient when the stream is expected to be of a reasonably
    small size, and the destination string can be a lofty::text::sstr instance of sufficient size, provided by
@@ -262,7 +283,7 @@ public:
    @param dst
       Pointer to the string that will receive the data.
    */
-   virtual void read_all(str * dst);
+   virtual void read_all(lofty::text::_LOFTY_PUBNS str * dst);
 
    /*! Reads a whole line into the specified string, discarding the line terminator.
 
@@ -274,7 +295,7 @@ public:
    @return
       true if a line could be read, or false if the end of the stream was reached.
     */
-   virtual bool read_line(str * dst);
+   virtual bool read_line(lofty::text::_LOFTY_PUBNS str * dst);
 
    /*! Reads multiple values at once, separating them according to the specified format.
 
@@ -298,45 +319,53 @@ public:
    */
 #ifdef LOFTY_CXX_VARIADIC_TEMPLATES
    template <typename... Ts>
-   bool scan(str const & format, Ts *... dsts);
+   bool scan(lofty::text::_LOFTY_PUBNS str const & format, Ts *... dsts);
 #else //ifdef LOFTY_CXX_VARIADIC_TEMPLATES
-   bool scan(str const & format);
+   bool scan(lofty::text::_LOFTY_PUBNS str const & format);
    template <typename T0>
-   bool scan(str const & format, T0 * dst0);
+   bool scan(lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0);
    template <typename T0, typename T1>
-   bool scan(str const & format, T0 * dst0, T1 * dst1);
+   bool scan(lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1);
    template <typename T0, typename T1, typename T2>
-   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2);
+   bool scan(lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2);
    template <typename T0, typename T1, typename T2, typename T3>
-   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3);
+   bool scan(lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3);
    template <typename T0, typename T1, typename T2, typename T3, typename T4>
-   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4);
+   bool scan(
+      lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4
+   );
    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5);
+   bool scan(
+      lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+      T5 * dst5
+   );
    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-   bool scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6);
+   bool scan(
+      lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+      T5 * dst5, T6 * dst6
+   );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7
    >
    bool scan(
-      str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6,
-      T7 * dst7
+      lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+      T5 * dst5, T6 * dst6, T7 * dst7
    );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
       typename T8
    >
    bool scan(
-      str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6,
-      T7 * dst7, T8 * dst8
+      lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+      T5 * dst5, T6 * dst6, T7 * dst7, T8 * dst8
    );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
       typename T8, typename T9
    >
    bool scan(
-      str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6,
-      T7 * dst7, T8 * dst8, T9 * dst9
+      lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+      T5 * dst5, T6 * dst6, T7 * dst7, T8 * dst8, T9 * dst9
    );
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
@@ -355,7 +384,7 @@ public:
    @param s
       String containing the characters to unconsume.
    */
-   virtual void unconsume_chars(str const & s) = 0;
+   virtual void unconsume_chars(lofty::text::_LOFTY_PUBNS str const & s) = 0;
 
 protected:
    //! Default constructor.
@@ -370,11 +399,13 @@ protected:
    bool discard_next_lf:1;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for binary (non-text) output.
 class LOFTY_SYM ostream : public virtual stream {
@@ -427,51 +458,56 @@ public:
    */
 #ifdef LOFTY_CXX_VARIADIC_TEMPLATES
    template <typename... Ts>
-   void print(str const & format, Ts const &... ts);
+   void print(lofty::text::_LOFTY_PUBNS str const & format, Ts const &... ts);
 #else //ifdef LOFTY_CXX_VARIADIC_TEMPLATES
-   void print(str const & format);
+   void print(lofty::text::_LOFTY_PUBNS str const & format);
    template <typename T0>
-   void print(str const & format, T0 const & t0);
+   void print(lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0);
    template <typename T0, typename T1>
-   void print(str const & format, T0 const & t0, T1 const & t1);
+   void print(lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1);
    template <typename T0, typename T1, typename T2>
-   void print(str const & format, T0 const & t0, T1 const & t1, T2 const & t2);
+   void print(lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2);
    template <typename T0, typename T1, typename T2, typename T3>
-   void print(str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3);
+   void print(
+      lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
+   );
    template <typename T0, typename T1, typename T2, typename T3, typename T4>
-   void print(str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4);
+   void print(
+      lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2,
+      T3 const & t3, T4 const & t4
+   );
    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
    void print(
-      str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-      T5 const & t5
+      lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2,
+      T3 const & t3, T4 const & t4, T5 const & t5
    );
    template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
    void print(
-      str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-      T5 const & t5, T6 const & t6
+      lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2,
+      T3 const & t3, T4 const & t4, T5 const & t5, T6 const & t6
    );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7
    >
    void print(
-      str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-      T5 const & t5, T6 const & t6, T7 const & t7
+      lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2,
+      T3 const & t3, T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7
    );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
       typename T8
    >
    void print(
-      str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-      T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
+      lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2,
+      T3 const & t3, T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
    );
    template <
       typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
       typename T8, typename T9
    >
    void print(
-      str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-      T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
+      lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2,
+      T3 const & t3, T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
    );
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
@@ -480,7 +516,7 @@ public:
    @param s
       String to write.
    */
-   void write(str const & s);
+   void write(lofty::text::_LOFTY_PUBNS str const & s);
 
    /*! Writes the contents of a memory buffer, first translating them to the text stream’s character encoding,
    if necessary.
@@ -493,20 +529,23 @@ public:
       Encoding used by the buffer. If different from the stream’s encoding, a conversion will be performed on
       the fly.
    */
-   virtual void write_binary(void const * src, std::size_t src_byte_size, lofty::text::encoding enc) = 0;
+   virtual void write_binary(
+      void const * src, std::size_t src_byte_size, lofty::text::_LOFTY_PUBNS encoding enc
+   ) = 0;
 
    /*! Writes a string followed by a new-line.
 
    @param s
       String to write.
    */
-   void write_line(str const & s = str::empty);
+   void write_line(lofty::text::_LOFTY_PUBNS str const & s = lofty::text::_LOFTY_PUBNS str::empty);
 
 protected:
    //! Default constructor.
    ostream();
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -516,7 +555,7 @@ namespace lofty { namespace io { namespace text { namespace _pvt {
 
 /*! Template-free implementation of istream_scan_helper; gives that class the ability to refecence parsers’
 methods, without including additional header files. */
-class LOFTY_SYM istream_scan_helper_impl : public noncopyable {
+class LOFTY_SYM istream_scan_helper_impl : public lofty::_LOFTY_PUBNS noncopyable {
 private:
    //! Stores members of types not defined at this point.
    struct impl;
@@ -529,7 +568,7 @@ public:
    @param format
       Format string specifying the expression to match, including any captures.
    */
-   istream_scan_helper_impl(class istream * istream_, str const & format);
+   istream_scan_helper_impl(_LOFTY_PUBNS istream * istream_, lofty::text::_LOFTY_PUBNS str const & format);
 
    //! Destructor.
    ~istream_scan_helper_impl();
@@ -543,14 +582,14 @@ public:
    bool run();
 
 protected:
-   lofty::text::parsers::regex_capture_format const & curr_capture_format() const;
+   lofty::text::parsers::_LOFTY_PUBNS regex_capture_format const & curr_capture_format() const;
 
    /*! Wrapper for pimpl->regex.insert_capture_group().
 
    @param first_state
       First state of the state tree to be wrapped in a capture group.
    */
-   void insert_capture_group(lofty::text::parsers::dynamic_state const * first_state);
+   void insert_capture_group(lofty::text::parsers::_LOFTY_PUBNS dynamic_state const * first_state);
 
    /*! Wrapper for pimpl->match.capture_group().
 
@@ -559,14 +598,14 @@ protected:
    @return
       Refregexnce to the capture help in *pimpl.
    */
-   lofty::text::parsers::dynamic_match_capture const & match_capture_group(unsigned index);
+   lofty::text::parsers::_LOFTY_PUBNS dynamic_match_capture const & match_capture_group(unsigned index);
 
    /*! Returns a pointer to the dynamic parser instance.
 
    @return
       Pointer to the parser stored in *pimpl.
    */
-   lofty::text::parsers::dynamic * parser_ptr();
+   lofty::text::parsers::_LOFTY_PUBNS dynamic * parser_ptr();
 
    /*! Calls pimpl->parser.parse_up_to_next_capture(), terminating the expression once no more captures are
    found.
@@ -583,9 +622,9 @@ protected:
 
 private:
    //! Pointer to the source stream.
-   class istream * istream;
+   _LOFTY_PUBNS istream * istream;
    //! Pointer to members of complex types that would require additional files to be #included.
-   _std::unique_ptr<impl> pimpl;
+   _std::_LOFTY_PUBNS unique_ptr<impl> pimpl;
 };
 
 //! Helper for/implementation of lofty::io::text::istream::scan().
@@ -604,7 +643,7 @@ public:
    @param format
       Format string specifying the expression to match, including any captures.
    */
-   istream_scan_helper(class istream * istream_, str const & format) :
+   istream_scan_helper(_LOFTY_PUBNS istream * istream_, lofty::text::_LOFTY_PUBNS str const & format) :
       istream_scan_helper_impl(istream_, format) {
    }
 
@@ -647,7 +686,7 @@ protected:
    @return
       Pointer to the first state for the capture.
    */
-   LOFTY_FUNC_NORETURN lofty::text::parsers::dynamic_state const * format_to_parser_states(
+   LOFTY_FUNC_NORETURN lofty::text::parsers::_LOFTY_PUBNS dynamic_state const * format_to_parser_states(
       unsigned arg_index
    ) {
       /* This is the last recursion stage, with no capture destinations available, so if we got here
@@ -674,7 +713,9 @@ public:
    @param dsts
       Pointer to the remaining capture destinations.
    */
-   istream_scan_helper(class istream * istream_, str const & format, T0 * dst0_, Ts *... dsts) :
+   istream_scan_helper(
+      _LOFTY_PUBNS istream * istream_, lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0_, Ts *... dsts
+   ) :
       helper_base(istream_, format, dsts...),
       dst0(dst0_) {
    }
@@ -707,7 +748,7 @@ protected:
    }
 
    //! See istream_scan_helper<>::format_to_parser_states().
-   lofty::text::parsers::dynamic_state const * format_to_parser_states(unsigned arg_index) {
+   lofty::text::parsers::_LOFTY_PUBNS dynamic_state const * format_to_parser_states(unsigned arg_index) {
       if (arg_index == 0) {
          return ftis.format_to_parser_states(helper_base::curr_capture_format(), helper_base::parser_ptr());
       } else {
@@ -763,57 +804,62 @@ public:
       Pointer to the tenth capture destination.
    */
    template <typename U0>
-   istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_
-   ) :
+   istream_scan_helper(typename _std::_LOFTY_PUBNS enable_if<
+      !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+   >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_) :
       helper_base(istream_, format_),
       dst0(dst0_) {
    }
    template <typename U0, typename U1>
-   istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1
-   ) :
+   istream_scan_helper(typename _std::_LOFTY_PUBNS enable_if<
+      !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+   >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1) :
       helper_base(istream_, format_, dst1),
       dst0(dst0_) {
    }
    template <typename U0, typename U1, typename U2>
-   istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2
-   ) :
+   istream_scan_helper(typename _std::_LOFTY_PUBNS enable_if<
+      !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+   >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2) :
       helper_base(istream_, format_, dst1, dst2),
       dst0(dst0_) {
    }
    template <typename U0, typename U1, typename U2, typename U3>
    istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+      >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2,
+      U3 * dst3
    ) :
       helper_base(istream_, format_, dst1, dst2, dst3),
       dst0(dst0_) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4>
    istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+      >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2,
+      U3 * dst3, U4 * dst4
    ) :
       helper_base(istream_, format_, dst1, dst2, dst3, dst4),
       dst0(dst0_) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
    istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+      >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2,
+      U3 * dst3, U4 * dst4, U5 * dst5
    ) :
       helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5),
       dst0(dst0_) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6>
    istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+      >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2,
+      U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6
    ) :
       helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5, dst6),
       dst0(dst0_) {
@@ -822,9 +868,10 @@ public:
       typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6, typename U7
    >
    istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6,
-      U7 * dst7
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+      >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2,
+      U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6, U7 * dst7
    ) :
       helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5, dst6, dst7),
       dst0(dst0_) {
@@ -834,9 +881,10 @@ public:
       typename U8
    >
    istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6,
-      U7 * dst7, U8 * dst8
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+      >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2,
+      U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6, U7 * dst7, U8 * dst8
    ) :
       helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst8),
       dst0(dst0_) {
@@ -846,9 +894,10 @@ public:
       typename U8, typename U9
    >
    istream_scan_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class istream *>::type istream_,
-      str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2, U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6,
-      U7 * dst7, U8 * dst8, U9 * dst9
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS istream *
+      >::type istream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 * dst0_, U1 * dst1, U2 * dst2,
+      U3 * dst3, U4 * dst4, U5 * dst5, U6 * dst6, U7 * dst7, U8 * dst8, U9 * dst9
    ) :
       helper_base(istream_, format_, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst8, dst9),
       dst0(dst0_) {
@@ -882,7 +931,7 @@ protected:
    }
 
    //! See istream_scan_helper<>::format_to_parser_states().
-   lofty::text::parsers::dynamic_state const * format_to_parser_states(unsigned arg_index) {
+   lofty::text::parsers::_LOFTY_PUBNS dynamic_state const * format_to_parser_states(unsigned arg_index) {
       if (arg_index == 0) {
          return ftis.format_to_parser_states(helper_base::curr_capture_format(), helper_base::parser_ptr());
       } else {
@@ -909,7 +958,7 @@ public:
    @param format
       Format string specifying the expression to match, including any captures.
    */
-   istream_scan_helper(class istream * istream_, str const & format) :
+   istream_scan_helper(_LOFTY_PUBNS istream * istream_, lofty::text::_LOFTY_PUBNS str const & format) :
       istream_scan_helper_impl(istream_, format) {
    }
 
@@ -970,11 +1019,12 @@ protected:
 // Now it’s possible to implement this.
 
 namespace lofty { namespace io { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 #ifdef LOFTY_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
-inline bool istream::scan(str const & format, Ts *... dsts) {
+inline bool istream::scan(lofty::text::_LOFTY_PUBNS str const & format, Ts *... dsts) {
    _pvt::istream_scan_helper<Ts...> helper(this, format, dsts...);
    helper.create_parser_states();
    return helper.run_and_convert_captures();
@@ -982,44 +1032,49 @@ inline bool istream::scan(str const & format, Ts *... dsts) {
 
 #else //ifdef LOFTY_CXX_VARIADIC_TEMPLATES
 
-inline bool istream::scan(str const & format) {
+inline bool istream::scan(lofty::text::_LOFTY_PUBNS str const & format) {
    _pvt::istream_scan_helper<> helper(this, format);
    helper.create_parser_states();
    return helper.run_and_convert_captures();
 }
 template <typename T0>
-inline bool istream::scan(str const & format, T0 * dst0) {
+inline bool istream::scan(lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0) {
    _pvt::istream_scan_helper<T0> helper(this, format, dst0);
    helper.create_parser_states();
    return helper.run_and_convert_captures();
 }
 template <typename T0, typename T1>
-inline bool istream::scan(str const & format, T0 * dst0, T1 * dst1) {
+inline bool istream::scan(lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1) {
    _pvt::istream_scan_helper<T0, T1> helper(this, format, dst0, dst1);
    helper.create_parser_states();
    return helper.run_and_convert_captures();
 }
 template <typename T0, typename T1, typename T2>
-inline bool istream::scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2) {
+inline bool istream::scan(lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2) {
    _pvt::istream_scan_helper<T0, T1, T2> helper(this, format, dst0, dst1, dst2);
    helper.create_parser_states();
    return helper.run_and_convert_captures();
 }
 template <typename T0, typename T1, typename T2, typename T3>
-inline bool istream::scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3) {
+inline bool istream::scan(
+   lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3
+) {
    _pvt::istream_scan_helper<T0, T1, T2, T3> helper(this, format, dst0, dst1, dst2, dst3);
    helper.create_parser_states();
    return helper.run_and_convert_captures();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
-inline bool istream::scan(str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4) {
+inline bool istream::scan(
+   lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4
+) {
    _pvt::istream_scan_helper<T0, T1, T2, T3, T4> helper(this, format, dst0, dst1, dst2, dst3, dst4);
    helper.create_parser_states();
    return helper.run_and_convert_captures();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 inline bool istream::scan(
-   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5
+   lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+   T5 * dst5
 ) {
    _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5> helper(this, format, dst0, dst1, dst2, dst3, dst4, dst5);
    helper.create_parser_states();
@@ -1027,7 +1082,8 @@ inline bool istream::scan(
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 inline bool istream::scan(
-   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6
+   lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+   T5 * dst5, T6 * dst6
 ) {
    _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5, T6> helper(
       this, format, dst0, dst1, dst2, dst3, dst4, dst5, dst6
@@ -1039,7 +1095,8 @@ template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7
 >
 inline bool istream::scan(
-   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6, T7 * dst7
+   lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+   T5 * dst5, T6 * dst6, T7 * dst7
 ) {
    _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5, T6, T7> helper(
       this, format, dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7
@@ -1052,8 +1109,8 @@ template <
    typename T8
 >
 inline bool istream::scan(
-   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6, T7 * dst7,
-   T8 * dst8
+   lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+   T5 * dst5, T6 * dst6, T7 * dst7, T8 * dst8
 ) {
    _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8> helper(
       this, format, dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst8
@@ -1066,8 +1123,8 @@ template <
    typename T8, typename T9
 >
 inline bool istream::scan(
-   str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4, T5 * dst5, T6 * dst6, T7 * dst7,
-   T8 * dst8, T9 * dst9
+   lofty::text::_LOFTY_PUBNS str const & format, T0 * dst0, T1 * dst1, T2 * dst2, T3 * dst3, T4 * dst4,
+   T5 * dst5, T6 * dst6, T7 * dst7, T8 * dst8, T9 * dst9
 ) {
    _pvt::istream_scan_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> helper(
       this, format, dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst8, dst9
@@ -1078,6 +1135,7 @@ inline bool istream::scan(
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1086,7 +1144,7 @@ inline bool istream::scan(
 namespace lofty { namespace io { namespace text { namespace _pvt {
 
 //! Template-free implementation of lofty::io::text::_pvt::ostream_print_helper.
-class LOFTY_SYM ostream_print_helper_impl : public noncopyable {
+class LOFTY_SYM ostream_print_helper_impl : public lofty::_LOFTY_PUBNS noncopyable {
 public:
    /*! Constructor.
 
@@ -1095,7 +1153,9 @@ public:
    @param format
       Format string to parse for replacements.
    */
-   ostream_print_helper_impl(class ostream * ostream, str const & format);
+   ostream_print_helper_impl(
+      _LOFTY_PUBNS ostream * ostream, lofty::text::_LOFTY_PUBNS str const & format
+   );
 
    //! Writes the provided arguments to the target text stream, performing replacements as necessary.
    void run();
@@ -1122,7 +1182,9 @@ private:
    @param itr
       Position of the offending character in format.
    */
-   LOFTY_FUNC_NORETURN void throw_syntax_error(str const & description, str::const_iterator itr) const;
+   LOFTY_FUNC_NORETURN void throw_syntax_error(
+      lofty::text::_LOFTY_PUBNS str const & description, lofty::text::_LOFTY_PUBNS str::const_iterator itr
+   ) const;
 
    /*! Writes the portion of format string between the first character to be written
    (format_to_write_begin_itr) and the specified one, and updates format_to_write_begin_itr.
@@ -1130,24 +1192,24 @@ private:
    @param up_to
       First character not to be written.
    */
-   void write_format_up_to(str::const_iterator up_to);
+   void write_format_up_to(lofty::text::_LOFTY_PUBNS str::const_iterator up_to);
 
 protected:
    //! Target text output stream.
-   class ostream * ostream;
+   _LOFTY_PUBNS ostream * ostream;
    // TODO: use iterators for the following two member variables.
    //! Start of the format specification of the current replacement.
-   char_t const * repl_format_spec_begin;
+   lofty::text::_LOFTY_PUBNS char_t const * repl_format_spec_begin;
    //! End of the format specification of the current replacement.
-   char_t const * repl_format_spec_end;
+   lofty::text::_LOFTY_PUBNS char_t const * repl_format_spec_end;
    //! 0-based index of the argument to replace the next replacement.
    unsigned last_used_arg_index;
 
 private:
    //! Format string.
-   str const & format;
+   lofty::text::_LOFTY_PUBNS str const & format;
    //! First format string character to be written yet.
-   str::const_iterator format_to_write_begin_itr;
+   lofty::text::_LOFTY_PUBNS str::const_iterator format_to_write_begin_itr;
 };
 
 //! Helper for/implementation of lofty::io::text::ostream::print().
@@ -1167,7 +1229,7 @@ public:
    @param format_
       Format string to parse for replacements.
    */
-   ostream_print_helper(class ostream * ostream_, str const & format_) :
+   ostream_print_helper(_LOFTY_PUBNS ostream * ostream_, lofty::text::_LOFTY_PUBNS str const & format_) :
       ostream_print_helper_impl(ostream_, format_) {
    }
 
@@ -1203,7 +1265,10 @@ public:
    @param ts
       Remaining replacement values.
    */
-   ostream_print_helper(class ostream * ostream_, str const & format_, T0 const & t0_, Ts const &... ts) :
+   ostream_print_helper(
+      _LOFTY_PUBNS ostream * ostream_, lofty::text::_LOFTY_PUBNS str const & format_,
+      T0 const & t0_, Ts const &... ts
+   ) :
       helper_base(ostream_, format_, ts ...),
       t0(t0_) {
    }
@@ -1221,8 +1286,8 @@ protected:
    void write_repl(unsigned arg_index) {
       if (arg_index == 0) {
          to_text_ostream<T0> ttos;
-         ttos.set_format(str(
-            external_buffer, helper_base::repl_format_spec_begin, static_cast<std::size_t>(
+         ttos.set_format(lofty::text::_pub::str(
+            lofty::_pub::external_buffer, helper_base::repl_format_spec_begin, static_cast<std::size_t>(
                helper_base::repl_format_spec_end - helper_base::repl_format_spec_begin
             )
          ));
@@ -1278,59 +1343,65 @@ public:
       Tenth replacement value.
    */
    template <typename U0>
-   ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_
-   ) :
+   ostream_print_helper(typename _std::_LOFTY_PUBNS enable_if<
+      !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+   >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_) :
       helper_base(ostream_, format_),
       t0(t0_) {
    }
    template <typename U0, typename U1>
-   ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1
-   ) :
+   ostream_print_helper(typename _std::_LOFTY_PUBNS enable_if<
+      !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+   >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1) :
       helper_base(ostream_, format_, t1),
       t0(t0_) {
    }
    template <typename U0, typename U1, typename U2>
    ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1, U2 const & t2
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+      >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1,
+      U2 const & t2
    ) :
       helper_base(ostream_, format_, t1, t2),
       t0(t0_) {
    }
    template <typename U0, typename U1, typename U2, typename U3>
    ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1, U2 const & t2, U3 const & t3
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+      >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1,
+      U2 const & t2, U3 const & t3
    ) :
       helper_base(ostream_, format_, t1, t2, t3),
       t0(t0_) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4>
    ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+      >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1,
+      U2 const & t2, U3 const & t3, U4 const & t4
    ) :
       helper_base(ostream_, format_, t1, t2, t3, t4),
       t0(t0_) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5>
    ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4,
-      U5 const & t5
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+      >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1,
+      U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5
    ) :
       helper_base(ostream_, format_, t1, t2, t3, t4, t5),
       t0(t0_) {
    }
    template <typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6>
    ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4,
-      U5 const & t5, U6 const & t6
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+      >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1,
+      U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5, U6 const & t6
    ) :
       helper_base(ostream_, format_, t1, t2, t3, t4, t5, t6),
       t0(t0_) {
@@ -1339,9 +1410,10 @@ public:
       typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6, typename U7
    >
    ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4,
-      U5 const & t5, U6 const & t6, U7 const & t7
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+      >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1,
+      U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5, U6 const & t6, U7 const & t7
    ) :
       helper_base(ostream_, format_, t1, t2, t3, t4, t5, t6, t7),
       t0(t0_) {
@@ -1351,9 +1423,10 @@ public:
       typename U8
    >
    ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4,
-      U5 const & t5, U6 const & t6, U7 const & t7, U8 const & t8
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+      >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1,
+      U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5, U6 const & t6, U7 const & t7, U8 const & t8
    ) :
       helper_base(ostream_, format_, t1, t2, t3, t4, t5, t6, t7, t8),
       t0(t0_) {
@@ -1363,9 +1436,11 @@ public:
       typename U8, typename U9
    >
    ostream_print_helper(
-      typename _std::enable_if<!_std::is_void<U0>::value, class ostream *>::type ostream_,
-      str const & format_, U0 const & t0_, U1 const & t1, U2 const & t2, U3 const & t3, U4 const & t4,
-      U5 const & t5, U6 const & t6, U7 const & t7, U8 const & t8, U9 const & t9
+      typename _std::_LOFTY_PUBNS enable_if<
+         !_std::_LOFTY_PUBNS is_void<U0>::value, _LOFTY_PUBNS ostream *
+      >::type ostream_, lofty::text::_LOFTY_PUBNS str const & format_, U0 const & t0_, U1 const & t1,
+      U2 const & t2, U3 const & t3, U4 const & t4, U5 const & t5, U6 const & t6, U7 const & t7, U8 const & t8,
+      U9 const & t9
    ) :
       helper_base(ostream_, format_, t1, t2, t3, t4, t5, t6, t7, t8, t9),
       t0(t0_) {
@@ -1384,8 +1459,8 @@ protected:
    void write_repl(unsigned arg_index) {
       if (arg_index == 0) {
          to_text_ostream<T0> ttos;
-         ttos.set_format(str(
-            external_buffer, helper_base::repl_format_spec_begin, static_cast<std::size_t>(
+         ttos.set_format(lofty::text::_pub::str(
+            lofty::_pub::external_buffer, helper_base::repl_format_spec_begin, static_cast<std::size_t>(
                helper_base::repl_format_spec_end - helper_base::repl_format_spec_begin
             )
          ));
@@ -1412,7 +1487,7 @@ public:
    @param format_
       Format string to parse for replacements.
    */
-   ostream_print_helper(class ostream * ostream_, str const & format_) :
+   ostream_print_helper(_LOFTY_PUBNS ostream * ostream_, lofty::text::_LOFTY_PUBNS str const & format_) :
       ostream_print_helper_impl(ostream_, format_) {
    }
 
@@ -1438,62 +1513,66 @@ protected:
 // Now it’s possible to implement this.
 
 namespace lofty { namespace io { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 #ifdef LOFTY_CXX_VARIADIC_TEMPLATES
 
 template <typename... Ts>
-inline void ostream::print(str const & format, Ts const &... ts) {
+inline void ostream::print(lofty::text::_LOFTY_PUBNS str const & format, Ts const &... ts) {
    _pvt::ostream_print_helper<Ts ...> helper(this, format, ts ...);
    helper.run();
 }
 
 #else //ifdef LOFTY_CXX_VARIADIC_TEMPLATES
 
-inline void ostream::print(str const & format) {
+inline void ostream::print(lofty::text::_LOFTY_PUBNS str const & format) {
    _pvt::ostream_print_helper<> helper(this, format);
    helper.run();
 }
 template <typename T0>
-inline void ostream::print(str const & format, T0 const & t0) {
+inline void ostream::print(lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0) {
    _pvt::ostream_print_helper<T0> helper(this, format, t0);
    helper.run();
 }
 template <typename T0, typename T1>
-inline void ostream::print(str const & format, T0 const & t0, T1 const & t1) {
+inline void ostream::print(lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1) {
    _pvt::ostream_print_helper<T0, T1> helper(this, format, t0, t1);
    helper.run();
 }
 template <typename T0, typename T1, typename T2>
-inline void ostream::print(str const & format, T0 const & t0, T1 const & t1, T2 const & t2) {
+inline void ostream::print(
+   lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2
+) {
    _pvt::ostream_print_helper<T0, T1, T2> helper(this, format, t0, t1, t2);
    helper.run();
 }
 template <typename T0, typename T1, typename T2, typename T3>
 inline void ostream::print(
-   str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
+   lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3
 ) {
    _pvt::ostream_print_helper<T0, T1, T2, T3> helper(this, format, t0, t1, t2, t3);
    helper.run();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 inline void ostream::print(
-   str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4
+   lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+   T4 const & t4
 ) {
    _pvt::ostream_print_helper<T0, T1, T2, T3, T4> helper(this, format, t0, t1, t2, t3, t4);
    helper.run();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 inline void ostream::print(
-   str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-   T5 const & t5
+   lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+   T4 const & t4, T5 const & t5
 ) {
    _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5> helper(this, format, t0, t1, t2, t3, t4, t5);
    helper.run();
 }
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 inline void ostream::print(
-   str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-   T5 const & t5, T6 const & t6
+   lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+   T4 const & t4, T5 const & t5, T6 const & t6
 ) {
    _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6> helper(this, format, t0, t1, t2, t3, t4, t5, t6);
    helper.run();
@@ -1502,8 +1581,8 @@ template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7
 >
 inline void ostream::print(
-   str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-   T5 const & t5, T6 const & t6, T7 const & t7
+   lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+   T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7
 ) {
    _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7> helper(
       this, format, t0, t1, t2, t3, t4, t5, t6, t7
@@ -1515,8 +1594,8 @@ template <
    typename T8
 >
 inline void ostream::print(
-   str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-   T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
+   lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+   T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8
 ) {
    _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8> helper(
       this, format, t0, t1, t2, t3, t4, t5, t6, t7, t8
@@ -1528,8 +1607,8 @@ template <
    typename T8, typename T9
 >
 inline void ostream::print(
-   str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3, T4 const & t4,
-   T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
+   lofty::text::_LOFTY_PUBNS str const & format, T0 const & t0, T1 const & t1, T2 const & t2, T3 const & t3,
+   T4 const & t4, T5 const & t5, T6 const & t6, T7 const & t7, T8 const & t8, T9 const & t9
 ) {
    _pvt::ostream_print_helper<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> helper(
       this, format, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9
@@ -1539,4 +1618,27 @@ inline void ostream::print(
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::text
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_IO_TEXT_0_HXX_NOPUB
+
+#ifdef _LOFTY_IO_TEXT_0_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace io { namespace text {
+
+   using _pub::istream;
+   using _pub::ostream;
+   using _pub::stream;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_IO_TEXT_0_HXX

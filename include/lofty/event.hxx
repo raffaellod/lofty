@@ -13,21 +13,23 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_EVENT_HXX
-#define _LOFTY_EVENT_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_EVENT_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_EVENT_HXX_NOPUB
+#define _LOFTY_EVENT_HXX_NOPUB
 
 #include <lofty/coroutine.hxx>
-
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/_std/memory.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Event that can be waited for by a thread or coroutine (exclusive “or”).
 
@@ -110,7 +112,7 @@ private:
       false if coro_sched_w is nullptr, or true otherwise.
    */
    bool using_coro_sched() const {
-      _std::weak_ptr<coroutine::scheduler> null_coro_sched;
+      _std::_pub::weak_ptr<coroutine::scheduler> null_coro_sched;
       return coro_sched_w.owner_before(null_coro_sched) || null_coro_sched.owner_before(coro_sched_w);
    }
 
@@ -122,13 +124,30 @@ public:
 private:
    /*! Scheduler that owns the event id. Stored for performance (avoid thread-local storage) and to allow one
    thread/scheduler to unblock a coroutine in a different thread/scheduler. */
-   _std::weak_ptr<coroutine::scheduler> coro_sched_w;
+   _std::_LOFTY_PUBNS weak_ptr<coroutine::scheduler> coro_sched_w;
    //! Event id.
    id_type id;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_EVENT_HXX_NOPUB
+
+#ifdef _LOFTY_EVENT_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::event;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_EVENT_HXX

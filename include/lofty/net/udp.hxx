@@ -13,19 +13,20 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_NET_UDP_HXX
-#define _LOFTY_NET_UDP_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_NET_UDP_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_NET_UDP_HXX_NOPUB
+#define _LOFTY_NET_UDP_HXX_NOPUB
 
 #include <lofty/io/binary/memory.hxx>
 #include <lofty/net.hxx>
 #include <lofty/net/ip.hxx>
-
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/memory.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,9 +40,10 @@ namespace udp {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace udp {
+_LOFTY_PUBNS_BEGIN
 
 //! Single UDP message.
-class LOFTY_SYM datagram : public noncopyable {
+class LOFTY_SYM datagram : public lofty::_LOFTY_PUBNS noncopyable {
 public:
    /*! Constructor.
 
@@ -52,7 +54,10 @@ public:
    @param
       Data contained in the datagram.
    */
-   datagram(ip::address const & address, ip::port port, _std::shared_ptr<io::binary::memory_stream> data = nullptr);
+   datagram(
+      ip::_LOFTY_PUBNS address const & address, ip::_LOFTY_PUBNS port port,
+      _std::_LOFTY_PUBNS shared_ptr<io::binary::_LOFTY_PUBNS memory_stream> data = nullptr
+   );
 
    //! Destructor.
    ~datagram();
@@ -62,7 +67,7 @@ public:
    @return
       IP address.
    */
-   ip::address const & address() const {
+   ip::_LOFTY_PUBNS address const & address() const {
       return address_;
    }
 
@@ -71,7 +76,7 @@ public:
    @return
       Port.
    */
-   ip::port const & port() const {
+   ip::_LOFTY_PUBNS port const & port() const {
       return port_;
    }
 
@@ -80,27 +85,29 @@ public:
    @return
       Input/output stream for the datagram’s data.
    */
-   _std::shared_ptr<io::binary::memory_stream> const & data() const {
+   _std::_LOFTY_PUBNS shared_ptr<io::binary::_LOFTY_PUBNS memory_stream> const & data() const {
       return data_;
    }
 
 private:
    //! Address.
-   ip::address address_;
+   ip::_LOFTY_PUBNS address address_;
    //! Port.
-   ip::port port_;
+   ip::_LOFTY_PUBNS port port_;
    //! Message data.
-   _std::shared_ptr<io::binary::memory_stream> data_;
+   _std::_LOFTY_PUBNS shared_ptr<io::binary::_LOFTY_PUBNS memory_stream> data_;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::net::udp
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace udp {
+_LOFTY_PUBNS_BEGIN
 
 //! Receives datagrams sent to a given UDP port.
-class LOFTY_SYM server : public ip::server {
+class LOFTY_SYM server : public ip::_LOFTY_PUBNS server {
 public:
    /*! Constructor.
 
@@ -109,7 +116,7 @@ public:
    @param port
       Port to listen for connections on.
    */
-   server(ip::address const & address, ip::port const & port);
+   server(ip::_LOFTY_PUBNS address const & address, ip::_LOFTY_PUBNS port const & port);
 
    //! Destructor.
    ~server();
@@ -120,7 +127,7 @@ public:
    @return
       Newly-received datagram.
    */
-   _std::shared_ptr<datagram> receive();
+   _std::_LOFTY_PUBNS shared_ptr<datagram> receive();
 
    /*! Sends a datagram to the server indicated by its address() and port() properties.
 
@@ -134,11 +141,13 @@ protected:
    server();
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::net::udp
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace udp {
+_LOFTY_PUBNS_BEGIN
 
 //! Sends datagrams to UDP servers.
 class LOFTY_SYM client : public server {
@@ -151,11 +160,30 @@ public:
    @param version
       IP version to set.
    */
-   void set_ip_version(ip::version const & version);
+   void set_ip_version(ip::_LOFTY_PUBNS version const & version);
 };
 
-}}} //namespace lofty::net::udp
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_NET_UDP_HXX_NOPUB
+
+#ifdef _LOFTY_NET_UDP_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace net { namespace udp {
+
+   using _pub::client;
+   using _pub::datagram;
+   using _pub::server;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_NET_UDP_HXX

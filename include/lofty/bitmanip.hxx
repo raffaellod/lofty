@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,17 +13,18 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_BITMANIP_HXX
-#define _LOFTY_BITMANIP_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_BITMANIP_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_BITMANIP_HXX_NOPUB
+#define _LOFTY_BITMANIP_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
 
 #include <climits> // CHAR_BIT
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +58,7 @@ LOFTY_SYM std::uint64_t ceiling_to_pow2(std::uint64_t i);
 }}} //namespace lofty::bitmanip::_pvt
 
 namespace lofty { namespace bitmanip {
+_LOFTY_PUBNS_BEGIN
 
 /*! Returns the argument rounded up to the closest power of 2.
 
@@ -127,8 +129,28 @@ inline /*constexpr*/ T rotate_r(T i, unsigned bits) {
    return (i >> bits) | (i << (sizeof(T) * CHAR_BIT - bits));
 }
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::bitmanip
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_BITMANIP_HXX_NOPUB
+
+#ifdef _LOFTY_BITMANIP_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace bitmanip {
+
+   using _pub::ceiling_to_pow2;
+   using _pub::ceiling_to_pow2_multiple;
+   using _pub::rotate_l;
+   using _pub::rotate_r;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_BITMANIP_HXX

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015, 2017 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,9 +12,9 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/perf/stopwatch.hxx>
-
+#include <lofty/_std/tuple.hxx>
+#include <lofty/_std/utility.hxx>
 #if LOFTY_HOST_API_POSIX
    #include <time.h>
    #include <unistd.h>
@@ -22,7 +22,6 @@ more details.
 #if LOFTY_HOST_API_DARWIN
    #include <mach/mach_time.h>
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

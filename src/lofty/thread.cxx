@@ -12,15 +12,24 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/coroutine.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
+#include <lofty/io/text.hxx>
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/exception.hxx>
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/thread.hxx>
+#include <lofty/thread_local.hxx>
+#include <lofty/to_text_ostream.hxx>
 #include <lofty/try_finally.hxx>
 #include "coroutine-scheduler.hxx"
 #include "_pvt/signal_dispatcher.hxx"
 #include "thread-impl.hxx"
-
 #include <cstdlib> // std::abort()
-
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // EINVAL errno
    #include <signal.h> // SIG* sigaction sig*()
@@ -34,7 +43,6 @@ more details.
       #endif
    #endif
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -312,7 +320,7 @@ thread::native_handle_type thread::native_handle() const {
 
 namespace lofty {
 
-void to_text_ostream<thread>::set_format(str const & format) {
+void to_text_ostream<thread>::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -333,7 +341,7 @@ void to_text_ostream<thread>::write(thread const & src, io::text::ostream * dst)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace this_thread {
+namespace lofty { namespace this_thread { namespace _pub {
 
 _std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
    _std::shared_ptr<coroutine::scheduler> coro_sched /*= nullptr*/
@@ -342,8 +350,8 @@ _std::shared_ptr<coroutine::scheduler> const & attach_coroutine_scheduler(
    if (coro_sched) {
       if (curr_coro_sched) {
          // The current thread already has a coroutine scheduler.
-         // TODO: use a better exception class.
-         LOFTY_THROW(generic_error, ());
+         // TODO: use a better exception class. Also, this shouldn’t need a qualifier (GCC BUG?).
+         LOFTY_THROW(lofty::generic_error, ());
       }
       curr_coro_sched = _std::move(coro_sched);
    } else {
@@ -520,7 +528,7 @@ void sleep_until_fd_ready(
 #endif
 }
 
-}} //namespace lofty::this_thread
+}}} //namespace lofty::this_thread::_pub
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -529,7 +537,7 @@ namespace lofty { namespace _pvt {
 thread_local_storage_registrar::data_members thread_local_storage_registrar::data_members_ =
    LOFTY__PVT_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER;
 
-}} //namespace lofty::_pvt
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

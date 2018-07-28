@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,25 +12,30 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections.hxx>
+#include <lofty/exception.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/os/path.hxx>
 #include <lofty/process.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
+#include <lofty/text/str.hxx>
 #include "binary/file-subclasses.hxx"
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 _std::shared_ptr<ostream> stderr;
 _std::shared_ptr<istream> stdin;
 _std::shared_ptr<ostream> stdout;
+
+_LOFTY_PUBNS_END
 
 /*! Detects the encoding to use for a standard text stream, with the help of an optional environment variable.
 
@@ -48,7 +53,9 @@ inherently PID-specific.
 @return
    Encoding appropriate for the requested standard stream.
 */
-static lofty::text::encoding get_stdio_encoding(binary::stream const * bin_stream, str const & env_var_name) {
+static lofty::text::encoding get_stdio_encoding(
+   binary::stream const * bin_stream, lofty::text::str const & env_var_name
+) {
    lofty::text::encoding enc;
    if (dynamic_cast<binary::tty_file_stream const *>(bin_stream)) {
       /* Console files can only perform I/O in the host platform’s encoding, so force the correct encoding
@@ -57,7 +64,7 @@ static lofty::text::encoding get_stdio_encoding(binary::stream const * bin_strea
    } else {
       // In all other cases, allow selecting the encoding via environment variable.
       enc = lofty::text::encoding::unknown;
-      sstr<64> enc_buf;
+      lofty::text::sstr<64> enc_buf;
       if (this_process::env_var(env_var_name, enc_buf.str_ptr())) {
          try {
             enc = lofty::text::encoding(enc_buf.str());
@@ -70,6 +77,7 @@ static lofty::text::encoding get_stdio_encoding(binary::stream const * bin_strea
    return enc;
 }
 
+_LOFTY_PUBNS_BEGIN
 
 _std::shared_ptr<binbuf_istream> make_istream(
    _std::shared_ptr<binary::istream> bin_istream,
@@ -109,11 +117,12 @@ _std::shared_ptr<binbuf_ostream> open_ostream(
    return make_ostream(binary::open_ostream(path), enc);
 }
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::text
 
 namespace lofty { namespace io { namespace text { namespace _pvt {
 
-_std::shared_ptr<ostream> make_stderr() {
+_std::shared_ptr<_LOFTY_PUBNS ostream> make_stderr() {
    auto bin_ostream(binary::stderr);
    // See if *bin_ostream is also a binary::buffered_ostream.
    auto buf_bin_ostream(_std::dynamic_pointer_cast<binary::buffered_ostream>(bin_ostream));
@@ -125,7 +134,7 @@ _std::shared_ptr<ostream> make_stderr() {
    return _std::make_shared<binbuf_ostream>(_std::move(buf_bin_ostream), enc);
 }
 
-_std::shared_ptr<istream> make_stdin() {
+_std::shared_ptr<_LOFTY_PUBNS istream> make_stdin() {
    auto bin_istream(binary::stdin);
    // See if *bin_istream is also a binary::buffered_istream.
    auto buf_bin_istream(_std::dynamic_pointer_cast<binary::buffered_istream>(bin_istream));
@@ -137,7 +146,7 @@ _std::shared_ptr<istream> make_stdin() {
    return _std::make_shared<binbuf_istream>(_std::move(buf_bin_istream), enc);
 }
 
-_std::shared_ptr<ostream> make_stdout() {
+_std::shared_ptr<_LOFTY_PUBNS ostream> make_stdout() {
    auto bin_ostream(binary::stdout);
    // See if *pbw is also a binary::buffered_ostream.
    auto buf_bin_ostream(_std::dynamic_pointer_cast<binary::buffered_ostream>(bin_ostream));
@@ -162,7 +171,7 @@ stream::stream() :
 /*virtual*/ stream::~stream() {
 }
 
-}}} //namespace lofty::io::text
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -173,35 +182,35 @@ istream::istream() :
    discard_next_lf(false) {
 }
 
-str istream::read_all() {
-   str dst;
+lofty::text::str istream::read_all() {
+   lofty::text::str dst;
    read_all(&dst);
    return _std::move(dst);
 }
 
-/*virtual*/ void istream::read_all(str * dst) {
+/*virtual*/ void istream::read_all(lofty::text::str * dst) {
    dst->clear();
    // Just ask for 1 character; that’s enough to distinguish between EOF and non-EOF.
-   while (str src = peek_chars(1)) {
+   while (lofty::text::str src = peek_chars(1)) {
       std::size_t consumed_count = src.size_in_chars();
       *dst += src;
       consume_chars(consumed_count);
    }
 }
 
-/*virtual*/ bool istream::read_line(str * dst) {
+/*virtual*/ bool istream::read_line(lofty::text::str * dst) {
    dst->clear();
    std::size_t consumed_total = 0, dst_char_size = 0;
    bool lterm_found = false;
-   str src;
+   lofty::text::str src;
    // Just ask for 1 character; that’s sufficient to distinguish between EOF and non-EOF.
    while (!lterm_found && (src = peek_chars(1))) {
       // Resize *dst to accommodate, potentially, all of src.
       dst->set_capacity(dst_char_size + src.size_in_chars(), true /*preserve*/);
       // Copy characters from src to *dst, stopping at the first line terminator.
-      char_t const * src_chars = src.data(), * src_chars_end = src.data_end();
-      char_t * dst_chars = dst->data() + dst_char_size;
-      char_t const * dst_last_cr = nullptr;
+      lofty::text::char_t const * src_chars = src.data(), * src_chars_end = src.data_end();
+      lofty::text::char_t * dst_chars = dst->data() + dst_char_size;
+      lofty::text::char_t const * dst_last_cr = nullptr;
       /* If the last character parsed by prior invocation of read_line() was a CR and this first character is
       a LF, skip past it. */
       if (discard_next_lf) {
@@ -211,7 +220,7 @@ str istream::read_all() {
          }
       }
       while (src_chars != src_chars_end) {
-         char_t src_ch = *src_chars++;
+         lofty::text::char_t src_ch = *src_chars++;
          if (src_ch == '\r' /*CR*/) {
             switch (lterm.base()) {
                case lofty::text::line_terminator::any:
@@ -238,7 +247,7 @@ str istream::read_all() {
                case lofty::text::line_terminator::cr_lf: {
                   /* If the previous character was a CR, dst_last_cr was set to it; in that case don’t write
                   this LF and discard the already-written CR. */
-                  char_t * dst_prev_char = dst_chars - 1;
+                  lofty::text::char_t * dst_prev_char = dst_chars - 1;
                   if (dst_last_cr == dst_prev_char) {
                      dst_chars = dst_prev_char;
                      goto break_inner_while;
@@ -277,12 +286,14 @@ struct istream_scan_helper_impl::impl {
    lofty::text::parsers::dynamic::match match;
    lofty::text::parsers::dynamic_match_capture curr_capture_group;
 
-   explicit impl(str const & expr) :
+   explicit impl(lofty::text::str const & expr) :
       regex(&parser, expr) {
    }
 };
 
-istream_scan_helper_impl::istream_scan_helper_impl(class istream * istream_, str const & format_) :
+istream_scan_helper_impl::istream_scan_helper_impl(
+   _pub::istream * istream_, lofty::text::str const & format_
+) :
    istream(istream_),
    pimpl(new impl(format_)) {
 }
@@ -339,13 +350,13 @@ ostream::ostream() :
    stream() {
 }
 
-void ostream::write(str const & s) {
+void ostream::write(lofty::text::str const & s) {
    write_binary(s.data(), static_cast<std::size_t>(
       reinterpret_cast<std::uintptr_t>(s.data_end()) - reinterpret_cast<std::uintptr_t>(s.data())
    ), lofty::text::encoding::host);
 }
 
-void ostream::write_line(str const & s) {
+void ostream::write_line(lofty::text::str const & s) {
    write(s);
    write(get_line_terminator_str(
       // If no line terminator sequence has been explicitly set, use the platform’s default.
@@ -359,7 +370,9 @@ void ostream::write_line(str const & s) {
 
 namespace lofty { namespace io { namespace text { namespace _pvt {
 
-ostream_print_helper_impl::ostream_print_helper_impl(class ostream * ostream_, str const & format_) :
+ostream_print_helper_impl::ostream_print_helper_impl(
+   _pub::ostream * ostream_, lofty::text::str const & format_
+) :
    ostream(ostream_),
    // write_format_up_to_next_repl() will increment this to 0 or set it to a non-negative number.
    last_used_arg_index(static_cast<unsigned>(-1)),
@@ -381,7 +394,7 @@ void ostream_print_helper_impl::throw_collections_out_of_range() {
 
 bool ostream_print_helper_impl::write_format_up_to_next_repl() {
    // Search for the next replacement, if any.
-   str::const_iterator itr(format_to_write_begin_itr), repl_field_begin, end(format.cend());
+   lofty::text::str::const_iterator itr(format_to_write_begin_itr), repl_field_begin, end(format.cend());
    char32_t ch;
    for (;;) {
       if (itr >= end) {
@@ -468,18 +481,20 @@ bool ostream_print_helper_impl::write_format_up_to_next_repl() {
    return true;
 }
 
-void ostream_print_helper_impl::throw_syntax_error(str const & description, str::const_iterator itr) const {
+void ostream_print_helper_impl::throw_syntax_error(
+   lofty::text::str const & description, lofty::text::str::const_iterator itr
+) const {
    LOFTY_THROW(lofty::text::syntax_error, (
       // +1 because the first character is 1, to human beings.
       description, format, static_cast<unsigned>(itr - format.cbegin() + 1)
    ));
 }
 
-void ostream_print_helper_impl::write_format_up_to(str::const_iterator up_to) {
+void ostream_print_helper_impl::write_format_up_to(lofty::text::str::const_iterator up_to) {
    if (up_to > format_to_write_begin_itr) {
       ostream->write_binary(
          format_to_write_begin_itr.ptr(),
-         sizeof(char_t) * (up_to.char_index() - format_to_write_begin_itr.char_index()),
+         sizeof(lofty::text::char_t) * (up_to.char_index() - format_to_write_begin_itr.char_index()),
          lofty::text::encoding::host
       );
       format_to_write_begin_itr = up_to;

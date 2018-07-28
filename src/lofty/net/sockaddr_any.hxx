@@ -12,10 +12,19 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#ifndef _LOFTY_NET_SOCKADDR_ANY_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_NET_SOCKADDR_ANY_HXX
+#endif
+
+#ifndef _LOFTY_NET_SOCKADDR_ANY_HXX_NOPUB
+#define _LOFTY_NET_SOCKADDR_ANY_HXX_NOPUB
+
 #include <lofty/byte_order.hxx>
 #include <lofty/net/ip.hxx>
-
+#include <lofty/memory.hxx>
 #if LOFTY_HOST_API_POSIX
    #include <netinet/in.h> // htons()
    #include <sys/socket.h> // AF_*
@@ -42,7 +51,7 @@ more details.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace net { namespace ip {
+namespace lofty { namespace net { namespace ip { namespace _pub {
 
 //! IPv4 or v6 socket address.
 class sockaddr_any {
@@ -73,13 +82,13 @@ public:
       size_(0) {
    }
 
-   sockaddr_any(ip::address const & address_, ip::port const & port_) {
+   sockaddr_any(ip::_pub::address const & address_, ip::_pub::port const & port_) {
       switch (address_.version().base()) {
          case version::v4:
             size_ = sizeof u.sa4;
-            memory::clear(&u.sa4);
+            memory::_pub::clear(&u.sa4);
             u.sa4.sin_family = AF_INET;
-            memory::copy(
+            memory::_pub::copy(
                reinterpret_cast<std::uint8_t *>(&u.sa4.sin_addr.s_addr), address_.raw(),
                sizeof u.sa4.sin_addr.s_addr
             );
@@ -87,35 +96,35 @@ public:
             break;
          case version::v6:
             size_ = sizeof u.sa6;
-            memory::clear(&u.sa6);
+            memory::_pub::clear(&u.sa6);
             //u.sa6.sin6_flowinfo = 0;
             u.sa6.sin6_family = AF_INET6;
-            memory::copy(&u.sa6.sin6_addr.s6_addr[0], address_.raw(), sizeof u.sa6.sin6_addr.s6_addr);
+            memory::_pub::copy(&u.sa6.sin6_addr.s6_addr[0], address_.raw(), sizeof u.sa6.sin6_addr.s6_addr);
             u.sa6.sin6_port = htons(port_.number());
             break;
          LOFTY_SWITCH_WITHOUT_DEFAULT
       }
    }
 
-   ip::address address() const {
+   ip::_pub::address address() const {
       switch (size_) {
          case sizeof u.sa4:
-            return ip::address(*reinterpret_cast<address::v4_type const *>(&u.sa4.sin_addr.s_addr));
+            return ip::_pub::address(*reinterpret_cast<address::v4_type const *>(&u.sa4.sin_addr.s_addr));
          case sizeof u.sa6:
-            return ip::address(*reinterpret_cast<address::v6_type const *>(&u.sa6.sin6_addr.s6_addr));
+            return ip::_pub::address(*reinterpret_cast<address::v6_type const *>(&u.sa6.sin6_addr.s6_addr));
          default:
-            return ip::address();
+            return ip::_pub::address();
       }
    }
 
-   ip::port port() const {
+   ip::_pub::port port() const {
       switch (size_) {
          case sizeof u.sa4:
-            return ip::port(ntohs(u.sa4.sin_port));
+            return ip::_pub::port(ntohs(u.sa4.sin_port));
          case sizeof u.sa6:
-            return ip::port(ntohs(u.sa6.sin6_port));
+            return ip::_pub::port(ntohs(u.sa6.sin6_port));
          default:
-            return ip::port();
+            return ip::_pub::port();
       }
    }
 
@@ -148,6 +157,24 @@ private:
    u_t u;
 };
 
-}}} //namespace lofty::net::ip
+}}}} //namespace lofty::net::ip::_pub
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_NET_SOCKADDR_ANY_HXX_NOPUB
+
+#ifdef _LOFTY_NET_SOCKADDR_ANY_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace net { namespace ip {
+
+   using _pub::sockaddr_any;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_NET_SOCKADDR_ANY_HXX

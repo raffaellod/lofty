@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015, 2017 Raffaello D. Di Napoli
+Copyright 2011-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,29 +13,44 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_STD_UTILITY_HXX
-#define _LOFTY_STD_UTILITY_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_STD_UTILITY_HXX
 #endif
 
+#ifndef _LOFTY_STD_UTILITY_HXX_NOPUB
+#define _LOFTY_STD_UTILITY_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if !LOFTY_HOST_STL_LOFTY
+   #include <utility>
+
+   #if LOFTY_HOST_STL_MSVCRT && LOFTY_HOST_STL_MSVCRT < 1800
+      // The STL implementations above need to be supplemented with Lofty’s implementation.
+      #define _LOFTY_STD_UTILITY_SELECTIVE
+   #endif
+#endif
+
+#if LOFTY_HOST_STL_LOFTY || defined(_LOFTY_STD_UTILITY_SELECTIVE)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
-#if !defined(_LOFTY_STD_UTILITY_SELECTIVE) || (LOFTY_HOST_STL_MSVCRT && LOFTY_HOST_STL_MSVCRT < 1800)
+#if LOFTY_HOST_STL_LOFTY || (LOFTY_HOST_STL_MSVCRT && LOFTY_HOST_STL_MSVCRT < 1800)
    // MSC16 lacks a definition of std::declval().
    template <typename T>
    typename add_rvalue_reference<T>::type declval();
 
    #define _LOFTY_STD_UTILITY_DECLVAL
-#endif //if !defined(_LOFTY_STD_UTILITY_SELECTIVE) || (LOFTY_HOST_STL_MSVCRT && LOFTY_HOST_STL_MSVCRT < 1800)
+#endif
 
-#ifndef _LOFTY_STD_UTILITY_SELECTIVE
+#if LOFTY_HOST_STL_LOFTY
 
 //! Defines a member named type as T.
 template <typename T>
@@ -112,10 +127,51 @@ inline void swap(T (& t1)[size], T (& t2)[size]) {
    }
 }
 
-#endif //ifndef _LOFTY_STD_UTILITY_SELECTIVE
+#endif //if LOFTY_HOST_STL_LOFTY
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //if LOFTY_HOST_STL_LOFTY || defined(_LOFTY_STD_UTILITY_SELECTIVE)
+
+#if !LOFTY_HOST_STL_LOFTY
+   #ifdef _LOFTY_STD_UTILITY_SELECTIVE
+      #undef _LOFTY_STD_UTILITY_SELECTIVE
+   #endif
+
+   namespace lofty { namespace _std { namespace _pub {
+
+   #ifndef _LOFTY_STD_UTILITY_DECLVAL
+   using ::std::declval;
+   #endif
+   using ::std::forward;
+   using ::std::move;
+   using ::std::swap;
+
+   }}}
+#endif
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_STD_UTILITY_HXX_NOPUB
+
+#ifdef _LOFTY_STD_UTILITY_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace _std {
+
+   using _pub::declval;
+   using _pub::forward;
+   using _pub::move;
+   using _pub::swap;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_STD_UTILITY_HXX

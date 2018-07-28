@@ -12,14 +12,17 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/numeric.hxx>
+#include <lofty/_std/algorithm.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/text.hxx>
-
-#include <algorithm> // std::min()
-
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,7 +81,7 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
       need to clip total_byte_size to a std::size_t resulted in an odd count of bytes. */
       static std::size_t const aligned_max = numeric::max<std::size_t>::value & ~sizeof(char32_t);
       total_byte_size = static_cast<std::size_t>(
-         std::min(sized->size(), static_cast<full_size_t>(aligned_max))
+         _std::min(sized->size(), static_cast<full_size_t>(aligned_max))
       );
    } else {
       total_byte_size = 0;
@@ -92,7 +95,7 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
    return bom_byte_size;
 }
 
-/*virtual*/ str binbuf_istream::peek_chars(std::size_t count_min) /*override*/ {
+/*virtual*/ lofty::text::str binbuf_istream::peek_chars(std::size_t count_min) /*override*/ {
    // The peek buffer might already contain enough characters.
    std::size_t peek_buf_char_size = peek_buf.size_in_chars() - peek_buf_char_offset;
    if (peek_buf_char_size < count_min && !eof) {
@@ -111,13 +114,15 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
             peek_buf.set_size_in_chars(peek_buf_char_size, false /*don’t clear*/);
          }
          static std::size_t const peek_buf_char_size_min = 128;
-         std::size_t needed_capacity = std::max(count_min, peek_buf_char_size_min);
+         std::size_t needed_capacity = _std::max(count_min, peek_buf_char_size_min);
          if (needed_capacity > peek_buf.capacity()) {
             peek_buf.set_capacity(needed_capacity, true /*preserve*/);
          }
       }
-      char_t * peek_buf_chars_begin = peek_buf.data() + peek_buf_char_offset;
-      std::size_t peek_buf_bytes_capacity = (peek_buf.capacity() - peek_buf_char_offset) * sizeof(char_t);
+      lofty::text::char_t * peek_buf_chars_begin = peek_buf.data() + peek_buf_char_offset;
+      std::size_t peek_buf_bytes_capacity = (
+         peek_buf.capacity() - peek_buf_char_offset
+      ) * sizeof(lofty::text::char_t);
       void * peek_buf_end = peek_buf_chars_begin;
 
       std::size_t min_peek_bytes = 1;
@@ -155,17 +160,17 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
          // Permanently remove the transcoded bytes from the binary buffer.
          buf_bin_istream->consume<std::uint8_t>(src.size - src_remaining_bytes);
          // Account for the characters just transcoded.
-         peek_buf_char_size += peek_buf_transcoded_byte_size / sizeof(char_t);
+         peek_buf_char_size += peek_buf_transcoded_byte_size / sizeof(lofty::text::char_t);
          peek_buf.set_size_in_chars(peek_buf_char_offset + peek_buf_char_size, false /*don’t clear*/);
       } while (peek_buf_char_size < count_min);
    }
    // Return a view of peek_buf to avoid copying it.
-   return str(
+   return lofty::text::str(
       external_buffer, peek_buf.data() + peek_buf_char_offset, peek_buf.size_in_chars() - peek_buf_char_offset
    );
 }
 
-/*virtual*/ bool binbuf_istream::read_line(str * dst) /*override*/ {
+/*virtual*/ bool binbuf_istream::read_line(lofty::text::str * dst) /*override*/ {
    if (eof) {
       dst->clear();
       return false;
@@ -176,7 +181,7 @@ std::size_t binbuf_istream::detect_encoding(std::uint8_t const * buf, std::size_
    }
 }
 
-/*virtual*/ void binbuf_istream::unconsume_chars(str const & s) /*override*/ {
+/*virtual*/ void binbuf_istream::unconsume_chars(lofty::text::str const & s) /*override*/ {
    if (std::size_t count = s.size_in_chars()) {
       peek_buf.set_size_in_chars(count + peek_buf.size_in_chars(), false /*don’t clear*/);
       memory::copy(peek_buf.data(), s.data(), count);

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,15 +13,19 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_FROM_STR_HXX
-#define _LOFTY_FROM_STR_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_FROM_STR_HXX
 #endif
 
+#ifndef _LOFTY_FROM_STR_HXX_NOPUB
+#define _LOFTY_FROM_STR_HXX_NOPUB
+
+#include <lofty/from_text_istream.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text/str-0.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +51,9 @@ public:
    @return
       Formatting options.
    */
-   text::parsers::regex_capture_format const & parse_format_expr(str const & format_expr);
+   text::parsers::_LOFTY_PUBNS regex_capture_format const & parse_format_expr(
+      text::_LOFTY_PUBNS str const & format_expr
+   );
 
    /*! Runs the parser, and returns the match containing the read object, if matched, or throws an exception
    if not.
@@ -59,22 +65,23 @@ public:
    @return
       Reference to the capture containing input matched by *t_first_state.
    */
-   text::parsers::dynamic_match_capture const & parse_src(
-      str const & src, text::parsers::dynamic_state const * t_first_state
+   text::parsers::_LOFTY_PUBNS dynamic_match_capture const & parse_src(
+      text::_LOFTY_PUBNS str const & src, text::parsers::_LOFTY_PUBNS dynamic_state const * t_first_state
    );
 
 private:
    //! Pointer to members of complex types that would require additional files to be #included.
-   _std::unique_ptr<impl> pimpl;
+   _std::_LOFTY_PUBNS unique_ptr<impl> pimpl;
 
 public:
    //! Pointer to the parser in *pimpl. Having it here avoids one extra function call in from_str() to get it.
-   text::parsers::dynamic * const parser;
+   text::parsers::_LOFTY_PUBNS dynamic * const parser;
 };
 
 }} //namespace lofty::_pvt
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Returns an object constructed from its string representation, optionally with a custom format.
 
@@ -89,18 +96,38 @@ convenient syntax than just taking regex_capture_format const & .
    Object reconstructed from s according to format.
 */
 template <typename T>
-inline T from_str(str const & src, str const & format_expr = str::empty) {
+inline T from_str(
+   text::_LOFTY_PUBNS str const & src,
+   text::_LOFTY_PUBNS str const & format_expr = text::_LOFTY_PUBNS str::empty
+) {
    from_text_istream<T> ftis;
    _pvt::from_str_helper helper;
    T ret;
    ftis.convert_capture(helper.parse_src(src, ftis.format_to_parser_states(
       helper.parse_format_expr(format_expr), helper.parser
    )), &ret);
-   return _std::move(ret);
+   return _std::_pub::move(ret);
 }
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_FROM_STR_HXX_NOPUB
+
+#ifdef _LOFTY_FROM_STR_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::from_str;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_FROM_STR_HXX

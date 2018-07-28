@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2015, 2017 Raffaello D. Di Napoli
+Copyright 2011-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,42 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_STD_FUNCTIONAL_HXX
-#define _LOFTY_STD_FUNCTIONAL_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_STD_FUNCTIONAL_HXX
 #endif
 
+#ifndef _LOFTY_STD_FUNCTIONAL_HXX_NOPUB
+#define _LOFTY_STD_FUNCTIONAL_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if LOFTY_HOST_STL_LOFTY
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
+
+//! Determines the equality of two objects of the same type (C++11 § 20.8.5 “Function objects, comparisons”).
+template <typename T>
+struct equal_to {
+   /*! Function call operator.
+
+   @param left
+      First object to compare.
+   @param right
+      Second object to compare.
+   @return
+      true if the two objects are equal, or false otherwise.
+   */
+   bool operator()(T const & left, T const & right) const {
+       return left == right;
+   }
+};
 
 //! Computes the hash of an object (C++11 § 20.8.12 “Class template hash”).
 template <typename T>
@@ -297,8 +320,41 @@ struct hash<T *> {
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#else //if LOFTY_HOST_STL_LOFTY
+   #include <functional>
+
+   namespace lofty { namespace _std { namespace _pub {
+
+   using ::std::equal_to;
+   using ::std::function;
+   using ::std::hash;
+
+   }}}
+#endif //if LOFTY_HOST_STL_LOFTY … else
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_STD_FUNCTIONAL_HXX_NOPUB
+
+#ifdef _LOFTY_STD_FUNCTIONAL_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace _std {
+
+   using _pub::equal_to;
+   using _pub::function;
+   using _pub::hash;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_STD_FUNCTIONAL_HXX

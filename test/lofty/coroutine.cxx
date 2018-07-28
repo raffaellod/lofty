@@ -12,19 +12,26 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/coroutine.hxx>
 #include <lofty/event.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/io/text/str.hxx>
 #include <lofty/keyed_demux.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/mutex.hxx>
 #include <lofty/range.hxx>
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/mutex.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/testing/test_case.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/thread.hxx>
 #include <lofty/to_str.hxx>
 #include <lofty/try_finally.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +58,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    ASSERT(coro3.id() == coroutine::id_type(0));
 
    // Verify that the string representations are different.
-   str coroutine1_str(to_str(coro1)), coroutine2_str(to_str(coro2)), coroutine3_str(to_str(coro3));
+   text::str coroutine1_str(to_str(coro1)), coroutine2_str(to_str(coro2)), coroutine3_str(to_str(coro3));
    ASSERT(coroutine1_str != coroutine2_str);
    ASSERT(coroutine1_str != coroutine3_str);
    ASSERT(coroutine2_str != coroutine3_str);
@@ -97,7 +104,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    };
 
    // While we’re at it, verify that something was written to stderr while *capturing_stderr was stderr.
-   ASSERT(capturing_stderr->get_str() != str::empty);
+   ASSERT(capturing_stderr->get_str() != text::str::empty);
 
    // Avoid running other tests with a coroutine scheduler, as it might change their behavior.
    this_thread::detach_coroutine_scheduler();

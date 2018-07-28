@@ -13,22 +13,24 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_IO_BINARY_MEMORY_HXX
-#define _LOFTY_IO_BINARY_MEMORY_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_IO_BINARY_MEMORY_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_IO_BINARY_MEMORY_HXX_NOPUB
+#define _LOFTY_IO_BINARY_MEMORY_HXX_NOPUB
 
 #include <lofty/io/binary.hxx>
 #include <lofty/io/binary/buffer.hxx>
-
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/memory.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Implementation of an input/output stream backed by an in-memory buffer.
 class LOFTY_SYM memory_stream :
@@ -36,8 +38,8 @@ class LOFTY_SYM memory_stream :
    public virtual buffered_ostream,
    public seekable,
    public sized,
-   public _std::enable_shared_from_this<memory_stream>,
-   public noncopyable {
+   public _std::_LOFTY_PUBNS enable_shared_from_this<memory_stream>,
+   public lofty::_LOFTY_PUBNS noncopyable {
 public:
    //! Default constructor.
    memory_stream();
@@ -75,13 +77,15 @@ public:
    void rewind();
 
    //! See seekable::seek().
-   virtual offset_t seek(offset_t offset, seek_from whence) override;
+   virtual io::_LOFTY_PUBNS offset_t seek(
+      io::_LOFTY_PUBNS offset_t offset, io::_LOFTY_PUBNS seek_from whence
+   ) override;
 
    //! See sized::size().
-   virtual full_size_t size() const override;
+   virtual io::_LOFTY_PUBNS full_size_t size() const override;
 
    //! See seekable::tell().
-   virtual offset_t tell() const override;
+   virtual io::_LOFTY_PUBNS offset_t tell() const override;
 
 protected:
    //! Not used in this implementation; see buffered_ostream::close().
@@ -91,7 +95,7 @@ protected:
    virtual void flush() override;
 
    //! See buffered_istream::_unbuffered_stream().
-   virtual _std::shared_ptr<stream> _unbuffered_stream() const override;
+   virtual _std::_LOFTY_PUBNS shared_ptr<stream> _unbuffered_stream() const override;
 
 protected:
    //! Main buffer.
@@ -101,8 +105,25 @@ protected:
    static std::size_t const buf_default_size = 0x400;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_IO_BINARY_MEMORY_HXX_NOPUB
+
+#ifdef _LOFTY_IO_BINARY_MEMORY_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace io { namespace binary {
+
+   using _pub::memory_stream;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_IO_BINARY_MEMORY_HXX

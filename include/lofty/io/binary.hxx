@@ -13,17 +13,20 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_IO_BINARY_HXX
-#define _LOFTY_IO_BINARY_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_IO_BINARY_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_IO_BINARY_HXX_NOPUB
+#define _LOFTY_IO_BINARY_HXX_NOPUB
 
 #include <lofty/io.hxx>
-
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/type_traits.hxx>
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +40,7 @@ namespace binary {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Holds a reference to a range in a buffer.
 template <typename T>
@@ -63,17 +67,23 @@ struct buffer_range {
    @param bytes
       Range, in bytes.
    */
-   buffer_range(buffer_range<typename _std::conditional<_std::is_const<T>::value, void const, void>::type> const & bytes) :
+   buffer_range(buffer_range<
+      typename _std::_LOFTY_PUBNS conditional<_std::_LOFTY_PUBNS is_const<T>::value, void const, void>::type
+   > const & bytes) :
       ptr(static_cast<T *>(bytes.ptr)),
-      size(bytes.size / sizeof(typename _std::conditional<_std::is_void<T>::value, std::int8_t, T>::type)) {
+      size(bytes.size / sizeof(
+         typename _std::_pub::conditional<_std::_pub::is_void<T>::value, std::int8_t, T>::type
+      )) {
    }
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Base interface for binary (non-text) streams.
 class LOFTY_SYM stream {
@@ -86,11 +96,13 @@ protected:
    stream();
 };
 
-}}} //namespace lofty::io::binary
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for binary (non-text) input streams.
 class LOFTY_SYM istream : public virtual stream {
@@ -130,11 +142,13 @@ protected:
    istream();
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for binary (non-text) output streams.
 class LOFTY_SYM ostream : public virtual stream {
@@ -185,11 +199,13 @@ protected:
    ostream();
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for binary streams that allow random access (e.g. seek/tell operations).
 class LOFTY_SYM seekable {
@@ -203,21 +219,25 @@ public:
    @return
       Resulting position.
    */
-   virtual offset_t seek(offset_t offset, seek_from whence) = 0;
+   virtual io::_LOFTY_PUBNS offset_t seek(
+      io::_LOFTY_PUBNS offset_t offset, io::_LOFTY_PUBNS seek_from whence
+   ) = 0;
 
    /*! Returns the current read/write position.
 
    @return
       Current position.
    */
-   virtual offset_t tell() const = 0;
+   virtual io::_LOFTY_PUBNS offset_t tell() const = 0;
 };
 
-}}} //namespace lofty::io::binary
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for binary streams that access data with a known size.
 class LOFTY_SYM sized {
@@ -227,14 +247,16 @@ public:
    @return
       Data size, in bytes.
    */
-   virtual full_size_t size() const = 0;
+   virtual io::_LOFTY_PUBNS full_size_t size() const = 0;
 };
 
-}}} //namespace lofty::io::binary
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for buffered streams that wrap binary streams.
 class LOFTY_SYM buffered_stream : public virtual stream {
@@ -247,7 +269,7 @@ public:
    @return
       Pointer to a unbuffered binary stream.
    */
-   _std::shared_ptr<stream> unbuffered() const {
+   _std::_LOFTY_PUBNS shared_ptr<stream> unbuffered() const {
       return _unbuffered_stream();
    }
 
@@ -261,14 +283,16 @@ protected:
    @return
       Pointer to a unbuffered binary stream.
    */
-   virtual _std::shared_ptr<stream> _unbuffered_stream() const = 0;
+   virtual _std::_LOFTY_PUBNS shared_ptr<stream> _unbuffered_stream() const = 0;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for buffered input streams that wrap binary input streams.
 class LOFTY_SYM buffered_istream : public virtual buffered_stream, public istream {
@@ -335,8 +359,8 @@ public:
    virtual std::size_t read_bytes(void * dst, std::size_t dst_max) override;
 
    //! See buffered_stream::unbuffered().
-   _std::shared_ptr<istream> unbuffered() const {
-      return _std::dynamic_pointer_cast<istream>(_unbuffered_stream());
+   _std::_LOFTY_PUBNS shared_ptr<istream> unbuffered() const {
+      return _std::_pub::dynamic_pointer_cast<istream>(_unbuffered_stream());
    }
 
 protected:
@@ -344,14 +368,19 @@ protected:
    buffered_istream();
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for buffered output streams that wrap binary output streams.
-class LOFTY_SYM buffered_ostream : public virtual buffered_stream, public ostream, public closeable {
+class LOFTY_SYM buffered_ostream :
+   public virtual buffered_stream,
+   public ostream,
+   public io::_LOFTY_PUBNS closeable {
 public:
    //! Destructor.
    virtual ~buffered_ostream();
@@ -397,8 +426,8 @@ public:
    virtual buffer_range<void> get_buffer_bytes(std::size_t count) = 0;
 
    //! See buffered_stream::unbuffered().
-   _std::shared_ptr<ostream> unbuffered() const {
-      return _std::dynamic_pointer_cast<ostream>(_unbuffered_stream());
+   _std::_LOFTY_PUBNS shared_ptr<ostream> unbuffered() const {
+      return _std::_pub::dynamic_pointer_cast<ostream>(_unbuffered_stream());
    }
 
    /*! Writes an array of bytes. Using get_buffer()/commit() or get_buffer_bytes()/commit_bytes() is preferred
@@ -418,6 +447,7 @@ protected:
    buffered_ostream();
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -428,12 +458,13 @@ namespace lofty { namespace io { namespace binary { namespace _pvt {
 name. */
 struct file_init_data;
 
-}}}} //namespace lofty::io::binary::_pvt
+}}}}
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Base for file binary streams.
-class LOFTY_SYM file_stream : public virtual stream, public noncopyable {
+class LOFTY_SYM file_stream : public virtual stream, public lofty::_LOFTY_PUBNS noncopyable {
 public:
    //! Destructor.
    virtual ~file_stream();
@@ -448,14 +479,16 @@ protected:
 
 protected:
    //! Descriptor of the underlying file.
-   filedesc fd;
+   io::_LOFTY_PUBNS filedesc fd;
 };
 
-}}} //namespace lofty::io::binary
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Binary file input stream.
 class LOFTY_SYM file_istream : public virtual file_stream, public istream {
@@ -486,14 +519,16 @@ protected:
 #endif
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Binary file output stream.
-class LOFTY_SYM file_ostream : public virtual file_stream, public ostream, public closeable {
+class LOFTY_SYM file_ostream : public virtual file_stream, public ostream, public io::_LOFTY_PUBNS closeable {
 public:
    //! See ostream::ostream().
    file_ostream(_pvt::file_init_data * init_data);
@@ -511,11 +546,13 @@ public:
    virtual std::size_t write_bytes(void const * src, std::size_t src_size) override;
 };
 
-}}} //namespace lofty::io::binary
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Bidirectional binary file stream.
 class LOFTY_SYM file_iostream : public virtual file_istream, public virtual file_ostream {
@@ -527,11 +564,13 @@ public:
    virtual ~file_iostream();
 };
 
-}}} //namespace lofty::io::binary
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 //! Unidirectional pipe (FIFO), consisting in a read end stream and a write end stream.
 class LOFTY_SYM pipe {
@@ -545,8 +584,8 @@ public:
       Source object.
    */
    pipe(pipe && src) :
-      read_end(_std::move(src.read_end)),
-      write_end(_std::move(src.write_end)) {
+      read_end(_std::_pub::move(src.read_end)),
+      write_end(_std::_pub::move(src.write_end)) {
    }
 
    /*! Move-assignment operator.
@@ -557,30 +596,34 @@ public:
       *this.
    */
    pipe & operator=(pipe && src) {
-      read_end = _std::move(src.read_end);
-      write_end = _std::move(src.write_end);
+      read_end = _std::_pub::move(src.read_end);
+      write_end = _std::_pub::move(src.write_end);
       return *this;
    }
 
 public:
    //! Read end.
-   _std::shared_ptr<file_istream> read_end;
+   _std::_LOFTY_PUBNS shared_ptr<file_istream> read_end;
    //! Write end.
-   _std::shared_ptr<file_ostream> write_end;
+   _std::_LOFTY_PUBNS shared_ptr<file_ostream> write_end;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Forward declaration.
 namespace lofty { namespace os {
+_LOFTY_PUBNS_BEGIN
 
 class path;
 
-}} //namespace lofty::os
+_LOFTY_PUBNS_END
+}}
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 /*! Creates and returns a buffered input stream for the specified unbuffered binary input stream.
 
@@ -589,7 +632,9 @@ namespace lofty { namespace io { namespace binary {
 @return
    Pointer to a buffered wrapper for *bin_istream.
 */
-LOFTY_SYM _std::shared_ptr<buffered_istream> buffer_istream(_std::shared_ptr<istream> bin_istream);
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<buffered_istream> buffer_istream(
+   _std::_LOFTY_PUBNS shared_ptr<istream> bin_istream
+);
 
 /*! Creates and returns a buffered output stream for the specified unbuffered binary output stream.
 
@@ -598,7 +643,9 @@ LOFTY_SYM _std::shared_ptr<buffered_istream> buffer_istream(_std::shared_ptr<ist
 @return
    Pointer to a buffered wrapper for *bin_ostream.
 */
-LOFTY_SYM _std::shared_ptr<buffered_ostream> buffer_ostream(_std::shared_ptr<ostream> bin_ostream);
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<buffered_ostream> buffer_ostream(
+   _std::_LOFTY_PUBNS shared_ptr<ostream> bin_ostream
+);
 
 /*! Creates and returns a binary input stream for the specified file descriptor.
 
@@ -607,7 +654,7 @@ LOFTY_SYM _std::shared_ptr<buffered_ostream> buffer_ostream(_std::shared_ptr<ost
 @return
    Pointer to a binary input stream for the file descriptor.
 */
-LOFTY_SYM _std::shared_ptr<file_istream> make_istream(io::filedesc && fd);
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<file_istream> make_istream(io::_LOFTY_PUBNS filedesc && fd);
 
 /*! Creates and returns a binary input/output stream for the specified file descriptor.
 
@@ -616,7 +663,7 @@ LOFTY_SYM _std::shared_ptr<file_istream> make_istream(io::filedesc && fd);
 @return
    Pointer to a binary input/output stream for the file descriptor.
 */
-LOFTY_SYM _std::shared_ptr<file_iostream> make_iostream(io::filedesc && fd);
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<file_iostream> make_iostream(io::_LOFTY_PUBNS filedesc && fd);
 
 /*! Creates and returns a binary output stream for the specified file descriptor.
 
@@ -625,7 +672,7 @@ LOFTY_SYM _std::shared_ptr<file_iostream> make_iostream(io::filedesc && fd);
 @return
    Pointer to a binary output stream for the file descriptor.
 */
-LOFTY_SYM _std::shared_ptr<file_ostream> make_ostream(io::filedesc && fd);
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<file_ostream> make_ostream(io::_LOFTY_PUBNS filedesc && fd);
 
 /*! Opens a file for binary access.
 
@@ -639,8 +686,8 @@ LOFTY_SYM _std::shared_ptr<file_ostream> make_ostream(io::filedesc && fd);
 @return
    Pointer to a binary stream for the file.
 */
-LOFTY_SYM _std::shared_ptr<file_stream> open(
-   os::path const & path, access_mode mode, bool bypass_cache = false
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<file_stream> open(
+   os::_LOFTY_PUBNS path const & path, io::_LOFTY_PUBNS access_mode mode, bool bypass_cache = false
 );
 
 /*! Opens a file for binary reading.
@@ -653,8 +700,12 @@ LOFTY_SYM _std::shared_ptr<file_stream> open(
 @return
    Pointer to a binary input stream for the file.
 */
-inline _std::shared_ptr<file_istream> open_istream(os::path const & path, bool bypass_cache = false) {
-   return _std::dynamic_pointer_cast<file_istream>(open(path, access_mode::read, bypass_cache));
+inline _std::_LOFTY_PUBNS shared_ptr<file_istream> open_istream(
+   os::_LOFTY_PUBNS path const & path, bool bypass_cache = false
+) {
+   return _std::_pub::dynamic_pointer_cast<file_istream>(
+      open(path, io::_LOFTY_PUBNS access_mode::read, bypass_cache)
+   );
 }
 
 /*! Opens a file for binary writing.
@@ -667,8 +718,12 @@ inline _std::shared_ptr<file_istream> open_istream(os::path const & path, bool b
 @return
    Pointer to a binary output stream for the file.
 */
-inline _std::shared_ptr<file_ostream> open_ostream(os::path const & path, bool bypass_cache = false) {
-   return _std::dynamic_pointer_cast<file_ostream>(open(path, access_mode::write, bypass_cache));
+inline _std::_LOFTY_PUBNS shared_ptr<file_ostream> open_ostream(
+   os::_LOFTY_PUBNS path const & path, bool bypass_cache = false
+) {
+   return _std::_pub::dynamic_pointer_cast<file_ostream>(
+      open(path, io::_LOFTY_PUBNS access_mode::write, bypass_cache)
+   );
 }
 
 /*! Opens a file for binary reading and writing.
@@ -681,17 +736,22 @@ inline _std::shared_ptr<file_ostream> open_ostream(os::path const & path, bool b
 @return
    Pointer to a binary input/output stream for the file.
 */
-inline _std::shared_ptr<file_iostream> open_iostream(os::path const & path, bool bypass_cache = false) {
-   return _std::dynamic_pointer_cast<file_iostream>(open(path, access_mode::write, bypass_cache));
+inline _std::_LOFTY_PUBNS shared_ptr<file_iostream> open_iostream(
+   os::_LOFTY_PUBNS path const & path, bool bypass_cache = false
+) {
+   return _std::_pub::dynamic_pointer_cast<file_iostream>(
+      open(path, io::_LOFTY_PUBNS access_mode::read_write, bypass_cache)
+   );
 }
 
 //! Binary stream associated to the standard error output file.
-extern LOFTY_SYM _std::shared_ptr<ostream> stderr;
+extern LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<ostream> stderr;
 //! Binary stream associated to the standard input file.
-extern LOFTY_SYM _std::shared_ptr<istream> stdin;
+extern LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<istream> stdin;
 //! Binary stream associated to the standard output file.
-extern LOFTY_SYM _std::shared_ptr<ostream> stdout;
+extern LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<ostream> stdout;
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 namespace lofty { namespace io { namespace binary { namespace _pvt {
@@ -701,24 +761,65 @@ namespace lofty { namespace io { namespace binary { namespace _pvt {
 @return
    Standard error file.
 */
-LOFTY_SYM _std::shared_ptr<ostream> make_stderr();
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<_LOFTY_PUBNS ostream> make_stderr();
 
 /*! Creates and returns a binary stream associated to the standard input file (stdin).
 
 @return
    Standard input file.
 */
-LOFTY_SYM _std::shared_ptr<istream> make_stdin();
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<_LOFTY_PUBNS istream> make_stdin();
 
 /*! Creates and returns a binary stream associated to the standard output file (stdout).
 
 @return
    Standard output file.
 */
-LOFTY_SYM _std::shared_ptr<ostream> make_stdout();
+LOFTY_SYM _std::_LOFTY_PUBNS shared_ptr<_LOFTY_PUBNS ostream> make_stdout();
 
 }}}} //namespace lofty::io::binary::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_IO_BINARY_HXX_NOPUB
+
+#ifdef _LOFTY_IO_BINARY_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace io { namespace binary {
+
+   using _pub::buffer_istream;
+   using _pub::buffer_ostream;
+   using _pub::buffer_range;
+   using _pub::buffered_istream;
+   using _pub::buffered_ostream;
+   using _pub::buffered_stream;
+   using _pub::file_iostream;
+   using _pub::file_istream;
+   using _pub::file_ostream;
+   using _pub::file_stream;
+   using _pub::istream;
+   using _pub::make_istream;
+   using _pub::make_iostream;
+   using _pub::make_ostream;
+   using _pub::open;
+   using _pub::open_istream;
+   using _pub::open_ostream;
+   using _pub::open_iostream;
+   using _pub::ostream;
+   using _pub::pipe;
+   using _pub::seekable;
+   using _pub::sized;
+   using _pub::stderr;
+   using _pub::stdin;
+   using _pub::stdout;
+   using _pub::stream;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_IO_BINARY_HXX

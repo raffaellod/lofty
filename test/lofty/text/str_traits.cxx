@@ -12,10 +12,10 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
-
+#include <lofty/text.hxx>
+#include <lofty/text/str_traits.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,8 +37,8 @@ namespace lofty { namespace test {
       0xd834, 0xd834
 #endif
 
-static char_t chars_buf[32], * char_ptr;
-#define CHAR_COPY(char) *char_ptr++ = char_t(char),
+static text::char_t chars_buf[32], * char_ptr;
+#define CHAR_COPY(char) *char_ptr++ = text::char_t(char),
 
 #define CL(...) \
    chars_buf, chars_buf + ( \

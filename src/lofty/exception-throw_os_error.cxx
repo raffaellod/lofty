@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,16 +12,18 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/exception.hxx>
 #include <lofty/io.hxx>
 #include <lofty/math.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/os.hxx>
+#include <lofty/os/path.hxx>
 #include <lofty/text.hxx>
-
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // errno E*
+#else
+   #include <lofty/text/str.hxx>
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -935,7 +937,7 @@ void exception::throw_os_error(errint_t err) {
 
       case ERROR_NO_UNICODE_TRANSLATION: /* No mapping for the Unicode character exists in the target
          multibyte code page. */
-         LOFTY_THROW(text::encode_error, (str::empty, 0xffffff, err));
+         LOFTY_THROW(text::encode_error, (text::str::empty, 0xffffff, err));
    }
 #else
    #error "TODO: HOST_API"

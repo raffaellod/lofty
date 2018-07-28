@@ -12,23 +12,33 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/bitmanip.hxx>
 #include <lofty/byte_order.hxx>
 #include <lofty/collections/queue.hxx>
+#include <lofty/coroutine.hxx>
+#include <lofty/coroutine_local.hxx>
 #include <lofty/event.hxx>
+#include <lofty/exception.hxx>
 #include <lofty/from_str.hxx>
+#include <lofty/io.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/io/text/str.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/math.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/mutex.hxx>
+#include <lofty/_std/exception.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/mutex.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/thread.hxx>
+#include <lofty/to_text_ostream.hxx>
 #include <lofty/type_void_adapter.hxx>
 #include "coroutine-scheduler.hxx"
-
 #include <cstdlib> // std::abort() std::free() std::malloc() std::realloc()
 #if LOFTY_HOST_API_POSIX
    #if LOFTY_HOST_API_DARWIN
@@ -39,7 +49,6 @@ more details.
    #endif
    #include <unistd.h> // _SC_* sysconf()
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -450,9 +459,9 @@ namespace lofty { namespace _pvt {
    // TODO: provide more information in the exception.
    LOFTY_THROW(domain_error, ());
 }
-/*static*/ enum_member const * enum_member::find_in_map(enum_member const * members, str const & name) {
+/*static*/ enum_member const * enum_member::find_in_map(enum_member const * members, text::str const & name) {
    for (; members->name; ++members) {
-      if (name == str(external_buffer, members->name, members->name_size)) {
+      if (name == text::str(external_buffer, members->name, members->name_size)) {
          return members;
       }
    }
@@ -466,7 +475,7 @@ namespace lofty { namespace _pvt {
 
 namespace lofty { namespace _pvt {
 
-void enum_to_text_ostream_impl::set_format(str const & format) {
+void enum_to_text_ostream_impl::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -476,7 +485,7 @@ void enum_to_text_ostream_impl::set_format(str const & format) {
 
 void enum_to_text_ostream_impl::write_impl(int i, enum_member const * members, io::text::ostream * dst) {
    auto member = enum_member::find_in_map(members, i);
-   dst->write(str(external_buffer, member->name));
+   dst->write(text::str(external_buffer, member->name));
 }
 
 }} //namespace lofty::_pvt
@@ -502,7 +511,7 @@ from_str_helper::~from_str_helper() {
 }
 
 text::parsers::dynamic_match_capture const & from_str_helper::parse_src(
-   str const & src, text::parsers::dynamic_state const * t_first_state
+   text::str const & src, text::parsers::dynamic_state const * t_first_state
 ) {
    auto end_state = parser->create_end_state();
    auto t_cap_state = parser->create_capture_group(t_first_state);
@@ -521,9 +530,11 @@ text::parsers::dynamic_match_capture const & from_str_helper::parse_src(
    return pimpl->t_capture;
 }
 
-text::parsers::regex_capture_format const & from_str_helper::parse_format_expr(str const & format_expr) {
+text::parsers::regex_capture_format const & from_str_helper::parse_format_expr(
+   text::str const & format_expr
+) {
    // TODO: parse format_expr with regex::parse_capture_format() (itself a TODO).
-   pimpl->format.expr = str(external_buffer, format_expr.data(), format_expr.size());
+   pimpl->format.expr = text::str(external_buffer, format_expr.data(), format_expr.size());
    return pimpl->format;
 }
 
@@ -561,7 +572,7 @@ scope_trace::~scope_trace() {
 void scope_trace::write(io::text::ostream * dst, unsigned stack_depth) const {
    dst->print(
       LOFTY_SL("#{} {} this={} at {}\n"),
-      stack_depth, str(external_buffer, source_file_addr->function()), local_this,
+      stack_depth, text::str(external_buffer, source_file_addr->function()), local_this,
       source_file_addr->file_address()
    );
 }
@@ -658,13 +669,15 @@ std::uint64_t bswap_64(std::uint64_t i) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace logging {
+_LOFTY_PUBNS_BEGIN
 
 io::text::ostream * get_ostream_if(level level_) {
    // TODO: actually check level_ against a global log level setting.
    return io::text::stderr.get();
 }
 
-}} //namespace lofty::logging
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

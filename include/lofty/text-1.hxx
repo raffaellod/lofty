@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,16 +12,31 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+/*! @file
+Declares members of the lofty::text namespace that have no dependencies, so this file can be pulled early in
+the inclusion chain. */
+
+#ifndef _LOFTY_TEXT_1_HXX
+
+#include <lofty/text-0.hxx>
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_1_HXX
 #endif
 
+#ifndef _LOFTY_TEXT_1_HXX_NOPUB
+#define _LOFTY_TEXT_1_HXX_NOPUB
+
+#include <lofty/enum-0.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
-//! Recognized text encodings. Little endians should be listed before big endians; some code relies on this.
+/*! Recognized text encodings. Little endians should be listed immediately before big endians; some code
+relies on this. */
 LOFTY_ENUM(encoding,
    //! Unknown/undetermined encoding.
    (unknown,      0),
@@ -102,6 +117,7 @@ LOFTY_SYM std::size_t size_in_chars(char_t const * s);
 LOFTY_SYM std::size_t size_in_chars(char const * s);
 #endif
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +132,7 @@ public:
    @return
       File path.
    */
-   char_t const * file_path() const {
+   _LOFTY_PUBNS char_t const * file_path() const {
       return file_path_;
    }
 
@@ -131,7 +147,7 @@ public:
 
 public:
    //! Path to the source file.
-   char_t const * file_path_;
+   _LOFTY_PUBNS char_t const * file_path_;
    //! Line number in file_path_.
    unsigned line_number_;
 };
@@ -139,6 +155,7 @@ public:
 }}} //namespace lofty::text::_pvt
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 //! Address in a text file, expressed as the file path and a line number within it.
 class file_address : protected _pvt::file_address_data {
@@ -200,4 +217,32 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_1_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_1_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace text {
+
+   using _pub::codepoint;
+   using _pub::encoding;
+   using _pub::file_address;
+   #if LOFTY_HOST_UTF > 8
+   using _pub::host_char;
+   #endif
+   using _pub::line_terminator;
+   using _pub::size_in_chars;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_TEXT_1_HXX

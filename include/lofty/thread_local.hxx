@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,10 +12,20 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_THREAD_LOCAL_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_THREAD_LOCAL_HXX
 #endif
 
+#ifndef _LOFTY_THREAD_LOCAL_HXX_NOPUB
+#define _LOFTY_THREAD_LOCAL_HXX_NOPUB
+
+#include <lofty/coroutine_local.hxx>
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/_pvt/context_local.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +37,7 @@ class thread_local_storage;
 //! Lofty’s TLS variable registrar.
 class LOFTY_SYM thread_local_storage_registrar :
    public context_local_storage_registrar_impl,
-   public collections::static_list_impl<
+   public collections::_LOFTY_PUBNS static_list_impl<
       thread_local_storage_registrar, context_local_storage_node<thread_local_storage>
    > {
 public:
@@ -107,7 +117,7 @@ private:
    coroutine_local_storage * current_crls;
 #if LOFTY_HOST_API_POSIX
    //! Count of instances.
-   static _std::atomic<unsigned> instances_count;
+   static _std::_LOFTY_PUBNS atomic<unsigned> instances_count;
 #endif
 };
 
@@ -131,6 +141,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Variable with separate per-thread values. Variables of this type cannot be non-static class members.
 template <typename T>
@@ -147,16 +158,18 @@ public:
 
    //! See _pvt::context_local_value::operator=().
    thread_local_value & operator=(T && t) {
-      context_local::operator=(_std::move(t));
+      context_local::operator=(_std::_pub::move(t));
       return *this;
    }
 };
 
-} //namespace lofty
+_LOFTY_PUBNS_END
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Thread-local pointer to an object. The memory this points to is permanently allocated for each thread, and
 an instance of this class lets each thread access its own private copy of the value pointed to by it.
@@ -165,4 +178,26 @@ template <typename T>
 class thread_local_ptr : public _pvt::context_local_ptr<T, _pvt::thread_local_storage> {
 };
 
-} //namespace lofty
+_LOFTY_PUBNS_END
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_THREAD_LOCAL_HXX_NOPUB
+
+#ifdef _LOFTY_THREAD_LOCAL_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::thread_local_ptr;
+   using _pub::thread_local_value;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_THREAD_LOCAL_HXX

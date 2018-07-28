@@ -12,25 +12,25 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/coroutine.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/numeric.hxx>
 #include <lofty/text.hxx>
 #include <lofty/thread.hxx>
 #include "_pvt/file_init_data.hxx"
 #include "file-subclasses.hxx"
-
-#if LOFTY_HOST_API_WIN32
-   #include <algorithm> // std::min()
-#endif
 #include <climits> // CHAR_BIT
-
 #if LOFTY_HOST_API_POSIX
    #include <sys/stat.h> // stat fstat()
    #include <unistd.h> // lseek()
+#elif LOFTY_HOST_API_WIN32
+   #include <lofty/_std/algorithm.hxx>
+   #include <lofty/text/char_traits.hxx>
+   #include <lofty/text/parsers/ansi_escape_sequences.hxx>
+   #include <lofty/text/str.hxx>
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,8 +63,8 @@ tty_istream::tty_istream(_pvt::file_init_data * init_data) :
    // Note: ::ReadConsole() expects and returns character counts in place of byte counts.
 
    ::DWORD chars_read, chars_to_read = static_cast< ::DWORD>(
-      std::min<std::size_t>(dst_max, numeric::max< ::DWORD>::value)
-   ) / sizeof(char_t);
+      _std::min<std::size_t>(dst_max, numeric::max< ::DWORD>::value)
+   ) / sizeof(lofty::text::char_t);
    if (!::ReadConsole(fd.get(), dst, chars_to_read, &chars_read, nullptr)) {
       auto err = ::GetLastError();
       if (err != ERROR_HANDLE_EOF) {
@@ -72,7 +72,7 @@ tty_istream::tty_istream(_pvt::file_init_data * init_data) :
       }
    }
    this_coroutine::interruption_point();
-   return sizeof(char_t) * chars_read;
+   return sizeof(lofty::text::char_t) * chars_read;
 }
 #endif //if LOFTY_HOST_API_WIN32
 
@@ -221,17 +221,19 @@ bool tty_ostream::processing_enabled() const {
    ::SetConsoleCursorInfo(fd.get(), &con_cur);
 }
 
-/*virtual*/ void tty_ostream::set_window_title(str const & title) /*override*/ {
+/*virtual*/ void tty_ostream::set_window_title(lofty::text::str const & title) /*override*/ {
    ::SetConsoleTitle(title.c_str());
 }
 
 /*virtual*/ std::size_t tty_ostream::write_bytes(void const * src, std::size_t src_size) /*override*/ {
-   auto src_chars_begin = static_cast<char_t const *>(src);
-   auto src_chars_end = reinterpret_cast<char_t const *>(static_cast<std::int8_t const *>(src) + src_size);
+   auto src_chars_begin = static_cast<lofty::text::char_t const *>(src);
+   auto src_chars_end = reinterpret_cast<lofty::text::char_t const *>(
+      static_cast<std::int8_t const *>(src) + src_size
+   );
    auto written_src_chars_end = src_chars_begin;
    if (processing_enabled()) {
       for (auto char_ptr = src_chars_begin; char_ptr < src_chars_end; ) {
-         char_t ch = *char_ptr;
+         lofty::text::char_t ch = *char_ptr;
          if (lofty::text::host_char_traits::is_lead_surrogate(ch)) {
             /* ::WriteConsole() is unable to handle UTF-16 surrogates, so write a replacement character in
             place of the surrogate pair. */
@@ -265,13 +267,15 @@ bool tty_ostream::processing_enabled() const {
    return src_size;
 }
 
-void tty_ostream::write_range(char_t const * src_begin, char_t const * src_end) const {
+void tty_ostream::write_range(
+   lofty::text::char_t const * src_begin, lofty::text::char_t const * src_end
+) const {
    // This loop may repeat more than once in the unlikely case src_size exceeds what can fit in a DWORD.
    while (auto src_size = static_cast<std::size_t>(src_end - src_begin)) {
       ::DWORD written_size;
       if (!::WriteConsole(
          fd.get(), src_begin, static_cast< ::DWORD>(
-            std::min<std::size_t>(src_size, numeric::max< ::DWORD>::value)
+            _std::min<std::size_t>(src_size, numeric::max< ::DWORD>::value)
          ), &written_size, nullptr
       )) {
          exception::throw_os_error();

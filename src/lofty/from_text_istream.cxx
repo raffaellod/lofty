@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2016-2017 Raffaello D. Di Napoli
+Copyright 2016-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,29 +12,12 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/from_str.hxx>
+#include <lofty/from_text_istream.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty {
-
-void throw_on_unused_streaming_format_chars(
-   str::const_iterator const & format_consumed_end, str const & format
-) {
-   if (format_consumed_end != format.cend()) {
-      LOFTY_THROW(text::syntax_error, (
-         LOFTY_SL("unexpected character in format string"), format,
-         static_cast<unsigned>(format_consumed_end - format.cbegin())
-      ));
-   }
-}
-
-} //namespace lofty
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -342,7 +325,9 @@ struct sequence_from_text_istream::impl {
 };
 
 
-sequence_from_text_istream::sequence_from_text_istream(str const & start_delim_, str const & end_delim_) :
+sequence_from_text_istream::sequence_from_text_istream(
+   text::str const & start_delim_, text::str const & end_delim_
+) :
    separator(LOFTY_SL(", ")),
    start_delim(start_delim_),
    end_delim(end_delim_),
@@ -380,11 +365,11 @@ text::parsers::regex_capture_format const & sequence_from_text_istream::extract_
    // TODO: more format validation.
 
    // TODO: parse format.expr with regex::parse_capture_format() (itself a TODO).
-   pimpl->elt_format.expr = str(external_buffer, format.expr.data(), format.expr.size());
+   pimpl->elt_format.expr = text::str(external_buffer, format.expr.data(), format.expr.size());
    return pimpl->elt_format;
 }
 
-static text::parsers::dynamic_state * expr_to_group(text::parsers::dynamic * parser, str const & expr) {
+static text::parsers::dynamic_state * expr_to_group(text::parsers::dynamic * parser, text::str const & expr) {
    text::parsers::dynamic_state * first_state;
    if (expr) {
       text::parsers::regex regex(parser, expr);

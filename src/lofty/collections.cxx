@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,14 +12,19 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections.hxx>
 #include <lofty/collections/_pvt/doubly_linked_list_impl.hxx>
 #include <lofty/collections/_pvt/singly_linked_list_impl.hxx>
+#include <lofty/collections/static_list.hxx>
 #include <lofty/collections/vector.hxx>
-#include <lofty/type_void_adapter.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text/str.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
-
+#include <lofty/text/str.hxx>
+#include <lofty/to_text_ostream.hxx>
+#include <lofty/type_void_adapter.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +46,7 @@ bad_access & bad_access::operator=(bad_access const & src) {
    return *this;
 }
 
-}} //namespace lofty::collections
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +68,7 @@ bad_key & bad_key::operator=(bad_key const & src) {
    return *this;
 }
 
-}} //namespace lofty::collections
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +102,7 @@ out_of_range & out_of_range::operator=(out_of_range const & src) {
    return *this;
 }
 
-}} //namespace lofty::collections
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -463,7 +468,7 @@ vector_from_text_istream::vector_from_text_istream() :
 vector_from_text_istream::~vector_from_text_istream() {
 }
 
-}}} //namespace lofty::collections::_pvt
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -476,16 +481,16 @@ vector_to_text_ostream::vector_to_text_ostream() :
 vector_to_text_ostream::~vector_to_text_ostream() {
 }
 
-str vector_to_text_ostream::set_format(str const & format) {
+text::str vector_to_text_ostream::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
    // TODO: parse format and store the appropriate element format in elt_format.
-   str elt_format;
+   text::str elt_format;
 
    throw_on_unused_streaming_format_chars(itr, format);
 
    return _std::move(elt_format);
 }
 
-}}} //namespace lofty::collections::_pvt
+}}}

@@ -12,13 +12,17 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections.hxx>
 #include <lofty/collections/hash_map.hxx>
 #include <lofty/collections/vector.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/io/text/str.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
-
+#include <lofty/text/str.hxx>
+#include <lofty/text/str_traits.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

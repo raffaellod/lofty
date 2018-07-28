@@ -12,12 +12,11 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/os/path.hxx>
 #include <lofty/testing/test_case.hxx>
-
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +29,7 @@ public:
    @return
       Relative path to the test data file.
    */
-   virtual str get_test_data_file_name() const = 0;
+   virtual text::str get_test_data_file_name() const = 0;
 
    //! See testing::test_case::run().
    virtual void run() override {
@@ -46,7 +45,7 @@ public:
    }
 
    //! See testing::test_case::title().
-   virtual str title() override {
+   virtual text::str title() override {
       return LOFTY_SL("lofty::io::text::binbuf_istream – reading line-by-line, ") + title_suffix();
    }
 
@@ -55,7 +54,7 @@ public:
    @return
       Title suffix.
    */
-   virtual str title_suffix() const = 0;
+   virtual text::str title_suffix() const = 0;
 };
 
 }} //namespace lofty::test
@@ -67,13 +66,13 @@ namespace lofty { namespace test {
 class binbuf_istream_read_line_utf8_lf_no_trailing_nl : public bbis_readline_test_case {
 public:
    //! See bbis_readline_test_case::title_suffix().
-   virtual str title_suffix() const override {
-      return str(LOFTY_SL("UTF-8, LF, no trailing LF"));
+   virtual text::str title_suffix() const override {
+      return text::str(LOFTY_SL("UTF-8, LF, no trailing LF"));
    }
 
    //! See bbis_readline_test_case::get_test_data_file_name().
-   virtual str get_test_data_file_name() const override {
-      return str(LOFTY_SL("utf8_lf_no-trailing-nl.txt"));
+   virtual text::str get_test_data_file_name() const override {
+      return text::str(LOFTY_SL("utf8_lf_no-trailing-nl.txt"));
    }
 };
 
@@ -88,13 +87,13 @@ namespace lofty { namespace test {
 class binbuf_istream_read_line_utf8_mixed_no_trailing_nl : public bbis_readline_test_case {
 public:
    //! See bbis_readline_test_case::title_suffix().
-   virtual str title_suffix() const override {
-      return str(LOFTY_SL("UTF-8, CR/LF/CRLF mix, no trailing LF"));
+   virtual text::str title_suffix() const override {
+      return text::str(LOFTY_SL("UTF-8, CR/LF/CRLF mix, no trailing LF"));
    }
 
    //! See bbis_readline_test_case::get_test_data_file_name().
-   virtual str get_test_data_file_name() const override {
-      return str(LOFTY_SL("utf8_mixed_no-trailing-nl.txt"));
+   virtual text::str get_test_data_file_name() const override {
+      return text::str(LOFTY_SL("utf8_mixed_no-trailing-nl.txt"));
    }
 };
 
@@ -109,13 +108,13 @@ namespace lofty { namespace test {
 class binbuf_istream_read_line_utf16be_lf_no_trailing_nl : public bbis_readline_test_case {
 public:
    //! See bbis_readline_test_case::title_suffix().
-   virtual str title_suffix() const override {
-      return str(LOFTY_SL("UTF-16BE, LF mix, no trailing LF"));
+   virtual text::str title_suffix() const override {
+      return text::str(LOFTY_SL("UTF-16BE, LF mix, no trailing LF"));
    }
 
    //! See bbis_readline_test_case::get_test_data_file_name().
-   virtual str get_test_data_file_name() const override {
-      return str(LOFTY_SL("utf16be+bom_lf_no-trailing-nl.txt"));
+   virtual text::str get_test_data_file_name() const override {
+      return text::str(LOFTY_SL("utf16be+bom_lf_no-trailing-nl.txt"));
    }
 };
 
@@ -130,13 +129,13 @@ namespace lofty { namespace test {
 class binbuf_istream_read_line_utf16le_lf_no_trailing_nl : public bbis_readline_test_case {
 public:
    //! See bbis_readline_test_case::title_suffix().
-   virtual str title_suffix() const override {
-      return str(LOFTY_SL("UTF-16LE, LF mix, no trailing LF"));
+   virtual text::str title_suffix() const override {
+      return text::str(LOFTY_SL("UTF-16LE, LF mix, no trailing LF"));
    }
 
    //! See bbis_readline_test_case::get_test_data_file_name().
-   virtual str get_test_data_file_name() const override {
-      return str(LOFTY_SL("utf16le+bom_lf_no-trailing-nl.txt"));
+   virtual text::str get_test_data_file_name() const override {
+      return text::str(LOFTY_SL("utf16le+bom_lf_no-trailing-nl.txt"));
    }
 };
 
@@ -151,13 +150,13 @@ namespace lofty { namespace test {
 class binbuf_istream_read_line_utf16le_mixed_no_trailing_nl : public bbis_readline_test_case {
 public:
    //! See bbis_readline_test_case::title_suffix().
-   virtual str title_suffix() const override {
-      return str(LOFTY_SL("UTF-16LE, CR/LF/CRLF mix, no trailing LF"));
+   virtual text::str title_suffix() const override {
+      return text::str(LOFTY_SL("UTF-16LE, CR/LF/CRLF mix, no trailing LF"));
    }
 
    //! See bbis_readline_test_case::get_test_data_file_name().
-   virtual str get_test_data_file_name() const override {
-      return str(LOFTY_SL("utf16le+bom_mixed_no-trailing-nl.txt"));
+   virtual text::str get_test_data_file_name() const override {
+      return text::str(LOFTY_SL("utf16le+bom_mixed_no-trailing-nl.txt"));
    }
 };
 
@@ -172,13 +171,13 @@ namespace lofty { namespace test {
 class binbuf_istream_read_line_utf32le_lf_no_trailing_nl : public bbis_readline_test_case {
 public:
    //! See bbis_readline_test_case::title_suffix().
-   virtual str title_suffix() const override {
-      return str(LOFTY_SL("UTF-32LE, LF, no trailing LF"));
+   virtual text::str title_suffix() const override {
+      return text::str(LOFTY_SL("UTF-32LE, LF, no trailing LF"));
    }
 
    //! See bbis_readline_test_case::get_test_data_file_name().
-   virtual str get_test_data_file_name() const override {
-      return str(LOFTY_SL("utf32le+bom_lf_no-trailing-nl.txt"));
+   virtual text::str get_test_data_file_name() const override {
+      return text::str(LOFTY_SL("utf32le+bom_lf_no-trailing-nl.txt"));
    }
 };
 
@@ -193,13 +192,13 @@ namespace lofty { namespace test {
 class binbuf_istream_read_line_utf32le_mixed_no_trailing_nl : public bbis_readline_test_case {
 public:
    //! See bbis_readline_test_case::title_suffix().
-   virtual str title_suffix() const override {
-      return str(LOFTY_SL("UTF-32LE, CR/LF/CRLF mix, no trailing LF"));
+   virtual text::str title_suffix() const override {
+      return text::str(LOFTY_SL("UTF-32LE, CR/LF/CRLF mix, no trailing LF"));
    }
 
    //! See bbis_readline_test_case::get_test_data_file_name().
-   virtual str get_test_data_file_name() const override {
-      return str(LOFTY_SL("utf32le+bom_mixed_no-trailing-nl.txt"));
+   virtual text::str get_test_data_file_name() const override {
+      return text::str(LOFTY_SL("utf32le+bom_mixed_no-trailing-nl.txt"));
    }
 };
 

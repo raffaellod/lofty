@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -16,10 +16,17 @@ more details.
 Classes and macros useful to support explicit operator bool conversions even in absence of compiler support.
 */
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_EXPLICIT_OPERATOR_BOOL_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_EXPLICIT_OPERATOR_BOOL_HXX
 #endif
 
+#ifndef _LOFTY_EXPLICIT_OPERATOR_BOOL_HXX_NOPUB
+#define _LOFTY_EXPLICIT_OPERATOR_BOOL_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +57,7 @@ struct explob_helper {
 #endif //ifndef LOFTY_CXX_EXPLICIT_CONVERSION_OPERATORS
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Provides subclasses with support for C++11 explicit operator bool() even with non-C++11-compliant
 compilers. */
@@ -93,4 +101,23 @@ struct support_explicit_operator_bool {
    #undef LOFTY_RELOP_IMPL
 #endif //ifndef LOFTY_CXX_EXPLICIT_CONVERSION_OPERATORS
 
+_LOFTY_PUBNS_END
 } //namespace lofty
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_EXPLICIT_OPERATOR_BOOL_HXX_NOPUB
+
+#ifdef _LOFTY_EXPLICIT_OPERATOR_BOOL_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+      using _pub::support_explicit_operator_bool;
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_EXPLICIT_OPERATOR_BOOL_HXX

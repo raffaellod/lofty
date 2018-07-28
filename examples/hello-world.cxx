@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -18,18 +18,17 @@ Hello World example
 This is a basic usage example of Lofty; all it does is display the canonical “Hello World” text, then it
 terminates. See the source code for line-by-line comments. */
 
-// This should always be the first file included in any C++ source using Lofty.
-#include <lofty.hxx>
 // This needs to be included in the .cxx file that defines the application class for the program – see below.
 #include <lofty/app.hxx>
-
+#include <lofty/collections/vector.hxx>
 #include <lofty/io/text.hxx>
+// Declares LOFTY_TRACE_*() and LOFTY_LOG().
 #include <lofty/logging.hxx>
+#include <lofty/text/str.hxx>
 
 /* Lofty does not use “using namespace” directives in its sources or header files; if you want such
 convenience, you can write it yourself in your own source files. */
 using namespace lofty;
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +46,7 @@ public:
       The return value of this method will be available to the parent process as this program’s return value,
       accessible in a shell/command prompt as $? (Linux/POSIX) or %ERRORLEVEL% (Win32).
    */
-   virtual int main(collections::vector<str> & args) override {
+   virtual int main(collections::vector<text::str> & args) override {
       /* This should be the first line of every non-minor method; it allows to generate a stack trace when an
       exception is thrown during the execution of the method. */
       LOFTY_TRACE_METHOD();

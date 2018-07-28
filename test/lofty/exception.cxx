@@ -12,10 +12,12 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text/str.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/_std/exception.hxx>
 #include <lofty/testing/test_case.hxx>
-
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,8 +43,8 @@ protected:
 
 public:
    //! See testing::test_case::title().
-   virtual str title() override {
-      return str(LOFTY_SL("lofty::exception – polymorphism"));
+   virtual text::str title() override {
+      return text::str(LOFTY_SL("lofty::exception – polymorphism"));
    }
 
    //! See testing::test_case::run().
@@ -92,18 +94,18 @@ namespace lofty { namespace test {
 class exception_scope_trace : public testing::test_case {
 public:
    //! See testing::test_case::title().
-   virtual str title() override {
-      return str(LOFTY_SL("lofty::exception – scope/stack trace generation"));
+   virtual text::str title() override {
+      return text::str(LOFTY_SL("lofty::exception – scope/stack trace generation"));
    }
 
    //! See testing::test_case::run().
    virtual void run() override {
       LOFTY_TRACE_METHOD();
 
-      str this_str;
+      text::str this_str;
       this_str.format(LOFTY_SL("this={}"), this);
 
-      str scope_trace;
+      text::str scope_trace;
 
       // Verify that the current scope trace contains this function.
 
@@ -133,7 +135,7 @@ public:
       ASSERT(scope_trace.find(this_str) != scope_trace.cend());
    }
 
-   static str get_scope_trace(_std::exception const * x = nullptr) {
+   static text::str get_scope_trace(_std::exception const * x = nullptr) {
       io::text::str_ostream ostream;
       exception::write_with_scope_trace(&ostream, x);
       return ostream.release_content();

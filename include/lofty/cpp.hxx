@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -15,10 +15,17 @@ more details.
 /*! @file
 Defines C++ preprocessor macros to perform useful code generation tasks. */
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_CPP_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_CPP_HXX
 #endif
 
+#ifndef _LOFTY_CPP_HXX_NOPUB
+#define _LOFTY_CPP_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -511,3 +518,17 @@ arguments.
 #define _LOFTY_CPP_TUPLELIST_W_98(m, h, ...) m h LOFTY_UWE(_LOFTY_CPP_TUPLELIST_W_97(m, __VA_ARGS__))
 #define _LOFTY_CPP_TUPLELIST_W_99(m, h, ...) m h LOFTY_UWE(_LOFTY_CPP_TUPLELIST_W_98(m, __VA_ARGS__))
 //! @endcond
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_CPP_HXX_NOPUB
+
+#ifdef _LOFTY_CPP_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_CPP_HXX

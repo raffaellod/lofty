@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,15 +12,18 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/byte_order.hxx>
+#include <lofty/collections/vector.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text.hxx>
 #include <lofty/numeric.hxx>
 #include <lofty/text.hxx>
-
+#include <lofty/text/str.hxx>
+#include <lofty/to_text_ostream.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace text {
+namespace lofty { namespace text { namespace _pub {
 
 std::size_t get_encoding_size(encoding enc) {
    // Little helper to map lofty::text::encoding values with byte sizes (see below).
@@ -621,7 +624,7 @@ break_for:
    return dst_used_bytes;
 }
 
-}} //namespace lofty::text
+}}} //namespace lofty::text::_pub
 
 namespace lofty { namespace text { namespace _pvt {
 
@@ -641,9 +644,9 @@ std::size_t size_in_chars(C const * s) {
    return static_cast<std::size_t>(ch - s);
 }
 
-}}} //namespace lofty::text::_pvt
+}}}
 
-namespace lofty { namespace text {
+namespace lofty { namespace text { namespace _pub {
 
 std::size_t size_in_chars(char_t const * s) {
    return _pvt::size_in_chars(s);
@@ -654,13 +657,13 @@ std::size_t size_in_chars(char const * s) {
 }
 #endif
 
-}} //namespace lofty::text
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
 
-void to_text_ostream<text::file_address>::set_format(str const & format) {
+void to_text_ostream<text::file_address>::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -669,12 +672,12 @@ void to_text_ostream<text::file_address>::set_format(str const & format) {
 }
 
 void to_text_ostream<text::file_address>::write(text::file_address const & src, io::text::ostream * dst) {
-   dst->write(str(external_buffer, src.file_path()));
+   dst->write(text::str(external_buffer, src.file_path()));
    dst->write(LOFTY_SL(":"));
    dst->print(LOFTY_SL("{}"), src.line_number());
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -696,7 +699,7 @@ error & error::operator=(error const & src) {
    return *this;
 }
 
-}} //namespace lofty::text
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

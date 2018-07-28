@@ -13,19 +13,20 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_NET_TCP_HXX
-#define _LOFTY_NET_TCP_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_NET_TCP_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_NET_TCP_HXX_NOPUB
+#define _LOFTY_NET_TCP_HXX_NOPUB
 
 #include <lofty/io/binary.hxx>
 #include <lofty/net.hxx>
 #include <lofty/net/ip.hxx>
-
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/memory.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,13 +40,14 @@ namespace tcp {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace tcp {
+_LOFTY_PUBNS_BEGIN
 
 //! Initialized TCP connection.
 class LOFTY_SYM connection :
 #if LOFTY_HOST_API_WIN32
-   private wsa_client,
+   private net::_LOFTY_PUBNS wsa_client,
 #endif //if LOFTY_HOST_API_WIN32
-   public noncopyable {
+   public lofty::_LOFTY_PUBNS noncopyable {
 public:
    /*! Constructor.
 
@@ -61,8 +63,9 @@ public:
       Port of the remote peer.
    */
    connection(
-      io::filedesc fd, ip::address && local_address, ip::port && local_port, ip::address && remote_address,
-      ip::port && remote_port
+      io::_LOFTY_PUBNS filedesc fd, ip::_LOFTY_PUBNS address && local_address,
+      ip::_LOFTY_PUBNS port && local_port, ip::_LOFTY_PUBNS address && remote_address,
+      ip::_LOFTY_PUBNS port && remote_port
    );
 
    //! Destructor.
@@ -73,7 +76,7 @@ public:
    @return
       IP address.
    */
-   ip::address const & local_address() const {
+   ip::_LOFTY_PUBNS address const & local_address() const {
       return local_address_;
    }
 
@@ -82,7 +85,7 @@ public:
    @return
       Port.
    */
-   ip::port const & local_port() const {
+   ip::_LOFTY_PUBNS port const & local_port() const {
       return local_port_;
    }
 
@@ -91,7 +94,7 @@ public:
    @return
       IP address.
    */
-   ip::address const & remote_address() const {
+   ip::_LOFTY_PUBNS address const & remote_address() const {
       return remote_address_;
    }
 
@@ -100,7 +103,7 @@ public:
    @return
       Port.
    */
-   ip::port const & remote_port() const {
+   ip::_LOFTY_PUBNS port const & remote_port() const {
       return remote_port_;
    }
 
@@ -109,31 +112,33 @@ public:
    @return
       Input/output stream for the connection’s socket.
    */
-   _std::shared_ptr<io::binary::file_iostream> const & socket() {
+   _std::_LOFTY_PUBNS shared_ptr<io::binary::_LOFTY_PUBNS file_iostream> const & socket() {
       return socket_;
    }
 
 private:
    //! Stream for the connection’s socket.
-   _std::shared_ptr<io::binary::file_iostream> socket_;
+   _std::_LOFTY_PUBNS shared_ptr<io::binary::_LOFTY_PUBNS file_iostream> socket_;
    //! Local address.
-   ip::address local_address_;
+   ip::_LOFTY_PUBNS address local_address_;
    //! Local port.
-   ip::port local_port_;
+   ip::_LOFTY_PUBNS port local_port_;
    //! Address of the remote peer.
-   ip::address remote_address_;
+   ip::_LOFTY_PUBNS address remote_address_;
    //! Port of the remote peer.
-   ip::port remote_port_;
+   ip::_LOFTY_PUBNS port remote_port_;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::net::tcp
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace tcp {
+_LOFTY_PUBNS_BEGIN
 
 //! Accepts client connection requests for a given TCP port.
-class LOFTY_SYM server : public ip::server {
+class LOFTY_SYM server : public ip::_LOFTY_PUBNS server {
 public:
    /*! Constructor.
 
@@ -144,7 +149,9 @@ public:
    @param backlog_size
       Count of established connections that will be allowed to queue until the server is able to accept them.
    */
-   server(ip::address const & address, ip::port const & port, unsigned backlog_size = 5);
+   server(
+      ip::_LOFTY_PUBNS address const & address, ip::_LOFTY_PUBNS port const & port, unsigned backlog_size = 5
+   );
 
    //! Destructor.
    ~server();
@@ -154,11 +161,29 @@ public:
    @return
       New client connection.
    */
-   _std::shared_ptr<connection> accept();
+   _std::_LOFTY_PUBNS shared_ptr<connection> accept();
 };
 
-}}} //namespace lofty::net::tcp
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_NET_TCP_HXX_NOPUB
+
+#ifdef _LOFTY_NET_TCP_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace net { namespace tcp {
+
+   using _pub::connection;
+   using _pub::server;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_NET_TCP_HXX

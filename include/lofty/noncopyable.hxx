@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,14 +12,22 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_NONCOPYABLE_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_NONCOPYABLE_HXX
 #endif
 
+#ifndef _LOFTY_NONCOPYABLE_HXX_NOPUB
+#define _LOFTY_NONCOPYABLE_HXX_NOPUB
+
+#include <lofty/_std/type_traits.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Makes a derived class not copyable.
 
@@ -62,4 +70,23 @@ private:
 #endif
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_NONCOPYABLE_HXX_NOPUB
+
+#ifdef _LOFTY_NONCOPYABLE_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+      using _pub::noncopyable;
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_NONCOPYABLE_HXX

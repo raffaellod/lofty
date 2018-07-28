@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -16,14 +16,20 @@ more details.
 Logging and stack tracing infrastructure. */
 
 #ifndef _LOFTY_LOGGING_HXX
-#define _LOFTY_LOGGING_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_LOGGING_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_LOGGING_HXX_NOPUB
+#define _LOFTY_LOGGING_HXX_NOPUB
+
+#include <lofty/coroutine_local.hxx>
+#include <lofty/enum.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text/str.hxx>
+#include <lofty/noncopyable.hxx>
 
 /*! @page stack-tracing Stack tracing
 Automatic generation of stack traces whenever an exception occurs.
@@ -76,13 +82,12 @@ Currently unsupported:
 •  TODO: properly handling exceptions occurring while generating a stack trace. The current behavior swallows
    any nested exceptions, gracefully failing to generate a complete stack trace. */
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace logging { namespace _pvt {
 
 //! Tracks local variables, to be used during e.g. a stack unwind.
-class LOFTY_SYM scope_trace : public noncopyable {
+class LOFTY_SYM scope_trace : public lofty::_LOFTY_PUBNS noncopyable {
 public:
    /*! Constructor.
 
@@ -91,7 +96,7 @@ public:
    @param local_this
       this in the context of the caller; may be nullptr.
    */
-   scope_trace(source_file_address const * source_file_addr, void const * local_this);
+   scope_trace(lofty::_LOFTY_PUBNS source_file_address const * source_file_addr, void const * local_this);
 
    //! Destructor. Adds a scope in the current scope trace if an in-flight exception is detected.
    ~scope_trace();
@@ -102,7 +107,7 @@ public:
    @return
       Pointer to the text stream containing the current stack trace.
    */
-   static io::text::str_ostream * get_trace_ostream() {
+   static io::text::_LOFTY_PUBNS str_ostream * get_trace_ostream() {
       if (!trace_ostream) {
          trace_ostream.reset_new();
       }
@@ -137,7 +142,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   static void write_list(io::text::ostream * dst);
+   static void write_list(io::text::_LOFTY_PUBNS ostream * dst);
 
 private:
    /*! Writes the scope trace to the specified stream.
@@ -147,23 +152,23 @@ private:
    @param stack_depth
       Stack index to print next to the trace.
    */
-   void write(io::text::ostream * dst, unsigned stack_depth) const;
+   void write(io::text::_LOFTY_PUBNS ostream * dst, unsigned stack_depth) const;
 
 private:
    //! Pointer to the previous scope_trace single-linked list item that *this replaced as the head.
    scope_trace const * prev_scope_trace;
    //! Pointer to the statically-allocated source location.
-   source_file_address const * source_file_addr;
+   lofty::_LOFTY_PUBNS source_file_address const * source_file_addr;
    //! this in the context of the caller; may be nullptr.
    void const * local_this;
    //! Pointer to the head of the scope_trace single-linked list for each thread.
-   static coroutine_local_value<scope_trace const *> scope_traces_head;
+   static _LOFTY_PUBNS coroutine_local_value<scope_trace const *> scope_traces_head;
    //! Stream that collects the rendered scope trace when an exception is thrown.
-   static coroutine_local_ptr<io::text::str_ostream> trace_ostream;
+   static _LOFTY_PUBNS coroutine_local_ptr<io::text::_LOFTY_PUBNS str_ostream> trace_ostream;
    //! Number of the next stack frame to be added to the rendered trace.
-   static coroutine_local_value<unsigned> curr_stack_depth;
+   static _LOFTY_PUBNS coroutine_local_value<unsigned> curr_stack_depth;
    //! Count of references to the current rendered trace. Managed by lofty::exception.
-   static coroutine_local_value<unsigned> trace_ostream_refs;
+   static _LOFTY_PUBNS coroutine_local_value<unsigned> trace_ostream_refs;
 };
 
 }}} //namespace lofty::logging::_pvt
@@ -187,11 +192,14 @@ private:
    static ::lofty::_pvt::source_file_address_data const LOFTY_CPP_CAT(uid, _sfad) = { \
       LOFTY_THIS_FUNC, { LOFTY_SL(__FILE__), __LINE__ } \
    }; \
-   ::lofty::logging::_pvt::scope_trace uid(::lofty::source_file_address::from_data(&LOFTY_CPP_CAT(uid, _sfad)), this)
+   ::lofty::logging::_pvt::scope_trace uid( \
+      ::lofty::_pub::source_file_address::from_data(&LOFTY_CPP_CAT(uid, _sfad)), this \
+   )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace logging {
+_LOFTY_PUBNS_BEGIN
 
 //! Logging levels. Enumeration members ara available both in full and as short forms.
 LOFTY_ENUM(level,
@@ -211,8 +219,9 @@ LOFTY_ENUM(level,
    (dbg,     3)
 );
 
-LOFTY_SYM io::text::ostream * get_ostream_if(level level_);
+LOFTY_SYM io::text::_LOFTY_PUBNS ostream * get_ostream_if(level level_);
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::logging
 
 /*! Outputs a message to the application’s log.
@@ -227,11 +236,30 @@ LOFTY_SYM io::text::ostream * get_ostream_if(level level_);
 */
 #define LOFTY_LOG(level_, ...) \
    do { \
-      if (auto __log = ::lofty::logging::get_ostream_if(::lofty::logging::level::enum_type::level_)) { \
+      if (auto __log = ::lofty::logging::_pub::get_ostream_if( \
+         ::lofty::logging::_pub::level::enum_type::level_ \
+      )) { \
          __log->print(__VA_ARGS__); \
       } \
    } while (false)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_LOGGING_HXX_NOPUB
+
+#ifdef _LOFTY_LOGGING_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace logging {
+
+   using _pub::get_ostream_if;
+   using _pub::level;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_LOGGING_HXX

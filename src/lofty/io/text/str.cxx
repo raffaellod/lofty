@@ -12,11 +12,13 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text/str.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/_std/algorithm.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/text.hxx>
-
-#include <algorithm> // std::min()
-
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,23 +40,23 @@ str_stream::str_stream(str_stream && src) :
    src.char_offset = 0;
 }
 
-/*explicit*/ str_stream::str_stream(str const & src_buf) :
+/*explicit*/ str_stream::str_stream(lofty::text::str const & src_buf) :
    stream(),
    buf(&default_buf),
    default_buf(src_buf),
    char_offset(0) {
 }
 
-/*explicit*/ str_stream::str_stream(str && src_buf) :
+/*explicit*/ str_stream::str_stream(lofty::text::str && src_buf) :
    stream(),
    buf(&default_buf),
    default_buf(_std::move(src_buf)),
    char_offset(0) {
 }
 
-/*explicit*/ str_stream::str_stream(external_buffer_t const &, str const * ext_buf) :
+/*explicit*/ str_stream::str_stream(external_buffer_t const &, lofty::text::str const * ext_buf) :
    stream(),
-   buf(const_cast<str *>(ext_buf)),
+   buf(const_cast<lofty::text::str *>(ext_buf)),
    char_offset(0) {
 }
 
@@ -71,19 +73,19 @@ str_stream::str_stream(str_stream && src) :
 
 namespace lofty { namespace io { namespace text {
 
-str_istream::str_istream(str const & src_buf) :
+str_istream::str_istream(lofty::text::str const & src_buf) :
    stream(),
    str_stream(src_buf),
    istream() {
 }
 
-str_istream::str_istream(str && src_buf) :
+str_istream::str_istream(lofty::text::str && src_buf) :
    stream(),
    str_stream(_std::move(src_buf)),
    istream() {
 }
 
-str_istream::str_istream(external_buffer_t const & eb, str const * ext_buf) :
+str_istream::str_istream(external_buffer_t const & eb, lofty::text::str const * ext_buf) :
    stream(),
    str_stream(eb, ext_buf),
    istream() {
@@ -100,19 +102,19 @@ str_istream::str_istream(external_buffer_t const & eb, str const * ext_buf) :
    char_offset += count;
 }
 
-/*virtual*/ str str_istream::peek_chars(std::size_t count_min) /*override*/ {
+/*virtual*/ lofty::text::str str_istream::peek_chars(std::size_t count_min) /*override*/ {
    // Always return the whole string buffer after char_offset, ignoring count_min.
    LOFTY_UNUSED_ARG(count_min);
-   return str(external_buffer, buf->data() + char_offset, remaining_size_in_chars());
+   return lofty::text::str(external_buffer, buf->data() + char_offset, remaining_size_in_chars());
 }
 
-/*virtual*/ void str_istream::read_all(str * dst) /*override*/ {
+/*virtual*/ void str_istream::read_all(lofty::text::str * dst) /*override*/ {
    *dst = _std::move(*buf);
    buf = &default_buf;
    char_offset = 0;
 }
 
-/*virtual*/ void str_istream::unconsume_chars(str const & s) /*override*/ {
+/*virtual*/ void str_istream::unconsume_chars(lofty::text::str const & s) /*override*/ {
    std::size_t count = s.size_in_chars();
    if (count > char_offset) {
       // TODO: use a better exception class.
@@ -139,7 +141,7 @@ str_ostream::str_ostream(str_ostream && src) :
    ostream(_std::move(src)) {
 }
 
-str_ostream::str_ostream(external_buffer_t const & eb, str * ext_buf) :
+str_ostream::str_ostream(external_buffer_t const & eb, lofty::text::str * ext_buf) :
    stream(),
    str_stream(eb, ext_buf),
    ostream() {
@@ -157,7 +159,7 @@ void str_ostream::clear() {
    // Nothing to do.
 }
 
-str str_ostream::release_content() {
+lofty::text::str str_ostream::release_content() {
    char_offset = 0;
    return _std::move(*buf);
 }
@@ -172,22 +174,22 @@ str str_ostream::release_content() {
    LOFTY_ASSERT(enc != lofty::text::encoding::unknown, LOFTY_SL("cannot write data with unknown encoding"));
    if (enc == lofty::text::encoding::host) {
       // Optimal case: no transcoding necessary.
-      std::size_t src_char_size = src_byte_size / sizeof(char_t);
+      std::size_t src_char_size = src_byte_size / sizeof(lofty::text::char_t);
       // Enlarge the string as necessary, then overwrite any character in the affected range.
       buf->set_capacity(char_offset + src_char_size, true);
-      memory::copy(buf->data() + char_offset, static_cast<char_t const *>(src), src_char_size);
+      memory::copy(buf->data() + char_offset, static_cast<lofty::text::char_t const *>(src), src_char_size);
       char_offset += src_char_size;
    } else {
       // Calculate the additional buffer size required.
       std::size_t buf_byte_size = lofty::text::transcode(
          true, enc, &src, &src_byte_size, lofty::text::encoding::host
       );
-      buf->set_capacity(char_offset + buf_byte_size / sizeof(char_t), true);
+      buf->set_capacity(char_offset + buf_byte_size / sizeof(lofty::text::char_t), true);
       // Transcode the source into the string buffer and advance char_offset accordingly.
       void * buf_dst = buf->data() + char_offset;
       char_offset += lofty::text::transcode(
          true, enc, &src, &src_byte_size, lofty::text::encoding::host, &buf_dst, &buf_byte_size
-      ) / sizeof(char_t);
+      ) / sizeof(lofty::text::char_t);
    }
    // Truncate the string.
    buf->set_size_in_chars(char_offset);
@@ -238,7 +240,7 @@ char_ptr_ostream::char_ptr_ostream(char_ptr_ostream && src) :
    LOFTY_ASSERT(enc != lofty::text::encoding::unknown, LOFTY_SL("cannot write data with unknown encoding"));
    if (enc == lofty::text::encoding::utf8) {
       // Optimal case: no transcoding necessary.
-      std::size_t src_chars = std::min(*write_buf_available_chars, src_byte_size / sizeof(char));
+      std::size_t src_chars = _std::min(*write_buf_available_chars, src_byte_size / sizeof(char));
       memory::copy(write_buf, static_cast<char const *>(src), src_chars);
       write_buf += src_chars;
       *write_buf_available_chars -= src_chars;

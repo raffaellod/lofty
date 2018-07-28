@@ -13,18 +13,19 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY__PVT_SIGNAL_DISPATCHER_HXX
-#define _LOFTY__PVT_SIGNAL_DISPATCHER_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY__PVT_SIGNAL_DISPATCHER_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY__PVT_SIGNAL_DISPATCHER_HXX_NOPUB
+#define _LOFTY__PVT_SIGNAL_DISPATCHER_HXX_NOPUB
 
 #include <lofty/collections/hash_map.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/mutex.hxx>
 #include <lofty/thread.hxx>
-
 #if LOFTY_HOST_API_MACH
    // Mach reference: <http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/>.
    #include <mach/mach.h> // mach_port_t
@@ -33,7 +34,6 @@ more details.
 #if LOFTY_HOST_API_POSIX
    #include <signal.h> // sigaction siginfo_t sig*()
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -102,14 +102,14 @@ public:
       Type of exception that escaped the program’s main(), or exception::common_type::none if main() returned
       normally.
    */
-   void main_thread_terminated(exception::common_type xct);
+   void main_thread_terminated(_pub::exception::common_type xct);
 
    /*! Registers a new thread as running.
 
    @param thread_pimpl
       Pointer to the lofty::thread::impl instance running the thread.
    */
-   void nonmain_thread_started(_std::shared_ptr<thread::impl> const & thread_pimpl);
+   void nonmain_thread_started(_std::_pub::shared_ptr<_pub::thread::impl> const & thread_pimpl);
 
    /*! Registers a non-main thread as no longer running.
 
@@ -118,7 +118,7 @@ public:
    @param uncaught_exception
       true if an exception escaped the thread’s function and was only blocked by lofty::thread::impl.
    */
-   void nonmain_thread_terminated(thread::impl * thread_pimpl, bool uncaught_exception);
+   void nonmain_thread_terminated(_pub::thread::impl * thread_pimpl, bool uncaught_exception);
 
 private:
 #if LOFTY_HOST_API_POSIX
@@ -198,12 +198,14 @@ private:
    /*! Pointer to an incomplete lofty::thread::impl instance that’s used to control the main (default) thread
    of the process. */
    // TODO: instantiate this lazily, only if needed.
-   _std::shared_ptr<thread::impl> main_thread;
+   _std::_pub::shared_ptr<_pub::thread::impl> main_thread;
    //! Governs access to known_threads.
-   _std::mutex known_threads_mutex;
+   _std::_pub::mutex known_threads_mutex;
    //! Tracks all threads running in the process except *main_thread.
    // TODO: make this a hash_set instead of a hash_map.
-   collections::hash_map<thread::impl *, _std::shared_ptr<thread::impl>> known_threads;
+   collections::_pub::hash_map<
+      _pub::thread::impl *, _std::_pub::shared_ptr<_pub::thread::impl>
+   > known_threads;
 
    //! Pointer to the singleton instance.
    static signal_dispatcher * this_instance;
@@ -212,5 +214,15 @@ private:
 }} //namespace lofty::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY__PVT_SIGNAL_DISPATCHER_HXX_NOPUB
+
+#ifdef _LOFTY__PVT_SIGNAL_DISPATCHER_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY__PVT_SIGNAL_DISPATCHER_HXX

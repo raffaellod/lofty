@@ -12,13 +12,15 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections.hxx>
 #include <lofty/collections/_pvt/hash_map_impl.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/range.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/type_void_adapter.hxx>
-
 #include <climits> // CHAR_BIT
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

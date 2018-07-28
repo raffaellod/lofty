@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,10 +12,21 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY__PVT_CONTEXT_LOCAL_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY__PVT_CONTEXT_LOCAL_HXX
 #endif
 
+#ifndef _LOFTY__PVT_CONTEXT_LOCAL_HXX_NOPUB
+#define _LOFTY__PVT_CONTEXT_LOCAL_HXX_NOPUB
+
+#include <lofty/collections/static_list.hxx>
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +49,7 @@ struct context_local_storage_registrar_impl_extra_members {
 /*! Implementation of a variable registrar for lofty::_pvt::thread_local_storage and
 lofty::_pvt::coroutine_local_storage. */
 class LOFTY_SYM context_local_storage_registrar_impl :
-   public collections::static_list_impl_base,
+   public collections::_LOFTY_PUBNS static_list_impl_base,
    public context_local_storage_registrar_impl_extra_members {
 private:
    friend class context_local_storage_impl;
@@ -47,7 +58,7 @@ public:
    //! Data members to be declared as a static member of the most-derived class.
    struct data_members {
       //! Basic list members.
-      collections::static_list_impl_base list;
+      collections::_LOFTY_PUBNS static_list_impl_base list;
       //! Additional members for this class.
       context_local_storage_registrar_impl_extra_members registrar;
    };
@@ -120,9 +131,9 @@ protected:
 
 private:
    //! Array of flags indicating whether each storage slot has been constructed.
-   _std::unique_ptr<bool[]> vars_constructed;
+   _std::_LOFTY_PUBNS unique_ptr<bool[]> vars_constructed;
    //! Raw byte storage.
-   _std::unique_ptr<std::int8_t[]> bytes;
+   _std::_LOFTY_PUBNS unique_ptr<std::int8_t[]> bytes;
 };
 
 }} //namespace lofty::_pvt
@@ -132,7 +143,9 @@ private:
 namespace lofty { namespace _pvt {
 
 //! Non-template implementation of lofty::_pvt::context_local_storage_node.
-class context_local_storage_node_impl : public collections::static_list_impl_base::node, public noncopyable {
+class context_local_storage_node_impl :
+   public collections::_LOFTY_PUBNS static_list_impl_base::node,
+   public _LOFTY_PUBNS noncopyable {
 public:
    /*! Constructs the thread-local value for a new thread. Invoked at most once for each thread.
 
@@ -166,7 +179,7 @@ context_local_var_impl. */
 template <typename TStorage>
 class context_local_storage_node :
    public context_local_storage_node_impl,
-   public collections::static_list_impl<
+   public collections::_LOFTY_PUBNS static_list_impl<
       typename TStorage::registrar, context_local_storage_node<TStorage>
    >::node {
 protected:
@@ -250,14 +263,14 @@ protected:
 namespace lofty { namespace _pvt {
 
 //! Implementation of lofty::thread_local_value and lofty::coroutine_local_value.
-template <typename T, typename TStorage, bool trivial = _std::is_trivial<T>::value>
+template <typename T, typename TStorage, bool trivial = _std::_LOFTY_PUBNS is_trivial<T>::value>
 class context_local_value;
 
 // Partial specialization for trivial types.
 template <typename T, typename TStorage>
 class context_local_value<T, TStorage, true> :
    public context_local_var_impl<T, TStorage>,
-   public support_explicit_operator_bool<context_local_value<T, TStorage, true>> {
+   public _LOFTY_PUBNS support_explicit_operator_bool<context_local_value<T, TStorage, true>> {
 public:
    //! Default constructor.
    context_local_value() {
@@ -273,7 +286,7 @@ public:
       *this.
    */
    context_local_value & operator=(T && t) {
-      *this->get_ptr() = _std::move(t);
+      *this->get_ptr() = _std::_pub::move(t);
       return *this;
    }
 
@@ -303,7 +316,7 @@ public:
 template <typename T, typename TStorage>
 class context_local_value<T, TStorage, false> :
    public context_local_var_impl<T, TStorage>,
-   public support_explicit_operator_bool<context_local_value<T, TStorage>> {
+   public _LOFTY_PUBNS support_explicit_operator_bool<context_local_value<T, TStorage>> {
 public:
    //! Default constructor.
    context_local_value() {
@@ -319,7 +332,7 @@ public:
       *this.
    */
    context_local_value & operator=(T && t) {
-      *this->get_ptr() = _std::move(t);
+      *this->get_ptr() = _std::_pub::move(t);
       return *this;
    }
 
@@ -383,11 +396,13 @@ public:
    }
 };
 
-// Specialization for std::shared_ptr, which offers a few additional methods.
+// Specialization for _std::shared_ptr, which offers a few additional methods.
 template <typename T, typename TStorage>
-class context_local_value<_std::shared_ptr<T>, TStorage, false> :
-   public context_local_var_impl<_std::shared_ptr<T>, TStorage>,
-   public support_explicit_operator_bool<context_local_value<_std::shared_ptr<T>, TStorage, false>> {
+class context_local_value<_std::_LOFTY_PUBNS shared_ptr<T>, TStorage, false> :
+   public context_local_var_impl<_std::_LOFTY_PUBNS shared_ptr<T>, TStorage>,
+   public _LOFTY_PUBNS support_explicit_operator_bool<
+      context_local_value<_std::_LOFTY_PUBNS shared_ptr<T>, TStorage, false>
+   > {
 public:
    //! Default constructor.
    context_local_value() {
@@ -402,8 +417,8 @@ public:
    @return
       *this.
    */
-   context_local_value & operator=(_std::shared_ptr<T> && p) {
-      *this->get_ptr() = _std::move(p);
+   context_local_value & operator=(_std::_LOFTY_PUBNS shared_ptr<T> && p) {
+      *this->get_ptr() = _std::_pub::move(p);
       return *this;
    }
 
@@ -414,7 +429,7 @@ public:
    @return
       *this.
    */
-   context_local_value & operator=(_std::shared_ptr<T> const & p) {
+   context_local_value & operator=(_std::_LOFTY_PUBNS shared_ptr<T> const & p) {
       *this->get_ptr() = p;
       return *this;
    }
@@ -424,7 +439,7 @@ public:
    @return
       Reference to the shared pointer.
    */
-   operator _std::shared_ptr<T> &() {
+   operator _std::_LOFTY_PUBNS shared_ptr<T> &() {
       return *this->get_ptr();
    }
 
@@ -433,7 +448,7 @@ public:
    @return
       Const reference to the shared pointer.
    */
-   operator _std::shared_ptr<T> const &() const {
+   operator _std::_LOFTY_PUBNS shared_ptr<T> const &() const {
       return *this->get_ptr();
    }
 
@@ -490,12 +505,12 @@ public:
 private:
    //! Implementation of context_local_var_impl::construct().
    static void construct_impl(void * p) {
-      new(p) _std::shared_ptr<T>();
+      new(p) _std::_pub::shared_ptr<T>();
    }
 
    //! Implementation of context_local_var_impl::destruct().
    static void destruct_impl(void * p) {
-      static_cast<_std::shared_ptr<T> *>(p)->~shared_ptr();
+      static_cast<_std::_pub::shared_ptr<T> *>(p)->~shared_ptr();
    }
 };
 
@@ -518,7 +533,7 @@ struct context_local_ptr_value {
 template <typename T, typename TStorage>
 class context_local_ptr :
    public context_local_var_impl<context_local_ptr_value<T>, TStorage>,
-   public support_explicit_operator_bool<context_local_ptr<T, TStorage>> {
+   public _LOFTY_PUBNS support_explicit_operator_bool<context_local_ptr<T, TStorage>> {
 private:
 public:
    //! Default constructor.
@@ -585,7 +600,7 @@ public:
       reset();
       auto value = this->get_ptr();
       // The constructor invoked is T::T(T &&), which should not throw.
-      new(&value->t) T(_std::move(src));
+      new(&value->t) T(_std::_pub::move(src));
       value->constructed = true;
       return &value->t;
    }
@@ -601,3 +616,17 @@ private:
 };
 
 }} //namespace lofty::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY__PVT_CONTEXT_LOCAL_HXX_NOPUB
+
+#ifdef _LOFTY__PVT_CONTEXT_LOCAL_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY__PVT_CONTEXT_LOCAL_HXX

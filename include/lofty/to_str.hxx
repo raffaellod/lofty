@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,22 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TO_STR_HXX
-#define _LOFTY_TO_STR_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TO_STR_HXX
 #endif
 
+#ifndef _LOFTY_TO_STR_HXX_NOPUB
+#define _LOFTY_TO_STR_HXX_NOPUB
+
+#include <lofty/text/str-0.hxx>
+#include <lofty/to_text_ostream.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Returns the string representation of the specified value, optionally with a custom format.
 
@@ -63,8 +66,10 @@ The only fix for this is to provide an explicit specialization of lofty::to_text
    String representation of t according to format.
 */
 template <typename T>
-inline str to_str(T const & src, str const & format = str::empty) {
-   io::text::str_ostream ostream;
+inline text::_LOFTY_PUBNS str to_str(
+   T const & src, text::_LOFTY_PUBNS str const & format = text::_LOFTY_PUBNS str::empty
+) {
+   io::text::_pub::str_ostream ostream;
    {
       to_text_ostream<T> ttos;
       ttos.set_format(format);
@@ -73,8 +78,25 @@ inline str to_str(T const & src, str const & format = str::empty) {
    return ostream.release_content();
 }
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TO_STR_HXX_NOPUB
+
+#ifdef _LOFTY_TO_STR_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::to_str;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TO_STR_HXX

@@ -13,23 +13,25 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS_HASH_MAP_HXX
-#define _LOFTY_COLLECTIONS_HASH_MAP_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS_HASH_MAP_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_COLLECTIONS_HASH_MAP_HXX_NOPUB
+#define _LOFTY_COLLECTIONS_HASH_MAP_HXX_NOPUB
 
 #include <lofty/collections.hxx>
 #include <lofty/collections/_pvt/hash_map_impl.hxx>
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/type_void_adapter.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 /*! Key/value map using a derivative of the hopscotch hashing collision resolution algorithm.
 
@@ -39,8 +41,8 @@ high-collision hash functions. */
 template <
    typename TKey,
    typename TValue,
-   typename THasher = std::hash<TKey>,
-   typename TKeyEqual = std::equal_to<TKey>
+   typename THasher = _std::_LOFTY_PUBNS hash<TKey>,
+   typename TKeyEqual = _std::_LOFTY_PUBNS equal_to<TKey>
 >
 class hash_map : public _pvt::hash_map_impl, private THasher, private TKeyEqual {
 public:
@@ -63,8 +65,8 @@ public:
 
       //! Constructor.
       pair_type(TKey && key_, TValue && value_) :
-         key(_std::move(key_)),
-         value(_std::move(value_)) {
+         key(_std::_pub::move(key_)),
+         value(_std::_pub::move(value_)) {
       }
    };
 
@@ -310,7 +312,7 @@ public:
       Source object.
    */
    hash_map(hash_map && src) :
-      _pvt::hash_map_impl(_std::move(src)) {
+      _pvt::hash_map_impl(_std::_pub::move(src)) {
    }
 
    //! Destructor.
@@ -326,7 +328,7 @@ public:
       *this.
    */
    hash_map & operator=(hash_map && src) {
-      _pvt::hash_map_impl::operator=(_std::move(src));
+      _pvt::hash_map_impl::operator=(_std::_pub::move(src));
       return *this;
    }
 
@@ -341,7 +343,7 @@ public:
       std::size_t bucket = lookup_key(key);
       if (bucket == null_index) {
          // TODO: provide more information in the exception.
-         LOFTY_THROW(collections::bad_key, ());
+         LOFTY_THROW(bad_key, ());
       }
       return *value_ptr(bucket);
    }
@@ -361,7 +363,7 @@ public:
       value was overwritten.
    */
    add_or_assign_ret add_or_assign(TKey key, TValue value) {
-      type_void_adapter key_type, value_type;
+      lofty::_pub::type_void_adapter key_type, value_type;
 //      key_type.set_copy_construct<TKey>();
       key_type.set_destruct<TKey>();
       key_type.set_move_construct<TKey>();
@@ -414,7 +416,7 @@ public:
 
    //! Removes all elements from the map.
    void clear() {
-      type_void_adapter key_type, value_type;
+      lofty::_pub::type_void_adapter key_type, value_type;
       key_type.set_destruct<TKey>();
       key_type.set_size<TKey>();
       value_type.set_destruct<TValue>();
@@ -475,14 +477,14 @@ public:
    */
    TValue pop(const_iterator itr) {
       itr.validate();
-      TValue value(_std::move(*value_ptr(itr.bucket)));
-      type_void_adapter key_type, value_type;
+      TValue value(_std::_pub::move(*value_ptr(itr.bucket)));
+      lofty::_pub::type_void_adapter key_type, value_type;
       key_type.set_destruct<TKey>();
       key_type.set_size<TKey>();
       value_type.set_destruct<TValue>();
       value_type.set_size<TValue>();
       empty_bucket(key_type, value_type, itr.bucket);
-      return _std::move(value);
+      return _std::_pub::move(value);
    }
 
    /*! Removes and returns a value given a key, which must be in the map.
@@ -496,16 +498,16 @@ public:
       std::size_t bucket = lookup_key(key);
       if (bucket == null_index) {
          // TODO: provide more information in the exception.
-         LOFTY_THROW(collections::bad_key, ());
+         LOFTY_THROW(bad_key, ());
       }
-      TValue value(_std::move(*value_ptr(bucket)));
-      type_void_adapter key_type, value_type;
+      TValue value(_std::_pub::move(*value_ptr(bucket)));
+      lofty::_pub::type_void_adapter key_type, value_type;
       key_type.set_destruct<TKey>();
       key_type.set_size<TKey>();
       value_type.set_destruct<TValue>();
       value_type.set_size<TValue>();
       empty_bucket(key_type, value_type, bucket);
-      return _std::move(value);
+      return _std::_pub::move(value);
    }
 
    /*! Removes and returns a non-random key/value pair from the map.
@@ -516,16 +518,16 @@ public:
    pair_type pop() {
       std::size_t bucket = find_first_used_bucket();
       if (bucket == null_index) {
-         LOFTY_THROW(collections::bad_access, ());
+         LOFTY_THROW(bad_access, ());
       }
-      pair_type ret(_std::move(*key_ptr(bucket)), _std::move(*value_ptr(bucket)));
-      type_void_adapter key_type, value_type;
+      pair_type ret(_std::_pub::move(*key_ptr(bucket)), _std::_pub::move(*value_ptr(bucket)));
+      lofty::_pub::type_void_adapter key_type, value_type;
       key_type.set_destruct<TKey>();
       key_type.set_size<TKey>();
       value_type.set_destruct<TValue>();
       value_type.set_size<TValue>();
       empty_bucket(key_type, value_type, bucket);
-      return _std::move(ret);
+      return _std::_pub::move(ret);
    }
 
    /*! Removes a value given an iterator to it.
@@ -534,7 +536,7 @@ public:
       Iterator to the key/value to remove.
    */
    void remove(const_iterator it) {
-      type_void_adapter key_type, value_type;
+      lofty::_pub::type_void_adapter key_type, value_type;
       key_type.set_destruct<TKey>();
       key_type.set_size<TKey>();
       value_type.set_destruct<TValue>();
@@ -550,7 +552,7 @@ public:
    void remove(TKey const & key) {
       if (!remove_if_found(key)) {
          // TODO: provide more information in the exception.
-         LOFTY_THROW(collections::bad_key, ());
+         LOFTY_THROW(bad_key, ());
       }
    }
 
@@ -564,7 +566,7 @@ public:
    bool remove_if_found(TKey const & key) {
       std::size_t bucket = lookup_key(key);
       if (bucket != null_index) {
-         type_void_adapter key_type, value_type;
+         lofty::_pub::type_void_adapter key_type, value_type;
          key_type.set_destruct<TKey>();
          key_type.set_size<TKey>();
          value_type.set_destruct<TValue>();
@@ -669,8 +671,25 @@ private:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS_HASH_MAP_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS_HASH_MAP_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace collections {
+
+   using _pub::hash_map;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS_HASH_MAP_HXX

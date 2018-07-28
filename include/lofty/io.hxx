@@ -13,15 +13,19 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_IO_HXX
-#define _LOFTY_IO_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_IO_HXX
 #endif
 
+#ifndef _LOFTY_IO_HXX_NOPUB
+#define _LOFTY_IO_HXX_NOPUB
+
+#include <lofty/enum.hxx>
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/to_text_ostream.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +38,7 @@ namespace io {}
 } //namespace lofty
 
 namespace lofty { namespace io {
+_LOFTY_PUBNS_BEGIN
 
 //! Unsigned integer wide enough to express an I/O-related size.
 #if LOFTY_HOST_API_POSIX || LOFTY_HOST_API_WIN32
@@ -90,11 +95,13 @@ LOFTY_ENUM_AUTO_VALUES(stdfile,
    stderr  //! Internal identifier for stderr.
 );
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::io
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io {
+_LOFTY_PUBNS_BEGIN
 
 /*! Wrapper for filedesc_t, to implement RAII; similar to std::unique_ptr.
 
@@ -117,7 +124,9 @@ called explicitly. This may be done using LOFTY_TRY_FINALLY():
 Note that Lofty’s classes that operate on file descriptors take care of this internally, implementing
 lofty::io::closeable and requesting that the owner of each instance calls close() on it.
 */
-class LOFTY_SYM filedesc : public support_explicit_operator_bool<filedesc>, public noncopyable {
+class LOFTY_SYM filedesc :
+   public lofty::_LOFTY_PUBNS support_explicit_operator_bool<filedesc>,
+   public lofty::_LOFTY_PUBNS noncopyable {
 public:
    //! Default constructor.
    filedesc() :
@@ -237,6 +246,7 @@ private:
 #endif
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::io
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,11 +255,11 @@ private:
 namespace lofty {
 
 template <>
-class to_text_ostream<io::filedesc> : public to_text_ostream<io::filedesc_t> {
+class to_text_ostream<io::_LOFTY_PUBNS filedesc> : public to_text_ostream<io::_LOFTY_PUBNS filedesc_t> {
 public:
    //! See to_text_ostream<io::filedesc_t>::write().
-   void write(io::filedesc const & src, io::text::ostream * dst) {
-      to_text_ostream<io::filedesc_t>::write(src.get(), dst);
+   void write(io::_LOFTY_PUBNS filedesc const & src, io::text::_LOFTY_PUBNS ostream * dst) {
+      to_text_ostream<io::_pub::filedesc_t>::write(src.get(), dst);
    }
 };
 
@@ -260,6 +270,7 @@ public:
 
 #if LOFTY_HOST_API_WIN32
 namespace lofty { namespace io {
+_LOFTY_PUBNS_BEGIN
 
 //! Extends OVERLAPPED with more information.
 struct overlapped : public ::OVERLAPPED {
@@ -294,12 +305,14 @@ struct overlapped : public ::OVERLAPPED {
    ::DWORD get_result();
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::io
 #endif //if LOFTY_HOST_API_WIN32
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io {
+_LOFTY_PUBNS_BEGIN
 
 //! Interface for (writable) streams that need to be manually closed before being destructed.
 class LOFTY_SYM closeable {
@@ -309,21 +322,23 @@ public:
    virtual void close() = 0;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::io
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io {
+_LOFTY_PUBNS_BEGIN
 
 //! An I/O operation failed for an I/O-related reason.
-class LOFTY_SYM error : public generic_error {
+class LOFTY_SYM error : public lofty::_LOFTY_PUBNS generic_error {
 public:
    /*! Constructor.
 
    @param err
       OS-defined error number associated to the exception.
    */
-   explicit error(errint_t err = 0);
+   explicit error(lofty::_LOFTY_PUBNS errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -345,11 +360,13 @@ public:
    error & operator=(error const & src);
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::io
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io {
+_LOFTY_PUBNS_BEGIN
 
 //! An I/O operation failed due to a timeout.
 class LOFTY_SYM timeout : public error {
@@ -359,7 +376,7 @@ public:
    @param err
       OS-defined error number associated to the exception.
    */
-   explicit timeout(errint_t err = 0);
+   explicit timeout(lofty::_LOFTY_PUBNS errint_t err = 0);
 
    /*! Copy constructor.
 
@@ -381,8 +398,38 @@ public:
    timeout & operator=(timeout const & src);
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::io
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_IO_HXX_NOPUB
+
+#ifdef _LOFTY_IO_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace io {
+
+   using _pub::access_mode;
+   using _pub::closeable;
+   using _pub::error;
+   using _pub::filedesc;
+   using _pub::filedesc_t;
+   using _pub::filedesc_t_null;
+   using _pub::full_size_t;
+   using _pub::offset_t;
+   #if LOFTY_HOST_API_WIN32
+   using _pub::overlapped;
+   #endif
+   using _pub::seek_from;
+   using _pub::stdfile;
+   using _pub::timeout;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_IO_HXX

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,17 +13,18 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS__PVT_TRIE_ORDERED_MULTIMAP_IMPL_HXX
-#define _LOFTY_COLLECTIONS__PVT_TRIE_ORDERED_MULTIMAP_IMPL_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS__PVT_TRIE_ORDERED_MULTIMAP_IMPL_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_COLLECTIONS__PVT_TRIE_ORDERED_MULTIMAP_IMPL_HXX_NOPUB
+#define _LOFTY_COLLECTIONS__PVT_TRIE_ORDERED_MULTIMAP_IMPL_HXX_NOPUB
 
 #include <lofty/collections/_pvt/doubly_linked_list_impl.hxx>
-
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/memory.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +32,7 @@ namespace lofty { namespace collections { namespace _pvt {
 
 //! Implementation of lofty::collections::trie_ordered_multimap for scalar key types.
 class LOFTY_SYM bitwise_trie_ordered_multimap_impl :
-   public support_explicit_operator_bool<bitwise_trie_ordered_multimap_impl> {
+   public lofty::_LOFTY_PUBNS support_explicit_operator_bool<bitwise_trie_ordered_multimap_impl> {
 private:
    /*! Determines the compactness of each level of the tree. Packing multiple bits on each level results in
    faster lookups and fewer memory allocations, at the cost of increased slack in each tree node. */
@@ -71,7 +72,7 @@ protected:
    };
 
    //! Enables access to a single child slot in an anchor_node instance.
-   class tree_node_slot : public support_explicit_operator_bool<tree_node_slot> {
+   class tree_node_slot : public lofty::_LOFTY_PUBNS support_explicit_operator_bool<tree_node_slot> {
    public:
       /*! Constructor.
 
@@ -141,7 +142,7 @@ protected:
    public:
       //! Default constructor.
       anchor_node() {
-         memory::clear(&child_lists_lasts);
+         memory::_pub::clear(&child_lists_lasts);
       }
 
    private:
@@ -150,7 +151,7 @@ protected:
    };
 
    //! Enables access to a single child slot in an anchor_node instance.
-   class anchor_node_slot : public support_explicit_operator_bool<anchor_node_slot> {
+   class anchor_node_slot : public lofty::_LOFTY_PUBNS support_explicit_operator_bool<anchor_node_slot> {
    public:
       /*! Constructor.
 
@@ -202,7 +203,9 @@ protected:
       @return
          Pointer to the newly-added list node.
       */
-      list_node * push_front(type_void_adapter const & value_type, void const * value, bool move) const {
+      list_node * push_front(
+         lofty::_LOFTY_PUBNS type_void_adapter const & value_type, void const * value, bool move
+      ) const {
          return doubly_linked_list_impl::push_front(
             value_type, &anchor->children[child_index].ln,
             &anchor->child_lists_lasts[child_index], value, move
@@ -220,7 +223,9 @@ protected:
       @return
          Pointer to the newly-added list node.
       */
-      list_node * push_back(type_void_adapter const & value_type, void const * value, bool move) const {
+      list_node * push_back(
+         lofty::_LOFTY_PUBNS type_void_adapter const & value_type, void const * value, bool move
+      ) const {
          return doubly_linked_list_impl::push_back(
             value_type, &anchor->children[child_index].ln,
             &anchor->child_lists_lasts[child_index], value, move
@@ -234,7 +239,7 @@ protected:
       @param ln
          Pointer to the node to unlink and destruct.
       */
-      void remove(type_void_adapter const & value_type, list_node * ln) const {
+      void remove(lofty::_LOFTY_PUBNS type_void_adapter const & value_type, list_node * ln) const {
          doubly_linked_list_impl::remove(
             value_type, &anchor->children[child_index].ln, &anchor->child_lists_lasts[child_index], ln
          );
@@ -317,14 +322,17 @@ public:
    @return
       Pointer to the newly-added list node.
    */
-   list_node * add(type_void_adapter const & value_type, std::uintmax_t key, void const * value, bool move);
+   list_node * add(
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, std::uintmax_t key, void const * value,
+      bool move
+   );
 
    /*! Removes all elements from the map.
 
    @param value_type
       Adapter for the value’s type.
    */
-   void clear(type_void_adapter const & value_type);
+   void clear(lofty::_LOFTY_PUBNS type_void_adapter const & value_type);
 
    /*! Searches the multimap for a specific key, returning a pointer to the first corresponding list node if
    found.
@@ -376,7 +384,9 @@ protected:
    @param ln
       Pointer to the node containing the value.
    */
-   void remove_value(type_void_adapter const & value_type, std::uintmax_t key, list_node * ln);
+   void remove_value(
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, std::uintmax_t key, list_node * ln
+   );
 
    /*! Validates the members of an iterator so that the latter can be used safely. Throws a
    collections::out_of_range if the iterator is not referencing a value in the map.
@@ -396,7 +406,7 @@ private:
    @param anchor
       Pointer to the target anchor node.
    */
-   void destruct_anchor_node(type_void_adapter const & value_type, anchor_node * anchor);
+   void destruct_anchor_node(lofty::_LOFTY_PUBNS type_void_adapter const & value_type, anchor_node * anchor);
 
    /*! Recursively destructs a tree node and all its children.
 
@@ -407,7 +417,9 @@ private:
    @param level
       0-based index level of *tn.
    */
-   void destruct_tree_node(type_void_adapter const & value_type, tree_node * tn, unsigned level);
+   void destruct_tree_node(
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, tree_node * tn, unsigned level
+   );
 
    /*! Finds an anchor node slot (values list pointers) corresponding to the specified key, if present.
 
@@ -439,5 +451,15 @@ private:
 }}} //namespace lofty::collections::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS__PVT_TRIE_ORDERED_MULTIMAP_IMPL_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS__PVT_TRIE_ORDERED_MULTIMAP_IMPL_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS__PVT_TRIE_ORDERED_MULTIMAP_IMPL_HXX

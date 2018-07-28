@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2016-2017 Raffaello D. Di Napoli
+Copyright 2016-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -16,15 +16,17 @@ more details.
 Unicode Character Database. */
 
 #ifndef _LOFTY_TEXT_UCD_HXX
-#define _LOFTY_TEXT_UCD_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_UCD_HXX
 #endif
 
+#ifndef _LOFTY_TEXT_UCD_HXX_NOPUB
+#define _LOFTY_TEXT_UCD_HXX_NOPUB
+
+#include <lofty/noncopyable.hxx>
+#include <lofty/text-0.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +40,7 @@ struct property_data {
       char32_t last_cp;
    };
 
-   char_t const * name;
+   text::_LOFTY_PUBNS char_t const * name;
    std::uint8_t name_size;
    member_range_t const * member_ranges_begin;
    member_range_t const * member_ranges_end;
@@ -48,9 +50,10 @@ struct property_data {
 //! @endcond
 
 namespace lofty { namespace text { namespace ucd {
+_LOFTY_PUBNS_BEGIN
 
 //! Unicode character (code point) property.
-class LOFTY_SYM property : private _pvt::property_data, public noncopyable {
+class LOFTY_SYM property : private _pvt::property_data, public lofty::_LOFTY_PUBNS noncopyable {
 public:
    // TODO: generate this list programmatically from PropList.txt.
    static property const & white_space;
@@ -62,7 +65,7 @@ public:
    @return
       Matching code points.
    */
-   str members() const;
+   text::_LOFTY_PUBNS str members() const;
 
    /*! Checks whether a code point matches the property.
 
@@ -83,8 +86,25 @@ private:
    }
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::ucd
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_UCD_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_UCD_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace text { namespace ucd {
+
+   using _pub::property;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TEXT_UCD_HXX

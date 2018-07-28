@@ -12,18 +12,26 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/byte_order.hxx>
+#include <lofty/collections/vector.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
+#include <lofty/io/text.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/net.hxx>
 #include <lofty/net/ip.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/thread.hxx>
+#include <lofty/to_text_ostream.hxx>
 #include "net/sockaddr_any.hxx"
-
 #if LOFTY_HOST_API_POSIX
    #include <sys/socket.h> // bind() socket()
 #elif LOFTY_HOST_API_WIN32
+   #include <lofty/_std/atomic.hxx>
    #include <winsock2.h>
    #if LOFTY_HOST_CXX_MSC
       // Silence warnings from system header files.
@@ -42,7 +50,6 @@ more details.
       #include <tpipv6.h>
    #endif
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +76,7 @@ wsa_client::~wsa_client() {
    }
 }
 
-}} //namespace lofty::net
+}}
 
 #endif //if LOFTY_HOST_API_WIN32
 
@@ -391,7 +398,7 @@ to_text_ostream<net::ip::address>::to_text_ostream() {
 to_text_ostream<net::ip::address>::~to_text_ostream() {
 }
 
-void to_text_ostream<net::ip::address>::set_format(str const & format) {
+void to_text_ostream<net::ip::address>::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.

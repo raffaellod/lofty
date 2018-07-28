@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,14 +12,20 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_TEXT_CHAR_TRAITS_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_CHAR_TRAITS_HXX
 #endif
 
+#ifndef _LOFTY_TEXT_CHAR_TRAITS_HXX_NOPUB
+#define _LOFTY_TEXT_CHAR_TRAITS_HXX_NOPUB
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 /*! UTF-8 character traits (constants and functions). Note that this class is not modeled after
 std::char_traits. */
@@ -137,11 +143,13 @@ private:
    static std::uint8_t const valid_lead_chars_mask[];
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 /*! UTF-16 character traits (constants and functions). Note that this class is not modeled after
 std::char_traits. */
@@ -215,11 +223,13 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 /*! String traits for the host character type, lofty::text::char_t. Derives from either utf8_char_traits or
 utf16_char_traits. */
@@ -252,4 +262,27 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_CHAR_TRAITS_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_CHAR_TRAITS_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace text {
+
+   using _pub::host_char_traits;
+   using _pub::utf8_char_traits;
+   using _pub::utf16_char_traits;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_TEXT_CHAR_TRAITS_HXX

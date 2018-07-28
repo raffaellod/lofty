@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015, 2017 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,15 +13,14 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TESTING_UTILITY_HXX
-#define _LOFTY_TESTING_UTILITY_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TESTING_UTILITY_HXX
 #endif
 
+#ifndef _LOFTY_TESTING_UTILITY_HXX_NOPUB
+#define _LOFTY_TESTING_UTILITY_HXX_NOPUB
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +34,7 @@ namespace utility {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing { namespace utility {
+_LOFTY_PUBNS_BEGIN
 
 // Forward declaration.
 template <class T>
@@ -50,11 +50,13 @@ class container_data_ptr_tracker;
 template <class T>
 container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const * pt);
 
-}}} //namespace lofty::testing::utility
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing { namespace utility {
+_LOFTY_PUBNS_BEGIN
 
 //! Allows to verify that its move constructor was invoked instead of the raw bytes being copied.
 class class_with_internal_pointer {
@@ -101,11 +103,13 @@ private:
    std::uint16_t i;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::testing::utility
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing { namespace utility {
+_LOFTY_PUBNS_BEGIN
 
 //! Tracks changes in the data() member of a container.
 template <class T>
@@ -153,11 +157,13 @@ inline container_data_ptr_tracker<T> make_container_data_ptr_tracker(T const * t
    return container_data_ptr_tracker<T>(t);
 }
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::testing::utility
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing { namespace utility {
+_LOFTY_PUBNS_BEGIN
 
 /*! This class is meant for use in containers to track when items are copied, when they’re moved, and to check
 if individual instances have been copied instead of being moved. */
@@ -291,8 +297,26 @@ private:
    static int next_unique;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::testing::utility
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TESTING_UTILITY_HXX_NOPUB
+
+#ifdef _LOFTY_TESTING_UTILITY_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace testing { namespace utility {
+      using _pub::class_with_internal_pointer;
+      using _pub::container_data_ptr_tracker;
+      using _pub::instances_counter;
+      using _pub::make_container_data_ptr_tracker;
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TESTING_UTILITY_HXX

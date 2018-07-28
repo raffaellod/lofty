@@ -12,20 +12,54 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_TO_TEXT_OSTREAM_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TO_TEXT_OSTREAM_HXX
 #endif
 
+#ifndef _LOFTY_TO_TEXT_OSTREAM_HXX_NOPUB
+#define _LOFTY_TO_TEXT_OSTREAM_HXX_NOPUB
+
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/tuple.hxx>
+#include <lofty/_std/type_traits.hxx>
+#include <lofty/_std/typeinfo.hxx>
+#include <lofty/text/str-0.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty {
+_LOFTY_PUBNS_BEGIN
+
+/*! Throws a lofty::text::syntax_error if the first argument, referencing the end of a format string parsed by
+a lofty::from_text_istream or lofty::to_text_ostream specialization, does not equal the end of the format
+string.
+
+Declared in both lofty/from_text_istream.hxx and lofty/to_text_ostream.hxx .
+
+@param format_consumed_end
+   Iterator to the end of the consumed/parsed portion of the format string.
+@param format
+   Format string.
+*/
+LOFTY_SYM void throw_on_unused_streaming_format_chars(
+   text::_LOFTY_PUBNS str::const_iterator const & format_consumed_end, text::_LOFTY_PUBNS str const & format
+);
+
+_LOFTY_PUBNS_END
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _pvt {
 
-/*! Defines a member named value that is true if “void T::to_text_ostream(io::text::ostream * dst) const” is
-declared, or false otherwise. */
+/*! Defines a member named value that is true if “void T::to_text_ostream(io::text::_LOFTY_PUBNS ostream *
+dst) const” is declared, or false otherwise. */
 template <typename T>
 struct has_to_text_ostream_member {
-   template <typename U, void (U::*)(io::text::ostream *) const>
+   template <typename U, void (U::*)(io::text::_LOFTY_PUBNS ostream *) const>
    struct member_test {};
    template <typename U>
    static long test(member_test<U, &U::to_text_ostream> *);
@@ -63,9 +97,9 @@ public:
    @param format
       Formatting options.
    */
-   void set_format(str const & format) {
+   void set_format(text::_LOFTY_PUBNS str const & format) {
       // No format expected/allowed.
-      throw_on_unused_streaming_format_chars(format.cbegin(), format);
+      _LOFTY_PUBNS throw_on_unused_streaming_format_chars(format.cbegin(), format);
    }
 
    /*! Converts a T instance to its string representation.
@@ -75,7 +109,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(T const & src, io::text::ostream * dst) {
+   void write(T const & src, io::text::_LOFTY_PUBNS ostream * dst) {
       src.to_text_ostream(dst);
    }
 };
@@ -107,7 +141,7 @@ public:
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Converts a boolean value to its string representation.
 
@@ -116,7 +150,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(bool src, io::text::ostream * dst);
+   void write(bool src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
 } //namespace lofty
@@ -141,7 +175,7 @@ public:
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
 protected:
    /*! Writes the provided buffer to an output stream, prefixed as necessary.
@@ -157,7 +191,8 @@ protected:
       *buf.
    */
    void add_prefixes_and_write(
-      bool negative, io::text::ostream * dst, str * buf, str::iterator buf_first_used_itr
+      bool negative, io::text::_LOFTY_PUBNS ostream * dst, text::_LOFTY_PUBNS str * buf,
+      text::_LOFTY_PUBNS str::iterator buf_first_used_itr
    ) const;
 
    /*! Converts an integer to its string representation.
@@ -168,39 +203,38 @@ protected:
       Pointer to the stream to output to.
    */
    template <typename I>
-   void write_impl(I i, io::text::ostream * dst) const;
+   void write_impl(I i, io::text::_LOFTY_PUBNS ostream * dst) const;
 
    //! Converts a 64-bit signed integer to its string representation. See write_impl().
-   void write_s64(std::int64_t i, io::text::ostream * dst) const;
+   void write_s64(std::int64_t i, io::text::_LOFTY_PUBNS ostream * dst) const;
 
    //! Converts a 64-bit unsigned integer to its string representation. See write_impl().
-   void write_u64(std::uint64_t i, io::text::ostream * dst) const;
+   void write_u64(std::uint64_t i, io::text::_LOFTY_PUBNS ostream * dst) const;
 
    //! Converts a 32-bit signed integer to its string representation. See write_impl().
-   void write_s32(std::int32_t i, io::text::ostream * dst) const;
+   void write_s32(std::int32_t i, io::text::_LOFTY_PUBNS ostream * dst) const;
 
    //! Converts a 32-bit unsigned integer to its string representation. See write_impl().
-   void write_u32(std::uint32_t i, io::text::ostream * dst) const;
+   void write_u32(std::uint32_t i, io::text::_LOFTY_PUBNS ostream * dst) const;
 
    //! Converts a 16-bit signed integer to its string representation. See write_impl().
-   void write_s16(std::int16_t i, io::text::ostream * dst) const;
+   void write_s16(std::int16_t i, io::text::_LOFTY_PUBNS ostream * dst) const;
 
    //! Converts a 16-bit unsigned integer to its string representation. See write_impl().
-   void write_u16(std::uint16_t i, io::text::ostream * dst) const;
+   void write_u16(std::uint16_t i, io::text::_LOFTY_PUBNS ostream * dst) const;
 
    //! Converts an 8-bit signed integer to its string representation. See write_impl().
-   void write_s8(std::int8_t i, io::text::ostream * dst) const {
+   void write_s8(std::int8_t i, io::text::_LOFTY_PUBNS ostream * dst) const {
       if (base_or_shift == 10) {
          write_s16(i, dst);
       } else {
-         /* Avoid extending the sign, as it would generate too many digits in any notation except
-         decimal. */
+         // Avoid extending the sign, as it would generate too many digits in any notation except decimal.
          write_s16(static_cast<std::uint8_t>(i), dst);
       }
    }
 
    //! Converts an 8-bit unsigned integer to its string representation. See write_impl().
-   void write_u8(std::uint8_t i, io::text::ostream * dst) const {
+   void write_u8(std::uint8_t i, io::text::_LOFTY_PUBNS ostream * dst) const {
       write_u16(i, dst);
    }
 
@@ -235,7 +269,7 @@ protected:
 
 // On a machine with 64-bit word size, write_64*() will be faster.
 
-inline void int_to_text_ostream_base::write_s32(std::int32_t i, io::text::ostream * dst) const {
+inline void int_to_text_ostream_base::write_s32(std::int32_t i, io::text::_LOFTY_PUBNS ostream * dst) const {
    if (base_or_shift == 10) {
       write_s64(i, dst);
    } else {
@@ -244,7 +278,7 @@ inline void int_to_text_ostream_base::write_s32(std::int32_t i, io::text::ostrea
    }
 }
 
-inline void int_to_text_ostream_base::write_u32(std::uint32_t i, io::text::ostream * dst) const {
+inline void int_to_text_ostream_base::write_u32(std::uint32_t i, io::text::_LOFTY_PUBNS ostream * dst) const {
    write_u64(i, dst);
 }
 
@@ -253,7 +287,7 @@ inline void int_to_text_ostream_base::write_u32(std::uint32_t i, io::text::ostre
 /* On a machine with 32-bit word size, write_32*() will be faster. Note that the latter might in turn defer to
 write_64*() (see above). */
 
-inline void int_to_text_ostream_base::write_s16(std::int16_t i, io::text::ostream * dst) const {
+inline void int_to_text_ostream_base::write_s16(std::int16_t i, io::text::_LOFTY_PUBNS ostream * dst) const {
    if (base_or_shift == 10) {
       write_s32(i, dst);
    } else {
@@ -262,7 +296,7 @@ inline void int_to_text_ostream_base::write_s16(std::int16_t i, io::text::ostrea
    }
 }
 
-inline void int_to_text_ostream_base::write_u16(std::uint16_t i, io::text::ostream * dst) const {
+inline void int_to_text_ostream_base::write_u16(std::uint16_t i, io::text::_LOFTY_PUBNS ostream * dst) const {
    write_u32(i, dst);
 }
 
@@ -304,28 +338,28 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(I src, io::text::ostream * dst) {
+   void write(I src, io::text::_LOFTY_PUBNS ostream * dst) {
       if (sizeof src <= sizeof(std::int8_t)) {
-         if (_std::is_signed<I>::value) {
+         if (_std::_pub::is_signed<I>::value) {
             write_s8(static_cast<std::int8_t>(src), dst);
          } else {
             write_u8(static_cast<std::uint8_t>(src), dst);
          }
       } else if (sizeof src <= sizeof(std::int16_t)) {
-         if (_std::is_signed<I>::value) {
+         if (_std::_pub::is_signed<I>::value) {
             write_s16(static_cast<std::int16_t>(src), dst);
          } else {
             write_u16(static_cast<std::uint16_t>(src), dst);
          }
       } else if (sizeof src <= sizeof(std::int32_t)) {
-         if (_std::is_signed<I>::value) {
+         if (_std::_pub::is_signed<I>::value) {
             write_s32(static_cast<std::int32_t>(src), dst);
          } else {
             write_u32(static_cast<std::uint32_t>(src), dst);
          }
       } else {
          static_assert(sizeof src <= sizeof(std::int64_t), "unsupported integer size");
-         if (_std::is_signed<I>::value) {
+         if (_std::_pub::is_signed<I>::value) {
             write_s64(static_cast<std::int64_t>(src), dst);
          } else {
             write_u64(static_cast<std::uint64_t>(src), dst);
@@ -372,7 +406,7 @@ public:
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
 protected:
    /*! Converts a pointer to a string representation.
@@ -382,7 +416,7 @@ protected:
    @param dst
       Pointer to the stream to output to.
    */
-   void _write_impl(std::uintptr_t src, io::text::ostream * dst);
+   void _write_impl(std::uintptr_t src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
 }} //namespace lofty::_pvt
@@ -403,7 +437,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(T * src, io::text::ostream * dst) {
+   void write(T * src, io::text::_LOFTY_PUBNS ostream * dst) {
       _write_impl(reinterpret_cast<std::uintptr_t>(src), dst);
    }
 };
@@ -413,17 +447,17 @@ template <>
 class to_text_ostream<std::nullptr_t> : public _pvt::ptr_to_text_ostream {
 public:
    //! See _pvt::ptr_to_text_ostream::write().
-   void write(std::nullptr_t const &, io::text::ostream * dst) {
+   void write(std::nullptr_t const &, io::text::_LOFTY_PUBNS ostream * dst) {
       _write_impl(0, dst);
    }
 };
 
 // Specialization for _std::unique_ptr.
 template <typename T, typename TDel>
-class to_text_ostream<_std::unique_ptr<T, TDel>> : public _pvt::ptr_to_text_ostream {
+class to_text_ostream<_std::_LOFTY_PUBNS unique_ptr<T, TDel>> : public _pvt::ptr_to_text_ostream {
 public:
    //! See _pvt::ptr_to_text_ostream::write().
-   void write(_std::unique_ptr<T, TDel> const & src, io::text::ostream * dst) {
+   void write(_std::_LOFTY_PUBNS unique_ptr<T, TDel> const & src, io::text::_LOFTY_PUBNS ostream * dst) {
       _write_impl(reinterpret_cast<std::uintptr_t>(src.get()), dst);
    }
 };
@@ -431,10 +465,10 @@ public:
 // Specialization for _std::shared_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_text_ostream<_std::shared_ptr<T>> : public _pvt::ptr_to_text_ostream {
+class to_text_ostream<_std::_LOFTY_PUBNS shared_ptr<T>> : public _pvt::ptr_to_text_ostream {
 public:
    //! See _pvt::ptr_to_text_ostream::write().
-   void write(_std::shared_ptr<T> const & src, io::text::ostream * dst) {
+   void write(_std::_LOFTY_PUBNS shared_ptr<T> const & src, io::text::_LOFTY_PUBNS ostream * dst) {
       _write_impl(reinterpret_cast<std::uintptr_t>(src.get()), dst);
    }
 };
@@ -442,10 +476,10 @@ public:
 // Specialization for _std::weak_ptr.
 // TODO: show reference count and other info.
 template <typename T>
-class to_text_ostream<_std::weak_ptr<T>> : public _pvt::ptr_to_text_ostream {
+class to_text_ostream<_std::_LOFTY_PUBNS weak_ptr<T>> : public _pvt::ptr_to_text_ostream {
 public:
    //! See _pvt::ptr_to_text_ostream::write().
-   void write(_std::weak_ptr<T> const & src, io::text::ostream * dst) {
+   void write(_std::_LOFTY_PUBNS weak_ptr<T> const & src, io::text::_LOFTY_PUBNS ostream * dst) {
       _write_impl(reinterpret_cast<std::uintptr_t>(src.lock().get()), dst);
    }
 };
@@ -459,7 +493,7 @@ public:
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<_std::type_info> {
+class LOFTY_SYM to_text_ostream<_std::_LOFTY_PUBNS type_info> {
 public:
    //! Default constructor.
    to_text_ostream();
@@ -472,7 +506,7 @@ public:
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Writes the name of a type, applying the formatting options.
 
@@ -481,7 +515,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(_std::type_info const & src, io::text::ostream * dst);
+   void write(_std::_LOFTY_PUBNS type_info const & src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
 } //namespace lofty
@@ -502,7 +536,9 @@ public:
    @param end_delim
       Sequence end delimiter.
    */
-   sequence_to_text_ostream(str const & start_delim, str const & end_delim);
+   sequence_to_text_ostream(
+      text::_LOFTY_PUBNS str const & start_delim, text::_LOFTY_PUBNS str const & end_delim
+   );
 
    //! Destructor.
    ~sequence_to_text_ostream();
@@ -512,36 +548,36 @@ public:
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Writes the sequence end delimiter.
 
    @param dst
       Pointer to the stream to output to.
    */
-   void _write_end(io::text::ostream * dst);
+   void _write_end(io::text::_LOFTY_PUBNS ostream * dst);
 
    /*! Writes an element separator.
 
    @param dst
       Pointer to the stream to output to.
    */
-   void _write_separator(io::text::ostream * dst);
+   void _write_separator(io::text::_LOFTY_PUBNS ostream * dst);
 
    /*! Writes the sequence start delimiter.
 
    @param dst
       Pointer to the stream to output to.
    */
-   void _write_start(io::text::ostream * dst);
+   void _write_start(io::text::_LOFTY_PUBNS ostream * dst);
 
 protected:
    //! Separator to be output between elements.
-   str separator;
+   text::_LOFTY_PUBNS str separator;
    //! Sequence start delimiter.
-   str start_delim;
+   text::_LOFTY_PUBNS str start_delim;
    //! Sequence end delimiter.
-   str end_delim;
+   text::_LOFTY_PUBNS str end_delim;
 };
 
 }} //namespace lofty::_pvt
@@ -568,7 +604,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void _write_elements(TTuple const & src, io::text::ostream * dst) {
+   void _write_elements(TTuple const & src, io::text::_LOFTY_PUBNS ostream * dst) {
       LOFTY_UNUSED_ARG(src);
       LOFTY_UNUSED_ARG(dst);
    }
@@ -580,7 +616,7 @@ class tuple_to_text_ostream_element_writer<TTuple, T0, Ts ...> :
    public tuple_to_text_ostream_element_writer<TTuple, Ts ...> {
 public:
    //! See tuple_to_text_ostream_element_writer<TTuple>::_write_elements().
-   void _write_elements(TTuple const & src, io::text::ostream * dst);
+   void _write_elements(TTuple const & src, io::text::_LOFTY_PUBNS ostream * dst);
 
 protected:
    //! Backend for the current element type.
@@ -592,9 +628,9 @@ protected:
 namespace lofty {
 
 template <typename... Ts>
-class to_text_ostream<_std::tuple<Ts ...>> :
+class to_text_ostream<_std::_LOFTY_PUBNS tuple<Ts ...>> :
    public _pvt::sequence_to_text_ostream,
-   public _pvt::tuple_to_text_ostream_element_writer<_std::tuple<Ts ...>, Ts ...> {
+   public _pvt::tuple_to_text_ostream_element_writer<_std::_LOFTY_PUBNS tuple<Ts ...>, Ts ...> {
 public:
    //! Default constructor.
    to_text_ostream() :
@@ -608,7 +644,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(_std::tuple<Ts ...> const & src, io::text::ostream * dst) {
+   void write(_std::_LOFTY_PUBNS tuple<Ts ...> const & src, io::text::_LOFTY_PUBNS ostream * dst) {
       _write_start(dst);
       this->_write_elements(src, dst);
       _write_end(dst);
@@ -623,9 +659,11 @@ namespace lofty { namespace _pvt {
 
 template <class TTuple, typename T0, typename... Ts>
 inline void tuple_to_text_ostream_element_writer<TTuple, T0, Ts ...>::_write_elements(
-   TTuple const & src, io::text::ostream * dst
+   TTuple const & src, io::text::_LOFTY_PUBNS ostream * dst
 ) {
-   ttos0.write(_std::get<_std::tuple_size<TTuple>::value - (1 /*Ts*/ + sizeof ...(Ts))>(src), dst);
+   ttos0.write(
+      _std::_pub::get<_std::_pub::tuple_size<TTuple>::value - (1 /*Ts*/ + sizeof ...(Ts))>(src), dst
+   );
    // If there are any remaining elements, write a separator and recurse to write the rest.
    if (sizeof ...(Ts)) {
       static_cast<to_text_ostream<TTuple> *>(this)->_write_separator(dst);
@@ -651,7 +689,7 @@ class tuple_to_text_ostream_element_writer :
    > {
 public:
    //! See tuple_to_text_ostream_element_writer<TTuple>::_write_elements().
-   void _write_elements(TTuple const & src, io::text::ostream * dst);
+   void _write_elements(TTuple const & src, io::text::_LOFTY_PUBNS ostream * dst);
 
 protected:
    //! Backend for the current element type.
@@ -674,7 +712,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void _write_elements(TTuple const & src, io::text::ostream * dst) {
+   void _write_elements(TTuple const & src, io::text::_LOFTY_PUBNS ostream * dst) {
       LOFTY_UNUSED_ARG(src);
       LOFTY_UNUSED_ARG(dst);
    }
@@ -688,10 +726,10 @@ template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
    typename T8, typename T9
 >
-class to_text_ostream<_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
+class to_text_ostream<_std::_LOFTY_PUBNS tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> :
    public _pvt::sequence_to_text_ostream,
    public _pvt::tuple_to_text_ostream_element_writer<
-      _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
+      _std::_LOFTY_PUBNS tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
    > {
 public:
    //! Constructor.
@@ -706,7 +744,10 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(_std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & src, io::text::ostream * dst) {
+   void write(
+      _std::_LOFTY_PUBNS tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> const & src,
+      io::text::_LOFTY_PUBNS ostream * dst
+   ) {
       _write_start(dst);
       this->_write_elements(src, dst);
       _write_end(dst);
@@ -725,11 +766,11 @@ template <
 >
 inline void tuple_to_text_ostream_element_writer<
    TTuple, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
->::_write_elements(TTuple const & src, io::text::ostream * dst) {
-   static std::size_t const tuple_size = _std::tuple_size<
-      _std::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+>::_write_elements(TTuple const & src, io::text::_LOFTY_PUBNS ostream * dst) {
+   static std::size_t const tuple_size = _std::_pub::tuple_size<
+      _std::_pub::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
    >::value;
-   ttos0.write(_std::get<_std::tuple_size<TTuple>::value - tuple_size>(src), dst);
+   ttos0.write(_std::_pub::get<_std::_pub::tuple_size<TTuple>::value - tuple_size>(src), dst);
    // If there are any remaining elements, write a separator and recurse to write the rest.
    if (tuple_size > 1) {
       static_cast<to_text_ostream<TTuple> *>(this)->_write_separator(dst);
@@ -743,3 +784,25 @@ inline void tuple_to_text_ostream_element_writer<
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 //! @endcond
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TO_TEXT_OSTREAM_HXX_NOPUB
+
+#ifdef _LOFTY_TO_TEXT_OSTREAM_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   #ifndef _LOFTY_FROM_TEXT_ISTREAM_HXX
+   using _pub::throw_on_unused_streaming_format_chars;
+   #endif
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_TO_TEXT_OSTREAM_HXX

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,10 +12,9 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/io/text.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/char_ptr_to_str_adapter.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +32,7 @@ void to_text_ostream<text::char_ptr_to_str_adapter>::write(
       enc = text::guess_encoding(src.s, src.s + char_size);
       src_byte_size = sizeof src.s[0] * char_size;
    } else {
-      static char_t const nullptr_str[] = LOFTY_SL("<nullptr>");
+      static text::char_t const nullptr_str[] = LOFTY_SL("<nullptr>");
       src_bytes = nullptr_str;
       enc = text::encoding::host;
       src_byte_size = sizeof nullptr_str - sizeof nullptr_str[0] /*NUL*/;

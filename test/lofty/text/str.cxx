@@ -12,13 +12,16 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections.hxx>
+#include <lofty/collections/vector.hxx>
 #include <lofty/from_str.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/testing/utility.hxx>
-
+#include <lofty/text.hxx>
+#include <lofty/text/str.hxx>
+#include <lofty/to_str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,8 +44,8 @@ BMP (Plane 0) character above.
 @return
    String described above.
 */
-static str get_acabaabca() {
-   return str::empty + 'a' + plane0_cp + 'a' + plane2_cp + 'a' + 'a' + plane2_cp + plane0_cp + 'a';
+static text::str get_acabaabca() {
+   return text::str::empty + 'a' + plane0_cp + 'a' + plane2_cp + 'a' + 'a' + plane2_cp + plane0_cp + 'a';
 }
 
 }} //namespace lofty::test
@@ -57,7 +60,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   str s;
+   text::str s;
    auto tracker(testing::utility::make_container_data_ptr_tracker(&s));
 
    s += LOFTY_SL("ä");
@@ -116,7 +119,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    ASSERT(s.capacity() >= 1u);
    ASSERT(s[0] == LOFTY_CHAR('ä'));
 
-   s = str(LOFTY_SL("ab")) + 'c';
+   s = text::str(LOFTY_SL("ab")) + 'c';
    // true: s got replaced by operator=.
    ASSERT(tracker.changed());
    ASSERT(s.size() == 3u);
@@ -164,12 +167,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
       /* Note: all string operations here must involve as few characters as possible to avoid triggering a
       reallocation, which would break these tests. */
 
-      str s1(LOFTY_SL("a"));
+      text::str s1(LOFTY_SL("a"));
       // Write to the string to force it to stop using the string literal “a”.
       s1[0] = 'b';
-      char_t const * old_data = s1.data();
+      text::char_t const * old_data = s1.data();
       // Verify that the compiler selects operator+(str &&, …) when possible.
-      str s2 = _std::move(s1) + LOFTY_SL("c");
+      text::str s2 = _std::move(s1) + LOFTY_SL("c");
       ASSERT(s2.data() == old_data);
    }
 
@@ -199,7 +202,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TRACE_FUNC();
 
    // Default-constructed iterator.
-   str::const_iterator itr;
+   text::str::const_iterator itr;
    ASSERT_THROWS(collections::out_of_range, *itr);
    ASSERT_THROWS(collections::out_of_range, --itr);
    ASSERT_THROWS(collections::out_of_range, ++itr);
@@ -209,7 +212,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    ASSERT_THROWS(collections::out_of_range, itr[0]);
    ASSERT_THROWS(collections::out_of_range, itr[1]);
 
-   str s;
+   text::str s;
    ASSERT(s.cbegin() == s.end());
 
    // No accessible characters.
@@ -266,7 +269,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   sstr<32> s;
+   text::sstr<32> s;
    s += char32_t(0x000024);
    s += char32_t(0x0000a2);
    s += char32_t(0x0020ac);
@@ -340,7 +343,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   sstr<8> s;
+   text::sstr<8> s;
 
    // No replacements to be made.
    ASSERT(((s = LOFTY_SL("aaa")).replace('b', 'c'), s) == LOFTY_SL("aaa"));
@@ -350,10 +353,10 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    used in lofty::text::str::replace() must be intelligent enough to self-refresh with the new descriptor. */
    ASSERT(
       ((s = LOFTY_SL("aaaaa")).replace(char32_t('a'), plane2_cp), s) ==
-      str::empty + plane2_cp + plane2_cp + plane2_cp + plane2_cp + plane2_cp
+      text::str::empty + plane2_cp + plane2_cp + plane2_cp + plane2_cp + plane2_cp
    );
    // Less-complex char32_t-to-ASCII replacement: size will decrease.
-   s = str::empty + plane2_cp + plane2_cp + plane2_cp + plane2_cp + plane2_cp;
+   s = text::str::empty + plane2_cp + plane2_cp + plane2_cp + plane2_cp + plane2_cp;
    ASSERT((s.replace(plane2_cp, char32_t('a')), s) == LOFTY_SL("aaaaa"));
 }
 
@@ -369,29 +372,29 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   str s;
+   text::str s;
    // Note: storing its return value in a variable is NOT a way to use c_str().
-   auto c_str(const_cast<str const &>(s).c_str());
+   auto c_str(const_cast<text::str const &>(s).c_str());
    // s has no character array, so it should have returned the static NUL character.
-   ASSERT(static_cast<char_t const *>(c_str) == str::empty.data());
+   ASSERT(static_cast<text::char_t const *>(c_str) == text::str::empty.data());
    ASSERT(!c_str._get().get_deleter().enabled());
    ASSERT(text::size_in_chars(c_str) == 0u);
    ASSERT(c_str[0] == '\0');
 
    s = LOFTY_SL("");
-   c_str = const_cast<str const &>(s).c_str();
+   c_str = const_cast<text::str const &>(s).c_str();
    /* s should have adopted the literal and therefore have a trailing NUL, so it should have returned its own
    character array. */
-   ASSERT(static_cast<char_t const *>(c_str) == s.data());
+   ASSERT(static_cast<text::char_t const *>(c_str) == s.data());
    ASSERT(!c_str._get().get_deleter().enabled());
    ASSERT(text::size_in_chars(c_str) == 0u);
    ASSERT(c_str[0] == '\0');
 
    s = LOFTY_SL("a");
-   c_str = const_cast<str const &>(s).c_str();
+   c_str = const_cast<text::str const &>(s).c_str();
    /* s should have adopted the literal and therefore have a trailing NUL, so it should have returned its own
    character array. */
-   ASSERT(static_cast<char_t const *>(c_str) == s.data());
+   ASSERT(static_cast<text::char_t const *>(c_str) == s.data());
    ASSERT(!c_str._get().get_deleter().enabled());
    ASSERT(text::size_in_chars(c_str) == 1u);
    ASSERT(c_str[0] == 'a');
@@ -400,7 +403,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    s = text::str::empty;
    c_str = s.c_str();
    // s has no character array, so it should have returned the static NUL character.
-   ASSERT(static_cast<char_t const *>(c_str) == str::empty.data());
+   ASSERT(static_cast<text::char_t const *>(c_str) == text::str::empty.data());
    ASSERT(!c_str._get().get_deleter().enabled());
    ASSERT(text::size_in_chars(c_str) == 0u);
    ASSERT(c_str[0] == '\0');
@@ -409,7 +412,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    c_str = s.c_str();
    /* s should have adopted the literal and therefore have a trailing NUL, so it should have returned its own
    character array. */
-   ASSERT(static_cast<char_t const *>(c_str) == s.data());
+   ASSERT(static_cast<text::char_t const *>(c_str) == s.data());
    ASSERT(!c_str._get().get_deleter().enabled());
    ASSERT(text::size_in_chars(c_str) == 0u);
    ASSERT(c_str[0] == '\0');
@@ -418,7 +421,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    c_str = s.c_str();
    /* s should have copied the literal but dropped its trailing NUL, to then add it back when c_str() was
    called. */
-   ASSERT(static_cast<char_t const *>(c_str) == s.data());
+   ASSERT(static_cast<text::char_t const *>(c_str) == s.data());
    ASSERT(!c_str._get().get_deleter().enabled());
    ASSERT(text::size_in_chars(c_str) == 1u);
    ASSERT(c_str[0] == 'a');
@@ -427,7 +430,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    s += LOFTY_SL("b");
    c_str = s.c_str();
    // The character array should have grown, to then include a trailing NUL when c_str() was called.
-   ASSERT(static_cast<char_t const *>(c_str) == s.data());
+   ASSERT(static_cast<text::char_t const *>(c_str) == s.data());
    ASSERT(!c_str._get().get_deleter().enabled());
    ASSERT(text::size_in_chars(c_str) == 2u);
    ASSERT(c_str[0] == 'a');
@@ -452,15 +455,15 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    char32_t cp2 = plane2_cp;
    /* See get_acabaabca() for more information on its pattern. To make it more interesting, here we also
    duplicate it. */
-   str const s(get_acabaabca() + get_acabaabca());
+   text::str const s(get_acabaabca() + get_acabaabca());
 
    ASSERT(s.find(cp0) == s.cbegin() + 1);
    ASSERT(s.find('d') == s.cend());
-   ASSERT(s.find(str::empty + 'a' + cp2) == s.cbegin() + 2);
-   ASSERT(s.find(str::empty + 'a' + cp2 + cp0 + 'a') == s.cbegin() + 5);
-   ASSERT(s.find(str::empty + 'a' + cp2 + cp0 + 'd') == s.cend());
-   ASSERT(s.find(str::empty + 'a' + cp2 + 'a' + 'a' + cp2 + cp0) == s.cbegin() + 2);
-   ASSERT(s.find(str::empty + 'a' + cp2 + 'a' + 'a' + cp2 + cp0 + 'd') == s.cend());
+   ASSERT(s.find(text::str::empty + 'a' + cp2) == s.cbegin() + 2);
+   ASSERT(s.find(text::str::empty + 'a' + cp2 + cp0 + 'a') == s.cbegin() + 5);
+   ASSERT(s.find(text::str::empty + 'a' + cp2 + cp0 + 'd') == s.cend());
+   ASSERT(s.find(text::str::empty + 'a' + cp2 + 'a' + 'a' + cp2 + cp0) == s.cbegin() + 2);
+   ASSERT(s.find(text::str::empty + 'a' + cp2 + 'a' + 'a' + cp2 + cp0 + 'd') == s.cend());
    ASSERT(s.find_last('a') == s.cend() - 1);
 #if 0
    ASSERT(s.find_last(cp2) == s.cend() - 3);
@@ -486,14 +489,14 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    char32_t cp0 = plane0_cp;
    char32_t cp2 = plane2_cp;
    // See get_acabaabca() for more information on its pattern.
-   str const s(get_acabaabca());
+   text::str const s(get_acabaabca());
 
-   ASSERT(s.starts_with(str::empty));
-   ASSERT(s.starts_with(str::empty + 'a'));
-   ASSERT(s.starts_with(str::empty + 'a' + cp0));
-   ASSERT(!s.starts_with(str::empty + 'a' + cp2));
-   ASSERT(!s.starts_with(str::empty + cp0));
-   ASSERT(!s.starts_with(str::empty + cp2));
+   ASSERT(s.starts_with(text::str::empty));
+   ASSERT(s.starts_with(text::str::empty + 'a'));
+   ASSERT(s.starts_with(text::str::empty + 'a' + cp0));
+   ASSERT(!s.starts_with(text::str::empty + 'a' + cp2));
+   ASSERT(!s.starts_with(text::str::empty + cp0));
+   ASSERT(!s.starts_with(text::str::empty + cp2));
    ASSERT(s.starts_with(s));
    ASSERT(!s.starts_with(s + '-'));
    ASSERT(!s.starts_with('-' + s));
@@ -515,14 +518,14 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    char32_t cp0 = plane0_cp;
    char32_t cp2 = plane2_cp;
    // See get_acabaabca() for more information on its pattern.
-   str const s(get_acabaabca());
+   text::str const s(get_acabaabca());
 
-   ASSERT(s.ends_with(str::empty));
-   ASSERT(s.ends_with(str::empty + 'a'));
-   ASSERT(s.ends_with(str::empty + cp0 + 'a'));
-   ASSERT(!s.ends_with(str::empty + cp2 + 'a'));
-   ASSERT(!s.ends_with(str::empty + cp0));
-   ASSERT(!s.ends_with(str::empty + cp2));
+   ASSERT(s.ends_with(text::str::empty));
+   ASSERT(s.ends_with(text::str::empty + 'a'));
+   ASSERT(s.ends_with(text::str::empty + cp0 + 'a'));
+   ASSERT(!s.ends_with(text::str::empty + cp2 + 'a'));
+   ASSERT(!s.ends_with(text::str::empty + cp0));
+   ASSERT(!s.ends_with(text::str::empty + cp2));
    ASSERT(s.ends_with(s));
    ASSERT(!s.ends_with(s + '-'));
    ASSERT(!s.ends_with('-' + s));

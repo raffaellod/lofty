@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015, 2017 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,22 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_RANGE_HXX
-#define _LOFTY_RANGE_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_RANGE_HXX
 #endif
 
+#ifndef _LOFTY_RANGE_HXX_NOPUB
+#define _LOFTY_RANGE_HXX_NOPUB
+
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/_std/iterator.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Represents an iterable interval of values defined by a beginning and an end, inclusive and exclusive
 respectively. */
@@ -33,7 +36,7 @@ template <typename T>
 class range : public support_explicit_operator_bool<range<T>> {
 public:
    //! Iterator for range values.
-   class iterator : public _std::iterator<_std::bidirectional_iterator_tag, T> {
+   class iterator : public _std::_LOFTY_PUBNS iterator<_std::_LOFTY_PUBNS bidirectional_iterator_tag, T> {
    public:
       /*! Constructor.
 
@@ -41,7 +44,7 @@ public:
          Current value.
       */
       explicit iterator(T t_) :
-         t(_std::move(t_)) {
+         t(_std::_pub::move(t_)) {
       }
 
       /*! Dereferencing operator.
@@ -146,8 +149,8 @@ public:
    };
 
    typedef iterator const_iterator;
-   typedef _std::reverse_iterator<iterator> reverse_iterator;
-   typedef _std::reverse_iterator<const_iterator> const_reverse_iterator;
+   typedef _std::_LOFTY_PUBNS reverse_iterator<iterator> reverse_iterator;
+   typedef _std::_LOFTY_PUBNS reverse_iterator<const_iterator> const_reverse_iterator;
 
 public:
    //! Default constructor. Constructs an empty range.
@@ -164,8 +167,8 @@ public:
       Value beyond the last one in the range.
    */
    range(T begin__, T end__) :
-      begin_(_std::move(begin__)),
-      end_(_std::move(end__)) {
+      begin_(_std::_pub::move(begin__)),
+      end_(_std::_pub::move(end__)) {
    }
 
    /*! Boolean evaluation operator.
@@ -321,11 +324,27 @@ private:
 */
 template <typename T>
 range<T> make_range(T begin, T end) {
-   return range<T>(_std::move(begin), _std::move(end));
+   return range<T>(_std::_pub::move(begin), _std::_pub::move(end));
 }
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_RANGE_HXX_NOPUB
+
+#ifdef _LOFTY_RANGE_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+      using _pub::make_range;
+      using _pub::range;
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_RANGE_HXX

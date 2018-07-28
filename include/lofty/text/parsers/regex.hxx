@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2017 Raffaello D. Di Napoli
+Copyright 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,27 +13,29 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TEXT_PARSERS_ERE_HXX
-#define _LOFTY_TEXT_PARSERS_ERE_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_PARSERS_ERE_HXX
 #endif
 
-#include <lofty/collections/vector.hxx>
+#ifndef _LOFTY_TEXT_PARSERS_ERE_HXX_NOPUB
+#define _LOFTY_TEXT_PARSERS_ERE_HXX_NOPUB
 
+#include <lofty/collections/vector-0.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/tuple.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
 
-class LOFTY_SYM regex_capture_format : public noncopyable {
+class LOFTY_SYM regex_capture_format : public lofty::_LOFTY_PUBNS noncopyable {
 public:
    struct var_pair {
-      text::str name;
-      text::str value;
+      text::_LOFTY_PUBNS str name;
+      text::_LOFTY_PUBNS str value;
    };
 
 public:
@@ -45,16 +47,18 @@ public:
 
 public:
    //! Free-text expression, in a syntax dependent on the type (e.g. regex for lofty::text::str).
-   str expr;
+   text::_LOFTY_PUBNS str expr;
    //! List of format variables specified in the capture.
-   collections::vector<var_pair> vars;
+   collections::_LOFTY_PUBNS vector<var_pair> vars;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
 
 /*! Parses regular expressions with a syntax similar to POSIX Extended Regular Expression and Perl’s regular
 expressions, generating a tree of states that will have the specified next state. The expression string must
@@ -102,7 +106,7 @@ functionality identical to that of Python’s re module:
 See also Python’s re module: <https://docs.python.org/3.5/library/re.html>.
 See also POSIX ERE: <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html>.
 */
-class LOFTY_SYM regex : public noncopyable {
+class LOFTY_SYM regex : public lofty::_LOFTY_PUBNS noncopyable {
 private:
    /*! References one or more states owned by a dynamic parser, allowing for easy concatenation of multiple
    expressions. */
@@ -114,7 +118,7 @@ private:
       //! Pointer to the current state in the current alternative.
       dynamic_state * curr_state;
       //! List of the last state for all non-current alternatives.
-      collections::vector<dynamic_state *, 2> alternative_last_states;
+      collections::_LOFTY_PUBNS vector<dynamic_state *, 2> alternative_last_states;
 
       //! Default constructor.
       subexpression();
@@ -152,7 +156,7 @@ public:
    @param expr_
       Expression to parse.
    */
-   regex(dynamic * parser_, str const & expr_);
+   regex(dynamic * parser_, text::_LOFTY_PUBNS str const & expr_);
 
    //! Destructor.
    ~regex();
@@ -200,7 +204,7 @@ public:
 
 private:
    //! Throws a lofty::text::syntax_error for the current position in the expression (expr_itr).
-   void throw_syntax_error(str const & description) const;
+   void throw_syntax_error(text::_LOFTY_PUBNS str const & description) const;
 
    /*! Parses the contents of a group (i.e. the “…” in a “(…)”).
 
@@ -223,7 +227,7 @@ private:
       Tuple containing the two inclusive bounds of the range, with 0 in place of any bounds missing in the
       expression.
    */
-   _std::tuple<std::uint16_t, std::uint16_t> parse_repetition_range();
+   _std::_LOFTY_PUBNS tuple<std::uint16_t, std::uint16_t> parse_repetition_range();
 
    /*! Pushes a next state, wil varying effects depending on the state of *this.
 
@@ -246,16 +250,16 @@ private:
    //! Pointer to the dynamic parser that will be used to create states.
    dynamic * parser;
    //! Reference to the original expression.
-   str const & expr;
+   text::_LOFTY_PUBNS str const & expr;
    //! Iterator to the next code point to be consumed from the expression.
-   str::const_iterator expr_itr;
+   text::_LOFTY_PUBNS str::const_iterator expr_itr;
    //! Iterator to the end of the expression.
-   str::const_iterator expr_end;
+   text::_LOFTY_PUBNS str::const_iterator expr_end;
    /*! Tracks the last-closed group or range, or the previous state to support replacing it with a group if
    needed. */
    subexpression prev_subexpr;
    //! Tracks the context of the current sub-expression, which is always subexpr_stack.back() .
-   collections::vector<subexpression, 3> subexpr_stack;
+   collections::_LOFTY_PUBNS vector<subexpression, 3> subexpr_stack;
    //! Index of the next capture group.
    std::uint8_t next_capture_index;
    //! The next call to push_state() will terminate and pop this many sub-expressions.
@@ -266,8 +270,26 @@ private:
    bool begin_alternative:1;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_PARSERS_ERE_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_PARSERS_ERE_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace text { namespace parsers {
+
+   using _pub::regex;
+   using _pub::regex_capture_format;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TEXT_PARSERS_ERE_HXX

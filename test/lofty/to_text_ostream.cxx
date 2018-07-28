@@ -12,11 +12,15 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/tuple.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/testing/test_case.hxx>
+#include <lofty/text.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/to_str.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,11 +28,11 @@ namespace lofty { namespace test { namespace {
 
 class type_with_member_ttos {
 public:
-   type_with_member_ttos(str s_) :
+   type_with_member_ttos(text::str s_) :
       s(_std::move(s_)) {
    }
 
-   str const & get() const {
+   text::str const & get() const {
       return s;
    }
 
@@ -37,21 +41,21 @@ public:
    }
 
 private:
-   str s;
+   text::str s;
 };
 
 class type_with_nonmember_ttos {
 public:
-   type_with_nonmember_ttos(str s_) :
+   type_with_nonmember_ttos(text::str s_) :
       s(_std::move(s_)) {
    }
 
-   str const & get() const {
+   text::str const & get() const {
       return s;
    }
 
 private:
-   str s;
+   text::str s;
 };
 
 }}} //namespace lofty::test::
@@ -61,7 +65,7 @@ namespace lofty {
 template <>
 class to_text_ostream<test::type_with_nonmember_ttos> {
 public:
-   void set_format(str const & format) {
+   void set_format(text::str const & format) {
       LOFTY_UNUSED_ARG(format);
    }
 
@@ -118,21 +122,21 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TRACE_FUNC();
 
    // Test zero, decimal base.
-   ASSERT(to_str(0, str::empty) == LOFTY_SL("0"));
+   ASSERT(to_str(0, text::str::empty) == LOFTY_SL("0"));
    ASSERT(to_str(0, LOFTY_SL(" 1")) == LOFTY_SL(" 0"));
    ASSERT(to_str(0, LOFTY_SL("01")) == LOFTY_SL("0"));
    ASSERT(to_str(0, LOFTY_SL(" 2")) == LOFTY_SL(" 0"));
    ASSERT(to_str(0, LOFTY_SL("02")) == LOFTY_SL("00"));
 
    // Test positive values, decimal base.
-   ASSERT(to_str(1, str::empty) == LOFTY_SL("1"));
+   ASSERT(to_str(1, text::str::empty) == LOFTY_SL("1"));
    ASSERT(to_str(1, LOFTY_SL(" 1")) == LOFTY_SL(" 1"));
    ASSERT(to_str(1, LOFTY_SL("01")) == LOFTY_SL("1"));
    ASSERT(to_str(1, LOFTY_SL(" 2")) == LOFTY_SL(" 1"));
    ASSERT(to_str(1, LOFTY_SL("02")) == LOFTY_SL("01"));
 
    // Test negative values, decimal base.
-   ASSERT(to_str(-1, str::empty) == LOFTY_SL("-1"));
+   ASSERT(to_str(-1, text::str::empty) == LOFTY_SL("-1"));
    ASSERT(to_str(-1, LOFTY_SL(" 1")) == LOFTY_SL("-1"));
    ASSERT(to_str(-1, LOFTY_SL("01")) == LOFTY_SL("-1"));
    ASSERT(to_str(-1, LOFTY_SL(" 2")) == LOFTY_SL("-1"));
@@ -192,20 +196,20 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    std::uintptr_t bad = 0xbad;
 
    // Test nullptr.
-   ASSERT(to_str(static_cast<void *>(nullptr), str::empty) == LOFTY_SL("nullptr"));
+   ASSERT(to_str(static_cast<void *>(nullptr), text::str::empty) == LOFTY_SL("nullptr"));
 
    // Test void pointer.
-   ASSERT(to_str(reinterpret_cast<void *>(bad), str::empty) == LOFTY_SL("0xbad"));
+   ASSERT(to_str(reinterpret_cast<void *>(bad), text::str::empty) == LOFTY_SL("0xbad"));
 
    // Test void const volatile pointer.
-   ASSERT(to_str(reinterpret_cast<void const volatile *>(bad), str::empty) == LOFTY_SL("0xbad"));
+   ASSERT(to_str(reinterpret_cast<void const volatile *>(bad), text::str::empty) == LOFTY_SL("0xbad"));
 
    // Test function pointer.
-   ASSERT(to_str(reinterpret_cast<void (*)(int)>(bad), str::empty) == LOFTY_SL("0xbad"));
+   ASSERT(to_str(reinterpret_cast<void (*)(int)>(bad), text::str::empty) == LOFTY_SL("0xbad"));
 
    /* Test char_t const pointer. Also confirms that pointers-to-char are NOT treated as strings by
    lofty::to_text_ostream(). */
-   ASSERT(to_str(reinterpret_cast<char_t const *>(bad), str::empty) == LOFTY_SL("0xbad"));
+   ASSERT(to_str(reinterpret_cast<text::char_t const *>(bad), text::str::empty) == LOFTY_SL("0xbad"));
 }
 
 }} //namespace lofty::test
@@ -221,34 +225,34 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TRACE_FUNC();
 
    int * raw_ptr = new int;
-   str ptr_str(to_str(raw_ptr));
+   text::str ptr_str(to_str(raw_ptr));
 
    {
       _std::unique_ptr<int> u_ptr(raw_ptr);
       // Test non-nullptr _std::unique_ptr.
-      ASSERT(to_str(u_ptr, str::empty) == ptr_str);
+      ASSERT(to_str(u_ptr, text::str::empty) == ptr_str);
 
       u_ptr.release();
       // Test nullptr _std::unique_ptr.
-      ASSERT(to_str(u_ptr, str::empty) == LOFTY_SL("nullptr"));
+      ASSERT(to_str(u_ptr, text::str::empty) == LOFTY_SL("nullptr"));
    }
    {
       _std::shared_ptr<int> sh_ptr(raw_ptr);
       // Test non-nullptr _std::shared_ptr.
-      ASSERT(to_str(sh_ptr, str::empty) == ptr_str);
+      ASSERT(to_str(sh_ptr, text::str::empty) == ptr_str);
       _std::weak_ptr<int> wk_ptr(sh_ptr);
       // Test non-nullptr _std::weak_ptr.
-      ASSERT(to_str(wk_ptr, str::empty) == ptr_str);
+      ASSERT(to_str(wk_ptr, text::str::empty) == ptr_str);
 
       sh_ptr.reset();
       // Test nullptr _std::shared_ptr.
-      ASSERT(to_str(sh_ptr, str::empty) == LOFTY_SL("nullptr"));
+      ASSERT(to_str(sh_ptr, text::str::empty) == LOFTY_SL("nullptr"));
       // Test expired non-nullptr _std::weak_ptr.
-      ASSERT(to_str(wk_ptr, str::empty) == LOFTY_SL("nullptr"));
+      ASSERT(to_str(wk_ptr, text::str::empty) == LOFTY_SL("nullptr"));
 
       wk_ptr.reset();
       // Test nullptr _std::weak_ptr.
-      ASSERT(to_str(wk_ptr, str::empty) == LOFTY_SL("nullptr"));
+      ASSERT(to_str(wk_ptr, text::str::empty) == LOFTY_SL("nullptr"));
    }
 }
 
@@ -268,7 +272,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    ASSERT(to_str(_std::tuple<>()) == LOFTY_SL("()"));
    ASSERT(to_str(_std::tuple<int>(1)) == LOFTY_SL("(1)"));
    ASSERT(to_str(_std::tuple<int, int>(1, 2)) == LOFTY_SL("(1, 2)"));
-   ASSERT(to_str(_std::tuple<str, int>(LOFTY_SL("abc"), 42)) == LOFTY_SL("(abc, 42)"));
+   ASSERT(to_str(_std::tuple<text::str, int>(LOFTY_SL("abc"), 42)) == LOFTY_SL("(abc, 42)"));
 }
 
 }} //namespace lofty::test

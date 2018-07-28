@@ -16,15 +16,19 @@ more details.
 Classes and macros to help write test cases and assertions. */
 
 #ifndef _LOFTY_TESTING_TEST_CASE_HXX
-#define _LOFTY_TESTING_TEST_CASE_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TESTING_TEST_CASE_HXX
 #endif
 
+#ifndef _LOFTY_TESTING_TEST_CASE_HXX_NOPUB
+#define _LOFTY_TESTING_TEST_CASE_HXX_NOPUB
+
+#include <lofty/_std/exception.hxx>
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/testing/runner.hxx>
 #include <lofty/to_str.hxx>
 
@@ -36,6 +40,7 @@ Classes and macros to help write test cases and assertions. */
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing {
+_LOFTY_PUBNS_BEGIN
 
 //! Base class for test cases.
 class LOFTY_TESTING_SYM test_case {
@@ -73,7 +78,7 @@ protected:
       void store() const {
          bool pass = left ? true : false;
          if (!pass) {
-            assertion_expr->left = to_str(left);
+            assertion_expr->left = lofty::_pub::to_str(left);
          }
          assertion_expr->set(pass, nullptr);
       }
@@ -91,8 +96,8 @@ protected:
          bool pass = left op right ? true : false; \
          assertion_expr->set(pass, LOFTY_SL(#op)); \
          if (!pass) { \
-            assertion_expr->left = to_str(left); \
-            assertion_expr->right = to_str(right); \
+            assertion_expr->left = lofty::_pub::to_str(left); \
+            assertion_expr->right = lofty::_pub::to_str(right); \
          } \
          return pre_stored_expr_result(); \
       }
@@ -158,7 +163,7 @@ public:
    @return
       Test case title.
    */
-   virtual str title() = 0;
+   virtual text::_LOFTY_PUBNS str title() = 0;
 
 protected:
    /*! Implementation of LOFTY_TESTING_ASSERT().
@@ -168,7 +173,7 @@ protected:
    @param expr
       Source representation of the expression being evaluated.
    */
-   void assert(text::file_address const & file_addr, str const & expr);
+   void assert(text::_LOFTY_PUBNS file_address const & file_addr, text::_LOFTY_PUBNS str const & expr);
 
    /*! Implementation of LOFTY_TESTING_ASSERT_DOES_NOT_THROW().
 
@@ -180,7 +185,8 @@ protected:
       Functor wrapping the expression to evaluate.
    */
    void assert_does_not_throw(
-      text::file_address const & file_addr, str const & expr, _std::function<void ()> expr_fn
+      text::_LOFTY_PUBNS file_address const & file_addr, text::_LOFTY_PUBNS str const & expr,
+      _std::_LOFTY_PUBNS function<void ()> expr_fn
    );
 
    /*! Implementation of LOFTY_TESTING_ASSERT_THROWS().
@@ -194,8 +200,8 @@ protected:
       std::exception instance is of the desired derived type.
    */
    void assert_throws(
-      text::file_address const & file_addr, str const & expr,
-      _std::function<bool (_std::exception const *)> expr_instanceof_fn
+      text::_LOFTY_PUBNS file_address const & file_addr, text::_LOFTY_PUBNS str const & expr,
+      _std::_LOFTY_PUBNS function<bool (_std::_LOFTY_PUBNS exception const *)> expr_instanceof_fn
    );
 
 protected:
@@ -205,6 +211,7 @@ protected:
    runner::assertion_expr assertion_expr;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::testing
 
 //! @cond
@@ -260,7 +267,7 @@ protected:
       /* Wrap the expression to evaluate in a lambda with access to any variable in the scope. Also put in the
       lambda a dynamic_cast to check the type of an exception, so assert_throws() doesn’t need to be a
       template to do that. */ \
-      [&] (::lofty::_std::exception const * x) -> bool { \
+      [&] (::lofty::_std::_pub::exception const * x) -> bool { \
          if (x) { \
             return dynamic_cast<type const *>(x) != nullptr; \
          } \
@@ -284,11 +291,11 @@ name.
    Title of the test, as a string literal.
 */
 #define LOFTY_TESTING_TEST_CASE_FUNC(name, test_title) \
-   class name : public ::lofty::testing::test_case { \
+   class name : public ::lofty::testing::_pub::test_case { \
    public: \
       /*! See lofty::testing::test_case::title(). */ \
-      virtual ::lofty::str title() override { \
-         return ::lofty::str(LOFTY_SL(test_title)); \
+      virtual ::lofty::text::_pub::str title() override { \
+         return ::lofty::text::_pub::str(LOFTY_SL(test_title)); \
       } \
    \
       /*! See lofty::testing::test_case::run(). */ \
@@ -302,6 +309,7 @@ name.
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing {
+_LOFTY_PUBNS_BEGIN
 
 // Forward declaration.
 class test_case_factory_impl;
@@ -309,7 +317,7 @@ class test_case_factory_impl;
 /*! List of lofty::testing::test_case-derived classes that can be used by a lofty::testing::runner instance to
 instantiate and execute each test case. */
 class LOFTY_TESTING_SYM test_case_factory_list :
-   public collections::static_list<test_case_factory_list, test_case_factory_impl> {
+   public collections::_LOFTY_PUBNS static_list<test_case_factory_list, test_case_factory_impl> {
 public:
    /*! Returns the one and only instance of this class.
 
@@ -325,22 +333,24 @@ private:
    static data_members data_members_;
 };
 
-}} //namespace lofty::testing
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing {
+_LOFTY_PUBNS_BEGIN
 
 //! Non-template base class for test_case_factory.
 class LOFTY_TESTING_SYM test_case_factory_impl :
-   public collections::static_list<test_case_factory_list, test_case_factory_impl>::node {
+   public collections::_LOFTY_PUBNS static_list<test_case_factory_list, test_case_factory_impl>::node {
 public:
    /*! Constructor.
 
    @param factory_
       Pointer to the derived class’s factory function.
    */
-   test_case_factory_impl(_std::unique_ptr<test_case> (* factory_)(class runner * runner)) :
+   test_case_factory_impl(_std::_LOFTY_PUBNS unique_ptr<test_case> (* factory_)(class runner * runner)) :
       factory(factory_) {
    }
 
@@ -351,14 +361,16 @@ public:
    @return
       Test case instance.
    */
-   _std::unique_ptr<test_case> (* const factory)(class runner * runner);
+   _std::_LOFTY_PUBNS unique_ptr<test_case> (* const factory)(class runner * runner);
 };
 
-}} //namespace lofty::testing
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing {
+_LOFTY_PUBNS_BEGIN
 
 /*! Template version of lofty::testing::test_case_factory_impl, able to instantiate classes derived from
 lofty::testing::test_case. */
@@ -376,15 +388,15 @@ private:
    @param runner
       Runner to provide to the test case.
    */
-   static _std::unique_ptr<test_case> static_factory(class runner * runner) {
-      _std::unique_ptr<T> t(new T());
+   static _std::_LOFTY_PUBNS unique_ptr<test_case> static_factory(class runner * runner) {
+      _std::_pub::unique_ptr<T> t(new T());
       t->init(runner);
-      return _std::move(t);
+      return _std::_pub::move(t);
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::testing
-
 
 /*! Registers a lofty::testing::test_case-derived class for execution by a lofty::testing::runner instance.
 
@@ -395,5 +407,22 @@ private:
    static ::lofty::testing::test_case_factory<cls> LOFTY_CPP_APPEND_UID(__test_case_factory_);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TESTING_TEST_CASE_HXX_NOPUB
+
+#ifdef _LOFTY_TESTING_TEST_CASE_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace testing {
+      using _pub::test_case;
+      using _pub::test_case_factory;
+      using _pub::test_case_factory_impl;
+      using _pub::test_case_factory_list;
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TESTING_TEST_CASE_HXX

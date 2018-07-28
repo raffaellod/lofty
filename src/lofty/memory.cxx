@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,14 +12,18 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/bitmanip.hxx>
-
+#include <lofty/exception.hxx>
+#include <lofty/io/text/str.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/new.hxx>
+#include <lofty/_std/utility.hxx>
 #include <cstdlib> // std::free() std::malloc() std::realloc()
 #if LOFTY_HOST_API_POSIX
+   #include <errno.h> // _E*
    #include <unistd.h> // _SC_* sysconf()
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -182,7 +186,7 @@ void LOFTY_STL_CALLCONV operator delete[](
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace memory {
+namespace lofty { namespace memory { namespace _pub {
 
 void * alloc_bytes(std::size_t byte_size) {
    if (void * p = std::malloc(byte_size)) {
@@ -203,7 +207,7 @@ void realloc_bytes(void ** ptr_ptr, std::size_t byte_size) {
    }
 }
 
-}} //namespace lofty::memory
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -272,7 +276,7 @@ pages_ptr & pages_ptr::operator=(pages_ptr && src) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace memory {
+namespace lofty { namespace memory { namespace _pub {
 
 /*! Returns the size of a memory page.
 
@@ -297,4 +301,4 @@ std::size_t page_size() {
    return byte_size;
 }
 
-}} //namespace lofty::memory
+}}}

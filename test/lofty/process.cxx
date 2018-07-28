@@ -12,11 +12,11 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/logging.hxx>
-#include <lofty/testing/test_case.hxx>
 #include <lofty/process.hxx>
-
+#include <lofty/_std/tuple.hxx>
+#include <lofty/testing/test_case.hxx>
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,9 +28,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   ASSERT(_std::get<0>(this_process::env_var(LOFTY_SL("PATH"))) != str::empty);
+   ASSERT(_std::get<0>(this_process::env_var(LOFTY_SL("PATH"))) != text::str::empty);
    ASSERT(_std::get<1>(this_process::env_var(LOFTY_SL("PATH"))));
-   ASSERT(_std::get<0>(this_process::env_var(LOFTY_SL("?UNSET?"))) == str::empty);
+   ASSERT(_std::get<0>(this_process::env_var(LOFTY_SL("?UNSET?"))) == text::str::empty);
    ASSERT(!_std::get<1>(this_process::env_var(LOFTY_SL("?UNSET?"))));
 }
 

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,10 +12,18 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_COLLECTIONS__PVT_VEXTR_IMPL_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS__PVT_VEXTR_IMPL_HXX
 #endif
 
+#ifndef _LOFTY_COLLECTIONS__PVT_VEXTR_IMPL_HXX_NOPUB
+#define _LOFTY_COLLECTIONS__PVT_VEXTR_IMPL_HXX_NOPUB
+
+#include <lofty/memory.hxx>
+#include <lofty/noncopyable.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +45,7 @@ public:
    _std::max_align_t array[LOFTY_ALIGNED_SIZE(embedded_byte_capacity)];
 };
 
-}}} //namespace lofty::collections::_pvt
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +69,7 @@ struct vextr_impl_data {
    bool has_nul_term:1;
 };
 
-}}} //namespace lofty::collections::_pvt
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -150,7 +158,7 @@ public:
    //! Destructor.
    ~vextr_impl_base() {
       if (dynamic) {
-         memory::free(prefixed_array());
+         memory::_pub::free(prefixed_array());
       }
    }
 
@@ -384,7 +392,7 @@ A transaction will not take care of copying the item array, if switching to a di
 
 For size increases, the reallocation (if any) is performed in the constructor; for decreases, it’s performed
 in commit(). */
-class LOFTY_SYM vextr_transaction : public noncopyable {
+class LOFTY_SYM vextr_transaction : public lofty::_LOFTY_PUBNS noncopyable {
 public:
    /*! Constructor.
 
@@ -589,3 +597,17 @@ private:
 };
 
 }}} //namespace lofty::collections::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS__PVT_VEXTR_IMPL_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS__PVT_VEXTR_IMPL_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_COLLECTIONS__PVT_VEXTR_IMPL_HXX

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,24 +13,27 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX
-#define _LOFTY_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX
 #endif
 
+#ifndef _LOFTY_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX_NOPUB
+#define _LOFTY_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX_NOPUB
+
+#include <lofty/collections/_pvt/vextr_impl.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Forward declaration.
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 class type_void_adapter;
 
-} //namespace lofty
+_LOFTY_PUBNS_END
+}
 
 namespace lofty { namespace collections { namespace _pvt {
 
@@ -55,8 +58,8 @@ public:
       the second source array, or 3 to move both, or 0 to copy them all instead.
    */
    void assign_concat(
-      type_void_adapter const & type, void const * src1_begin, void const * src1_end, void const * src2_begin,
-      void const * src2_end, std::uint8_t move
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, void const * src1_begin, void const * src1_end,
+      void const * src2_begin, void const * src2_end, std::uint8_t move
    );
 
    /*! Copies the contents of the source to *this.
@@ -68,7 +71,9 @@ public:
    @param src_end
       Pointer to the end of the source array.
    */
-   void assign_copy(type_void_adapter const & type, void const * src_begin, void const * src_end) {
+   void assign_copy(
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, void const * src_begin, void const * src_end
+   ) {
       if (src_begin == begin_ptr) {
          return;
       }
@@ -85,14 +90,16 @@ public:
    @param src
       Source vextr.
    */
-   void assign_move_desc_or_move_items(type_void_adapter const & type, complex_vextr_impl && src);
+   void assign_move_desc_or_move_items(
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, complex_vextr_impl && src
+   );
 
    /*! Destructs the item array. It does not deallocate the item array.
 
    @param type
       Adapter for the items’ type.
    */
-   void destruct_items(type_void_adapter const & type);
+   void destruct_items(lofty::_LOFTY_PUBNS type_void_adapter const & type);
 
    /*! Inserts items at a specific position in the vextr.
 
@@ -108,7 +115,7 @@ public:
       true to move the items from src to the vextr’s item array, or false to copy them instead.
    */
    void insert(
-      type_void_adapter const & type, std::size_t offset, void const * src,
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, std::size_t offset, void const * src,
       std::size_t src_size, bool move
    );
 
@@ -121,7 +128,9 @@ public:
    @param remove_size
       Size of the array slice to remove, in bytes.
    */
-   void remove(type_void_adapter const & type, std::size_t offset, std::size_t remove_size);
+   void remove(
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, std::size_t offset, std::size_t remove_size
+   );
 
    /*! Ensures that the item array has at least new_capacity_min of actual item space. If this causes *this to
    switch to using a different item array, any data in the current one will be lost unless preserve == true.
@@ -134,7 +143,9 @@ public:
       If true, the previous contents of the item array will be preserved even if the reallocation causes the
       vextr to switch to a different item array.
    */
-   void set_capacity(type_void_adapter const & type, std::size_t new_capacity_min, bool preserve);
+   void set_capacity(
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, std::size_t new_capacity_min, bool preserve
+   );
 
    /*! Changes the count of items in the vextr. If the new item count is greater than the current one, the
    added items will be left uninitialized; it’s up to the caller to make sure that these items are properly
@@ -145,7 +156,7 @@ public:
    @param new_size
       New size of the items, in bytes.
    */
-   void set_size(type_void_adapter const & type, std::size_t new_size);
+   void set_size(lofty::_LOFTY_PUBNS type_void_adapter const & type, std::size_t new_size);
 
 protected:
    //! See vextr_impl_base::vextr_impl_base().
@@ -164,5 +175,15 @@ protected:
 }}} //namespace lofty::collections::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS__PVT_COMPLEX_VEXTR_IMPL_HXX

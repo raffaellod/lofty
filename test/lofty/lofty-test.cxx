@@ -12,21 +12,31 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/app.hxx>
 #include <lofty/coroutine.hxx>
+#include <lofty/coroutine_local.hxx>
+#include <lofty/enum.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/io/binary/memory.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/math.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/os.hxx>
 #include <lofty/range.hxx>
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/type_traits.hxx>
 #include <lofty/testing/app.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/text/char_ptr_to_str_adapter.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/thread.hxx>
-#include <lofty/try_finally.hxx>
+#include <lofty/thread_local.hxx>
 #include <lofty/to_str.hxx>
-
+#include <lofty/try_finally.hxx>
+#if LOFTY_HOST_API_WIN32
+   #include <lofty/collections/vector.hxx>
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -188,7 +198,8 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TRACE_FUNC();
 
    static std::size_t const buffer_size = 1024;
-   _std::unique_ptr<std::uint8_t[]> src(new std::uint8_t[buffer_size]), dst(new std::uint8_t[buffer_size]);
+   _std::unique_ptr<std::uint8_t[]> src(new std::uint8_t[buffer_size]);
+   _std::unique_ptr<std::uint8_t[]> dst(new std::uint8_t[buffer_size]);
    // Prepare the source array.
    for (std::size_t i = 0; i < buffer_size; ++i) {
       src[i] = static_cast<std::uint8_t>(i);
@@ -234,28 +245,28 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   sstr<8> s;
-   collections::vector<str> v;
+   text::sstr<8> s;
+   collections::vector<text::str> v;
 
    ASSERT(!os::registry::get_value(
-      HKEY_LOCAL_MACHINE, LOFTY_SL("non-existent key"), str::empty, s.str_ptr()
+      HKEY_LOCAL_MACHINE, LOFTY_SL("non-existent key"), text::str::empty, s.str_ptr()
    ));
-   ASSERT(s == str::empty);
+   ASSERT(s == text::str::empty);
 
    ASSERT(!os::registry::get_value(
-      HKEY_LOCAL_MACHINE, LOFTY_SL("Software\\Classes\\Interface"), str::empty, s.str_ptr()
+      HKEY_LOCAL_MACHINE, LOFTY_SL("Software\\Classes\\Interface"), text::str::empty, s.str_ptr()
    ));
-   ASSERT(s == str::empty);
+   ASSERT(s == text::str::empty);
 
    ASSERT(!os::registry::get_value(
       HKEY_LOCAL_MACHINE, LOFTY_SL("Software"), LOFTY_SL("non-existent value"), s.str_ptr()
    ));
-   ASSERT(s == str::empty);
+   ASSERT(s == text::str::empty);
 
    ASSERT(os::registry::get_value(
       HKEY_LOCAL_MACHINE,
       LOFTY_SL("Software\\Classes\\Interface\\{00000000-0000-0000-c000-000000000046}"),
-      str::empty, s.str_ptr()
+      text::str::empty, s.str_ptr()
    ));
    ASSERT(s == LOFTY_SL("IUnknown"));
 
@@ -409,7 +420,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    // Validate generation of arithmetic errors.
    {
       // Non-obvious division by zero that can’t be detected at compile time.
-      str empty;
+      text::str empty;
       int zero = static_cast<int>(empty.size_in_chars()), one = 1;
       ASSERT_THROWS(math::division_by_zero, one /= zero);
       // Use the quotient, so it won’t be optimized away.

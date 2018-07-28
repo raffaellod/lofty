@@ -13,21 +13,24 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_MUTEX_HXX
-#define _LOFTY_MUTEX_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_MUTEX_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_MUTEX_HXX_NOPUB
+#define _LOFTY_MUTEX_HXX_NOPUB
 
 #include <lofty/coroutine.hxx>
-
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/mutex.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Mutex that can be locked/unlocked by a thread or coroutine (exclusive “or”).
 
@@ -107,13 +110,30 @@ public:
 
 private:
    //! Underlying mutex for thread mode, or controls access to coro_mode in coroutine mode.
-   _std::unique_ptr<_std::mutex> thread_mutex;
+   _std::_LOFTY_PUBNS unique_ptr<_std::_LOFTY_PUBNS mutex> thread_mutex;
    //! Pointer to the implementation instance.
-   _std::unique_ptr<coro_mode_t> coro_mode;
+   _std::_LOFTY_PUBNS unique_ptr<coro_mode_t> coro_mode;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_MUTEX_HXX_NOPUB
+
+#ifdef _LOFTY_MUTEX_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::mutex;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_MUTEX_HXX

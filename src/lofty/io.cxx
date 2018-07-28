@@ -12,11 +12,11 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/thread.hxx>
 #include "coroutine-scheduler.hxx"
-
 #if LOFTY_HOST_API_POSIX
    #include <fcntl.h> // F_* FD_* O_* fcntl()
    #include <unistd.h> // close()
@@ -24,10 +24,10 @@ more details.
    #include <winsock2.h> // closesocket()
 #endif
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io {
+_LOFTY_PUBNS_BEGIN
 
 filedesc_t const filedesc_t_null =
 #if LOFTY_HOST_API_POSIX
@@ -161,6 +161,7 @@ void filedesc::share_with_subprocesses(bool share) {
 #endif
 }
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::io
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

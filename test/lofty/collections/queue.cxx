@@ -12,12 +12,10 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections/queue.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/testing/utility.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

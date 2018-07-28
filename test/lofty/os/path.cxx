@@ -12,11 +12,10 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/os/path.hxx>
 #include <lofty/testing/test_case.hxx>
-
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,9 +30,9 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    /* Note that under Win32, paths that start with “/” are still relative to the current volume; nonetheless,
    the assertions should still be valid. */
 
-   str const sep(os::path::separator());
+   text::str const sep(os::path::separator());
    text::sstr<64> formatted;
-#define norm_path(s)   str(os::path(LOFTY_SL(s)).normalize())
+#define norm_path(s)   text::str(os::path(LOFTY_SL(s)).normalize())
 #define format_seps(s) (formatted.format(LOFTY_SL(s), sep), formatted)
 
    // Empty path.

@@ -13,24 +13,24 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_IO_BINARY_FILE_SUBCLASSES_HXX
-#define _LOFTY_IO_BINARY_FILE_SUBCLASSES_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_IO_BINARY_FILE_SUBCLASSES_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_IO_BINARY_FILE_SUBCLASSES_HXX_NOPUB
+#define _LOFTY_IO_BINARY_FILE_SUBCLASSES_HXX_NOPUB
 
 #include <lofty/io/binary.hxx>
 #if LOFTY_HOST_API_WIN32
    #include <lofty/text/parsers/ansi_escape_sequences.hxx>
+   #include <lofty/text/str.hxx>
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Base for terminal/console binary streams.
 class LOFTY_SYM tty_file_stream : public virtual file_stream {
@@ -43,11 +43,11 @@ protected:
    tty_file_stream(_pvt::file_init_data * init_data);
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Terminal/console input stream.
 class LOFTY_SYM tty_istream : public virtual tty_file_stream, public virtual file_istream {
@@ -66,11 +66,11 @@ public:
 #endif //if LOFTY_HOST_API_WIN32
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Terminal/console output stream.
 class LOFTY_SYM tty_ostream :
@@ -78,7 +78,7 @@ class LOFTY_SYM tty_ostream :
    public virtual file_ostream
 #if LOFTY_HOST_API_WIN32
    // Under Win32, ANSI escape sequences parsing is up to us.
-   , private lofty::text::parsers::ansi_escape_sequences
+   , private lofty::text::parsers::_LOFTY_PUBNS ansi_escape_sequences
 #endif
    {
 public:
@@ -126,7 +126,7 @@ private:
    virtual void set_cursor_visibility(bool visible) override;
 
    //! See lofty::text::parsers::ansi_escape_sequences::set_window_title().
-   virtual void set_window_title(str const & title) override;
+   virtual void set_window_title(lofty::text::_LOFTY_PUBNS str const & title) override;
 
    /*! Writes a range of characters directly to the console, without any parsing.
 
@@ -135,15 +135,17 @@ private:
    @param src_end
       End of the character array to write.
    */
-   void write_range(char_t const * src_begin, char_t const * src_end) const;
+   void write_range(
+      lofty::text::_LOFTY_PUBNS char_t const * src_begin, lofty::text::_LOFTY_PUBNS char_t const * src_end
+   ) const;
 #endif //if LOFTY_HOST_API_WIN32
 };
 
-}}} //namespace lofty::io::binary
+}}}} //namespace lofty::io::binary::_pub
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Bidirectional terminal/console stream.
 class LOFTY_SYM tty_iostream : public file_iostream, public tty_istream, public tty_ostream {
@@ -155,11 +157,11 @@ public:
    virtual ~tty_iostream();
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Binary stream for the read end of a pipe.
 class LOFTY_SYM pipe_istream : public virtual file_istream {
@@ -178,11 +180,11 @@ protected:
 #endif
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Binary output stream for the write end of a pipe.
 class LOFTY_SYM pipe_ostream : public virtual file_ostream {
@@ -194,11 +196,11 @@ public:
    virtual ~pipe_ostream();
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Bidirectional pipe end.
 class LOFTY_SYM pipe_iostream : public file_iostream, public pipe_istream, public pipe_ostream {
@@ -210,11 +212,11 @@ public:
    virtual ~pipe_iostream();
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Base for binary streams for regular disk files.
 class LOFTY_SYM regular_file_stream : public virtual file_stream, public seekable, public sized {
@@ -223,13 +225,15 @@ public:
    virtual ~regular_file_stream();
 
    //! See seekable::seek().
-   virtual offset_t seek(offset_t offset, seek_from whence) override;
+   virtual io::_LOFTY_PUBNS offset_t seek(
+      io::_LOFTY_PUBNS offset_t offset, io::_LOFTY_PUBNS seek_from whence
+   ) override;
 
    //! See sized::size().
-   virtual full_size_t size() const override;
+   virtual io::_LOFTY_PUBNS full_size_t size() const override;
 
    //! See seekable::tell().
-   virtual offset_t tell() const override;
+   virtual io::_LOFTY_PUBNS offset_t tell() const override;
 
 protected:
    //! See file_stream::file_stream().
@@ -242,11 +246,11 @@ protected:
 #endif
 };
 
-}}} //namespace lofty::io::binary
+}}}} //namespace lofty::io::binary::_pub
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Binary input stream for regular disk files.
 class LOFTY_SYM regular_file_istream : public virtual regular_file_stream, public virtual file_istream {
@@ -258,11 +262,11 @@ public:
    virtual ~regular_file_istream();
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Binary output stream for regular disk files.
 class LOFTY_SYM regular_file_ostream : public virtual regular_file_stream, public virtual file_ostream {
@@ -283,11 +287,11 @@ protected:
 #endif
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace io { namespace binary {
+namespace lofty { namespace io { namespace binary { namespace _pub {
 
 //! Bidirectional file.
 class LOFTY_SYM regular_file_iostream :
@@ -302,8 +306,34 @@ public:
    virtual ~regular_file_iostream();
 };
 
-}}} //namespace lofty::io::binary
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_IO_BINARY_FILE_SUBCLASSES_HXX_NOPUB
+
+#ifdef _LOFTY_IO_BINARY_FILE_SUBCLASSES_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace io { namespace binary {
+
+   using _pub::tty_file_stream;
+   using _pub::tty_istream;
+   using _pub::tty_ostream;
+   using _pub::tty_iostream;
+   using _pub::pipe_istream;
+   using _pub::pipe_ostream;
+   using _pub::pipe_iostream;
+   using _pub::regular_file_stream;
+   using _pub::regular_file_istream;
+   using _pub::regular_file_ostream;
+   using _pub::regular_file_iostream;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_IO_BINARY_FILE_SUBCLASSES_HXX

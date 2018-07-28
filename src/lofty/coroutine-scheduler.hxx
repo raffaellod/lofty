@@ -13,35 +13,37 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COROUTINE_SCHEDULER_HXX
-#define _LOFTY_COROUTINE_SCHEDULER_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COROUTINE_SCHEDULER_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_COROUTINE_SCHEDULER_HXX_NOPUB
+#define _LOFTY_COROUTINE_SCHEDULER_HXX_NOPUB
 
 #include <lofty/coroutine.hxx>
 #include <lofty/collections/hash_map.hxx>
 #include <lofty/collections/queue.hxx>
 #include <lofty/collections/trie_ordered_multimap.hxx>
 #include <lofty/event.hxx>
+#include <lofty/io.hxx>
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/mutex.hxx>
 #include <lofty/thread.hxx>
-
 #if LOFTY_HOST_API_POSIX
    #include <ucontext.h>
 #endif
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty {
+namespace lofty { namespace _pub {
 
 class coroutine::scheduler : public noncopyable {
 private:
-   friend id_type this_coroutine::id();
-   friend void this_coroutine::interruption_point();
+   friend id_type this_coroutine::_LOFTY_PUBNS id();
+   friend void this_coroutine::_LOFTY_PUBNS interruption_point();
 
 public:
    //! Type of the id of a waitable event.
@@ -62,7 +64,7 @@ private:
       typedef ::ULONG_PTR pack_t;
 #endif
       struct s_t {
-         io::filedesc_t fd;
+         io::_LOFTY_PUBNS filedesc_t fd;
          bool write;
       } s;
       pack_t pack;
@@ -81,7 +83,7 @@ public:
    @param coro_pimpl
       Pointer to a coroutine (implementation) that’s ready to execute.
    */
-   void add_ready(_std::shared_ptr<impl> coro_pimpl);
+   void add_ready(_std::_LOFTY_PUBNS shared_ptr<impl> coro_pimpl);
 
    /*! Allows other coroutines to run while a delay and/or an asynchronous I/O operation completes, as an
    alternative to blocking while waiting for its completion.
@@ -102,9 +104,9 @@ public:
       operation.
    */
    void block_active(
-      unsigned millisecs, event_id_t event_id, io::filedesc_t fd, bool write
+      unsigned millisecs, event_id_t event_id, io::_LOFTY_PUBNS filedesc_t fd, bool write
 #if LOFTY_HOST_API_WIN32
-      , io::overlapped * ovl
+      , io::_LOFTY_PUBNS overlapped * ovl
 #endif
    );
 
@@ -128,7 +130,7 @@ public:
    @return
       File descriptor of the internal IOCP.
    */
-   io::filedesc_t iocp() const {
+   io::_LOFTY_PUBNS filedesc_t iocp() const {
       return engine_fd.get();
    }
 #endif
@@ -193,7 +195,7 @@ private:
    @return
       Pointer to a coroutine (implementation) that’s ready to execute.
    */
-   _std::shared_ptr<impl> find_coroutine_to_activate();
+   _std::_LOFTY_PUBNS shared_ptr<impl> find_coroutine_to_activate();
 
    /*! Repeatedly finds and runs coroutines that are ready to execute.
 
@@ -234,55 +236,61 @@ private:
    @return
       Pointer to the coroutine’s impl, or nullptr if no coroutines could be unblocked.
    */
-   _std::shared_ptr<impl> unblock_by_first_event();
+   _std::_LOFTY_PUBNS shared_ptr<impl> unblock_by_first_event();
 #endif
 
 private:
    //! File descriptor of the internal kqueue (BSD) / epoll (Linux) / IOCP (Win32).
-   io::filedesc engine_fd;
+   io::_LOFTY_PUBNS filedesc engine_fd;
 #if LOFTY_HOST_API_BSD
    /*! Coroutines that are blocked on a timer wait. The keys are the same as the values, but this can’t be
    changed into a set<shared_ptr<impl>> because we need it to hold a strong reference to the coroutine
    implementation while allowing lookups without having a shared_ptr. */
-   collections::hash_map<std::uintptr_t, _std::shared_ptr<impl>> coros_blocked_by_timer_ke;
+   collections::_LOFTY_PUBNS hash_map<
+      std::uintptr_t, _std::_LOFTY_PUBNS shared_ptr<impl>
+   > coros_blocked_by_timer_ke;
 #elif LOFTY_HOST_API_WIN32
    //! Thread that translates events from event_semaphore_fd and timer_fd into IOCP completions.
    ::HANDLE non_iocp_events_thread_handle;
    //! Flag used to tell the non-IOCP events thread to stop looping.
-   _std::atomic<bool> stop_non_iocp_events_thread;
+   _std::_LOFTY_PUBNS atomic<bool> stop_non_iocp_events_thread;
 #endif
 #if LOFTY_HOST_API_LINUX || LOFTY_HOST_API_WIN32
    //! List of events that need to be processed on the next time the event semaphore unblocks a thread.
-   collections::queue<event_id_t> ready_events_queue;
+   collections::_LOFTY_PUBNS queue<event_id_t> ready_events_queue;
    /*! Events that have been triggered with nobody waiting for them. We collect them here, so that if a waiter
    comes up, it can skip waiting at all. */
    // TODO: should be a collections::set<event_id_t> .
-   collections::hash_map<event_id_t, bool> unwaited_events;
+   collections::_LOFTY_PUBNS hash_map<event_id_t, bool> unwaited_events;
    //! Map of timeouts, in milliseconds, and their associated coroutines.
-   collections::trie_ordered_multimap<time_point_t, _std::shared_ptr<impl>> coros_blocked_by_timer_fd;
+   collections::_LOFTY_PUBNS trie_ordered_multimap<
+      time_point_t, _std::_LOFTY_PUBNS shared_ptr<impl>
+   > coros_blocked_by_timer_fd;
    //! Semaphore responsible for every event wait.
-   io::filedesc event_semaphore_fd;
+   io::_LOFTY_PUBNS filedesc event_semaphore_fd;
    //! Timer responsible for every timed wait.
-   io::filedesc timer_fd;
+   io::_LOFTY_PUBNS filedesc timer_fd;
 #endif
    //! Coroutines that are blocked on an event wait.
-   collections::hash_map<event_id_t, _std::shared_ptr<impl>> coros_blocked_by_event;
+   collections::_LOFTY_PUBNS hash_map<event_id_t, _std::_LOFTY_PUBNS shared_ptr<impl>> coros_blocked_by_event;
    //! Coroutines that are blocked on a fd wait.
-   collections::hash_map<fd_io_key::pack_t, _std::shared_ptr<impl>> coros_blocked_by_fd;
+   collections::_LOFTY_PUBNS hash_map<
+      fd_io_key::pack_t, _std::_LOFTY_PUBNS shared_ptr<impl>
+   > coros_blocked_by_fd;
    /*! List of coroutines that are ready to run. Includes coroutines that have been scheduled, but have not
    been started yet. */
-   collections::queue<_std::shared_ptr<impl>> ready_coros_queue;
+   collections::_LOFTY_PUBNS queue<_std::_LOFTY_PUBNS shared_ptr<impl>> ready_coros_queue;
    //! Governs access to ready_coros_queue, coros_blocked_by_fd and other “blocked by” maps/sets.
-   _std::mutex coros_add_remove_mutex;
+   _std::_LOFTY_PUBNS mutex coros_add_remove_mutex;
    //! Id of the last event created.
    event_id_t last_created_event_id;
    /*! Set to anything other than exception::common_type::none if a coroutine leaks an uncaught exception, or
    if the scheduler throws an exception while not running coroutines. Once one of these events happens, every
    thread running the scheduler will start interrupting coroutines with this type of exception. */
-   _std::atomic<exception::common_type::enum_type> interruption_reason_x_type;
+   _std::_LOFTY_PUBNS atomic<exception::common_type::enum_type> interruption_reason_x_type;
 
    //! Pointer to the active (current) coroutine, or nullptr if none is active.
-   static thread_local_value<_std::shared_ptr<impl>> active_coro_pimpl;
+   static thread_local_value<_std::_LOFTY_PUBNS shared_ptr<impl>> active_coro_pimpl;
 #if LOFTY_HOST_API_POSIX
    //! Pointer to the original context of every thread running a coroutine scheduler.
    static thread_local_value< ::ucontext_t *> default_return_uctx;
@@ -292,8 +300,18 @@ private:
 #endif
 };
 
-} //namespace lofty
+}} //namespace lofty::_pub
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COROUTINE_SCHEDULER_HXX_NOPUB
+
+#ifdef _LOFTY_COROUTINE_SCHEDULER_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COROUTINE_SCHEDULER_HXX

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2017 Raffaello D. Di Napoli
+Copyright 2011-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,15 +13,23 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_STD_TUPLE_HXX
-#define _LOFTY_STD_TUPLE_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_STD_TUPLE_HXX
 #endif
 
+#ifndef _LOFTY_STD_TUPLE_HXX_NOPUB
+#define _LOFTY_STD_TUPLE_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if LOFTY_HOST_STL_LOFTY || !defined(LOFTY_CXX_VARIADIC_TEMPLATES)
+
+#include <lofty/_std/type_traits.hxx>
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +40,7 @@ namespace lofty { namespace _std { namespace _pvt {
 //! “Null” type used to reduce the number of tuple items from the preset maximum.
 struct tuple_void {};
 
-}}} //namespace lofty::_std::_pvt
+}}}
 
 #endif //ifndef LOFTY_CXX_VARIADIC_TEMPLATES
 
@@ -759,6 +767,7 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Fixed-size ordered collection of heterogeneous objects (C++11 § 20.4.2 “Class template tuple”).
 #ifdef LOFTY_CXX_VARIADIC_TEMPLATES
@@ -1169,11 +1178,13 @@ public:
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /*! Defines as its member type the type of the Nth element in the tuple (C++11 § 20.4.2.5 “Tuple helper
 classes”). */
@@ -1220,6 +1231,7 @@ LOFTY_SPECIALIZE_tuple_element_FOR_INDEX(9)
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1266,6 +1278,7 @@ LOFTY_SPECIALIZE_tuple_get_helper_FOR_INDEX(9)
 #endif //ifndef LOFTY_CXX_VARIADIC_TEMPLATES
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /*! Retrieves an element from a tuple (C++11 § 20.4.2.6 “Element access”).
 
@@ -1308,21 +1321,22 @@ inline typename tuple_element<i, tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>:
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
-/*! Defines the member value as the size of the specified type (C++11 § 20.4.2.5 “Tuple helper
-classes”). */
+//! Defines the member value as the size of the specified type (C++11 § 20.4.2.5 “Tuple helper classes”).
 template <class T>
 struct tuple_size;
 
 #ifdef LOFTY_CXX_VARIADIC_TEMPLATES
 
 template <class... Ts>
-struct tuple_size<tuple<Ts...>> : std::integral_constant<std::size_t, sizeof...(Ts)> {};
+struct tuple_size<tuple<Ts...>> : integral_constant<std::size_t, sizeof...(Ts)> {};
 
 #else //ifdef LOFTY_CXX_VARIADIC_TEMPLATES
 
@@ -1330,63 +1344,65 @@ template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
    typename T8, typename T9
 >
-struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> : std::integral_constant<std::size_t, 10> {};
+struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> : integral_constant<std::size_t, 10> {};
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
    typename T8
 >
 struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, _pvt::tuple_void>> :
-   std::integral_constant<std::size_t, 9> {};
+   integral_constant<std::size_t, 9> {};
 template <
    typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7
 >
 struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, T7, _pvt::tuple_void, _pvt::tuple_void>> :
-   std::integral_constant<std::size_t, 8> {};
+   integral_constant<std::size_t, 8> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 struct tuple_size<tuple<T0, T1, T2, T3, T4, T5, T6, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void>> :
-   std::integral_constant<std::size_t, 7> {};
+   integral_constant<std::size_t, 7> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
 struct tuple_size<tuple<
    T0, T1, T2, T3, T4, T5, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
->> : std::integral_constant<std::size_t, 6> {};
+>> : integral_constant<std::size_t, 6> {};
 template <typename T0, typename T1, typename T2, typename T3, typename T4>
 struct tuple_size<tuple<
    T0, T1, T2, T3, T4, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
    _pvt::tuple_void
->> : std::integral_constant<std::size_t, 5> {};
+>> : integral_constant<std::size_t, 5> {};
 template <typename T0, typename T1, typename T2, typename T3>
 struct tuple_size<tuple<
    T0, T1, T2, T3, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
    _pvt::tuple_void
->> : std::integral_constant<std::size_t, 4> {};
+>> : integral_constant<std::size_t, 4> {};
 template <typename T0, typename T1, typename T2>
 struct tuple_size<tuple<
    T0, T1, T2, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
    _pvt::tuple_void, _pvt::tuple_void
->> : std::integral_constant<std::size_t, 3> {};
+>> : integral_constant<std::size_t, 3> {};
 template <typename T0, typename T1>
 struct tuple_size<tuple<
    T0, T1, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
    _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
->> : std::integral_constant<std::size_t, 2> {};
+>> : integral_constant<std::size_t, 2> {};
 template <typename T0>
 struct tuple_size<tuple<
    T0, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
    _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
->> : std::integral_constant<std::size_t, 1> {};
+>> : integral_constant<std::size_t, 1> {};
 template <>
 struct tuple_size<tuple<
    _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void,
    _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void, _pvt::tuple_void
->> : std::integral_constant<std::size_t, 0> {};
+>> : integral_constant<std::size_t, 0> {};
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
-}} //namespace lofty::_std
+_LOFTY_PUBNS_END
+} //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /*! Creates a tuple from the specified values, inferring their types automatically (C++11 § 20.4.2.4
 “Tuple creation functions”).
@@ -1523,6 +1539,7 @@ inline /*constexpr*/ tuple<
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1569,16 +1586,19 @@ public:
 }}} //namespace lofty::_std::_pvt
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /*! Used with tie(), it allows to ignore individual values in the tuple being unpacked (C++11 § 20.4
 “Tuples”). */
 extern _pvt::ignore_t const ignore;
 
-}} //namespace lofty::_std
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /*! Supports unpacking a tuple into the specified variables (C++11 § 20.4.2.4 “Tuple creation functions”).
 
@@ -1659,8 +1679,49 @@ inline /*constexpr*/ tuple<T0 &, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &,
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#else //if LOFTY_HOST_STL_LOFTY || !defined(LOFTY_CXX_VARIADIC_TEMPLATES)
+   #include <tuple>
+
+   namespace lofty { namespace _std { namespace _pub {
+
+   using ::std::get;
+   using ::std::ignore;
+   using ::std::make_tuple;
+   using ::std::tie;
+   using ::std::tuple;
+   using ::std::tuple_element;
+   using ::std::tuple_size;
+
+   }}}
+#endif //if LOFTY_HOST_STL_LOFTY || !defined(LOFTY_CXX_VARIADIC_TEMPLATES) … else
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_STD_TUPLE_HXX_NOPUB
+
+#ifdef _LOFTY_STD_TUPLE_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace _std {
+
+   using _pub::get;
+   using _pub::ignore;
+   using _pub::make_tuple;
+   using _pub::tie;
+   using _pub::tuple;
+   using _pub::tuple_element;
+   using _pub::tuple_size;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_STD_TUPLE_HXX

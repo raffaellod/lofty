@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,22 +12,26 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/io/text.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/numeric.hxx>
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
 #include <lofty/text/parsers/regex.hxx>
-
+#include <lofty/text/str.hxx>
+#include <lofty/to_text_ostream.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty {
+namespace lofty { namespace _pub {
 
 external_buffer_t const external_buffer;
 
-} //namespace lofty
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

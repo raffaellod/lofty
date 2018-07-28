@@ -12,13 +12,15 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/io/binary.hxx>
+#include <lofty/_std/exception.hxx>
+#include <lofty/text/str.hxx>
 #include "_pvt/signal_dispatcher.hxx"
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +40,7 @@ app::app() {
 }
 
 /*static*/ int app::call_main(app * app_ptr, _args_t * args) {
-   collections::vector<str, 8> args_vec;
+   collections::vector<text::str, 8> args_vec;
 // TODO: find a way to define LOFTY_HOST_API_WIN32_GUI, and maybe come up with a better name.
 #if LOFTY_HOST_API_WIN32 && defined(LOFTY_HOST_API_WIN32_GUI)
    // TODO: call ::GetCommandLine() and parse its result.
@@ -46,7 +48,7 @@ app::app() {
    args_vec.set_capacity(static_cast<std::size_t>(args->size), false);
    // Make each string not allocate a new character array.
    for (int i = 0; i < args->size; ++i) {
-      args_vec.push_back(str(external_buffer, args->values[i]));
+      args_vec.push_back(text::str(external_buffer, args->values[i]));
    }
 #endif
 

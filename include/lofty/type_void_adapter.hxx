@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,22 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TYPE_VOID_ADAPTER_HXX
-#define _LOFTY_TYPE_VOID_ADAPTER_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TYPE_VOID_ADAPTER_HXX
 #endif
 
+#ifndef _LOFTY_TYPE_VOID_ADAPTER_HXX_NOPUB
+#define _LOFTY_TYPE_VOID_ADAPTER_HXX_NOPUB
+
+#include <lofty/_std/type_traits.hxx>
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Encapsulates raw constructors, destructors and assignment operators for a type.
 // TODO: document rationale, design and use cases.
@@ -148,8 +151,8 @@ public:
 
    //! Makes copy_construct() available (trivial copy case).
    template <typename T>
-   void set_copy_construct(typename _std::enable_if<
-      _std::is_trivially_copy_constructible<T>::value, T *
+   void set_copy_construct(typename _std::_LOFTY_PUBNS enable_if<
+      _std::_LOFTY_PUBNS is_trivially_copy_constructible<T>::value, T *
    >::type = nullptr) {
       set_size<T>();
       copy_construct_fn = reinterpret_cast<copy_construct_impl_type>(&copy_construct_trivial_impl);
@@ -157,19 +160,19 @@ public:
 
    //! Makes copy_construct() available (non-trivial copy case).
    template <typename T>
-   void set_copy_construct(typename _std::enable_if<
-      !_std::is_trivially_copy_constructible<T>::value, T *
+   void set_copy_construct(typename _std::_LOFTY_PUBNS enable_if<
+      !_std::_LOFTY_PUBNS is_trivially_copy_constructible<T>::value, T *
    >::type = nullptr) {
       set_size<T>();
       copy_construct_fn = reinterpret_cast<copy_construct_impl_type>(
-         &copy_construct_impl<typename _std::remove_cv<T>::type>
+         &copy_construct_impl<typename _std::_pub::remove_cv<T>::type>
       );
    }
 
    //! Makes destruct() available (trivial copy case).
    template <typename T>
-   void set_destruct(typename _std::enable_if<
-      _std::is_trivially_destructible<T>::value, T *
+   void set_destruct(typename _std::_LOFTY_PUBNS enable_if<
+      _std::_LOFTY_PUBNS is_trivially_destructible<T>::value, T *
    >::type = nullptr) {
       set_size<T>();
       destruct_fn = reinterpret_cast<destruct_impl_type>(&destruct_trivial_impl);
@@ -177,17 +180,19 @@ public:
 
    //! Makes destruct() available (non-trivial copy case).
    template <typename T>
-   void set_destruct(typename _std::enable_if<
-      !_std::is_trivially_destructible<T>::value, T *
+   void set_destruct(typename _std::_LOFTY_PUBNS enable_if<
+      !_std::_LOFTY_PUBNS is_trivially_destructible<T>::value, T *
    >::type = nullptr) {
       set_size<T>();
-      destruct_fn = reinterpret_cast<destruct_impl_type>(&destruct_impl<typename _std::remove_cv<T>::type>);
+      destruct_fn = reinterpret_cast<destruct_impl_type>(
+         &destruct_impl<typename _std::_pub::remove_cv<T>::type>
+      );
    }
 
    //! Makes move_construct() available (trivial copy case).
    template <typename T>
-   void set_move_construct(typename _std::enable_if<
-      _std::is_trivially_move_constructible<T>::value, T *
+   void set_move_construct(typename _std::_LOFTY_PUBNS enable_if<
+      _std::_LOFTY_PUBNS is_trivially_move_constructible<T>::value, T *
    >::type = nullptr) {
       set_size<T>();
       // A trivial copy move works just fine for a trivial move.
@@ -196,12 +201,12 @@ public:
 
    //! Makes move_construct() available (non-trivial copy case).
    template <typename T>
-   void set_move_construct(typename _std::enable_if<
-      !_std::is_trivially_move_constructible<T>::value, T *
+   void set_move_construct(typename _std::_LOFTY_PUBNS enable_if<
+      !_std::_LOFTY_PUBNS is_trivially_move_constructible<T>::value, T *
    >::type = nullptr) {
       set_size<T>();
       move_construct_fn = reinterpret_cast<move_construct_impl_type>(
-         &move_construct_impl<typename _std::remove_cv<T>::type>
+         &move_construct_impl<typename _std::_pub::remove_cv<T>::type>
       );
    }
 
@@ -298,7 +303,7 @@ private:
    template <typename T>
    static void move_construct_impl(T * dst_begin, T * src_begin, T * src_end) {
       for (T * src = src_begin, * dst = dst_begin; src < src_end; ++src, ++dst) {
-         ::new(dst) T(_std::move(*src));
+         ::new(dst) T(_std::_pub::move(*src));
       }
    }
 
@@ -316,8 +321,25 @@ private:
    move_construct_impl_type move_construct_fn;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TYPE_VOID_ADAPTER_HXX_NOPUB
+
+#ifdef _LOFTY_TYPE_VOID_ADAPTER_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::type_void_adapter;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TYPE_VOID_ADAPTER_HXX

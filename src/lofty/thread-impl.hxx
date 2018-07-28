@@ -13,20 +13,24 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_THREAD_IMPL_HXX
-#define _LOFTY_THREAD_IMPL_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_THREAD_IMPL_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_THREAD_IMPL_HXX_NOPUB
+#define _LOFTY_THREAD_IMPL_HXX_NOPUB
 
 #include <lofty/coroutine.hxx>
 #include <lofty/event.hxx>
+#include <lofty/exception.hxx>
 #include <lofty/thread.hxx>
+#include <lofty/thread_local.hxx>
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/memory.hxx>
 #include "_pvt/signal_dispatcher.hxx"
-
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // EINTR errno
    #include <signal.h>
@@ -35,26 +39,26 @@ more details.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace this_thread {
+namespace lofty { namespace this_thread { namespace _pub {
 
 /*! Returns a pointer to the impl instance for the calling thread.
 
 @return
    Pointer to the impl instance for the calling thread, or nullptr if the thread is not managed by Lofty.
 */
-thread::impl * get_impl();
+lofty::_pub::thread::impl * get_impl();
 
-}} //namespace lofty::this_thread
+}}} //namespace lofty::this_thread::_pub
 
-namespace lofty {
+namespace lofty { namespace _pub {
 
 class thread::impl {
 private:
    friend id_type thread::id() const;
    friend native_handle_type thread::native_handle() const;
-   friend impl * this_thread::get_impl();
-   friend void this_thread::interruption_point();
-   friend void _pvt::signal_dispatcher::main_thread_terminated(exception::common_type x_type);
+   friend impl * this_thread::_pub::get_impl();
+   friend void this_thread::_pub::interruption_point();
+   friend void _pvt::signal_dispatcher::main_thread_terminated(_pub::exception::common_type x_type);
 
 public:
    /*! Constructor.
@@ -62,7 +66,7 @@ public:
    @param main_fn
       Initial value for inner_main_fn.
    */
-   explicit impl(_std::function<void ()> main_fn);
+   explicit impl(_std::_pub::function<void ()> main_fn);
 
    //! Constructor used to instantiate an impl for the main thread.
    explicit impl(std::nullptr_t);
@@ -75,7 +79,7 @@ public:
    @return
       Pointer to the thread’s coroutine scheduler.
    */
-   _std::shared_ptr<coroutine::scheduler> & coroutine_scheduler() {
+   _std::_pub::shared_ptr<coroutine::scheduler> & coroutine_scheduler() {
       return coro_sched;
    }
 
@@ -114,7 +118,7 @@ public:
       Pointer by which outer_main() will get a reference (as in refcount) to *this, preventing it from being
       deallocated while still running.
    */
-   void start(_std::shared_ptr<impl> * this_pimpl_ptr);
+   void start(_std::_pub::shared_ptr<impl> * this_pimpl_ptr);
 
    /*! Returns true if the thread is terminating, which means that it’s running Lofty threading code instead
    of application code.
@@ -159,21 +163,37 @@ private:
    event * started_event_ptr;
    /*! Every time the thread returns from an interruption point, this is checked for pending exceptions to be
    injected. */
-   _std::atomic<exception::common_type::enum_type> pending_x_type;
+   _std::_pub::atomic<exception::common_type::enum_type> pending_x_type;
    /*! true if the thread is terminating, i.e. running Lofty threading code, or false if it’s still running
    application code. */
-   _std::atomic<bool> terminating_;
+   _std::_pub::atomic<bool> terminating_;
    //! Function to be executed in the thread.
-   _std::function<void ()> inner_main_fn;
+   _std::_pub::function<void ()> inner_main_fn;
    //! Pointer to the thread’s coroutine scheduler, if any.
-   _std::shared_ptr<coroutine::scheduler> coro_sched;
+   _std::_pub::shared_ptr<coroutine::scheduler> coro_sched;
 
    //! Allows a thread to access its impl instance.
    static thread_local_value<impl *> pimpl_via_tls;
 };
 
-} //namespace lofty
+}} //namespace lofty::_pub
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_THREAD_IMPL_HXX_NOPUB
+
+#ifdef _LOFTY_THREAD_IMPL_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace this_thread {
+
+   using _pub::get_impl;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_THREAD_IMPL_HXX

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -16,19 +16,23 @@ more details.
 Classes and macros to enable application startup. */
 
 #ifndef _LOFTY_APP_HXX
-#define _LOFTY_APP_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_APP_HXX
 #endif
 
+#ifndef _LOFTY_APP_HXX_NOPUB
+#define _LOFTY_APP_HXX_NOPUB
+
+#include <lofty/collections/vector-0.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/text-0.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Base for application implementation classes.
 
@@ -45,7 +49,7 @@ public:
       int show_cmd;
 #else
       int size;
-      char_t ** values;
+      text::_pub::char_t ** values;
 #endif
    };
    //! @endcond
@@ -77,7 +81,7 @@ public:
    @return
       Return code of the program.
    */
-   virtual int main(collections::vector<str> & args) = 0;
+   virtual int main(collections::_LOFTY_PUBNS vector<text::_LOFTY_PUBNS str> & args) = 0;
 
    /*! @cond
    Runs the application, instantiating an app subclass and calling app::main().
@@ -115,6 +119,7 @@ private:
    static app * this_instance;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 
@@ -156,5 +161,21 @@ overridden main() method, and returning.
 #endif //if LOFTY_HOST_API_POSIX … elif LOFTY_HOST_API_WIN32 … else
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_APP_HXX_NOPUB
+
+#ifdef _LOFTY_APP_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::app;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_APP_HXX

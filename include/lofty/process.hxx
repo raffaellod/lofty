@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,21 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_PROCESS_HXX
-#define _LOFTY_PROCESS_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_PROCESS_HXX
 #endif
 
+#ifndef _LOFTY_PROCESS_HXX_NOPUB
+#define _LOFTY_PROCESS_HXX_NOPUB
+
+#include <lofty/_std/tuple.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Process (“task” on some platforms), typically a child spawned by the current process.
 class LOFTY_SYM process : public noncopyable {
@@ -155,6 +157,7 @@ private:
    static native_handle_type const null_handle;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,14 +166,15 @@ private:
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<process> : public to_text_ostream<process::id_type> {
+class LOFTY_SYM to_text_ostream<_LOFTY_PUBNS process> :
+   public to_text_ostream<_LOFTY_PUBNS process::id_type> {
 public:
    /*! Changes the output format.
 
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Writes a process’ identifier, applying the formatting options.
 
@@ -179,7 +183,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(process const & src, io::text::ostream * dst);
+   void write(_LOFTY_PUBNS process const & src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
 } //namespace lofty
@@ -195,6 +199,7 @@ namespace this_process {}
 } //namespace lofty
 
 namespace lofty { namespace this_process {
+_LOFTY_PUBNS_BEGIN
 
 /*! Returns the value of an environment variable for the process.
 
@@ -205,7 +210,7 @@ namespace lofty { namespace this_process {
 @return
    true if the specified variable was found in the environment, or false if it wasn’t.
 */
-LOFTY_SYM bool env_var(str const & name, str * ret);
+LOFTY_SYM bool env_var(text::_LOFTY_PUBNS str const & name, text::_LOFTY_PUBNS str * ret);
 
 /*! Returns the value of an environment variable for the process.
 
@@ -215,17 +220,41 @@ LOFTY_SYM bool env_var(str const & name, str * ret);
    A tuple containing (value, true) if the specified variable was found in the environment, or (str::empty,
    false) if it wasn’t.
 */
-LOFTY_SYM _std::tuple<str, bool> env_var(str const & name);
+LOFTY_SYM _std::_LOFTY_PUBNS tuple<text::_LOFTY_PUBNS str, bool> env_var(text::_LOFTY_PUBNS str const & name);
 
 /*! Returns a system-wide unique ID for the current process.
 
 @return
    Unique ID representing the current process.
 */
-LOFTY_SYM process::id_type id();
+LOFTY_SYM lofty::_LOFTY_PUBNS process::id_type id();
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::this_process
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_PROCESS_HXX_NOPUB
+
+#ifdef _LOFTY_PROCESS_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::process;
+
+   }
+
+   namespace lofty { namespace this_process {
+
+   using _pub::env_var;
+   using _pub::id;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_PROCESS_HXX

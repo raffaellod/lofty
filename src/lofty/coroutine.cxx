@@ -12,12 +12,25 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/coroutine.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
+#include <lofty/io/text.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/noncopyable.hxx>
 #include <lofty/numeric.hxx>
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/exception.hxx>
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/mutex.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text/str.hxx>
+#include <lofty/to_text_ostream.hxx>
+#include <lofty/thread.hxx>
+#include <lofty/thread_local.hxx>
 #include <lofty/try_finally.hxx>
 #include "coroutine-scheduler.hxx"
-
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // EINTR errno
    #include <signal.h> // SIGSTKSZ
@@ -36,7 +49,6 @@ more details.
 #ifdef COMPLEMAKE_USING_VALGRIND
    #include <valgrind/valgrind.h>
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -270,7 +282,7 @@ void coroutine::join() {
 
 namespace lofty {
 
-void to_text_ostream<coroutine>::set_format(str const & format) {
+void to_text_ostream<coroutine>::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -287,7 +299,7 @@ void to_text_ostream<coroutine>::write(coroutine const & src, io::text::ostream 
    }
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1225,7 +1237,7 @@ _std::shared_ptr<coroutine::impl> coroutine::scheduler::unblock_by_first_event()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace this_coroutine {
+namespace lofty { namespace this_coroutine { namespace _pub {
 
 coroutine::id_type id() {
    return reinterpret_cast<coroutine::id_type>(coroutine::scheduler::active_coro_pimpl.get());
@@ -1276,7 +1288,7 @@ void sleep_until_fd_ready(
    }
 }
 
-}} //namespace lofty::this_coroutine
+}}} //namespace lofty::this_coroutine::_pub
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1285,7 +1297,7 @@ namespace lofty { namespace _pvt {
 coroutine_local_storage_registrar::data_members coroutine_local_storage_registrar::data_members_ =
    LOFTY__PVT_CONTEXT_LOCAL_STORAGE_REGISTRAR_INITIALIZER;
 
-}} //namespace lofty::_pvt
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

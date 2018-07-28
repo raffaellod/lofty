@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015, 2017 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,19 +12,20 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/collections/hash_map.hxx>
+#include <lofty/collections/vector.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/perf/stopwatch.hxx>
 #include <lofty/range.hxx>
-
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/tuple.hxx>
+#include <lofty/text/str.hxx>
 #include <map>
 #include <unordered_map>
 
 using namespace lofty;
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +61,7 @@ public:
    @return
       Return value of this program.
    */
-   virtual int main(collections::vector<str> & args) override {
+   virtual int main(collections::vector<text::str> & args) override {
       LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
@@ -81,7 +82,7 @@ public:
          );
       }
       {
-         std::unordered_map<int, int, std::hash<int>> map;
+         std::unordered_map<int, int, _std::hash<int>> map;
          auto ret(run_test(&map, good_hash_range));
          io::text::stdout->print(
             LOFTY_SL("  std::unordered_map                     {:11}  {:11}  {:11}\n"),
@@ -89,7 +90,7 @@ public:
          );
       }
       {
-         lofty::collections::hash_map<int, int, std::hash<int>> map;
+         lofty::collections::hash_map<int, int, _std::hash<int>> map;
          auto ret(run_test(&map, good_hash_range));
          io::text::stdout->print(
             LOFTY_SL("  lofty::collections::hash_map (nh: {:5}) {:11}  {:11}  {:11}\n"),

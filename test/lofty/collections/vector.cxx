@@ -12,14 +12,14 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections.hxx>
+#include <lofty/collections/vector.hxx>
 #include <lofty/from_str.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/_std/algorithm.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/testing/test_case.hxx>
-#include <algorithm>
 #include <lofty/testing/utility.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -223,7 +223,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    v.push_back(3);
 
    // Remove an element by iterator.
-   v.remove_at(std::find(v.cbegin(), v.cend(), 2));
+   v.remove_at(_std::find(v.cbegin(), v.cend(), 2));
    ASSERT(v.size() == 2u);
    ASSERT(v[0] == 1);
    ASSERT(v[1] == 3);

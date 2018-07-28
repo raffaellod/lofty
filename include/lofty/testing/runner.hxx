@@ -13,51 +13,57 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TESTING_RUNNER_HXX
-#define _LOFTY_TESTING_RUNNER_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TESTING_RUNNER_HXX
 #endif
 
-#include <lofty/collections/vector.hxx>
+#ifndef _LOFTY_TESTING_RUNNER_HXX_NOPUB
+#define _LOFTY_TESTING_RUNNER_HXX_NOPUB
 
+#include <lofty/collections/vector-0.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/text-1.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing {
+_LOFTY_PUBNS_BEGIN
 
 //! Thrown to indicate that a test assertion failed, and the execution of the test case must be halted.
-class LOFTY_TESTING_SYM assertion_error : public exception {
+class LOFTY_TESTING_SYM assertion_error : public lofty::_LOFTY_PUBNS exception {
 public:
    //! Default constructor.
    assertion_error();
 };
 
-}} //namespace lofty::testing
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing {
+_LOFTY_PUBNS_BEGIN
 
 // Forward declarations.
 class test_case;
 
 //! Executes test cases.
-class LOFTY_TESTING_SYM runner : public noncopyable {
+class LOFTY_TESTING_SYM runner : public lofty::_LOFTY_PUBNS noncopyable {
 public:
    /*! Groups assertion metadata, to reduce the number of arguments to log_assertion() and avoid repeated
    construction and destruction of string instances. */
    struct LOFTY_TESTING_SYM assertion_expr {
       /*! String representation of the evaluated expression (if binary_op is empty) or its left operand (if
       binary_op is not empty). */
-      str left;
+      text::_LOFTY_PUBNS str left;
       //! Binary expression operator.
-      str binary_op;
+      text::_LOFTY_PUBNS str binary_op;
       //! String representation of the binary expression’s right operand.
-      str right;
+      text::_LOFTY_PUBNS str right;
       //! true if the assertion was valid, or false otherwise.
       bool pass;
 
@@ -68,7 +74,7 @@ public:
       @param binary_op
          Binary expression operator, or nullptr if the expression is not a binary operator.
       */
-      void set(bool pass, char_t const * binary_op);
+      void set(bool pass, text::_LOFTY_PUBNS char_t const * binary_op);
    };
 
 public:
@@ -77,7 +83,7 @@ public:
    @param ostream
       Pointer to the output stream that will be used to log the results of the tests.
    */
-   runner(_std::shared_ptr<io::text::ostream> ostream);
+   runner(_std::_LOFTY_PUBNS shared_ptr<io::text::_LOFTY_PUBNS ostream> ostream);
 
    //! Destructor.
    ~runner();
@@ -95,7 +101,8 @@ public:
       Assertion metadata.
    */
    void log_assertion(
-      text::file_address const & file_addr, str const & expr, assertion_expr * assertion_expr
+      text::_LOFTY_PUBNS file_address const & file_addr, text::_LOFTY_PUBNS str const & expr,
+      assertion_expr * assertion_expr
    );
 
    /*! Prints test results based on the information collected by log_assertion() and run_test_case().
@@ -117,15 +124,31 @@ public:
 
 private:
    //! Vector of loaded test test cases to be executed.
-   collections::vector<_std::unique_ptr<test_case>> test_cases;
+   collections::_LOFTY_PUBNS vector<_std::_LOFTY_PUBNS unique_ptr<test_case>> test_cases;
    //! Output stream.
-   _std::shared_ptr<io::text::ostream> ostream;
+   _std::_LOFTY_PUBNS shared_ptr<io::text::_LOFTY_PUBNS ostream> ostream;
    //! Total count of failed assertions.
    unsigned failed_assertions;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::testing
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TESTING_RUNNER_HXX_NOPUB
+
+#ifdef _LOFTY_TESTING_RUNNER_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace testing {
+      using _pub::assertion_error;
+      using _pub::runner;
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TESTING_RUNNER_HXX

@@ -12,10 +12,12 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/mutex.hxx>
+#include <lofty/thread.hxx>
 #include "signal_dispatcher.hxx"
 #include "../thread-impl.hxx"
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -19,13 +19,13 @@ This is a basic usage example of Lofty; it shows how to read from standard input
 each to standard output. The program terminates when it reaches the end of input, which can be signaled with
 Ctrl+D in Linux/macOS/FreeBSD or Ctrl+Z followed by Enter in Windows. */
 
-#include <lofty.hxx>
 #include <lofty/app.hxx>
+#include <lofty/collections/vector.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/text/str.hxx>
 
 using namespace lofty;
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ public:
    @return
       Return value of this program.
    */
-   virtual int main(collections::vector<str> & args) override {
+   virtual int main(collections::vector<text::str> & args) override {
       LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);

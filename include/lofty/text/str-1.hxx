@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,10 +12,20 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_TEXT_STR_1_HXX
+
+#include <lofty/text/str-0.hxx>
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_STR_1_HXX
 #endif
 
+#ifndef _LOFTY_TEXT_STR_1_HXX_NOPUB
+#define _LOFTY_TEXT_STR_1_HXX_NOPUB
+
+#include <lofty/from_text_istream.hxx>
+#include <lofty/to_text_ostream.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +33,7 @@ more details.
 namespace lofty {
 
 template <>
-class LOFTY_SYM from_text_istream<text::str> {
+class LOFTY_SYM from_text_istream<text::_LOFTY_PUBNS str> {
 public:
    /*! Converts a capture into a value of the appropriate type.
 
@@ -32,7 +42,9 @@ public:
    @param dst
       Pointer to the destination object.
    */
-   void convert_capture(text::parsers::dynamic_match_capture const & capture0, text::str * dst);
+   void convert_capture(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, text::_LOFTY_PUBNS str * dst
+   );
 
    /*! Creates parser states for the specified input format.
 
@@ -43,13 +55,15 @@ public:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
+   text::parsers::_LOFTY_PUBNS dynamic_state const * format_to_parser_states(
+      text::parsers::_LOFTY_PUBNS regex_capture_format const & format,
+      text::parsers::_LOFTY_PUBNS dynamic * parser
    );
 };
 
 template <std::size_t dst_embedded_capacity>
-class from_text_istream<text::sstr<dst_embedded_capacity>> : public from_text_istream<text::str> {
+class from_text_istream<text::_LOFTY_PUBNS sstr<dst_embedded_capacity>> :
+   public from_text_istream<text::_LOFTY_PUBNS str> {
 public:
    /*! Converts a capture into a value of the appropriate type.
 
@@ -59,9 +73,10 @@ public:
       Pointer to the destination object.
    */
    void convert_capture(
-      text::parsers::dynamic_match_capture const & capture0, text::sstr<dst_embedded_capacity> * dst
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0,
+      text::_LOFTY_PUBNS sstr<dst_embedded_capacity> * dst
    ) {
-      from_text_istream<text::str>::convert_capture(capture0, dst->str_ptr());
+      from_text_istream<text::_pub::str>::convert_capture(capture0, dst->str_ptr());
    }
 };
 
@@ -81,7 +96,7 @@ public:
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(_LOFTY_PUBNS str const & format);
 
 protected:
    /*! Writes a string, applying the formatting options.
@@ -95,7 +110,10 @@ protected:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(void const * src, std::size_t src_byte_size, encoding enc, io::text::ostream * dst);
+   void write(
+      void const * src, std::size_t src_byte_size, _LOFTY_PUBNS encoding enc,
+      io::text::_LOFTY_PUBNS ostream * dst
+   );
 };
 
 }}} //namespace lofty::text::_pvt
@@ -104,6 +122,7 @@ protected:
 
 namespace lofty {
 
+//!@cond
 #define LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(C, enc) \
    /*! Character literal. */ \
    template <> \
@@ -116,7 +135,7 @@ namespace lofty {
       @param dst
          Pointer to the stream to output to.
       */ \
-      void write(C src, io::text::ostream * dst) { \
+      void write(C src, io::text::_LOFTY_PUBNS ostream * dst) { \
          text::_pvt::str_to_text_ostream::write(&src, sizeof(C), enc, dst); \
       } \
    }; \
@@ -132,7 +151,7 @@ namespace lofty {
       @param dst
          Pointer to the stream to output to.
       */ \
-      void write(C const (& src)[src_size], io::text::ostream * dst) { \
+      void write(C const (& src)[src_size], io::text::_LOFTY_PUBNS ostream * dst) { \
          text::_pvt::str_to_text_ostream::write(src, sizeof(C) * LOFTY_SL_SIZE(src), enc, dst); \
       } \
    }; \
@@ -140,20 +159,21 @@ namespace lofty {
    /*! MSC16 BUG: this partial specialization is necessary. */ \
    template <std::size_t src_size> \
    class to_text_ostream<C const[src_size]> : public to_text_ostream<C[src_size]> {};
-LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(char, text::encoding::utf8)
+LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(char, text::_LOFTY_PUBNS encoding::utf8)
 /* Specializations for wchar_t, if it’s what char16_t or char32_t map to, and for char16/32_t, if they’re
 native types. */
 #if LOFTY_CXX_CHAR16 == 2
-LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(char16_t, text::encoding::utf16_host)
+LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(char16_t, text::_LOFTY_PUBNS encoding::utf16_host)
 #elif LOFTY_CXX_CHAR16 == 1
-LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(wchar_t, text::encoding::utf16_host)
+LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(wchar_t, text::_LOFTY_PUBNS encoding::utf16_host)
 #endif
 #if LOFTY_CXX_CHAR32 == 2
-LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(char32_t, text::encoding::utf32_host)
+LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(char32_t, text::_LOFTY_PUBNS encoding::utf32_host)
 #elif LOFTY_CXX_CHAR32 == 1
-LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(wchar_t, text::encoding::utf32_host)
+LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(wchar_t, text::_LOFTY_PUBNS encoding::utf32_host)
 #endif
 #undef LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE
+//!@endcond
 
 } //namespace lofty
 
@@ -163,7 +183,7 @@ LOFTY_SPECIALIZE_to_text_ostream_FOR_TYPE(wchar_t, text::encoding::utf32_host)
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<text::str> : public text::_pvt::str_to_text_ostream {
+class LOFTY_SYM to_text_ostream<text::_LOFTY_PUBNS str> : public text::_pvt::str_to_text_ostream {
 public:
    /*! Writes a string, applying the formatting options.
 
@@ -172,11 +192,12 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(text::str const & src, io::text::ostream * dst);
+   void write(text::_LOFTY_PUBNS str const & src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
 template <std::size_t src_embedded_capacity>
-class to_text_ostream<text::sstr<src_embedded_capacity>> : public to_text_ostream<text::str> {
+class to_text_ostream<text::_LOFTY_PUBNS sstr<src_embedded_capacity>> :
+   public to_text_ostream<text::_LOFTY_PUBNS str> {
 public:
    /*! Writes a string, applying the formatting options.
 
@@ -185,13 +206,15 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(text::sstr<src_embedded_capacity> const & src, io::text::ostream * dst) {
-      to_text_ostream<text::str>::write(src.str(), dst);
+   void write(
+      text::_LOFTY_PUBNS sstr<src_embedded_capacity> const & src, io::text::_LOFTY_PUBNS ostream * dst
+   ) {
+      to_text_ostream<text::_pub::str>::write(src.str(), dst);
    }
 };
 
 template <>
-class to_text_ostream<text::str::const_codepoint_proxy> : public to_text_ostream<char32_t> {
+class to_text_ostream<text::_LOFTY_PUBNS str::const_codepoint_proxy> : public to_text_ostream<char32_t> {
 public:
    /*! Writes a code point proxy as a plain code point (char32_t), applying the formatting options.
 
@@ -200,18 +223,20 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(text::str::const_codepoint_proxy const & src, io::text::ostream * dst) {
+   void write(
+      text::_LOFTY_PUBNS str::const_codepoint_proxy const & src, io::text::_LOFTY_PUBNS ostream * dst
+   ) {
       to_text_ostream<char32_t>::write(src.operator char32_t(), dst);
    }
 };
 
 template <>
-class to_text_ostream<text::str::codepoint_proxy> :
-   public to_text_ostream<text::str::const_codepoint_proxy> {
+class to_text_ostream<text::_LOFTY_PUBNS str::codepoint_proxy> :
+   public to_text_ostream<text::_LOFTY_PUBNS str::const_codepoint_proxy> {
 };
 
 template <>
-class to_text_ostream<text::str::const_iterator> : public to_text_ostream<std::size_t> {
+class to_text_ostream<text::_LOFTY_PUBNS str::const_iterator> : public to_text_ostream<std::size_t> {
 public:
    /*! Writes a code point iterator as a character index, applying the formatting options.
 
@@ -220,14 +245,29 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(text::str::const_iterator const & src, io::text::ostream * dst) {
+   void write(text::_LOFTY_PUBNS str::const_iterator const & src, io::text::_LOFTY_PUBNS ostream * dst) {
       to_text_ostream<std::size_t>::write(src.char_index(), dst);
    }
 };
 
 template <>
-class to_text_ostream<text::str::iterator> : public to_text_ostream<text::str::const_iterator> {
+class to_text_ostream<text::_LOFTY_PUBNS str::iterator> :
+   public to_text_ostream<text::_LOFTY_PUBNS str::const_iterator> {
 };
 
 } //namespace lofty
 //! @endcond
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_STR_1_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_STR_1_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_TEXT_STR_1_HXX

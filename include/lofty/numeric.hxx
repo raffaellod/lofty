@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,17 +13,17 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_NUMERIC_HXX
-#define _LOFTY_NUMERIC_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_NUMERIC_HXX
 #endif
 
+#ifndef _LOFTY_NUMERIC_HXX_NOPUB
+#define _LOFTY_NUMERIC_HXX_NOPUB
+
+#include <lofty/_std/type_traits.hxx>
 #include <climits> // *_MAX *_MIN
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +37,7 @@ namespace numeric {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace numeric {
+_LOFTY_PUBNS_BEGIN
 
 /*! Returns true if the argument is negative. It avoids annoying compiler warnings if the argument will never
 be negative (i.e. T is unsigned).
@@ -47,22 +48,28 @@ be negative (i.e. T is unsigned).
    true if t is negative, or false otherwise.
 */
 template <typename T>
-inline /*constexpr*/ bool is_negative(typename _std::enable_if<_std::is_signed<T>::value, T>::type t) {
+inline /*constexpr*/ bool is_negative(
+   typename _std::_LOFTY_PUBNS enable_if<_std::_LOFTY_PUBNS is_signed<T>::value, T>::type t
+) {
    return t < T(0);
 }
 //! @cond
 template <typename T>
-inline /*constexpr*/ bool is_negative(typename _std::enable_if<!_std::is_signed<T>::value, T>::type t) {
+inline /*constexpr*/ bool is_negative(
+   typename _std::_LOFTY_PUBNS enable_if<!_std::_LOFTY_PUBNS is_signed<T>::value, T>::type t
+) {
    LOFTY_UNUSED_ARG(t);
    return false;
 }
 //! @endcond
 
-}} //namespace lofty::numeric
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace numeric {
+_LOFTY_PUBNS_BEGIN
 
 //! Defines the minimum value for a numeric type.
 template <typename T>
@@ -140,8 +147,27 @@ template <>
 struct max<unsigned long long> : public std::integral_constant<unsigned long long, ULLONG_MAX> {};
 //! @endcond
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::numeric
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_NUMERIC_HXX_NOPUB
+
+#ifdef _LOFTY_NUMERIC_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace numeric {
+
+   using _pub::is_negative;
+   using _pub::max;
+   using _pub::min;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_NUMERIC_HXX

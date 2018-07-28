@@ -12,16 +12,23 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text/str.hxx>
 #include <lofty/os.hxx>
-
+#include <lofty/os/path.hxx>
+#if LOFTY_HOST_API_POSIX
+   #include <errno.h> // _E*
+#elif LOFTY_HOST_API_WIN32
+   #include <lofty/text.hxx>
+   #include <lofty/text/str.hxx>
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace os {
 
-/*explicit*/ invalid_path::invalid_path(os::path const & path__, errint_t err_ /*= 0*/) :
+/*explicit*/ invalid_path::invalid_path(class path const & path__, errint_t err_ /*= 0*/) :
    generic_error(err_ ? err_ :
 #if LOFTY_HOST_API_WIN32
       ERROR_BAD_PATHNAME
@@ -53,7 +60,7 @@ invalid_path & invalid_path::operator=(invalid_path const & src) {
 
 namespace lofty { namespace os {
 
-/*explicit*/ path_not_found::path_not_found(os::path const & path__, errint_t err_ /*= 0*/) :
+/*explicit*/ path_not_found::path_not_found(class path const & path__, errint_t err_ /*= 0*/) :
    generic_error(err_ ? err_ :
 #if LOFTY_HOST_API_POSIX
       ENOENT
@@ -89,7 +96,7 @@ path_not_found & path_not_found::operator=(path_not_found const & src) {
 
 namespace lofty { namespace os { namespace registry {
 
-key::key(::HKEY parent, str const & name) {
+key::key(::HKEY parent, text::str const & name) {
    // TODO: use Nt* functions to avoid the limitation of NUL termination.
    if (auto ret = ::RegOpenKeyEx(parent, name.c_str(), 0, KEY_QUERY_VALUE, &hkey)) {
       if (ret != ERROR_FILE_NOT_FOUND) {
@@ -105,7 +112,7 @@ key::~key() {
    }
 }
 
-bool key::get_value(str const & name, str * value) const {
+bool key::get_value(text::str const & name, text::str * value) const {
    auto name_cstr(name.c_str());
    ::DWORD probed_type, probed_value_byte_size;
    if (!get_value_raw(name_cstr, &probed_type, nullptr, &probed_value_byte_size)) {
@@ -114,7 +121,7 @@ bool key::get_value(str const & name, str * value) const {
    }
    for (;;) {
       ::DWORD final_type, final_value_byte_size = probed_value_byte_size;
-      std::size_t value_char_size = probed_value_byte_size / sizeof(char_t);
+      std::size_t value_char_size = probed_value_byte_size / sizeof(text::char_t);
       switch (probed_type) {
          case REG_SZ:
             value->set_size_in_chars(value_char_size, false);
@@ -129,7 +136,7 @@ bool key::get_value(str const & name, str * value) const {
             }
             /* If *value ended up including a NUL terminator because the value did, strip it; str doesn’t
             need it. */
-            // TODO: use ends_with(char_t) when it becomes avaiable.
+            // TODO: use ends_with(text::char_t) when it becomes avaiable.
             if (value->ends_with(LOFTY_SL("\0"))) {
                value->set_size_in_chars(value_char_size - 1, false);
             }
@@ -148,13 +155,13 @@ bool key::get_value(str const & name, str * value) const {
             }
             /* If unexpanded ended up including a NUL terminator because the value did, strip it; str doesn’t
             need it. */
-            // TODO: use ends_with(char_t) when it becomes avaiable.
+            // TODO: use ends_with(text::char_t) when it becomes avaiable.
             if (unexpanded.ends_with(LOFTY_SL("\0"))) {
                unexpanded.set_size_in_chars(value_char_size - 1, false);
             }
             // Expand any environment variables.
             auto unexpanded_cstr(unexpanded.c_str());
-            value->set_from([&unexpanded_cstr] (char_t * chars, std::size_t chars_max) -> std::size_t {
+            value->set_from([&unexpanded_cstr] (text::char_t * chars, std::size_t chars_max) -> std::size_t {
                ::DWORD expanded_chars = ::ExpandEnvironmentStrings(
                   unexpanded_cstr, chars, static_cast< ::DWORD>(chars_max)
                );
@@ -175,21 +182,21 @@ bool key::get_value(str const & name, str * value) const {
    }
 }
 
-bool key::get_value(str const & name, collections::vector<str> * value) const {
+bool key::get_value(text::str const & name, collections::vector<text::str> * value) const {
    value->clear();
    auto name_cstr(name.c_str());
    ::DWORD probed_type, probed_value_byte_size;
    if (!get_value_raw(name_cstr, &probed_type, nullptr, &probed_value_byte_size)) {
       return false;
    }
-   str multi_value;
+   text::str multi_value;
    for (;;) {
       if (probed_type != REG_MULTI_SZ) {
          // TODO: use a better exception class.
          LOFTY_THROW(generic_error, ());
       }
       ::DWORD final_type, final_value_byte_size = probed_value_byte_size;
-      std::size_t value_char_size = probed_value_byte_size / sizeof(char_t);
+      std::size_t value_char_size = probed_value_byte_size / sizeof(text::char_t);
       multi_value.set_size_in_chars(value_char_size, false);
       if (!get_value_raw(name_cstr, &final_type, multi_value.data(), &final_value_byte_size)) {
          // Race condition detected: somebody else deleted the value between our queries.
@@ -210,7 +217,7 @@ bool key::get_value(str const & name, collections::vector<str> * value) const {
       --final_nul;
    }
    for (
-      str::const_iterator prev_nul(multi_value.cbegin()), next_nul;
+      text::str::const_iterator prev_nul(multi_value.cbegin()), next_nul;
       (next_nul = multi_value.find('\0', prev_nul)) < final_nul;
       prev_nul = next_nul + 1 /*NUL*/
    ) {
@@ -219,7 +226,9 @@ bool key::get_value(str const & name, collections::vector<str> * value) const {
    return true;
 }
 
-bool key::get_value_raw(char_t const * name, ::DWORD * type, void * value, ::DWORD * value_byte_size) const {
+bool key::get_value_raw(
+   text::char_t const * name, ::DWORD * type, void * value, ::DWORD * value_byte_size
+) const {
    // TODO: use Nt* functions to avoid the limitation of NUL termination.
    if (auto ret = ::RegQueryValueEx(
       hkey, name, nullptr, type, static_cast< ::BYTE *>(value), value_byte_size

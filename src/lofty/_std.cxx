@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,12 +12,15 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
-
+#include <lofty/_std/exception.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/new.hxx>
+#include <lofty/_std/tuple.hxx>
+#include <lofty/_std/typeinfo.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _LOFTY_STD_EXCEPTION_HXX
+#if LOFTY_HOST_STL_LOFTY
 
 namespace lofty { namespace _std {
 
@@ -31,13 +34,13 @@ exception::exception() {
    return "lofty::_std::exception";
 }
 
-}} //namespace lofty::_std
+}}
 
-#endif //ifdef _LOFTY_STD_EXCEPTION_HXX
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _LOFTY_STD_MEMORY_HXX
+#if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600
 
 namespace lofty { namespace _std {
 
@@ -51,13 +54,13 @@ bad_weak_ptr::bad_weak_ptr() {
    return "lofty::_std::bad_weak_ptr";
 }
 
-}} //namespace lofty::_std
+}}
 
-#endif //ifdef _LOFTY_STD_MEMORY_HXX
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _LOFTY_STD_MEMORY_HXX
+#if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600
 
 namespace lofty { namespace _std { namespace _pvt {
 
@@ -100,19 +103,19 @@ void shared_refcount::add_strong_ref() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _LOFTY_STD_NEW_HXX
+#if LOFTY_HOST_STL_LOFTY
 
 namespace lofty { namespace _std {
 
 nothrow_t const nothrow;
 
-}} //namespace lofty::_std
+}}
 
-#endif //ifdef _LOFTY_STD_NEW_HXX
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _LOFTY_STD_NEW_HXX
+#if LOFTY_HOST_STL_LOFTY
 
 namespace lofty { namespace _std {
 
@@ -126,25 +129,25 @@ bad_alloc::bad_alloc() {
    return "lofty::_std::bad_alloc";
 }
 
-}} //namespace lofty::_std
+}}
 
-#endif //ifdef _LOFTY_STD_NEW_HXX
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _LOFTY_STD_TUPLE_HXX
+#if LOFTY_HOST_STL_LOFTY || !defined(LOFTY_CXX_VARIADIC_TEMPLATES)
 
 namespace lofty { namespace _std {
 
 _pvt::ignore_t const ignore;
 
-}} //namespace lofty::_std
+}}
 
-#endif //ifdef _LOFTY_STD_TUPLE_HXX
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _LOFTY_STD_TYPEINFO_HXX
+#if LOFTY_HOST_STL_LOFTY
 
 namespace lofty { namespace _std {
 
@@ -158,13 +161,13 @@ bad_cast::bad_cast() {
    return "lofty::_std::bad_cast";
 }
 
-}} //namespace lofty::_std
+}}
 
-#endif //ifdef _LOFTY_STD_TYPEINFO_HXX
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _LOFTY_STD_TYPEINFO_HXX
+#if LOFTY_HOST_STL_LOFTY
 
 namespace lofty { namespace _std {
 
@@ -178,6 +181,6 @@ bad_typeid::bad_typeid() {
    return "lofty::_std::bad_typeid";
 }
 
-}} //namespace lofty::_std
+}}
 
-#endif //ifdef _LOFTY_STD_TYPEINFO_HXX
+#endif

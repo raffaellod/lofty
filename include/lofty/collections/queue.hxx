@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,22 +13,23 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS_QUEUE_HXX
-#define _LOFTY_COLLECTIONS_QUEUE_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS_QUEUE_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_COLLECTIONS_QUEUE_HXX_NOPUB
+#define _LOFTY_COLLECTIONS_QUEUE_HXX_NOPUB
 
 #include <lofty/collections/_pvt/singly_linked_list_impl.hxx>
 #include <lofty/type_void_adapter.hxx>
-
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 //! List-based queue. Offers constant insert-at-end time and constant extraction time of its first element.
 template <typename T>
@@ -44,12 +45,12 @@ public:
       Source object.
    */
    queue(queue && src) :
-      _pvt::singly_linked_list_impl(_std::move(src)) {
+      _pvt::singly_linked_list_impl(_std::_pub::move(src)) {
    }
 
    //! Destructor.
    ~queue() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       destruct_list(type, first_node);
@@ -64,9 +65,9 @@ public:
    */
    queue & operator=(queue && src) {
       node * old_first_node = first_node;
-      _pvt::singly_linked_list_impl::operator=(_std::move(src));
+      _pvt::singly_linked_list_impl::operator=(_std::_pub::move(src));
       // Now that *this has been successfully overwritten, destruct the old nodes.
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       destruct_list(type, old_first_node);
@@ -79,7 +80,7 @@ public:
       Reference to the last element in the queue.
    */
    T & back() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       return *static_cast<T *>(last_node->value_ptr(type));
    }
@@ -95,7 +96,7 @@ public:
 
    //! Removes all elements from the queue.
    void clear() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       _pvt::singly_linked_list_impl::clear(type);
@@ -107,7 +108,7 @@ public:
       Reference to the first element in the queue.
    */
    T & front() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       return *static_cast<T *>(first_node->value_ptr(type));
    }
@@ -127,13 +128,13 @@ public:
       Former first element in the queue.
    */
    T pop_front() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       // Move the value of *first_node into t, then unlink and discard *first_node.
-      T ret(_std::move(*static_cast<T *>(first_node->value_ptr(type))));
+      T ret(_std::_pub::move(*static_cast<T *>(first_node->value_ptr(type))));
       _pvt::singly_linked_list_impl::pop_front(type);
-      return _std::move(ret);
+      return _std::_pub::move(ret);
    }
 
    /*! Copies an element to the end of the queue.
@@ -142,7 +143,7 @@ public:
       Element to add.
    */
    void push_back(T const & t) {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_copy_construct<T>();
       type.set_size<T>();
@@ -155,7 +156,7 @@ public:
       Element to add.
    */
    void push_back(T && t) {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_move_construct<T>();
       type.set_size<T>();
@@ -163,8 +164,25 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS_QUEUE_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS_QUEUE_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace collections {
+
+   using _pub::queue;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS_QUEUE_HXX

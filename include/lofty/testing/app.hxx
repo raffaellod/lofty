@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2013-2015, 2017 Raffaello D. Di Napoli
+Copyright 2013-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,32 +13,47 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TESTING_APP_HXX
-#define _LOFTY_TESTING_APP_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TESTING_APP_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_TESTING_APP_HXX_NOPUB
+#define _LOFTY_TESTING_APP_HXX_NOPUB
 
 #include <lofty/app.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing {
+_LOFTY_PUBNS_BEGIN
 
 /*! Testing application. It interacts with registered lofty::testing::test_case-derived classes, allowing for
 the execution of test cases. */
-class LOFTY_TESTING_SYM app : public lofty::app {
+class LOFTY_TESTING_SYM app : public lofty::_LOFTY_PUBNS app {
 public:
    //! See lofty::app::main().
-   virtual int main(collections::vector<str> & args) override;
+   virtual int main(collections::_LOFTY_PUBNS vector<text::_LOFTY_PUBNS str> & args) override;
 };
 
-}} //namespace lofty::testing
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TESTING_APP_HXX_NOPUB
+
+#ifdef _LOFTY_TESTING_APP_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace testing {
+      using _pub::app;
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TESTING_APP_HXX

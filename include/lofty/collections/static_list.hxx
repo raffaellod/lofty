@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015, 2017 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,14 +12,23 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_STATIC_LIST_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_STATIC_LIST_HXX
 #endif
 
+#ifndef _LOFTY_STATIC_LIST_HXX_NOPUB
+#define _LOFTY_STATIC_LIST_HXX_NOPUB
+
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/_std/iterator.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 /*! Implements the template argument-independent methods of static_list. A final subclass must also inherit
 from lofty::collections::static_list_impl or a subclass thereof. */
@@ -304,11 +313,13 @@ public:
 #define LOFTY_COLLECTIONS_STATIC_LIST_IMPL_BASE_INITIALIZER \
    { nullptr, nullptr }
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 /*! Implements the template argument-dependent methods of static_list. A final subclass must also inherit from
 lofty::collections::static_list_impl_base or a subclass thereof. */
@@ -333,7 +344,7 @@ public:
    //! Iterator for XOR doubly-linked list node classes.
    class iterator :
       public static_list_impl_base::iterator,
-      public _std::iterator<_std::forward_iterator_tag, TValue> {
+      public _std::_LOFTY_PUBNS iterator<_std::_LOFTY_PUBNS forward_iterator_tag, TValue> {
    private:
       friend class static_list_impl;
 
@@ -442,11 +453,13 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 /*! Allows a subclass to contain a list of nodes (instances of a static_list::node subclass).
  
@@ -482,4 +495,25 @@ public:
 #define LOFTY_COLLECTIONS_STATIC_LIST_INITIALIZER \
    LOFTY_COLLECTIONS_STATIC_LIST_IMPL_BASE_INITIALIZER
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_STATIC_LIST_HXX_NOPUB
+
+#ifdef _LOFTY_STATIC_LIST_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace collections {
+      using _pub::static_list;
+      using _pub::static_list_impl;
+      using _pub::static_list_impl_base;
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_STATIC_LIST_HXX

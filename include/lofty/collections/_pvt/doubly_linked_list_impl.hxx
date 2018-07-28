@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,17 +13,19 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX
-#define _LOFTY_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX
 #endif
 
+#ifndef _LOFTY_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX_NOPUB
+#define _LOFTY_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX_NOPUB
+
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/_std/iterator.hxx>
 #include <lofty/type_void_adapter.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +33,7 @@ namespace lofty { namespace collections { namespace _pvt {
 
 //! Non-template implementation of a doubly-linked list.
 class LOFTY_SYM doubly_linked_list_impl :
-   public support_explicit_operator_bool<doubly_linked_list_impl> {
+   public lofty::_LOFTY_PUBNS support_explicit_operator_bool<doubly_linked_list_impl> {
 public:
    //! Doubly-linked list node that also stores a single value.
    class LOFTY_SYM node {
@@ -45,7 +47,7 @@ public:
       @return
          Pointer to the allocated memory block.
       */
-      void * operator new(std::size_t alloc_size, type_void_adapter const & type);
+      void * operator new(std::size_t alloc_size, lofty::_LOFTY_PUBNS type_void_adapter const & type);
 
       /*! Deallocates the memory occupied by a node.
 
@@ -53,7 +55,7 @@ public:
          Pointer to free.
       */
       void operator delete(void * p) {
-         memory::free(p);
+         memory::_pub::free(p);
       }
 
       /*! Matches the custom operator new().
@@ -61,7 +63,7 @@ public:
       @param p
          Pointer to free.
       */
-      void operator delete(void * p, type_void_adapter const &) {
+      void operator delete(void * p, lofty::_LOFTY_PUBNS type_void_adapter const &) {
          operator delete(p);
       }
 
@@ -83,7 +85,7 @@ public:
          true to move *p to the new node’s value, or false to copy it instead.
       */
       node(
-         type_void_adapter const & type, node ** first_node, node ** last_node,
+         lofty::_LOFTY_PUBNS type_void_adapter const & type, node ** first_node, node ** last_node,
          node * prev, node * next, void const * value_src, bool move
       );
 
@@ -121,7 +123,7 @@ public:
       @return
          Pointer to the contained value.
       */
-      void * value_ptr(type_void_adapter const & type) const;
+      void * value_ptr(lofty::_LOFTY_PUBNS type_void_adapter const & type) const;
 
       /*! Returns a typed pointer to the contained TValue.
 
@@ -130,7 +132,7 @@ public:
       */
       template <typename T>
       T * value_ptr() const {
-         type_void_adapter type;
+         lofty::_pub::type_void_adapter type;
          type.set_align<T>();
          return static_cast<T *>(value_ptr(type));
       }
@@ -148,7 +150,7 @@ protected:
    class LOFTY_SYM iterator_base {
    public:
       typedef std::ptrdiff_t difference_type;
-      typedef _std::bidirectional_iterator_tag iterator_category;
+      typedef _std::_LOFTY_PUBNS bidirectional_iterator_tag iterator_category;
 
    public:
       /*! Equality relational operator.
@@ -244,7 +246,7 @@ public:
    @param nd
       Pointer to the first list node.
    */
-   static void destruct_list(type_void_adapter const & type, node * nd);
+   static void destruct_list(lofty::_LOFTY_PUBNS type_void_adapter const & type, node * nd);
 
    /*! Inserts a node at the end of the list.
 
@@ -262,7 +264,8 @@ public:
       Pointer to the newly-added node.
    */
    static node * push_back(
-      type_void_adapter const & type, node ** first_node, node ** last_node, void const * value, bool move
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, node ** first_node, node ** last_node,
+      void const * value, bool move
    );
 
    /*! Inserts a node at the start of the list.
@@ -281,7 +284,8 @@ public:
       Pointer to the newly-added node.
    */
    static node * push_front(
-      type_void_adapter const & type, node ** first_node, node ** last_node, void const * value, bool move
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, node ** first_node, node ** last_node,
+      void const * value, bool move
    );
 
    /*! Unlinks and destructs a node from the list.
@@ -295,7 +299,9 @@ public:
    @param nd
       Pointer to the node to unlink.
    */
-   static void remove(type_void_adapter const & type, node ** first_node, node ** last_node, node * nd);
+   static void remove(
+      lofty::_LOFTY_PUBNS type_void_adapter const & type, node ** first_node, node ** last_node, node * nd
+   );
 
    /*! Returns the count of elements in the list.
 
@@ -319,7 +325,7 @@ protected:
    @param type
       Adapter for the value’s type.
    */
-   void clear(type_void_adapter const & type);
+   void clear(lofty::_LOFTY_PUBNS type_void_adapter const & type);
 
    /*! Returns a pointer to the first node in the list, throwing an exception if the list is empty.
 
@@ -339,7 +345,7 @@ protected:
    @return
       Pointer to the newly-added node.
    */
-   node * push_back(type_void_adapter const & type, void const * value, bool move);
+   node * push_back(lofty::_LOFTY_PUBNS type_void_adapter const & type, void const * value, bool move);
 
    /*! Inserts a node to the start of the list.
 
@@ -352,7 +358,7 @@ protected:
    @return
       Pointer to the newly-added node.
    */
-   node * push_front(type_void_adapter const & type, void const * value, bool move);
+   node * push_front(lofty::_LOFTY_PUBNS type_void_adapter const & type, void const * value, bool move);
 
    /*! Unlinks and destructs a node in the list.
 
@@ -361,7 +367,7 @@ protected:
    @param nd
       Pointer to the node to unlink.
    */
-   void remove(type_void_adapter const & type, node * nd);
+   void remove(lofty::_LOFTY_PUBNS type_void_adapter const & type, node * nd);
 
 protected:
    //! Pointer to the first node.
@@ -375,5 +381,15 @@ protected:
 }}} //namespace lofty::collections::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS__PVT_DOUBLY_LINKED_LIST_IMPL_HXX

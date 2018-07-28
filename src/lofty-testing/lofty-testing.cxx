@@ -16,23 +16,27 @@ You should have received a copy of the GNU Lesser General Public License along w
 <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/text/str.hxx>
+#include <lofty/collections/vector.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text.hxx>
+#include <lofty/logging.hxx>
+#include <lofty/_std/exception.hxx>
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/testing/app.hxx>
 #include <lofty/testing/runner.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/testing/utility.hxx>
-
-#include <lofty/io/text.hxx>
-#include <lofty/logging.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/char_ptr_to_str_adapter.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace testing {
 
-/*virtual*/ int app::main(collections::vector<str> & args) /*override*/ {
+/*virtual*/ int app::main(collections::vector<text::str> & args) /*override*/ {
    LOFTY_TRACE_METHOD();
 
    LOFTY_UNUSED_ARG(args);
@@ -45,7 +49,7 @@ namespace lofty { namespace testing {
    return all_passed ? 0 : 1;
 }
 
-}} //namespace lofty::testing
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +58,7 @@ namespace lofty { namespace testing {
 assertion_error::assertion_error() {
 }
 
-}} //namespace lofty::testing
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,9 +80,9 @@ void runner::load_registered_test_cases() {
 }
 
 void runner::log_assertion(
-   text::file_address const & file_addr, str const & expr, assertion_expr * assertion_expr_
+   text::file_address const & file_addr, text::str const & expr, assertion_expr * assertion_expr_
 ) {
-   str format;
+   text::str format;
    if (assertion_expr_->pass) {
       format = LOFTY_SL("COMK-TEST-ASSERT-PASS {}: pass: {}\n");
    } else {
@@ -131,10 +135,10 @@ void runner::run_test_case(class test_case & test_case) {
    ostream->write(LOFTY_SL("COMK-TEST-CASE-END\n"));
 }
 
-void runner::assertion_expr::set(bool pass_, char_t const * binary_op_) {
+void runner::assertion_expr::set(bool pass_, text::char_t const * binary_op_) {
    pass = pass_;
    if (binary_op_) {
-      binary_op = str(external_buffer, binary_op_);
+      binary_op = text::str(external_buffer, binary_op_);
    } else {
       binary_op.clear();
    }
@@ -156,12 +160,12 @@ void test_case::init(class runner * runner_) {
    runner = runner_;
 }
 
-void test_case::assert(text::file_address const & file_addr, str const & expr) {
+void test_case::assert(text::file_address const & file_addr, text::str const & expr) {
    runner->log_assertion(file_addr, expr, &assertion_expr);
 }
 
 void test_case::assert_does_not_throw(
-   text::file_address const & file_addr, str const & expr, _std::function<void ()> expr_fn
+   text::file_address const & file_addr, text::str const & expr, _std::function<void ()> expr_fn
 ) {
    assertion_expr.pass = false;
    assertion_expr.binary_op.clear();
@@ -179,7 +183,7 @@ void test_case::assert_does_not_throw(
 }
 
 void test_case::assert_throws(
-   text::file_address const & file_addr, str const & expr,
+   text::file_address const & file_addr, text::str const & expr,
    _std::function<bool (_std::exception const *)> expr_instanceof_fn
 ) {
    assertion_expr.pass = false;
@@ -216,4 +220,4 @@ std::size_t instances_counter::moves_ = 0;
 std::size_t instances_counter::new_ = 0;
 int instances_counter::next_unique = 0;
 
-}}} //namespace lofty::testing::utility
+}}}

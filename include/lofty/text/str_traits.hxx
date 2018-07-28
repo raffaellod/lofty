@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,14 +12,22 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_TEXT_STR_TRAITS_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_STR_TRAITS_HXX
 #endif
 
+#ifndef _LOFTY_TEXT_STR_TRAITS_HXX_NOPUB
+#define _LOFTY_TEXT_STR_TRAITS_HXX_NOPUB
+
+#include <lofty/collections/vector-0.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text {
+_LOFTY_PUBNS_BEGIN
 
 /*! Low-level functions for dealing with character strings; used by lofty::text::*str. Note that this class is
 not modeled after std::char_traits. */
@@ -46,7 +54,7 @@ public:
    */
    static void _build_find_failure_restart_table(
       char_t const * substr_begin, char_t const * substr_end,
-      collections::vector<std::size_t> * failure_restarts
+      collections::_LOFTY_PUBNS vector<std::size_t> * failure_restarts
    );
 
    /*! Compares two strings.
@@ -221,4 +229,25 @@ public:
    static bool validate(char_t const * begin, char_t const * end, bool throw_on_errors = false);
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::text
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_STR_TRAITS_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_STR_TRAITS_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace text {
+
+   using _pub::str_traits;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_TEXT_STR_TRAITS_HXX

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,15 +12,13 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/logging.hxx>
 using namespace lofty;
 
-
 class test_app : public app {
 public:
-   virtual int main(vector<str> & args) override {
+   virtual int main(collections::vector<text::str> & args) override {
       LOFTY_TRACE_METHOD();
 
       auto stdout(io::text::stdout());

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,9 +12,18 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_COROUTINE_LOCAL_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COROUTINE_LOCAL_HXX
 #endif
+
+#ifndef _LOFTY_COROUTINE_LOCAL_HXX_NOPUB
+#define _LOFTY_COROUTINE_LOCAL_HXX_NOPUB
+
+#include <lofty/_pvt/context_local.hxx>
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +35,7 @@ class coroutine_local_storage;
 //! Lofty’s CRLS variable registrar.
 class LOFTY_SYM coroutine_local_storage_registrar :
    public context_local_storage_registrar_impl,
-   public collections::static_list_impl<
+   public collections::_LOFTY_PUBNS static_list_impl<
       coroutine_local_storage_registrar, context_local_storage_node<coroutine_local_storage>
    > {
 public:
@@ -89,6 +98,7 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Variable with separate per-coroutine values. Variables of this type cannot be non-static class members.
 template <typename T>
@@ -105,16 +115,18 @@ public:
 
    //! See _pvt::context_local_value::operator=().
    coroutine_local_value & operator=(T && t) {
-      context_local::operator=(_std::move(t));
+      context_local::operator=(_std::_pub::move(t));
       return *this;
    }
 };
 
-} //namespace lofty
+_LOFTY_PUBNS_END
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Coroutine-local pointer to an object. The memory this points to is permanently allocated for each
 coroutine, and an instance of this class lets each coroutine access its own private copy of the value pointed
@@ -123,4 +135,26 @@ template <typename T>
 class coroutine_local_ptr : public _pvt::context_local_ptr<T, _pvt::coroutine_local_storage> {
 };
 
-} //namespace lofty
+_LOFTY_PUBNS_END
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COROUTINE_LOCAL_HXX_NOPUB
+
+#ifdef _LOFTY_COROUTINE_LOCAL_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::coroutine_local_ptr;
+   using _pub::coroutine_local_value;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_COROUTINE_LOCAL_HXX

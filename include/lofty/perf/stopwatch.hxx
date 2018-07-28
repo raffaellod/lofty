@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,23 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_PERF_STOPWATCH_HXX
-#define _LOFTY_PERF_STOPWATCH_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_PERF_STOPWATCH_HXX
 #endif
 
+#ifndef _LOFTY_PERF_STOPWATCH_HXX_NOPUB
+#define _LOFTY_PERF_STOPWATCH_HXX_NOPUB
+
+#include <lofty/memory.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/to_text_ostream.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace perf {
+_LOFTY_PUBNS_BEGIN
 
 //! Measures processing time intervals for the current process at a high platform-dependent precision.
 class LOFTY_SYM stopwatch {
@@ -77,11 +81,12 @@ public:
 
 protected:
    //! Pointer to the start time of the current timed session.
-   _std::unique_ptr<void, memory::freeing_deleter> start_time;
+   _std::_LOFTY_PUBNS unique_ptr<void, memory::_LOFTY_PUBNS freeing_deleter> start_time;
    //! Total measured time duration, in nanoseconds. Precision is not guaranteed on all platforms.
    duration_type total_duration;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::perf
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +95,8 @@ protected:
 namespace lofty {
 
 template <>
-class to_text_ostream<perf::stopwatch> : public to_text_ostream<perf::stopwatch::duration_type> {
+class to_text_ostream<perf::_LOFTY_PUBNS stopwatch> :
+   public to_text_ostream<perf::_LOFTY_PUBNS stopwatch::duration_type> {
 public:
    /*! Writes a stopwatch by its duration in ns, applying the formatting options.
 
@@ -99,8 +105,8 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(perf::stopwatch const & src, io::text::ostream * dst) {
-      to_text_ostream<perf::stopwatch::duration_type>::write(src.duration(), dst);
+   void write(perf::_LOFTY_PUBNS stopwatch const & src, io::text::_LOFTY_PUBNS ostream * dst) {
+      to_text_ostream<perf::_pub::stopwatch::duration_type>::write(src.duration(), dst);
    }
 };
 
@@ -108,5 +114,21 @@ public:
 //! @endcond
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_PERF_STOPWATCH_HXX_NOPUB
+
+#ifdef _LOFTY_PERF_STOPWATCH_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace perf {
+
+   using _pub::stopwatch;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_PERF_STOPWATCH_HXX

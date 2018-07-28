@@ -13,21 +13,28 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TEXT_PARSERS_DYNAMIC_HXX
-#define _LOFTY_TEXT_PARSERS_DYNAMIC_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_PARSERS_DYNAMIC_HXX
 #endif
 
-#include <lofty/collections/vector.hxx>
+#ifndef _LOFTY_TEXT_PARSERS_DYNAMIC_HXX_NOPUB
+#define _LOFTY_TEXT_PARSERS_DYNAMIC_HXX_NOPUB
 
+#include <lofty/collections/vector-0.hxx>
+#include <lofty/enum-0.hxx>
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/io/text-0.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
 
 /*! State representation. Instances can be statically allocated, or generated at run-time by calling one of
 the lofty::text::parsers::dynamic::create_*_state() methods. */
@@ -111,7 +118,7 @@ public:
 };
 
 template <typename T>
-class dynamic_state::_aggregator : public noncopyable, public dynamic_state, public T {
+class dynamic_state::_aggregator : public lofty::_LOFTY_PUBNS noncopyable, public dynamic_state, public T {
 public:
    //! Default constructor.
    _aggregator() {
@@ -121,11 +128,13 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
 
 /*! Parser that accepts input based on a dynamically-configurable state machine.
 
@@ -137,7 +146,7 @@ For the ERE pattern “a”, the state machine would be:
    └───┴───────┘
    @endverbatim
 */
-class LOFTY_SYM dynamic : public noncopyable {
+class LOFTY_SYM dynamic : public lofty::_LOFTY_PUBNS noncopyable {
 private:
    //! Shortcut.
    typedef dynamic_state::_type state_type;
@@ -200,9 +209,9 @@ public:
       static state_type::enum_type const type = state_type::string;
 
       //! Pointer to the start of the string to match.
-      char_t const * begin;
+      text::_LOFTY_PUBNS char_t const * begin;
       //! Pointer to the end of the string to match.
-      char_t const * end;
+      text::_LOFTY_PUBNS char_t const * end;
 
       /*! Returns the size of the string.
 
@@ -306,7 +315,7 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   dynamic_state * create_string_state(str const * s);
+   dynamic_state * create_string_state(text::_LOFTY_PUBNS str const * s);
 
    /*! Creates a state that matches the specified char_t array.
 
@@ -317,7 +326,9 @@ public:
    @return
       Pointer to the newly-created state, which is owned by the parser and must not be released.
    */
-   dynamic_state * create_string_state(char_t const * begin, char_t const * end);
+   dynamic_state * create_string_state(
+      text::_LOFTY_PUBNS char_t const * begin, text::_LOFTY_PUBNS char_t const * end
+   );
 
    //! Dumps the parser’s state tree.
    void dump() const;
@@ -330,7 +341,7 @@ public:
       Match result. Will evaluate to true if the contents of the stream were accepted by the parser, or false
       otherwise.
    */
-   match run(str const & s) const;
+   match run(text::_LOFTY_PUBNS str const & s) const;
 
    /*! Runs the parser against the specified text stream, consuming code points from it as necessary.
 
@@ -340,7 +351,7 @@ public:
       Match result. Will evaluate to true if the contents of the stream were accepted by the parser, or false
       otherwise.
    */
-   match run(io::text::istream * istream) const;
+   match run(io::text::_LOFTY_PUBNS istream * istream) const;
 
    /*! Assigns an initial state. If not called, the parser will remain empty, accepting all input.
 
@@ -359,25 +370,25 @@ protected:
    */
    template <typename T>
    dynamic_state::_aggregator<T> * create_owned_state() {
-      _std::unique_ptr<dynamic_state::_aggregator<T>> new_state(new dynamic_state::_aggregator<T>());
+      _std::_pub::unique_ptr<dynamic_state::_aggregator<T>> new_state(new dynamic_state::_aggregator<T>());
       auto ret = new_state.get();
-      owned_states.push_back(_std::move(new_state));
+      owned_states.push_back(_std::_pub::move(new_state));
       return ret;
    }
 
 protected:
    //! Keeps ownership of all dynamically-allocated states.
-   collections::vector<_std::unique_ptr<dynamic_state>> owned_states;
+   collections::_LOFTY_PUBNS vector<_std::_LOFTY_PUBNS unique_ptr<dynamic_state>> owned_states;
    //! Pointer to the initial state.
    dynamic_state const * initial_state;
 };
 
 #define _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(extra_type, name, next, alternative) \
-   static ::lofty::text::parsers::dynamic::_static_state_aggregator< \
-      ::lofty::text::parsers::dynamic::extra_type \
+   static ::lofty::text::parsers::_pub::dynamic::_static_state_aggregator< \
+      ::lofty::text::parsers::_pub::dynamic::extra_type \
    > const name = { \
       /*base*/ { \
-         /*type       */ ::lofty::text::parsers::dynamic::extra_type::type, \
+         /*type       */ ::lofty::text::parsers::_pub::dynamic::extra_type::type, \
          /*next       */ next, \
          /*alternative*/ alternative \
       }, \
@@ -424,7 +435,7 @@ protected:
    LOFTY_TEXT_PARSERS_DYNAMIC_REPETITION_GROUP(name, next, alternative, first_state, min, 0)
 
 #define _LOFTY_TEXT_PARSERS_DYNAMIC_STRING_STATE_IMPL(str_name, name, next, alternative, str) \
-   static ::lofty::text::char_t const str_name[] = str; \
+   static ::lofty::text::_pub::char_t const str_name[] = str; \
    _LOFTY_TEXT_PARSERS_DYNAMIC_STATE_BEGIN(_state_string_data, name, next, alternative) \
       /*begin*/ str_name, \
       /*end  */ str_name + LOFTY_COUNTOF(str_name) - 1 /*NUL*/ \
@@ -435,11 +446,13 @@ protected:
       LOFTY_CPP_CAT(__, name, _str), name, next, alternative, str \
    )
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
 
 //! Matched input captured by lofty::text::parsers::dynamic::run().
 class dynamic_match_capture;
@@ -447,8 +460,8 @@ class dynamic_match_capture;
 /*! Repetition accepted by lofty::text::parsers::dynamic::run(), modeled as a virtual array of repetition
 occurrences. */
 class LOFTY_SYM dynamic_match_repetition :
-   public noncopyable,
-   public support_explicit_operator_bool<dynamic_match_repetition> {
+   public lofty::_LOFTY_PUBNS noncopyable,
+   public lofty::_LOFTY_PUBNS support_explicit_operator_bool<dynamic_match_repetition> {
 private:
    friend class dynamic_match_capture;
 
@@ -514,7 +527,7 @@ protected:
    dynamic::_repetition_group_node const * group_node;
 };
 
-class LOFTY_SYM dynamic_match_repetition::occurrence : public noncopyable {
+class LOFTY_SYM dynamic_match_repetition::occurrence : public lofty::_LOFTY_PUBNS noncopyable {
 private:
    friend occurrence dynamic_match_repetition::operator[](std::size_t index) const;
 
@@ -584,14 +597,16 @@ protected:
    dynamic::_group_node const * first_group_node;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
 
 // Now this can be defined.
-class LOFTY_SYM dynamic_match_capture : public noncopyable {
+class LOFTY_SYM dynamic_match_capture : public lofty::_LOFTY_PUBNS noncopyable {
 private:
    friend dynamic_match_capture dynamic_match_repetition::occurrence::capture_group(unsigned index) const;
 
@@ -670,14 +685,14 @@ public:
    @return
       Matched string.
    */
-   text::str str() const;
+   text::_LOFTY_PUBNS str str() const;
 
    /*! Returns a string containing the captured portion of the matched input.
 
    @return
       Matched string.
    */
-   text::str str_copy() const;
+   text::_LOFTY_PUBNS str str_copy() const;
 
 protected:
    /*! Constructor.
@@ -700,17 +715,21 @@ protected:
    dynamic::_group_node const * group_node;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
 
 // Now this can be defined.
-class LOFTY_SYM dynamic::match : public dynamic_match_capture, public support_explicit_operator_bool<match> {
+class LOFTY_SYM dynamic::match :
+   public dynamic_match_capture,
+   public lofty::_LOFTY_PUBNS support_explicit_operator_bool<match> {
 private:
-   friend text::str dynamic_match_capture::str() const;
-   friend match dynamic::run(io::text::istream * istream) const;
+   friend text::_LOFTY_PUBNS str dynamic_match_capture::str() const;
+   friend match dynamic::run(io::text::_LOFTY_PUBNS istream * istream) const;
 
 public:
    //! Default constructor.
@@ -755,15 +774,38 @@ protected:
    @param capture0_group_node
       Poimter to the top-level implicit capture.
    */
-   match(text::str && captures_buffer, _std::unique_ptr<_capture_group_node const> && capture0_group_node);
+   match(
+      text::_LOFTY_PUBNS str && captures_buffer,
+      _std::_LOFTY_PUBNS unique_ptr<_capture_group_node const> && capture0_group_node
+   );
 
 protected:
    //! Contains all captures, which are expressed as offset in this string.
-   text::str captures_buffer;
+   text::_LOFTY_PUBNS str captures_buffer;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_PARSERS_DYNAMIC_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_PARSERS_DYNAMIC_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace text { namespace parsers {
+
+   using _pub::dynamic;
+   using _pub::dynamic_match_repetition;
+   using _pub::dynamic_match_capture;
+   using _pub::dynamic_state;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TEXT_PARSERS_DYNAMIC_HXX

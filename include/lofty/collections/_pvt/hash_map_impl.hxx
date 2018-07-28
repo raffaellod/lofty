@@ -13,32 +13,37 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS__PVT_HASH_MAP_IMPL_HXX
-#define _LOFTY_COLLECTIONS__PVT_HASH_MAP_IMPL_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS__PVT_HASH_MAP_IMPL_HXX
 #endif
 
+#ifndef _LOFTY_COLLECTIONS__PVT_HASH_MAP_IMPL_HXX_NOPUB
+#define _LOFTY_COLLECTIONS__PVT_HASH_MAP_IMPL_HXX_NOPUB
+
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/numeric.hxx>
 #include <lofty/range.hxx>
-
+#include <lofty/_std/iterator.hxx>
+#include <lofty/_std/memory.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Forward declaration.
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 class type_void_adapter;
 
-} //namespace lofty
+_LOFTY_PUBNS_END
+}
 
 namespace lofty { namespace collections { namespace _pvt {
 
 //! Non-template implementation class for lofty::collections::hash_map.
-class LOFTY_SYM hash_map_impl : public support_explicit_operator_bool<hash_map_impl> {
+class LOFTY_SYM hash_map_impl : public lofty::_LOFTY_PUBNS support_explicit_operator_bool<hash_map_impl> {
 protected:
    typedef bool (* keys_equal_fn_type)(hash_map_impl const * this_ptr, void const * key1, void const * key2);
 
@@ -73,7 +78,7 @@ protected:
       friend class hash_map_impl;
 
    public:
-      typedef _std::forward_iterator_tag iterator_category;
+      typedef _std::_LOFTY_PUBNS forward_iterator_tag iterator_category;
 
    public:
       //! Default constructor.
@@ -213,8 +218,9 @@ protected:
       value was overwritten.
    */
    add_or_assign_impl_ret add_or_assign(
-      type_void_adapter const & key_type, type_void_adapter const & value_type,
-      keys_equal_fn_type keys_equal_fn, void * key, std::size_t key_hash, void * value, unsigned move
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, keys_equal_fn_type keys_equal_fn, void * key,
+      std::size_t key_hash, void * value, unsigned move
    );
 
    /*! Removes all elements from the map.
@@ -224,7 +230,10 @@ protected:
    @param value_type
       Adapter for the value type.
    */
-   void clear(type_void_adapter const & key_type, type_void_adapter const & value_type);
+   void clear(
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type
+   );
 
    /*! Finds the first used bucket, if any.
 
@@ -254,12 +263,12 @@ protected:
       Calculated range for the neighborhood bucket index. Note that the range might have begin() > end(), but
       still be valid; however the range object itself will think it’s empty because of that.
    */
-   range<std::size_t> hash_neighborhood_range(std::size_t key_hash) const {
+   lofty::_LOFTY_PUBNS range<std::size_t> hash_neighborhood_range(std::size_t key_hash) const {
       std::size_t nh_begin = hash_neighborhood_index(key_hash);
       std::size_t nh_end = nh_begin + neighborhood_size_;
       // Wrap the end index back in the table.
       nh_end &= total_buckets - 1;
-      return range<std::size_t>(nh_begin, nh_end);
+      return lofty::_pub::range<std::size_t>(nh_begin, nh_end);
    }
 
    /*! Marks a bucket as empty and destructs the corresponding key and value.
@@ -272,7 +281,8 @@ protected:
       Iterator to the bucket to empty.
    */
    void empty_bucket(
-      type_void_adapter const & key_type, type_void_adapter const & value_type, iterator_base itr
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, iterator_base itr
    ) {
       itr.validate();
       empty_bucket(key_type, value_type, itr.bucket);
@@ -288,7 +298,8 @@ protected:
       Index of the bucket to empty.
    */
    void empty_bucket(
-      type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t bucket
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, std::size_t bucket
    );
 
 private:
@@ -328,8 +339,8 @@ private:
       if no movable buckets could be found.
    */
    std::size_t find_empty_bucket_outside_neighborhood(
-      type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t nh_begin,
-      std::size_t nh_end
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, std::size_t nh_begin, std::size_t nh_end
    );
 
    /*! Locates an empty bucket where the specified key may be stored, and returns its index after moving it in
@@ -346,7 +357,8 @@ private:
       neighborhood, the returned index is null_index.
    */
    std::size_t get_empty_bucket_for_key(
-      type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t key_hash
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, std::size_t key_hash
    );
 
    /*! Returns the index of the bucket matching the specified key, or locates an empty bucket and returns its
@@ -367,8 +379,9 @@ private:
       moved in the key’s neighborhood, the returned index is null_index.
    */
    std::size_t get_existing_or_empty_bucket_for_key(
-      type_void_adapter const & key_type, type_void_adapter const & value_type,
-      keys_equal_fn_type keys_equal_fn, void const * key, std::size_t key_hash
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, keys_equal_fn_type keys_equal_fn,
+      void const * key, std::size_t key_hash
    );
 
    /*! Enlarges the neighborhood size by a factor of growth_factor. This does not require moving the contents
@@ -391,7 +404,10 @@ private:
    @param value_type
       Adapter for the value type.
    */
-   void grow_table(type_void_adapter const & key_type, type_void_adapter const & value_type);
+   void grow_table(
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type
+   );
 
    /*! Looks for a specific key or an unused bucket in the map.
 
@@ -410,8 +426,8 @@ private:
       null_index if neither could be found.
    */
    std::size_t lookup_key_or_find_empty_bucket(
-      type_void_adapter const & key_type, keys_equal_fn_type keys_equal_fn, void const * key,
-      std::size_t key_hash, range<std::size_t> nh_range
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type, keys_equal_fn_type keys_equal_fn,
+      void const * key, std::size_t key_hash, lofty::_LOFTY_PUBNS range<std::size_t> nh_range
    ) const;
 
    /*! Copies or moves a value, and optionally a key, to the specified bucket.
@@ -432,17 +448,18 @@ private:
       moved.
    */
    void set_bucket_key_value(
-      type_void_adapter const & key_type, type_void_adapter const & value_type, std::size_t bucket,
-      void * key, void * value, unsigned move
+      lofty::_LOFTY_PUBNS type_void_adapter const & key_type,
+      lofty::_LOFTY_PUBNS type_void_adapter const & value_type, std::size_t bucket, void * key, void * value,
+      unsigned move
    );
 
 protected:
    //! Array containing the hash of each key.
-   _std::unique_ptr<std::size_t[]> hashes;
+   _std::_LOFTY_PUBNS unique_ptr<std::size_t[]> hashes;
    //! Array of keys.
-   _std::unique_ptr<void, memory::freeing_deleter> keys;
+   _std::_LOFTY_PUBNS unique_ptr<void, memory::_LOFTY_PUBNS freeing_deleter> keys;
    //! Array of buckets.
-   _std::unique_ptr<void, memory::freeing_deleter> values;
+   _std::_LOFTY_PUBNS unique_ptr<void, memory::_LOFTY_PUBNS freeing_deleter> values;
    //! Count of total buckets. Always a power of two.
    std::size_t total_buckets;
    //! Count of elements / occupied buckets.
@@ -468,20 +485,30 @@ protected:
    static std::size_t const zero_hash = 65521;
 
    //! First special index value.
-   static std::size_t const first_special_index = numeric::max<std::size_t>::value - 8;
+   static std::size_t const first_special_index = numeric::_LOFTY_PUBNS max<std::size_t>::value - 8;
    /*! Special value returned by find_bucket_movable_to_empty() to indicate that the neighborhood size needs
    to be increased before trying again. */
-   static std::size_t const need_larger_neighborhoods = numeric::max<std::size_t>::value - 2;
+   static std::size_t const need_larger_neighborhoods = numeric::_LOFTY_PUBNS max<std::size_t>::value - 2;
    /*! Special value returned by find_bucket_movable_to_empty() to indicate that the hash table size needs to
    be increased before trying again. */
-   static std::size_t const need_larger_table = numeric::max<std::size_t>::value - 1;
+   static std::size_t const need_larger_table = numeric::_LOFTY_PUBNS max<std::size_t>::value - 1;
    /*! Special index returned by several methods to indicate a logical “null index”. Code in
    iterator_base::increment() relies on null_index + 1 == 0. */
-   static std::size_t const null_index = numeric::max<std::size_t>::value;
+   static std::size_t const null_index = numeric::_LOFTY_PUBNS max<std::size_t>::value;
 };
 
 }}} //namespace lofty::collections::_pvt
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS__PVT_HASH_MAP_IMPL_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS__PVT_HASH_MAP_IMPL_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS__PVT_HASH_MAP_IMPL_HXX

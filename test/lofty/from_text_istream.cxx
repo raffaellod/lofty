@@ -12,13 +12,13 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/from_str.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/parsers/dynamic.hxx>
-
+#include <lofty/text/parsers/regex.hxx>
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,19 +26,18 @@ namespace lofty { namespace test { namespace {
 
 class type_with_ftis {
 public:
-   static str const twf;
+   static text::str const twf;
 
 public:
-   str & get() {
+   text::str & get() {
       return s;
    }
 
 private:
-   str s;
-
+   text::str s;
 };
 
-str const type_with_ftis::twf(LOFTY_SL("TWF"));
+text::str const type_with_ftis::twf(LOFTY_SL("TWF"));
 
 }}} //namespace lofty::test::
 

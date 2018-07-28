@@ -12,14 +12,15 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/bitmanip.hxx>
+#include <lofty/exception.hxx>
 #include <lofty/io/binary.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/try_finally.hxx>
 #include "default_buffered.hxx"
 #include "file-subclasses.hxx"
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

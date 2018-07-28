@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,18 +12,44 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_FROM_TEXT_ISTREAM_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_FROM_TEXT_ISTREAM_HXX
 #endif
 
+#ifndef _LOFTY_FROM_TEXT_ISTREAM_HXX_NOPUB
+#define _LOFTY_FROM_TEXT_ISTREAM_HXX_NOPUB
+
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/type_traits.hxx>
+#include <lofty/text/str-0.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Forward declarations.
+namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
+
+class regex_capture_format;
+class dynamic;
+struct dynamic_state;
+class dynamic_match_capture;
+
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Throws a lofty::text::syntax_error if the first argument, referencing the end of a format string parsed by
-a lofty::from_text_istream or lofty::from_text_istream specialization, does not equal the end of the format
+a lofty::from_text_istream or lofty::to_text_ostream specialization, does not equal the end of the format
 string.
+
+Declared in both lofty/from_text_istream.hxx and lofty/to_text_ostream.hxx .
 
 @param format_consumed_end
    Iterator to the end of the consumed/parsed portion of the format string.
@@ -31,10 +57,11 @@ string.
    Format string.
 */
 LOFTY_SYM void throw_on_unused_streaming_format_chars(
-   str::const_iterator const & format_consumed_end, str const & format
+   text::_LOFTY_PUBNS str::const_iterator const & format_consumed_end, text::_LOFTY_PUBNS str const & format
 );
 
-} //namespace lofty
+_LOFTY_PUBNS_END
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +76,7 @@ lofty::io::text::istream::scan(). */
 template <typename T>
 class from_text_istream;
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +96,7 @@ public:
    @param dst
       Pointer to the destination object.
    */
-   void convert_capture(text::parsers::dynamic_match_capture const & capture0, bool * dst);
+   void convert_capture(text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, bool * dst);
 
    /*! Creates parser states for the specified input format.
 
@@ -80,15 +107,16 @@ public:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
+   text::parsers::_LOFTY_PUBNS dynamic_state const * format_to_parser_states(
+      text::parsers::_LOFTY_PUBNS regex_capture_format const & format,
+      text::parsers::_LOFTY_PUBNS dynamic * parser
    );
 
 protected:
    //! String that will be translated to true.
-   str true_str;
+   text::_LOFTY_PUBNS str true_str;
    //! String that will be translated to false.
-   str false_str;
+   text::_LOFTY_PUBNS str false_str;
 };
 
 } //namespace lofty
@@ -116,8 +144,9 @@ public:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
+   text::parsers::_LOFTY_PUBNS dynamic_state const * format_to_parser_states(
+      text::parsers::_LOFTY_PUBNS regex_capture_format const & format,
+      text::parsers::_LOFTY_PUBNS dynamic * parser
    );
 
 protected:
@@ -129,35 +158,53 @@ protected:
       Pointer to the destination object.
    */
    template <typename I>
-   void convert_capture_impl(text::parsers::dynamic_match_capture const & capture0, I * dst) const;
+   void convert_capture_impl(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, I * dst
+   ) const;
 
    //! Converts a capture into a 64-bit signed integer. See convert_capture_impl().
-   void convert_capture_s64(text::parsers::dynamic_match_capture const & capture0, std::int64_t * dst) const;
+   void convert_capture_s64(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::int64_t * dst
+   ) const;
 
    //! Converts a capture into a 64-bit unsigned integer. See convert_capture_impl().
-   void convert_capture_u64(text::parsers::dynamic_match_capture const & capture0, std::uint64_t * dst) const;
+   void convert_capture_u64(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::uint64_t * dst
+   ) const;
 
    //! Converts a capture into a 32-bit signed integer. See convert_capture_impl().
-   void convert_capture_s32(text::parsers::dynamic_match_capture const & capture0, std::int32_t * dst) const;
+   void convert_capture_s32(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::int32_t * dst
+   ) const;
 
    //! Converts a capture into a 32-bit unsigned integer. See convert_capture_impl().
-   void convert_capture_u32(text::parsers::dynamic_match_capture const & capture0, std::uint32_t * dst) const;
+   void convert_capture_u32(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::uint32_t * dst
+   ) const;
 
    //! Converts a capture into a 16-bit signed integer. See convert_capture_impl().
-   void convert_capture_s16(text::parsers::dynamic_match_capture const & capture0, std::int16_t * dst) const;
+   void convert_capture_s16(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::int16_t * dst
+   ) const;
 
    //! Converts a capture into a 16-bit unsigned integer. See convert_capture_impl().
-   void convert_capture_u16(text::parsers::dynamic_match_capture const & capture0, std::uint16_t * dst) const;
+   void convert_capture_u16(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::uint16_t * dst
+   ) const;
 
    //! Converts a capture into an 8-bit signed integer. See convert_capture_impl().
-   void convert_capture_s8(text::parsers::dynamic_match_capture const & capture0, std::int8_t * dst) const {
+   void convert_capture_s8(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::int8_t * dst
+   ) const {
       std::int16_t dst16;
       convert_capture_s16(capture0, &dst16);
       *dst = static_cast<std::int8_t>(dst16);
    }
 
    //! Converts an 8-bit unsigned integer to its string representation. See convert_capture_impl().
-   void convert_capture_u8(text::parsers::dynamic_match_capture const & capture0, std::uint8_t * dst) const {
+   void convert_capture_u8(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::uint8_t * dst
+   ) const {
       std::uint16_t dst16;
       convert_capture_u16(capture0, &dst16);
       *dst = static_cast<std::uint8_t>(dst16);
@@ -171,7 +218,9 @@ private:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state * create_base2_parser_states(text::parsers::dynamic * parser);
+   text::parsers::_LOFTY_PUBNS dynamic_state * create_base2_parser_states(
+      text::parsers::_LOFTY_PUBNS dynamic * parser
+   );
 
    /*! Creates parser states for parsing numbers in base 8.
 
@@ -180,7 +229,9 @@ private:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state * create_base8_parser_states(text::parsers::dynamic * parser);
+   text::parsers::_LOFTY_PUBNS dynamic_state * create_base8_parser_states(
+      text::parsers::_LOFTY_PUBNS dynamic * parser
+   );
 
    /*! Creates parser states for parsing numbers in base 10.
 
@@ -189,7 +240,9 @@ private:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state * create_base10_parser_states(text::parsers::dynamic * parser);
+   text::parsers::_LOFTY_PUBNS dynamic_state * create_base10_parser_states(
+      text::parsers::_LOFTY_PUBNS dynamic * parser
+   );
 
    /*! Creates parser states for parsing numbers in base 16.
 
@@ -198,7 +251,9 @@ private:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state * create_base16_parser_states(text::parsers::dynamic * parser);
+   text::parsers::_LOFTY_PUBNS dynamic_state * create_base16_parser_states(
+      text::parsers::_LOFTY_PUBNS dynamic * parser
+   );
 
 protected:
    //! true if the integer type is signed, or false otherwise.
@@ -215,7 +270,7 @@ protected:
 // On a machine with 64-bit word size, convert_capture_64*() will be faster.
 
 inline void int_from_text_istream_base::convert_capture_s32(
-   text::parsers::dynamic_match_capture const & capture0, std::int32_t * dst
+   text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::int32_t * dst
 ) const {
    std::int64_t dst64;
    convert_capture_s64(capture0, &dst64);
@@ -223,7 +278,7 @@ inline void int_from_text_istream_base::convert_capture_s32(
 }
 
 inline void int_from_text_istream_base::convert_capture_u32(
-   text::parsers::dynamic_match_capture const & capture0, std::uint32_t * dst
+   text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::uint32_t * dst
 ) const {
    std::uint64_t dst64;
    convert_capture_u64(capture0, &dst64);
@@ -236,7 +291,7 @@ inline void int_from_text_istream_base::convert_capture_u32(
 turn defer to convert_capture_64*() (see above). */
 
 inline void int_from_text_istream_base::convert_capture_s16(
-   text::parsers::dynamic_match_capture const & capture0, std::int16_t * dst
+   text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::int16_t * dst
 ) const {
    std::int32_t dst32;
    convert_capture_s32(capture0, &dst32);
@@ -244,7 +299,7 @@ inline void int_from_text_istream_base::convert_capture_s16(
 }
 
 inline void int_from_text_istream_base::convert_capture_u16(
-   text::parsers::dynamic_match_capture const & capture0, std::uint16_t * dst
+   text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::uint16_t * dst
 ) const {
    std::uint32_t dst32;
    convert_capture_u32(capture0, &dst32);
@@ -265,7 +320,7 @@ class int_from_text_istream : public int_from_text_istream_base {
 public:
    //! Default constructor.
    int_from_text_istream() :
-      int_from_text_istream_base(_std::is_signed<I>::value) {
+      int_from_text_istream_base(_std::_pub::is_signed<I>::value) {
    }
 
    /*! Converts a capture into a value of the appropriate type.
@@ -289,31 +344,31 @@ public:
    @param dst
       Pointer to the destination object.
    */
-   void convert_capture(text::parsers::dynamic_match_capture const & capture0, I * dst) {
+   void convert_capture(text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, I * dst) {
       switch (sizeof *dst) {
          case sizeof(std::int8_t):
-            if (_std::is_signed<I>::value) {
+            if (_std::_pub::is_signed<I>::value) {
                convert_capture_s8(capture0, reinterpret_cast<std::int8_t *>(dst));
             } else {
                convert_capture_u8(capture0, reinterpret_cast<std::uint8_t *>(dst));
             }
             break;
          case sizeof(std::int16_t):
-            if (_std::is_signed<I>::value) {
+            if (_std::_pub::is_signed<I>::value) {
                convert_capture_s16(capture0, reinterpret_cast<std::int16_t *>(dst));
             } else {
                convert_capture_u16(capture0, reinterpret_cast<std::uint16_t *>(dst));
             }
             break;
          case sizeof(std::int32_t):
-            if (_std::is_signed<I>::value) {
+            if (_std::_pub::is_signed<I>::value) {
                convert_capture_s32(capture0, reinterpret_cast<std::int32_t *>(dst));
             } else {
                convert_capture_u32(capture0, reinterpret_cast<std::uint32_t *>(dst));
             }
             break;
          case sizeof(std::int64_t):
-            if (_std::is_signed<I>::value) {
+            if (_std::_pub::is_signed<I>::value) {
                convert_capture_s64(capture0, reinterpret_cast<std::int64_t *>(dst));
             } else {
                convert_capture_u64(capture0, reinterpret_cast<std::uint64_t *>(dst));
@@ -371,7 +426,9 @@ public:
    @param end_delim
       Sequence end delimiter.
    */
-   sequence_from_text_istream(str const & start_delim, str const & end_delim);
+   sequence_from_text_istream(
+      text::_LOFTY_PUBNS str const & start_delim, text::_LOFTY_PUBNS str const & end_delim
+   );
 
    //! Destructor.
    ~sequence_from_text_istream();
@@ -385,8 +442,8 @@ public:
    @return
       Capture containing the element.
    */
-   text::parsers::dynamic_match_capture const & capture_at(
-      text::parsers::dynamic_match_capture const & capture0, std::size_t i
+   text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture_at(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, std::size_t i
    );
 
    /*! Returns the count of captured elements.
@@ -396,7 +453,7 @@ public:
    @return
       Count of captured elements.
    */
-   std::size_t captures_count(text::parsers::dynamic_match_capture const & capture0) const;
+   std::size_t captures_count(text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0) const;
 
    /*! Extracts the format in which elements should be matched.
 
@@ -405,8 +462,8 @@ public:
    @return
       Format for individual elements.
    */
-   text::parsers::regex_capture_format const & extract_elt_format(
-      text::parsers::regex_capture_format const & format
+   text::parsers::_LOFTY_PUBNS regex_capture_format const & extract_elt_format(
+      text::parsers::_LOFTY_PUBNS regex_capture_format const & format
    );
 
    /*! Creates parser states for the specified input format.
@@ -420,22 +477,45 @@ public:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser,
-      text::parsers::dynamic_state const * elt_first_state
+   text::parsers::_LOFTY_PUBNS dynamic_state const * format_to_parser_states(
+      text::parsers::_LOFTY_PUBNS regex_capture_format const & format,
+      text::parsers::_LOFTY_PUBNS dynamic * parser,
+      text::parsers::_LOFTY_PUBNS dynamic_state const * elt_first_state
    );
 
 protected:
    //! Separator to be output between elements.
-   str separator;
+   text::_LOFTY_PUBNS str separator;
    //! Sequence start delimiter.
-   str start_delim;
+   text::_LOFTY_PUBNS str start_delim;
    //! Sequence end delimiter.
-   str end_delim;
+   text::_LOFTY_PUBNS str end_delim;
 
 private:
    //! Pointer to members of complex types that would require additional files to be #included.
-   _std::unique_ptr<impl> pimpl;
+   _std::_LOFTY_PUBNS unique_ptr<impl> pimpl;
 };
 
 }} //namespace lofty::_pvt
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_FROM_TEXT_ISTREAM_HXX_NOPUB
+
+#ifdef _LOFTY_FROM_TEXT_ISTREAM_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   #ifndef _LOFTY_TO_TEXT_OSTREAM_HXX
+   using _pub::throw_on_unused_streaming_format_chars;
+   #endif
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_FROM_TEXT_ISTREAM_HXX

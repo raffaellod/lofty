@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2011-2017 Raffaello D. Di Napoli
+Copyright 2011-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,32 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_STD_MEMORY_HXX
-#define _LOFTY_STD_MEMORY_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_STD_MEMORY_HXX
 #endif
 
+#ifndef _LOFTY_STD_MEMORY_HXX_NOPUB
+#define _LOFTY_STD_MEMORY_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* MSC16 BUG: has a half-assed std::shared_ptr that requires the type’s destructor to be defined at the point
+of declaration of the pointer. */
+#if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600
+
+#include <lofty/explicit_operator_bool.hxx>
+#include <lofty/noncopyable.hxx>
+#include <lofty/_std/type_traits.hxx>
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Deallocator functor that invokes delete on its argument (C++11 § 20.7.1.1 “Default deleters”).
 template <typename T>
@@ -73,11 +86,13 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Default allocator (C++11 § 20.6.9 “The default allocator”).
 template <typename T>
@@ -299,11 +314,13 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Smart resource-owning pointer (C++11 § 20.7.1.2 “unique_ptr for single objects”).
 template <typename T, typename TDel = default_delete<T>>
@@ -610,11 +627,13 @@ LOFTY_RELOP_IMPL(<)
 LOFTY_RELOP_IMPL(<=)
 #undef LOFTY_RELOP_IMPL
 
-}} //namespace lofty::_std
+_LOFTY_PUBNS_END
+} //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /*! Type of exception thrown by shared_ptr in case of attempt to lock an expired weak_ptr (C++11 § 20.7.2.1
 “Class bad_weak_ptr”). */
@@ -630,7 +649,8 @@ public:
    virtual char const * what() const override;
 };
 
-}} //namespace lofty::_std
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -830,6 +850,7 @@ protected:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Smart resource-sharing pointer (C++11 § 20.7.2.2 “Class template shared_ptr”).
 template <typename T>
@@ -1245,11 +1266,13 @@ private:
    T * t;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Non-owning pointer that providess access to shared_ptr (C++11 § 20.7.2.3 “Class template weak_ptr”).
 template <typename T>
@@ -1452,11 +1475,13 @@ inline shared_ptr<T>::shared_ptr(weak_ptr<U> const & ptr) :
    }
 }
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /*! Base class for objects that need to repeatedly create shared_ptr instances pointing to themselves (C++11
 § 20.7.2.4 “Class template enable_shared_from_this”). */
@@ -1518,11 +1543,12 @@ private:
    _pvt::shared_refcount * sr;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace _std {
+namespace lofty { namespace _std { namespace _pvt {
 
 /*! Helper for make_shared(); handles everything except calling T::T().
 
@@ -1530,7 +1556,7 @@ namespace lofty { namespace _std {
    Pointer referencing a prefix_shared_refcount followed by storage for a T instance.
 */
 template <typename T>
-inline tuple<unique_ptr<void>, T *> _make_unconstructed_shared() {
+inline tuple<unique_ptr<void>, T *> make_unconstructed_shared() {
    typedef _pvt::prefix_shared_refcount<T> prefix_shared_refcount;
    /* Allocate a block of memory large enough to contain a refcount object and a T instance, making sure the T
    has proper alignment. */
@@ -1544,9 +1570,10 @@ inline tuple<unique_ptr<void>, T *> _make_unconstructed_shared() {
    return make_tuple(move(p), t);
 }
 
-}} //namespace lofty::_std
+}}} //namespace lofty::_std::_pvt
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /*! Returns the deleter in use by the specified shared_ptr, if any (C++11 § 20.7.2.2.10 “get_deleter”).
 
@@ -1577,7 +1604,7 @@ returned shared pointer to it.
 
 template <typename T, typename... TArgs>
 inline shared_ptr<T> make_shared(TArgs &&... args) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(forward<TArgs>(args)...);
    return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
       static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
@@ -1588,7 +1615,7 @@ inline shared_ptr<T> make_shared(TArgs &&... args) {
 
 template <typename T>
 inline shared_ptr<T> make_shared() {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T();
    return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
       static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
@@ -1597,7 +1624,7 @@ inline shared_ptr<T> make_shared() {
 // Overload for 1-argument T::T().
 template <typename T, typename TArg0>
 inline shared_ptr<T> make_shared(TArg0 && arg0) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(forward<TArg0>(arg0));
    return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
       static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
@@ -1606,7 +1633,7 @@ inline shared_ptr<T> make_shared(TArg0 && arg0) {
 // Overload for 2-argument T::T().
 template <typename T, typename TArg0, typename TArg1>
 inline shared_ptr<T> make_shared(TArg0 && arg0, TArg1 && arg1) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(forward<TArg0>(arg0), forward<TArg1>(arg1));
    return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
       static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
@@ -1615,7 +1642,7 @@ inline shared_ptr<T> make_shared(TArg0 && arg0, TArg1 && arg1) {
 // Overload for 3-argument T::T().
 template <typename T, typename TArg0, typename TArg1, typename TArg2>
 inline shared_ptr<T> make_shared(TArg0 && arg0, TArg1 && arg1, TArg2 && arg2) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(forward<TArg0>(arg0), forward<TArg1>(arg1), forward<TArg2>(arg2));
    return shared_ptr<T>(static_cast<_pvt::shared_refcount *>(
       static_cast<_pvt::prefix_shared_refcount<T> *>(get<0>(tpl).release())
@@ -1624,7 +1651,7 @@ inline shared_ptr<T> make_shared(TArg0 && arg0, TArg1 && arg1, TArg2 && arg2) {
 // Overload for 4-argument T::T().
 template <typename T, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
 inline shared_ptr<T> make_shared(TArg0 && arg0, TArg1 && arg1, TArg2 && arg2, TArg3 && arg3) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(
       forward<TArg0>(arg0), forward<TArg1>(arg1), forward<TArg2>(arg2), forward<TArg3>(arg3)
    );
@@ -1635,7 +1662,7 @@ inline shared_ptr<T> make_shared(TArg0 && arg0, TArg1 && arg1, TArg2 && arg2, TA
 // Overload for 5-argument T::T().
 template <typename T, typename TArg0, typename TArg1, typename TArg2, typename TArg3, typename TArg4>
 inline shared_ptr<T> make_shared(TArg0 && arg0, TArg1 && arg1, TArg2 && arg2, TArg3 && arg3, TArg4 && arg4) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(
       forward<TArg0>(arg0), forward<TArg1>(arg1), forward<TArg2>(arg2), forward<TArg3>(arg3),
       forward<TArg4>(arg4)
@@ -1651,7 +1678,7 @@ template <
 inline shared_ptr<T> make_shared(
    TArg0 && arg0, TArg1 && arg1, TArg2 && arg2, TArg3 && arg3, TArg4 && arg4, TArg5 && arg5
 ) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(
       forward<TArg0>(arg0), forward<TArg1>(arg1), forward<TArg2>(arg2), forward<TArg3>(arg3),
       forward<TArg4>(arg4), forward<TArg5>(arg5)
@@ -1668,7 +1695,7 @@ template <
 inline shared_ptr<T> make_shared(
    TArg0 && arg0, TArg1 && arg1, TArg2 && arg2, TArg3 && arg3, TArg4 && arg4, TArg5 && arg5, TArg6 && arg6
 ) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(
       forward<TArg0>(arg0), forward<TArg1>(arg1), forward<TArg2>(arg2), forward<TArg3>(arg3),
       forward<TArg4>(arg4), forward<TArg5>(arg5), forward<TArg6>(arg6)
@@ -1686,7 +1713,7 @@ inline shared_ptr<T> make_shared(
    TArg0 && arg0, TArg1 && arg1, TArg2 && arg2, TArg3 && arg3, TArg4 && arg4, TArg5 && arg5, TArg6 && arg6,
    TArg7 && arg7
 ) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(
       forward<TArg0>(arg0), forward<TArg1>(arg1), forward<TArg2>(arg2), forward<TArg3>(arg3),
       forward<TArg4>(arg4), forward<TArg5>(arg5), forward<TArg6>(arg6), forward<TArg7>(arg7)
@@ -1704,7 +1731,7 @@ inline shared_ptr<T> make_shared(
    TArg0 && arg0, TArg1 && arg1, TArg2 && arg2, TArg3 && arg3, TArg4 && arg4, TArg5 && arg5, TArg6 && arg6,
    TArg7 && arg7, TArg8 && arg8
 ) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(
       forward<TArg0>(arg0), forward<TArg1>(arg1), forward<TArg2>(arg2), forward<TArg3>(arg3),
       forward<TArg4>(arg4), forward<TArg5>(arg5), forward<TArg6>(arg6), forward<TArg7>(arg7),
@@ -1723,7 +1750,7 @@ inline shared_ptr<T> make_shared(
    TArg0 && arg0, TArg1 && arg1, TArg2 && arg2, TArg3 && arg3, TArg4 && arg4, TArg5 && arg5, TArg6 && arg6,
    TArg7 && arg7, TArg8 && arg8, TArg9 && arg9
 ) {
-   auto tpl(_make_unconstructed_shared<T>());
+   auto tpl(_pvt::make_unconstructed_shared<T>());
    ::new(get<1>(tpl)) T(
       forward<TArg0>(arg0), forward<TArg1>(arg1), forward<TArg2>(arg2), forward<TArg3>(arg3),
       forward<TArg4>(arg4), forward<TArg5>(arg5), forward<TArg6>(arg6), forward<TArg7>(arg7),
@@ -1736,11 +1763,13 @@ inline shared_ptr<T> make_shared(
 
 #endif //ifdef LOFTY_CXX_VARIADIC_TEMPLATES … else
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 /* Perform a const_cast<>() on a shared_ptr instance (C++11 § 20.7.2.2.9 “shared_ptr casts”).
 
@@ -1778,8 +1807,66 @@ inline shared_ptr<T> static_pointer_cast(shared_ptr<U> const & src) {
    return shared_ptr<T>(src, static_cast<T *>(src.get()));
 }
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#else //if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600
+   #include <memory>
+
+   namespace lofty { namespace _std { namespace _pub {
+
+   using ::std::allocator;
+   using ::std::bad_weak_ptr;
+   using ::std::const_pointer_cast;
+   using ::std::default_delete;
+   using ::std::dynamic_pointer_cast;
+   using ::std::enable_shared_from_this;
+   using ::std::get_deleter;
+   using ::std::make_shared;
+   using ::std::shared_ptr;
+   using ::std::static_pointer_cast;
+   using ::std::unique_ptr;
+   using ::std::weak_ptr;
+
+   #ifdef _LOFTY_STD_TYPE_TRAITS_IS_COPY_CONSTRUCTIBLE
+      /* Partially-specialize is_copy_constructible (when defined by Lofty) for stock STL types (when not
+      defined by Lofty). */
+      template <typename T, typename TDeleter>
+      struct is_copy_constructible<unique_ptr<T, TDeleter>> : public false_type {};
+   #endif
+
+   }}}
+#endif //if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600 … else
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_STD_MEMORY_HXX_NOPUB
+
+#ifdef _LOFTY_STD_MEMORY_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace _std {
+
+   using _pub::allocator;
+   using _pub::bad_weak_ptr;
+   using _pub::const_pointer_cast;
+   using _pub::default_delete;
+   using _pub::dynamic_pointer_cast;
+   using _pub::enable_shared_from_this;
+   using _pub::get_deleter;
+   using _pub::make_shared;
+   using _pub::shared_ptr;
+   using _pub::static_pointer_cast;
+   using _pub::unique_ptr;
+   using _pub::weak_ptr;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_STD_MEMORY_HXX

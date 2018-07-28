@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015, 2017 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -19,14 +19,15 @@ This program showcases Lofty’s ability to display stack traces when an excepti
 well as its support for catching null pointer access and similar invalid operations. See the source
 code for more comments. */
 
-#include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/enum.hxx>
+#include <lofty/exception.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/text/str.hxx>
 
 using namespace lofty;
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -40,11 +41,11 @@ public:
    @return
       Return value of this program.
    */
-   virtual int main(collections::vector<str> & args) override {
+   virtual int main(collections::vector<text::str> & args) override {
       LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);
-      str s(LOFTY_SL("Test String"));
+      text::str s(LOFTY_SL("Test String"));
 
       collections::vector<int> ints;
       ints.push_back(101);

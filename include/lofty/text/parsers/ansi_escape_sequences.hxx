@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2015, 2017 Raffaello D. Di Napoli
+Copyright 2014-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,20 +13,22 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
-#define _LOFTY_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-   // Note: this file may be included while _LOFTY_HXX_INTERNAL is defined.
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
 #endif
 
+#ifndef _LOFTY_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX_NOPUB
+#define _LOFTY_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX_NOPUB
+
+#include <lofty/enum.hxx>
+#include <lofty/text-1.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace text { namespace parsers {
+_LOFTY_PUBNS_BEGIN
 
 //! ANSI terminal 3-bit color palette.
 LOFTY_ENUM(ansi_terminal_color,
@@ -86,7 +88,7 @@ public:
    @return
       true if the character was consumed, or false otherwise.
    */
-   bool consume_char(char_t ch) {
+   bool consume_char(text::_LOFTY_PUBNS char_t ch) {
       if (curr_state != state::not_in_sequence) {
          return consume_sequence_char(ch);
       } else if (ch == '\x1b') {
@@ -163,7 +165,7 @@ protected:
    @param title
       New window title.
    */
-   virtual void set_window_title(str const & title) = 0;
+   virtual void set_window_title(text::_LOFTY_PUBNS str const & title) = 0;
 
 private:
    /*! Implementation of consume_char() for when the parser state is “in sequence”, i.e. while parsing an
@@ -174,7 +176,7 @@ private:
    @return
       true if the character was consumed, or false otherwise.
    */
-   bool consume_sequence_char(char_t ch);
+   bool consume_sequence_char(text::_LOFTY_PUBNS char_t ch);
 
    /*! Returns true if the current command has been provided with exactly one argument, or if it has zero
    arguments; in the latter case, one arguments with value default0 will be added.
@@ -209,7 +211,7 @@ private:
    @param cmd_char
       Last character of the sequence, indicating the command to execute.
    */
-   void run_sequence(char_t cmd_char);
+   void run_sequence(text::_LOFTY_PUBNS char_t cmd_char);
 
    //! Implementation of run_sequence('m').
    void run_set_char_attributes_sequence();
@@ -241,21 +243,39 @@ private:
    //! Current automaton state.
    state curr_state;
    //! Character that started the current sequence. Can be ‘[’, ‘]’ or ‘?’ (for “[?”).
-   char_t seq_start_char;
+   text::_LOFTY_PUBNS char_t seq_start_char;
    //! Numeric arguments parsed from the current sequence.
    std::int16_t cmd_args[cmd_args_size_max];
    //! Count of elements in cmd_args.
    unsigned cmd_args_size;
    //! String argument parsed from the current sequence.
-   str cmd_arg_str;
+   text::_LOFTY_PUBNS str cmd_arg_str;
    //! Stores the row number for the Save/Restore Cursor Position command.
    std::int16_t saved_row;
    //! Stores the column number for the Save/Restore Cursor Position command.
    std::int16_t saved_col;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::text::parsers
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX_NOPUB
+
+#ifdef _LOFTY_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace text { namespace parsers {
+
+   using _pub::ansi_escape_sequences;
+   using _pub::ansi_terminal_color;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TEXT_PARSERS_ANSI_ESCAPE_SEQUENCES_HXX

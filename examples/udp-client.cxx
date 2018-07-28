@@ -12,16 +12,19 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/app.hxx>
 #include <lofty/collections/vector.hxx>
+#include <lofty/io/binary/memory.hxx>
 #include <lofty/io/text.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/net/ip.hxx>
 #include <lofty/net/udp.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/try_finally.hxx>
 
 using namespace lofty;
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +37,7 @@ public:
    @return
       Return value of this program.
    */
-   virtual int main(collections::vector<str> & args) override {
+   virtual int main(collections::vector<text::str> & args) override {
       LOFTY_TRACE_METHOD();
 
       LOFTY_UNUSED_ARG(args);

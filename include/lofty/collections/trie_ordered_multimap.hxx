@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,22 +13,25 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS_TRIE_ORDERED_MULTIMAP_HXX
-#define _LOFTY_COLLECTIONS_TRIE_ORDERED_MULTIMAP_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS_TRIE_ORDERED_MULTIMAP_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_COLLECTIONS_TRIE_ORDERED_MULTIMAP_HXX_NOPUB
+#define _LOFTY_COLLECTIONS_TRIE_ORDERED_MULTIMAP_HXX_NOPUB
 
 #include <lofty/collections/_pvt/trie_ordered_multimap_impl.hxx>
+#include <lofty/_std/iterator.hxx>
+#include <lofty/_std/type_traits.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/type_void_adapter.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 /*! Key/value multimap using a trie.
 
@@ -86,7 +89,9 @@ The internal data representation of the above would be:
 In the graph above, 1 is the prefix tree, where each node contains pointers to its children; 2 is the anchor
 level, where each node also contains pointers the last nodes of each list of identically-keyed values; 3 is
 the value level, containing doubly-linked lists of identically-keyed values. */
-template <typename TKey, typename TValue, unsigned impl_type = (_std::is_scalar<TKey>::value ? 1 : 0)>
+template <
+   typename TKey, typename TValue, unsigned impl_type = (_std::_LOFTY_PUBNS is_scalar<TKey>::value ? 1 : 0)
+>
 class trie_ordered_multimap;
 
 // Partial specialization for scalar key types.
@@ -151,8 +156,8 @@ public:
       */
       template <typename UKey, typename UValue>
       value_type(UKey && key_, UValue && value_) :
-         key(_std::forward<UKey>(key_)),
-         value(_std::forward<UValue>(value_)) {
+         key(_std::_pub::forward<UKey>(key_)),
+         value(_std::_pub::forward<UValue>(value_)) {
       }
    };
 
@@ -209,7 +214,7 @@ public:
 
    public:
       typedef std::ptrdiff_t difference_type;
-      typedef _std::forward_iterator_tag iterator_category;
+      typedef _std::_LOFTY_PUBNS forward_iterator_tag iterator_category;
       typedef const_reference value_type;
       typedef const_reference * pointer;
       typedef const_reference & reference;
@@ -267,7 +272,7 @@ public:
       const_iterator operator++(int) {
          const_iterator old(*this);
          operator++();
-         return _std::move(old);
+         return _std::_pub::move(old);
       }
 
       /*! Equality relational operator.
@@ -377,7 +382,7 @@ public:
       Source object.
    */
    trie_ordered_multimap(trie_ordered_multimap && src) :
-      _pvt::bitwise_trie_ordered_multimap_impl(_std::move(src)) {
+      _pvt::bitwise_trie_ordered_multimap_impl(_std::_pub::move(src)) {
    }
 
    //! Destructor.
@@ -393,8 +398,8 @@ public:
       *this.
    */
    trie_ordered_multimap & operator=(trie_ordered_multimap && src) {
-      trie_ordered_multimap old(_std::move(*this));
-      _pvt::bitwise_trie_ordered_multimap_impl::operator=(_std::move(src));
+      trie_ordered_multimap old(_std::_pub::move(*this));
+      _pvt::bitwise_trie_ordered_multimap_impl::operator=(_std::_pub::move(src));
       return *this;
    }
 
@@ -411,7 +416,7 @@ public:
       Iterator to the newly added key/value.
    */
    iterator add(TKey key, TValue value) {
-      type_void_adapter value_tva;
+      lofty::_pub::type_void_adapter value_tva;
       value_tva.set_align<TValue>();
       value_tva.set_move_construct<TValue>();
       value_tva.set_size<TValue>();
@@ -459,7 +464,7 @@ public:
 
    //! Removes all elements from the map.
    void clear() {
-      type_void_adapter value_tva;
+      lofty::_pub::type_void_adapter value_tva;
       value_tva.set_align<TValue>();
       value_tva.set_destruct<TValue>();
       return _pvt::bitwise_trie_ordered_multimap_impl::clear(value_tva);
@@ -535,12 +540,12 @@ public:
    */
    value_type pop(const_iterator itr) {
       validate_iterator(itr.ln);
-      type_void_adapter value_tva;
+      lofty::_pub::type_void_adapter value_tva;
       value_tva.set_align<TValue>();
       value_tva.set_destruct<TValue>();
-      value_type ret(itr.key, _std::move(*static_cast<TValue *>(itr.ln->value_ptr(value_tva))));
+      value_type ret(itr.key, _std::_pub::move(*static_cast<TValue *>(itr.ln->value_ptr(value_tva))));
       remove_value(value_tva, key_to_int(itr.key), itr.ln);
-      return _std::move(ret);
+      return _std::_pub::move(ret);
    }
 
    /*! Removes and returns the key/value pair that would be returned as a reference by front().
@@ -549,13 +554,15 @@ public:
       Extracted key/value pair.
    */
    value_type pop_front() {
-      type_void_adapter value_tva;
+      lofty::_pub::type_void_adapter value_tva;
       value_tva.set_align<TValue>();
       value_tva.set_destruct<TValue>();
       auto kvp(find_first_key(true));
-      value_type ret(int_to_key(kvp.key), _std::move(*static_cast<TValue *>(kvp.ln->value_ptr(value_tva))));
+      value_type ret(
+         int_to_key(kvp.key), _std::_pub::move(*static_cast<TValue *>(kvp.ln->value_ptr(value_tva)))
+      );
       remove_value(value_tva, kvp.key, kvp.ln);
-      return _std::move(ret);
+      return _std::_pub::move(ret);
    }
 
    /*! Removes a value given an iterator to it.
@@ -565,7 +572,7 @@ public:
    */
    void remove(const_iterator itr) {
       validate_iterator(itr.ln);
-      type_void_adapter value_tva;
+      lofty::_pub::type_void_adapter value_tva;
       value_tva.set_align<TValue>();
       value_tva.set_destruct<TValue>();
       remove_value(value_tva, key_to_int(itr.key), itr.ln);
@@ -595,8 +602,25 @@ private:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS_TRIE_ORDERED_MULTIMAP_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS_TRIE_ORDERED_MULTIMAP_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace collections {
+
+   using _pub::trie_ordered_multimap;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS_TRIE_ORDERED_MULTIMAP_HXX

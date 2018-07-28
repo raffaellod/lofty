@@ -16,15 +16,16 @@ more details.
 Declaration of LOFTY_TRY and LOFTY_FINALLY. */
 
 #ifndef _LOFTY_TRY_FINALLY_HXX
-#define _LOFTY_TRY_FINALLY_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_TRY_FINALLY_HXX
 #endif
 
+#ifndef _LOFTY_TRY_FINALLY_HXX_NOPUB
+#define _LOFTY_TRY_FINALLY_HXX_NOPUB
+
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +43,7 @@ struct try_finally {
       The “try” block.
    */
    explicit try_finally(Try try_block_) :
-      try_block(_std::move(try_block_)) {
+      try_block(_std::_pub::move(try_block_)) {
    }
 
    /*! Allows to associate (literally, by operator associativity) a finally block to the try block, without
@@ -74,7 +75,7 @@ struct try_finally {
 */
 template <typename Try>
 try_finally<Try> make_try_finally(Try try_block) {
-   return try_finally<Try>(_std::move(try_block));
+   return try_finally<Try>(_std::_pub::move(try_block));
 }
 
 }} //namespace lofty::_pvt
@@ -105,5 +106,15 @@ int i = 1;
    ) || [&]
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_TRY_FINALLY_HXX_NOPUB
+
+#ifdef _LOFTY_TRY_FINALLY_HXX
+   #undef _LOFTY_NOPUB
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_TRY_FINALLY_HXX

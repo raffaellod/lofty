@@ -12,11 +12,12 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/io/text.hxx>
+#include <lofty/io/text/str.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/text.hxx>
-
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,12 +30,12 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    LOFTY_TRACE_FUNC();
 
    // Syntax errors.
-   ASSERT_THROWS(text::syntax_error, io::text::str_istream(str::empty).scan(LOFTY_SL("+")));
-   ASSERT_THROWS(text::syntax_error, io::text::str_istream(str::empty).scan(LOFTY_SL("(")));
+   ASSERT_THROWS(text::syntax_error, io::text::str_istream(text::str::empty).scan(LOFTY_SL("+")));
+   ASSERT_THROWS(text::syntax_error, io::text::str_istream(text::str::empty).scan(LOFTY_SL("(")));
 
    // No captures.
-   ASSERT(io::text::str_istream(str::empty).scan(str::empty));
-   //? ASSERT_DOES_NOT_THROW(io::text::str_istream(LOFTY_SL("x")).scan(str::empty));
+   ASSERT(io::text::str_istream(text::str::empty).scan(text::str::empty));
+   //? ASSERT_DOES_NOT_THROW(io::text::str_istream(LOFTY_SL("x")).scan(text::str::empty));
    ASSERT(io::text::str_istream(LOFTY_SL("x")).scan(LOFTY_SL("x")));
    //? ASSERT_DOES_NOT_THROW(io::text::str_istream(LOFTY_SL("xx")).scan(LOFTY_SL("x")));
    ASSERT(io::text::str_istream(LOFTY_SL("x")).scan(LOFTY_SL("x+")));
@@ -69,7 +70,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   str captured1;
+   text::str captured1;
    ASSERT(io::text::str_istream(LOFTY_SL("a")).scan(LOFTY_SL("^()$"), &captured1));
    ASSERT(captured1 == LOFTY_SL("a"));
    ASSERT(io::text::str_istream(LOFTY_SL("xb")).scan(LOFTY_SL("^x()$"), &captured1));
@@ -110,7 +111,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   str captured1, captured2;
+   text::str captured1, captured2;
    ASSERT(io::text::str_istream(LOFTY_SL("a b")).scan(LOFTY_SL("^([^ ]+) ([^ ]+)$"), &captured1, &captured2));
    ASSERT(captured1 == LOFTY_SL("a"));
    ASSERT(captured2 == LOFTY_SL("b"));
@@ -139,7 +140,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   str captured1, captured2;
+   text::str captured1, captured2;
 
    ASSERT(io::text::str_istream(LOFTY_SL("ab")).scan(LOFTY_SL("^(.)(.)$"), &captured1, &captured2));
    ASSERT(captured1 == LOFTY_SL("a"));

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,24 +12,46 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/io/text.hxx>
 #include <lofty/math.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/numeric.hxx>
+#include <lofty/_std/algorithm.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/typeinfo.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/char_ptr_to_str_adapter.hxx>
-
-#include <algorithm>
+#include <lofty/text/str.hxx>
+#include <lofty/to_text_ostream.hxx>
 #include <climits> // CHAR_BIT
 #if LOFTY_HOST_CXX_CLANG || LOFTY_HOST_CXX_GCC
    #include <cxxabi.h> // abi::__cxa_demangle()
 #endif
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty {
+_LOFTY_PUBNS_BEGIN
+
+void throw_on_unused_streaming_format_chars(
+   text::str::const_iterator const & format_consumed_end, text::str const & format
+) {
+   if (format_consumed_end != format.cend()) {
+      LOFTY_THROW(text::syntax_error, (
+         LOFTY_SL("unexpected character in format string"), format,
+         static_cast<unsigned>(format_consumed_end - format.cbegin())
+      ));
+   }
+}
+
+_LOFTY_PUBNS_END
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
 
-void to_text_ostream<bool>::set_format(str const & format) {
+void to_text_ostream<bool>::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -74,7 +96,7 @@ int_to_text_ostream_base::int_to_text_ostream_base(unsigned bytes_per_int_) :
    prefix_char_1('\0') {
 }
 
-void int_to_text_ostream_base::set_format(str const & format) {
+void int_to_text_ostream_base::set_format(text::str const & format) {
    bool prefix = false;
    auto itr(format.cbegin());
    char32_t ch;
@@ -177,11 +199,11 @@ default_notation:
    }
 
    // Now we know enough to calculate the required buffer size.
-   buf_size = 2 /*prefix or sign*/ + std::max(width, chars_per_byte * bytes_per_int);
+   buf_size = 2 /*prefix or sign*/ + _std::max(width, chars_per_byte * bytes_per_int);
 }
 
 void int_to_text_ostream_base::add_prefixes_and_write(
-   bool negative, io::text::ostream * dst, str * buf, str::iterator buf_first_used_itr
+   bool negative, io::text::ostream * dst, text::str * buf, text::str::iterator buf_first_used_itr
 ) const {
    auto buf_end(buf->cend());
    auto itr(buf_first_used_itr);
@@ -215,14 +237,14 @@ void int_to_text_ostream_base::add_prefixes_and_write(
    }
    // Write the constructed string.
    dst->write_binary(
-      itr.ptr(), sizeof(char_t) * static_cast<std::size_t>(buf_end - itr), text::encoding::host
+      itr.ptr(), sizeof(text::char_t) * static_cast<std::size_t>(buf_end - itr), text::encoding::host
    );
 }
 
 template <typename I>
 inline void int_to_text_ostream_base::write_impl(I i, io::text::ostream * dst) const {
    // Create a buffer of sufficient size for binary notation (the largest).
-   sstr<2 /*prefix or sign*/ + sizeof(I) * CHAR_BIT> buf;
+   text::sstr<2 /*prefix or sign*/ + sizeof(I) * CHAR_BIT> buf;
    /* Use clear = true since we need to iterate backwards on buf, which requires reading its otherwise
    uninitialized charactes. */
    buf.set_size_in_chars(buf_size, true);
@@ -289,7 +311,7 @@ ptr_to_text_ostream::ptr_to_text_ostream() {
    to_text_ostream<std::uintptr_t>::set_format(LOFTY_SL("#x"));
 }
 
-void ptr_to_text_ostream::set_format(str const & format) {
+void ptr_to_text_ostream::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -317,7 +339,7 @@ to_text_ostream<_std::type_info>::to_text_ostream() {
 to_text_ostream<_std::type_info>::~to_text_ostream() {
 }
 
-void to_text_ostream<_std::type_info>::set_format(str const & format) {
+void to_text_ostream<_std::type_info>::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -358,13 +380,15 @@ void to_text_ostream<_std::type_info>::write(_std::type_info const & src, io::te
 
 namespace lofty { namespace _pvt {
 
-sequence_to_text_ostream::sequence_to_text_ostream(str const & start_delim_, str const & end_delim_) :
+sequence_to_text_ostream::sequence_to_text_ostream(
+   text::str const & start_delim_, text::str const & end_delim_
+) :
    separator(LOFTY_SL(", ")),
    start_delim(start_delim_),
    end_delim(end_delim_) {
 }
 
-void sequence_to_text_ostream::set_format(str const & format) {
+void sequence_to_text_ostream::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.

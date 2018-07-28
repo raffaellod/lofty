@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,22 +13,23 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COLLECTIONS_LIST_HXX
-#define _LOFTY_COLLECTIONS_LIST_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COLLECTIONS_LIST_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_COLLECTIONS_LIST_HXX_NOPUB
+#define _LOFTY_COLLECTIONS_LIST_HXX_NOPUB
 
 #include <lofty/collections/_pvt/doubly_linked_list_impl.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/type_void_adapter.hxx>
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace collections {
+_LOFTY_PUBNS_BEGIN
 
 //! Doubly-linked list.
 template <typename T>
@@ -187,7 +188,7 @@ public:
       Source object.
    */
    list(list && src) :
-      _pvt::doubly_linked_list_impl(_std::move(src)) {
+      _pvt::doubly_linked_list_impl(_std::_pub::move(src)) {
    }
 
    //! Destructor.
@@ -203,8 +204,8 @@ public:
       *this.
    */
    list & operator=(list && src) {
-      list old(_std::move(*this));
-      _pvt::doubly_linked_list_impl::operator=(_std::move(src));
+      list old(_std::_pub::move(*this));
+      _pvt::doubly_linked_list_impl::operator=(_std::_pub::move(src));
       return *this;
    }
 
@@ -264,7 +265,7 @@ public:
 
    //! Removes all elements from the list.
    void clear() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       return _pvt::doubly_linked_list_impl::clear(type);
@@ -330,13 +331,13 @@ public:
       Former last element in the list.
    */
    T pop_back() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       node * nd = _pvt::doubly_linked_list_impl::back();
-      T ret(_std::move(*static_cast<T *>(nd->value_ptr(type))));
+      T ret(_std::_pub::move(*static_cast<T *>(nd->value_ptr(type))));
       _pvt::doubly_linked_list_impl::remove(type, nd);
-      return _std::move(ret);
+      return _std::_pub::move(ret);
    }
 
    /*! Removes the first element in the list.
@@ -345,13 +346,13 @@ public:
       Former first element in the list.
    */
    T pop_front() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       node * nd = _pvt::doubly_linked_list_impl::front();
-      T ret(_std::move(*static_cast<T *>(nd->value_ptr(type))));
+      T ret(_std::_pub::move(*static_cast<T *>(nd->value_ptr(type))));
       _pvt::doubly_linked_list_impl::remove(type, nd);
-      return _std::move(ret);
+      return _std::_pub::move(ret);
    }
 
    /*! Adds an element to the end of the list.
@@ -362,7 +363,7 @@ public:
       Iterator to the newly-added element.
    */
    iterator push_back(T t) {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       //type.set_copy_construct<T>();
       type.set_move_construct<T>();
@@ -378,7 +379,7 @@ public:
       Iterator to the newly-added element.
    */
    iterator push_front(T t) {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       //type.set_copy_construct<T>();
       type.set_move_construct<T>();
@@ -410,7 +411,7 @@ public:
       Iterator to the element to remove.
    */
    void remove_at(const_iterator const & itr) {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       _pvt::doubly_linked_list_impl::remove(type, itr.nd);
@@ -418,7 +419,7 @@ public:
 
    //! Removes the last element in the list.
    void remove_back() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       _pvt::doubly_linked_list_impl::remove(type, back());
@@ -426,7 +427,7 @@ public:
 
    //! Removes the first element in the list.
    void remove_front() {
-      type_void_adapter type;
+      lofty::_pub::type_void_adapter type;
       type.set_align<T>();
       type.set_destruct<T>();
       _pvt::doubly_linked_list_impl::remove(type, front());
@@ -451,8 +452,25 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::collections
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COLLECTIONS_LIST_HXX_NOPUB
+
+#ifdef _LOFTY_COLLECTIONS_LIST_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace collections {
+
+   using _pub::list;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COLLECTIONS_LIST_HXX

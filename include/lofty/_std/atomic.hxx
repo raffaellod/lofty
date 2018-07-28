@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015-2017 Raffaello D. Di Napoli
+Copyright 2015-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,27 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_STD_ATOMIC_HXX
-#define _LOFTY_STD_ATOMIC_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_STD_ATOMIC_HXX
 #endif
 
+#ifndef _LOFTY_STD_ATOMIC_HXX_NOPUB
+#define _LOFTY_STD_ATOMIC_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600
+
+#include <lofty/_std/type_traits.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Memory synchronization orders (C++11 § 29.3 “Order and consistency”).
 typedef enum {
@@ -43,6 +51,7 @@ typedef enum {
    memory_order_seq_cst
 }  memory_order;
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -313,6 +322,7 @@ public:
 }}} //namespace lofty::_std::_pvt
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Type with enforceable atomic access and defined memory access ordering (C++11 § 29.5.1 “Atomic types”).
 template <typename T>
@@ -328,8 +338,39 @@ public:
    }
 };
 
-}} //namespace lofty::_std
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#else //if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600
+   #include <atomic>
+
+   namespace lofty { namespace _std { namespace _pub {
+
+   using ::std::atomic;
+   using ::std::memory_order;
+
+   }}}
+#endif //if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600 … else
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_STD_ATOMIC_HXX_NOPUB
+
+#ifdef _LOFTY_STD_ATOMIC_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace _std {
+
+   using _pub::atomic;
+   using _pub::memory_order;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_STD_ATOMIC_HXX

@@ -12,36 +12,44 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/bitmanip.hxx>
 #include <lofty/coroutine.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io.hxx>
 #include <lofty/io/binary.hxx>
+#include <lofty/io/binary/buffer.hxx>
 #include <lofty/io/binary/memory.hxx>
 #include <lofty/logging.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/numeric.hxx>
 #include <lofty/os.hxx>
+#include <lofty/os/path.hxx>
+#include <lofty/_std/algorithm.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/thread.hxx>
 #include "binary/default_buffered.hxx"
 #include "binary/file-subclasses.hxx"
 #include "binary/_pvt/file_init_data.hxx"
-
-#include <algorithm> // std::min()
-
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // E* errno
    #include <fcntl.h> // F_* fcntl()
    #include <sys/stat.h> // S_* stat()
    #include <unistd.h> // *_FILENO isatty() open() pipe()
+#elif LOFTY_HOST_API_WIN32
+   #include <lofty/text/str.hxx>
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace io { namespace binary {
+_LOFTY_PUBNS_BEGIN
 
 _std::shared_ptr<ostream> stderr;
 _std::shared_ptr<istream> stdin;
 _std::shared_ptr<ostream> stdout;
+
+_LOFTY_PUBNS_END
 
 /*! Instantiates a file_stream subclass appropriate for the descriptor in *init_data, returning a shared
 pointer to it.
@@ -192,6 +200,8 @@ static _std::shared_ptr<file_stream> _attach(filedesc && fd, access_mode mode) {
    init_data.bypass_cache = false;
    return _construct(&init_data);
 }
+
+_LOFTY_PUBNS_BEGIN
 
 LOFTY_SYM _std::shared_ptr<buffered_istream> buffer_istream(_std::shared_ptr<istream> bin_istream) {
    // See if *bin_istream is also a binary::buffered_istream.
@@ -357,6 +367,7 @@ _std::shared_ptr<file_stream> open(os::path const & path, access_mode mode, bool
    return _construct(&init_data);
 }
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::io::binary
 
 namespace lofty { namespace io { namespace binary { namespace _pvt {
@@ -549,7 +560,7 @@ file_istream::file_istream(_pvt::file_init_data * init_data) :
    // This may repeat in case of EINTR.
    for (;;) {
       ::ssize_t bytes_read = ::read(
-         fd.get(), dst, std::min<std::size_t>(dst_max, numeric::max< ::ssize_t>::value)
+         fd.get(), dst, _std::min<std::size_t>(dst_max, numeric::max< ::ssize_t>::value)
       );
       if (bytes_read >= 0) {
          this_coroutine::interruption_point();
@@ -572,7 +583,7 @@ file_istream::file_istream(_pvt::file_init_data * init_data) :
    }
 #elif LOFTY_HOST_API_WIN32 //if LOFTY_HOST_API_POSIX
    ::DWORD bytes_read, bytes_to_read = static_cast< ::DWORD>(
-      std::min<std::size_t>(dst_max, numeric::max< ::DWORD>::value)
+      _std::min<std::size_t>(dst_max, numeric::max< ::DWORD>::value)
    );
    overlapped ovl;
    {
@@ -681,7 +692,7 @@ file_ostream::file_ostream(_pvt::file_init_data * init_data) :
 #if LOFTY_HOST_API_POSIX
    // This may repeat in case of EINTR or in case ::write() couldn’t write all the bytes.
    for (;;) {
-      std::size_t bytes_to_write = std::min<std::size_t>(src_size, numeric::max< ::ssize_t>::value);
+      std::size_t bytes_to_write = _std::min<std::size_t>(src_size, numeric::max< ::ssize_t>::value);
       ::ssize_t bytes_written = ::write(fd.get(), src_bytes, bytes_to_write);
       if (bytes_written >= 0) {
          src_bytes += bytes_written;
@@ -710,7 +721,7 @@ file_ostream::file_ostream(_pvt::file_init_data * init_data) :
 #elif LOFTY_HOST_API_WIN32 //if LOFTY_HOST_API_POSIX
    do {
       ::DWORD bytes_written, bytes_to_write = static_cast< ::DWORD>(
-         std::min<std::size_t>(src_size, numeric::max< ::DWORD>::value)
+         _std::min<std::size_t>(src_size, numeric::max< ::DWORD>::value)
       );
       overlapped ovl;
       {
@@ -809,7 +820,7 @@ pipe::pipe() {
    if (async) {
       // Win32 anonymous pipes don’t support asynchronous I/O, so create a named pipe instead.
       static long serial = 0;
-      sstr<64> pipe_name;
+      lofty::text::sstr<64> pipe_name;
       pipe_name.format(
          LOFTY_SL("\\\\.\\pipe\\lofty::io::binary::pipe\\{}\\{}"),
          ::GetCurrentProcessId(), ::InterlockedIncrement(&serial)

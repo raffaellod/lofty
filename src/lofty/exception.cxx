@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,17 +12,22 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
 #include <lofty/coroutine.hxx>
+#include <lofty/coroutine_local.hxx>
+#include <lofty/exception.hxx>
 #include <lofty/io/text.hxx>
+#include <lofty/io/text/str.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/math.hxx>
+#include <lofty/memory.hxx>
 #include <lofty/process.hxx>
+#include <lofty/_std/exception.hxx>
+#include <lofty/_std/utility.hxx>
 #include <lofty/text.hxx>
 #include <lofty/text/char_ptr_to_str_adapter.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/thread.hxx>
 #include "thread-impl.hxx"
-
 #include <cstdlib> // std::abort()
 #if LOFTY_HOST_API_POSIX
    #include <errno.h> // E* errno
@@ -32,7 +37,6 @@ more details.
       #include <ucontext.h>
    #endif
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +64,7 @@ argument_error & argument_error::operator=(argument_error const & src) {
    return *this;
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +73,7 @@ namespace lofty {
 coroutine_local_value<bool> assertion_error::reentering /*= false*/;
 
 /*static*/ void assertion_error::_assertion_failed(
-   source_file_address const & source_file_addr, str const & expr, str const & msg
+   source_file_address const & source_file_addr, text::str const & expr, text::str const & msg
 ) {
    if (!reentering) {
       reentering = true;
@@ -87,7 +91,7 @@ coroutine_local_value<bool> assertion_error::reentering /*= false*/;
    LOFTY_THROW(assertion_error, ());
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -115,7 +119,7 @@ domain_error & domain_error::operator=(domain_error const & src) {
    return *this;
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -136,7 +140,7 @@ execution_interruption & execution_interruption::operator=(execution_interruptio
    return *this;
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -389,7 +393,7 @@ io::text::char_ptr_ostream exception::what_ostream() {
       // Frame 0 is the location of the LOFTY_THROW() statement.
       dst->print(
          LOFTY_SL("#0 {} at {}\n"),
-         str(external_buffer, x->source_file_addr.function()), x->source_file_addr.file_address()
+         text::str(external_buffer, x->source_file_addr.function()), x->source_file_addr.file_address()
       );
    }
    // Write the scope/stack trace collected via LOFTY_TRACE_*().
@@ -425,7 +429,7 @@ generic_error & generic_error::operator=(generic_error const & src) {
    return *this;
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -447,7 +451,7 @@ network_error & network_error::operator=(network_error const & src) {
    return *this;
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -468,7 +472,7 @@ process_exit & process_exit::operator=(process_exit const & src) {
    return *this;
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -489,7 +493,7 @@ process_interruption & process_interruption::operator=(process_interruption cons
    return *this;
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -511,7 +515,7 @@ security_error & security_error::operator=(security_error const & src) {
    return *this;
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -532,4 +536,4 @@ user_forced_interruption & user_forced_interruption::operator=(user_forced_inter
    return *this;
 }
 
-} //namespace lofty
+}

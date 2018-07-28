@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2015, 2017 Raffaello D. Di Napoli
+Copyright 2010-2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,9 +12,11 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/collections/vector.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/_std/new.hxx>
 #include <lofty/text.hxx>
-
+#include <lofty/text/str_traits.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

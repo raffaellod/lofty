@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2014-2017 Raffaello D. Di Napoli
+Copyright 2014-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -12,10 +12,16 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/coroutine.hxx>
+#include <lofty/exception.hxx>
+#include <lofty/io/text.hxx>
 #include <lofty/process.hxx>
+#include <lofty/_std/tuple.hxx>
+#include <lofty/_std/utility.hxx>
+#include <lofty/text.hxx>
+#include <lofty/text/str.hxx>
 #include <lofty/thread.hxx>
-
+#include <lofty/to_text_ostream.hxx>
 #if LOFTY_HOST_API_POSIX
    #include <cstdlib> // std::getenv()
    #include <errno.h> // EINVAL errno
@@ -26,7 +32,6 @@ more details.
       #include <sys/signal.h> // siginfo_t
    #endif
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -157,7 +162,7 @@ bool process::joinable() const {
 
 namespace lofty {
 
-void to_text_ostream<process>::set_format(str const & format) {
+void to_text_ostream<process>::set_format(text::str const & format) {
    auto itr(format.cbegin());
 
    // Add parsing of the format string here.
@@ -174,27 +179,27 @@ void to_text_ostream<process>::write(process const & src, io::text::ostream * ds
    }
 }
 
-} //namespace lofty
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace lofty { namespace this_process {
+namespace lofty { namespace this_process { namespace _pub {
 
-bool env_var(str const & name, str * out) {
+bool env_var(text::str const & name, text::str * out) {
    bool ret;
    auto name_cstr(name.c_str());
 #if LOFTY_HOST_API_POSIX
-   if (char_t const * value = std::getenv(name_cstr)) {
+   if (text::char_t const * value = std::getenv(name_cstr)) {
       /* Environment strings are to be considered stored in non-modifiable memory, so we can just adopt value
       as external buffer. */
-      *out = str(external_buffer, value);
+      *out = text::str(external_buffer, value);
       ret = true;
    } else {
       out->clear();
       ret = false;
    }
 #elif LOFTY_HOST_API_WIN32 //if LOFTY_HOST_API_POSIX
-   out->set_from([&name_cstr, &ret] (char_t * chars, std::size_t chars_max) -> std::size_t {
+   out->set_from([&name_cstr, &ret] (text::char_t * chars, std::size_t chars_max) -> std::size_t {
       /* ::GetEnvironmentVariable() returns < chars_max (length without NUL) if the buffer was large enough,
       or the required size (length including NUL) otherwise. */
       ::DWORD chars_used = ::GetEnvironmentVariable(name_cstr, chars, static_cast< ::DWORD>(chars_max));
@@ -208,8 +213,8 @@ bool env_var(str const & name, str * out) {
    return ret;
 }
 
-_std::tuple<str, bool> env_var(str const & name) {
-   _std::tuple<str, bool> ret;
+_std::tuple<text::str, bool> env_var(text::str const & name) {
+   _std::tuple<text::str, bool> ret;
    _std::get<1>(ret) = env_var(name, &_std::get<0>(ret));
    return _std::move(ret);
 }
@@ -224,4 +229,4 @@ process::id_type id() {
 #endif
 }
 
-}} //namespace lofty::this_process
+}}} //namespace lofty::this_process::_pub

@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2015, 2017 Raffaello D. Di Napoli
+Copyright 2015, 2017-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -13,19 +13,25 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_STD_MUTEX_HXX
-#define _LOFTY_STD_MUTEX_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_STD_MUTEX_HXX
 #endif
 
+#ifndef _LOFTY_STD_MUTEX_HXX_NOPUB
+#define _LOFTY_STD_MUTEX_HXX_NOPUB
+
+#include <lofty/_pvt/lofty.hxx>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Non-recursive mutex with exlusive ownership semantics (C++11 § 30.4.1.2.1 “Class mutex”).
 class mutex {
@@ -75,11 +81,13 @@ private:
 #endif
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Fully-automatic mutex lock (C++11 § 30.4.2.1 “Class template lock_guard”).
 template <typename TMutex>
@@ -105,11 +113,13 @@ private:
    TMutex * mtx;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace _std {
+_LOFTY_PUBNS_BEGIN
 
 //! Mutex lock with guaranteed release (C++11 § 30.4.2.2 “Class template unique_lock”).
 template <typename TMutex>
@@ -167,8 +177,41 @@ private:
    bool owns_lock_;
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::_std
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#else //if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600
+   #include <mutex>
+
+   namespace lofty { namespace _std { namespace _pub {
+
+   using ::std::lock_guard;
+   using ::std::mutex;
+   using ::std::unique_lock;
+
+   }}}
+#endif //if LOFTY_HOST_STL_LOFTY || LOFTY_HOST_STL_MSVCRT == 1600 … else
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_STD_MUTEX_HXX_NOPUB
+
+#ifdef _LOFTY_STD_MUTEX_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace _std {
+
+   using _pub::lock_guard;
+   using _pub::mutex;
+   using _pub::unique_lock;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_STD_MUTEX_HXX

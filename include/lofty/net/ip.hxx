@@ -13,17 +13,21 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_NET_IP_HXX
-#define _LOFTY_NET_IP_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_NET_IP_HXX
 #endif
 
+#ifndef _LOFTY_NET_IP_HXX_NOPUB
+#define _LOFTY_NET_IP_HXX_NOPUB
+
+#include <lofty/enum.hxx>
+#include <lofty/memory.hxx>
+#include <lofty/noncopyable.hxx>
 #include <lofty/net.hxx>
-
+#include <lofty/text-0.hxx>
+#include <lofty/text/str.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,9 +36,10 @@ namespace lofty { namespace net {
 //! Internet Protocol-related classes and facilities.
 namespace ip {}
 
-}} //namespace lofty::net
+}}
 
 namespace lofty { namespace net { namespace ip {
+_LOFTY_PUBNS_BEGIN
 
 //! IP protocol version.
 LOFTY_ENUM(version,
@@ -44,7 +49,8 @@ LOFTY_ENUM(version,
    (v6, 6)
 );
 
-}}} //namespace lofty::net::ip
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,11 +62,12 @@ struct raw_port {
    std::uint16_t number_;
 };
 
-}}}} //namespace lofty::net::ip::_pvt
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace ip {
+_LOFTY_PUBNS_BEGIN
 
 //! IP port.
 class LOFTY_SYM port : public _pvt::raw_port {
@@ -93,7 +100,8 @@ public:
    }
 };
 
-}}} //namespace lofty::net::ip
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +109,8 @@ public:
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<net::ip::port> : public to_text_ostream<net::ip::port::number_type> {
+class LOFTY_SYM to_text_ostream<net::ip::_LOFTY_PUBNS port> :
+   public to_text_ostream<net::ip::_LOFTY_PUBNS port::number_type> {
 public:
    /*! Writes an IP port, applying the formatting options.
 
@@ -110,12 +119,12 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(net::ip::port const & src, io::text::ostream * dst) {
-      to_text_ostream<net::ip::port::number_type>::write(src.number(), dst);
+   void write(net::ip::_LOFTY_PUBNS port const & src, io::text::_LOFTY_PUBNS ostream * dst) {
+      to_text_ostream<net::ip::_pub::port::number_type>::write(src.number(), dst);
    }
 };
 
-} //namespace lofty
+}
 //! @endcond
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,14 +136,15 @@ struct raw_address {
    //! Raw bytes of an IP address.
    std::uint8_t bytes[16];
    //! IP version contained in *this.
-   version::enum_type version_;
+   _LOFTY_PUBNS version::enum_type version_;
 };
 
-}}}} //namespace lofty::net::ip::_pvt
+}}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace ip {
+_LOFTY_PUBNS_BEGIN
 
 //! IP address.
 class LOFTY_SYM address : public _pvt::raw_address {
@@ -163,8 +173,8 @@ public:
    @param version__
       IP version to use.
    */
-   explicit address(ip::version version__ = ip::version::v6) {
-      memory::clear(&bytes);
+   explicit address(ip::_LOFTY_PUBNS version version__ = ip::_LOFTY_PUBNS version::v6) {
+      memory::_pub::clear(&bytes);
       version_ = version__.base();
    }
 
@@ -183,8 +193,8 @@ public:
       Array of bytes to be used as an IPv4 address, in network order (big endian).
    */
    explicit address(v4_type const & src_raw) {
-      memory::copy(&bytes[0], &src_raw[0], sizeof(v4_type));
-      version_ = ip::version::v4;
+      memory::_pub::copy(&bytes[0], &src_raw[0], sizeof(v4_type));
+      version_ = ip::_pub::version::v4;
    }
 
    /*! Constructs the object as an IPv6 address.
@@ -193,8 +203,8 @@ public:
       Array of bytes to be used as an IPv6 address, in network order (big endian).
    */
    explicit address(v6_type const & src_raw) {
-      memory::copy(&bytes[0], &src_raw[0], sizeof(v6_type));
-      version_ = ip::version::v6;
+      memory::_pub::copy(&bytes[0], &src_raw[0], sizeof(v6_type));
+      version_ = ip::_pub::version::v6;
    }
 
    /*! Constructs the object as an IPv6 or IPv4 address, depending on the size of the argument.
@@ -202,7 +212,7 @@ public:
    @param src_raw
       Array of bytes to be used as an IPv6 address, in network order (big endian).
    */
-   explicit address(collections::vector<std::uint8_t> const & src_raw);
+   explicit address(collections::_LOFTY_PUBNS vector<std::uint8_t> const & src_raw);
 
    /*! Equality relational operator.
 
@@ -238,19 +248,21 @@ public:
    @return
       IP version.
    */
-   ip::version version() const {
+   ip::_LOFTY_PUBNS version version() const {
       return version_;
    }
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::net::ip
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net { namespace ip {
+_LOFTY_PUBNS_BEGIN
 
 //! Abstract server for transport layer protocols over IP.
-class LOFTY_SYM server : public noncopyable {
+class LOFTY_SYM server : public lofty::_LOFTY_PUBNS noncopyable {
 public:
    //! Destructor.
    ~server();
@@ -268,15 +280,16 @@ protected:
    @param protocol_
       Networking protocol.
    */
-   server(address const & address, port const & port, protocol protocol_);
+   server(address const & address, port const & port, net::_LOFTY_PUBNS protocol protocol_);
 
 protected:
    //! Server socket bound to the port.
-   socket sock;
+   net::_LOFTY_PUBNS socket sock;
    //! IP version.
-   ip::version ip_version;
+   ip::_LOFTY_PUBNS version ip_version;
 };
 
+_LOFTY_PUBNS_END
 }}} //namespace lofty::net::ip
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -285,7 +298,7 @@ protected:
 namespace lofty {
 
 template <>
-class LOFTY_SYM from_text_istream<net::ip::address> {
+class LOFTY_SYM from_text_istream<net::ip::_LOFTY_PUBNS address> {
 public:
    //! Default constructor.
    from_text_istream();
@@ -297,7 +310,9 @@ public:
    @param dst
       Pointer to the destination object.
    */
-   void convert_capture(text::parsers::dynamic_match_capture const & capture0, net::ip::address * dst);
+   void convert_capture(
+      text::parsers::_LOFTY_PUBNS dynamic_match_capture const & capture0, net::ip::_LOFTY_PUBNS address * dst
+   );
 
    /*! Creates parser states for the specified input format.
 
@@ -308,8 +323,9 @@ public:
    @return
       First parser state.
    */
-   text::parsers::dynamic_state const * format_to_parser_states(
-      text::parsers::regex_capture_format const & format, text::parsers::dynamic * parser
+   text::parsers::_LOFTY_PUBNS dynamic_state const * format_to_parser_states(
+      text::parsers::_LOFTY_PUBNS regex_capture_format const & format,
+      text::parsers::_LOFTY_PUBNS dynamic * parser
    );
 
 protected:
@@ -328,7 +344,7 @@ protected:
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<net::ip::address> {
+class LOFTY_SYM to_text_ostream<net::ip::_LOFTY_PUBNS address> {
 public:
    //! Default constructor.
    to_text_ostream();
@@ -341,7 +357,7 @@ public:
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Writes an IP address, applying the formatting options.
 
@@ -350,10 +366,10 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(net::ip::address const & src, io::text::ostream * dst);
+   void write(net::ip::_LOFTY_PUBNS address const & src, io::text::_LOFTY_PUBNS ostream * dst);
 
 protected:
-   to_text_ostream<char_t> char_ttos;
+   to_text_ostream<text::_LOFTY_PUBNS char_t> char_ttos;
    to_text_ostream<std::uint8_t> v4_group_ttos;
    to_text_ostream<std::uint16_t> v6_group_ttos;
 };
@@ -362,5 +378,24 @@ protected:
 //! @endcond
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_NET_IP_HXX_NOPUB
+
+#ifdef _LOFTY_NET_IP_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace net { namespace ip {
+
+   using _pub::address;
+   using _pub::port;
+   using _pub::server;
+   using _pub::version;
+
+   }}}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_NET_IP_HXX

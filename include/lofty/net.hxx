@@ -13,17 +13,19 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_NET_HXX
-#define _LOFTY_NET_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
-#endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_NET_HXX
 #endif
 
+#ifndef _LOFTY_NET_HXX_NOPUB
+#define _LOFTY_NET_HXX_NOPUB
+
+#include <lofty/enum.hxx>
 #include <lofty/io.hxx>
-
+#include <lofty/_std/atomic.hxx>
+#include <lofty/_std/utility.hxx>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,12 +37,12 @@ namespace net {
    //! Internet Protocol-related classes and facilities.
    namespace ip {}
 
-} //namespace net
-
-} //namespace lofty
+}
+}
 
 
 namespace lofty { namespace net {
+_LOFTY_PUBNS_BEGIN
 
 //! Networking protocols.
 LOFTY_ENUM(protocol,
@@ -54,13 +56,15 @@ LOFTY_ENUM(protocol,
    (udp_ipv6, 4)
 );
 
-}} //namespace lofty::net
+_LOFTY_PUBNS_END
+}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if LOFTY_HOST_API_WIN32
 
 namespace lofty { namespace net {
+_LOFTY_PUBNS_BEGIN
 
 //! Adds scoped WinSock reference counting with implicit initialization and termination.
 class LOFTY_SYM wsa_client {
@@ -73,23 +77,25 @@ protected:
 
 private:
    //! Reference count for the WinSock DLL.
-   static _std::atomic<unsigned> refs;
+   static _std::_LOFTY_PUBNS atomic<unsigned> refs;
 };
 
-}} //namespace lofty::net
+_LOFTY_PUBNS_END
+}}
 
 #endif //if LOFTY_HOST_API_WIN32
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty { namespace net {
+_LOFTY_PUBNS_BEGIN
 
 //! Socket for networking I/O.
 class LOFTY_SYM socket :
 #if LOFTY_HOST_API_WIN32
    private wsa_client,
 #endif //if LOFTY_HOST_API_WIN32
-   public io::filedesc {
+   public io::_LOFTY_PUBNS filedesc {
 public:
    //! Constructs an empty socket.
    socket() {
@@ -101,7 +107,7 @@ public:
       Protocol for which to create the socket.
    */
    explicit socket(protocol protocol_) :
-      io::filedesc(socket_filedesc(protocol_)) {
+      io::_pub::filedesc(socket_filedesc(protocol_)) {
    }
 
    /*! Constructor for a given protocol. This overload is necessary to prevent the compiler, under POSIX, from
@@ -112,7 +118,7 @@ public:
       Protocol for which to create the socket.
    */
    explicit socket(protocol::enum_type protocol_) :
-      io::filedesc(socket_filedesc(protocol_)) {
+      io::_pub::filedesc(socket_filedesc(protocol_)) {
    }
 
    /*! Constructor that takes ownership of a file descriptor.
@@ -120,8 +126,8 @@ public:
    @param fd_
       Source file descriptor.
    */
-   explicit socket(io::filedesc_t fd_) :
-      io::filedesc(fd_) {
+   explicit socket(io::_LOFTY_PUBNS filedesc_t fd_) :
+      io::_pub::filedesc(fd_) {
    }
 
    /*! Move constructor.
@@ -130,7 +136,7 @@ public:
       Source object.
    */
    socket(socket && src) :
-      io::filedesc(_std::move(src)) {
+      io::_pub::filedesc(_std::_pub::move(src)) {
    }
 
    ~socket() {
@@ -144,7 +150,7 @@ public:
       *this.
    */
    socket & operator=(socket && src) {
-      io::filedesc::operator=(_std::move(src));
+      io::_pub::filedesc::operator=(_std::_pub::move(src));
       return *this;
    }
 
@@ -154,11 +160,32 @@ private:
    @param protocol_
       Protocol for which to create the socket.
    */
-   static io::filedesc socket_filedesc(protocol protocol_);
+   static io::_LOFTY_PUBNS filedesc socket_filedesc(protocol protocol_);
 };
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::net
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_NET_HXX_NOPUB
+
+#ifdef _LOFTY_NET_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty { namespace net {
+
+   using _pub::protocol;
+   using _pub::socket;
+   #if LOFTY_HOST_API_WIN32
+   using _pub::wsa_client;
+   #endif
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_NET_HXX

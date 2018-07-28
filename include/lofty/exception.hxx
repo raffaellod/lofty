@@ -1,6 +1,6 @@
 ﻿/* -*- coding: utf-8; mode: c++; tab-width: 3; indent-tabs-mode: nil -*-
 
-Copyright 2010-2017 Raffaello D. Di Napoli
+Copyright 2010-2018 Raffaello D. Di Napoli
 
 This file is part of Lofty.
 
@@ -15,9 +15,20 @@ more details.
 /*! @file
 Basic exception classes and related macros. */
 
-#ifndef _LOFTY_HXX_INTERNAL
-   #error "Please #include <lofty.hxx> instead of this file"
+#ifndef _LOFTY_EXCEPTION_HXX
+
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_EXCEPTION_HXX
 #endif
+
+#ifndef _LOFTY_EXCEPTION_HXX_NOPUB
+#define _LOFTY_EXCEPTION_HXX_NOPUB
+
+#include <lofty/enum-0.hxx>
+#include <lofty/_std/exception.hxx>
+#include <lofty/text-1.hxx>
+#include <lofty/thread_local.hxx>
 
 /*! @page exception-classes Exception classes
 Lofty’s exception class hierarchy. These classes provide diverse and semantically-rich types that complement
@@ -28,10 +39,22 @@ See also LOFTY_THROW() for more information on throwing Lofty exceptions.
 
 Reference for Python’s exception class hierarchy: <http://docs.python.org/3.2/library/exceptions.html>. */
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Forward declarations.
+namespace lofty { namespace io { namespace text {
+_LOFTY_PUBNS_BEGIN
+
+class char_ptr_ostream;
+class ostream;
+
+_LOFTY_PUBNS_END
+}}}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Integer type used by the OS to represent error numbers.
 #if LOFTY_HOST_API_POSIX
@@ -42,7 +65,8 @@ namespace lofty {
    #error "TODO: HOST_API"
 #endif
 
-} //namespace lofty
+_LOFTY_PUBNS_END
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +75,7 @@ namespace lofty { namespace _pvt {
 //! Stores the source code location for a scope_trace instance.
 struct source_file_address_data {
    //! Function name.
-   char_t const * function;
+   text::_LOFTY_PUBNS char_t const * function;
    //! Address in the file.
    text::_pvt::file_address_data file_addr_data;
 };
@@ -59,6 +83,7 @@ struct source_file_address_data {
 }} //namespace lofty::_pvt
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Stores the source code location for a scope_trace instance.
 class source_file_address : protected _pvt::source_file_address_data {
@@ -79,7 +104,10 @@ public:
    @param line_number_
       Line number in *file_path.
    */
-   source_file_address(char_t const * function_, char_t const * file_path_, unsigned line_number_) {
+   source_file_address(
+      text::_LOFTY_PUBNS char_t const * function_, text::_LOFTY_PUBNS char_t const * file_path_,
+      unsigned line_number_
+   ) {
       _pvt::source_file_address_data::function = function_;
       file_addr_data.file_path_ = file_path_;
       file_addr_data.line_number_ = line_number_;
@@ -99,8 +127,8 @@ public:
    @return
       Contained file address.
    */
-   text::file_address const & file_address() const {
-      return *text::file_address::from_data(&file_addr_data);
+   text::_LOFTY_PUBNS file_address const & file_address() const {
+      return *text::_pub::file_address::from_data(&file_addr_data);
    }
 
    /*! Returns the file path.
@@ -108,7 +136,7 @@ public:
    @return
       File path.
    */
-   char_t const * file_path() const {
+   text::_LOFTY_PUBNS char_t const * file_path() const {
       return file_addr_data.file_path_;
    }
 
@@ -130,7 +158,7 @@ public:
    @return
       Function name.
    */
-   char_t const * function() const {
+   text::_LOFTY_PUBNS char_t const * function() const {
       return _pvt::source_file_address_data::function;
    }
 
@@ -144,6 +172,7 @@ public:
    }
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //! Pretty-printed name of the current function.
@@ -170,7 +199,7 @@ public:
    lofty::text::file_address instance.
 */
 #define LOFTY_THIS_FILE_ADDRESS() \
-   (::lofty::text::file_address(LOFTY_SL(__FILE__), __LINE__))
+   (::lofty::text::_pub::file_address(LOFTY_SL(__FILE__), __LINE__))
 
 /*! Expands into a lofty::source_file_address x-value referencing the location in which it’s used.
 
@@ -178,7 +207,7 @@ public:
    lofty::source_file_address instance.
 */
 #define LOFTY_THIS_SOURCE_FILE_ADDRESS() \
-   (::lofty::source_file_address(LOFTY_THIS_FUNC, LOFTY_SL(__FILE__), __LINE__))
+   (::lofty::_pub::source_file_address(LOFTY_THIS_FUNC, LOFTY_SL(__FILE__), __LINE__))
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -196,7 +225,7 @@ public:
    do { \
       x __x LOFTY_CPP_IF(LOFTY_CPP_LIST_COUNT args, args, ); \
       __x._before_throw(source_file_addr); \
-      throw ::lofty::_std::move(__x); \
+      throw ::lofty::_std::_pub::move(__x); \
    } while (false)
 
 /*! Instantiates the specified exception class, fills it up with context information and the remaining
@@ -224,9 +253,10 @@ it’s the only class involved that’s not in a _pvt namespace.
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Base for all of Lofty’s exceptions classes. See @see exception-classes.
-class LOFTY_SYM exception : public _std::exception {
+class LOFTY_SYM exception : public _std::_LOFTY_PUBNS exception {
 public:
    //! List of common exception types, used by several static methods.
    LOFTY_ENUM_AUTO_VALUES(common_type,
@@ -324,7 +354,7 @@ public:
    @return
       Exception type. May be nullptr to indicate that the caught exception is not an std::exception instance.
    */
-   static common_type execution_interruption_to_common_type(_std::exception const * x = nullptr);
+   static common_type execution_interruption_to_common_type(_std::_LOFTY_PUBNS exception const * x = nullptr);
 
    /*! See std::exception::what().
 
@@ -342,7 +372,7 @@ public:
       Caught exception.
    */
    static void write_with_scope_trace(
-      io::text::ostream * dst = nullptr, _std::exception const * std_x = nullptr
+      io::text::_LOFTY_PUBNS ostream * dst = nullptr, _std::_LOFTY_PUBNS exception const * std_x = nullptr
    );
 
 protected:
@@ -352,7 +382,7 @@ protected:
    @return
       Output stream instance.
    */
-   io::text::char_ptr_ostream what_ostream();
+   io::text::_LOFTY_PUBNS char_ptr_ostream what_ostream();
 
 private:
    //! Source location.
@@ -366,11 +396,13 @@ private:
    char what_buf[256];
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Verifies a condition at runtime, throwing a assertion_error exception if the assertion turns out to be
 incorrect.
@@ -384,7 +416,7 @@ incorrect.
    #define LOFTY_ASSERT(expr, msg) \
       do { \
          if (!(expr)) { \
-            lofty::assertion_error::_assertion_failed( \
+            ::lofty::_pub::assertion_error::_assertion_failed( \
                LOFTY_THIS_SOURCE_FILE_ADDRESS(), LOFTY_SL(#expr), msg \
             ); \
          } \
@@ -399,7 +431,8 @@ class LOFTY_SYM assertion_error : public exception {
 public:
    //! Throws an exception of type ab::assertion_error due to an expression failing validation.
    static LOFTY_FUNC_NORETURN void _assertion_failed(
-      source_file_address const & source_file_addr, str const & expr, str const & msg
+      source_file_address const & source_file_addr, text::_LOFTY_PUBNS str const & expr,
+      text::_LOFTY_PUBNS str const & msg
    );
 
 protected:
@@ -409,11 +442,13 @@ protected:
    static coroutine_local_value<bool> reentering;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Execution interruption. May affect a single thread/coroutine or the whole program.
 class LOFTY_SYM execution_interruption : public exception {
@@ -441,11 +476,13 @@ public:
    execution_interruption & operator=(execution_interruption const & src);
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Thrown in coroutines and threads that are still running when lofty::app:main() returns causing the process
 to terminate (exit), to force them to return as well. */
@@ -474,11 +511,13 @@ public:
    process_exit & operator=(process_exit const & src);
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Interruption in the execution of the whole process, typically requested by the user. Raised simultaneously
 in every coroutine and thread. */
@@ -507,11 +546,13 @@ public:
    process_interruption & operator=(process_interruption const & src);
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 /*! Execution interruption requested by the user, resulting in the termination of all coroutines and threads
 in the process. */
@@ -540,11 +581,13 @@ public:
    user_forced_interruption & operator=(user_forced_interruption const & src);
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Base for all error-related exceptions classes.
 class LOFTY_SYM generic_error : public exception {
@@ -589,11 +632,13 @@ private:
    errint_t err;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! A function/method received an argument that had an inappropriate value.
 class LOFTY_SYM argument_error : public generic_error {
@@ -625,11 +670,13 @@ public:
    argument_error & operator=(argument_error const & src);
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! Invalid value provided for a variable/argument.
 class LOFTY_SYM domain_error : public generic_error {
@@ -661,11 +708,13 @@ public:
    domain_error & operator=(domain_error const & src);
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! A network-related error occurred.
 class LOFTY_SYM network_error : public generic_error {
@@ -697,11 +746,13 @@ public:
    network_error & operator=(network_error const & src);
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace lofty {
+_LOFTY_PUBNS_BEGIN
 
 //! An operation failed to prevent a security hazard.
 class LOFTY_SYM security_error : public generic_error {
@@ -733,4 +784,37 @@ public:
    security_error & operator=(security_error const & src);
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_EXCEPTION_HXX_NOPUB
+
+#ifdef _LOFTY_EXCEPTION_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::argument_error;
+   using _pub::assertion_error;
+   using _pub::domain_error;
+   using _pub::errint_t;
+   using _pub::execution_interruption;
+   using _pub::exception;
+   using _pub::generic_error;
+   using _pub::network_error;
+   using _pub::process_exit;
+   using _pub::process_interruption;
+   using _pub::security_error;
+   using _pub::source_file_address;
+   using _pub::user_forced_interruption;
+
+   }
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
+
+#endif //ifndef _LOFTY_EXCEPTION_HXX

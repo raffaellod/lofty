@@ -13,21 +13,19 @@ more details.
 ------------------------------------------------------------------------------------------------------------*/
 
 #ifndef _LOFTY_COROUTINE_HXX
-#define _LOFTY_COROUTINE_HXX
 
-#ifndef _LOFTY_HXX
-   #error "Please #include <lofty.hxx> before this file"
+#ifndef _LOFTY_NOPUB
+   #define _LOFTY_NOPUB
+   #define _LOFTY_COROUTINE_HXX
 #endif
-#ifdef LOFTY_CXX_PRAGMA_ONCE
-   #pragma once
-#endif
+
+#ifndef _LOFTY_COROUTINE_HXX_NOPUB
+#define _LOFTY_COROUTINE_HXX_NOPUB
 
 #include <lofty/io.hxx>
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace lofty {
+#include <lofty/_std/functional.hxx>
+#include <lofty/_std/memory.hxx>
+#include <lofty/_std/utility.hxx>
 
 /*! @page coroutines Coroutines
 Asynchronous code execution via cooperative multithreading.
@@ -59,6 +57,7 @@ A coroutine, after its instantiation, may be joined using its join() method, whi
 mechanism to wait for termination of a specific coroutine, analogous to std::thread::join() and
 lofty::thread::join(). All coroutines are implicitly waited for by the thread’s call to
 lofty::this_thread::run_coroutines(). */
+
 /*! @page interruption-points Interruption points
 
 @ref coroutines and @ref threads in Lofty are safely interruptible using a built-in mechanism.
@@ -82,6 +81,11 @@ Interruption points should be avoided in destructors: if an exception is causing
 or thread, and lofty::this_coroutine::interruption_point() detects a pending interruption, a second exception
 will be thrown, resulting in a call to std::abort(). */
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace lofty {
+_LOFTY_PUBNS_BEGIN
+
 /*! Subroutine for use in non-preemptive multitasking, enabling asynchronous I/O in most lofty::io classes.
 See @ref coroutines for more information. */
 class LOFTY_SYM coroutine : public noncopyable {
@@ -102,7 +106,7 @@ public:
    @param main_fn
       Function to invoke once the coroutine is first scheduled.
    */
-   explicit coroutine(_std::function<void ()> main_fn);
+   explicit coroutine(_std::_LOFTY_PUBNS function<void ()> main_fn);
 
    /*! Move constructor.
 
@@ -110,7 +114,7 @@ public:
       Source object.
    */
    coroutine(coroutine && src) :
-      pimpl(_std::move(src.pimpl)) {
+      pimpl(_std::_pub::move(src.pimpl)) {
    }
 
    //! Destructor.
@@ -124,7 +128,7 @@ public:
       *this.
    */
    coroutine & operator=(coroutine && src) {
-      pimpl = _std::move(src.pimpl);
+      pimpl = _std::_pub::move(src.pimpl);
       return *this;
    }
 
@@ -161,9 +165,10 @@ public:
 
 private:
    //! Pointer to the implementation instance.
-   _std::shared_ptr<impl> pimpl;
+   _std::_LOFTY_PUBNS shared_ptr<impl> pimpl;
 };
 
+_LOFTY_PUBNS_END
 } //namespace lofty
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -172,14 +177,15 @@ private:
 namespace lofty {
 
 template <>
-class LOFTY_SYM to_text_ostream<coroutine> : public to_text_ostream<coroutine::id_type> {
+class LOFTY_SYM to_text_ostream<_LOFTY_PUBNS coroutine> :
+   public to_text_ostream<_LOFTY_PUBNS coroutine::id_type> {
 public:
    /*! Changes the output format.
 
    @param format
       Formatting options.
    */
-   void set_format(str const & format);
+   void set_format(text::_LOFTY_PUBNS str const & format);
 
    /*! Writes a coroutine’s identifier, applying the formatting options.
 
@@ -188,7 +194,7 @@ public:
    @param dst
       Pointer to the stream to output to.
    */
-   void write(coroutine const & src, io::text::ostream * dst);
+   void write(_LOFTY_PUBNS coroutine const & src, io::text::_LOFTY_PUBNS ostream * dst);
 };
 
 } //namespace lofty
@@ -204,6 +210,9 @@ namespace this_coroutine {}
 } //namespace lofty
 
 namespace lofty { namespace this_coroutine {
+_LOFTY_PUBNS_BEGIN
+
+using namespace lofty::_pub;
 
 /*! Returns a process-wide unique ID for the current coroutine.
 
@@ -236,14 +245,40 @@ LOFTY_SYM void sleep_for_ms(unsigned millisecs);
    operation.
 */
 LOFTY_SYM void sleep_until_fd_ready(
-   io::filedesc_t fd, bool write, unsigned timeout_millisecs
+   io::_LOFTY_PUBNS filedesc_t fd, bool write, unsigned timeout_millisecs
 #if LOFTY_HOST_API_WIN32
-   , io::overlapped * ovl
+   , io::_LOFTY_PUBNS overlapped * ovl
 #endif
 );
 
+_LOFTY_PUBNS_END
 }} //namespace lofty::this_coroutine
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //ifndef _LOFTY_COROUTINE_HXX_NOPUB
+
+#ifdef _LOFTY_COROUTINE_HXX
+   #undef _LOFTY_NOPUB
+
+   namespace lofty {
+
+   using _pub::coroutine;
+
+   }
+
+   namespace lofty { namespace this_coroutine {
+
+   using _pub::id;
+   using _pub::interruption_point;
+   using _pub::sleep_for_ms;
+   using _pub::sleep_until_fd_ready;
+
+   }}
+
+   #ifdef LOFTY_CXX_PRAGMA_ONCE
+      #pragma once
+   #endif
+#endif
 
 #endif //ifndef _LOFTY_COROUTINE_HXX

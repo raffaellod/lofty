@@ -12,10 +12,11 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Les
 more details.
 ------------------------------------------------------------------------------------------------------------*/
 
-#include <lofty.hxx>
+#include <lofty/io/text/str.hxx>
 #include <lofty/logging.hxx>
 #include <lofty/testing/test_case.hxx>
 #include <lofty/text.hxx>
+#include <lofty/text/str.hxx>
 
 #define PRINT_GET(...) (ostream.clear(), ostream.print(__VA_ARGS__), ostream.get_str())
 
@@ -29,7 +30,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   sstr<128> buf;
+   text::sstr<128> buf;
    io::text::str_ostream ostream(external_buffer, buf.str_ptr());
 
    // Syntax errors.
@@ -43,7 +44,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
    ASSERT_THROWS(text::syntax_error, ostream.print(LOFTY_SL("}}}")));
 
    // No replacements.
-   ASSERT(PRINT_GET(str::empty) == str::empty);
+   ASSERT(PRINT_GET(text::str::empty) == text::str::empty);
    ASSERT(PRINT_GET(LOFTY_SL("x")) == LOFTY_SL("x"));
    ASSERT(PRINT_GET(LOFTY_SL("x"), LOFTY_SL("a")) == LOFTY_SL("x"));
    ASSERT(PRINT_GET(LOFTY_SL("{{")) == LOFTY_SL("{"));
@@ -63,7 +64,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   sstr<128> buf;
+   text::sstr<128> buf;
    io::text::str_ostream ostream(external_buffer, buf.str_ptr());
 
    // Single string replacement, deduced argument index.
@@ -97,7 +98,7 @@ LOFTY_TESTING_TEST_CASE_FUNC(
 ) {
    LOFTY_TRACE_FUNC();
 
-   sstr<128> buf;
+   text::sstr<128> buf;
    io::text::str_ostream ostream(external_buffer, buf.str_ptr());
 
    // Single string replacement, referenced twice.
